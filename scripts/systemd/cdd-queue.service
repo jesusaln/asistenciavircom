@@ -1,0 +1,16 @@
+[Unit]
+Description=Laravel CDD Queue Worker
+After=network.target
+
+[Service]
+User=vircom
+Group=vircom
+WorkingDirectory=/home/vircom/.gemini/antigravity/scratch/cdd_app
+ExecStart=/usr/bin/php artisan queue:work --tries=3 --timeout=90
+Restart=always
+RestartSec=5
+StandardOutput=append:/home/vircom/.gemini/antigravity/scratch/cdd_app/storage/logs/app-queue.log
+StandardError=append:/home/vircom/.gemini/antigravity/scratch/cdd_app/storage/logs/app-queue.log
+
+[Install]
+WantedBy=multi-user.target

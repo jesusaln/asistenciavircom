@@ -1,0 +1,184 @@
+# Dependencies
+/node_modules
+/vendor
+
+# Storage directories
+/storage/app/*
+/storage/framework/*
+/storage/logs/*
+
+# Cache and build directories
+/bootstrap/cache/*
+/public/build
+/public/hot
+
+# Environment files
+/.env
+.env.*
+!.env.example
+!.env.testing
+
+# Log files
+*.log
+/logs/*
+
+# Temporary files
+*.tmp
+*.cache
+temp_*
+tmp_*
+temp_github
+temp_git/
+
+# Archive files
+*.zip
+*.tar.gz
+*.tar
+*.rar
+*.7z
+
+# Text files that are likely temporary
+*.txt
+!*.md
+
+# IDE and system files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.bak
+*.orig
+
+# PHP specific
+/phpunit.result.cache
+
+# Backup files
+*.backup
+*.bak
+*.old
+
+# Database and backup files
+*.sql
+*.sqlite
+*.db
+*.dump
+*.backup
+*.bak
+*.old
+
+# Compressed files
+*.gz
+*.bz2
+*.xz
+
+# Build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test and debug files
+*.test
+*.debug
+*.trace
+
+# Documentation and guide files (allow all md files)
+# Markdown files are important for documentation
+
+# Configuration backups
+*.config.backup
+*.json.backup
+*.backup.json
+
+# Script and batch files
+*.bat
+*.ps1
+*.sh
+
+# Test files
+*.test.js
+*.spec.js
+
+# Coverage files
+/coverage
+
+# Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Composer
+/composer.lock
+!/composer.json
+
+# Package managers
+/package-lock.json
+/yarn.lock
+!/package.json
+
+# Database migrations backup
+/database/migrations/*.backup
+
+# Test directories
+/tests/_output
+/tests/coverage
+
+# Documentation
+/docs/build
+
+# Android
+/android/build
+/android/.gradle
+/android/app/build
+/android/gradle
+/android/local.properties
+
+# Docker
+/docker/*.env
+/docker/*.log
+
+# Backup directories
+/backup_config/
+/backup_env/
+
+# Large files that should not be tracked
+*.zip
+*.tar.gz
+*.sqlite
+*.db
+*.dump
+*.bak
+*.old
+*.backup
+*.log
+*.txt
+*.cache
+*.tmp
+*.swp
+*.swo
+*.orig
+*.exe
+*.dll
+*.so
+*.dylib
+*.gz
+*.bz2
+*.xz
+*.test
+*.debug
+*.trace
+*.config.backup
+*.json.backup
+*.backup.json
+*.bat
+*.ps1
+*.sh
+*.test.js
+*.spec.js
+
+# Allow specific scripts
+!scripts/prepare_vps_bundle.sh
+!scripts/deploy_vps.sh
+!scripts/restore_services.sh
+rustdesk_build

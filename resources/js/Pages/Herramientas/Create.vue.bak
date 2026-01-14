@@ -1,0 +1,79 @@
+﻿<script setup>
+import { Head, Link, useForm } from '@inertiajs/vue3'
+import { ref } from 'vue'
+import AppLayout from '@/Layouts/AppLayout.vue'
+
+defineOptions({ layout: AppLayout })
+
+const form = useForm({
+  nombre: '',
+  numero_serie: '',
+  estado: 'disponible',
+  descripcion: '',
+  foto: null,
+})
+
+const fotoPreview = ref(null)
+
+const handleFile = (e) => {
+  const file = e.target.files?.[0]
+  if (file) {
+    form.foto = file
+    const reader = new FileReader()
+    reader.onload = (ev) => { fotoPreview.value = ev.target.result }
+    reader.readAsDataURL(file)
+  }
+}
+
+const submit = () => {
+  form.post(route('herramientas.store'), { forceFormData: true })
+}
+</script>
+
+<template>
+  <Head title="Nueva Herramienta" />
+
+  <div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold text-slate-900">Nueva Herramienta</h1>
+    <Link class="text-blue-600 hover:underline" :href="route('herramientas.index')">Volver</Link>
+  </div>
+
+  <form @submit.prevent="submit" class="bg-white shadow rounded p-6 space-y-4 max-w-2xl">
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Nombre</label>
+      <input v-model="form.nombre" type="text" class="mt-1 w-full border rounded px-3 py-2" required />
+      <div v-if="form.errors.nombre" class="text-red-600 text-sm">{{ form.errors.nombre }}</div>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Número de serie</label>
+      <input v-model="form.numero_serie" type="text" class="mt-1 w-full border rounded px-3 py-2" />
+      <div v-if="form.errors.numero_serie" class="text-red-600 text-sm">{{ form.errors.numero_serie }}</div>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Estado</label>
+      <select v-model="form.estado" class="mt-1 w-full border rounded px-3 py-2">
+        <option value="disponible">Disponible</option>
+        <option value="asignada">Asignada</option>
+        <option value="mantenimiento">En mantenimiento</option>
+        <option value="baja">De baja</option>
+        <option value="perdida">Perdida</option>
+      </select>
+      <div v-if="form.errors.estado" class="text-red-600 text-sm">{{ form.errors.estado }}</div>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Descripción</label>
+      <textarea v-model="form.descripcion" rows="3" class="mt-1 w-full border rounded px-3 py-2"></textarea>
+      <div v-if="form.errors.descripcion" class="text-red-600 text-sm">{{ form.errors.descripcion }}</div>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Foto de condición (capturar o subir)</label>
+      <input @change="handleFile" accept="image/*" capture="environment" type="file" class="mt-1 block" />
+      <div v-if="form.errors.foto" class="text-red-600 text-sm">{{ form.errors.foto }}</div>
+      <img v-if="fotoPreview" :src="fotoPreview" class="mt-3 w-40 h-40 object-cover rounded" />
+    </div>
+    <div class="pt-2">
+      <button :disabled="form.processing" type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50">Guardar</button>
+    </div>
+  </form>
+</template>
+

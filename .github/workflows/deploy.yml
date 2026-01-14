@@ -1,0 +1,60 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [ VentaEnLinea ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Entorno a desplegar'
+        required: true
+        default: 'both'
+        type: choice
+        options: [vircom, climas, both]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - id: vircom
+            path: /root/cdd_app_vps
+          - id: climas
+            path: /root/cdd_climas_new
+    
+    steps:
+      - name: Deploy to ${{ matrix.id }} via SSH
+        if: |
+          github.event_name == 'push' || 
+          github.event.inputs.environment == 'both' || 
+          github.event.inputs.environment == matrix.id
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 191.101.233.82
+          username: root
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd ${{ matrix.path }}
+            
+            echo "==== Actualizando código en ${{ matrix.id }} ===="
+            git fetch origin
+            git reset --hard origin/${{ github.ref_name }}
+            
+            # Reconstruir y reiniciar contenedores
+            docker compose build app queue
+            docker compose up -d
+
+            # Instalar dependencias JS y Compilar Assets (Vite) DENTRO del contenedor
+            # Esto usa el entorno ya configurado y escribe en el volumen montado
+            echo "==== Compilando Assets (Vite) dentro del contenedor ===="
+            docker compose exec -T app rm -f /var/www/cdd_app/public/hot
+            docker compose exec -T app npm install
+            docker compose exec -T app npm run build
+            
+            echo "==== Ejecutando migraciones y optimizaciones en ${{ matrix.id }} ===="
+            # Usamos 'docker compose exec' que es más estándar
+            docker compose exec -T app php artisan migrate --force
+            docker compose exec -T app php artisan optimize:clear
+            
+            echo "✅ Deploy de ${{ matrix.id }} completado!"

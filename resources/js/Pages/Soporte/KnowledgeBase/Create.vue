@@ -1,0 +1,92 @@
+<template>
+  <AppLayout>
+    <div class="py-12">
+      <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+          <div class="p-6 bg-white border-b border-gray-200">
+            <h1 class="text-2xl font-bold text-gray-900 mb-6">Crear Artículo KB</h1>
+
+            <form @submit.prevent="submit" class="space-y-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Título</label>
+                <input v-model="form.titulo" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Categoría</label>
+                <div class="flex gap-2 mt-1">
+                    <select v-model="form.categoria_id" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                       <option value="">Sin categoría</option>
+                       <option v-for="cat in listaCategorias" :key="cat.id" :value="cat.id">{{ cat.nombre }}</option>
+                    </select>
+                    <button 
+                        type="button" 
+                        @click="showCategoryModal = true"
+                        class="px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 text-gray-600 border border-gray-300 transition-colors"
+                        title="Nueva Categoría"
+                    >
+                        ➕
+                    </button>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Contenido</label>
+                <textarea v-model="form.contenido" rows="10" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required></textarea>
+                <p class="text-xs text-gray-500 mt-1">Soporta HTML básico o Texto.</p>
+              </div>
+
+              <div class="flex items-center">
+                 <input type="checkbox" v-model="form.publicado" id="publico" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                 <label for="publico" class="ml-2 block text-sm text-gray-900">Es público (visible para todos)</label>
+              </div>
+
+              <div class="flex justify-end">
+                <button type="submit" :disabled="form.processing" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">Guardar Artículo</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <Modal :show="showCategoryModal" @close="showCategoryModal = false" maxWidth="md">
+        <SimpleCategoryForm 
+            @close="showCategoryModal = false" 
+            @created="agregarCategoriaNueva"
+        />
+    </Modal>
+  </AppLayout>
+</template>
+
+<script setup>
+import AppLayout from '@/Layouts/AppLayout.vue';
+import { useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import Modal from '@/Components/Modal.vue';
+import SimpleCategoryForm from '@/Components/Soporte/SimpleCategoryForm.vue';
+
+const props = defineProps({
+    categorias: Array
+});
+
+const showCategoryModal = ref(false);
+const listaCategorias = ref([...props.categorias]);
+
+const agregarCategoriaNueva = (nuevaCategoria) => {
+    listaCategorias.value.push(nuevaCategoria);
+    form.categoria_id = nuevaCategoria.id;
+    showCategoryModal.value = false;
+};
+
+const form = useForm({
+  titulo: '',
+  contenido: '',
+  categoria_id: '',
+  publicado: true,
+});
+
+const submit = () => {
+    form.post(route('soporte.kb.store'));
+};
+</script>

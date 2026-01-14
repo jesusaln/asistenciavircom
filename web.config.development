@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <system.webServer>
+        <!-- Configuración simplificada para desarrollo -->
+
+        <!-- Handler básico para PHP -->
+        <handlers>
+            <clear />
+            <add name="PHP_via_FastCGI" path="*.php" verb="*" modules="FastCgiModule" scriptProcessor="C:\php84\php-cgi.exe" resourceType="Either" />
+        </handlers>
+
+        <!-- Regla de reescritura simple para Laravel -->
+        <rewrite>
+            <rules>
+                <rule name="Laravel" stopProcessing="true">
+                    <match url="^.*$" />
+                    <conditions logicalGrouping="MatchAll">
+                        <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+                        <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+                    </conditions>
+                    <action type="Rewrite" url="public/index.php" />
+                </rule>
+            </rules>
+        </rewrite>
+
+        <!-- Límites básicos -->
+        <limits connectionTimeout="00:10:00" />
+
+        <!-- Seguridad básica -->
+        <security>
+            <requestFiltering>
+                <requestLimits maxAllowedContentLength="104857600" />
+                <fileExtensions allowUnlisted="false">
+                    <add fileExtension=".php" allowed="true" />
+                </fileExtensions>
+            </requestFiltering>
+        </security>
+
+    </system.webServer>
+</configuration>

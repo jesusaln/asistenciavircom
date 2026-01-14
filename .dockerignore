@@ -1,0 +1,40 @@
+# --- Laravel / PHP ---
+/vendor/
+/.env
+/.env.*          # .env.local, .env.example.local, etc (NO ignores .env.example)
+/storage/*.key
+/bootstrap/cache/*.php
+
+# --- Storage (mantén sólo lo necesario) ---
+/storage/debugbar/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+!/storage/.gitignore
+!/storage/framework/.gitignore
+!/storage/framework/cache/.gitignore
+!/storage/framework/sessions/.gitignore
+!/storage/framework/views/.gitignore
+!/storage/logs/.gitignore
+
+# --- Node ---
+/node_modules/
+/npm-debug.log*
+/yarn-error.log*
+/pnpm-lock.yaml
+/.pnp.*
+/.vite/
+
+# --- IDE / SO ---
+/.idea/
+/.vscode/
+/*.code-workspace
+.DS_Store
+Thumbs.db
+
+# --- Docker (sí queremos commitear estos 2 archivos) ---
+# NO ignores docker-compose.yml ni Dockerfile; déjalos versionados
+docker-compose.yml.bak
+docker-compose.prev.yml
+stack.env         # secretos de despliegue, no versionar

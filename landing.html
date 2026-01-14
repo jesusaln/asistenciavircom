@@ -1,0 +1,139 @@
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soporte Remoto Vircom</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+        <- Optimización de UI ( scroll, enlaces, modal rápido ) Header -->
+            <div class="bg-indigo-600 p-8 text-center">
+                <h1 class="text-3xl font-bold text-white mb-2"><i class="fas fa-headset mr-2"></i> Soporte Remoto Vircom
+                </h1>
+                <p class="text-indigo-100">Plataforma de Asistencia Técnica Segura</p>
+            </div>
+
+            <div class="p-8 grid md:grid-cols-2 gap-8">
+
+                <- Optimización de UI ( scroll, enlaces, modal rápido ) Columna Izquierda: Accesos Rápidos -->
+                    <div class="space-y-6">
+                        <h2 class="text-xl font-bold text-gray-800 border-b pb-2">Accesos Rápidos</h2>
+
+                        <a href="/webclient/"
+                            class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-indigo-50 hover:shadow-md transition duration-300 border border-gray-200 group">
+                            <div
+                                class="bg-indigo-100 p-3 rounded-full text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition">
+                                <i class="fas fa-globe fa-lg"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="font-bold text-indigo-900">Cliente Web (Navegador)</h3>
+                                <p class="text-sm text-gray-500">Conéctate sin instalar nada</p>
+                            </div>
+                            <i class="fas fa-chevron-right ml-auto text-gray-300 group-hover:text-indigo-400"></i>
+                        </a>
+
+                        <a href="/_admin/"
+                            class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 hover:shadow-md transition duration-300 border border-gray-200 group">
+                            <div
+                                class="bg-gray-200 p-3 rounded-full text-gray-600 group-hover:bg-gray-800 group-hover:text-white transition">
+                                <i class="fas fa-user-shield fa-lg"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="font-bold text-gray-900">Panel de Administración</h3>
+                                <p class="text-sm text-gray-500">Solo personal autorizado</p>
+                            </div>
+                            <i class="fas fa-chevron-right ml-auto text-gray-300"></i>
+                        </a>
+
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded text-sm">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-yellow-700 font-bold">Configuración Importante</p>
+                                    <p class="text-yellow-600 mt-1">Si usas el Cliente Web y te dice "No encuentra el
+                                        servidor", asegúrate de ingresar los datos correctos abajo.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <- Optimización de UI ( scroll, enlaces, modal rápido ) Columna Derecha: Datos de Conexión -->
+                        <div class="space-y-6">
+                            <h2 class="text-xl font-bold text-gray-800 border-b pb-2">Datos de Conexión</h2>
+
+                            <div class="bg-gray-900 rounded-lg p-6 text-gray-300 font-mono text-sm relative">
+                                <p class="text-gray-500 mb-2 uppercase text-xs font-bold tracking-wider">ID Server /
+                                    Servidor ID</p>
+                                <div class="flex justify-between items-center mb-4 bg-gray-800 p-2 rounded">
+                                    <span id="id-server"
+                                        class="text-white select-all">remoto.asistenciavircom.com</span>
+                                    <button onclick="copy('id-server')" class="text-gray-500 hover:text-white"><i
+                                            class="far fa-copy"></i></button>
+                                </div>
+
+                                <p class="text-gray-500 mb-2 uppercase text-xs font-bold tracking-wider">Relay Server
+                                    (Opcional)</p>
+                                <div class="flex justify-between items-center mb-4 bg-gray-800 p-2 rounded">
+                                    <span id="relay-server"
+                                        class="text-white select-all">remoto.asistenciavircom.com</span>
+                                    <button onclick="copy('relay-server')" class="text-gray-500 hover:text-white"><i
+                                            class="far fa-copy"></i></button>
+                                </div>
+
+                                <p class="text-gray-500 mb-2 uppercase text-xs font-bold tracking-wider">Key / Clave
+                                    Pública</p>
+                                <div class="flex justify-between items-center bg-gray-800 p-2 rounded break-all">
+                                    <span id="key"
+                                        class="text-green-400 select-all">nWZn0wE7Gq6meimntlv0G8usBkxDjoR0+OTgUh76WEU=</span>
+                                    <button onclick="copy('key')"
+                                        class="text-gray-500 hover:text-white ml-2 flex-shrink-0"><i
+                                            class="far fa-copy"></i></button>
+                                </div>
+                            </div>
+
+                            <div class="text-center space-y-3">
+                                <div class="text-center space-y-3">
+                                    <a href="rustdesk-host%3D191.101.233.82%2Ckey%3DnWZn0wE7Gq6meimntlv0G8usBkxDjoR0%2BOTgUh76WEU%3D.exe"
+                                        target="_blank"
+                                        class="block w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold shadow-lg">
+                                        <i class="fab fa-windows mr-2"></i> Descargar Cliente (Solo .EXE)
+                                    </a>
+
+                                    <a href="setup_vircom.bat" target="_blank"
+                                        class="block w-full py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition font-bold shadow-lg text-sm border border-gray-600">
+                                        <i class="fas fa-terminal mr-2"></i> Instalador Script (Clásico)
+                                    </a>
+
+                                    <a href="Instalador_Vircom_Remoto.exe" target="_blank"
+                                        class="block w-full py-3 bg-indigo-800 text-white rounded-lg hover:bg-indigo-700 transition font-bold shadow-lg text-sm border border-indigo-600 relative overflow-hidden">
+                                        <i class="fas fa-magic mr-2"></i> Instalador .EXE (Nuevo)
+                                    </a>
+                                </div>
+                                por ti.</p>
+                            </div>
+                        </div>
+            </div>
+
+            <div class="bg-gray-50 px-8 py-4 border-t text-center text-gray-500 text-sm">
+                &copy; 2025 Asistencia Vircom - Todos los derechos reservados.
+            </div>
+    </div>
+
+    <script>
+        function copy(id) {
+            const el = document.getElementById(id);
+            navigator.clipboard.writeText(el.innerText).then(() => {
+                alert('Copiado al portapapeles');
+            });
+        }
+    </script>
+</body>
+
+</html>

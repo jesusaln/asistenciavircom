@@ -1,0 +1,1652 @@
+<template>
+  <Head title="Editar Cita" />
+  <div class="max-w-4xl mx-auto p-6">
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+      <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+        <h1 class="text-2xl font-bold text-white flex items-center">
+          <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+          </svg>
+          Editar Cita
+        </h1>
+      </div>
+
+      <form @submit.prevent="submit" class="p-6 space-y-6">
+        <!-- Información del Cliente y Servicio -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">
+              Información del Cliente
+            </h3>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2" for="cliente_id">
+                <div class="form-group">
+  <label class="required" for="cliente_search">Cliente</label>
+  <div class="search-container">
+    <input
+      v-model="clienteSearch"
+      @input="searchClientes"
+      @focus="showClienteDropdown = true"
+      @blur="hideClienteDropdown"
+      type="text"
+      id="cliente_search"
+      placeholder="Buscar cliente por nombre, email o teléfono..."
+      class="form-input"
+      :class="{ 'error': errors.cliente_id }"
+      autocomplete="off"
+    >
+
+    <!-- Dropdown de resultados -->
+    <div
+      v-show="showClienteDropdown && filteredClientes.length > 0"
+      class="search-dropdown"
+    >
+      <div
+        v-for="cliente in filteredClientes"
+        :key="cliente.id"
+        @mousedown="selectCliente(cliente)"
+        class="search-item"
+        :class="{ 'selected': form.cliente_id === cliente.id }"
+      >
+        <div class="client-name">{{ cliente.nombre_razon_social }}</div>
+        <div v-if="cliente.email" class="client-details">📧 {{ cliente.email }}</div>
+        <div v-if="cliente.telefono" class="client-details">📞 {{ cliente.telefono }}</div>
+      </div>
+    </div>
+
+    <!-- Mensaje cuando no hay resultados -->
+    <div
+      v-show="showClienteDropdown && clienteSearch.length > 0 && filteredClientes.length === 0"
+      class="search-dropdown"
+    >
+      <div class="search-no-results">
+        No se encontraron clientes con "{{ clienteSearch }}"
+      </div>
+    </div>
+
+    <!-- Cliente seleccionado -->
+    <div v-if="selectedCliente" class="selected-client">
+      <div class="client-info">
+        <div class="client-name">{{ selectedCliente.nombre_razon_social }}</div>
+        <div v-if="selectedCliente.email" class="client-details">📧 {{ selectedCliente.email }}</div>
+        <div v-if="selectedCliente.telefono" class="client-details">📞 {{ selectedCliente.telefono }}</div>
+      </div>
+      <button
+        type="button"
+        @click="clearCliente"
+        class="clear-client-btn"
+        title="Limpiar selección"
+      >
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <p v-if="errors.cliente_id" class="error-message">{{ errors.cliente_id }}</p>
+</div>
+              </label>
+
+              <p v-if="errors.cliente_id" class="text-red-500 text-sm mt-1">{{ errors.cliente_id }}</p>
+            </div>
+
+
+
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2" for="tecnico_id">
+                Técnico Asignado *
+              </label>
+              <select
+                v-model="form.tecnico_id"
+                id="tecnico_id"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                :class="{ 'border-red-500 focus:ring-red-500 focus:border-red-500': errors.tecnico_id }"
+                required
+              >
+                <option value="">Seleccionar técnico</option>
+                <option v-for="tecnico in tecnicos" :key="tecnico.id" :value="tecnico.id">
+                  {{ tecnico.nombre }} {{ tecnico.apellido }}
+                </option>
+              </select>
+              <p v-if="errors.tecnico_id" class="text-red-500 text-sm mt-1">{{ errors.tecnico_id }}</p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">
+              Información del Servicio
+            </h3>
+
+            <!-- Buscador de Servicios Mejorado -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Tipo de Servicio *
+              </label>
+              <BuscarServicios
+                ref="buscarServiciosRef"
+                :servicios="servicios"
+                @servicio-seleccionado="onServicioSeleccionado"
+              />
+              <p v-if="errors.tipo_servicio" class="text-red-500 text-sm mt-1">{{ errors.tipo_servicio }}</p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2" for="fecha_hora">
+                Fecha y Hora *
+              </label>
+              <input
+                v-model="form.fecha_hora"
+                type="datetime-local"
+                id="fecha_hora"
+                :min="minDateTime"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                :class="{ 'border-red-500 focus:ring-red-500 focus:border-red-500': errors.fecha_hora }"
+                required
+              >
+              <p v-if="errors.fecha_hora" class="text-red-500 text-sm mt-1">{{ errors.fecha_hora }}</p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2" for="estado">
+                Estado *
+              </label>
+              <select
+                v-model="form.estado"
+                id="estado"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                :class="{ 'border-red-500 focus:ring-red-500 focus:border-red-500': errors.estado }"
+                required
+              >
+                <option value="pendiente">⏳ Pendiente</option>
+                <option value="en_proceso">🔄 En Proceso</option>
+                <option value="completado">✅ Completado</option>
+                <option value="cancelado">❌ Cancelado</option>
+              </select>
+              <p v-if="errors.estado" class="text-red-500 text-sm mt-1">{{ errors.estado }}</p>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- Descripciones -->
+        <section>
+          <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-4">
+            Detalles del Servicio
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2" for="descripcion">
+                Descripción del Servicio
+              </label>
+              <textarea
+                v-model="form.descripcion"
+                id="descripcion"
+                rows="4"
+                placeholder="Describe el servicio a realizar..."
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-vertical"
+                :class="{ 'border-red-500 focus:ring-red-500 focus:border-red-500': errors.descripcion }"
+              ></textarea>
+              <p v-if="errors.descripcion" class="text-red-500 text-sm mt-1">{{ errors.descripcion }}</p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2" for="problema_reportado">
+                Problema Reportado
+              </label>
+              <textarea
+                v-model="form.problema_reportado"
+                id="problema_reportado"
+                rows="4"
+                placeholder="Describe el problema reportado por el cliente..."
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-vertical"
+                :class="{ 'border-red-500 focus:ring-red-500 focus:border-red-500': errors.problema_reportado }"
+              ></textarea>
+              <p v-if="errors.problema_reportado" class="text-red-500 text-sm mt-1">{{ errors.problema_reportado }}</p>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2" for="evidencias">
+              Evidencias (Opcional)
+            </label>
+            <textarea
+              v-model="form.evidencias"
+              id="evidencias"
+              rows="3"
+              placeholder="Notas adicionales, observaciones o evidencias del servicio..."
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-vertical"
+              :class="{ 'border-red-500 focus:ring-red-500 focus:border-red-500': errors.evidencias }"
+            ></textarea>
+            <p v-if="errors.evidencias" class="text-red-500 text-sm mt-1">{{ errors.evidencias }}</p>
+          </div>
+        </section>
+
+        <!-- Productos y Servicios -->
+        <section>
+          <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-4">
+            Productos y Servicios
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Buscar Servicios -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Agregar Servicio
+              </label>
+              <BuscarServicios
+                ref="buscarServiciosRef"
+                :servicios="props.servicios"
+                @servicio-seleccionado="onAgregarItem"
+              />
+            </div>
+
+            <!-- Buscar Productos -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Agregar Producto
+              </label>
+              <BuscarProducto
+                ref="buscarProductoRef"
+                :productos="props.productos"
+                @producto-seleccionado="onAgregarItem"
+              />
+            </div>
+          </div>
+
+          <!-- Tabla de Items Seleccionados -->
+          <div v-if="selectedItems.length > 0" class="overflow-x-auto border border-gray-200 rounded-lg shadow-sm mb-6">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Cantidad</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Precio</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Desc %</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
+                  <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr v-for="item in selectedItems" :key="`${item.tipo}-${item.id}`">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {{ getItemName(item) }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">
+                    {{ item.tipo }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <input
+                      type="number"
+                      min="1"
+                      v-model="quantities[`${item.tipo}-${item.id}`]"
+                      @input="updateQuantity(`${item.tipo}-${item.id}`, $event.target.value)"
+                      class="w-20 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div class="relative rounded-md shadow-sm">
+                      <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2">
+                        <span class="text-gray-500 sm:text-sm">$</span>
+                      </div>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        v-model="prices[`${item.tipo}-${item.id}`]"
+                        @input="updatePrice(`${item.tipo}-${item.id}`, $event.target.value)"
+                        class="w-24 pl-6 pr-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      >
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      v-model="discounts[`${item.tipo}-${item.id}`]"
+                      @input="updateDiscount(`${item.tipo}-${item.id}`, $event.target.value)"
+                      class="w-16 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                    ${{ calculateSubtotal(item) }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button
+                      @click="removeItem(item)"
+                      class="text-red-600 hover:text-red-900 transition-colors"
+                      title="Eliminar item"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot class="bg-gray-50">
+                <tr>
+                  <td colspan="5" class="px-6 py-3 text-right text-sm font-medium text-gray-900">Subtotal:</td>
+                  <td class="px-6 py-3 text-left text-sm font-bold text-gray-900">${{ totales.subtotalConDescuentos.toFixed(2) }}</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td colspan="5" class="px-6 py-3 text-right text-sm font-medium text-gray-900">IVA (16%):</td>
+                  <td class="px-6 py-3 text-left text-sm font-bold text-gray-900">${{ totales.iva.toFixed(2) }}</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td colspan="5" class="px-6 py-3 text-right text-sm font-medium text-gray-900">Total:</td>
+                  <td class="px-6 py-3 text-left text-sm font-bold text-blue-600">${{ totales.total.toFixed(2) }}</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <div v-else class="text-center py-8 bg-gray-50 border border-dashed border-gray-300 rounded-lg mb-6">
+            <p class="text-gray-500">No hay productos o servicios seleccionados</p>
+          </div>
+        </section>
+
+        <!-- Archivos/Fotos -->
+        <section>
+          <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-4">
+            Documentación Fotográfica
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Foto del Equipo -->
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700" for="foto_equipo">
+                Foto del Equipo
+              </label>
+              <div class="relative">
+                <div v-if="form.foto_equipo_url" class="mb-3">
+                  <img
+                    :src="form.foto_equipo_url"
+                    alt="Foto del Equipo"
+                    class="w-full h-32 object-cover rounded-lg border border-gray-300 shadow-sm"
+                  >
+                  <button
+                    type="button"
+                    @click="clearFile('foto_equipo')"
+                    class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                  >
+                    ×
+                  </button>
+                </div>
+                <input
+                  type="file"
+                  @change="handleFileChange('foto_equipo', $event)"
+                  accept="image/*"
+                  id="foto_equipo"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm"
+                  :class="{ 'border-red-500 focus:ring-red-500 focus:border-red-500': errors.foto_equipo }"
+                >
+              </div>
+              <p v-if="errors.foto_equipo" class="text-red-500 text-sm">{{ errors.foto_equipo }}</p>
+            </div>
+
+            <!-- Foto de la Hoja de Servicio -->
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700" for="foto_hoja_servicio">
+                Hoja de Servicio
+              </label>
+              <div class="relative">
+                <div v-if="form.foto_hoja_servicio_url" class="mb-3">
+                  <img
+                    :src="form.foto_hoja_servicio_url"
+                    alt="Foto de la Hoja de Servicio"
+                    class="w-full h-32 object-cover rounded-lg border border-gray-300 shadow-sm"
+                  >
+                  <button
+                    type="button"
+                    @click="clearFile('foto_hoja_servicio')"
+                    class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                  >
+                    ×
+                  </button>
+                </div>
+                <input
+                  type="file"
+                  @change="handleFileChange('foto_hoja_servicio', $event)"
+                  accept="image/*"
+                  id="foto_hoja_servicio"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm"
+                  :class="{ 'border-red-500 focus:ring-red-500 focus:border-red-500': errors.foto_hoja_servicio }"
+                >
+              </div>
+              <p v-if="errors.foto_hoja_servicio" class="text-red-500 text-sm">{{ errors.foto_hoja_servicio }}</p>
+            </div>
+
+            <!-- Foto de Identificación -->
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700" for="foto_identificacion">
+                Identificación del Cliente
+              </label>
+              <div class="relative">
+                <div v-if="form.foto_identificacion_url" class="mb-3">
+                  <img
+                    :src="form.foto_identificacion_url"
+                    alt="Foto de Identificación del Cliente"
+                    class="w-full h-32 object-cover rounded-lg border border-gray-300 shadow-sm"
+                  >
+                  <button
+                    type="button"
+                    @click="clearFile('foto_identificacion')"
+                    class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                  >
+                    ×
+                  </button>
+                </div>
+                <input
+                  type="file"
+                  @change="handleFileChange('foto_identificacion', $event)"
+                  accept="image/*"
+                  id="foto_identificacion"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm"
+                  :class="{ 'border-red-500 focus:ring-red-500 focus:border-red-500': errors.foto_identificacion }"
+                >
+              </div>
+              <p v-if="errors.foto_identificacion" class="text-red-500 text-sm">{{ errors.foto_identificacion }}</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Botones de Acción -->
+        <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+          <button
+            type="button"
+            @click="goBack"
+            class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            :disabled="isLoading"
+            class="px-8 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          >
+            <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ isLoading ? 'Actualizando...' : 'Actualizar Cita' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</template>
+<script setup>
+import { Head, router } from '@inertiajs/vue3';
+import { reactive, ref, computed, onMounted, onUnmounted } from 'vue';
+import { notyf } from '@/Utils/notyf'; // Importar desde archivo global
+import AppLayout from '@/Layouts/AppLayout.vue';
+import BuscarServicios from '@/Components/CreateComponents/BuscarServicios.vue';
+import BuscarProducto from '@/Components/CreateComponents/BuscarProducto.vue'; // Importar BuscarProducto
+
+defineOptions({ layout: AppLayout });
+
+const props = defineProps({
+  cita: {
+    type: Object,
+    required: true
+  },
+  tecnicos: {
+    type: Array,
+    default: () => []
+  },
+  clientes: {
+    type: Array,
+    default: () => []
+  },
+  servicios: {
+    type: Array,
+    default: () => []
+  },
+  productos: { // Agregar prop productos
+    type: Array,
+    default: () => []
+  },
+  errors: {
+    type: Object,
+    default: () => ({})
+  },
+});
+
+// Estados reactivos
+const isLoading = ref(false);
+const hasUnsavedChanges = ref(false);
+const originalFormData = ref({});
+
+// Computed para fecha mínima
+const minDateTime = computed(() => {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  return now.toISOString().slice(0, 16);
+});
+
+// Función helper mejorada para formatear fecha
+const formatDateTimeLocal = (dateString) => {
+  if (!dateString) return '';
+
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      console.warn('Fecha inválida:', dateString);
+      return '';
+    }
+
+    // Ajustar por zona horaria local
+    const offset = date.getTimezoneOffset();
+    const localDate = new Date(date.getTime() - (offset * 60 * 1000));
+
+    return localDate.toISOString().slice(0, 16);
+  } catch (error) {
+    console.error('Error al formatear fecha:', error);
+    return '';
+  }
+};
+
+// Formulario reactivo con validación mejorada
+const form = reactive({
+  tecnico_id: props.cita?.tecnico_id || '',
+  cliente_id: props.cita?.cliente_id || '',
+  tipo_servicio: props.cita?.tipo_servicio || '',
+  fecha_hora: formatDateTimeLocal(props.cita?.fecha_hora),
+  descripcion: props.cita?.descripcion || '',
+  problema_reportado: props.cita?.problema_reportado || '',
+  estado: props.cita?.estado || 'pendiente',
+  evidencias: props.cita?.evidencias || '',
+  foto_equipo: null,
+  foto_hoja_servicio: null,
+  foto_identificacion: null,
+  foto_equipo_url: props.cita?.foto_equipo ? `/storage/${props.cita.foto_equipo}` : null,
+  foto_hoja_servicio_url: props.cita?.foto_hoja_servicio ? `/storage/${props.cita.foto_hoja_servicio}` : null,
+  foto_identificacion_url: props.cita?.foto_identificacion ? `/storage/${props.cita.foto_identificacion}` : null,
+});
+
+// Variables reactivas para búsqueda de clientes
+const clienteSearch = ref('');
+const showClienteDropdown = ref(false);
+const filteredClientes = ref([]);
+const selectedCliente = ref(null);
+
+// Referencia al componente BuscarServicios
+const buscarServiciosRef = ref(null);
+const buscarProductoRef = ref(null); // Nuevo
+
+// Items seleccionados para venta (Lógica copiada de Create.vue)
+const selectedItems = ref([]); 
+const quantities = ref({});     
+const prices = ref({});         
+const discounts = ref({});      
+
+// Totales calculados
+const totales = computed(() => {
+    let subtotal = 0;
+    let descuentoItems = 0;
+
+    selectedItems.value.forEach(item => {
+        const key = `${item.tipo}-${item.id}`;
+        const cantidad = parseFloat(quantities.value[key]) || 0;
+        const precio = parseFloat(prices.value[key]) || 0;
+        const descuento = parseFloat(discounts.value[key]) || 0;
+
+        if (cantidad > 0 && precio >= 0) {
+            const subtotalItem = cantidad * precio;
+            descuentoItems += subtotalItem * (descuento / 100);
+            subtotal += subtotalItem;
+        }
+    });
+
+    const subtotalConDescuentos = Math.max(0, subtotal - descuentoItems);
+    // Usar descuento general de la cita si existe
+    const descuentoGeneralPorc = parseFloat(props.cita.descuento_general_porcentaje || 0); // Asumiendo que existe o se calcula
+    // Por simplicidad, usaremos el monto directo si viene del backend, o 0
+    const descuentoGeneralMonto = 0; // Implementar si se requiere editar descuento general
+    
+    const subtotalFinal = subtotalConDescuentos - descuentoGeneralMonto;
+    const iva = subtotalFinal * 0.16;
+    const total = subtotalFinal + iva;
+
+    return {
+        subtotal: parseFloat(subtotal.toFixed(2)),
+        descuentoItems: parseFloat(descuentoItems.toFixed(2)),
+        subtotalConDescuentos: parseFloat(subtotalConDescuentos.toFixed(2)),
+        descuentoGeneral: parseFloat(descuentoGeneralMonto.toFixed(2)),
+        iva: parseFloat(iva.toFixed(2)),
+        total: parseFloat(total.toFixed(2)),
+    };
+});
+
+// Métodos para items
+const onAgregarItem = (item) => {
+    if (!item || typeof item.id === 'undefined') return;
+    const tipo = item.tipo || 'producto'; 
+    const key = `${tipo}-${item.id}`;
+    const exists = selectedItems.value.some(p => p.id === item.id && p.tipo === tipo);
+    if (!exists) {
+        selectedItems.value.push({ id: item.id, tipo: tipo, nombre: item.nombre });
+        quantities.value[key] = 1;
+        const precio = typeof item.precio === 'number' ? item.precio : (tipo === 'producto' ? item.precio_venta : item.precio);
+        prices.value[key] = precio || 0;
+        discounts.value[key] = 0;
+        hasUnsavedChanges.value = true;
+    }
+};
+
+const getItemName = (item) => {
+    if (item?.nombre) return item.nombre;
+    // Intentar buscar en props si tenemos la lista completa, si no, usar el ID
+    return item.nombre || `${item.tipo === 'producto' ? 'Producto' : 'Servicio'} #${item.id}`;
+};
+
+const removeItem = (item) => {
+    const tipo = item?.tipo || 'producto';
+    const key = `${tipo}-${item.id}`;
+    const idx = selectedItems.value.findIndex(p => p.id === item.id && p.tipo === tipo);
+    if (idx >= 0) selectedItems.value.splice(idx, 1);
+    delete quantities.value[key];
+    delete prices.value[key];
+    delete discounts.value[key];
+    hasUnsavedChanges.value = true;
+};
+
+const updateQuantity = (key, quantity) => {
+    const numQuantity = parseFloat(quantity);
+    if (!isNaN(numQuantity) && numQuantity >= 0) {
+        quantities.value[key] = numQuantity;
+        hasUnsavedChanges.value = true;
+    }
+};
+
+const updatePrice = (key, price) => {
+    const numPrice = parseFloat(price);
+    if (!isNaN(numPrice) && numPrice >= 0) {
+        prices.value[key] = numPrice;
+        hasUnsavedChanges.value = true;
+    }
+};
+
+const updateDiscount = (key, discount) => {
+    const numDiscount = parseFloat(discount);
+    if (!isNaN(numDiscount) && numDiscount >= 0 && numDiscount <= 100) {
+        discounts.value[key] = numDiscount;
+        hasUnsavedChanges.value = true;
+    }
+};
+
+const calculateSubtotal = (item) => {
+    const key = `${item.tipo}-${item.id}`;
+    const cantidad = parseFloat(quantities.value[key]) || 0;
+    const precio = parseFloat(prices.value[key]) || 0;
+    const descuento = parseFloat(discounts.value[key]) || 0;
+
+    if (cantidad > 0 && precio >= 0) {
+        const subtotalItem = cantidad * precio;
+        const descuentoMonto = subtotalItem * (descuento / 100);
+        return (subtotalItem - descuentoMonto).toFixed(2);
+    }
+    return '0.00';
+};
+
+// Funciones para búsqueda de clientes
+const searchClientes = () => {
+  if (clienteSearch.value.length < 2) {
+    filteredClientes.value = [];
+    return;
+  }
+
+  const searchTerm = clienteSearch.value.toLowerCase();
+  filteredClientes.value = props.clientes.filter(cliente =>
+    cliente.nombre_razon_social.toLowerCase().includes(searchTerm) ||
+    (cliente.email && cliente.email.toLowerCase().includes(searchTerm)) ||
+    (cliente.telefono && cliente.telefono.includes(searchTerm))
+  ).slice(0, 8);
+};
+
+const selectCliente = (cliente) => {
+  form.cliente_id = cliente.id;
+  selectedCliente.value = cliente;
+  clienteSearch.value = cliente.nombre_razon_social;
+  showClienteDropdown.value = false;
+  hasUnsavedChanges.value = true;
+};
+
+const clearCliente = () => {
+  form.cliente_id = '';
+  selectedCliente.value = null;
+  clienteSearch.value = '';
+  hasUnsavedChanges.value = true;
+};
+
+const hideClienteDropdown = () => {
+  setTimeout(() => {
+    showClienteDropdown.value = false;
+  }, 200);
+};
+
+// Función para manejo del componente BuscarServicios
+const onServicioSeleccionado = (servicio) => {
+  if (servicio) {
+    // Auto-llenar campos relacionados con el servicio seleccionado
+    form.tipo_servicio = servicio.nombre;
+    form.descripcion = servicio.descripcion || '';
+
+    // Si el servicio tiene precio, establecerlo como costo estimado
+    if (servicio.precio) {
+      form.costo_estimado = servicio.precio;
+    }
+
+    showNotification(`Servicio seleccionado: ${servicio.nombre}`, 'success');
+  }
+};
+
+// Configuraciones de validación
+const FILE_CONFIG = {
+  maxSize: 5 * 1024 * 1024, // 5MB
+  allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'],
+  quality: 0.8
+};
+
+const REQUIRED_FIELDS = [
+  { key: 'cliente_id', label: 'Cliente' },
+  { key: 'tecnico_id', label: 'Técnico' },
+  { key: 'tipo_servicio', label: 'Tipo de Servicio' },
+  { key: 'fecha_hora', label: 'Fecha y Hora' },
+  { key: 'estado', label: 'Estado' }
+];
+
+// Utilidades para archivos
+const validateFile = (file) => {
+  const errors = [];
+
+  if (file.size > FILE_CONFIG.maxSize) {
+    errors.push(`El archivo es demasiado grande. Tamaño máximo: ${FILE_CONFIG.maxSize / (1024 * 1024)}MB`);
+  }
+
+  if (!FILE_CONFIG.allowedTypes.includes(file.type)) {
+    errors.push('Tipo de archivo no permitido. Solo se aceptan imágenes (JPEG, PNG, GIF, WebP)');
+  }
+
+  return errors;
+};
+
+const compressImage = (file, quality = FILE_CONFIG.quality) => {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+
+    img.onload = () => {
+      // Calcular dimensiones manteniendo aspect ratio
+      const maxWidth = 1200;
+      const maxHeight = 1200;
+      let { width, height } = img;
+
+      if (width > height) {
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+      } else {
+        if (height > maxHeight) {
+          width = (width * maxHeight) / height;
+          height = maxHeight;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(resolve, file.type, quality);
+    };
+
+    img.src = URL.createObjectURL(file);
+  });
+};
+
+// Manejo de archivos mejorado
+const handleFileChange = async (fieldName, event) => {
+  const file = event.target.files[0];
+
+  if (!file) {
+    clearFile(fieldName);
+    return;
+  }
+
+  // Validar archivo
+  const validationErrors = validateFile(file);
+  if (validationErrors.length > 0) {
+    notyf.error(validationErrors[0]);
+    event.target.value = '';
+    return;
+  }
+
+  try {
+    // Mostrar indicador de procesamiento
+    notyf.success('Procesando imagen...');
+
+    // Comprimir imagen si es necesario
+    let processedFile = file;
+    if (file.size > 1024 * 1024) { // Si es mayor a 1MB
+      processedFile = await compressImage(file);
+      console.log(`Imagen comprimida: ${file.size} -> ${processedFile.size} bytes`);
+    }
+
+    // Limpiar URL anterior si existe
+    if (form[`${fieldName}_url`] && form[`${fieldName}_url`].startsWith('blob:')) {
+      URL.revokeObjectURL(form[`${fieldName}_url`]);
+    }
+
+    form[fieldName] = processedFile;
+    form[`${fieldName}_url`] = URL.createObjectURL(processedFile);
+    hasUnsavedChanges.value = true;
+
+    notyf.success('Imagen cargada correctamente');
+  } catch (error) {
+    console.error('Error al procesar imagen:', error);
+    notyf.error('Error al procesar la imagen');
+    event.target.value = '';
+  }
+};
+
+// Función para limpiar archivos
+const clearFile = (fieldName) => {
+  // Limpiar URL de blob para evitar memory leaks
+  if (form[`${fieldName}_url`] && form[`${fieldName}_url`].startsWith('blob:')) {
+    URL.revokeObjectURL(form[`${fieldName}_url`]);
+  }
+
+  form[fieldName] = null;
+  form[`${fieldName}_url`] = props.cita?.[fieldName] ? `/storage/${props.cita[fieldName]}` : null;
+
+  // Limpiar el input file
+  const input = document.getElementById(fieldName);
+  if (input) input.value = '';
+
+  hasUnsavedChanges.value = true;
+};
+
+// Validación del formulario
+const validateForm = () => {
+  const errors = [];
+
+  // Validar campos requeridos
+  REQUIRED_FIELDS.forEach(field => {
+    const value = form[field.key];
+    if (!value || String(value).trim() === '') {
+      errors.push(`${field.label} es obligatorio`);
+    }
+  });
+
+  // Validaciones específicas
+  if (form.fecha_hora) {
+    const selectedDate = new Date(form.fecha_hora);
+    const now = new Date();
+
+    // Solo advertir para citas pendientes con fechas pasadas
+    if (selectedDate < now && form.estado === 'pendiente') {
+      notyf.open({ type: 'warning', message: '⚠️ La fecha seleccionada es anterior a la fecha actual' });
+    }
+  }
+
+  if (errors.length > 0) {
+    notyf.error(`❌ ${errors[0]}`);
+    return false;
+  }
+
+  return true;
+};
+
+// Función para detectar cambios
+const detectChanges = () => {
+  const currentData = { ...form };
+  delete currentData.foto_equipo;
+  delete currentData.foto_hoja_servicio;
+  delete currentData.foto_identificacion;
+
+  const hasChanges = JSON.stringify(currentData) !== JSON.stringify(originalFormData.value);
+  const hasNewFiles = form.foto_equipo || form.foto_hoja_servicio || form.foto_identificacion;
+
+  hasUnsavedChanges.value = hasChanges || hasNewFiles;
+};
+
+// Función de navegación con confirmación
+const goBack = () => {
+  if (hasUnsavedChanges.value) {
+    if (confirm('Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?')) {
+      navigateBack();
+    }
+  } else {
+    navigateBack();
+  }
+};
+
+const navigateBack = () => {
+  // Limpiar URLs de blob antes de navegar
+  cleanupBlobUrls();
+
+  if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    router.get(route('citas.index'));
+  }
+};
+
+// Limpiar URLs de blob
+const cleanupBlobUrls = () => {
+  ['foto_equipo_url', 'foto_hoja_servicio_url', 'foto_identificacion_url'].forEach(field => {
+    if (form[field] && form[field].startsWith('blob:')) {
+      URL.revokeObjectURL(form[field]);
+    }
+  });
+};
+
+// Función de envío mejorada con mejor manejo de errores
+const submit = async () => {
+  if (!validateForm()) return;
+
+  isLoading.value = true;
+
+  try {
+    const formData = new FormData();
+
+    // Agregar campos de texto
+    Object.entries(form).forEach(([key, value]) => {
+      if (key === 'tipo_equipo' || key === 'marca_equipo' || key === 'modelo_equipo') {
+        // No enviar estos campos
+        return;
+      }
+      if (!key.endsWith('_url') && value !== null && value !== undefined) {
+        if (value instanceof File) {
+          formData.append(key, value);
+        } else if (typeof value === 'string' || typeof value === 'number') {
+          formData.append(key, String(value).trim());
+        }
+      }
+    });
+
+    formData.append('_method', 'PUT');
+
+    // Log para debugging (solo en desarrollo)
+    if (import.meta.env.DEV) {
+      console.log('Enviando datos:', Object.fromEntries(formData));
+    }
+
+    // Adjuntar items como JSON
+    const items = selectedItems.value.map(item => ({
+        id: item.id,
+        tipo: item.tipo,
+        cantidad: quantities.value[`${item.tipo}-${item.id}`] || 1,
+        precio: prices.value[`${item.tipo}-${item.id}`] || 0,
+        descuento: discounts.value[`${item.tipo}-${item.id}`] || 0,
+        notas: item.notas || null,
+    }));
+    formData.append('items', JSON.stringify(items));
+
+    // Actualizar totales en el formulario (opcional, si el backend los usa)
+    formData.append('subtotal', totales.value.subtotal);
+    formData.append('descuento_items', totales.value.descuentoItems);
+    formData.append('iva', totales.value.iva);
+    formData.append('total', totales.value.total);
+
+    await router.post(route('citas.update', props.cita.id), formData, {
+      forceFormData: true,
+      preserveScroll: true,
+      preserveState: false,
+      onStart: () => {
+        try {
+          notyf.success('📤 Enviando datos...');
+        } catch (error) {
+          console.error('Error en', error);
+        }
+      },
+      onSuccess: (page) => {
+        hasUnsavedChanges.value = false;
+        notyf.success('✅ La cita ha sido actualizada exitosamente');
+        cleanupBlobUrls();
+
+        // Opcional: redirigir después de un delay
+        setTimeout(() => {
+          router.get(route('citas.index', props.cita.id));
+        }, 1500);
+      },
+      onError: (errors) => {
+        console.error('Errores de validación:', errors);
+
+        // Mostrar el primer error encontrado
+        const firstError = Object.values(errors)[0];
+        if (Array.isArray(firstError)) {
+          notyf.error(`❌ ${firstError[0]}`);
+        } else {
+          notyf.error(`❌ ${firstError}`);
+        }
+
+        // Scroll al primer campo con error
+        const firstErrorField = Object.keys(errors)[0];
+        const element = document.getElementById(firstErrorField);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          element.focus();
+        }
+      },
+      onFinish: () => {
+        isLoading.value = false;
+      },
+    });
+  } catch (error) {
+    console.error('Error inesperado:', error);
+    notyf.error('💥 Ocurrió un error inesperado. Por favor, intenta nuevamente.');
+    isLoading.value = false;
+  }
+};
+
+// Event listeners para detectar cambios
+const setupChangeDetection = () => {
+  // Guardar estado inicial
+  originalFormData.value = { ...form };
+  delete originalFormData.value.foto_equipo;
+  delete originalFormData.value.foto_hoja_servicio;
+  delete originalFormData.value.foto_identificacion;
+
+  // Detectar cambios en tiempo real
+  const watchFields = Object.keys(form).filter(key => !key.endsWith('_url') && !key.includes('foto'));
+
+  watchFields.forEach(field => {
+    const originalValue = form[field];
+    Object.defineProperty(form, field, {
+      get() {
+        return this[`_${field}`] || originalValue;
+      },
+      set(newValue) {
+        this[`_${field}`] = newValue;
+        detectChanges();
+      }
+    });
+  });
+};
+
+// Prevenir salida accidental
+const handleBeforeUnload = (event) => {
+  if (hasUnsavedChanges.value) {
+    event.preventDefault();
+    event.returnValue = '';
+    return '';
+  }
+};
+
+// Lifecycle hooks
+onMounted(() => {
+  setupChangeDetection();
+  window.addEventListener('beforeunload', handleBeforeUnload);
+
+  // Inicializar cliente seleccionado SI YA EXISTE UNO ASIGNADO
+  if (props.cita?.cliente_id) {
+    const cliente = props.clientes.find(c => c.id === props.cita.cliente_id);
+    if (cliente) {
+      selectedCliente.value = cliente;
+      clienteSearch.value = cliente.nombre_razon_social;
+      form.cliente_id = cliente.id;
+    }
+  }
+
+  // Inicializar servicio seleccionado SI YA EXISTE UNO ASIGNADO
+  if (props.cita?.tipo_servicio) {
+    // Buscar el servicio que coincida con el tipo_servicio actual
+    const servicio = props.servicios.find(s => s.nombre === props.cita.tipo_servicio);
+    if (servicio) {
+      // El componente BuscarServicios se actualizará automáticamente con el servicio seleccionado
+      // cuando se monte, pero podemos establecer el valor inicial aquí
+      form.tipo_servicio = servicio.nombre;
+      form.descripcion = servicio.descripcion || props.cita.descripcion;
+    }
+  }
+
+  // Notificación inicial si hay errores de servidor
+  if (Object.keys(props.errors).length > 0) {
+    notyf.error('Por favor, revisa los errores en el formulario');
+  }
+
+  // Cargar items existentes
+  if (props.cita?.items && Array.isArray(props.cita.items)) {
+    props.cita.items.forEach(item => {
+      const tipo = item.citable_type.includes('Producto') ? 'producto' : 'servicio';
+      const id = item.citable_id;
+      const key = `${tipo}-${id}`;
+      
+      // Agregar a selectedItems
+      selectedItems.value.push({
+        id: id,
+        tipo: tipo,
+        nombre: item.citable?.nombre || (tipo === 'producto' ? `Producto #${id}` : `Servicio #${id}`),
+        // Guardar otros datos si es necesario para visualización
+      });
+
+      // Establecer valores
+      quantities.value[key] = item.cantidad;
+      prices.value[key] = parseFloat(item.precio);
+      discounts.value[key] = parseFloat(item.descuento);
+    });
+  }
+});
+
+onUnmounted(() => {
+  cleanupBlobUrls();
+  window.removeEventListener('beforeunload', handleBeforeUnload);
+});
+
+// Funciones helper adicionales
+const resetForm = () => {
+  if (confirm('¿Estás seguro de que quieres resetear el formulario?')) {
+    Object.assign(form, {
+      ...originalFormData.value,
+      foto_equipo: null,
+      foto_hoja_servicio: null,
+      foto_identificacion: null,
+    });
+
+    // Restaurar URLs originales
+    form.foto_equipo_url = props.cita?.foto_equipo ? `/storage/${props.cita.foto_equipo}` : null;
+    form.foto_hoja_servicio_url = props.cita?.foto_hoja_servicio ? `/storage/${props.cita.foto_hoja_servicio}` : null;
+    form.foto_identificacion_url = props.cita?.foto_identificacion ? `/storage/${props.cita.foto_identificacion}` : null;
+
+    // Limpiar componentes de búsqueda
+    if (buscarServiciosRef.value) {
+      // El componente BuscarServicios no tiene método limpiarBusqueda, pero podemos resetear la búsqueda
+      // buscarServiciosRef.value.busqueda = '';
+    }
+
+    hasUnsavedChanges.value = false;
+    notyf.success('Formulario restablecido');
+  }
+};
+
+const duplicateAppointment = () => {
+  const duplicateData = { ...form };
+  delete duplicateData.foto_equipo;
+  delete duplicateData.foto_hoja_servicio;
+  delete duplicateData.foto_identificacion;
+
+  // Cambiar fecha a mañana y estado a pendiente
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  duplicateData.fecha_hora = formatDateTimeLocal(tomorrow.toISOString());
+  duplicateData.estado = 'pendiente';
+
+  router.get(route('citas.create'), { duplicate: duplicateData });
+};
+
+// Exponer funciones para uso en template
+defineExpose({
+  submit,
+  goBack,
+  resetForm,
+  duplicateAppointment,
+  handleFileChange,
+  clearFile,
+  validateForm
+});
+</script>
+
+<style scoped>
+/* Reset y base */
+* {
+  box-sizing: border-box;
+}
+
+/* Contenedor principal */
+.form-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+/* Card principal */
+.form-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+/* Header */
+.form-header {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  padding: 24px;
+  color: white;
+}
+
+.form-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+
+.form-header svg {
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
+}
+
+/* Formulario */
+.form-content {
+  padding: 32px;
+}
+
+/* Secciones */
+.form-section {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.form-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 20px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+/* Grid layout */
+.form-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.form-grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.form-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Grupos de campos */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.required::after {
+  content: " *";
+  color: #ef4444;
+}
+
+/* Inputs */
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  background-color: #ffffff;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  transform: translateY(-1px);
+}
+
+.form-input:hover {
+  border-color: #9ca3af;
+}
+
+.form-input.error {
+  border-color: #ef4444;
+}
+
+.form-input.error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Select */
+.form-select {
+  width: 100%;
+  padding: 12px 40px 12px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23666' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-select.error {
+  border-color: #ef4444;
+}
+
+/* Textarea */
+.form-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-textarea.error {
+  border-color: #ef4444;
+}
+
+/* Búsqueda de cliente */
+.search-container {
+  position: relative;
+}
+
+.search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #d1d5db;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.search-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.2s ease;
+}
+
+.search-item:hover {
+  background-color: #f8fafc;
+}
+
+.search-item:last-child {
+  border-bottom: none;
+}
+
+.search-item.selected {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+}
+
+.search-no-results {
+  padding: 16px;
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Cliente seleccionado */
+.selected-client {
+  margin-top: 12px;
+  padding: 16px;
+  background-color: #eff6ff;
+  border: 2px solid #bfdbfe;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.client-info {
+  flex: 1;
+}
+
+.client-name {
+  font-weight: 600;
+  color: #1e40af;
+  margin-bottom: 4px;
+}
+
+.client-details {
+  font-size: 13px;
+  color: #1d4ed8;
+  margin: 2px 0;
+}
+
+.clear-client-btn {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.2s ease;
+}
+
+.clear-client-btn:hover {
+  color: #1d4ed8;
+}
+
+/* Botones */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+  min-height: 44px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  border-color: #3b82f6;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: white;
+  color: #6b7280;
+  border-color: #d1d5db;
+}
+
+.btn-secondary:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+/* Archivos */
+.file-upload-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.file-upload-group {
+  text-align: center;
+}
+
+.file-preview {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.file-preview img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #e5e7eb;
+}
+
+.file-remove-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  transition: background-color 0.2s ease;
+}
+
+.file-remove-btn:hover {
+  background: #dc2626;
+}
+
+.file-input {
+  width: 100%;
+  padding: 8px;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.file-input:hover {
+  border-color: #3b82f6;
+}
+
+/* Mensajes de error */
+.error-message {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Acciones del formulario */
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 24px;
+  border-top: 2px solid #e5e7eb;
+  margin-top: 32px;
+  gap: 16px;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ffffff;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-container {
+    padding: 16px;
+  }
+
+  .form-content {
+    padding: 24px 16px;
+  }
+
+  .form-grid-2,
+  .form-grid-3 {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .file-upload-container {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 12px;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-header {
+    padding: 16px;
+  }
+
+  .form-header h1 {
+    font-size: 20px;
+  }
+
+  .form-content {
+    padding: 16px;
+  }
+}
+</style>
