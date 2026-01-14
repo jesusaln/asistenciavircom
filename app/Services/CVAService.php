@@ -487,11 +487,11 @@ class CVAService
         // Detectar URL de imagen en múltiples campos posibles
         $imagenUrl = null;
         if (!empty($item['imagen'])) {
-            $imagenUrl = $item['imagen'];
+            $imagenUrl = trim($item['imagen']);
         } elseif (!empty($item['imagen_fabricante'])) {
-            $imagenUrl = $item['imagen_fabricante'];
+            $imagenUrl = trim($item['imagen_fabricante']);
         } elseif (!empty($item['url_imagen_local'])) {
-            $imagenUrl = $item['url_imagen_local'];
+            $imagenUrl = trim($item['url_imagen_local']);
         }
 
         return [

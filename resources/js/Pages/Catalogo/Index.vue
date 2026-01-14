@@ -191,11 +191,14 @@ const getImageUrl = (producto) => {
     if (producto.imagen || producto.imagen_url) {
         const img = producto.imagen || producto.imagen_url
         
-        if (img.startsWith('http')) {
+        // Check robusto: trim y buscar http al inicio
+        const urlStr = String(img).trim()
+        
+        if (urlStr.startsWith('http') || urlStr.startsWith('https')) {
             // Usar Proxy local para evitar Mixed Content y aprovechar caché
-            return route('img.proxy', { url: img })
+            return route('img.proxy', { url: urlStr })
         }
-        return `/storage/${img}`
+        return `/storage/${urlStr}`
     }
     return null
 }

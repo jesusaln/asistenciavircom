@@ -123,17 +123,19 @@ const formatCurrency = (value) => {
 const getImageUrl = (input) => {
     // Si es un objeto producto
     if (input?.imagen) {
-        if (input.imagen.startsWith('http')) {
-             return route('img.proxy', { url: input.imagen })
+        const urlStr = String(input.imagen).trim()
+        if (urlStr.startsWith('http')) {
+             return route('img.proxy', { url: urlStr })
         }
-        return `/storage/${input.imagen}`
+        return `/storage/${urlStr}`
     }
     // Si es una cadena (URL directa de la galería)
     if (typeof input === 'string') {
-        if (input.startsWith('http')) {
-             return route('img.proxy', { url: input })
+        const urlStr = input.trim()
+        if (urlStr.startsWith('http')) {
+             return route('img.proxy', { url: urlStr })
         }
-        return `/storage/${input}`
+        return `/storage/${urlStr}`
     }
     return null
 }
