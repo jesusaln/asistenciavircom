@@ -5,12 +5,33 @@ namespace App\Models;
 use App\Models\Concerns\BelongsToEmpresa;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Notifications\Notifiable;
 
 class PedidoOnline extends Model
 {
-    use BelongsToEmpresa;
+    use BelongsToEmpresa, Notifiable;
 
     protected $table = 'pedidos_online';
+
+    // Disparadores automáticos para registrar creación
+    protected static function boot()
+    {
+        parent::boot();
+        static::created(function ($pedido) {
+            // Intentar registrar el evento solo si ya tiene ID (aunque after create siempre tiene)
+            // Usamos una conexión directa o try-catch por si acaso
+            try {
+                \App\Models\PedidoBitacora::create([
+                    'pedido_online_id' => $pedido->id,
+                    'accion' => 'CREACION',
+                    'descripcion' => 'Pedido creado por el cliente',
+                    'metadata' => ['ip' => request()->ip(), 'user_agent' => request()->userAgent()],
+                    'created_at' => now()
+                ]);
+            } catch (\Exception $e) {
+            }
+        });
+    }
 
     protected $fillable = [
         'empresa_id',
@@ -29,7 +50,11 @@ class PedidoOnline extends Model
         'estado',
         'payment_id',
         'payment_status',
+        'payment_status',
         'payment_details',
+        'cva_pedido_id',
+        'guia_envio',
+        'paqueteria',
         'notas',
         'pagado_at',
         'enviado_at',
@@ -60,6 +85,27 @@ class PedidoOnline extends Model
     public function cliente(): BelongsTo
     {
         return $this->belongsTo(ClienteTienda::class, 'cliente_tienda_id');
+    }
+
+    /**
+     * Historial de eventos del pedido
+     */
+    public function bitacora(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PedidoBitacora::class)->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Registrar un evento en la bitácora
+     */
+    public function registrarEvento(string $accion, string $descripcion, array $metadata = [], ?int $usuarioId = null): void
+    {
+        $this->bitacora()->create([
+            'accion' => $accion,
+            'descripcion' => $descripcion,
+            'usuario_id' => $usuarioId ?? auth()->id(), // Si hay usuario autenticado lo toma
+            'metadata' => $metadata
+        ]);
     }
 
     /**
@@ -101,6 +147,8 @@ class PedidoOnline extends Model
             'pagado_at' => now(),
         ]);
 
+        $this->registrarEvento('PAGO_CONFIRMADO', "Pago confirmado mediante {$this->metodo_pago}. Ref: {$paymentId}");
+
         // AUTOMATIZACIÓN DE BANCOS:
         // Registrar movimiento en el banco automáticamente dependiendo del método
         try {
@@ -128,6 +176,72 @@ class PedidoOnline extends Model
             }
         } catch (\Exception $e) {
             \Log::error("Error registrando movimiento bancario automático para pedido {$this->numero_pedido}: " . $e->getMessage());
+        }
+
+        // INTEGRACIÓN CON CVA:
+        // Si el pedido tiene productos de CVA, enviarlo a CVA cuando se confirme el pago
+        // (Solo si no fue enviado previamente, por ejemplo en manual ya se envía)
+        if (str_contains($this->notas ?? '', '[PEDIDO CVA:') || str_contains($this->notas ?? '', '[DETALLE CVA:')) {
+            return; // Ya fue enviado
+        }
+
+        try {
+            $itemsCVA = [];
+            foreach ($this->items as $item) {
+                if (isset($item['origen']) && $item['origen'] === 'CVA') {
+                    $itemsCVA[] = [
+                        'id' => $item['id'] ?? $item['producto_id'],
+                        'cantidad' => $item['cantidad'],
+                    ];
+                }
+            }
+
+            if (!empty($itemsCVA)) {
+                $serviceCva = app(\App\Services\CVAService::class);
+                $orderData = [
+                    'productos' => $itemsCVA,
+                ];
+
+                if ($this->tipo_entrega === 'domicilio') {
+                    $orderData['tipo_flete'] = 'CP'; // Con paquetería
+                    $orderData['flete'] = [
+                        'calle' => $this->direccion['calle'] ?? '',
+                        'numero' => 'SN',
+                        'colonia' => $this->direccion['colonia'] ?? '',
+                        'cp' => $this->direccion['cp'] ?? '',
+                        'estado' => $this->direccion['estado'] ?? '',
+                        'ciudad' => $this->direccion['ciudad'] ?? '',
+                    ];
+                } else {
+                    $orderData['tipo_flete'] = 'SF'; // Sin flete (Recoge)
+                }
+
+                $cvaResult = $serviceCva->createOrder($orderData);
+
+                if ($cvaResult['success']) {
+                    $this->update([
+                        'cva_pedido_id' => $cvaResult['data']['pedido'] ?? null,
+                        'notas' => ($this->notas ? $this->notas . " " : "") . "[DETALLE CVA: " . ($cvaResult['data']['pedido'] ?? 'ORDEN CREADA') . "]"
+                    ]);
+
+                    $this->registrarEvento(
+                        'ENVIO_CVA',
+                        "Pedido enviado a CVA exitosamente. ID: " . ($cvaResult['data']['pedido'] ?? 'N/A'),
+                        $cvaResult['data'] ?? []
+                    );
+
+                    \Log::info("Pedido {$this->numero_pedido} enviado a CVA tras pago confirmado");
+                } else {
+                    $this->registrarEvento(
+                        'ERROR_CVA',
+                        "Error al enviar pedido a CVA: " . ($cvaResult['error'] ?? 'Desconocido'),
+                        $cvaResult
+                    );
+                    \Log::error("Error al enviar pedido {$this->numero_pedido} a CVA tras pago", ['error' => $cvaResult['error']]);
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::error("Excepción al enviar pedido {$this->numero_pedido} a CVA tras pago: " . $e->getMessage());
         }
     }
 

@@ -96,6 +96,9 @@
               <NavLink v-if="$can('view pedidos')" href="/pedidos" icon="truck" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Pedidos' : null">
                 Pedidos
               </NavLink>
+              <NavLink v-if="$can('view ventas')" href="/pedidos-online" icon="globe" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Pedidos Web' : null">
+                Pedidos Web
+              </NavLink>
               <NavLink v-if="$can('view ventas')" href="/ventas" icon="dollar-sign" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Ventas Realizadas' : null">
                 Ventas Realizadas
               </NavLink>
@@ -562,7 +565,7 @@ const getCurrentSection = () => {
   const path = window.location.pathname;
 
   // CRM y Ventas
-  if (path.includes('/clientes') || path.includes('/citas') || path.includes('/cotizaciones') || path.includes('/pedidos') || path.includes('/ventas') || path.includes('/garantias') || path.includes('/crm') || path.includes('/mi-agenda')) {
+  if (path.includes('/clientes') || path.includes('/citas') || path.includes('/cotizaciones') || path.includes('/pedidos') || path.includes('/ventas') || path.includes('/garantias') || path.includes('/crm') || path.includes('/mi-agenda') || path.includes('/pedidos-online')) {
     return 'ventas';
   }
   

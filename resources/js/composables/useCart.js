@@ -109,6 +109,7 @@ export function useCart() {
                 precio_sin_iva: parseFloat(producto.precio_sin_iva || producto.precio_venta || 0),
                 cantidad: cantidad,
                 stock: stockDisponible,
+                peso: parseFloat(producto.peso || 0),
             })
         }
 
@@ -160,6 +161,68 @@ export function useCart() {
         items.value = []
     }
 
+    // Sincronizar con el servidor (Validar Stock y Precios Reales)
+    const syncWithServer = async () => {
+        if (items.value.length === 0) return { valid: true }
+
+        try {
+            const response = await axios.post(route('tienda.carrito.validar'), {
+                items: items.value.map(i => ({
+                    producto_id: i.producto_id,
+                    cantidad: i.cantidad
+                }))
+            })
+
+            if (response.data && response.data.results) {
+                let hasChanges = false
+                const newItems = [...items.value]
+
+                response.data.results.forEach(res => {
+                    const idx = newItems.findIndex(i => i.producto_id === res.producto_id)
+                    if (idx >= 0) {
+                        const item = newItems[idx]
+
+                        // Actualizar Precio si cambió
+                        if (res.latest_price && Math.abs(item.precio - res.latest_price) > 0.01) {
+                            item.precio = res.latest_price
+                            item.precio_sin_iva = res.latest_price / 1.16
+                            hasChanges = true
+                        }
+
+                        // Actualizar Stock si cambió o es insuficiente
+                        if (res.latest_stock !== undefined && item.stock !== res.latest_stock) {
+                            item.stock = res.latest_stock
+                            if (item.cantidad > item.stock) {
+                                item.cantidad = item.stock
+                            }
+                            hasChanges = true
+                        }
+
+                        // Si no se encontró, marcar para remover o alertar
+                        if (res.status === 'not_found') {
+                            newItems.splice(idx, 1)
+                            hasChanges = true
+                        }
+                    }
+                })
+
+                if (hasChanges) {
+                    items.value = newItems
+                    saveCart()
+                }
+
+                return {
+                    valid: response.data.valid,
+                    results: response.data.results,
+                    changed: hasChanges
+                }
+            }
+        } catch (e) {
+            console.error('Error syncing cart:', e)
+            return { error: 'No se pudo validar el carrito con el servidor' }
+        }
+    }
+
     // Obtener item por ID
     const getItem = (productoId) => {
         return items.value.find(item => item.producto_id === productoId)
@@ -190,6 +253,7 @@ export function useCart() {
         incrementQuantity,
         decrementQuantity,
         clearCart,
+        syncWithServer,
         getItem,
         isInCart,
         getQuantity,

@@ -43,10 +43,7 @@ const form = useForm({
         cantidad: s.pivot.cantidad,
         precio_especial: s.pivot.precio_especial,
     })) : [],
-    equipos: props.poliza?.equipos ? props.poliza.equipos.map(e => ({
-        id: e.id,
-        notas: e.pivot.notas,
-    })) : [],
+    equipos_cliente: props.poliza?.condiciones_especiales?.equipos_cliente || [],
     sla_horas_respuesta: props.poliza?.sla_horas_respuesta || '',
     // Phase 2
     horas_incluidas_mensual: props.poliza?.horas_incluidas_mensual || '',
@@ -56,6 +53,21 @@ const form = useForm({
     proximo_mantenimiento_at: props.poliza?.proximo_mantenimiento_at || '',
     generar_cita_automatica: props.poliza?.generar_cita_automatica ?? false,
 });
+
+const nuevoEquipo = ref({ nombre: '', serie: '' });
+const agregarEquipoCliente = () => {
+    if (!nuevoEquipo.value.nombre) return;
+    if (form.equipos_cliente.length >= 5) {
+        alert('Se ha alcanzado el límite de 5 equipos para esta póliza.');
+        return;
+    }
+    form.equipos_cliente.push({ ...nuevoEquipo.value });
+    nuevoEquipo.value = { nombre: '', serie: '' };
+};
+
+const eliminarEquipoCliente = (index) => {
+    form.equipos_cliente.splice(index, 1);
+};
 
 const servicioSeleccionado = ref('');
 const agregarServicio = () => {
@@ -232,21 +244,36 @@ const helpSections = [
                                 </div>
                             </div>
 
-                            <!-- Equipos -->
+                            <!-- Equipos del Cliente -->
                             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                                 <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                                    <h2 class="font-bold text-gray-800 text-sm">Equipos Protegidos</h2>
-                                    <font-awesome-icon icon="tools" class="text-gray-400" />
+                                    <h2 class="font-bold text-gray-800 text-sm">Equipos del Cliente (Máx 5)</h2>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full">
+                                        {{ form.equipos_cliente.length }} / 5
+                                    </span>
                                 </div>
-                                <div class="p-6">
-                                    <div class="space-y-2 max-h-[220px] overflow-y-auto bg-gray-50/50 p-2 rounded-xl border border-gray-100">
-                                        <label v-for="e in equipos" :key="e.id" class="flex items-center gap-3 p-2 bg-white rounded-lg border border-transparent hover:border-blue-100 transition-all cursor-pointer group">
-                                            <input type="checkbox" v-model="form.equipos" :value="e.id" class="rounded text-blue-600 w-4 h-4 cursor-pointer" />
+                                <div class="p-6 space-y-4">
+                                    <div class="space-y-3">
+                                        <input v-model="nuevoEquipo.nombre" type="text" placeholder="Nombre (ej: PC Recepción)" class="w-full border-gray-200 rounded-lg text-xs h-9" />
+                                        <div class="flex gap-2">
+                                            <input v-model="nuevoEquipo.serie" type="text" placeholder="Serie / ID" class="flex-1 border-gray-200 rounded-lg text-xs h-9 font-mono" />
+                                            <button @click="agregarEquipoCliente" type="button" class="px-4 bg-gray-800 text-white rounded-lg hover:bg-black transition-all text-xs font-bold">+</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2 max-h-48 overflow-y-auto pt-2">
+                                        <div v-for="(e, index) in form.equipos_cliente" :key="index" class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
                                             <div>
-                                                <div class="text-[11px] font-bold text-gray-700 group-hover:text-blue-600 transition-colors">{{ e.nombre }}</div>
-                                                <div class="text-[9px] text-gray-400 font-mono italic">S/N: {{ e.serie }}</div>
+                                                <div class="text-[11px] font-bold text-gray-700">{{ e.nombre }}</div>
+                                                <div class="text-[9px] text-gray-400 font-mono italic">S/N: {{ e.serie || 'N/A' }}</div>
                                             </div>
-                                        </label>
+                                            <button @click="eliminarEquipoCliente(index)" type="button" class="text-red-400 hover:text-red-600 p-1">
+                                                <font-awesome-icon icon="trash-can" />
+                                            </button>
+                                        </div>
+                                        <div v-if="form.equipos_cliente.length === 0" class="text-center py-6 border-2 border-dashed border-gray-100 rounded-xl text-gray-300 text-xs font-medium">
+                                            No hay equipos registrados
+                                        </div>
                                     </div>
                                 </div>
                                 

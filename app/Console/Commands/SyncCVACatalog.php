@@ -17,7 +17,7 @@ class SyncCVACatalog extends Command
      *
      * @var string
      */
-    protected $signature = 'app:sync-cva-catalog {--limit=100 : Cantidad de páginas a procesar}';
+    protected $signature = 'app:sync-cva-catalog {--limit=500 : Cantidad de páginas a procesar} {--page=1 : Página de inicio}';
 
     /**
      * The console command description.
@@ -37,13 +37,13 @@ class SyncCVACatalog extends Command
             return;
         }
 
-        $this->info('Iniciando sincronización de catálogo CVA...');
+        $this->info('Iniciando sincronización de catálogo CVA (Modo Completo)...');
 
         // Cache de marcas y categorías para evitar miles de queries
         $marcasCache = Marca::pluck('id', 'nombre')->toArray();
         $categoriasCache = Categoria::pluck('id', 'nombre')->toArray();
 
-        $page = 1;
+        $page = (int) $this->option('page');
         $countSynced = 0;
         $continue = true;
         $maxPages = (int) $this->option('limit');
@@ -58,8 +58,25 @@ class SyncCVACatalog extends Command
             ]);
 
             if (isset($result['error'])) {
-                $this->error('Error de API: ' . $result['error']);
-                break;
+                $this->error("Error en página {$page}: " . $result['error']);
+                if (isset($result['status'])) {
+                    $this->error("Status Code: " . $result['status']);
+                }
+
+                // Reintentar una vez tras espera
+                $this->warn("Reintentando en 3 segundos...");
+                sleep(3);
+                $result = $cva->getCatalogo([
+                    'exist' => 0,
+                    'completos' => 0,
+                    'page' => $page
+                ]);
+
+                if (isset($result['error'])) {
+                    $this->error("Segundo fallo en página {$page}. Saltando...");
+                    $page++;
+                    continue;
+                }
             }
 
             $articulos = $result['articulos'] ?? [];
@@ -104,32 +121,47 @@ class SyncCVACatalog extends Command
                         continue;
                     }
 
-                    Producto::updateOrCreate(
-                        [
-                            'empresa_id' => $config->empresa_id,
-                            'cva_clave' => $item['clave'],
-                            'origen' => 'CVA'
-                        ],
-                        [
-                            'nombre' => $normalized['nombre'],
-                            'descripcion' => $normalized['descripcion'],
-                            'codigo' => $normalized['clave'],
-                            'codigo_barras' => $item['codigo_fabricante'] ?? $item['clave'],
-                            'marca_id' => $marcasCache[$marcaNombre],
-                            'categoria_id' => $categoriasCache[$catNombre],
-                            'precio_compra' => $normalized['precio_compra'],
-                            'precio_venta' => $normalized['precio'],
-                            'stock' => $normalized['stock_local'],
-                            'stock_cedis' => $normalized['stock_cedis'],
-                            'imagen' => $normalized['imagen_url'],
-                            'estado' => 'activo',
-                            'cva_last_sync' => now(),
-                            'sat_clave_prod_serv' => $item['clave_sat'] ?? '43211500',
-                            'sat_clave_unidad' => 'H87',
-                            'sat_objeto_imp' => '02',
-                            'unidad_medida' => 'Pieza',
-                        ]
-                    );
+                    // BUSQUEDA INTELIGENTE para evitar Unique Violation
+                    // 1. Buscar por cva_clave (lo ideal)
+                    // 2. Buscar por codigo_barras (si ya existía como local o importación previa)
+                    $producto = Producto::where('empresa_id', $config->empresa_id)
+                        ->where(function ($q) use ($item) {
+                            $q->where('cva_clave', $item['clave'])
+                                ->orWhere('codigo_barras', $item['clave']);
+                        })
+                        ->first();
+
+                    if (!$producto) {
+                        $producto = new Producto();
+                        $producto->empresa_id = $config->empresa_id;
+                        $producto->origen = 'CVA';
+                        $producto->cva_clave = $item['clave'];
+                        $producto->estado = 'activo';
+                    }
+
+                    // Actualizar datos
+                    $producto->fill([
+                        'nombre' => $normalized['nombre'],
+                        'descripcion' => $normalized['descripcion'],
+                        'codigo' => $normalized['clave'],
+                        'codigo_barras' => $item['clave'],
+                        'marca_id' => $marcasCache[$marcaNombre],
+                        'categoria_id' => $categoriasCache[$catNombre],
+                        'precio_compra' => $normalized['precio_compra'],
+                        'precio_venta' => $normalized['precio'],
+                        'stock' => $normalized['stock_local'],
+                        'stock_cedis' => $normalized['stock_cedis'],
+                        'imagen' => $normalized['imagen_url'],
+                        'origen' => 'CVA', // Asegurar que sea CVA incluso si era local
+                        'cva_clave' => $item['clave'],
+                        'cva_last_sync' => now(),
+                        'sat_clave_prod_serv' => $item['clave_sat'] ?? '43211500',
+                        'sat_clave_unidad' => 'H87',
+                        'sat_objeto_imp' => '02',
+                        'unidad_medida' => 'Pieza',
+                    ]);
+
+                    $producto->save();
 
                     $countSynced++;
                 } catch (\Exception $e) {
@@ -141,11 +173,21 @@ class SyncCVACatalog extends Command
             $bar->finish();
             $this->newLine();
 
-            // Si recibimos menos de 20 (el default es 36), probablemente es la última
-            if ($totalPage < 20) {
+            // Usar paginación oficial de CVA si está disponible
+            if (isset($result['paginacion']['total_paginas'])) {
+                $maxReported = (int) $result['paginacion']['total_paginas'];
+                if ($page >= $maxReported) {
+                    $continue = false;
+                    $this->info("Alcanzada la última página reportada por CVA ({$maxReported}).");
+                }
+            }
+
+            if ($totalPage < 10 && $continue) { // Si vienen muy pocos, probablemente es el final
                 $continue = false;
-            } else {
+                $this->info("Finalizando por bajo número de artículos en página ({$totalPage}).");
+            } else if ($continue) {
                 $page++;
+                sleep(1); // Pequeño respiro para la API
             }
         }
 

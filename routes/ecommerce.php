@@ -22,6 +22,7 @@ Route::get('/api/tienda/cliente', [SocialAuthController::class, 'me'])->name('ti
 
 // Carrito y Checkout de Tienda
 Route::get('/carrito', [CheckoutController::class, 'carrito'])->name('tienda.carrito');
+Route::post('/carrito/validar', [CheckoutController::class, 'validateCart'])->name('tienda.carrito.validar');
 Route::get('/checkout', [CheckoutController::class, 'show'])->name('tienda.checkout');
 Route::post('/checkout/procesar', [CheckoutController::class, 'procesar'])->name('tienda.checkout.procesar');
 Route::get('/pedido/{numero}', [CheckoutController::class, 'pedido'])->name('tienda.pedido');

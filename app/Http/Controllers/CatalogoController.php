@@ -16,6 +16,8 @@ class CatalogoController extends Controller
      */
     public function index(Request $request)
     {
+        $empresa = EmpresaConfiguracion::getConfig();
+
         $query = Producto::query()
             ->where('estado', 'activo')
             ->with(['categoria', 'marca']);
@@ -30,8 +32,9 @@ class CatalogoController extends Controller
             $query->where('marca_id', $request->marca);
         }
 
-        // Filtro por existencia (Local o CEDIS)
-        if ($request->boolean('existencia')) {
+        // Filtro por existencia (Local o CEDIS) - DEFAULT: TRUE si no se especifica
+        $soloExistencia = $request->has('existencia') ? $request->boolean('existencia') : true;
+        if ($soloExistencia) {
             $query->where(function ($q) {
                 $q->where('stock', '>', 0)
                     ->orWhere('stock_cedis', '>', 0);
@@ -45,12 +48,21 @@ class CatalogoController extends Controller
 
         // Búsqueda por nombre
         if ($request->filled('search')) {
-            $search = $request->search;
+            $search = trim($request->search);
             $query->where(function ($q) use ($search) {
                 $q->where('nombre', 'ilike', "%{$search}%")
                     ->orWhere('descripcion', 'ilike', "%{$search}%")
-                    ->orWhere('codigo', 'ilike', "%{$search}%");
+                    ->orWhere('codigo', 'ilike', "%{$search}%")
+                    ->orWhere('cva_clave', 'ilike', "%{$search}%");
             });
+        }
+
+        // Filtro por rango de precio
+        if ($request->filled('precio_min')) {
+            $query->where('precio_venta', '>=', $request->precio_min);
+        }
+        if ($request->filled('precio_max')) {
+            $query->where('precio_venta', '<=', $request->precio_max);
         }
 
         // Ordenamiento
@@ -95,34 +107,48 @@ class CatalogoController extends Controller
             return $this->transformModelToView($item);
         });
 
-        // Categorías con conteo de productos activos
-        $categorias = Categoria::withCount([
-            'productos' => function ($q) {
-                $q->where('estado', 'activo');
-            }
-        ])
-            ->orderBy('nombre')
-            ->get()
-            ->filter(fn($cat) => $cat->productos_count > 0)
-            ->values();
+        // Cache por 1 hora para mejorar velocidad de búsqueda
+        $cacheKey = "catalogo_filters_empresa_" . ($empresa->id ?? 'default');
 
-        // Marcas con conteo
-        $marcas = Marca::withCount([
-            'productos' => function ($q) {
-                $q->where('estado', 'activo');
-            }
-        ])
-            ->orderBy('nombre')
-            ->get()
-            ->filter(fn($marca) => $marca->productos_count > 0)
-            ->values();
+        $filterData = \Cache::remember($cacheKey, 3600, function () {
+            // Categorías con conteo de productos activos
+            $categorias = Categoria::withCount(['productos' => fn($q) => $q->where('estado', 'activo')])
+                ->whereHas('productos', fn($q) => $q->where('estado', 'activo'))
+                ->orderBy('nombre')
+                ->get();
 
-        $empresa = EmpresaConfiguracion::getConfig();
+            // Marcas con conteo
+            $marcas = Marca::withCount(['productos' => fn($q) => $q->where('estado', 'activo')])
+                ->whereHas('productos', fn($q) => $q->where('estado', 'activo'))
+                ->orderBy('nombre')
+                ->get();
+
+            return compact('categorias', 'marcas');
+        });
+
+        // Obtener límites de precio (Cacheado por 30 min)
+        $prices = \Cache::remember("catalogo_prices_" . ($empresa->id ?? '8'), 1800, function () use ($query) {
+            $q = clone $query;
+            return [
+                'min' => $q->min('precio_venta') ?: 0,
+                'max' => $q->max('precio_venta') ?: 100000
+            ];
+        });
+
+        $minPrice = $prices['min'];
+        $maxPrice = $prices['max'];
+
+        $categorias = $filterData['categorias'];
+        $marcas = $filterData['marcas'];
 
         return Inertia::render('Catalogo/Index', [
             'productos' => $productos,
             'categorias' => $categorias,
             'marcas' => $marcas,
+            'priceRange' => [
+                'min' => floor($minPrice),
+                'max' => ceil($maxPrice)
+            ],
             'empresa' => $empresa ? [
                 'nombre' => $empresa->nombre_comercial ?? $empresa->razon_social ?? 'Tienda',
                 'logo' => $empresa->logo ?? null,
@@ -137,6 +163,10 @@ class CatalogoController extends Controller
                 'marca' => $request->marca,
                 'search' => $request->search,
                 'orden' => $orden,
+                'precio_min' => $request->precio_min,
+                'precio_max' => $request->precio_max,
+                'existencia' => $soloExistencia,
+                'local' => $request->boolean('local'),
             ],
             'cliente' => session('cliente_tienda'),
             'canLogin' => true,
@@ -175,6 +205,18 @@ class CatalogoController extends Controller
             } else {
                 $especificaciones = $service->getTechnicalSpecs($cvaClave);
                 $imagenes = $item['imagenes'] ?? [];
+
+                // Actualizar cache local si existe el producto
+                if ($productoModel || ($pModel = Producto::where('cva_clave', $cvaClave)->first())) {
+                    $target = $productoModel ?? $pModel;
+                    $target->update([
+                        'precio_compra' => $item['precio_compra'] ?? $target->precio_compra,
+                        'precio_venta' => $item['precio'],
+                        'stock' => $item['stock_local'] ?? 0,
+                        'stock_cedis' => $item['stock_cedis'] ?? 0,
+                        'cva_last_sync' => now(),
+                    ]);
+                }
 
                 $producto = [
                     'id' => $productoModel ? $productoModel->id : 'CVA-' . $cvaClave,

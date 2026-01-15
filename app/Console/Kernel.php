@@ -27,6 +27,18 @@ class Kernel extends ConsoleKernel
             ->dailyAt('02:00')
             ->appendOutputTo(storage_path('logs/cron_sync.log'));
 
+        // Sincronizar catálogo CVA automáticamente cada madrugada (02:00 AM)
+        $schedule->command('app:sync-cva-catalog --limit=500')
+            ->dailyAt('02:05')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/cva_sync_daily.log'));
+
+        // Sincronizar estatus y guías de pedidos CVA cada hora
+        $schedule->command('cva:sync-orders')
+            ->hourly()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/cva_orders_sync.log'));
+
         // Actualizar cuentas por pagar vencidas cada día a las 06:00
         $schedule->command('cuentas:actualizar-vencidas')
             ->dailyAt('06:00')
@@ -116,12 +128,15 @@ class Kernel extends ConsoleKernel
 
                     if ($cloudEnabled && $result['success']) {
                         // Intentar subir a Google Cloud si está habilitado
+                        // TODO: Implementar método público uploadToCloud en DatabaseBackupService
+                        /*
                         try {
                             $backupService->uploadToGoogleCloud($result['path']);
                             \Log::info('Backup subido a Google Cloud', ['path' => $result['path']]);
                         } catch (\Exception $e) {
                             \Log::warning('No se pudo subir a Google Cloud: ' . $e->getMessage());
                         }
+                        */
                     }
 
                     \Log::info('Backup completo diario ejecutado', ['tipo' => 'completo']);

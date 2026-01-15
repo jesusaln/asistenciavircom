@@ -1,7 +1,8 @@
 <script setup>
 import { Head, usePage, useForm } from '@inertiajs/vue3'
 import { useCart } from '@/composables/useCart'
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
+import axios from 'axios'
 import PublicNavbar from '@/Components/PublicNavbar.vue'
 import PublicFooter from '@/Components/PublicFooter.vue'
 
@@ -12,8 +13,9 @@ const props = defineProps({
 })
 
 const page = usePage()
-const { items, subtotal, subtotalSinIva, iva, clearCart } = useCart()
+const { items, subtotal, subtotalSinIva, iva, clearCart, syncWithServer } = useCart()
 const processing = ref(false)
+const isValidating = ref(false)
 
 const cssVars = computed(() => ({
     '--color-primary': props.empresa?.color_principal || '#3b82f6',
@@ -39,10 +41,76 @@ const form = useForm({
     items: [],
 })
 
-const costoEnvio = computed(() => {
-    if (form.tipo_entrega === 'recoger') return 0;
-    // $100 base + 16% IVA = $116
-    return 116;
+const costoEnvio = ref(0)
+const shippingDetails = ref(null)
+const loadingShipping = ref(false)
+
+// Calcular costo de envío dinámicamente
+const fetchShippingCost = async () => {
+    if (form.tipo_entrega === 'recoger') {
+        costoEnvio.value = 0
+        shippingDetails.value = null
+        return
+    }
+
+    if (form.direccion.cp?.length !== 5) return
+
+    loadingShipping.value = true
+    try {
+        const response = await axios.post(route('tienda.cva.shipping'), {
+            cp: form.direccion.cp,
+            items: items.value.map(i => ({
+                id: i.producto_id,
+                cantidad: i.cantidad,
+                peso: i.peso // Si viene del carrito
+            }))
+        })
+        
+        if (response.data.success) {
+            costoEnvio.value = response.data.costo
+            shippingDetails.value = response.data
+        }
+    } catch (e) {
+        console.error('Error calculando envío:', e)
+        
+        // Fallback inteligente basado en PESO
+        const pesoTotal = items.value.reduce((total, item) => total + ((item.peso || 1) * item.cantidad), 0);
+        
+        if (form.direccion.cp && form.direccion.cp.startsWith('83')) {
+            // Local (Hermosillo): $100 base. 
+            // Si pesa más de 25kg (requiere camioneta/ayudante), cobramos $200
+            costoEnvio.value = pesoTotal > 25 ? 200 : 100; 
+        } else {
+             // Nacional: $250 base (hasta 5kg) + $40 por kg extra (Protección alta)
+             const kilosExtra = Math.max(0, pesoTotal - 5);
+             costoEnvio.value = 250 + (kilosExtra * 40);
+        }
+
+        shippingDetails.value = {
+            proveedor: 'Envío Estándar (Calculado por Peso)',
+            tiempo_entrega: '3 a 6 días hábiles'
+        }
+    } finally {
+        loadingShipping.value = false
+    }
+}
+
+
+watch(() => form.tipo_entrega, (newVal) => {
+    if (newVal === 'recoger') {
+        costoEnvio.value = 0
+    } else {
+        costoEnvio.value = 100 // Costo estándar visible de inmediato
+        if (form.direccion.cp?.length === 5) {
+            fetchShippingCost()
+        }
+    }
+})
+
+watch(() => form.direccion.cp, (newVal) => {
+    if (newVal?.length === 5 && form.tipo_entrega === 'domicilio') {
+        fetchShippingCost()
+    }
 })
 const total = computed(() => subtotal.value + costoEnvio.value)
 
@@ -53,23 +121,55 @@ const formatCurrency = (value) => {
     }).format(value || 0)
 }
 
-const submitOrder = () => {
+const submitOrder = async () => {
     processing.value = true
+    isValidating.value = true
     
-    // Preparar items del carrito
-    form.items = items.value.map(item => ({
-        producto_id: item.producto_id,
-        cantidad: item.cantidad
-    }))
-
-    form.post(route('tienda.checkout.procesar'), {
-        onSuccess: () => {
-             clearCart() // Limpiar carrito tras éxito
-        },
-        onFinish: () => {
+    try {
+        // Validación final de Stock y Precios
+        const validation = await syncWithServer()
+        if (validation.error) {
+            alert(validation.error)
             processing.value = false
+            isValidating.value = false
+            return
         }
-    })
+
+        if (validation.changed) {
+            alert('¡Atención! Algunos precios o existencias han cambiado en el último momento. Por favor, revisa el resumen de tu pedido.')
+            processing.value = false
+            isValidating.value = false
+            return
+        }
+
+        if (!validation.valid) {
+            alert('Lo sentimos, algunos artículos ya no están disponibles en las cantidades solicitadas.')
+            processing.value = false
+            isValidating.value = false
+            return
+        }
+
+        // Preparar items del carrito
+        form.items = items.value.map(item => ({
+            producto_id: item.producto_id,
+            cantidad: item.cantidad
+        }))
+
+        form.post(route('tienda.checkout.procesar'), {
+            onSuccess: () => {
+                 clearCart() // Limpiar carrito tras éxito
+            },
+            onFinish: () => {
+                processing.value = false
+                isValidating.value = false
+            }
+        })
+    } catch (e) {
+        console.error(e)
+        alert('Error al procesar el pedido.')
+        processing.value = false
+        isValidating.value = false
+    }
 }
 
 // Pre-llenar datos si el usuario se loguea después de entrar al checkout
@@ -79,7 +179,66 @@ onMounted(() => {
         form.email = props.cliente.email
         form.telefono = props.cliente.telefono
     }
+    
+    // Calcular envío inicial si ya hay CP
+    if (form.tipo_entrega === 'domicilio') {
+        if (form.direccion.cp?.length === 5) {
+            fetchShippingCost()
+        } else {
+            costoEnvio.value = 100
+        }
+    }
 })
+    // Variables para CP
+    const coloniasDisponibles = ref([])
+    const loadingCP = ref(false)
+
+    // Lógica para CP
+    watch(() => form.direccion.cp, async (newVal) => {
+        if (newVal?.length === 5) {
+            loadingCP.value = true
+            coloniasDisponibles.value = [] // Limpiar previas
+            
+            try {
+                const response = await axios.get(route('api.cp', newVal))
+                if (response.data) {
+                    form.direccion.estado = response.data.estado?.toUpperCase() || ''
+                    form.direccion.ciudad = response.data.municipio?.toUpperCase() || ''
+                    
+                    if (response.data.colonias && Array.isArray(response.data.colonias)) {
+                        coloniasDisponibles.value = response.data.colonias.map(c => c.toUpperCase())
+                        // Auto-seleccionar si solo hay una
+                        if (coloniasDisponibles.value.length === 1) {
+                            form.direccion.colonia = coloniasDisponibles.value[0]
+                        } else {
+                            form.direccion.colonia = '' 
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("No se encontraron datos para el CP", e)
+            } finally {
+                loadingCP.value = false
+                // Calcular envío
+                if (form.tipo_entrega === 'domicilio') fetchShippingCost()
+            }
+        }
+    })
+    
+    // Formateadores
+    const toUpper = (e, field) => { 
+        form[field] = e.target.value.toUpperCase() 
+    }
+    const toUpperNested = (e, parent, field) => { 
+        form[parent][field] = e.target.value.toUpperCase() 
+    }
+    const toLower = (e, field) => { 
+        form[field] = e.target.value.toLowerCase() 
+    }
+    const formatPhone = (e) => {
+        let val = e.target.value.replace(/\D/g, '').substring(0, 10)
+        form.telefono = val
+    }
 </script>
 
 <template>
@@ -89,7 +248,8 @@ onMounted(() => {
         <PublicNavbar :empresa="empresa" activeTab="tienda" />
 
         <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 w-full">
-            <div class="mb-10">
+            <!-- (Header section unchanged) -->
+             <div class="mb-10">
                 <h1 class="text-3xl font-black text-gray-900 flex items-center gap-3">
                     <span class="w-10 h-10 rounded-xl bg-[var(--color-primary-soft)] flex items-center justify-center text-[var(--color-primary)]">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -114,32 +274,37 @@ onMounted(() => {
                         <div class="grid md:grid-cols-2 gap-6">
                             <div class="space-y-1">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nombre Completo</label>
-                                <input v-model="form.nombre" type="text" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="Ej. Juan Pérez" required>
+                                <input :value="form.nombre" @input="toUpper($event, 'nombre')" type="text" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="Ej. JUAN PÉREZ" required>
                                 <div v-if="form.errors.nombre" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors.nombre }}</div>
                             </div>
 
                              <div class="space-y-1">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Teléfono</label>
-                                <input v-model="form.telefono" type="tel" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="(55) 1234 5678" required>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Teléfono (10 dígitos)</label>
+                                <input :value="form.telefono" @input="formatPhone" type="tel" maxlength="10" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="6621234567" required>
                                 <div v-if="form.errors.telefono" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors.telefono }}</div>
                             </div>
 
                             <div class="space-y-1 md:col-span-2">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Correo Electrónico</label>
-                                <input v-model="form.email" type="email" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="juan@ejemplo.com" required>
+                                <input :value="form.email" @input="toLower($event, 'email')" type="email" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="juan@ejemplo.com" required>
                                 <div v-if="form.errors.email" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors.email }}</div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Sección: Método de Entrega -->
+                    <!-- Sección: Método de Entrega (Unchanged, included for context structure if needed or just skipped if replace works properly) -->
+                    <!-- ... -->
                     <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100">
-                        <h2 class="text-xl font-black text-gray-900 mb-6 flex items-center gap-3">
+                        <!-- ... -->
+                        <!-- Resumiendo el bloque Método de entrega para no sobrescribir cambios, me enfocaré en la Dirección -->
+                        <!-- ... -->
+                         <h2 class="text-xl font-black text-gray-900 mb-6 flex items-center gap-3">
                             <span class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 text-sm">2</span>
                             Método de Entrega
                         </h2>
                         
                         <div class="grid md:grid-cols-2 gap-4">
+                             <!-- Radio domicilio -->
                             <label class="cursor-pointer relative group">
                                 <input type="radio" v-model="form.tipo_entrega" value="domicilio" class="peer sr-only">
                                 <div class="p-6 rounded-2xl border-2 border-gray-100 bg-gray-50 peer-checked:bg-[var(--color-primary-soft)] peer-checked:border-[var(--color-primary)] transition-all flex flex-col gap-2">
@@ -148,10 +313,11 @@ onMounted(() => {
                                         <svg class="w-6 h-6 text-[var(--color-primary)] opacity-0 peer-checked:opacity-100" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
                                     </div>
                                     <p class="text-xs text-gray-500 font-medium leading-relaxed">Recibe tu pedido en la puerta de tu casa u oficina.</p>
-                                    <span class="text-sm font-black text-[var(--color-primary)] mt-2">+ {{ formatCurrency(116) }} (incl. IVA)</span>
+                                    <span class="text-sm font-black text-[var(--color-primary)] mt-2">+ {{ formatCurrency(costoEnvio) }} (Envío Estándar)</span>
                                 </div>
                             </label>
 
+                            <!-- Radio recoger -->
                             <label class="cursor-pointer relative group">
                                 <input type="radio" v-model="form.tipo_entrega" value="recoger" class="peer sr-only">
                                 <div class="p-6 rounded-2xl border-2 border-gray-100 bg-gray-50 peer-checked:bg-[var(--color-primary-soft)] peer-checked:border-[var(--color-primary)] transition-all flex flex-col gap-2">
@@ -165,7 +331,8 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <!-- Sección: Dirección -->
+
+                    <!-- Sección: Dirección REFORMADA -->
                     <div v-if="form.tipo_entrega === 'domicilio'" class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100">
                         <h2 class="text-xl font-black text-gray-900 mb-6 flex items-center gap-3">
                             <span class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 text-sm">3</span>
@@ -173,36 +340,46 @@ onMounted(() => {
                         </h2>
 
                         <div class="space-y-6">
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Calle y Número</label>
-                                <input v-model="form.direccion.calle" type="text" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="Av. Reforma 123, Int 4B" required>
-                                <div v-if="form.errors['direccion.calle']" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors['direccion.calle'] }}</div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-6">
-                                <div class="space-y-1">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Colonia</label>
-                                    <input v-model="form.direccion.colonia" type="text" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="Ej. Centro" required>
-                                     <div v-if="form.errors['direccion.colonia']" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors['direccion.colonia'] }}</div>
-                                </div>
+                            <!-- Fila 1: CP primero para detonar la API -->
+                             <div class="grid grid-cols-2 gap-6">
                                 <div class="space-y-1">
                                     <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Código Postal</label>
-                                    <input v-model="form.direccion.cp" type="text" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="12345" required>
+                                    <div class="relative">
+                                        <input v-model="form.direccion.cp" type="text" maxlength="5" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="Ej. 83000" required>
+                                        <div v-if="loadingCP" class="absolute right-3 top-3 text-gray-400 text-xs animate-spin">⌛</div>
+                                    </div>
                                      <div v-if="form.errors['direccion.cp']" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors['direccion.cp'] }}</div>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-6">
-                                <div class="space-y-1">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Ciudad / Municipio</label>
-                                    <input v-model="form.direccion.ciudad" type="text" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" required>
-                                     <div v-if="form.errors['direccion.ciudad']" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors['direccion.ciudad'] }}</div>
                                 </div>
                                 <div class="space-y-1">
                                     <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Estado</label>
-                                    <input v-model="form.direccion.estado" type="text" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" required>
+                                    <input :value="form.direccion.estado" readonly type="text" class="w-full px-5 py-3 bg-gray-100 border-gray-100 rounded-xl font-bold text-gray-500 cursor-not-allowed" placeholder="Se llena automático" required>
                                      <div v-if="form.errors['direccion.estado']" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors['direccion.estado'] }}</div>
                                 </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-6">
+                                <div class="space-y-1">
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Ciudad / Municipio</label>
+                                    <input :value="form.direccion.ciudad" readonly type="text" class="w-full px-5 py-3 bg-gray-100 border-gray-100 rounded-xl font-bold text-gray-500 cursor-not-allowed" placeholder="Se llena automático" required>
+                                     <div v-if="form.errors['direccion.ciudad']" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors['direccion.ciudad'] }}</div>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Colonia</label>
+                                    <!-- Select si hay colonias, input si no -->
+                                    <select v-if="coloniasDisponibles.length > 0" v-model="form.direccion.colonia" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800">
+                                        <option value="" disabled>Selecciona una colonia</option>
+                                        <option v-for="col in coloniasDisponibles" :key="col" :value="col">{{ col }}</option>
+                                    </select>
+                                    <input v-else :value="form.direccion.colonia" @input="toUpperNested($event, 'direccion', 'colonia')" type="text" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="Ej. CENTRO" required>
+                                    
+                                     <div v-if="form.errors['direccion.colonia']" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors['direccion.colonia'] }}</div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Calle y Número</label>
+                                <input :value="form.direccion.calle" @input="toUpperNested($event, 'direccion', 'calle')" type="text" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="AV. REFORMA 123" required>
+                                <div v-if="form.errors['direccion.calle']" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors['direccion.calle'] }}</div>
                             </div>
                         </div>
                     </div>
@@ -241,11 +418,22 @@ onMounted(() => {
                                 <span>IVA (16%)</span>
                                 <span class="font-bold text-gray-600">{{ formatCurrency(iva) }}</span>
                             </div>
-                            <div class="flex justify-between text-gray-500 font-medium text-sm pt-2 border-t border-gray-50">
+                            <div class="flex justify-between text-gray-500 font-medium text-sm pt-2 border-t border-gray-50 items-center">
                                 <span>Costo de Envío</span>
-                                <span class="font-bold text-gray-900">
-                                    {{ formatCurrency(costoEnvio) }}
-                                </span>
+                                <div class="flex flex-col items-end">
+                                    <span v-if="loadingShipping" class="flex items-center gap-1 text-[10px] text-blue-500 animate-pulse">
+                                        Calculando...
+                                    </span>
+                                    <span v-else class="font-bold text-gray-900">
+                                        {{ formatCurrency(costoEnvio) }}
+                                    </span>
+                                    <span v-if="shippingDetails" class="text-[9px] text-gray-400 font-medium uppercase">
+                                        {{ shippingDetails.proveedor }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div v-if="shippingDetails?.tiempo_entrega" class="p-2 bg-blue-50 rounded-lg text-[9px] font-bold text-blue-700">
+                                🕒 {{ shippingDetails.tiempo_entrega }}
                             </div>
                             <div class="flex justify-between text-lg mt-4 pt-4 border-t-2 border-gray-100">
                                 <span class="font-black text-gray-900 uppercase tracking-tight">Total a Pagar</span>

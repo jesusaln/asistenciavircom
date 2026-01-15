@@ -432,10 +432,13 @@ class CVAService
      */
     protected function getTieredUtilityPercentage(float $precio): float
     {
-        // 1. Intentar leer configuración personalizada de tiers
+        // 1. Intentar leer configuración personalizada de tiers desde la DB
         $tiers = $this->config->cva_utility_tiers ?? null;
 
         if ($tiers && is_array($tiers) && count($tiers) > 0) {
+            // Ordenar tiers por el campo 'max' para asegurar que el loop funcione
+            usort($tiers, fn($a, $b) => $a['max'] <=> $b['max']);
+
             foreach ($tiers as $tier) {
                 if ($precio <= $tier['max']) {
                     return (float) $tier['percent'] / 100;
@@ -444,25 +447,27 @@ class CVAService
         }
 
         // 2. Si no hay tiers, usar el porcentaje fijo configurado (default 15%)
-        if (!empty($this->config->cva_utility_percentage)) {
+        if (!empty($this->config->cva_utility_percentage) && (float) $this->config->cva_utility_percentage > 0) {
             return (float) $this->config->cva_utility_percentage / 100;
         }
 
-        // 3. Fallback final (solo si no hay configuración en DB)
-        if ($precio <= 100)
-            return 0.40;
-        if ($precio <= 200)
-            return 0.35;
+        // 3. Fallback Industrial (Tiers MÁS AGRESIVOS para PyME con Servicio)
         if ($precio <= 500)
-            return 0.28;
-        if ($precio <= 1000)
-            return 0.22;
-        if ($precio <= 5000)
-            return 0.18;
-        if ($precio <= 10000)
-            return 0.14;
+            return 0.50; // Accesorios, cables
+        if ($precio <= 1500)
+            return 0.35; // Periféricos
+        if ($precio <= 4000)
+            return 0.25; // Monitores, discos
+        if ($precio <= 8000)
+            return 0.20; // Componentes PC
+        if ($precio <= 15000)
+            return 0.15; // Laptops Home/Office
+        if ($precio <= 30000)
+            return 0.12; // Laptops Gamer/Pro
+        if ($precio <= 60000)
+            return 0.10; // Servidores/Workstations
 
-        return 0.10;
+        return 0.08; // Proyectos muy grandes (+ $0k)
     }
 
     /**
@@ -524,8 +529,6 @@ class CVAService
             'sat_descripcion' => $item['sat_info']['descripcion'] ?? null,
             'peso' => isset($item['peso']) ? (float) $item['peso'] : (isset($item['dimensiones']['peso']) ? (float) $item['dimensiones']['peso'] : 0),
             'dimensiones' => $item['dimensiones'] ?? null,
-            'stock_local' => $this->getHermosilloStock($item),
-            'stock_cedis' => (int) ($item['disponibleCD'] ?? 0),
             'en_transito' => (int) ($item['en_transito'] ?? 0),
             'stock_desglose' => $this->parseBranchAvailability($item),
         ];
@@ -542,13 +545,18 @@ class CVAService
             return ['error' => 'Código Postal inválido'];
         }
 
-        // TARIFA LOGÍSTICA PROPIA (Vircom Local Hermosillo)
-        $isLocal = str_starts_with($cp, '83'); // Hermosillo y alrededores en Sonora
+        // TARIFA LOGÍSTICA PROPIA (Envío Local)
+        // Usar prefijo configurado o fallback a '83' (Sonora)
+        $localPrefix = $this->config->shipping_local_cp_prefix ?? '83';
+
+        $isLocal = str_starts_with($cp, $localPrefix);
+
         if ($isLocal) {
+            $costoLocal = (float) ($this->config->shipping_local_cost ?? 100);
             return [
                 'success' => true,
                 'cp' => $cp,
-                'costo' => 100,
+                'costo' => $costoLocal,
                 'moneda' => 'MXN',
                 'tipo_entrega' => 'Local',
                 'proveedor' => 'Logística Vircom',
@@ -592,21 +600,29 @@ class CVAService
         $totalWeight = 0;
         foreach ($items as $item) {
             $qty = $item['cantidad'] ?? 1;
-            $totalWeight += ((float) ($item['peso'] ?? 1.5)) * $qty;
+            // Si el peso es 0 o null, asumimos 2kg por seguridad logística
+            $peso = (float) ($item['peso'] ?? 2);
+            if ($peso <= 0)
+                $peso = 2;
+            $totalWeight += $peso * $qty;
         }
 
-        $baseCost = 280;
-        $extraCostPerKg = 40;
+        // Tarifa plana realista para México (Estafeta/Paquetexpress a través de CVA)
+        // $220 base (hasta 5kg) + $35 por kg extra + IVA
+        $baseCost = 220;
+        $extraCostPerKg = 35;
         $shippingCost = $baseCost + (max(0, $totalWeight - 5) * $extraCostPerKg);
+        $shippingCostWithIva = round($shippingCost * 1.16, 2);
 
         return [
             'success' => true,
             'cp' => $cp,
-            'costo' => round($shippingCost, 2),
+            'costo' => $shippingCostWithIva,
             'moneda' => 'MXN',
-            'tipo_entrega' => 'Estándar',
-            'proveedor' => 'Paquetería Externa',
-            'tiempo_entrega' => '4 a 8 días hábiles'
+            'tipo_entrega' => 'Envío Nacional',
+            'proveedor' => 'Paquetería Convenio CVA',
+            'tiempo_entrega' => '3 a 6 días hábiles (Estimado)',
+            'peso_total' => $totalWeight
         ];
     }
 

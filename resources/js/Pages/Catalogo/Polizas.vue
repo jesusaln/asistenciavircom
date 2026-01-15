@@ -54,16 +54,24 @@ const getTotalAnual = (plan) => {
 };
 
 const getColorPlan = (plan) => {
+    // Si el plan tiene un color específico en BD, lo usamos
     if (plan.color) return plan.color;
     
-    const colores = {
-        mantenimiento: '#3B82F6', // blue
-        soporte: '#10B981',       // green
-        garantia: '#8B5CF6',      // purple
-        premium: '#FF6B35',       // corporativo
-        personalizado: '#EC4899', // pink
+    // Si no, usamos el color corporativo por defecto
+    return empresaData.value.color_principal || '#FF6B35';
+};
+
+const getFaIcon = (plan) => {
+    if (plan.icono && plan.icono.includes('-')) return plan.icono;
+    
+    const iconos = {
+        mantenimiento: 'wrench',
+        soporte: 'headset',
+        garantia: 'shield-halved',
+        premium: 'crown',
+        personalizado: 'building-shield',
     };
-    return colores[plan.tipo] || empresaData.value.color_principal || '#FF6B35';
+    return iconos[plan.tipo] || 'shield-halved';
 };
 </script>
 
@@ -144,10 +152,13 @@ const getColorPlan = (plan) => {
                     <!-- Cabecera del Plan -->
                     <div class="mb-10 text-center">
                         <div 
-                            class="w-20 h-20 rounded-3xl flex items-center justify-center text-4xl mb-6 mx-auto transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110"
-                            :style="{ backgroundColor: getColorPlan(plan) + '15', color: getColorPlan(plan) }"
+                            class="w-20 h-20 rounded-[2rem] flex items-center justify-center text-3xl mb-6 mx-auto transition-all duration-500 group-hover:scale-110 shadow-lg group-hover:shadow-xl"
+                            :style="{ 
+                                backgroundColor: plan.destacado ? 'var(--color-primary)' : 'var(--color-primary-soft)', 
+                                color: plan.destacado ? 'white' : 'var(--color-primary)' 
+                            }"
                         >
-                            {{ plan.icono_display }}
+                            <font-awesome-icon :icon="getFaIcon(plan)" />
                         </div>
                         <h2 class="text-3xl font-black text-gray-900 mb-2 leading-tight">{{ plan.nombre }}</h2>
                         <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{{ plan.tipo_label }}</span>
@@ -155,18 +166,26 @@ const getColorPlan = (plan) => {
 
                     <!-- Precio -->
                     <div class="mb-10 text-center pt-8 border-t border-gray-50">
-                        <div class="flex items-baseline justify-center gap-1">
-                            <span class="text-gray-400 text-2xl font-bold">$</span>
-                            <Transition mode="out-in">
-                                <span :key="periodoSeleccionado" class="text-6xl font-black text-gray-900 tracking-tighter">
-                                    {{ formatCurrency(getPrecio(plan)).replace('$', '').replace('.00', '') }}
-                                </span>
-                            </Transition>
-                        </div>
-                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mt-2">Pesos por mes</p>
+                        <template v-if="getPrecio(plan) > 0">
+                            <div class="flex items-baseline justify-center gap-1">
+                                <span class="text-gray-400 text-2xl font-bold">$</span>
+                                <Transition mode="out-in">
+                                    <span :key="periodoSeleccionado" class="text-6xl font-black text-gray-900 tracking-tighter">
+                                        {{ formatCurrency(getPrecio(plan)).replace('$', '').replace('.00', '') }}
+                                    </span>
+                                </Transition>
+                            </div>
+                            <p class="text-xs font-black text-gray-400 uppercase tracking-widest mt-2">Pesos por mes</p>
+                        </template>
+                        <template v-else>
+                            <div class="py-2">
+                                <span class="text-4xl font-black text-gray-900 tracking-tighter uppercase">Plan Empresa</span>
+                            </div>
+                            <p class="text-xs font-black text-orange-600 uppercase tracking-widest mt-2">Soluciones a Medida</p>
+                        </template>
                         
                         <!-- Ahorro Anual -->
-                        <div v-if="periodoSeleccionado === 'anual'" class="mt-4 inline-block px-4 py-2 bg-green-50 rounded-2xl border border-green-100 animate-fade-in shadow-sm">
+                        <div v-if="periodoSeleccionado === 'anual' && getPrecio(plan) > 0" class="mt-4 inline-block px-4 py-2 bg-green-50 rounded-2xl border border-green-100 animate-fade-in shadow-sm">
                             <p class="text-[10px] font-black text-green-600 uppercase">Ahorras {{ formatCurrency(plan.ahorro_anual) }} al año</p>
                         </div>
                         <div v-else class="h-[42px]"></div>
@@ -184,6 +203,7 @@ const getColorPlan = (plan) => {
 
                     <!-- Botón de Acción -->
                     <Link 
+                        v-if="getPrecio(plan) > 0"
                         :href="route('contratacion.show', plan.slug)"
                         class="w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-xl"
                         :class="plan.destacado ? 'bg-gray-900 text-white hover:bg-black shadow-gray-200' : 'bg-gray-50 text-gray-900 hover:bg-gray-100 shadow-gray-100'"
@@ -191,6 +211,15 @@ const getColorPlan = (plan) => {
                         Contratar Plan
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                     </Link>
+                    <a 
+                        v-else
+                        :href="'https://wa.me/' + (empresaData.whatsapp || '521234567890')"
+                        target="_blank"
+                        class="w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-xl bg-[var(--color-primary)] text-white hover:opacity-90"
+                    >
+                        Contactar Ventas
+                        <font-awesome-icon :icon="['fab', 'whatsapp']" class="text-lg" />
+                    </a>
                 </article>
             </div>
 
