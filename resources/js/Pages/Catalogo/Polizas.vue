@@ -141,7 +141,7 @@ const getFaIcon = (plan) => {
                     :key="plan.id"
                     :class="[
                         'relative bg-white p-10 rounded-[3rem] border shadow-2xl transition-all duration-500 flex flex-col group',
-                        plan.destacado ? 'border-[var(--color-primary)] ring-4 ring-[var(--color-primary-soft)] lg:-translate-y-4 shadow-primary/20' : 'border-gray-50 shadow-gray-100/50 hover:-translate-y-2'
+                        plan.destacado ? 'border-[var(--color-primary)] ring-4 ring-[var(--color-primary-soft)] lg:-translate-y-4 shadow-xl' : 'border-gray-50 shadow-gray-100/50 hover:-translate-y-2'
                     ]"
                 >
                     <!-- Badge Destacado -->
