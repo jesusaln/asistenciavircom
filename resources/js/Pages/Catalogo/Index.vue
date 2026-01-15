@@ -11,6 +11,7 @@ const props = defineProps({
     productos: Object,
     categorias: Array,
     marcas: Array,
+    priceRange: Object,
     empresa: Object,
     filters: Object,
     cliente: Object,
@@ -41,14 +42,17 @@ const search = ref(props.filters?.search || '')
 const selectedCategoria = ref(props.filters?.categoria || '')
 const selectedMarca = ref(props.filters?.marca || '')
 const selectedOrden = ref(props.filters?.orden || 'recientes')
+const precioMin = ref(props.filters?.precio_min || props.priceRange?.min || 0)
+const precioMax = ref(props.filters?.precio_max || props.priceRange?.max || 100000)
 const showMobileFilters = ref(false)
 const addedToCart = ref(null)
 const searchFocused = ref(false)
-const soloExistencia = ref(true) 
-const soloLocal = ref(false)
+const soloExistencia = ref(props.filters?.existencia ?? true) 
+const soloLocal = ref(props.filters?.local ?? false)
 const cvaPage = ref(1)
 const hasMoreCva = ref(true)
 const suggestions = ref([])
+const isFiltering = ref(false)
 
 // Suggestions Logic
 let suggestionTimeout = null
@@ -123,25 +127,16 @@ const handleSmartFilter = (tag) => {
     }))
 } 
 
-// Al usar el catálogo unificado del backend, allProducts es mucho más simple
+// El catálogo unificado ya viene filtrado desde el backend
 const allProducts = computed(() => {
-    let list = props.productos?.data || []
-    
-    if (soloLocal.value) {
-        list = list.filter(p => p.origen === 'local' || p.stock > 0)
-    }
-
-    if (soloExistencia.value) {
-        list = list.filter(p => p.stock > 0 || p.stock_cedis > 0)
-    }
-
-    return list
+    return props.productos?.data || []
 })
 
 const current_page = computed(() => props.productos?.current_page || 1)
 const filteredCount = computed(() => props.productos?.total || 0)
 
 const applyFilters = () => {
+    isFiltering.value = true
     router.get(route('catalogo.index'), {
         search: search.value || undefined,
         categoria: selectedCategoria.value || undefined,
@@ -149,9 +144,14 @@ const applyFilters = () => {
         orden: selectedOrden.value !== 'recientes' ? selectedOrden.value : undefined,
         existencia: soloExistencia.value ? 1 : undefined,
         local: soloLocal.value ? 1 : undefined,
+        precio_min: precioMin.value != props.priceRange?.min ? precioMin.value : undefined,
+        precio_max: precioMax.value != props.priceRange?.max ? precioMax.value : undefined,
     }, {
         preserveState: true,
         preserveScroll: false,
+        onSuccess: () => {
+            isFiltering.value = false
+        }
     })
 }
 
@@ -164,6 +164,8 @@ const clearFilters = () => {
     selectedCategoria.value = ''
     selectedMarca.value = ''
     selectedOrden.value = 'recientes'
+    precioMin.value = props.priceRange?.min || 0
+    precioMax.value = props.priceRange?.max || 100000
     router.get(route('catalogo.index'))
 }
 
@@ -187,20 +189,32 @@ const precioConIva = (precio) => {
 }
 
 const getImageUrl = (producto) => {
-    // Si es una imagen CVA (http), usar proxy
-    if (producto.imagen || producto.imagen_url) {
-        const img = producto.imagen || producto.imagen_url
-        
-        // Check robusto: trim y buscar http al inicio
-        const urlStr = String(img).trim()
-        
-        if (urlStr.startsWith('http') || urlStr.startsWith('https')) {
-            // Usar Proxy local para evitar Mixed Content y aprovechar caché
+    if (!producto) return null
+    const img = (typeof producto === 'string') ? producto : (producto.imagen || producto.imagen_url)
+    if (!img) return null
+    
+    let urlStr = String(img).trim()
+    
+    // Si el backend nos mandó /storage/http... por error, lo limpiamos
+    if (urlStr.startsWith('/storage/http')) {
+        urlStr = urlStr.replace('/storage/', '')
+    }
+    
+    // Si ya es una URL absoluta o relativa al protocolo
+    if (urlStr.toLowerCase().startsWith('http') || urlStr.startsWith('//')) {
+        try {
+            return route('img.proxy', { u: btoa(urlStr) })
+        } catch (e) {
             return route('img.proxy', { url: urlStr })
         }
-        return `/storage/${urlStr}`
     }
-    return null
+    
+    // Si ya tiene el prefijo storage o empieza con /
+    if (urlStr.startsWith('/storage/') || urlStr.startsWith('/')) {
+        return urlStr
+    }
+    
+    return `/storage/${urlStr}`
 }
 
 const handleAskProduct = (producto) => {
@@ -210,7 +224,7 @@ const handleAskProduct = (producto) => {
     
     let text = `Hola, me interesa el producto:\n\n*${producto.nombre}*`;
     if (producto.origen === 'CVA') {
-        text += `\n(Desde Almacén Central)\n\nPrecio aprox: ${precio}\n\n¿Tienen disponibilidad para envío inmediato?`;
+        text += `\n\nPrecio aprox: ${precio}\n\n¿Tienen disponibilidad para envío inmediato?`;
     } else if (producto.stock <= 0) {
         text += `\n\nVeo que no hay stock inmediato. ¿Podrían darme una cotización o decirme cuándo tendrán disponibilidad?`;
     } else {
@@ -231,6 +245,17 @@ const handleAddToCart = (producto) => {
     setTimeout(() => {
         addedToCart.value = null
     }, 1500)
+}
+
+const handleSearchFocus = () => {
+    searchFocused.value = true
+}
+
+const handleSearchBlur = () => {
+    // Pequeño delay para permitir que el click en una sugerencia ocurra antes de cerrar
+    setTimeout(() => {
+        searchFocused.value = false
+    }, 200)
 }
 
 // Cerrar sugerencias al hacer scroll o presionar Esc
@@ -288,8 +313,8 @@ if (typeof window !== 'undefined') {
                             </svg>
                             <input 
                                 v-model="search"
-                                @focus="searchFocused = true"
-                                @blur="setTimeout(() => searchFocused = false, 200)"
+                                @focus="handleSearchFocus"
+                                @blur="handleSearchBlur"
                                 @input="debouncedSuggestions"
                                 type="text" 
                                 placeholder="Buscar productos por nombre, código o descripción..." 
@@ -335,7 +360,7 @@ if (typeof window !== 'undefined') {
                                                           sug.stock > 0 ? 'bg-green-500 animate-pulse' : 'bg-amber-400'
                                                       ]"></span>
                                                 <span class="text-[11px] font-black uppercase tracking-tight" :class="sug.stock > 0 ? 'text-green-600' : 'text-amber-600'">
-                                                    {{ sug.stock > 0 ? 'En Hermosillo' : 'Bajo pedido' }}
+                                                    {{ sug.stock > 0 ? `Entrega Inmediata (${sug.stock})` : 'Bajo pedido' }}
                                                 </span>
                                             </div>
                                         </div>
@@ -398,183 +423,261 @@ if (typeof window !== 'undefined') {
             </div>
         </section>
 
-        <!-- Main Content -->
-        <main class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
-            <!-- Toolbar -->
-            <div class="flex items-center justify-between mb-8">
-                <p class="text-sm text-gray-500">
-                    <span class="font-semibold text-gray-900">{{ filteredCount }}</span> productos encontrados
-                </p>
-                <div class="flex flex-wrap items-center gap-4">
-                    <!-- Toggle Existencia (CVA) -->
-                    <div class="flex flex-col gap-2">
-                        <label v-if="empresaData?.cva_active" class="flex items-center gap-2 cursor-pointer group">
-                            <div class="relative">
-                                <input type="checkbox" v-model="soloExistencia" @change="fetchCvaProducts(false)" class="sr-only peer">
-                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
-                            </div>
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider group-hover:text-blue-600 transition-colors">Con Stock (Todo)</span>
-                        </label>
-                        <label v-if="empresaData?.cva_active" class="flex items-center gap-2 cursor-pointer group">
-                            <div class="relative">
-                                <input type="checkbox" v-model="soloLocal" @change="fetchCvaProducts(false)" class="sr-only peer">
-                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
-                            </div>
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider group-hover:text-green-600 transition-colors">Entrega Inmediata (Local)</span>
-                        </label>
-                    </div>
-
-                    <select v-model="selectedOrden" @change="applyFilters()"
-                            class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]">
-                        <option value="recientes">Más recientes</option>
-                        <option value="precio_asc">Menor precio</option>
-                        <option value="precio_desc">Mayor precio</option>
-                        <option value="nombre">Nombre A-Z</option>
-                    </select>
-                    <button v-if="selectedCategoria || selectedMarca || search"
-                            @click="clearFilters"
-                            class="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 transition-colors">
-                        Limpiar filtros
+        <!-- Main Content (Unified Search & Filters) -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+            <div class="flex flex-col lg:flex-row gap-8">
+                
+                <!-- Sidebar (Filters) -->
+                <aside class="w-full lg:w-72 flex-shrink-0 space-y-8">
+                    <!-- Móvil: Botón para mostrar filtros -->
+                    <button @click="showMobileFilters = !showMobileFilters" 
+                            class="lg:hidden w-full flex items-center justify-between px-6 py-4 bg-white rounded-2xl shadow-sm border border-gray-100 font-bold text-gray-700">
+                        <span class="flex items-center gap-2">
+                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
+                             Filtros y Categorías
+                        </span>
+                        <svg class="w-5 h-5 transition-transform" :class="{'rotate-180': showMobileFilters}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                     </button>
-                </div>
-            </div>
 
-            <!-- Products Grid -->
-            <div v-if="allProducts.length" class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-                <!-- Unified Grid for both Local and CVA -->
-                <article v-for="producto in allProducts" :key="producto.id"
-                         class="group bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all duration-300">
-                    <!-- Image con efecto cristal -->
-                    <Link :href="route('catalogo.show', producto.id)" class="block relative aspect-square bg-gray-50 overflow-hidden">
-                        <!-- Efecto cristal -->
-                        <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none z-10"></div>
-                        
-                        <img v-if="getImageUrl(producto)" 
-                             :src="getImageUrl(producto)" 
-                             :alt="producto.nombre"
-                             class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 p-2" />
-                        <div v-else class="w-full h-full flex items-center justify-center">
-                            <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                        
-                        <!-- Stock Badge -->
-                        <div class="absolute top-2 right-2 z-20 flex flex-col items-end gap-1">
-                            <span v-if="producto.stock_local > 0" 
-                                  class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700 shadow-sm border border-green-200">
-                                Disponible en Sucursal
-                            </span>
-                            <span v-else-if="producto.stock_cedis > 0" 
-                                  class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-700 shadow-sm border border-blue-200">
-                                Almacén Central (2-4 días)
-                            </span>
-                            <span v-else-if="producto.stock > 0" 
-                                  class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700">
-                                {{ producto.stock }} disponibles
-                            </span>
-                            <span v-else 
-                                  class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700">
-                                Bajo Pedido
-                            </span>
-                        </div>
-                    </Link>
-
-                    <!-- Content -->
-                    <div class="p-4">
-                        <Link :href="route('catalogo.show', producto.id)">
-                            <h3 class="font-medium text-gray-900 text-sm line-clamp-2 group-hover:text-[var(--color-primary)] transition-colors mb-1 min-h-[40px]">
-                                {{ producto.nombre }}
+                    <div :class="[
+                        'lg:block space-y-8',
+                        showMobileFilters ? 'block animate-fade-in' : 'hidden'
+                    ]">
+                        <!-- Rango de Precio -->
+                        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
+                            <h3 class="text-xs font-black text-gray-900 uppercase tracking-[0.2em] mb-6 flex items-center justify-between">
+                                Presupuesto
+                                <span class="w-2 h-2 rounded-full bg-green-500"></span>
                             </h3>
-                        </Link>
-                        
-                        <p class="text-xs text-gray-400 mb-2 uppercase font-semibold">
-                            {{ producto.marca?.nombre || producto.marca }}
-                        </p>
+                            <div class="space-y-6">
+                                <div class="flex justify-between text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                    <span>Desde {{ formatCurrency(precioMin) }}</span>
+                                </div>
+                                <input type="range" 
+                                       v-model="precioMin" 
+                                       :min="priceRange?.min" 
+                                       :max="priceRange?.max" 
+                                       step="100"
+                                       @change="applyFilters"
+                                       class="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)]">
+                                <div class="flex justify-between text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                    <span>Hasta {{ formatCurrency(precioMax) }}</span>
+                                </div>
+                                <input type="range" 
+                                       v-model="precioMax" 
+                                       :min="priceRange?.min" 
+                                       :max="priceRange?.max" 
+                                       step="100"
+                                       @change="applyFilters"
+                                       class="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)]">
+                            </div>
+                        </div>
 
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="font-bold" :class="producto.origen === 'CVA' ? 'text-blue-600' : ''" :style="producto.origen !== 'CVA' ? { color: 'var(--color-primary)' } : {}">
-                                    {{ formatCurrency(producto.precio_con_iva) }}
-                                </p>
-                                <p class="text-[10px] text-gray-400">
-                                    {{ producto.origen === 'CVA' ? 'Entrega 2 a 4 días' : 'IVA incl.' }}
+                        <!-- Categorías Populares -->
+                        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
+                            <h3 class="text-xs font-black text-gray-900 uppercase tracking-[0.2em] mb-4">Categorías</h3>
+                            <div class="space-y-1">
+                                <button v-for="cat in categorias" :key="cat.id"
+                                        @click="selectedCategoria = (selectedCategoria == cat.id ? '' : cat.id); applyFilters()"
+                                        :class="[
+                                            'w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-between group',
+                                            selectedCategoria == cat.id 
+                                                ? 'bg-gray-900 text-white shadow-lg' 
+                                                : 'text-gray-500 hover:bg-gray-50'
+                                        ]">
+                                    <span class="truncate">{{ cat.nombre }}</span>
+                                    <span :class="selectedCategoria == cat.id ? 'text-gray-400' : 'text-gray-300'" class="text-[10px] font-black">{{ cat.productos_count }}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Marcas -->
+                        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
+                            <h3 class="text-xs font-black text-gray-900 uppercase tracking-[0.2em] mb-4">Marcas</h3>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button v-for="marca in marcas" :key="marca.id"
+                                        @click="selectedMarca = (selectedMarca == marca.id ? '' : marca.id); applyFilters()"
+                                        :class="[
+                                            'px-2 py-2.5 rounded-xl text-[9px] font-black uppercase text-center border-2 transition-all truncate',
+                                            selectedMarca == marca.id 
+                                                ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-md' 
+                                                : 'bg-white border-gray-50 text-gray-400 hover:border-gray-200'
+                                        ]">
+                                    {{ marca.nombre }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Botón Limpiar -->
+                        <button v-if="selectedCategoria || selectedMarca || search || precioMin > priceRange?.min"
+                                @click="clearFilters"
+                                class="w-full py-4 text-[10px] font-black text-red-500 uppercase tracking-widest hover:bg-red-50 rounded-2xl transition-all border border-dashed border-red-100">
+                            Limpiar todos los filtros
+                        </button>
+                    </div>
+                </aside>
+
+                <!-- Product List Area -->
+                <div class="flex-1 min-w-0">
+                    <!-- Toolbar Principal -->
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm">
+                        <div class="flex items-center gap-6">
+                            <div class="flex flex-col">
+                                <p class="text-[10px] font-black text-gray-300 uppercase tracking-widest leading-none mb-1">Mostrando</p>
+                                <p class="text-sm font-black text-gray-900 leading-none">
+                                    {{ filteredCount }} <span class="text-gray-400 font-bold ml-1 uppercase text-[10px]">Productos</span>
                                 </p>
                             </div>
                             
-                            <!-- Botón agregar al carrito o preguntar -->
-                            <button v-if="producto.stock > 0" 
-                                    @click="handleAddToCart(producto)"
-                                    :class="[
-                                        'p-2 rounded-lg transition-all',
-                                        addedToCart === producto.id ? 'bg-green-500 text-white' : (producto.origen === 'CVA' ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' : 'bg-gray-100 text-gray-600 hover:bg-gray-200')
-                                    ]">
-                                <svg v-if="addedToCart === producto.id" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                </svg>
-                                <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                </svg>
-                            </button>
-                            <button v-else 
-                                    @click="handleAskProduct(producto)"
-                                    class="p-2 bg-amber-100 text-amber-600 rounded-lg hover:bg-amber-200 transition-all"
-                                    title="Preguntar por disponibilidad">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                                </svg>
-                            </button>
+                            <div class="h-8 w-px bg-gray-100 hidden md:block"></div>
+                            
+                            <!-- Toggles rápidos con diseño Premium -->
+                            <div class="flex gap-4">
+                                <button @click="soloLocal = !soloLocal; applyFilters()"
+                                        :class="[
+                                            'px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2',
+                                            soloLocal ? 'bg-green-500 text-white shadow-lg shadow-green-500/20' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                                        ]">
+                                    <div class="w-1.5 h-1.5 rounded-full" :class="soloLocal ? 'bg-white animate-pulse' : 'bg-gray-300'"></div>
+                                    Entrega Inmediata
+                                </button>
+                                <button @click="soloExistencia = !soloExistencia; applyFilters()"
+                                        :class="[
+                                            'px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2',
+                                            soloExistencia ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                                        ]">
+                                    <div class="w-1.5 h-1.5 rounded-full" :class="soloExistencia ? 'bg-white' : 'bg-gray-300'"></div>
+                                    Con Stock
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 w-full md:w-auto">
+                            <select v-model="selectedOrden" @change="applyFilters"
+                                    class="w-full md:w-auto px-5 py-2.5 bg-gray-50 border-0 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-500 focus:ring-2 focus:ring-[var(--color-primary-soft)] cursor-pointer">
+                                <option value="recientes">Novedades</option>
+                                <option value="precio_asc">Precio: Bajo a Alto</option>
+                                <option value="precio_desc">Precio: Alto a Bajo</option>
+                                <option value="nombre">Nombre A-Z</option>
+                            </select>
                         </div>
                     </div>
-                </article>
-            </div>
 
-            <!-- Loading Skeleton while fetching CVA -->
-            <div v-else-if="loadingCva" class="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                <div v-for="i in 8" :key="i" class="animate-pulse bg-white rounded-xl p-4 border border-gray-100 h-64">
-                    <div class="bg-gray-200 rounded-lg aspect-square mb-4"></div>
-                    <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                    <div class="h-3 bg-gray-200 rounded w-1/2"></div>
-                </div>
-            </div>
+                    <!-- Grid de Productos -->
+                    <div v-if="allProducts.length" class="grid grid-cols-2 lg:grid-cols-3 gap-6">
+                        <article v-for="producto in allProducts" :key="producto.id"
+                                 class="group bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 hover:shadow-2xl hover:border-white transition-all duration-500 flex flex-col relative">
+                            
+                            <!-- Badge de Origen Premium -->
+                            <div v-if="producto.stock_cedis > 0 && !(producto.stock_local > 0)" class="absolute top-4 right-4 z-30">
+                                <div class="bg-blue-600 text-white px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-600/30">
+                                    Envío Nacional
+                                </div>
+                            </div>
 
-            <!-- Empty State -->
-            <div v-else class="text-center py-20">
-                <div class="w-20 h-20 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">No encontramos productos</h3>
-                <p class="text-gray-500 mb-6">Intenta con otros términos de búsqueda</p>
-                <button @click="clearFilters" 
-                        class="px-6 py-2 text-white rounded-lg font-medium hover:opacity-90 transition-all"
-                        style="background-color: var(--color-primary);">
-                    Ver todos los productos
-                </button>
-            </div>
+                            <!-- Imagen con Contenedor de Diseño -->
+                            <Link :href="route('catalogo.show', producto.id)" class="block relative aspect-square bg-gray-50 overflow-hidden m-2 rounded-[2rem]">
+                                <img v-if="getImageUrl(producto)" 
+                                     :src="getImageUrl(producto)" 
+                                     :alt="producto.nombre"
+                                     class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700 p-8" />
+                                <div v-else class="w-full h-full flex items-center justify-center">
+                                    <svg class="w-12 h-12 text-gray-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                </div>
+                            </Link>
 
-            <!-- Pagination -->
-            <div v-if="productos?.last_page > 1" class="mt-12 flex flex-col items-center gap-4">
-                <div class="text-sm text-gray-500">
-                    Página {{ productos.current_page }} de {{ productos.last_page }} 
-                    <span class="mx-2">•</span>
-                    {{ productos.total }} productos
-                </div>
-                <div class="flex justify-center gap-2 flex-wrap">
-                    <template v-for="link in productos.links" :key="link.label">
-                        <Link v-if="link.url" 
-                              :href="link.url"
-                              :class="[
-                                  'px-4 py-2 rounded-lg text-sm font-medium transition-all',
-                                  link.active ? 'text-white shadow-lg' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                              ]"
-                              :style="link.active ? { backgroundColor: 'var(--color-primary)' } : {}"
-                              v-html="link.label" />
-                        <span v-else 
-                              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-300"
-                              v-html="link.label" />
-                    </template>
+                            <!-- Información -->
+                            <div class="px-6 py-5 flex-1 flex flex-col">
+                                <div class="mb-4">
+                                    <div class="flex items-center gap-1.5 mb-1">
+                                        <span v-if="producto.stock_local > 0" class="text-[9px] font-black text-green-600 bg-green-50 px-2 py-0.5 rounded-md uppercase tracking-tighter">
+                                            Entrega Inmediata ({{ producto.stock_local }})
+                                        </span>
+                                        <span v-else-if="producto.stock_cedis > 0" class="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md uppercase tracking-tighter">
+                                            Bajo Pedido ({{ producto.stock_cedis }})
+                                        </span>
+                                        <span v-else class="text-[9px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md uppercase tracking-tighter">
+                                            Bajo Pedido
+                                        </span>
+                                    </div>
+                                    <p class="text-[9px] font-black text-[var(--color-primary)] uppercase tracking-[0.3em] mb-1 leading-none">
+                                        {{ producto.marca?.nombre || producto.marca }}
+                                    </p>
+                                    <Link :href="route('catalogo.show', producto.id)">
+                                        <h3 class="font-bold text-gray-900 text-xs sm:text-sm line-clamp-2 leading-relaxed group-hover:text-[var(--color-primary)] transition-colors min-h-[40px]">
+                                            {{ producto.nombre }}
+                                        </h3>
+                                    </Link>
+                                </div>
+
+                                <div class="mt-auto flex items-center justify-between pt-4 border-t border-gray-50">
+                                    <div class="flex flex-col">
+                                        <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Inversión</span>
+                                        <span class="text-lg font-black text-gray-900 leading-none">
+                                            {{ formatCurrency(producto.precio_con_iva) }}
+                                        </span>
+                                    </div>
+                                    
+                                    <button v-if="producto.stock_local > 0 || producto.stock_cedis > 0" 
+                                            @click="handleAddToCart(producto)"
+                                            :disabled="addedToCart === producto.id"
+                                            :class="[
+                                                'w-11 h-11 rounded-2xl transition-all duration-500 flex items-center justify-center shadow-lg',
+                                                addedToCart === producto.id 
+                                                    ? 'bg-green-500 text-white shadow-green-500/30' 
+                                                    : 'bg-gray-900 text-white hover:bg-[var(--color-primary)] hover:shadow-[var(--color-primary)]/40 hover:-translate-y-1'
+                                            ]">
+                                        <svg v-if="addedToCart === producto.id" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+                                        <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                                    </button>
+                                    <button v-else 
+                                            @click="handleAskProduct(producto)"
+                                            class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-all flex items-center justify-center group/wa shadow-sm">
+                                        <svg class="w-6 h-6 group-hover/wa:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <!-- Estado Vacío -->
+                    <div v-else class="text-center py-24 bg-white rounded-[4rem] border border-gray-100 shadow-sm flex flex-col items-center">
+                        <div class="w-32 h-32 mb-8 bg-gray-50 rounded-full flex items-center justify-center relative">
+                            <svg class="w-16 h-16 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                            <div class="absolute inset-0 border-2 border-dashed border-gray-100 rounded-full animate-spin-slow"></div>
+                        </div>
+                        <h3 class="text-2xl font-black text-gray-900 mb-2">Búsqueda sin resultados</h3>
+                        <p class="text-gray-400 mb-10 max-w-xs mx-auto font-medium">Lamentamos no encontrar lo que buscas. Intenta con una marca general o ajustando el presupuesto.</p>
+                        <button @click="clearFilters" 
+                                class="px-10 py-4 bg-gray-900 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] hover:-translate-y-2 transition-all shadow-xl shadow-gray-200">
+                            Reiniciar Búsqueda
+                        </button>
+                    </div>
+
+                    <!-- Paginación Premium -->
+                    <div v-if="productos?.last_page > 1" class="mt-20 flex flex-col items-center gap-8">
+                        <div class="flex justify-center gap-3 flex-wrap">
+                            <template v-for="link in productos.links" :key="link.label">
+                                <Link v-if="link.url" 
+                                      :href="link.url"
+                                      :class="[
+                                          'w-12 h-12 rounded-2xl text-[10px] font-black transition-all flex items-center justify-center shadow-sm',
+                                          link.active 
+                                            ? 'bg-gray-900 text-white shadow-xl shadow-gray-900/20' 
+                                            : 'bg-white text-gray-400 hover:bg-gray-50 border border-gray-100'
+                                      ]"
+                                      v-html="link.label.replace('Previous', '←').replace('Next', '→')" />
+                                <span v-else 
+                                      class="w-12 h-12 rounded-2xl text-[10px] font-black bg-gray-50 text-gray-200 flex items-center justify-center border border-gray-100"
+                                      v-html="link.label.replace('Previous', '←').replace('Next', '→')" />
+                            </template>
+                        </div>
+                        <div class="px-6 py-2 bg-gray-100 rounded-full">
+                            <p class="text-[9px] font-black text-gray-400 uppercase tracking-[0.4em]">
+                                Página {{ productos.current_page }} de {{ productos.last_page }}
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

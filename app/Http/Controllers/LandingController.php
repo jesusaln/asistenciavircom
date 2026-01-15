@@ -54,7 +54,7 @@ class LandingController extends Controller
                         'id' => $producto->id,
                         'nombre' => $producto->nombre,
                         'precio' => $precioConIva,
-                        'imagen_url' => $producto->imagen ? Storage::url($producto->imagen) : null,
+                        'imagen_url' => $producto->imagen ? (str_starts_with($producto->imagen, 'http') ? $producto->imagen : Storage::url($producto->imagen)) : null,
                         'categoria' => $producto->categoria->nombre ?? 'General',
                     ];
                 })
@@ -72,7 +72,7 @@ class LandingController extends Controller
                         'id' => $producto->id,
                         'nombre' => $producto->nombre,
                         'precio' => $precioConIva,
-                        'imagen_url' => $producto->imagen ? Storage::url($producto->imagen) : null,
+                        'imagen_url' => $producto->imagen ? (str_starts_with($producto->imagen, 'http') ? $producto->imagen : Storage::url($producto->imagen)) : null,
                         'categoria' => $producto->categoria->nombre ?? 'General',
                     ];
                 });
@@ -235,23 +235,47 @@ class LandingController extends Controller
         try {
             return DB::transaction(function () use ($request, $empresaId) {
                 $f = $request->form;
-                $notasDetalladas = "Lead generado desde el Simulador de Climatización.\n\n" .
-                    "📊 RESULTADOS:\n" .
-                    "- BTU Calculados: " . ($request->btu ?? 'N/A') . "\n" .
-                    "- Recomendación: " . ($request->recomendacion ?? 'N/A') . "\n\n" .
-                    "🏠 DATOS DEL ESPACIO:\n" .
-                    "- Área: " . ($f['area'] ?? 'N/A') . " m²\n" .
-                    "- Altura: " . ($f['altura'] ?? 'N/A') . " m\n" .
-                    "- Zona: " . ($f['zona'] ?? 'N/A') . "\n" .
-                    "- Personas: " . ($f['personas'] ?? 'N/A') . "\n" .
-                    "- Aparatos: " . ($f['aparatos'] ?? 'N/A') . "\n" .
-                    "- Sol Directo al Techo: " . (($f['techo_directo'] ?? false) ? 'Sí' : 'No') . "\n" .
-                    "- Ventanales Grandes: " . (($f['ventanales'] ?? false) ? 'Sí' : 'No') . "\n" .
-                    "- Aislamiento: " . ($f['aislamiento'] ?? 'N/A') . "\n" .
-                    "- Exposición al Sol: " . ($f['sol'] ?? 'N/A') . "\n\n" .
-                    "⚡ REQUERIMIENTOS TÉCNICOS:\n" .
-                    "- Voltaje: " . ($f['voltaje'] ?? 'N/A') . "V\n" .
-                    "- Función: " . ($f['funcion'] ?? 'N/A');
+                $isPOS = isset($f['tipo_asesor']) && $f['tipo_asesor'] === 'pos';
+
+                if ($isPOS) {
+                    $notasDetalladas = "Lead generado desde el CONFIGURADOR POS.\n\n" .
+                        "📊 CONFIGURACIÓN:\n" .
+                        "- Kit Recomendado: " . ($request->recomendacion ?? 'N/A') . "\n" .
+                        "- Software Sugerido: " . ($f['software'] ?? 'Eleventa') . "\n" .
+                        "- Puntuación Complejidad: " . ($request->btu ?? 'N/A') . "\n\n" .
+                        "🏢 DATOS DEL NEGOCIO:\n" .
+                        "- Giro: " . ($f['giro'] ?? 'N/A') . "\n" .
+                        "- Volumen Ventas: " . ($f['volumen_ventas'] ?? 'N/A') . "\n" .
+                        "- Cajas/Estaciones: " . ($f['sucursales'] ?? '1') . "\n\n" .
+                        "🛠️ EQUIPAMIENTO SOLICITADO:\n" .
+                        "- PC Completa: " . (($f['necesita_computadora_completa'] ?? false) ? 'Sí' : 'No') . "\n" .
+                        "- Solo CPU: " . (($f['necesita_cpu'] ?? false) ? 'Sí' : 'No') . "\n" .
+                        "- Monitor: " . (($f['necesita_monitor'] ?? false) ? 'Sí' : 'No') . "\n" .
+                        "- Cajón de Dinero: " . (($f['necesita_cajon_dinero'] ?? false) ? 'Sí' : 'No') . "\n" .
+                        "- Impresora Tickets: " . (($f['necesita_impresora_tickets'] ?? false) ? 'Sí' : 'No') . "\n" .
+                        "- Báscula: " . (($f['necesita_bascula'] ?? false) ? 'Sí' : 'No') . "\n" .
+                        "- Lector de Códigos: " . (($f['necesita_lector_codigos'] ?? false) ? 'Sí' : 'No') . "\n" .
+                        "- Etiquetadora: " . (($f['necesita_etiquetadora'] ?? false) ? 'Sí' : 'No') . "\n" .
+                        "- Monitor Touch: " . (($f['necesita_monitor_touch'] ?? false) ? 'Sí' : 'No');
+                } else {
+                    $notasDetalladas = "Lead generado desde el Simulador de Climatización.\n\n" .
+                        "📊 RESULTADOS:\n" .
+                        "- BTU Calculados: " . ($request->btu ?? 'N/A') . "\n" .
+                        "- Recomendación: " . ($request->recomendacion ?? 'N/A') . "\n\n" .
+                        "🏠 DATOS DEL ESPACIO:\n" .
+                        "- Área: " . ($f['area'] ?? 'N/A') . " m²\n" .
+                        "- Altura: " . ($f['altura'] ?? 'N/A') . " m\n" .
+                        "- Zona: " . ($f['zona'] ?? 'N/A') . "\n" .
+                        "- Personas: " . ($f['personas'] ?? 'N/A') . "\n" .
+                        "- Aparatos: " . ($f['aparatos'] ?? 'N/A') . "\n" .
+                        "- Sol Directo al Techo: " . (($f['techo_directo'] ?? false) ? 'Sí' : 'No') . "\n" .
+                        "- Ventanales Grandes: " . (($f['ventanales'] ?? false) ? 'Sí' : 'No') . "\n" .
+                        "- Aislamiento: " . ($f['aislamiento'] ?? 'N/A') . "\n" .
+                        "- Exposición al Sol: " . ($f['sol'] ?? 'N/A') . "\n\n" .
+                        "⚡ REQUERIMIENTOS TÉCNICOS:\n" .
+                        "- Voltaje: " . ($f['voltaje'] ?? 'N/A') . "V\n" .
+                        "- Función: " . ($f['funcion'] ?? 'N/A');
+                }
 
                 // 1. Crear el prospecto en el CRM
                 $prospecto = CrmProspecto::create([
@@ -294,10 +318,11 @@ class LandingController extends Controller
 
         // Asegurar que form sea un array
         $form = $request->input('form', []);
+        $isPOS = isset($form['tipo_asesor']) && $form['tipo_asesor'] === 'pos';
 
         $data = [
             'empresa' => [
-                'nombre' => $infoEmpresa['nombre'] ?? 'Climas del Desierto',
+                'nombre' => $infoEmpresa['nombre'] ?? 'Administrador POS',
                 'logo_url' => $infoEmpresa['logo_url'],
                 'logo_base64' => $infoEmpresa['logo_base64'],
                 'telefono' => $infoEmpresa['telefono'],
@@ -312,44 +337,19 @@ class LandingController extends Controller
             'form' => $form,
             'ahorro' => $request->input('ahorro', 0),
             'fecha' => now()->format('d/m/Y'),
+            'is_pos' => $isPOS
         ];
 
-        // Lógica de cálculo eléctrico básico (Estimado)
-        $btu = $data['btu'];
-        $voltaje = $form['voltaje'] ?? '220';
-
-        $cable = 'N/A';
-        $breaker = 'N/A';
-
-        if ($voltaje == '110') {
-            if ($btu <= 14000) {
-                $cable = '12 AWG';
-                $breaker = '1 polo x 20A';
-            } else {
-                $cable = '10 AWG';
-                $breaker = '1 polo x 30A';
-            }
-        } else {
-            if ($btu <= 14000) {
-                $cable = '14 AWG';
-                $breaker = '2 polos x 15A';
-            } elseif ($btu <= 19000) {
-                $cable = '12 AWG';
-                $breaker = '2 polos x 20A';
-            } elseif ($btu <= 26000) {
-                $cable = '12 AWG';
-                $breaker = '2 polos x 20A';
-            } else {
-                $cable = '10 AWG';
-                $breaker = '2 polos x 30A';
-            }
+        if (!$isPOS) {
+            // Lógica de cálculo eléctrico para AC
+            $btu = $data['btu'];
+            $voltaje = $form['voltaje'] ?? '220';
+            $cable = $voltaje == '110' ? ($btu <= 14000 ? '12 AWG' : '10 AWG') : ($btu <= 14000 ? '14 AWG' : ($btu <= 26000 ? '12 AWG' : '10 AWG'));
+            $data['elec_cable'] = $cable;
+            $data['elec_breaker'] = $voltaje == '110' ? ($btu <= 14000 ? '1 polo x 20A' : '1 polo x 30A') : ($btu <= 14000 ? '2 polos x 15A' : ($btu <= 19000 ? '2 polos x 20A' : '2 polos x 30A'));
         }
 
-        $data['elec_cable'] = $cable;
-        $data['elec_breaker'] = $breaker;
-
         $pdf = Pdf::loadView('pdf.asesor_reporte', $data);
-
-        return $pdf->stream('Reporte_Tecnico_Climatizacion.pdf');
+        return $pdf->stream($isPOS ? 'Propuesta_POS_Personalizada.pdf' : 'Reporte_Tecnico_Climatizacion.pdf');
     }
 }

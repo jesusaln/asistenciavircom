@@ -1,15 +1,13 @@
 <script setup>
 import { Head, Link, usePage } from '@inertiajs/vue3'
 import { useCart } from '@/composables/useCart'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import PublicNavbar from '@/Components/PublicNavbar.vue'
 import PublicFooter from '@/Components/PublicFooter.vue'
 import WhatsAppWidget from '@/Components/WhatsAppWidget.vue'
 
 const props = defineProps({
     empresa: Object,
-    cliente: Object,
-    canLogin: Boolean,
     recomendados: Array
 })
 
@@ -22,7 +20,11 @@ const empresaData = computed(() => {
     return { ...globalConfig, ...localProp };
 });
 
-const { items, itemCount, subtotal, subtotalSinIva, iva, isEmpty, removeItem, incrementQuantity, decrementQuantity, clearCart } = useCart()
+const { 
+    items, itemCount, subtotal, subtotalSinIva, iva, isEmpty, 
+    removeItem, incrementQuantity, decrementQuantity, clearCart,
+    syncWithServer 
+} = useCart()
 
 const cssVars = computed(() => ({
     '--color-primary': empresaData.value.color_principal || '#FF6B35',
@@ -41,16 +43,65 @@ const formatCurrency = (value) => {
 }
 
 const getImageUrl = (imagen) => {
-    if (imagen) {
-        if (imagen.startsWith('http')) return imagen
-        return `/storage/${imagen}`
+    if (!imagen) return null
+    let urlStr = String(imagen).trim()
+    
+    // Si el backend nos mandó /storage/http... por error, lo limpiamos
+    if (urlStr.startsWith('/storage/http')) {
+        urlStr = urlStr.replace('/storage/', '')
     }
-    return null
+    
+    // Si ya es una URL absoluta o relativa al protocolo
+    if (urlStr.toLowerCase().startsWith('http') || urlStr.startsWith('//')) {
+        try {
+            return route('img.proxy', { u: btoa(urlStr) })
+        } catch (e) {
+            return route('img.proxy', { url: urlStr })
+        }
+    }
+    
+    // Si ya tiene el prefijo storage o empieza con /
+    if (urlStr.startsWith('/storage/') || urlStr.startsWith('/')) {
+        return urlStr
+    }
+    
+    return `/storage/${urlStr}`
 }
 
 // $100 base + 16% IVA = $116
 const costoEnvio = computed(() => 116)
 const total = computed(() => subtotal.value + costoEnvio.value)
+
+const isValidating = ref(false)
+
+const handleCheckout = async () => {
+    isValidating.value = true
+    try {
+        const result = await syncWithServer()
+        if (result.error) {
+            alert(result.error)
+            return
+        }
+
+        if (result.changed) {
+            alert('Algunos precios o existencias han cambiado. Por favor revisa tu carrito antes de continuar.')
+            return
+        }
+
+        if (!result.valid) {
+            alert('Hay problemas con algunos artículos en tu carrito.')
+            return
+        }
+
+        // Redirigir al checkout
+        window.location.href = route('tienda.checkout')
+    } catch (e) {
+        console.error(e)
+        alert('Ocurrió un error al validar tu pedido.')
+    } finally {
+        isValidating.value = false
+    }
+}
 </script>
 
 <template>
@@ -116,7 +167,7 @@ const total = computed(() => subtotal.value + costoEnvio.value)
                                     {{ formatCurrency(item.precio) }}
                                 </p>
                                 <span v-if="String(item.producto_id).startsWith('CVA-')" class="text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase mt-1 inline-block">
-                                    Almacén Central
+                                    Bajo Pedido
                                 </span>
                             </div>
                             
@@ -179,7 +230,7 @@ const total = computed(() => subtotal.value + costoEnvio.value)
                             </div>
 
                             <div v-if="items.some(i => String(i.producto_id).startsWith('CVA-'))" class="p-3 bg-blue-50 rounded-xl border border-blue-100 text-[10px] font-bold text-blue-700 flex items-center gap-2">
-                                📦 Tienes productos de Almacén Central (Entrega 2-4 días hábiles)
+                                📦 Productos bajo pedido (Entrega 2-4 días hábiles)
                             </div>
                             <div class="h-px bg-gray-100 my-2"></div>
                             <div class="flex justify-between text-lg">
@@ -191,10 +242,18 @@ const total = computed(() => subtotal.value + costoEnvio.value)
                         </div>
 
                         <!-- Checkout Button -->
-                        <Link :href="route('tienda.checkout')"
-                              class="block w-full py-4 bg-[var(--color-primary)] text-white rounded-xl font-black text-sm uppercase tracking-widest text-center shadow-xl shadow-[var(--color-primary)]/20 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[var(--color-primary)]/30 transition-all">
-                            Pagar Ahora
-                        </Link>
+                        <button @click="handleCheckout"
+                                :disabled="isValidating"
+                                class="block w-full py-4 bg-[var(--color-primary)] text-white rounded-xl font-black text-sm uppercase tracking-widest text-center shadow-xl shadow-[var(--color-primary)]/20 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[var(--color-primary)]/30 transition-all disabled:opacity-50 disabled:cursor-wait">
+                            <span v-if="isValidating" class="flex items-center justify-center gap-2">
+                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Validando...
+                            </span>
+                            <span v-else>Pagar Ahora</span>
+                        </button>
                         
                         <div class="mt-4 text-center">
                              <Link :href="route('catalogo.index')" class="text-xs font-bold text-gray-400 hover:text-[var(--color-primary)] uppercase tracking-widest transition-colors">

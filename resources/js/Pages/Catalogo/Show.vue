@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import PublicNavbar from '@/Components/PublicNavbar.vue';
 import PublicFooter from '@/Components/PublicFooter.vue';
 import WhatsAppWidget from '@/Components/WhatsAppWidget.vue';
+import { useCart } from '@/composables/useCart';
 
 const props = defineProps({
     producto: Object,
@@ -27,6 +28,9 @@ const agregado = ref(false)
 const agregando = ref(false)
 const mainImage = ref(null)
 const showCedisModal = ref(false)
+
+// Usar el composable de carrito compartido
+const { addItem, isInCart } = useCart()
 
 // CSS Variables basados en colores corporativos (#FF6B35 es el principal de Climas del Desierto)
 const cssVars = computed(() => ({
@@ -121,23 +125,32 @@ const formatCurrency = (value) => {
 }
 
 const getImageUrl = (input) => {
-    // Si es un objeto producto
-    if (input?.imagen) {
-        const urlStr = String(input.imagen).trim()
-        if (urlStr.startsWith('http')) {
-             return route('img.proxy', { url: urlStr })
-        }
-        return `/storage/${urlStr}`
+    if (!input) return null
+    const img = (typeof input === 'string') ? input : (input.imagen || input.imagen_url)
+    if (!img) return null
+    
+    let urlStr = String(img).trim()
+    
+    // Si el backend nos mandó /storage/http... por error, lo limpiamos
+    if (urlStr.startsWith('/storage/http')) {
+        urlStr = urlStr.replace('/storage/', '')
     }
-    // Si es una cadena (URL directa de la galería)
-    if (typeof input === 'string') {
-        const urlStr = input.trim()
-        if (urlStr.startsWith('http')) {
-             return route('img.proxy', { url: urlStr })
+    
+    // Si ya es una URL absoluta o relativa al protocolo
+    if (urlStr.toLowerCase().startsWith('http') || urlStr.startsWith('//')) {
+        try {
+            return route('img.proxy', { u: btoa(urlStr) })
+        } catch (e) {
+            return route('img.proxy', { url: urlStr })
         }
-        return `/storage/${urlStr}`
     }
-    return null
+    
+    // Si ya tiene el prefijo storage o empieza con /
+    if (urlStr.startsWith('/storage/') || urlStr.startsWith('/')) {
+        return urlStr
+    }
+    
+    return `/storage/${urlStr}`
 }
 
 const openWhatsApp = () => {
@@ -179,43 +192,36 @@ const confirmAddToCart = () => {
     showCedisModal.value = false
     agregando.value = true
     
-    // Obtener carrito actual
-    const cart = JSON.parse(localStorage.getItem('carrito') || '[]')
-    
-    // Verificar si ya existe el producto
-    const existingIndex = cart.findIndex(item => item.id === props.producto.id)
-    
-    if (existingIndex >= 0) {
-        cart[existingIndex].cantidad += cantidad.value
-    } else {
-        cart.push({
-            id: props.producto.id,
-            nombre: props.producto.nombre,
-            precio: props.producto.precio_con_iva,
-            precio_sin_iva: props.producto.precio_venta,
-            imagen: props.producto.imagen,
-            cantidad: cantidad.value,
-            origen: props.producto.origen || 'local',
-            esCedis: isFromCedis.value
-        })
-    }
-    
-    // Guardar en localStorage
-    localStorage.setItem('carrito', JSON.stringify(cart))
+    // Usar el composable para agregar al carrito
+    const result = addItem({
+        id: props.producto.id,
+        nombre: props.producto.nombre,
+        precio: props.producto.precio_con_iva || props.producto.precio_venta,
+        precio_sin_iva: props.producto.precio_venta,
+        imagen: props.producto.imagen,
+        stock: props.producto.stock || props.producto.stock_local || 999, // CVA puede tener stock alto
+        origen: props.producto.origen || 'local',
+    }, cantidad.value)
     
     // Mostrar confirmación
     setTimeout(() => {
         agregando.value = false
-        agregado.value = true
-        setTimeout(() => {
-            agregado.value = false
-        }, 2000)
+        if (result.success) {
+            agregado.value = true
+            setTimeout(() => {
+                agregado.value = false
+            }, 2000)
+        } else {
+            alert(result.message)
+        }
     }, 500)
 }
 
 // Incrementar/decrementar cantidad
 const incrementar = () => {
-    if (cantidad.value < props.producto.stock) {
+    // Permitir incrementar si hay stock o si está en tránsito
+    const maxStock = Math.max(props.producto.stock, props.producto.en_transito || 0);
+    if (cantidad.value < maxStock) {
         cantidad.value++
     }
 }
@@ -269,8 +275,8 @@ const decrementar = () => {
                         <!-- Stock badge -->
                         <div class="absolute top-4 right-4 z-20 flex flex-col gap-2 items-end">
                             <!-- Stock disponible -->
-                            <span v-if="producto.stock > 0" class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                                {{ producto.stock }} unidades disponibles
+                            <span v-if="producto.stock > 0" class="px-3 py-1 rounded-full text-xs font-black bg-green-100 text-green-700 uppercase tracking-tight">
+                                Entrega Inmediata ({{ producto.stock }})
                             </span>
                             <!-- En tránsito (si no hay stock pero hay en camino) -->
                             <span v-else-if="producto.en_transito > 0" class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
@@ -281,8 +287,8 @@ const decrementar = () => {
                                 Bajo pedido
                             </span>
                             <!-- Badge Almacén Central -->
-                            <span v-if="producto.origen === 'CVA'" class="px-3 py-1 bg-blue-600 text-white rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">
-                                Almacén Central
+                            <span v-if="producto.stock_cedis > 0 && !(producto.stock_local > 0)" class="px-3 py-1 bg-blue-600 text-white rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">
+                                Bajo Pedido
                             </span>
                         </div>
                     </div>
@@ -295,7 +301,7 @@ const decrementar = () => {
                                     'w-20 h-20 rounded-xl bg-gray-50 flex-shrink-0 border-2 transition-all p-2',
                                     (mainImage === img || (!mainImage && img === producto.imagen)) ? 'border-[var(--color-primary)]' : 'border-transparent'
                                 ]">
-                            <img :src="img" class="w-full h-full object-contain" />
+                            <img :src="getImageUrl(img)" class="w-full h-full object-contain" />
                         </button>
                     </div>
                 </div>
@@ -401,7 +407,7 @@ const decrementar = () => {
 
                     <!-- Disponibilidad por Sucursal -->
                     <div v-if="producto.stock_desglose && Object.keys(producto.stock_desglose).length > 0" class="mb-8">
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Disponibilidad en Sucursales:</h4>
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Stock para Entrega Inmediata:</h4>
                         <div class="flex flex-wrap gap-2">
                             <div v-for="(qty, branch) in producto.stock_desglose" :key="branch" 
                                 class="px-3 py-1 bg-green-50 border border-green-100 rounded-lg flex items-center gap-2">
@@ -412,8 +418,22 @@ const decrementar = () => {
                         </div>
                     </div>
 
-                    <!-- Cantidad y Comprar (solo si hay stock) -->
-                    <div v-if="producto.stock > 0" class="mb-6">
+                    <!-- En Tránsito (Próximamente) -->
+                    <div v-if="producto.en_transito > 0 && !(producto.stock > 0)" class="mb-8 p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+                        <div class="flex items-center gap-3 mb-2">
+                            <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <h4 class="font-bold text-yellow-800">Producto en camino</h4>
+                        </div>
+                        <p class="text-sm text-yellow-700">
+                            Próximamente tendremos <strong>{{ producto.en_transito }} unidades</strong> disponibles. 
+                            ¡Puedes comprarlo ahora para asegurar tu pedido!
+                        </p>
+                    </div>
+
+                    <!-- Cantidad y Comprar (si hay stock o viene en camino) -->
+                    <div v-if="producto.stock > 0 || producto.en_transito > 0" class="mb-6">
                         <div class="flex items-center gap-6 mb-4">
                             <span class="text-sm font-bold text-gray-700">Seleccionar Cantidad:</span>
                             <div class="flex items-center bg-gray-100 rounded-xl p-1">
@@ -429,13 +449,14 @@ const decrementar = () => {
                                 <button 
                                     @click="incrementar"
                                     class="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-white rounded-lg transition-all shadow-sm disabled:opacity-30"
-                                    :disabled="cantidad >= producto.stock">
+                                    :disabled="cantidad >= Math.max(producto.stock, producto.en_transito || 0)">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
                                     </svg>
                                 </button>
                             </div>
-                            <span class="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full">{{ producto.stock }} unidades en stock</span>
+                            <span v-if="producto.stock > 0" class="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full">Entrega Inmediata ({{ producto.stock }})</span>
+                            <span v-else class="text-xs font-bold text-yellow-600 bg-yellow-50 px-3 py-1 rounded-full">Pre-venta (Llega pronto)</span>
                         </div>
                     </div>
 
@@ -443,7 +464,7 @@ const decrementar = () => {
                     <div class="flex flex-col gap-4">
                         <!-- Botón Comprar / Preguntar -->
                         <div class="flex gap-4">
-                            <button v-if="producto.stock > 0 || producto.origen === 'CVA'" 
+                            <button v-if="producto.stock > 0 || producto.origen === 'CVA' || producto.en_transito > 0" 
                                     @click="addToCart"
                                     :disabled="agregando"
                                     class="flex-1 py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-xl"
@@ -564,14 +585,14 @@ const decrementar = () => {
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20" />
                             </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-white">Producto en Almacén Central</h3>
+                        <h3 class="text-xl font-bold text-white">Producto Bajo Pedido</h3>
                     </div>
                     
                     <!-- Contenido -->
                     <div class="p-6">
                         <p class="text-gray-600 text-center mb-4">
-                            Este producto <strong>no está disponible en Hermosillo</strong> actualmente, 
-                            pero lo podemos traer del almacén central.
+                            Este producto <strong>no está disponible para entrega inmediata</strong> actualmente, 
+                            pero lo podemos traer para ti.
                         </p>
                         
                         <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">

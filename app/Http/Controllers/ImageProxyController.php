@@ -10,6 +10,17 @@ class ImageProxyController extends Controller
     {
         $url = $request->query('url');
 
+        // Soporte para URL codificada en base64 (parametro 'u') para evadir bloqueadores de anuncios
+        if (!$url && $request->has('u')) {
+            try {
+                $decoded = base64_decode($request->query('u'));
+                if (filter_var($decoded, FILTER_VALIDATE_URL)) {
+                    $url = $decoded;
+                }
+            } catch (\Exception $e) {
+            }
+        }
+
         if (!$url) {
             return abort(404);
         }

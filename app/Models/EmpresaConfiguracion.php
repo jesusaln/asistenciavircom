@@ -200,6 +200,9 @@ class EmpresaConfiguracion extends Model
         'cva_utility_tiers',
         'cva_codigo_sucursal',
         'cva_paqueteria_envio',
+        // Shipping
+        'shipping_local_cp_prefix',
+        'shipping_local_cost',
     ];
 
     protected $casts = [
@@ -253,6 +256,7 @@ class EmpresaConfiguracion extends Model
         'cva_utility_tiers' => 'array',
         'cva_codigo_sucursal' => 'integer',
         'cva_paqueteria_envio' => 'integer',
+        'shipping_local_cost' => 'decimal:2',
     ];
 
     /**

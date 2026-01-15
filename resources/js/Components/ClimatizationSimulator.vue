@@ -12,20 +12,19 @@ const step = ref(1);
 const totalSteps = 4;
 
 const form = ref({
-    habitacion: 'sala',
-    area: 20,
-    altura: 2.6,
-    personas: 2,
-    aparatos: 1, 
-    zona: 'centro', 
-    techo_directo: false, 
-    ventanales: false, 
-    sol: 'moderado', 
-    aislamiento: 'normal', 
-    voltaje: '220', 
-    funcion: 'dual', 
-    uso_horas: '8',
-    tecnologia: 'inverter',
+    giro: 'abarrotes',
+    volumen_ventas: 'medio',
+    sucursales: 1,
+    necesita_computadora_completa: true,
+    necesita_cpu: false,
+    necesita_monitor: false,
+    necesita_cajon_dinero: true,
+    necesita_impresora_tickets: true,
+    necesita_bascula: false,
+    necesita_lector_codigos: true,
+    necesita_etiquetadora: false,
+    necesita_monitor_touch: false,
+    tipo_conexion: 'wifi',
 });
 
 const isCalculating = ref(false);
@@ -40,38 +39,6 @@ const leadForm = ref({
 });
 const isSubmitting = ref(false);
 const leadSent = ref(false);
-
-onMounted(async () => {
-    // Intentar detectar zona climática automáticamente (silencioso si falla)
-    try {
-        // Usar ip-api.com que tiene mejor soporte CORS
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
-        
-        const res = await fetch('/api/geoip', {
-            signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        
-        if (res.ok) {
-            const data = await res.json();
-            const city = (data.city || '').toLowerCase();
-            const region = (data.regionName || '').toLowerCase();
-            
-            // Clasificación por zona climática de México
-            if (city.includes('mexicali') || city.includes('hermosillo') || city.includes('san luis') || 
-                region.includes('sonora') || region.includes('baja california') || region.includes('chihuahua')) {
-                form.value.zona = 'desierto';
-            } else if (city.includes('cancun') || city.includes('veracruz') || city.includes('merida') ||
-                region.includes('quintana') || region.includes('yucatan') || region.includes('tabasco')) {
-                form.value.zona = 'costa';
-            }
-            // Si no coincide, mantiene 'centro' por defecto
-        }
-    } catch {
-        // Silencioso: mantiene zona 'centro' por defecto
-    }
-});
 
 const nextStep = () => {
     if (step.value === totalSteps) {
@@ -94,80 +61,47 @@ const prevStep = () => {
     if (step.value > 1) step.value--;
 };
 
-const calculoBTU = computed(() => {
-    // FACTORES BASADOS EN RECOMENDACIONES FIDE (México)
+const calculoComplejidad = computed(() => {
+    let score = 10; // Base
     
-    // 1. Carga Base por Zona Térmica (BTU/m2)
-    let factorZona = 600; // Zona Templada (Base)
-    if (form.value.zona === 'costa') factorZona = 800;    // Cálida Húmeda
-    if (form.value.zona === 'desierto') factorZona = 950; // Cálida Seca (Mayor carga sensible)
-
-    let btuBase = form.value.area * factorZona;
-
-    // 2. Carga por Altura (Volumen extra)
-    // FIDE considera altura estándar 2.5m. Por cada metro extra, +10%
-    if (form.value.altura > 2.5) {
-        const alturaExtra = form.value.altura - 2.5;
-        btuBase += (btuBase * (alturaExtra * 0.10)); 
-    }
-
-    // 3. Carga por Ocupantes (Metabolismo Latente/Sensible)
-    // FIDE/ASHRAE promedio hogar: 600 BTU/persona
-    const btuPersonas = (form.value.personas - 1) * 600; 
-
-    // 4. Carga por Equipos (Ganancia Interna)
-    // Promedio TV/PC: 400-800 BTU. Usamos 600 promedio.
-    const btuAparatos = form.value.aparatos * 600;
-
-    // 5. Factores Envolvente (Ganancia Externa)
-    let factorEnvolvente = 1.0;
+    if (form.value.giro === 'restaurante') score += 20;
+    if (form.value.giro === 'farmacia') score += 15;
+    if (form.value.volumen_ventas === 'alto') score += 30;
+    if (form.value.sucursales > 1) score += 25;
+    if (form.value.necesita_bascula) score += 10;
+    if (form.value.necesita_monitor_touch) score += 15;
     
-    // Techo sin aislamiento
-    if (form.value.techo_directo) factorEnvolvente += 0.25; 
-    
-    // Ventanales (Ganancia solar directa)
-    if (form.value.ventanales) factorEnvolvente += 0.20;
-
-    // Aislamiento Muros/Techo
-    if (form.value.aislamiento === 'bueno') factorEnvolvente -= 0.10;
-    if (form.value.aislamiento === 'pobre') factorEnvolvente += 0.15;
-
-    // Orientación/Insolación
-    if (form.value.sol === 'mucho') factorEnvolvente += 0.15;
-    if (form.value.sol === 'poco') factorEnvolvente -= 0.05;
-
-    // 6. Factor Uso Específico
-    let btuExtraUso = 0;
-    if (form.value.habitacion === 'cocina') btuExtraUso = 3000; // Calor latente cocinar
-
-    const totalBTU = (btuBase * factorEnvolvente) + btuPersonas + btuAparatos + btuExtraUso;
-
-    return Math.round(totalBTU);
+    return score;
 });
 
-const ahorroEstimado = computed(() => {
-    const horas = parseInt(form.value.uso_horas);
-    const kwConsumoConv = 1.2;
-    const kwConsumoInv = 0.5;
-    const costoKwh = 3.5;
-    
-    const ahorroMensual = (kwConsumoConv - kwConsumoInv) * horas * 30 * costoKwh;
-    return Math.round(ahorroMensual);
+const softwareRecomendado = computed(() => {
+    if (form.value.giro === 'restaurante') return 'SoftRestaurant (Especializado)';
+    return 'Eleventa (Versátil y fácil de usar)';
 });
 
 const recomendacion = computed(() => {
-    const btu = calculoBTU.value;
+    const score = calculoComplejidad.value;
+    const software = softwareRecomendado.value;
     
-    if (btu <= 13000) return { capacidad: '1 Tonelada (12,000 BTU)', nota: 'Ideal para recámaras o áreas pequeñas.' };
-    if (btu <= 19000) return { capacidad: '1.5 Toneladas (18,000 BTU)', nota: 'Perfecto para salas medianas o recámaras amplias.' };
-    if (btu <= 26000) return { capacidad: '2 Toneladas (24,000 BTU)', nota: 'Recomendado para espacios abiertos o áreas sociales.' };
-    if (btu <= 38000) return { capacidad: '3 Toneladas (36,000 BTU)', nota: 'Necesario para áreas comerciales o techos altos.' };
+    if (score <= 35) return { 
+        kit: 'Kit Emprendedor POS', 
+        descripcion: `Ideal para pequeños negocios. Recomendamos el software ${software}.`,
+        incluye: 'CPU Kit, Monitor 19", Impresora de Tickets, Cajón de dinero.'
+    };
+    if (score <= 65) return { 
+        kit: 'Kit Profesional POS', 
+        descripcion: `Configuración robusta para alto flujo. Incluye ${software}.`,
+        incluye: 'Computadora Completa Pro, Impresora Térmica 80mm, Lector de Códigos, Cajón Reforzado.'
+    };
     
-    return { capacidad: 'Sistema Central o Multi-Split', nota: 'Tu requerimiento supera la capacidad de una unidad estándar.' };
+    return { 
+        kit: 'Kit Empresarial / Restaurante Premium', 
+        descripcion: `Máxima capacidad operativa. Equipado con ${software}.`,
+        incluye: 'Monitor Touch, Impresora de Tickets Industrial, Cajón de dinero, Lector de códigos, (Báscula y Etiquetadora Opcionales).'
+    };
 });
 
 const submitLead = async () => {
-    // Convertir nombre a mayúsculas antes de validar
     leadForm.value.nombre = leadForm.value.nombre.toUpperCase();
 
     if (!leadForm.value.nombre || !leadForm.value.telefono) {
@@ -175,7 +109,6 @@ const submitLead = async () => {
         return;
     }
 
-    // Validación de 10 dígitos para el teléfono
     const telefonoLimpio = leadForm.value.telefono.replace(/\D/g, '');
     if (telefonoLimpio.length !== 10) {
         alert('Por favor ingresa un número de teléfono válido de 10 dígitos.');
@@ -188,11 +121,12 @@ const submitLead = async () => {
             nombre: leadForm.value.nombre,
             telefono: leadForm.value.telefono,
             email: leadForm.value.email,
-            btu: calculoBTU.value,
-            recomendacion: recomendacion.value.capacidad,
+            btu: calculoComplejidad.value, 
+            recomendacion: recomendacion.value.kit,
             form: {
                 ...form.value,
-                ahorro_estimado: ahorroEstimado.value
+                software: softwareRecomendado.value,
+                tipo_asesor: 'pos'
             }
         });
 
@@ -217,7 +151,7 @@ const submitLead = async () => {
         }
     } catch (error) {
         console.error('Error enviando lead:', error);
-        alert('Ocurrió un error al procesar tu solicitud. Por favor intenta de nuevo.');
+        alert('Ocurrió un error al procesar tu solicitud.');
     } finally {
         isSubmitting.value = false;
     }
@@ -235,56 +169,47 @@ const resetSimulator = () => {
         <div class="max-w-7xl mx-auto px-4">
             <div class="grid lg:grid-cols-12 gap-8 items-start">
                 
-                <!-- Panel Explicativo (1/3 aprox) -->
+                <!-- Panel Explicativo -->
                 <div class="lg:col-span-4 lg:sticky lg:top-24">
-                    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-[2.5rem] p-8 lg:p-10 text-white relative overflow-hidden">
-                        <!-- Decoración -->
-                        <div class="absolute top-0 right-0 w-48 h-48 bg-[var(--color-primary)] rounded-full blur-[80px] opacity-20"></div>
-                        <div class="absolute -bottom-12 -left-12 w-32 h-32 bg-[var(--color-secondary)] rounded-full blur-[60px] opacity-20"></div>
+                    <div class="bg-gradient-to-br from-blue-900 to-gray-900 rounded-[2.5rem] p-8 lg:p-10 text-white relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-48 h-48 bg-blue-500 rounded-full blur-[80px] opacity-20"></div>
                         
                         <div class="relative z-10">
-                            <!-- Icono Principal -->
-                            <div class="w-16 h-16 bg-[var(--color-primary-soft)] rounded-2xl flex items-center justify-center text-3xl mb-6">
-                                🌡️
+                            <div class="w-16 h-16 bg-blue-500/20 rounded-2xl flex items-center justify-center text-3xl mb-6">
+                                💻
                             </div>
                             
-                            <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-3">Herramienta Inteligente</h2>
-                            <h3 class="text-2xl lg:text-3xl font-black mb-4 leading-tight">Simulador de Climatización</h3>
+                            <h2 class="text-xs font-black uppercase tracking-[0.3em] text-blue-400 mb-3">Asesor Inteligente</h2>
+                            <h3 class="text-2xl lg:text-3xl font-black mb-4 leading-tight">Configurador de Punto de Venta</h3>
                             
                             <p class="text-gray-300 text-sm leading-relaxed mb-6">
-                                Calcula el <span class="text-white font-bold">equipo de aire acondicionado ideal</span> para tu espacio. Nuestro simulador analiza múltiples factores para darte una recomendación precisa.
+                                Encuentra el <span class="text-white font-bold">sistema POS ideal</span> para tu negocio. Nuestro algoritmo analiza tus necesidades de operación para recomendarte el hardware y software perfecto.
                             </p>
                             
-                            <!-- Beneficios -->
                             <div class="space-y-3 mb-8">
                                 <div class="flex items-center gap-3">
                                     <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center text-sm">✓</div>
-                                    <span class="text-sm text-gray-300">Cálculo basado en <span class="text-white font-bold">normas FIDE</span></span>
+                                    <span class="text-sm text-gray-300">Respaldo técnico <span class="text-white font-bold">24/7 incluido</span></span>
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center text-sm">✓</div>
-                                    <span class="text-sm text-gray-300">Considera tu <span class="text-white font-bold">zona climática</span></span>
+                                    <span class="text-sm text-gray-300">Software especializado <span class="text-white font-bold">SoftRestaurant / Eleventa</span></span>
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center text-sm">✓</div>
-                                    <span class="text-sm text-gray-300">Estima <span class="text-white font-bold">ahorro mensual</span></span>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center text-sm">✓</div>
-                                    <span class="text-sm text-gray-300">Reporte <span class="text-white font-bold">PDF descargable</span></span>
+                                    <span class="text-sm text-gray-300">Equipamiento de <span class="text-white font-bold">última generación</span></span>
                                 </div>
                             </div>
                             
-                            <!-- CTA -->
-                            <div class="p-4 bg-[var(--color-primary-soft)] rounded-xl">
-                                <p class="text-[10px] font-black uppercase tracking-widest text-[var(--color-primary)] mb-1">⚡ Solo 4 pasos</p>
-                                <p class="text-xs text-gray-300">Completa el formulario y recibe tu recomendación personalizada en segundos.</p>
+                            <div class="p-4 bg-blue-500/10 rounded-xl">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-1">⚡ Solo 4 pasos</p>
+                                <p class="text-xs text-gray-300">Personaliza tu hardware y software en segundos.</p>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Simulador (2/3 aprox) -->
+                <!-- Simulador -->
                 <div class="lg:col-span-8">
                     <div class="bg-white rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden transition-all duration-500">
             
@@ -292,213 +217,148 @@ const resetSimulator = () => {
             <div class="px-8 pt-8">
                 <div class="flex justify-between items-center mb-4">
                     <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Paso {{ step }} de {{ totalSteps }}</span>
-                    <span class="text-[10px] font-black uppercase tracking-widest text-[var(--color-primary)]">{{ Math.round((step/totalSteps)*100) }}%</span>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-blue-600">{{ Math.round((step/totalSteps)*100) }}%</span>
                 </div>
                 <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div class="h-full bg-[var(--color-primary)] transition-all duration-500 ease-out" :style="`width: ${(step / totalSteps) * 100}%`"></div>
+                    <div class="h-full bg-blue-600 transition-all duration-500 ease-out" :style="`width: ${(step / totalSteps) * 100}%`"></div>
                 </div>
             </div>
 
-            <div class="p-8 relative min-h-[400px]">
+            <div class="p-8 relative min-h-[420px]">
                 
-                <!-- Analyzing Overlay -->
+                <!-- Analyzing -->
                 <div v-if="isCalculating" class="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center animate-fade-in">
                     <div class="relative w-20 h-20 mb-8">
-                        <div class="absolute inset-0 border-4 border-[var(--color-primary-soft)] rounded-full"></div>
-                        <div class="absolute inset-0 border-4 border-t-[var(--color-primary)] rounded-full animate-spin"></div>
-                        <div class="absolute inset-0 flex items-center justify-center text-2xl">🧮</div>
+                        <div class="absolute inset-0 border-4 border-blue-50 rounded-full"></div>
+                        <div class="absolute inset-0 border-4 border-t-blue-600 rounded-full animate-spin"></div>
+                        <div class="absolute inset-0 flex items-center justify-center text-2xl">⚙️</div>
                     </div>
-                    <h3 class="text-xl font-black text-gray-900 mb-3">Analizando tu espacio...</h3>
-                    <p class="text-[10px] font-black text-[var(--color-primary)] uppercase tracking-[0.3em] animate-pulse">PROCESANDO FACTORES</p>
+                    <h3 class="text-xl font-black text-gray-900 mb-3">Configurando tu solución POS...</h3>
+                    <p class="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em] animate-pulse">ANALIZANDO REQUERIMIENTOS</p>
                 </div>
 
                 <!-- Results View -->
                 <div v-if="showResults && !isCalculating" class="text-center animate-fade-in">
-                    <div class="w-20 h-20 bg-[var(--color-primary-soft)] text-[var(--color-primary)] rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
-                        ✨
+                    <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
+                        🎯
                     </div>
-                    <h3 class="text-2xl font-black text-gray-900 mb-2">¡Tu Resultado!</h3>
+                    <h3 class="text-2xl font-black text-gray-900 mb-2">¡Tu Sistema Ideal!</h3>
                     
                     <div class="bg-gray-900 rounded-2xl p-6 text-white my-6">
-                        <p class="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--color-primary)] mb-2">Capacidad Recomendada</p>
-                        <h4 class="text-2xl md:text-3xl font-black mb-2">{{ recomendacion.capacidad }}</h4>
-                        <p class="text-xs text-gray-400">{{ calculoBTU.toLocaleString() }} BTU/h</p>
+                        <p class="text-[9px] font-black uppercase tracking-[0.4em] text-blue-400 mb-2 text-center">Configuración Recomendada</p>
+                        <h4 class="text-2xl md:text-3xl font-black mb-2">{{ recomendacion.kit }}</h4>
+                        <p class="text-xs text-gray-400 leading-relaxed">{{ recomendacion.descripcion }}</p>
                     </div>
 
-                    <div v-if="form.tecnologia === 'inverter'" class="bg-green-50 border border-green-100 rounded-xl p-4 mb-6 text-left">
-                        <div class="flex items-center gap-4">
-                            <span class="text-2xl">💰</span>
-                            <div>
-                                <p class="text-[9px] font-black text-green-600 uppercase tracking-widest">Ahorro Mensual Estimado</p>
-                                <p class="text-lg font-black text-gray-900">${{ ahorroEstimado.toLocaleString() }} MXN</p>
-                            </div>
-                        </div>
+                    <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6 text-left">
+                        <p class="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-2">Resumen de Equipamiento:</p>
+                        <p class="text-sm font-medium text-gray-700">{{ recomendacion.incluye }}</p>
                     </div>
-
-                    <a :href="route('public.asesor.pdf', { 
-                            btu: calculoBTU, 
-                            rec: recomendacion.capacidad, 
-                            ahorro: ahorroEstimado,
-                            'form[area]': form.area,
-                            'form[altura]': form.altura,
-                            'form[zona]': form.zona,
-                            'form[personas]': form.personas,
-                            'form[aparatos]': form.aparatos,
-                            'form[techo_directo]': form.techo_directo ? '1' : '0',
-                            'form[ventanales]': form.ventanales ? '1' : '0',
-                            'form[aislamiento]': form.aislamiento,
-                            'form[sol]': form.sol,
-                            'form[habitacion]': form.habitacion,
-                            'form[voltaje]': form.voltaje,
-                            'form[funcion]': form.funcion,
-                            'form[uso_horas]': form.uso_horas,
-                            'form[tecnologia]': form.tecnologia
-                        })" 
-                        target="_blank"
-                        class="block w-full py-4 mb-4 bg-gray-900 text-white rounded-xl font-bold text-sm hover:shadow-lg transition-all flex items-center justify-center gap-2">
-                        <span>📄</span> Descargar Reporte PDF
-                    </a>
 
                     <button @click="resetSimulator" class="text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors">
-                        ← Calcular de nuevo
+                        ← Regresar al asesor
                     </button>
                 </div>
 
-                <!-- Step 1: Espacio -->
+                <!-- Step 1: Giro -->
                 <div v-if="step === 1 && !showResults && !isCalculating" class="animate-fade-in">
-                    <h3 class="text-xl font-black text-gray-900 mb-2">¿Qué espacio climatizamos?</h3>
-                    <p class="text-gray-400 text-sm mb-6">Selecciona el tipo de habitación.</p>
+                    <h3 class="text-xl font-black text-gray-900 mb-2">¿Cuál es tu giro comercial?</h3>
+                    <p class="text-gray-400 text-sm mb-6">El software y equipo se adaptarán a tu modelo de negocio.</p>
                     
-                    <div class="grid grid-cols-2 gap-3 mb-6">
-                        <button v-for="h in [
-                            {id: 'sala', label: 'Sala', icon: '🛋️'},
-                            {id: 'recamara', label: 'Recámara', icon: '🛏️'},
-                            {id: 'cocina', label: 'Cocina', icon: '🍲'},
-                            {id: 'oficina', label: 'Oficina', icon: '💻'}
-                        ]" :key="h.id" 
-                        @click="form.habitacion = h.id"
-                        :class="['p-4 rounded-xl border-2 transition-all text-center', 
-                                form.habitacion === h.id ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100 hover:border-gray-200']">
-                            <span class="text-2xl block mb-2">{{ h.icon }}</span>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-gray-900">{{ h.label }}</span>
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-2">
-                        <button v-for="z in [
-                            {id: 'centro', label: 'Centro', icon: '🏢'},
-                            {id: 'costa', label: 'Costa', icon: '🏖️'},
-                            {id: 'desierto', label: 'Norte', icon: '🏜️'}
-                        ]" :key="z.id" 
-                        @click="form.zona = z.id"
-                        :class="['p-3 rounded-xl border-2 transition-all text-center', 
-                                form.zona === z.id ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100']">
-                            <span class="text-xl block">{{ z.icon }}</span>
-                            <span class="text-[9px] font-bold text-gray-500">{{ z.label }}</span>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <button v-for="g in [
+                            {id: 'abarrotes', label: 'Tienda / Abarrotes', icon: '🏪'},
+                            {id: 'restaurante', label: 'Comida / Café', icon: '🍔'},
+                            {id: 'retail', label: 'Ropa / Calzado', icon: '👕'},
+                            {id: 'farmacia', label: 'Farmacia', icon: '💊'},
+                            {id: 'ferreteria', label: 'Ferretería', icon: '🛠️'},
+                            {id: 'otro', label: 'Otro Servicio', icon: '🛍️'}
+                        ]" :key="g.id" 
+                        @click="form.giro = g.id"
+                        :class="['p-4 rounded-xl border-2 transition-all text-center flex flex-col items-center justify-center', 
+                                form.giro === g.id ? 'border-blue-600 bg-blue-50' : 'border-gray-100 hover:border-gray-200']">
+                            <span class="text-2xl mb-2">{{ g.icon }}</span>
+                            <span class="text-[9px] font-black uppercase tracking-tight text-gray-900 leading-tight">{{ g.label }}</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Step 2: Dimensiones -->
+                <!-- Step 2: Operación -->
                 <div v-if="step === 2 && !showResults && !isCalculating" class="animate-fade-in">
-                    <h3 class="text-xl font-black text-gray-900 mb-2">Dimensiones del espacio</h3>
-                    <p class="text-gray-400 text-sm mb-6">Indica el tamaño aproximado.</p>
+                    <h3 class="text-xl font-black text-gray-900 mb-2">Flujo de operación</h3>
+                    <p class="text-gray-400 text-sm mb-6">Ayúdanos a entender el volumen de tu negocio.</p>
                     
-                    <div class="bg-gray-50 rounded-xl p-4 mb-4">
-                        <div class="flex justify-between items-center mb-3">
-                            <label for="simulator-area" class="text-xs font-bold text-gray-600 uppercase">Área</label>
-                            <span class="px-3 py-1 bg-[var(--color-primary)] text-white font-black rounded-lg text-sm">{{ form.area }} m²</span>
-                        </div>
-                        <input id="simulator-area" type="range" v-model="form.area" min="5" max="100" class="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-[var(--color-primary)]" />
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-gray-50 rounded-xl p-4">
-                            <label for="simulator-altura" class="text-xs font-bold text-gray-600 uppercase block mb-2">Altura (m)</label>
-                            <input id="simulator-altura" type="number" v-model="form.altura" step="0.1" class="w-full p-2 bg-white rounded-lg border-none font-bold text-lg text-center" />
-                        </div>
-                        <div class="bg-gray-50 rounded-xl p-4">
-                            <label class="text-xs font-bold text-gray-600 uppercase block mb-2">Personas</label>
-                            <div class="flex items-center justify-center gap-4">
-                                <button @click="form.personas > 1 && form.personas--" class="w-8 h-8 rounded-lg bg-white border border-gray-200 font-bold">-</button>
-                                <span class="text-xl font-black">{{ form.personas }}</span>
-                                <button @click="form.personas < 20 && form.personas++" class="w-8 h-8 rounded-lg bg-white border border-gray-200 font-bold">+</button>
+                    <div class="space-y-4 mb-8">
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 block">Volumen de ventas diarias</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button v-for="v in [{id:'bajo', l:'Bajo'}, {id:'medio', l:'Medio'}, {id:'alto', l:'Alto'}]" :key="v.id"
+                                    @click="form.volumen_ventas = v.id"
+                                    :class="['py-3 rounded-xl border-2 font-bold text-xs uppercase', 
+                                            form.volumen_ventas === v.id ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-gray-100 text-gray-400']">
+                                    {{ v.l }}
+                                </button>
                             </div>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-2xl p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <label class="text-xs font-black text-gray-600 uppercase">Cajas / Estaciones de Cobro</label>
+                                <span class="bg-blue-600 text-white px-3 py-1 rounded-lg font-black text-sm">{{ form.sucursales }}</span>
+                            </div>
+                            <input type="range" v-model="form.sucursales" min="1" max="10" class="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-blue-600" />
                         </div>
                     </div>
                 </div>
 
-                <!-- Step 3: Construcción -->
+                <!-- Step 3: Hardware -->
                 <div v-if="step === 3 && !showResults && !isCalculating" class="animate-fade-in">
-                    <h3 class="text-xl font-black text-gray-900 mb-2">Factores de calor</h3>
-                    <p class="text-gray-400 text-sm mb-6">Selecciona los que apliquen.</p>
+                    <h3 class="text-xl font-black text-gray-900 mb-2">Accesorios y Periféricos</h3>
+                    <p class="text-gray-400 text-sm mb-6">Selecciona el equipamiento necesario para tu punto de venta.</p>
                     
-                    <div class="space-y-3 mb-4">
-                        <button @click="form.techo_directo = !form.techo_directo" 
-                                :class="['w-full p-4 rounded-xl border-2 transition-all text-left flex items-center gap-4', form.techo_directo ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100']">
-                            <span class="text-2xl">🏠</span>
-                            <div class="flex-1">
-                                <p class="font-bold text-gray-900 text-sm">Techo Directo</p>
-                                <p class="text-[10px] text-gray-400">Sol directo al techo</p>
-                            </div>
-                            <div v-if="form.techo_directo" class="w-5 h-5 bg-[var(--color-primary)] rounded-full flex items-center justify-center text-white text-xs">✓</div>
-                        </button>
-
-                        <button @click="form.ventanales = !form.ventanales" 
-                                :class="['w-full p-4 rounded-xl border-2 transition-all text-left flex items-center gap-4', form.ventanales ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100']">
-                            <span class="text-2xl">🪟</span>
-                            <div class="flex-1">
-                                <p class="font-bold text-gray-900 text-sm">Ventanales Grandes</p>
-                                <p class="text-[10px] text-gray-400">Áreas acristaladas</p>
-                            </div>
-                            <div v-if="form.ventanales" class="w-5 h-5 bg-[var(--color-primary)] rounded-full flex items-center justify-center text-white text-xs">✓</div>
-                        </button>
-                    </div>
-
-                    <div class="flex gap-2">
-                        <button v-for="ai in [{v:'bueno', t:'Buen Aislamiento'}, {v:'normal', t:'Normal'}, {v:'pobre', t:'Malo'}]" 
-                                :key="ai.v" @click="form.aislamiento = ai.v"
-                                :class="['flex-1 py-2 rounded-lg border-2 text-[10px] font-bold uppercase transition-all', form.aislamiento === ai.v ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-[var(--color-primary)]' : 'border-gray-100 text-gray-500']">
-                            {{ ai.t }}
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <button v-for="h in [
+                            {id: 'necesita_computadora_completa', label: 'Computadora Completa', icon: '🖥️'},
+                            {id: 'necesita_cpu', label: 'Solo CPU', icon: '📟'},
+                            {id: 'necesita_monitor', label: 'Monitor', icon: '📺'},
+                            {id: 'necesita_cajon_dinero', label: 'Cajón de Dinero', icon: '💰'},
+                            {id: 'necesita_impresora_tickets', label: 'Impresora Tickets', icon: '🧾'},
+                            {id: 'necesita_bascula', label: 'Báscula', icon: '⚖️'},
+                            {id: 'necesita_lector_codigos', label: 'Lector de Códigos', icon: '🏷️'},
+                            {id: 'necesita_etiquetadora', label: 'Etiquetadora', icon: '🔖'},
+                            {id: 'necesita_monitor_touch', label: 'Monitor Touch', icon: '👆'}
+                        ]" :key="h.id" 
+                        @click="form[h.id] = !form[h.id]"
+                        :class="['p-3 rounded-xl border-2 transition-all text-center flex flex-col items-center justify-center relative', 
+                                form[h.id] ? 'border-blue-600 bg-blue-50' : 'border-gray-100']">
+                            <span class="text-2xl mb-1">{{ h.icon }}</span>
+                            <span class="text-[9px] font-black uppercase tracking-tight text-gray-900 leading-tight">{{ h.label }}</span>
+                            <div v-if="form[h.id]" class="absolute top-1 right-1 w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center text-white text-[8px]">✓</div>
                         </button>
                     </div>
                 </div>
 
-                <!-- Step 4: Tecnología -->
+                <!-- Step 4: Resumen Final -->
                 <div v-if="step === 4 && !showResults && !isCalculating" class="animate-fade-in">
-                    <h3 class="text-xl font-black text-gray-900 mb-2">Preferencias técnicas</h3>
-                    <p class="text-gray-400 text-sm mb-6">Últimos detalles para tu cálculo.</p>
+                    <h3 class="text-xl font-black text-gray-900 mb-2">Propuesta Técnica</h3>
+                    <p class="text-gray-400 text-sm mb-6">Resumen de tu configuración personalizada.</p>
                     
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <button @click="form.uso_horas = '8'" 
-                                :class="['p-4 rounded-xl border-2 transition-all text-center', form.uso_horas === '8' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100']">
-                            <span class="text-xl block mb-1">🌙</span>
-                            <span class="text-[10px] font-bold text-gray-600">8 Horas/día</span>
-                        </button>
-                        <button @click="form.uso_horas = '24'" 
-                                :class="['p-4 rounded-xl border-2 transition-all text-center', form.uso_horas === '24' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100']">
-                            <span class="text-xl block mb-1">☀️</span>
-                            <span class="text-[10px] font-bold text-gray-600">Todo el día</span>
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <button @click="form.tecnologia = 'convencional'" 
-                                :class="['p-4 rounded-xl border-2 transition-all text-center', form.tecnologia === 'convencional' ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-100']">
-                            <span class="text-[10px] font-bold uppercase">Convencional</span>
-                        </button>
-                        <button @click="form.tecnologia = 'inverter'" 
-                                :class="['p-4 rounded-xl border-2 transition-all text-center relative', form.tecnologia === 'inverter' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100']">
-                            <span class="absolute -top-2 -right-2 px-2 py-0.5 bg-green-500 text-white text-[8px] font-bold rounded-full">AHORRA</span>
-                            <span class="text-[10px] font-bold uppercase text-gray-900">Inverter</span>
-                        </button>
-                    </div>
-
-                    <div class="flex gap-2">
-                        <button @click="form.voltaje = '110'" :class="['flex-1 py-2 rounded-lg border-2 text-xs font-bold transition-all', form.voltaje === '110' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100 text-gray-500']">110V</button>
-                        <button @click="form.voltaje = '220'" :class="['flex-1 py-2 rounded-lg border-2 text-xs font-bold transition-all', form.voltaje === '220' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100 text-gray-500']">220V</button>
-                        <button @click="form.funcion = 'frio'" :class="['flex-1 py-2 rounded-lg border-2 text-xs font-bold transition-all', form.funcion === 'frio' ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-100 text-gray-500']">Frío</button>
-                        <button @click="form.funcion = 'dual'" :class="['flex-1 py-2 rounded-lg border-2 text-xs font-bold transition-all', form.funcion === 'dual' ? 'border-orange-500 bg-orange-50 text-orange-600' : 'border-gray-100 text-gray-500']">Dual</button>
+                    <div class="bg-gray-50 rounded-[1.5rem] p-6 space-y-4">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-500">Software Sugerido:</span>
+                            <span class="font-black text-blue-600 uppercase">{{ softwareRecomendado }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-500">Giro Comercial:</span>
+                            <span class="font-black text-gray-900 uppercase">{{ form.giro }}</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2 pt-2">
+                             <span v-if="form.necesita_computadora_completa" class="px-2 py-1 bg-white border border-gray-200 rounded-md text-[8px] font-black">PC COMPLETA</span>
+                             <span v-if="form.necesita_cajon_dinero" class="px-2 py-1 bg-white border border-gray-200 rounded-md text-[8px] font-black">CAJÓN</span>
+                             <span v-if="form.necesita_impresora_tickets" class="px-2 py-1 bg-white border border-gray-200 rounded-md text-[8px] font-black">IMPRESORA TICKETS</span>
+                             <span v-if="form.necesita_bascula" class="px-2 py-1 bg-white border border-gray-200 rounded-md text-[8px] font-black">BÁSCULA</span>
+                             <span v-if="form.necesita_monitor_touch" class="px-2 py-1 bg-white border border-gray-200 rounded-md text-[8px] font-black">TOUCH</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -508,10 +368,10 @@ const resetSimulator = () => {
                 <button v-if="step > 1" @click="prevStep" class="text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors">
                     ← Anterior
                 </button>
-                <span v-else></span>
+                <div v-else></div>
 
-                <button @click="nextStep" class="px-8 py-3 bg-[var(--color-primary)] text-white rounded-xl font-bold text-sm hover:shadow-lg transition-all">
-                    {{ step === totalSteps ? '¡Calcular!' : 'Siguiente →' }}
+                <button @click="nextStep" class="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:shadow-lg transition-all">
+                    {{ step === totalSteps ? '¡Obtener Propuesta!' : 'Siguiente →' }}
                 </button>
             </div>
         </div>
@@ -525,41 +385,41 @@ const resetSimulator = () => {
 
                 <div v-if="!leadSent">
                     <div class="text-center mb-6">
-                        <span class="text-4xl block mb-4">📊</span>
-                        <h3 class="text-2xl font-black text-gray-900">¡Un paso más!</h3>
-                        <p class="text-gray-500 text-sm mt-2">Para ver tu <span class="font-bold text-[var(--color-primary)]">Reporte Personalizado</span>, déjanos tus datos.</p>
+                        <span class="text-4xl block mb-4">✨</span>
+                        <h3 class="text-2xl font-black text-gray-900">¡Ya casi terminamos!</h3>
+                        <p class="text-gray-500 text-sm mt-2">Introduce tus datos para recibir tu <span class="font-bold text-blue-600">Propuesta Técnica</span> preparada por un experto.</p>
                     </div>
                     
                     <div class="space-y-4">
                         <div>
-                            <label for="lead-nombre" class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Nombre Completo</label>
-                            <input id="lead-nombre" v-model="leadForm.nombre" @input="leadForm.nombre = leadForm.nombre.toUpperCase()" type="text" placeholder="TU NOMBRE" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl font-medium" />
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Nombre Completo</label>
+                            <input v-model="leadForm.nombre" type="text" placeholder="TU NOMBRE" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl font-medium focus:ring-2 focus:ring-blue-600" />
                         </div>
                         <div>
-                            <label for="lead-telefono" class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Teléfono (10 dígitos)</label>
-                            <input id="lead-telefono" v-model="leadForm.telefono" type="tel" maxlength="10" placeholder="Ej: 6861234567" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl font-medium" />
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Teléfono (WhatsApp)</label>
+                            <input v-model="leadForm.telefono" type="tel" maxlength="10" placeholder="686XXXXXXX" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl font-medium focus:ring-2 focus:ring-blue-600" />
                         </div>
                         <div>
-                            <label for="lead-email" class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Email <span class="text-gray-300">(opcional)</span></label>
-                            <input id="lead-email" v-model="leadForm.email" type="email" placeholder="correo@ejemplo.com" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl font-medium" />
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Email <span class="text-gray-300">(opcional)</span></label>
+                            <input v-model="leadForm.email" type="email" placeholder="hola@empresa.com" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl font-medium focus:ring-2 focus:ring-blue-600" />
                         </div>
                         
-                        <button @click="submitLead" :disabled="isSubmitting" class="w-full py-4 bg-[var(--color-primary)] text-white rounded-xl font-bold text-sm hover:shadow-lg transition-all" :class="isSubmitting ? 'opacity-70' : ''">
-                            {{ isSubmitting ? 'Procesando...' : 'Ver Mi Resultado' }}
+                        <button @click="submitLead" :disabled="isSubmitting" class="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-sm hover:shadow-lg transition-all" :class="isSubmitting ? 'opacity-70' : ''">
+                            {{ isSubmitting ? 'Procesando...' : 'Ver Mi Propuesta POS' }}
                         </button>
                     </div>
                 </div>
 
                 <div v-else class="text-center py-6">
-                    <span class="text-5xl block mb-4">✅</span>
-                    <h3 class="text-2xl font-black text-gray-900">¡Listo!</h3>
-                    <p class="text-gray-500 mt-2">Calculando tu reporte...</p>
+                    <span class="text-5xl block mb-4">🚀</span>
+                    <h3 class="text-2xl font-black text-gray-900">¡Excelente!</h3>
+                    <p class="text-gray-500 mt-2">Generando tu configuración ideal...</p>
                 </div>
             </div>
             </div>
         </div>
-                    </div> <!-- Cierre del simulador card -->
-                </div> <!-- Cierre lg:col-span-8 -->
+                    </div>
+                </div>
         
     </section>
 </template>
@@ -576,12 +436,12 @@ const resetSimulator = () => {
 
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    height: 20px;
-    width: 20px;
+    height: 18px;
+    width: 18px;
     border-radius: 50%;
     background: white;
-    border: 3px solid var(--color-primary);
+    border: 3px solid #2563eb;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 </style>

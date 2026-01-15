@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\CVAService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class CVAProxyController extends Controller
 {
@@ -73,7 +74,7 @@ class CVAProxyController extends Controller
                 'label' => $product->nombre,
                 'category' => $product->categoria->nombre ?? 'Local',
                 'price' => round($product->precio_venta * 1.16, 2),
-                'image' => $product->imagen,
+                'image' => $product->imagen ? (str_starts_with($product->imagen, 'http') ? $product->imagen : Storage::url($product->imagen)) : null,
                 'origen' => 'local'
             ]);
         }

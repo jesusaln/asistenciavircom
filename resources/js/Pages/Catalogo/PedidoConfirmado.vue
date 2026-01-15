@@ -39,12 +39,24 @@ const steps = computed(() => {
         ]
     }
     if (props.pedido.metodo_pago === 'efectivo') {
-        return [
-            { title: 'Acude a sucursal', desc: 'Visítanos en nuestra sucursal física.', icon: 'home' },
-            { title: 'Menciona tu pedido', desc: `Indica el número de pedido #${props.pedido.numero_pedido}.`, icon: 'message' },
-            { title: 'Realiza el pago', desc: 'Paga en caja con efectivo o tarjeta.', icon: 'cash' },
-            { title: 'Entrega', desc: 'Recibe tus productos al momento (sujeto a stock local).', icon: 'box' }
-        ]
+        // Detectar si es a domicilio
+        const esDomicilio = !props.pedido.direccion_envio?.tipo || props.pedido.direccion_envio.tipo !== 'recoger_en_tienda';
+
+        if (esDomicilio) {
+             return [
+                { title: 'Prepara el Efectivo', desc: `Ten listo el monto exacto de ${formatCurrency(props.pedido.total)}.`, icon: 'cash' },
+                { title: 'Espera tu Pedido', desc: 'Llevaremos el producto a tu domicilio.', icon: 'truck' },
+                { title: 'Pago Contra Entrega', desc: 'Pagas al repartidor al recibir tu pedido.', icon: 'check' },
+                { title: '¡Disfruta!', desc: 'Gracias por tu preferencia.', icon: 'star' }
+            ]
+        } else {
+            return [
+                { title: 'Acude a sucursal', desc: 'Visítanos en nuestra sucursal física.', icon: 'home' },
+                { title: 'Menciona tu pedido', desc: `Indica el número de pedido #${props.pedido.numero_pedido}.`, icon: 'message' },
+                { title: 'Realiza el pago', desc: 'Paga en caja con efectivo o tarjeta.', icon: 'cash' },
+                { title: 'Entrega', desc: 'Recibe tus productos al momento (sujeto a stock local).', icon: 'box' }
+            ]
+        }
     }
     return [
         { title: 'Pago Recibido', desc: 'Hemos validado tu transacción con éxito.', icon: 'check' },
@@ -183,8 +195,8 @@ const handleWhatsAppClick = () => {
                             </div>
                         </div>
 
-                         <!-- Información de Efectivo (Si aplica) -->
-                         <div v-if="pedido.metodo_pago === 'efectivo'" class="mt-8 pt-8 border-t border-gray-100">
+                         <!-- Información de Efectivo (Solo si es en sucursal) -->
+                         <div v-if="pedido.metodo_pago === 'efectivo' && pedido.direccion_envio?.tipo === 'recoger_en_tienda'" class="mt-8 pt-8 border-t border-gray-100">
                             <h3 class="text-sm font-black text-gray-900 uppercase mb-4 flex items-center gap-2">
                                 <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                 Ubicación de Sucursal

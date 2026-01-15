@@ -137,6 +137,42 @@ const toggleFaq = (id) => {
     activeFaq.value = activeFaq.value === id ? null : id;
 };
 
+const getImageUrl = (imagen) => {
+    if (!imagen) return null
+    let urlStr = String(imagen).trim()
+    
+    // Si el backend nos mandó /storage/http... por error, lo limpiamos
+    if (urlStr.startsWith('/storage/http')) {
+        urlStr = urlStr.replace('/storage/', '')
+    }
+    
+    // Si ya es una URL absoluta o relativa al protocolo
+    if (urlStr.toLowerCase().startsWith('http') || urlStr.startsWith('//')) {
+        try {
+            return route('img.proxy', { u: btoa(urlStr) })
+        } catch (e) {
+            return route('img.proxy', { url: urlStr })
+        }
+    }
+    
+    // Si ya tiene el prefijo storage o empieza con /
+    if (urlStr.startsWith('/storage/') || urlStr.startsWith('/')) {
+        return urlStr
+    }
+    
+const getFaIcon = (plan) => {
+    if (plan.icono && plan.icono.includes('-')) return plan.icono;
+    
+    const iconos = {
+        mantenimiento: 'wrench',
+        soporte: 'headset',
+        garantia: 'shield-halved',
+        premium: 'crown',
+        personalizado: 'building-shield',
+    };
+    return iconos[plan.tipo] || 'shield-halved';
+};
+
 </script>
 
 <template>
@@ -312,7 +348,7 @@ const toggleFaq = (id) => {
                         :style="{ transitionDelay: `${index * 100}ms` }"
                     >
                         <div class="relative aspect-[4/5] bg-gray-50 overflow-hidden">
-                            <img :src="item.imagen_url || 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?q=80&w=2070&auto=format&fit=crop'" class="w-full h-full object-contain p-8 group-hover:scale-110 transition-transform duration-1000 ease-in-out" alt="Producto">
+                            <img :src="getImageUrl(item.imagen_url) || 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?q=80&w=2070&auto=format&fit=crop'" class="w-full h-full object-contain p-8 group-hover:scale-110 transition-transform duration-1000 ease-in-out" alt="Producto">
                             
                             <!-- Glassmorphism Overlay -->
                             <div class="absolute inset-0 bg-gradient-to-t from-gray-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
@@ -394,19 +430,32 @@ const toggleFaq = (id) => {
                         <div v-if="plan.destacado" class="absolute -top-5 left-1/2 -translate-x-1/2 bg-[var(--color-primary)] text-white px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest shadow-xl">Más Popular</div>
                         
                         <div class="mb-10 text-center">
-                            <div class="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center text-4xl mb-6 mx-auto group-hover:scale-110 transition-transform">
-                                {{ plan.icono_display }}
+                            <div 
+                                class="w-20 h-20 rounded-3xl flex items-center justify-center text-3xl mb-6 mx-auto transition-all duration-500 group-hover:scale-110 shadow-lg"
+                                :style="{ 
+                                    backgroundColor: plan.destacado ? 'var(--color-primary)' : 'var(--color-primary-soft)', 
+                                    color: plan.destacado ? 'white' : 'var(--color-primary)' 
+                                }"
+                            >
+                                <font-awesome-icon :icon="getFaIcon(plan)" />
                             </div>
                             <h4 class="text-2xl font-black text-gray-900 mb-2">{{ plan.nombre }}</h4>
                             <p class="text-sm text-gray-400 font-bold uppercase tracking-widest">{{ plan.tipo_label }}</p>
                         </div>
 
                         <div class="mb-10 text-center">
-                            <p class="text-5xl font-black text-gray-900 tracking-tighter mb-2">
-                                ${{ billingCycle === 'monthly' ? formatPrice(plan.precio_mensual) : formatPrice(plan.precio_anual / 12) }}
-                            </p>
-                            <p class="text-gray-400 text-xs font-black uppercase tracking-widest">pesos por mes</p>
-                            <p v-if="billingCycle === 'yearly'" class="mt-4 text-[10px] font-black text-green-500 bg-green-50 py-2 rounded-xl">¡Ahorras ${{ formatPrice(plan.ahorro_anual) }} al año!</p>
+                            <template v-if="plan.precio_mensual > 0">
+                                <p class="text-5xl font-black text-gray-900 tracking-tighter mb-2">
+                                    ${{ billingCycle === 'monthly' ? formatPrice(plan.precio_mensual) : formatPrice(plan.precio_anual / 12) }}
+                                </p>
+                                <p class="text-gray-400 text-xs font-black uppercase tracking-widest">pesos por mes</p>
+                                <p v-if="billingCycle === 'yearly'" class="mt-4 text-[10px] font-black text-green-500 bg-green-50 py-2 rounded-xl">¡Ahorras ${{ formatPrice(plan.ahorro_anual) }} al año!</p>
+                            </template>
+                            <template v-else>
+                                <p class="text-3xl font-black text-gray-900 tracking-tighter mb-2 uppercase">Diseño VIP</p>
+                                <p class="text-orange-600 text-xs font-black uppercase tracking-widest">Adaptado a su Negocio</p>
+                                <div class="h-10 mt-4"></div>
+                            </template>
                         </div>
 
                         <ul class="space-y-4 mb-10 flex-grow">
@@ -416,12 +465,22 @@ const toggleFaq = (id) => {
                         </ul>
 
                         <Link 
-                            :href="route('catalogo.polizas', { plan: plan.id })" 
+                            v-if="plan.precio_mensual > 0"
+                            :href="route('catalogo.polizas', { plan: plan.slug })" 
                             class="w-full py-5 rounded-2xl font-black text-xs uppercase tracking-widest text-center transition-all shadow-lg"
                             :class="plan.destacado ? 'bg-[var(--color-primary)] text-white shadow-[var(--color-primary-soft)] hover:shadow-2xl' : 'bg-gray-900 text-white hover:bg-gray-800 shadow-gray-200'"
                         >
                             Contratar Plan
                         </Link>
+                        <a 
+                            v-else
+                            :href="whatsappLink"
+                            target="_blank"
+                            class="w-full py-5 rounded-2xl font-black text-xs uppercase tracking-widest text-center transition-all shadow-lg bg-[var(--color-primary)] text-white hover:opacity-90 flex items-center justify-center gap-2"
+                        >
+                            Contactar Ventas
+                            <font-awesome-icon :icon="['fab', 'whatsapp']" class="text-lg" />
+                        </a>
                     </div>
                 </div>
             </div>

@@ -51,7 +51,6 @@ class PolizaServicioController extends Controller
         return Inertia::render('PolizaServicio/Edit', [
             'clientes' => Cliente::activos()->get(['id', 'nombre_razon_social', 'email', 'telefono', 'rfc']),
             'servicios' => Servicio::select('id', 'nombre', 'precio')->active()->get(),
-            'equipos' => Equipo::select('id', 'nombre', 'numero_serie as serie')->get(),
             'poliza' => null,
         ]);
     }
@@ -80,6 +79,9 @@ class PolizaServicioController extends Controller
 
         DB::beginTransaction();
         try {
+            $condiciones = $request->condiciones_especiales ?? [];
+            $condiciones['equipos_cliente'] = $request->equipos_cliente ?? [];
+
             $poliza = PolizaServicio::create([
                 'empresa_id' => auth()->user()->empresa_id ?? 1,
                 'cliente_id' => $request->cliente_id,
@@ -95,6 +97,7 @@ class PolizaServicioController extends Controller
                 'renovacion_automatica' => $request->renovacion_automatica ?? true,
                 'notas' => $request->notas,
                 'sla_horas_respuesta' => $request->sla_horas_respuesta,
+                'condiciones_especiales' => $condiciones,
                 // Phase 2
                 'horas_incluidas_mensual' => $request->horas_incluidas_mensual,
                 'costo_hora_excedente' => $request->costo_hora_excedente,
@@ -111,10 +114,6 @@ class PolizaServicioController extends Controller
                         'precio_especial' => $item['precio_especial'] ?? null,
                     ]);
                 }
-            }
-
-            if ($request->has('equipos')) {
-                $poliza->equipos()->attach($request->equipos);
             }
 
             DB::commit();
@@ -165,12 +164,11 @@ class PolizaServicioController extends Controller
      */
     public function edit(PolizaServicio $polizaServicio)
     {
-        $polizaServicio->load(['servicios', 'equipos', 'credenciales']);
+        $polizaServicio->load(['servicios', 'credenciales']);
 
         return Inertia::render('PolizaServicio/Edit', [
             'clientes' => Cliente::activos()->get(['id', 'nombre_razon_social', 'email', 'telefono', 'rfc']),
             'servicios' => Servicio::select('id', 'nombre', 'precio')->active()->get(),
-            'equipos' => Equipo::select('id', 'nombre', 'numero_serie as serie')->get(),
             'poliza' => $polizaServicio,
         ]);
     }
@@ -196,7 +194,10 @@ class PolizaServicioController extends Controller
 
         DB::beginTransaction();
         try {
-            $polizaServicio->update($request->only([
+            $condiciones = $request->condiciones_especiales ?? [];
+            $condiciones['equipos_cliente'] = $request->equipos_cliente ?? [];
+
+            $polizaServicio->update(array_merge($request->only([
                 'nombre',
                 'descripcion',
                 'fecha_inicio',
@@ -216,7 +217,7 @@ class PolizaServicioController extends Controller
                 'mantenimiento_frecuencia_meses',
                 'proximo_mantenimiento_at',
                 'generar_cita_automatica',
-            ]));
+            ]), ['condiciones_especiales' => $condiciones]));
 
             if ($request->has('servicios')) {
                 $syncData = [];

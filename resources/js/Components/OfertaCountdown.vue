@@ -27,17 +27,17 @@ const isExpired = ref(false);
 let intervalId = null;
 
 // Datos de la oferta (desde backend o fallback)
-const titulo = computed(() => props.oferta?.titulo || '🔥 OFERTA ESPECIAL');
-const subtitulo = computed(() => props.oferta?.subtitulo || 'Instalación de Minisplit Inverter');
+const titulo = computed(() => props.oferta?.titulo || '💼 VENTA O RENTA POS');
+const subtitulo = computed(() => props.oferta?.subtitulo || 'Kit de Punto de Venta - Equipamiento Completo');
 const descuento = computed(() => props.oferta?.descuento || 20);
-const precioOriginal = computed(() => props.oferta?.precio_original || 15999);
+const precioOriginal = computed(() => props.oferta?.precio_original || 15500);
 
 // Calcular precio con descuento
 const precioDescuento = computed(() => {
     if (props.oferta?.precio_oferta) {
         return props.oferta.precio_oferta;
     }
-    return Math.round(precioOriginal.value * (1 - descuento.value / 100));
+    return 12500; // Precio de compra solicitado
 });
 
 const ahorro = computed(() => {
@@ -50,9 +50,10 @@ const caracteristicas = computed(() => {
         return props.oferta.caracteristicas;
     }
     return [
-        'Instalación profesional incluida',
-        'Garantía extendida de 3 años',
-        'Soporte técnico 24/7'
+        'COMPRA: $12,500 (¡Incluye Báscula!)',
+        'RENTA BÁSICA: $1,000 + IVA (Sin báscula)',
+        'RENTA COMPLETA: $1,250 + IVA (Con báscula)',
+        'CPU, Monitor, Teclado, Cajón e Impresora'
     ];
 });
 

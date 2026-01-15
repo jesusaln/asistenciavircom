@@ -248,6 +248,11 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::resource('traspasos', TraspasoController::class)->names('traspasos')->middleware('can:view traspasos');
     Route::resource('movimientos-inventario', MovimientoInventarioController::class)->names('movimientos-inventario')->middleware('can:view movimientos_inventario');
 
+    // Pedidos Tienda Online
+    Route::get('/pedidos-online', [App\Http\Controllers\Admin\PedidoOnlineController::class, 'index'])->name('pedidos-online.index');
+    Route::get('/pedidos-online/{id}', [App\Http\Controllers\Admin\PedidoOnlineController::class, 'show'])->name('pedidos-online.show');
+    Route::post('/pedidos-online/{id}/status', [App\Http\Controllers\Admin\PedidoOnlineController::class, 'updateStatus'])->name('pedidos-online.update-status');
+
     Route::resource('ajustes-inventario', AjusteInventarioController::class)->names('ajustes-inventario')->middleware('can:view ajustes_inventario');
     Route::get('/caja-chica/export', [CajaChicaController::class, 'export'])->name('caja-chica.export');
     Route::resource('caja-chica', CajaChicaController::class)->names('caja-chica');
@@ -289,9 +294,11 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
     Route::get('/compras/siguiente-numero', [CompraController::class, 'obtenerSiguienteNumero'])->name('compras.siguiente-numero')->middleware('can:view compras');
     Route::get('/compras/received-cfdis', [CompraCfdiController::class, 'getReceivedCfdis'])->name('compras.received-cfdis')->middleware('can:view compras');
+    Route::post('/compras/parse-xml', [CompraCfdiController::class, 'parseXmlCfdi'])->name('compras.parse-xml')->middleware('can:edit compras');
     Route::resource('compras', CompraController::class)->names('compras')->middleware('can:view compras');
     Route::post('/compras/{id}/cancel', [CompraEstadoController::class, 'cancel'])->name('compras.cancel');
 
+    Route::post('/gastos/parse-xml', [GastoController::class, 'parseXmlCfdi'])->name('gastos.parse-xml')->middleware('can:edit gastos');
     Route::resource('gastos', GastoController::class)->names('gastos')->middleware('can:view gastos');
 
     Route::prefix('conciliacion-bancaria')->middleware('can:view conciliacion_bancaria')->group(function () {
