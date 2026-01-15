@@ -38,6 +38,7 @@ class Empresa extends Model
         'whatsapp_webhook_verify_token',
         'whatsapp_default_language',
         'whatsapp_template_payment_reminder',
+        'whatsapp_template_maintenance',
     ];
 
     protected $casts = [

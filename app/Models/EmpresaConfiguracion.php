@@ -203,6 +203,7 @@ class EmpresaConfiguracion extends Model
         // Shipping
         'shipping_local_cp_prefix',
         'shipping_local_cost',
+        'n8n_webhook_blog',
     ];
 
     protected $casts = [

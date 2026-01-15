@@ -33,6 +33,7 @@ const form = useForm({
     orden: props.plan?.orden || 0,
     max_equipos: props.plan?.max_equipos || null,
     mantenimiento_frecuencia_meses: props.plan?.mantenimiento_frecuencia_meses || null,
+    mantenimiento_dias_anticipacion: props.plan?.mantenimiento_dias_anticipacion || 7,
     generar_cita_automatica: props.plan?.generar_cita_automatica ?? false,
 });
 
@@ -247,7 +248,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Frecuencia Sugerida (Meses)</label>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Frecuencia (Meses)</label>
                                 <input 
                                     v-model.number="form.mantenimiento_frecuencia_meses" 
                                     type="number" 
@@ -256,7 +257,20 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                                     placeholder="Ej: 6"
                                 />
-                                <p class="text-xs text-gray-500 mt-1">Frecuencia recomendada para mantenimientos preventivos</p>
+                                <p class="text-xs text-gray-500 mt-1">Frecuencia recomendada</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Anticipación (Días)</label>
+                                <input 
+                                    v-model.number="form.mantenimiento_dias_anticipacion" 
+                                    type="number" 
+                                    min="1"
+                                    max="60"
+                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Ej: 7"
+                                />
+                                <p class="text-xs text-gray-500 mt-1">Días antes para generar ticket</p>
                             </div>
 
                             <div class="flex items-center">

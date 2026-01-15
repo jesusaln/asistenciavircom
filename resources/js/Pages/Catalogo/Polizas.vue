@@ -23,9 +23,9 @@ const periodoSeleccionado = ref('mensual'); // mensual o anual
 
 // Variables CSS con fallback al naranja corporativo de Climas del Desierto
 const cssVars = computed(() => ({
-    '--color-primary': empresaData.value.color_principal || '#FF6B35',
-    '--color-primary-soft': (empresaData.value.color_principal || '#FF6B35') + '15',
-    '--color-primary-dark': (empresaData.value.color_principal || '#FF6B35') + 'dd',
+    '--color-primary': empresaData.value.color_principal || '#3B82F6',
+    '--color-primary-soft': (empresaData.value.color_principal || '#3B82F6') + '15',
+    '--color-primary-dark': (empresaData.value.color_principal || '#3B82F6') + 'dd',
     '--color-secondary': empresaData.value.color_secundario || '#D97706',
     '--color-terciary': empresaData.value.color_terciario || '#FBBF24',
     '--color-terciary-soft': (empresaData.value.color_terciario || '#FBBF24') + '15',
@@ -58,7 +58,7 @@ const getColorPlan = (plan) => {
     if (plan.color) return plan.color;
     
     // Si no, usamos el color corporativo por defecto
-    return empresaData.value.color_principal || '#FF6B35';
+    return empresaData.value.color_principal || '#3B82F6';
 };
 
 const getFaIcon = (plan) => {

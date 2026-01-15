@@ -82,7 +82,7 @@ const whatsappLink = computed(() => {
                     <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-6">Servicios</h4>
                     <ul class="space-y-4">
                         <li><Link :href="route('catalogo.polizas')" class="text-gray-400 hover:text-white transition-colors text-sm">Pólizas Premium</Link></li>
-                        <li><Link :href="route('catalogo.index')" class="text-gray-400 hover:text-white transition-colors text-sm">Tienda en Línea</Link></li>
+                        <li><Link :href="route('catalogo.index')" class="text-gray-400 hover:text-white transition-colors text-sm">Productos</Link></li>
                         <li><Link :href="route('portal.dashboard')" class="text-gray-400 hover:text-white transition-colors text-sm">Soporte Técnico</Link></li>
                     </ul>
                 </div>

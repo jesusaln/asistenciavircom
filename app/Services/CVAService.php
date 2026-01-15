@@ -280,8 +280,8 @@ class CVAService
             try {
                 $response = Http::withToken($token)
                     ->get("{$this->baseUrl}/catalogo_clientes/imagenes_alta", [
-                            'clave' => $clave
-                        ]);
+                        'clave' => $clave
+                    ]);
 
                 if ($response->successful()) {
                     return $response->json('imagenes') ?: [];
@@ -347,8 +347,8 @@ class CVAService
             try {
                 $response = Http::withToken($token)
                     ->get("{$this->baseUrl}/catalogo_clientes/informacion_tecnica", [
-                            'clave' => $clave
-                        ]);
+                        'clave' => $clave
+                    ]);
 
                 if ($response->successful()) {
                     $specs = $response->json('especificaciones') ?: [];
@@ -400,8 +400,20 @@ class CVAService
             }
         }
 
+        // Si HERMOSILLO no está y hay stock en 'disponible', agregarlo (ya que CVA lo toma como local)
+        if (!isset($branches['HERMOSILLO']) && isset($item['disponible']) && (int) $item['disponible'] > 0) {
+            $branches['HERMOSILLO'] = (int) $item['disponible'];
+        }
+
         // Ordenar por cantidad descendente
         arsort($branches);
+
+        // Asegurar que HERMOSILLO esté al principio si existe
+        if (isset($branches['HERMOSILLO'])) {
+            $hermosilloQty = $branches['HERMOSILLO'];
+            unset($branches['HERMOSILLO']);
+            $branches = ['HERMOSILLO' => $hermosilloQty] + $branches;
+        }
 
         return $branches;
     }
@@ -655,7 +667,7 @@ class CVAService
             ['rfc' => 'GCV000101XXX', 'email' => 'ventas@grupocva.com', 'estado' => 'activo']
         );
 
-        $utility = (float) ($this->config->cva_utility_percentage ?: 15) / 100;
+        $utility = $this->getTieredUtilityPercentage((float) $item['precio']);
 
         // Datos base
         $data = [
@@ -939,8 +951,8 @@ class CVAService
         try {
             $response = Http::withToken($token)
                 ->post("{$this->baseUrl}/pedidos_web/consultar_pedido", [
-                        'pedido' => $pedidoReferencia
-                    ]);
+                    'pedido' => $pedidoReferencia
+                ]);
 
             if ($response->successful()) {
                 return $response->json('pedido');

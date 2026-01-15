@@ -133,7 +133,7 @@ const formatDate = (date) => {
                                     {{ ticket.estado.replace('_', ' ') }}
                                 </span>
                                 <span :class="['px-2 py-1 text-xs font-bold rounded', getPrioridadBadge(ticket.prioridad)]">
-                                    {{ ticket.prioridad.toUpperCase() }}
+                                    {{ ticket.prioridad?.toUpperCase() || 'NORMAL' }}
                                 </span>
                                 <span v-if="ticket.tipo_servicio === 'costo'" class="px-2 py-1 text-xs font-bold rounded bg-purple-100 text-purple-700 border border-purple-200">
                                     💰 CON COSTO

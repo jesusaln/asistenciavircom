@@ -48,8 +48,12 @@ class PortalController extends Controller
 
         $polizas = PolizaServicio::where('cliente_id', $cliente->id)
             ->where('estado', '!=', 'cancelada')
+            ->with(['equipos']) // Cargamos los equipos vinculados
             ->orderByDesc('created_at')
-            ->get();
+            ->get()
+            ->each(function ($poliza) {
+                $poliza->append(['porcentaje_horas', 'porcentaje_tickets', 'dias_para_vencer', 'excede_horas', 'tickets_mes_actual_count']);
+            });
 
         $pagosPendientes = Venta::where('cliente_id', $cliente->id)
             ->whereIn('estado', ['pendiente', 'vencida'])
@@ -61,6 +65,17 @@ class PortalController extends Controller
             'polizas' => $polizas,
             'pagosPendientes' => $pagosPendientes,
             'ventas' => Venta::where('cliente_id', $cliente->id)->orderByDesc('fecha')->limit(50)->get(), // Agregamos historial de ventas
+            'credenciales' => $cliente->credenciales()->get()->map(function ($c) {
+                // No enviamos el password real al dashboard inicial, solo metadatos
+                return [
+                    'id' => $c->id,
+                    'nombre' => $c->nombre,
+                    'usuario' => $c->usuario,
+                    'host' => $c->host,
+                    'puerto' => $c->puerto,
+                    'notas' => $c->notas,
+                ];
+            }),
             'cliente' => $cliente->only('id', 'nombre_razon_social', 'email'),
             'empresa' => $this->getEmpresaBranding(),
         ]);
@@ -171,6 +186,19 @@ class PortalController extends Controller
             'empresa' => $empresa,
             'cliente' => $cliente,
             'logo' => $empresa->logo_url ?? asset('images/logo.png'),
+        ]);
+    }
+
+    public function revelarCredencial(Request $request, $id)
+    {
+        $cliente = Auth::guard('client')->user();
+        $credencial = $cliente->credenciales()->findOrFail($id);
+
+        // Registrar el acceso en el log para auditoría
+        $credencial->registrarAcceso('revelado_portal_cliente');
+
+        return response()->json([
+            'password' => $credencial->password,
         ]);
     }
 }

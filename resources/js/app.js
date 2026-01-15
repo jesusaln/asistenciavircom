@@ -35,10 +35,11 @@ import {
   faPen, faTrashCan,
   faBullseye, faBullhorn, faColumns, faTrophy, faInbox, faList,
   faBalanceScale, faTruckLoading, faMedal, faFileUpload, faUserCheck,
-  faCrown, faShieldHalved, faBuildingShield
+  faCrown, faShieldHalved, faBuildingShield, faMobileAlt, faQuestion,
+  faBlog, faNewspaper, faShareAlt, faMagic, faExternalLinkAlt
 } from '@fortawesome/free-solid-svg-icons';
 
-import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
+import { faWhatsapp, faFacebook, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 // Agrega los íconos a la librería
@@ -69,7 +70,9 @@ library.add(
   faCloudUploadAlt, faUnlink, faFileArchive, faPlug, faListOl, faFolderOpen, faTasks, faCheckCircle,
   faPen, faTrashCan,
   faWhatsapp, faList, faBalanceScale, faTruckLoading, faMedal, faFileUpload, faUserCheck,
-  faCrown, faShieldHalved, faBuildingShield
+  faCrown, faShieldHalved, faBuildingShield, faMobileAlt, faQuestion,
+  faBlog, faNewspaper, faShareAlt, faMagic, faExternalLinkAlt,
+  faFacebook, faTwitter
 );
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';

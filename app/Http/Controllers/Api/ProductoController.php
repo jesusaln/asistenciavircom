@@ -96,7 +96,7 @@ class ProductoController extends Controller
             $query->orderBy($sortBy, $sortDirection);
 
             // Paginación
-            $perPage = min((int) $request->input('per_page', 15), 100);
+            $perPage = min((int) $request->input('per_page', 30), 100);
 
             if ($request->has('nopaginate') || $request->input('all') == '1') {
                 $productos = $query->get()->map(function ($producto) {
@@ -313,6 +313,28 @@ class ProductoController extends Controller
             $producto->imagen_url = null;
         }
 
+        // Si es un producto CVA, obtener stock detallado en tiempo real
+        if ($producto->origen === 'CVA') {
+            try {
+                $cva = app(\App\Services\CVAService::class);
+                $clave = $producto->cva_clave ?: $producto->codigo;
+                // Limpiar clave de prefijo CVA- si lo tiene
+                $clave = str_replace('CVA-', '', $clave);
+
+                $details = $cva->getProductDetails($clave, false); // false para datos crudos de CVA
+                if ($details) {
+                    $producto->stock_desglose = $cva->parseBranchAvailability($details);
+                    // Sincronizar stock total también
+                    $totalStock = array_sum($producto->stock_desglose);
+                    if ($totalStock > 0) {
+                        $producto->stock = $totalStock;
+                    }
+                }
+            } catch (\Exception $e) {
+                \Log::error("Error al obtener stock detallado CVA: " . $e->getMessage());
+            }
+        }
+
         return response()->json([
             'success' => true,
             'data' => $producto
@@ -488,7 +510,7 @@ class ProductoController extends Controller
             $almacenId = $request->get('almacen_id');
 
             // Query base para series en stock (disponibles para venta)
-            $queryBase = \App\Models\ProductoSerie::where('producto_id', $producto->id)
+            $queryBase = ProductoSerie::where('producto_id', $producto->id)
                 ->where('estado', 'en_stock')
                 ->whereNull('deleted_at');
 
@@ -548,9 +570,15 @@ class ProductoController extends Controller
 
     /**
      * Generar URL de storage correcta independientemente de APP_URL
+     * Si el path ya es una URL absoluta (externa), devolverla tal cual.
      */
     private function generateCorrectStorageUrl($path)
     {
+        // Si ya es una URL absoluta (externa como CVA, etc.), devolverla sin modificar
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+
         $scheme = request()->isSecure() ? 'https' : 'http';
         $host = request()->getHost();
         $port = request()->getPort();

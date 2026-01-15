@@ -162,6 +162,12 @@ const resetSimulator = () => {
     showResults.value = false;
     leadForm.value = { nombre: '', telefono: '', email: '' };
 };
+
+const cssVars = computed(() => ({
+    '--color-primary': props.empresa?.color_principal || '#3B82F6',
+    '--color-primary-soft': (props.empresa?.color_principal || '#3B82F6') + '15',
+    '--color-primary-dark': (props.empresa?.color_principal || '#3B82F6') + 'dd',
+}));
 </script>
 
 <template>
@@ -171,15 +177,15 @@ const resetSimulator = () => {
                 
                 <!-- Panel Explicativo -->
                 <div class="lg:col-span-4 lg:sticky lg:top-24">
-                    <div class="bg-gradient-to-br from-blue-900 to-gray-900 rounded-[2.5rem] p-8 lg:p-10 text-white relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-48 h-48 bg-blue-500 rounded-full blur-[80px] opacity-20"></div>
+                    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-[2.5rem] p-8 lg:p-10 text-white relative overflow-hidden" :style="cssVars">
+                        <div class="absolute top-0 right-0 w-48 h-48 bg-[var(--color-primary)] rounded-full blur-[80px] opacity-20"></div>
                         
                         <div class="relative z-10">
-                            <div class="w-16 h-16 bg-blue-500/20 rounded-2xl flex items-center justify-center text-3xl mb-6">
+                            <div class="w-16 h-16 bg-[var(--color-primary-soft)] rounded-2xl flex items-center justify-center text-3xl mb-6">
                                 💻
                             </div>
                             
-                            <h2 class="text-xs font-black uppercase tracking-[0.3em] text-blue-400 mb-3">Asesor Inteligente</h2>
+                            <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-3 opacity-90">Asesor Inteligente</h2>
                             <h3 class="text-2xl lg:text-3xl font-black mb-4 leading-tight">Configurador de Punto de Venta</h3>
                             
                             <p class="text-gray-300 text-sm leading-relaxed mb-6">
@@ -201,8 +207,8 @@ const resetSimulator = () => {
                                 </div>
                             </div>
                             
-                            <div class="p-4 bg-blue-500/10 rounded-xl">
-                                <p class="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-1">⚡ Solo 4 pasos</p>
+                            <div class="p-4 bg-[var(--color-primary-soft)] rounded-xl">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-[var(--color-primary)] mb-1 opacity-90">⚡ Solo 4 pasos</p>
                                 <p class="text-xs text-gray-300">Personaliza tu hardware y software en segundos.</p>
                             </div>
                         </div>
@@ -214,44 +220,44 @@ const resetSimulator = () => {
                     <div class="bg-white rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden transition-all duration-500">
             
             <!-- Progress Bar -->
-            <div class="px-8 pt-8">
+            <div class="px-8 pt-8" :style="cssVars">
                 <div class="flex justify-between items-center mb-4">
                     <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Paso {{ step }} de {{ totalSteps }}</span>
-                    <span class="text-[10px] font-black uppercase tracking-widest text-blue-600">{{ Math.round((step/totalSteps)*100) }}%</span>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-[var(--color-primary)]">{{ Math.round((step/totalSteps)*100) }}%</span>
                 </div>
                 <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div class="h-full bg-blue-600 transition-all duration-500 ease-out" :style="`width: ${(step / totalSteps) * 100}%`"></div>
+                    <div class="h-full bg-[var(--color-primary)] transition-all duration-500 ease-out" :style="`width: ${(step / totalSteps) * 100}%`"></div>
                 </div>
             </div>
 
             <div class="p-8 relative min-h-[420px]">
                 
                 <!-- Analyzing -->
-                <div v-if="isCalculating" class="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center animate-fade-in">
+                <div v-if="isCalculating" class="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center animate-fade-in" :style="cssVars">
                     <div class="relative w-20 h-20 mb-8">
-                        <div class="absolute inset-0 border-4 border-blue-50 rounded-full"></div>
-                        <div class="absolute inset-0 border-4 border-t-blue-600 rounded-full animate-spin"></div>
+                        <div class="absolute inset-0 border-4 border-gray-50 rounded-full"></div>
+                        <div class="absolute inset-0 border-4 border-t-[var(--color-primary)] rounded-full animate-spin"></div>
                         <div class="absolute inset-0 flex items-center justify-center text-2xl">⚙️</div>
                     </div>
                     <h3 class="text-xl font-black text-gray-900 mb-3">Configurando tu solución POS...</h3>
-                    <p class="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em] animate-pulse">ANALIZANDO REQUERIMIENTOS</p>
+                    <p class="text-[10px] font-black text-[var(--color-primary)] uppercase tracking-[0.3em] animate-pulse">ANALIZANDO REQUERIMIENTOS</p>
                 </div>
 
                 <!-- Results View -->
-                <div v-if="showResults && !isCalculating" class="text-center animate-fade-in">
-                    <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
+                <div v-if="showResults && !isCalculating" class="text-center animate-fade-in" :style="cssVars">
+                    <div class="w-20 h-20 bg-[var(--color-primary-soft)] text-[var(--color-primary)] rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
                         🎯
                     </div>
                     <h3 class="text-2xl font-black text-gray-900 mb-2">¡Tu Sistema Ideal!</h3>
                     
                     <div class="bg-gray-900 rounded-2xl p-6 text-white my-6">
-                        <p class="text-[9px] font-black uppercase tracking-[0.4em] text-blue-400 mb-2 text-center">Configuración Recomendada</p>
+                        <p class="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--color-primary)] mb-2 text-center opacity-90">Configuración Recomendada</p>
                         <h4 class="text-2xl md:text-3xl font-black mb-2">{{ recomendacion.kit }}</h4>
                         <p class="text-xs text-gray-400 leading-relaxed">{{ recomendacion.descripcion }}</p>
                     </div>
 
-                    <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6 text-left">
-                        <p class="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-2">Resumen de Equipamiento:</p>
+                    <div class="bg-[var(--color-primary-soft)] border border-[var(--color-primary)]/10 rounded-xl p-4 mb-6 text-left">
+                        <p class="text-[9px] font-black text-[var(--color-primary)] uppercase tracking-widest mb-2 opacity-90">Resumen de Equipamiento:</p>
                         <p class="text-sm font-medium text-gray-700">{{ recomendacion.incluye }}</p>
                     </div>
 
@@ -275,8 +281,9 @@ const resetSimulator = () => {
                             {id: 'otro', label: 'Otro Servicio', icon: '🛍️'}
                         ]" :key="g.id" 
                         @click="form.giro = g.id"
+                        :style="form.giro === g.id ? cssVars : {}"
                         :class="['p-4 rounded-xl border-2 transition-all text-center flex flex-col items-center justify-center', 
-                                form.giro === g.id ? 'border-blue-600 bg-blue-50' : 'border-gray-100 hover:border-gray-200']">
+                                form.giro === g.id ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100 hover:border-gray-200']">
                             <span class="text-2xl mb-2">{{ g.icon }}</span>
                             <span class="text-[9px] font-black uppercase tracking-tight text-gray-900 leading-tight">{{ g.label }}</span>
                         </button>
@@ -294,19 +301,20 @@ const resetSimulator = () => {
                             <div class="grid grid-cols-3 gap-2">
                                 <button v-for="v in [{id:'bajo', l:'Bajo'}, {id:'medio', l:'Medio'}, {id:'alto', l:'Alto'}]" :key="v.id"
                                     @click="form.volumen_ventas = v.id"
+                                    :style="form.volumen_ventas === v.id ? cssVars : {}"
                                     :class="['py-3 rounded-xl border-2 font-bold text-xs uppercase', 
-                                            form.volumen_ventas === v.id ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-gray-100 text-gray-400']">
+                                            form.volumen_ventas === v.id ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-[var(--color-primary)]' : 'border-gray-100 text-gray-400']">
                                     {{ v.l }}
                                 </button>
                             </div>
                         </div>
 
-                        <div class="bg-gray-50 rounded-2xl p-6">
+                        <div class="bg-gray-50 rounded-2xl p-6" :style="cssVars">
                             <div class="flex justify-between items-center mb-4">
                                 <label class="text-xs font-black text-gray-600 uppercase">Cajas / Estaciones de Cobro</label>
-                                <span class="bg-blue-600 text-white px-3 py-1 rounded-lg font-black text-sm">{{ form.sucursales }}</span>
+                                <span class="bg-[var(--color-primary)] text-white px-3 py-1 rounded-lg font-black text-sm">{{ form.sucursales }}</span>
                             </div>
-                            <input type="range" v-model="form.sucursales" min="1" max="10" class="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-blue-600" />
+                            <input type="range" v-model="form.sucursales" min="1" max="10" class="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-[var(--color-primary)]" />
                         </div>
                     </div>
                 </div>
@@ -329,11 +337,12 @@ const resetSimulator = () => {
                             {id: 'necesita_monitor_touch', label: 'Monitor Touch', icon: '👆'}
                         ]" :key="h.id" 
                         @click="form[h.id] = !form[h.id]"
+                        :style="form[h.id] ? cssVars : {}"
                         :class="['p-3 rounded-xl border-2 transition-all text-center flex flex-col items-center justify-center relative', 
-                                form[h.id] ? 'border-blue-600 bg-blue-50' : 'border-gray-100']">
+                                form[h.id] ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100']">
                             <span class="text-2xl mb-1">{{ h.icon }}</span>
                             <span class="text-[9px] font-black uppercase tracking-tight text-gray-900 leading-tight">{{ h.label }}</span>
-                            <div v-if="form[h.id]" class="absolute top-1 right-1 w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center text-white text-[8px]">✓</div>
+                            <div v-if="form[h.id]" class="absolute top-1 right-1 w-4 h-4 bg-[var(--color-primary)] rounded-full flex items-center justify-center text-white text-[8px]">✓</div>
                         </button>
                     </div>
                 </div>
@@ -346,7 +355,7 @@ const resetSimulator = () => {
                     <div class="bg-gray-50 rounded-[1.5rem] p-6 space-y-4">
                         <div class="flex justify-between items-center text-sm">
                             <span class="text-gray-500">Software Sugerido:</span>
-                            <span class="font-black text-blue-600 uppercase">{{ softwareRecomendado }}</span>
+                            <span class="font-black text-[var(--color-primary)] uppercase opacity-90">{{ softwareRecomendado }}</span>
                         </div>
                         <div class="flex justify-between items-center text-sm">
                             <span class="text-gray-500">Giro Comercial:</span>
@@ -364,17 +373,20 @@ const resetSimulator = () => {
             </div>
 
             <!-- Navigation -->
-            <div v-if="!showResults && !isCalculating" class="px-8 pb-8 flex items-center justify-between border-t border-gray-50 pt-6">
+            <div v-if="!showResults && !isCalculating" class="px-8 pb-8 flex items-center justify-between border-t border-gray-50 pt-6" :style="cssVars">
                 <button v-if="step > 1" @click="prevStep" class="text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors">
                     ← Anterior
                 </button>
                 <div v-else></div>
 
-                <button @click="nextStep" class="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:shadow-lg transition-all">
+                <button @click="nextStep" class="px-8 py-3 bg-[var(--color-primary)] text-white rounded-xl font-bold text-sm hover:shadow-lg transition-all">
                     {{ step === totalSteps ? '¡Obtener Propuesta!' : 'Siguiente →' }}
                 </button>
             </div>
         </div>
+    </div>
+</div>
+</div>
 
         <!-- Lead Modal -->
         <div v-if="showLeadModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -387,24 +399,24 @@ const resetSimulator = () => {
                     <div class="text-center mb-6">
                         <span class="text-4xl block mb-4">✨</span>
                         <h3 class="text-2xl font-black text-gray-900">¡Ya casi terminamos!</h3>
-                        <p class="text-gray-500 text-sm mt-2">Introduce tus datos para recibir tu <span class="font-bold text-blue-600">Propuesta Técnica</span> preparada por un experto.</p>
+                        <p class="text-gray-500 text-sm mt-2">Introduce tus datos para recibir tu <span class="font-bold text-[var(--color-primary)]">Propuesta Técnica</span> preparada por un experto.</p>
                     </div>
                     
                     <div class="space-y-4">
                         <div>
                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Nombre Completo</label>
-                            <input v-model="leadForm.nombre" type="text" placeholder="TU NOMBRE" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl font-medium focus:ring-2 focus:ring-blue-600" />
+                            <input v-model="leadForm.nombre" type="text" placeholder="TU NOMBRE" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl font-medium focus:ring-2 focus:ring-[var(--color-primary)]" />
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Teléfono (WhatsApp)</label>
-                            <input v-model="leadForm.telefono" type="tel" maxlength="10" placeholder="686XXXXXXX" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl font-medium focus:ring-2 focus:ring-blue-600" />
+                            <input v-model="leadForm.telefono" type="tel" maxlength="10" placeholder="686XXXXXXX" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl font-medium focus:ring-2 focus:ring-[var(--color-primary)]" />
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Email <span class="text-gray-300">(opcional)</span></label>
-                            <input v-model="leadForm.email" type="email" placeholder="hola@empresa.com" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl font-medium focus:ring-2 focus:ring-blue-600" />
+                            <input v-model="leadForm.email" type="email" placeholder="hola@empresa.com" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl font-medium focus:ring-2 focus:ring-[var(--color-primary)]" />
                         </div>
                         
-                        <button @click="submitLead" :disabled="isSubmitting" class="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-sm hover:shadow-lg transition-all" :class="isSubmitting ? 'opacity-70' : ''">
+                        <button @click="submitLead" :disabled="isSubmitting" class="w-full py-4 bg-[var(--color-primary)] text-white rounded-xl font-bold text-sm hover:shadow-lg transition-all" :class="isSubmitting ? 'opacity-70' : ''">
                             {{ isSubmitting ? 'Procesando...' : 'Ver Mi Propuesta POS' }}
                         </button>
                     </div>
@@ -416,11 +428,7 @@ const resetSimulator = () => {
                     <p class="text-gray-500 mt-2">Generando tu configuración ideal...</p>
                 </div>
             </div>
-            </div>
         </div>
-                    </div>
-                </div>
-        
     </section>
 </template>
 
@@ -440,7 +448,7 @@ input[type="range"]::-webkit-slider-thumb {
     width: 18px;
     border-radius: 50%;
     background: white;
-    border: 3px solid #2563eb;
+    border: 3px solid var(--color-primary);
     cursor: pointer;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }

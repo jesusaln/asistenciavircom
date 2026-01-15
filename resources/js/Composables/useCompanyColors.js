@@ -11,7 +11,7 @@ export function useCompanyColors() {
 
     // Colores por defecto (amber/amber-dark para fallback)
     const colors = ref({
-        principal: '#FF6B35',
+        principal: '#3B82F6',
         secundario: '#D97706'
     })
 

@@ -108,6 +108,10 @@ class Cita extends Model
         'trabajo_realizado',
         'fotos_finales',
         'ticket_id',
+        'firma_cliente',
+        'nombre_firmante',
+        'fecha_firma',
+        'firma_tecnico',
     ];
 
     protected $casts = [
@@ -131,6 +135,7 @@ class Cita extends Model
         'whatsapp_recepcion_at' => 'datetime',
         'whatsapp_confirmacion_at' => 'datetime',
         'fotos_finales' => 'array',
+        'fecha_firma' => 'datetime',
     ];
 
     // Scopes útiles

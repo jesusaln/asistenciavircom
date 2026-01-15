@@ -37,5 +37,8 @@ Route::prefix('portal')->group(function () {
 
         // Pólizas (Cliente)
         Route::get('/polizas/{poliza}/imprimir', [PortalController::class, 'imprimirContrato'])->name('portal.polizas.imprimir');
+
+        // Credenciales (Cliente)
+        Route::post('/credenciales/{id}/revelar', [PortalController::class, 'revelarCredencial'])->name('portal.credenciales.revelar');
     });
 });

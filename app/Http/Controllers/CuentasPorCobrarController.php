@@ -697,4 +697,76 @@ class CuentasPorCobrarController extends Controller
             return ['success' => false, 'message' => 'Error al parsear: ' . $e->getMessage()];
         }
     }
+
+    // =====================================================
+    // MÉTODOS API PARA IONIC / FRONTEND MOBILE
+    // =====================================================
+
+    /**
+     * Obtener cobranzas del día de hoy (API Mobile)
+     */
+    public function hoy()
+    {
+        $hoy = Carbon::today();
+
+        $cobranzas = CuentasPorCobrar::with(['cobrable.cliente'])
+            ->whereIn('estado', ['pendiente', 'parcial', 'vencido'])
+            ->whereDate('fecha_vencimiento', $hoy)
+            ->orderBy('monto_pendiente', 'desc')
+            ->limit(50)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'hoy' => $cobranzas,
+            'total' => $cobranzas->count(),
+            'monto_total' => $cobranzas->sum('monto_pendiente'),
+        ]);
+    }
+
+    /**
+     * Obtener cobranzas próximas a vencer (API Mobile)
+     */
+    public function proximas(Request $request)
+    {
+        $incluirVencidas = $request->boolean('incluir_vencidas', false);
+        $hoy = Carbon::today();
+        $limite = Carbon::today()->addDays(7);
+
+        $query = CuentasPorCobrar::with(['cobrable.cliente'])
+            ->whereIn('estado', ['pendiente', 'parcial', 'vencido']);
+
+        if ($incluirVencidas) {
+            $query->where('fecha_vencimiento', '<=', $limite);
+        } else {
+            $query->whereBetween('fecha_vencimiento', [$hoy, $limite]);
+        }
+
+        $cobranzas = $query->orderBy('fecha_vencimiento', 'asc')
+            ->limit(100)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $cobranzas,
+            'total' => $cobranzas->count(),
+            'monto_total' => $cobranzas->sum('monto_pendiente'),
+        ]);
+    }
+
+    /**
+     * Obtener listado de cuentas bancarias activas (API Mobile)
+     */
+    public function cuentasBancarias()
+    {
+        $cuentas = CuentaBancaria::activas()
+            ->orderBy('banco')
+            ->orderBy('nombre')
+            ->get(['id', 'nombre', 'banco', 'numero_cuenta', 'clabe']);
+
+        return response()->json([
+            'success' => true,
+            'data' => $cuentas,
+        ]);
+    }
 }

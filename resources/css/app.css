@@ -1,14 +1,14 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
 
-/* ============================================
-   CDD App - Sistema de Diseño Unificado
-   Paleta: Naranja/Ámbar Profesional
-   ============================================ */
+@source "../../views";
+@source "../../js";
 
 @theme {
-    /* ===================
-       COLORES PRIMARIOS (Naranja/Ámbar)
-       =================== */
+    --font-sans: 'Inter', 'Figtree', sans-serif;
+
+
     --color-brand-50: #FFFBEB;
     --color-brand-100: #FEF3C7;
     --color-brand-200: #FDE68A;
@@ -19,6 +19,13 @@
     --color-brand-700: #B45309;
     --color-brand-800: #92400E;
     --color-brand-900: #78350F;
+
+    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+
+    --radius-xl: 0.75rem;
+    --radius-2xl: 1rem;
+
 
     /* ===================
        COLORES SEMÁNTICOS
@@ -323,6 +330,7 @@
     0% {
         transform: translateX(-100%) rotate(25deg);
     }
+
     100% {
         transform: translateX(200%) rotate(25deg);
     }
@@ -340,27 +348,28 @@
     left: -50%;
     width: 50%;
     height: 200%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.3),
-        transparent
-    );
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.3),
+            transparent);
     transform: rotate(25deg);
     animation: shine 3s ease-in-out infinite;
 }
 
 /* Glow pulsante para elementos importantes */
 @keyframes glowPulse {
-    0%, 100% {
+
+    0%,
+    100% {
         box-shadow: 0 0 5px rgba(245, 158, 11, 0.3),
-                    0 0 10px rgba(245, 158, 11, 0.2),
-                    0 0 15px rgba(245, 158, 11, 0.1);
+            0 0 10px rgba(245, 158, 11, 0.2),
+            0 0 15px rgba(245, 158, 11, 0.1);
     }
+
     50% {
         box-shadow: 0 0 10px rgba(245, 158, 11, 0.5),
-                    0 0 20px rgba(245, 158, 11, 0.3),
-                    0 0 30px rgba(245, 158, 11, 0.2);
+            0 0 20px rgba(245, 158, 11, 0.3),
+            0 0 30px rgba(245, 158, 11, 0.2);
     }
 }
 
@@ -370,9 +379,12 @@
 
 /* Floating animation suave */
 @keyframes float {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateY(0);
     }
+
     50% {
         transform: translateY(-8px);
     }
@@ -387,9 +399,11 @@
     0% {
         background-position: 0% 50%;
     }
+
     50% {
         background-position: 100% 50%;
     }
+
     100% {
         background-position: 0% 50%;
     }
@@ -402,9 +416,12 @@
 
 /* Border glow animation */
 @keyframes borderGlow {
-    0%, 100% {
+
+    0%,
+    100% {
         border-color: rgba(245, 158, 11, 0.3);
     }
+
     50% {
         border-color: rgba(245, 158, 11, 0.8);
     }
@@ -416,10 +433,13 @@
 
 /* Sparkle effect */
 @keyframes sparkle {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 0;
         transform: scale(0);
     }
+
     50% {
         opacity: 1;
         transform: scale(1);
@@ -432,6 +452,7 @@
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -443,16 +464,30 @@
 }
 
 /* Stagger animation para listas */
-.stagger-animation > * {
+.stagger-animation>* {
     opacity: 0;
     animation: slideUp 0.4s ease-out forwards;
 }
 
-.stagger-animation > *:nth-child(1) { animation-delay: 0.1s; }
-.stagger-animation > *:nth-child(2) { animation-delay: 0.2s; }
-.stagger-animation > *:nth-child(3) { animation-delay: 0.3s; }
-.stagger-animation > *:nth-child(4) { animation-delay: 0.4s; }
-.stagger-animation > *:nth-child(5) { animation-delay: 0.5s; }
+.stagger-animation>*:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.stagger-animation>*:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.stagger-animation>*:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.stagger-animation>*:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.stagger-animation>*:nth-child(5) {
+    animation-delay: 0.5s;
+}
 
 /* Icon bounce on hover */
 .icon-bounce:hover {
@@ -460,10 +495,23 @@
 }
 
 @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    25% { transform: translateY(-5px); }
-    50% { transform: translateY(0); }
-    75% { transform: translateY(-3px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    25% {
+        transform: translateY(-5px);
+    }
+
+    50% {
+        transform: translateY(0);
+    }
+
+    75% {
+        transform: translateY(-3px);
+    }
 }
 
 /* Ripple effect */
@@ -472,6 +520,7 @@
         transform: scale(0.8);
         opacity: 1;
     }
+
     100% {
         transform: scale(2);
         opacity: 0;
@@ -497,14 +546,14 @@
 
 /* Premium shadow */
 .shadow-premium {
-    box-shadow: 
+    box-shadow:
         0 4px 6px -1px rgba(0, 0, 0, 0.05),
         0 10px 20px -5px rgba(0, 0, 0, 0.08),
         0 25px 50px -12px rgba(0, 0, 0, 0.12);
 }
 
 .shadow-premium:hover {
-    box-shadow: 
+    box-shadow:
         0 8px 12px -2px rgba(0, 0, 0, 0.08),
         0 16px 32px -8px rgba(0, 0, 0, 0.12),
         0 32px 64px -16px rgba(0, 0, 0, 0.16);
@@ -524,6 +573,7 @@
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);

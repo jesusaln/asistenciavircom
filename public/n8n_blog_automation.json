@@ -1,0 +1,83 @@
+{
+    "name": "Publicar Blog en Redes Sociales (Asistencia Vircom)",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "blog-publish",
+                "options": {}
+            },
+            "name": "Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                460,
+                300
+            ],
+            "webhookId": "a-random-uuid-will-be-generated-by-n8n"
+        },
+        {
+            "parameters": {
+                "text": "=🚀 Nuevo artículo en nuestro blog: {{ $json[\"body\"][\"titulo\"] }}\n\n{{ $json[\"body\"][\"resumen\"] }}\n\nLeer más aquí: {{ $json[\"body\"][\"url\"] }}\n\n#AsistenciaVircom #Tecnologia #Seguridad #{{ $json[\"body\"][\"categoria\"] }}"
+            },
+            "name": "Formatear Texto",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 1,
+            "position": [
+                680,
+                300
+            ]
+        },
+        {
+            "parameters": {},
+            "name": "Facebook (Placeholder)",
+            "type": "n8n-nodes-base.facebookGraphApi",
+            "typeVersion": 1,
+            "position": [
+                900,
+                200
+            ],
+            "notes": "Configura tu credencial de Facebook Page aquí"
+        },
+        {
+            "parameters": {},
+            "name": "Twitter/X (Placeholder)",
+            "type": "n8n-nodes-base.twitter",
+            "typeVersion": 1,
+            "position": [
+                900,
+                400
+            ],
+            "notes": "Configura tu credencial de Twitter aquí"
+        }
+    ],
+    "connections": {
+        "Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Formatear Texto",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Formatear Texto": {
+            "main": [
+                [
+                    {
+                        "node": "Facebook (Placeholder)",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Twitter/X (Placeholder)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

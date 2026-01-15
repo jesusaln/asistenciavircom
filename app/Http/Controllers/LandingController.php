@@ -119,6 +119,7 @@ class LandingController extends Controller
                 'hero_cta_primario' => $config->hero_cta_primario ?? null,
                 'hero_cta_secundario' => $config->hero_cta_secundario ?? null,
                 'hero_badge_texto' => $config->hero_badge_texto ?? null,
+                'hero_imagen_url' => $config->hero_imagen_url ?? null,
             ],
             'destacados' => $destacados,
             'faqs' => $faqs,

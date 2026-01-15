@@ -19,12 +19,19 @@ class PolizaAutomationService
     {
         $today = Carbon::today();
 
-        // We look for policies that have maintenance due today or in the past
-        // and are active.
+        // Buscamos pólizas activas donde la fecha de mantenimiento esté cerca
+        // (considerando los días de anticipación configurados o 7 por defecto)
         $polizas = PolizaServicio::activa()
             ->whereNotNull('proximo_mantenimiento_at')
-            ->where('proximo_mantenimiento_at', '<=', $today)
             ->where('generar_cita_automatica', true)
+            ->whereRaw("proximo_mantenimiento_at - INTERVAL '1 day' * COALESCE(mantenimiento_dias_anticipacion, 7) <= ?", [$today])
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('tickets')
+                    ->whereColumn('tickets.poliza_id', 'polizas_servicio.id')
+                    ->where('tickets.titulo', 'ILIKE', 'Mantenimiento Preventivo %')
+                    ->whereIn('tickets.estado', ['abierto', 'en_progreso', 'pendiente']);
+            })
             ->with(['cliente', 'empresa'])
             ->get();
 
@@ -84,14 +91,41 @@ class PolizaAutomationService
 
                 Log::info("PolizaAutomationService: Generated Ticket #{$ticket->id} and Cita #{$cita->id} for Poliza #{$poliza->id}");
 
-                // 4. Send Notification
+                // 4. Send Email Notification
                 try {
                     if ($poliza->cliente && $poliza->cliente->email) {
                         $poliza->cliente->notify(new \App\Notifications\PolizaMantenimientoNotification($poliza, $ticket, $cita));
                     }
                 } catch (\Exception $ne) {
-                    Log::error("PolizaAutomationService Notification Error: " . $ne->getMessage());
-                    // We don't throw here to not rollback the transaction if only notification fails
+                    Log::error("PolizaAutomationService Email Notification Error: " . $ne->getMessage());
+                }
+
+                // 5. Send WhatsApp Notification
+                try {
+                    $empresa = \App\Models\Empresa::find($poliza->empresa_id);
+                    if ($empresa && $empresa->whatsapp_enabled && $poliza->cliente && $poliza->cliente->telefono) {
+                        $template = $empresa->whatsapp_template_maintenance ?? 'aviso_mantenimiento_poliza';
+
+                        \App\Jobs\SendWhatsAppTemplate::dispatch(
+                            $empresa->id,
+                            $poliza->cliente->telefono,
+                            $template,
+                            $empresa->whatsapp_default_language ?? 'es_MX',
+                            [
+                                $poliza->cliente->nombre_razon_social,
+                                Carbon::parse($poliza->proximo_mantenimiento_at)->format('d/m/Y'),
+                                $poliza->folio
+                            ],
+                            [
+                                'tipo' => 'mantenimiento_poliza',
+                                'poliza_id' => $poliza->id,
+                                'ticket_id' => $ticket->id
+                            ]
+                        );
+                        Log::info("PolizaAutomationService: WhatsApp notification queued for Poliza #{$poliza->id}");
+                    }
+                } catch (\Exception $we) {
+                    Log::error("PolizaAutomationService WhatsApp Notification Error: " . $we->getMessage());
                 }
 
                 return ['ticket' => $ticket, 'cita' => $cita];

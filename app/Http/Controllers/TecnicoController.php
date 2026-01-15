@@ -52,6 +52,18 @@ class TecnicoController extends Controller
 
             $query->orderBy($sortBy, $sortDirection);
 
+            // =====================================================
+            // RESPUESTA API (Para Ionic/Mobile) - Sin paginación
+            // =====================================================
+            if ($request->has('nopaginate') || $request->wantsJson() || $request->is('api/*')) {
+                $tecnicos = $query->get(['id', 'name', 'email', 'telefono', 'activo']);
+                return response()->json([
+                    'success' => true,
+                    'data' => $tecnicos,
+                    'total' => $tecnicos->count(),
+                ]);
+            }
+
             // Paginación
             $tecnicos = $query->paginate(10)->appends($request->query());
 
@@ -71,6 +83,11 @@ class TecnicoController extends Controller
             ]);
         } catch (Exception $e) {
             Log::error('Error en TecnicoController@index: ' . $e->getMessage());
+
+            if ($request->wantsJson() || $request->is('api/*')) {
+                return response()->json(['success' => false, 'message' => 'Error al cargar técnicos'], 500);
+            }
+
             return redirect()->back()->with('error', 'Error al cargar la lista de técnicos.');
         }
     }

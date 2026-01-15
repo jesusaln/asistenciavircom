@@ -2,6 +2,9 @@
 import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import Modal from '@/Components/Modal.vue';
+import ShowPoliza from './Show.vue';
+import axios from 'axios';
 
 const props = defineProps({
     polizas: Object,
@@ -34,6 +37,44 @@ const getEstadoBadge = (estado) => {
 
 const formatCurrency = (value) => {
     return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value);
+};
+
+const showModal = ref(false);
+const selectedPoliza = ref(null);
+const loading = ref(false);
+
+const abrirDetalle = async (id) => {
+    loading.value = true;
+    showModal.value = true;
+    try {
+        const response = await axios.get(route('polizas-servicio.show', id), {
+            headers: { 'X-Inertia-Partial-Data': 'poliza,stats' }
+        });
+        // Si el controlador devuelve un render de Inertia, axios obtendrá el JSON si enviamos los headers correctos
+        // Pero el controlador de Show de Laravel devuelve Inertia::render.
+        // Una mejor forma es llamar a una ruta que devuelva JSON o usar local data si ya la tenemos.
+        // Pero Show tiene data extra (tickets, stats, etc).
+        
+        // Vamos a usar Inertia.visit con preventScroll y preserveState para cargar la data en props extra?
+        // No, mejor una petición normal de axios para obtener la data del show.
+        
+        // Reintentamos con una petición simple si el controlador lo permite o creamos una ruta API.
+        // Por ahora, asumimos que obtendremos el HTML si no tenemos cuidado.
+        // En Laravel, si pides JSON a una ruta de Inertia, te devuelve el JSON de los props.
+        const res = await axios.get(route('polizas-servicio.show', id), {
+            headers: { 'X-Inertia': true, 'X-Inertia-Version': router.page.version }
+        });
+        selectedPoliza.value = res.data.props;
+    } catch (error) {
+        console.error("Error al cargar detalle:", error);
+    } finally {
+        loading.value = false;
+    }
+};
+
+const cerrarModal = () => {
+    showModal.value = false;
+    selectedPoliza.value = null;
 };
 </script>
 
@@ -127,12 +168,12 @@ const formatCurrency = (value) => {
                                     </td>
                                     <td class="px-4 py-4 text-right">
                                         <div class="flex justify-end gap-2">
-                                            <Link :href="route('polizas-servicio.show', poliza.id)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Ver detalle">
+                                            <button @click="abrirDetalle(poliza.id)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Ver detalle">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
-                                            </Link>
+                                            </button>
                                             <Link :href="route('polizas-servicio.edit', poliza.id)" class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Editar">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -177,5 +218,28 @@ const formatCurrency = (value) => {
                 </div>
             </div>
         </div>
+
+        <!-- Modal de Detalle de Póliza -->
+        <Modal :show="showModal" @close="cerrarModal" maxWidth="7xl">
+            <div class="bg-white rounded-xl overflow-hidden relative">
+                <!-- Botón de Cerrar Modal -->
+                <button @click="cerrarModal" class="absolute top-4 right-4 z-50 p-2 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+
+                <!-- Cargando -->
+                <div v-if="loading" class="flex flex-col items-center justify-center p-20">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                    <p class="text-gray-500 font-medium">Cargando detalles de la póliza...</p>
+                </div>
+
+                <!-- Contenido del Detalle -->
+                <div v-else-if="selectedPoliza" class="max-h-[90vh] overflow-y-auto">
+                    <ShowPoliza :poliza="selectedPoliza.poliza" :stats="selectedPoliza.stats" :is-modal="true" />
+                </div>
+            </div>
+        </Modal>
     </AppLayout>
 </template>

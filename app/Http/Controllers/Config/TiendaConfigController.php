@@ -38,6 +38,7 @@ class TiendaConfigController extends Controller
             'cva_utility_percentage' => 'nullable|numeric|min:0|max:100',
             'cva_codigo_sucursal' => 'nullable|integer',
             'cva_paqueteria_envio' => 'nullable|integer',
+            'cva_utility_tiers' => 'nullable|array',
         ]);
 
         if ($validator->fails()) {
@@ -76,6 +77,14 @@ class TiendaConfigController extends Controller
         $configuracion = EmpresaConfiguracion::getConfig();
         $configuracion->update($data);
         EmpresaConfiguracion::clearCache();
+
+        // Limpiar caché de precios de productos CVA para que los cambios se apliquen "automáticamente"
+        try {
+            \Illuminate\Support\Facades\Cache::flush(); // Opción agresiva pero segura para config
+            // O más específico si es preferible: \Illuminate\Support\Facades\Redis::del('cva_price_*');
+        } catch (\Exception $e) {
+            Log::error('Error cleaning CVA price cache: ' . $e->getMessage());
+        }
 
         return redirect()->back()->with('success', 'Configuración de tienda actualizada correctamente.');
     }

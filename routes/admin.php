@@ -239,6 +239,9 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::post('/importar-producto', [App\Http\Controllers\Admin\CVAController::class, 'import'])->name('import-product');
     });
 
+    // Gestión de Blog
+    Route::resource('blog', App\Http\Controllers\Admin\BlogPostController::class)->names('admin.blog');
+
     Route::resource('proveedores', ProveedorController::class)->names('proveedores')->middleware('can:view proveedores');
     Route::put('/proveedores/{proveedor}/toggle', [ProveedorController::class, 'toggle'])->name('proveedores.toggle');
 
@@ -375,6 +378,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::get('/rentas/{renta}/contrato', [RentasContratoController::class, 'contratoPDF'])->name('rentas.contrato');
     Route::get('/polizas-servicio/dashboard', [PolizaServicioController::class, 'dashboard'])->name('polizas-servicio.dashboard');
     Route::get('/polizas-servicio/{polizaServicio}/historial', [PolizaServicioController::class, 'historialConsumo'])->name('polizas-servicio.historial');
+    Route::get('/polizas-servicio/{polizaServicio}/pdf-beneficios', [PolizaServicioPDFController::class, 'beneficios'])->name('polizas-servicio.pdf-beneficios');
+    Route::get('/polizas-servicio/{polizaServicio}/pdf-contrato', [PolizaServicioPDFController::class, 'contrato'])->name('polizas-servicio.pdf-contrato');
     Route::resource('polizas-servicio', PolizaServicioController::class)->middleware('role:admin|editor|super-admin');
     Route::resource('planes-poliza', PlanPolizaController::class)->middleware('role:admin|editor|super-admin');
 

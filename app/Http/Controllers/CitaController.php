@@ -44,8 +44,8 @@ class CitaController extends Controller
                 $query->where('estado', $request->estado);
             }
 
-            if ($request->filled('activo')) {
-                $query->where('activo', filter_var($request->activo, FILTER_VALIDATE_BOOLEAN));
+            if ($request->filled('activo') || $request->filled('active_only')) {
+                $query->where('activo', true);
             }
 
             if ($request->filled('tecnico_id')) {
@@ -88,13 +88,27 @@ class CitaController extends Controller
 
             // Paginación - obtener per_page del request o usar default
             $perPage = $request->get('per_page', 10);
-            $validPerPage = [10, 15, 25, 50]; // Solo estas opciones válidas
+            $validPerPage = [1, 5, 10, 15, 25, 50]; // Solo estas opciones válidas
             if (!in_array((int) $perPage, $validPerPage)) {
                 $perPage = 50;
             }
 
             // Paginar con el per_page dinámico
             $citas = $query->paginate((int) $perPage);
+
+            // =====================================================
+            // RESPUESTA API (Para Ionic/Mobile/AJAX)
+            // =====================================================
+            if ($request->wantsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $citas->items(),
+                    'total' => $citas->total(),
+                    'current_page' => $citas->currentPage(),
+                    'last_page' => $citas->lastPage(),
+                    'per_page' => $citas->perPage(),
+                ]);
+            }
 
             // Estadísticas por estado de cita
             $citasCount = Cita::count();
@@ -143,6 +157,11 @@ class CitaController extends Controller
             ]);
         } catch (Exception $e) {
             Log::error('Error en CitaController@index: ' . $e->getMessage());
+
+            if ($request->wantsJson() || $request->is('api/*')) {
+                return response()->json(['success' => false, 'message' => 'Error al cargar citas'], 500);
+            }
+
             return redirect()->back()->with('error', 'Error al cargar la lista de citas.');
         }
     }
@@ -392,6 +411,9 @@ class CitaController extends Controller
             'tipo_equipo' => 'nullable|string|max:255',
             'marca_equipo' => 'nullable|string|max:255',
             'modelo_equipo' => 'nullable|string|max:255',
+            'firma_cliente' => 'nullable|string',
+            'nombre_firmante' => 'nullable|string|max:255',
+            'firma_tecnico' => 'nullable|string',
         ]);
 
         try {
@@ -439,6 +461,17 @@ class CitaController extends Controller
             // Manejo de 'trabajo_realizado'
             if ($request->has('trabajo_realizado')) {
                 $dataToUpdate['trabajo_realizado'] = $request->input('trabajo_realizado');
+            }
+
+            // Manejo de firmas
+            if ($request->filled('firma_cliente') && !$cita->firma_cliente) {
+                $dataToUpdate['fecha_firma'] = now();
+            }
+            if ($request->filled('nombre_firmante')) {
+                $dataToUpdate['nombre_firmante'] = $request->input('nombre_firmante');
+            }
+            if ($request->filled('firma_tecnico')) {
+                $dataToUpdate['firma_tecnico'] = $request->input('firma_tecnico');
             }
 
             // Manejo de 'nuevas_fotos' (Agregar a fotos_finales existentes)

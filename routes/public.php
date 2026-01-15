@@ -61,6 +61,10 @@ Route::post('/cita', [ContactoController::class, 'storeCita'])->name('public.cit
 Route::get('/tienda', [CatalogoController::class, 'index'])->name('catalogo.index');
 Route::get('/producto/{id}', [CatalogoController::class, 'show'])->name('catalogo.show');
 
+// Blog (Público)
+Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('public.blog.index');
+Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('public.blog.show');
+
 // Pólizas (Público)
 Route::get('/polizas', [PlanPolizaController::class, 'catalogo'])->name('catalogo.polizas');
 Route::get('/polizas/plan/{slug}', [PlanPolizaController::class, 'detallePlan'])->name('catalogo.poliza.show');

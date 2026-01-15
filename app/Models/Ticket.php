@@ -51,7 +51,15 @@ class Ticket extends Model implements Auditable
         'horas_trabajadas' => 'decimal:2',
     ];
 
-    protected $appends = ['sla_status', 'tiempo_abierto'];
+    protected $appends = ['sla_status', 'tiempo_abierto', 'is_vip'];
+
+    /**
+     * Determina si el ticket es VIP (vinculado a una póliza activa)
+     */
+    public function getIsVipAttribute(): bool
+    {
+        return $this->poliza_id !== null;
+    }
 
     // Boot - Generar número automático
     protected static function boot()

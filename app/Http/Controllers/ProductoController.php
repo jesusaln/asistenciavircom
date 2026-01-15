@@ -75,7 +75,7 @@ class ProductoController extends Controller
             $query->orderBy($sortBy, $sortDirection);
 
             // Paginación
-            $perPage = min((int) $request->input('per_page', 10), 50);
+            $perPage = min((int) $request->input('per_page', 25), 50);
             $productos = $query->paginate($perPage);
 
             // Agregar permisos a cada producto

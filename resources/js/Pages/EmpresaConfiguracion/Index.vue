@@ -263,6 +263,7 @@ const form = useForm({
   tiktok_url: props.configuracion.tiktok_url || '',
   youtube_url: props.configuracion.youtube_url || '',
   linkedin_url: props.configuracion.linkedin_url || '',
+  n8n_webhook_blog: props.configuracion.n8n_webhook_blog || '',
 
   // CVA
   cva_active: props.configuracion.cva_active ?? false,

@@ -102,6 +102,31 @@
           <p v-else class="text-gray-500 italic">No hay foto de identificación disponible</p>
         </div>
 
+        <!-- Firmas Digitales -->
+        <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div v-if="cita.firma_cliente" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <label class="block text-gray-500 text-[10px] font-bold uppercase mb-3">Firma de Conformidad (Cliente)</label>
+                <div class="bg-gray-50 rounded-lg p-2 border border-gray-50">
+                    <img :src="cita.firma_cliente" class="h-24 object-contain mx-auto">
+                </div>
+                <div class="mt-3 text-center">
+                    <p class="text-sm font-bold text-gray-800">{{ cita.nombre_firmante || 'Cliente' }}</p>
+                    <p class="text-[10px] text-gray-500 uppercase">{{ cita.fecha_firma ? formatearFechaHora(cita.fecha_firma) : 'Fecha no registrada' }}</p>
+                </div>
+            </div>
+
+            <div v-if="cita.firma_tecnico" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <label class="block text-gray-500 text-[10px] font-bold uppercase mb-3">Firma del Técnico</label>
+                <div class="bg-gray-50 rounded-lg p-2 border border-gray-50">
+                    <img :src="cita.firma_tecnico" class="h-24 object-contain mx-auto">
+                </div>
+                <div class="mt-3 text-center">
+                    <p class="text-sm font-bold text-gray-800">{{ props.cita.tecnico?.name || 'Técnico' }}</p>
+                    <p class="text-[10px] text-gray-500 uppercase">Responsable del Servicio</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Items de la Cita -->
         <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2">Productos y Servicios</label>

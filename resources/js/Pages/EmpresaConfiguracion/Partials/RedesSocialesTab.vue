@@ -121,6 +121,35 @@ const socialNetworks = [
             </div>
         </div>
 
+        <!-- Automation Section -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl">
+                    🤖
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-900">Automatización de Blog (n8n)</h3>
+                    <p class="text-sm text-gray-600">Conecta tu blog con n8n para publicar automáticamente en redes sociales.</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">n8n Webhook URL (Blog)</label>
+                <div class="flex gap-2">
+                    <input
+                        type="url"
+                        :value="form.n8n_webhook_blog"
+                        @input="updateField('n8n_webhook_blog', $event.target.value)"
+                        placeholder="https://n8n.tuempresa.com/webhook/..."
+                        class="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all outline-none text-sm"
+                    />
+                </div>
+                <p class="mt-3 text-xs text-gray-500 leading-relaxed">
+                    Cuando publiques un artículo en el blog, se enviará una solicitud POST a esta URL con los detalles del post. Puedes usar n8n para formatear esta información y enviarla a Facebook, Instagram, Twitter y TikTok.
+                </p>
+            </div>
+        </div>
+
         <!-- Tips -->
         <div class="bg-amber-50 rounded-xl p-4 border border-amber-100">
             <div class="flex items-start gap-3">

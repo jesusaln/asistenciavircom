@@ -57,6 +57,7 @@ class PolizaServicio extends Model
         'ultima_alerta_exceso_at',
         'ultimo_reset_consumo_at',
         'mantenimiento_frecuencia_meses',
+        'mantenimiento_dias_anticipacion',
         'proximo_mantenimiento_at',
         'generar_cita_automatica',
     ];

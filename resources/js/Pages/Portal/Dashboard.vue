@@ -3,6 +3,7 @@ import { Link, Head } from '@inertiajs/vue3';
 import ClientLayout from './Layout/ClientLayout.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { ref } from 'vue';
+import axios from 'axios';
 
 const props = defineProps({
     tickets: Object,
@@ -10,10 +11,31 @@ const props = defineProps({
     polizas: Array,
     pagosPendientes: Array,
     ventas: Array, // Historial de ventas
+    credenciales: Array,
     empresa: Object, // Pasado desde el controlador
 });
 
 const activeTab = ref('tickets');
+const revealedPasswords = ref({});
+const isLoadingPassword = ref({});
+
+const revealPassword = async (id) => {
+    if (revealedPasswords.value[id]) {
+        delete revealedPasswords.value[id];
+        return;
+    }
+
+    try {
+        isLoadingPassword.value[id] = true;
+        const response = await axios.post(route('portal.credenciales.revelar', id));
+        revealedPasswords.value[id] = response.data.password;
+    } catch (error) {
+        console.error('Error al revelar credencial:', error);
+        alert('No se pudo revelar la contraseña. Intente de nuevo.');
+    } finally {
+        isLoadingPassword.value[id] = false;
+    }
+};
 
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -107,6 +129,19 @@ const getStatusClasses = (estado) => {
                     >
                         <font-awesome-icon icon="desktop" /> 
                         <span class="text-sm uppercase tracking-widest">Mis Equipos</span>
+                    </button>
+
+                    <button 
+                        @click="activeTab = 'credenciales'" 
+                        :class="[
+                            'w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left',
+                            activeTab === 'credenciales' 
+                                ? 'bg-[var(--color-primary)] text-white shadow-xl shadow-[var(--color-primary)]/20 shadow-sm' 
+                                : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 border border-gray-100'
+                        ]"
+                    >
+                        <font-awesome-icon icon="lock" /> 
+                        <span class="text-sm uppercase tracking-widest">Mis Accesos</span>
                     </button>
 
                      <button 
@@ -216,22 +251,48 @@ const getStatusClasses = (estado) => {
                                     <h3 class="text-xl font-black text-gray-900 mb-1 group-hover:text-[var(--color-primary)] transition-colors">{{ poliza.nombre }}</h3>
                                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6 font-mono">{{ poliza.folio }}</p>
 
-                                    <div class="space-y-4 pt-6 border-t border-gray-50">
-                                        <div class="flex justify-between items-end">
-                                            <div>
-                                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Consumo del Mes</p>
-                                                <p class="text-sm font-bold text-gray-900">{{ poliza.horas_consumidas_mes || 0 }} hrs / {{ poliza.horas_incluidas_mensual }} hrs</p>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-50">
+                                        <!-- Barra de Horas -->
+                                        <div v-if="poliza.horas_incluidas_mensual > 0">
+                                            <div class="flex justify-between items-end mb-2">
+                                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Horas de Soporte</p>
+                                                <p class="text-[10px] font-bold" :class="poliza.excede_horas ? 'text-red-500' : 'text-gray-600'">
+                                                    {{ poliza.horas_consumidas_mes || 0 }} / {{ poliza.horas_incluidas_mensual }} hrs
+                                                </p>
                                             </div>
-                                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Expira: <span class="text-gray-900 ml-1">{{ formatDate(poliza.fecha_fin) }}</span></p>
+                                            <div class="w-full bg-gray-50 rounded-full h-1.5 overflow-hidden">
+                                                 <div 
+                                                    class="h-full rounded-full transition-all duration-1000 ease-out" 
+                                                    :class="poliza.excede_horas ? 'bg-red-500' : 'bg-blue-500'"
+                                                    :style="{ width: Math.min(poliza.porcentaje_horas || 0, 100) + '%' }"
+                                                 ></div>
+                                            </div>
                                         </div>
-                                        
-                                        <!-- Barra de Progreso Premium -->
-                                        <div class="w-full bg-gray-50 rounded-full h-2.5 overflow-hidden">
-                                             <div 
-                                                class="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-dark)] h-full rounded-full transition-all duration-1000 ease-out" 
-                                                :style="{ width: Math.min(((poliza.horas_consumidas_mes || 0) / (poliza.horas_incluidas_mensual || 1)) * 100, 100) + '%' }"
-                                             ></div>
+
+                                        <!-- Barra de Tickets -->
+                                        <div v-if="poliza.limite_mensual_tickets > 0">
+                                            <div class="flex justify-between items-end mb-2">
+                                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tickets Incluidos</p>
+                                                <p class="text-[10px] font-bold text-gray-600">
+                                                    {{ poliza.tickets_mes_actual_count || 0 }} / {{ poliza.limite_mensual_tickets }}
+                                                </p>
+                                            </div>
+                                            <div class="w-full bg-gray-50 rounded-full h-1.5 overflow-hidden">
+                                                 <div 
+                                                    class="bg-emerald-500 h-full rounded-full transition-all duration-1000 ease-out" 
+                                                    :style="{ width: Math.min(poliza.porcentaje_tickets || 0, 100) + '%' }"
+                                                 ></div>
+                                            </div>
                                         </div>
+                                    </div>
+                                    
+                                    <div class="mt-4 flex items-center justify-between">
+                                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                            Vencimiento: <span class="text-gray-900 ml-1">{{ formatDate(poliza.fecha_fin) }}</span>
+                                        </p>
+                                        <p v-if="poliza.dias_para_vencer <= 30" class="text-[10px] font-black text-orange-500 uppercase">
+                                            Vence en {{ poliza.dias_para_vencer }} días
+                                        </p>
                                     </div>
                                 </div>
                                 <div class="bg-gray-50 px-8 py-4 flex justify-between items-center group-hover:bg-[var(--color-primary-soft)] transition-colors">
@@ -254,16 +315,55 @@ const getStatusClasses = (estado) => {
                         </div>
                     </div>
 
-                    <!-- Tab: Equipos -->
-                    <div v-show="activeTab === 'equipos'" class="animate-fade-in">
-                        <div class="bg-white rounded-[3rem] shadow-xl p-16 text-center border border-gray-50">
-                             <div class="w-24 h-24 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-8 text-3xl">
-                                💻
+                    <div v-show="activeTab === 'equipos'" class="animate-fade-in space-y-6">
+                        <div class="px-2">
+                             <h2 class="text-xl font-black text-gray-900 uppercase tracking-tight">Inventario de Equipos Protegidos</h2>
+                             <p class="text-gray-500 text-sm font-medium">Equipos registrados bajo sus contratos de soporte.</p>
+                        </div>
+
+                        <div class="grid gap-6 md:grid-cols-2">
+                            <template v-for="poliza in polizas" :key="'e-'+poliza.id">
+                                <div v-for="equipo in poliza.equipos" :key="equipo.id" 
+                                     class="bg-white rounded-[2rem] p-6 shadow-xl shadow-gray-200/50 border border-gray-100 flex items-center gap-6 group hover:border-[var(--color-primary)] transition-all">
+                                    <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-[var(--color-primary-soft)] group-hover:text-[var(--color-primary)] transition-all text-xl">
+                                        <font-awesome-icon :icon="equipo.tipo === 'Laptop' || equipo.tipo === 'Servidor' ? 'server' : 'desktop'" />
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-bold text-gray-900">{{ equipo.nombre || equipo.modelo }}</h4>
+                                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest font-mono">S/N: {{ equipo.numero_serie || 'N/A' }}</p>
+                                        <div class="flex items-center gap-2 mt-2">
+                                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                            <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Cubierto por {{ poliza.folio }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                            
+                            <!-- Equipos manuales de la póliza (condiciones especiales) -->
+                            <template v-for="poliza in polizas" :key="'ce-'+poliza.id">
+                                <div v-for="(equipo, idx) in poliza.condiciones_especiales?.equipos_cliente" :key="poliza.id + '-ce-' + idx"
+                                     class="bg-white rounded-[2rem] p-6 shadow-xl shadow-gray-200/50 border border-gray-100 flex items-center gap-6 group hover:border-[var(--color-primary)] transition-all">
+                                    <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-[var(--color-primary-soft)] group-hover:text-[var(--color-primary)] transition-all text-xl">
+                                        <font-awesome-icon icon="desktop" />
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-bold text-gray-900">{{ equipo.nombre }}</h4>
+                                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest font-mono">S/N: {{ equipo.serie || 'N/A' }}</p>
+                                        <div class="flex items-center gap-2 mt-2">
+                                            <div class="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[9px] font-black uppercase">Contrato Activo</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <div v-if="!polizas.some(p => p.equipos?.length > 0 || p.condiciones_especiales?.equipos_cliente?.length > 0)" 
+                                 class="col-span-full py-20 bg-white rounded-[2rem] border-2 border-dashed border-gray-100 text-center">
+                                <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                                    <font-awesome-icon icon="desktop" size="lg" />
+                                </div>
+                                <h3 class="text-lg font-black text-gray-900 mb-1">Sin equipos vinculados</h3>
+                                <p class="text-gray-500 font-medium text-sm">Comuníquese con soporte para registrar sus activos.</p>
                             </div>
-                            <h3 class="text-2xl font-black text-gray-900 mb-4">Inventario de Infraestructura</h3>
-                            <p class="text-gray-500 font-medium max-w-md mx-auto leading-relaxed">
-                                Estamos vinculando sus activos y equipos registrados a su panel. Pronto podrá ver el estado, historial y cubrimiento de cada dispositivo.
-                            </p>
                         </div>
                     </div>
 
@@ -315,6 +415,69 @@ const getStatusClasses = (estado) => {
                                         </tr>
                                     </tbody>
                                 </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Credenciales -->
+                    <div v-show="activeTab === 'credenciales'" class="animate-fade-in space-y-6">
+                        <div class="px-2">
+                             <h2 class="text-xl font-black text-gray-900 uppercase tracking-tight">Caja Fuerte de Accesos</h2>
+                             <p class="text-gray-500 text-sm font-medium">Sus claves de acceso se encuentran encriptadas y cada revelación es auditada.</p>
+                        </div>
+
+                        <div class="grid gap-6">
+                            <div v-for="cred in credenciales" :key="cred.id" 
+                                 class="bg-white rounded-[2rem] p-8 shadow-xl shadow-gray-200/50 border border-gray-100 border-l-4 border-l-[var(--color-primary)]">
+                                <div class="flex flex-col md:flex-row justify-between gap-6">
+                                    <div class="flex-1 space-y-4">
+                                        <div>
+                                            <h3 class="text-xl font-black text-gray-900">{{ cred.nombre }}</h3>
+                                            <p v-if="cred.host" class="text-xs font-bold text-gray-400 uppercase tracking-widest">{{ cred.host }}{{ cred.puerto ? ':' + cred.puerto : '' }}</p>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div class="bg-gray-50 p-4 rounded-xl">
+                                                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Usuario</p>
+                                                <p class="text-sm font-bold text-gray-800">{{ cred.usuario }}</p>
+                                            </div>
+                                            <div class="bg-gray-50 p-4 rounded-xl relative overflow-hidden">
+                                                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Contraseña</p>
+                                                <div class="flex items-center justify-between gap-2">
+                                                    <p class="text-sm font-mono font-bold text-gray-800">
+                                                        {{ revealedPasswords[cred.id] || '••••••••••••' }}
+                                                    </p>
+                                                    <button 
+                                                        @click="revealPassword(cred.id)"
+                                                        class="p-1 hover:text-[var(--color-primary)] transition-colors text-gray-400"
+                                                        :disabled="isLoadingPassword[cred.id]"
+                                                    >
+                                                        <font-awesome-icon :icon="isLoadingPassword[cred.id] ? 'spinner' : (revealedPasswords[cred.id] ? 'eye-slash' : 'eye')" :spin="isLoadingPassword[cred.id]" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div v-if="cred.notas" class="border-t border-gray-100 pt-4 mt-4">
+                                            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Notas Adicionales</p>
+                                            <p class="text-xs text-gray-600 font-medium">{{ cred.notas }}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex md:flex-col justify-end gap-2">
+                                        <div class="px-4 py-2 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase text-center flex items-center gap-2">
+                                            <font-awesome-icon icon="shield-check" /> Protegido
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div v-if="credenciales.length === 0" class="py-20 bg-white rounded-[2rem] border-2 border-dashed border-gray-100 text-center">
+                                <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                                    <font-awesome-icon icon="lock" size="lg" />
+                                </div>
+                                <h3 class="text-lg font-black text-gray-900 mb-1">No hay credenciales</h3>
+                                <p class="text-gray-500 font-medium text-sm">Nuestro equipo aún no ha registrado claves de acceso para su cuenta.</p>
                             </div>
                         </div>
                     </div>

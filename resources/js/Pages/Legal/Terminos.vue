@@ -64,9 +64,20 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                         Descripción de los Servicios
                     </h2>
                     <p class="text-gray-700 leading-relaxed mb-4">
-                        {{ empresa?.nombre_comercial }} ofrece los siguientes servicios:
+                        {{ empresa?.nombre_comercial }} se especializa en soluciones integrales de tecnología y seguridad electrónica, incluyendo:
                     </p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: var(--color-primary); opacity: 0.1;">
+                                    <svg class="w-4 h-4" style="color: var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <h3 class="font-semibold text-gray-900">Seguridad Electrónica</h3>
+                            </div>
+                            <p class="text-sm text-gray-600">Instalación y mantenimiento de sistemas CCTV (Hikvision, Dahua), alarmas monitoreadas y control de acceso.</p>
+                        </div>
                         <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: var(--color-primary); opacity: 0.1;">
@@ -74,21 +85,9 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                     </svg>
                                 </div>
-                                <h3 class="font-semibold text-gray-900">Equipos de Climatización</h3>
+                                <h3 class="font-semibold text-gray-900">Soporte TI & Redes</h3>
                             </div>
-                            <p class="text-sm text-gray-600">Venta e instalación de aires acondicionados, minisplits, sistemas de refrigeración y calefacción.</p>
-                        </div>
-                        <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                            <div class="flex items-center gap-3 mb-2">
-                                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: var(--color-primary); opacity: 0.1;">
-                                    <svg class="w-4 h-4" style="color: var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                </div>
-                                <h3 class="font-semibold text-gray-900">Servicio Técnico</h3>
-                            </div>
-                            <p class="text-sm text-gray-600">Mantenimiento preventivo y correctivo, reparaciones, pólizas de servicio y atención de emergencias.</p>
+                            <p class="text-sm text-gray-600">Reparación de equipos de cómputo, servidores, pólizas de soporte técnico y cableado estructurado.</p>
                         </div>
                     </div>
                 </section>
@@ -154,18 +153,18 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                 <section class="mb-10">
                     <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                         <span class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-sm font-bold" style="color: var(--color-primary);">5</span>
-                        Garantías
+                        Garantías y Soporte
                     </h2>
                     <div class="bg-green-50 rounded-xl p-6 border border-green-100 mb-4">
-                        <h3 class="font-semibold text-green-900 mb-2">Garantía de Productos</h3>
+                        <h3 class="font-semibold text-green-900 mb-2">Garantía de Hardware</h3>
                         <p class="text-green-800 text-sm">
-                            Todos nuestros equipos cuentan con la garantía del fabricante. La garantía cubre defectos de fabricación y no aplica en casos de mal uso, instalación incorrecta, falta de mantenimiento o daños por agentes externos.
+                            Los equipos (cámaras, DVRs, PCs) cuentan con la garantía directa del fabricante. <strong>{{ empresa?.nombre_comercial }}</strong> gestiona la garantía siempre que los sellos de seguridad no hayan sido violados. El tiempo de respuesta depende de cada fabricante.
                         </p>
                     </div>
                     <div class="bg-blue-50 rounded-xl p-6 border border-blue-100">
-                        <h3 class="font-semibold text-blue-900 mb-2">Garantía de Instalación</h3>
+                        <h3 class="font-semibold text-blue-900 mb-2">Garantía de Servicio e Instalación</h3>
                         <p class="text-blue-800 text-sm">
-                            Ofrecemos 6 meses de garantía en mano de obra para instalaciones realizadas por nuestro personal técnico certificado. Esta garantía cubre defectos de instalación, pero no incluye consumibles ni refacciones.
+                            Ofrecemos 90 días de garantía en mano de obra técnica. No nos hacemos responsables por fallas causadas por variaciones de voltaje, software malicioso (virus), manipulación de terceros o causas naturales.
                         </p>
                     </div>
                 </section>
@@ -173,27 +172,23 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                 <section class="mb-10">
                     <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                         <span class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-sm font-bold" style="color: var(--color-primary);">6</span>
-                        Pólizas de Servicio
+                        Pólizas de Servicio y Mantenimiento
                     </h2>
                     <p class="text-gray-700 leading-relaxed mb-4">
-                        Las pólizas de servicio son contratos anuales que incluyen mantenimientos preventivos programados. Los términos específicos de cada póliza se detallan en el contrato correspondiente. Condiciones generales:
+                        Nuestras pólizas aseguran la continuidad de su negocio mediante asistencia técnica prioritaria.
                     </p>
-                    <ul class="space-y-2 text-gray-700">
+                    <ul class="space-y-3 text-gray-700">
                         <li class="flex items-start gap-3">
                             <span class="w-2 h-2 rounded-full mt-2 flex-shrink-0" style="background-color: var(--color-primary);"></span>
-                            <span>Los mantenimientos se programan en horario de lunes a viernes de 9:00 a 18:00 hrs.</span>
+                            <span><strong>Tiempo de Respuesta (SLA):</strong> Garantizamos atención en sitio en un plazo máximo de 24 horas hábiles para fallas críticas.</span>
                         </li>
                         <li class="flex items-start gap-3">
                             <span class="w-2 h-2 rounded-full mt-2 flex-shrink-0" style="background-color: var(--color-primary);"></span>
-                            <span>Las pólizas no cubren refacciones ni consumibles, estos se cotizan por separado.</span>
+                            <span><strong>Respaldo de Información:</strong> La responsabilidad total de contar con respaldos actualizados de datos es del Cliente. La Empresa no se hace responsable por pérdida de información en reparaciones.</span>
                         </li>
                         <li class="flex items-start gap-3">
                             <span class="w-2 h-2 rounded-full mt-2 flex-shrink-0" style="background-color: var(--color-primary);"></span>
-                            <span>Los servicios de emergencia fuera de horario tienen un costo adicional.</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="w-2 h-2 rounded-full mt-2 flex-shrink-0" style="background-color: var(--color-primary);"></span>
-                            <span>La póliza se renueva automáticamente salvo que se notifique por escrito 30 días antes del vencimiento.</span>
+                            <span><strong>Exclusiones:</strong> Las pólizas cubren honorarios técnicos, pero no incluyen el costo de refacciones o consumibles (cables, fuentes de poder, discos duros).</span>
                         </li>
                     </ul>
                 </section>

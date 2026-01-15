@@ -9,34 +9,34 @@ const props = defineProps({
         default: () => [
             {
                 id: 1,
-                titulo: 'Cómo Ahorrar hasta 40% en tu Recibo de Luz con Aire Acondicionado',
-                extracto: 'Descubre los secretos de los técnicos profesionales para optimizar el consumo energético de tu equipo de climatización.',
+                titulo: '5 Claves para asegurar tu empresa con Videovigilancia IP',
+                extracto: 'Descubre cómo los sistemas de cámaras IP de alta resolución pueden transformar la seguridad y el control operativo de tu negocio.',
                 imagen: null,
-                categoria: 'Ahorro Energético',
-                icono: '💡',
-                fecha: '2 Ene 2026',
+                categoria: 'Seguridad',
+                icono: '🛡️',
+                fecha: '14 Ene 2026',
                 tiempo_lectura: '5 min',
                 destacado: true,
             },
             {
                 id: 2,
-                titulo: '7 Señales de que tu A/C Necesita Mantenimiento Urgente',
-                extracto: 'No ignores estas alertas. Tu equipo podría estar a punto de fallar y costarte mucho más en reparaciones.',
+                titulo: 'Soporte Técnico Preventivo: Evita paros operativos',
+                extracto: 'No esperes a que tu equipo falle. Conoce las ventajas de un mantenimiento proactivo en la infraestructura de TI.',
                 imagen: null,
-                categoria: 'Mantenimiento',
-                icono: '🔧',
-                fecha: '28 Dic 2025',
+                categoria: 'Tecnología',
+                icono: '💻',
+                fecha: '10 Ene 2026',
                 tiempo_lectura: '4 min',
                 destacado: false,
             },
             {
                 id: 3,
-                titulo: 'Inverter vs Convencional: ¿Cuál te Conviene Más?',
-                extracto: 'Analizamos a fondo las diferencias entre ambas tecnologías y te ayudamos a tomar la mejor decisión.',
+                titulo: 'Cómo elegir la mejor red WiFi para tu oficina u hogar',
+                extracto: 'Analizamos las diferencias entre los estándares WiFi y cómo asegurar una conexión estable en todos tus dispositivos.',
                 imagen: null,
-                categoria: 'Guías',
-                icono: '📊',
-                fecha: '20 Dic 2025',
+                categoria: 'Redes',
+                icono: '📶',
+                fecha: '5 Ene 2026',
                 tiempo_lectura: '6 min',
                 destacado: false,
             },
@@ -45,8 +45,8 @@ const props = defineProps({
 });
 
 const cssVars = computed(() => ({
-    '--color-primary': props.empresa?.color_principal || '#FF6B35',
-    '--color-primary-soft': (props.empresa?.color_principal || '#FF6B35') + '15',
+    '--color-primary': props.empresa?.color_principal || '#3B82F6',
+    '--color-primary-soft': (props.empresa?.color_principal || '#3B82F6') + '15',
 }));
 
 const articuloDestacado = computed(() => props.articulos.find(a => a.destacado) || props.articulos[0]);
@@ -71,10 +71,10 @@ const articulosSecundarios = computed(() => props.articulos.filter(a => a.id !==
                 <div>
                     <span class="text-[var(--color-primary)] text-xs font-black uppercase tracking-[0.3em] mb-3 block">📰 Blog & Consejos</span>
                     <h2 class="text-3xl md:text-5xl font-black text-gray-900 tracking-tight">
-                        Aprende sobre <span class="text-[var(--color-primary)]">Climatización</span>
+                        Aprende sobre <span class="text-[var(--color-primary)]">Tecnología y Seguridad</span>
                     </h2>
                     <p class="mt-4 text-gray-500 max-w-xl">
-                        Tips, guías y consejos de expertos para mantener tu hogar o negocio en la temperatura ideal.
+                        Tips, guías y tendencias de expertos para potenciar y proteger tu empresa u hogar.
                     </p>
                 </div>
                 
@@ -194,7 +194,7 @@ const articulosSecundarios = computed(() => props.articulos.filter(a => a.id !==
                             </div>
                             <div class="flex-1">
                                 <h4 class="font-bold text-gray-900 mb-1">Recibe consejos cada semana</h4>
-                                <p class="text-sm text-gray-600 mb-4">Tips exclusivos para ahorrar energía y cuidar tu equipo.</p>
+                                <p class="text-sm text-gray-600 mb-4">Tips exclusivos sobre seguridad, redes y mantenimiento de equipo.</p>
                                 <div class="flex gap-2">
                                     <input 
                                         type="email"

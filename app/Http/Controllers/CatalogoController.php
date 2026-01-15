@@ -32,8 +32,8 @@ class CatalogoController extends Controller
             $query->where('marca_id', $request->marca);
         }
 
-        // Filtro por existencia (Local o CEDIS) - DEFAULT: TRUE si no se especifica
-        $soloExistencia = $request->has('existencia') ? $request->boolean('existencia') : true;
+        // Filtro por existencia (Local o CEDIS) - DEFAULT: FALSE (mostrar todo)
+        $soloExistencia = $request->has('existencia') ? $request->boolean('existencia') : false;
         if ($soloExistencia) {
             $query->where(function ($q) {
                 $q->where('stock', '>', 0)

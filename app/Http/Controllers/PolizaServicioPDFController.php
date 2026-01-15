@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PolizaServicio;
-use App\Services\EmpresaResolver;
+use App\Support\EmpresaResolver;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
@@ -16,7 +16,8 @@ class PolizaServicioPDFController extends Controller
     {
         $polizaServicio->load(['cliente', 'servicios', 'equipos']);
 
-        $empresa = EmpresaResolver::resolve();
+        $empresaId = EmpresaResolver::resolveId();
+        $empresa = \App\Models\EmpresaConfiguracion::getConfig($empresaId);
 
         $data = [
             'poliza' => $polizaServicio,
@@ -38,7 +39,8 @@ class PolizaServicioPDFController extends Controller
     {
         $polizaServicio->load(['cliente', 'servicios', 'equipos']);
 
-        $empresa = EmpresaResolver::resolve();
+        $empresaId = EmpresaResolver::resolveId();
+        $empresa = \App\Models\EmpresaConfiguracion::getConfig($empresaId);
 
         $data = [
             'poliza' => $polizaServicio,
@@ -50,6 +52,43 @@ class PolizaServicioPDFController extends Controller
         $pdf->setPaper('letter', 'portrait');
 
         return $pdf->stream("Contrato-Poliza-{$polizaServicio->folio}.pdf");
+    }
+
+    /**
+     * Generar reporte mensual de desempeño de la póliza.
+     */
+    public function reporteMensual(PolizaServicio $polizaServicio, $mes = null, $anio = null)
+    {
+        $mes = $mes ?? now()->subMonth()->month;
+        $anio = $anio ?? now()->subMonth()->year;
+
+        $polizaServicio->load(['cliente', 'equipos']);
+
+        // Tickets del mes solicitado
+        $tickets = $polizaServicio->tickets()
+            ->whereMonth('created_at', $mes)
+            ->whereYear('created_at', $anio)
+            ->with(['categoria', 'asignado'])
+            ->get();
+
+        $empresaId = EmpresaResolver::resolveId();
+        $empresa = \App\Models\EmpresaConfiguracion::getConfig($empresaId);
+
+        $data = [
+            'poliza' => $polizaServicio,
+            'empresa' => $empresa,
+            'tickets' => $tickets,
+            'mes_nombre' => \Carbon\Carbon::createFromDate($anio, $mes, 1)->locale('es')->monthName,
+            'anio' => $anio,
+            'fecha_generacion' => now()->format('d/m/Y H:i'),
+            'total_horas' => $tickets->sum('horas_trabajadas'),
+            'tickets_resueltos' => $tickets->whereIn('estado', ['resuelto', 'cerrado'])->count(),
+        ];
+
+        $pdf = Pdf::loadView('pdf.poliza-reporte-mensual', $data);
+        $pdf->setPaper('letter', 'portrait');
+
+        return $pdf->stream("Reporte-{$polizaServicio->folio}-{$data['mes_nombre']}-{$anio}.pdf");
     }
 
     /**

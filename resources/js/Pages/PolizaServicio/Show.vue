@@ -5,6 +5,10 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 const props = defineProps({
     poliza: Object,
     stats: Object,
+    isModal: {
+        type: Boolean,
+        default: false
+    }
 });
 
 const formatCurrency = (value) => {
@@ -41,13 +45,13 @@ const getEstadoCobroBadge = (estado) => {
 </script>
 
 <template>
-    <AppLayout :title="`Póliza ${poliza.folio}`">
-        <Head :title="`Póliza ${poliza.folio}`" />
+    <component :is="isModal ? 'div' : AppLayout" :title="`Póliza ${poliza.folio}`">
+        <Head v-if="!isModal" :title="`Póliza ${poliza.folio}`" />
 
-        <div class="py-6">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div :class="isModal ? 'py-2' : 'py-6'">
+            <div :class="isModal ? 'w-full' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'">
                 <!-- Header -->
-                <div class="mb-6">
+                <div v-if="!isModal" class="mb-6">
                     <Link :href="route('polizas-servicio.index')" class="text-blue-600 hover:text-blue-800 text-sm mb-2 inline-block">
                         ← Volver al listado
                     </Link>
@@ -56,7 +60,7 @@ const getEstadoCobroBadge = (estado) => {
                             <div class="flex items-center gap-3">
                                 <span class="font-mono text-xl font-bold text-blue-600">{{ poliza.folio }}</span>
                                 <span :class="['px-3 py-1 text-sm font-bold rounded-full border', getEstadoBadge(poliza.estado)]">
-                                    {{ poliza.estado.toUpperCase() }}
+                                    {{ poliza.estado?.toUpperCase() || 'PÓLIZA' }}
                                 </span>
                             </div>
                             <h1 class="text-3xl font-bold text-gray-900 mt-1">{{ poliza.nombre }}</h1>
@@ -66,7 +70,7 @@ const getEstadoCobroBadge = (estado) => {
                             <a :href="route('polizas-servicio.pdf-beneficios', poliza.id)" target="_blank" class="px-4 py-2 bg-green-100 border border-green-300 rounded-lg hover:bg-green-200 font-semibold text-green-700">
                                 📄 PDF Beneficios
                             </a>
-                            <Link v-if="poliza.horas_incluidas_mensual" :href="route('polizas-servicio.historial-consumo', poliza.id)" class="px-4 py-2 bg-purple-100 border border-purple-300 rounded-lg hover:bg-purple-200 font-semibold text-purple-700">
+                            <Link v-if="poliza.horas_incluidas_mensual" :href="route('polizas-servicio.historial', poliza.id)" class="px-4 py-2 bg-purple-100 border border-purple-300 rounded-lg hover:bg-purple-200 font-semibold text-purple-700">
                                 📊 Historial Consumo
                             </Link>
                             <Link :href="route('polizas-servicio.edit', poliza.id)" class="px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 font-semibold text-gray-700">
@@ -76,7 +80,29 @@ const getEstadoCobroBadge = (estado) => {
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Header Modal -->
+                <div v-if="isModal" class="p-6 border-b bg-gray-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <span class="font-mono text-lg font-bold text-blue-600">{{ poliza.folio }}</span>
+                            <span :class="['px-2 py-0.5 text-xs font-bold rounded-full border', getEstadoBadge(poliza.estado)]">
+                                {{ poliza.estado?.toUpperCase() || 'PÓLIZA' }}
+                            </span>
+                        </div>
+                        <h1 class="text-xl font-bold text-gray-900">{{ poliza.nombre }}</h1>
+                        <p class="text-sm text-gray-500 font-medium">{{ poliza.cliente?.nombre_razon_social }}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <a :href="route('polizas-servicio.pdf-beneficios', poliza.id)" target="_blank" class="p-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors border border-green-200" title="Ver PDF de Beneficios">
+                            📄 Beneficios
+                        </a>
+                        <Link :href="route('polizas-servicio.edit', poliza.id)" class="p-2 bg-white text-gray-700 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200" title="Editar Póliza">
+                            ⚙️ Editar
+                        </Link>
+                    </div>
+                </div>
+
+                <div :class="['grid grid-cols-1 lg:grid-cols-3 gap-6', isModal ? 'p-6' : '']">
                     <!-- Columna Principal -->
                     <div class="lg:col-span-2 space-y-6">
                         <!-- Detalles y Alcance -->
@@ -362,5 +388,5 @@ const getEstadoCobroBadge = (estado) => {
                 </div>
             </div>
         </div>
-    </AppLayout>
+    </component>
 </template>

@@ -166,8 +166,13 @@ class PolizaServicioController extends Controller
     {
         $polizaServicio->load(['servicios', 'credenciales']);
 
+        // Aseguramos que el cliente de la póliza esté en la lista, incluso si está inactivo
+        $clientesList = Cliente::where('id', $polizaServicio->cliente_id)
+            ->orWhere('activo', true)
+            ->get(['id', 'nombre_razon_social', 'email', 'telefono', 'rfc']);
+
         return Inertia::render('PolizaServicio/Edit', [
-            'clientes' => Cliente::activos()->get(['id', 'nombre_razon_social', 'email', 'telefono', 'rfc']),
+            'clientes' => $clientesList,
             'servicios' => Servicio::select('id', 'nombre', 'precio')->active()->get(),
             'poliza' => $polizaServicio,
         ]);
@@ -182,12 +187,16 @@ class PolizaServicioController extends Controller
             'nombre' => 'required|string|max:255',
             'monto_mensual' => 'required|numeric|min:0',
             'dia_cobro' => 'required|integer|min:1|max:31',
+            'estado' => 'required|string|in:activa,inactiva,vencida,cancelada',
+            'fecha_inicio' => 'required|date',
+            'fecha_fin' => 'nullable|date',
             'sla_horas_respuesta' => 'nullable|integer|min:1|max:168',
             // Phase 2
             'horas_incluidas_mensual' => 'nullable|integer|min:1',
             'costo_hora_excedente' => 'nullable|numeric|min:0',
             'dias_alerta_vencimiento' => 'nullable|integer|min:1|max:90',
             'mantenimiento_frecuencia_meses' => 'nullable|integer|min:1|max:24',
+            'mantenimiento_dias_anticipacion' => 'nullable|integer|min:1|max:30',
             'proximo_mantenimiento_at' => 'nullable|date',
             'generar_cita_automatica' => 'nullable|boolean',
         ]);
@@ -215,6 +224,7 @@ class PolizaServicioController extends Controller
                 'costo_hora_excedente',
                 'dias_alerta_vencimiento',
                 'mantenimiento_frecuencia_meses',
+                'mantenimiento_dias_anticipacion',
                 'proximo_mantenimiento_at',
                 'generar_cita_automatica',
             ]), ['condiciones_especiales' => $condiciones]));

@@ -446,10 +446,14 @@ const defaultTiers = [
 // Estado reactivo para los tiers
 const utilityTiers = ref([...defaultTiers])
 
-// Cargar tiers desde form si existen
+// Cargar tiers desde form si existen, o inicializar con defaults
 onMounted(() => {
     if (props.form.cva_utility_tiers && Array.isArray(props.form.cva_utility_tiers) && props.form.cva_utility_tiers.length > 0) {
         utilityTiers.value = [...props.form.cva_utility_tiers]
+    } else {
+        // Inicializar con defaults para que se guarden
+        utilityTiers.value = [...defaultTiers]
+        props.form.cva_utility_tiers = [...defaultTiers]
     }
 })
 

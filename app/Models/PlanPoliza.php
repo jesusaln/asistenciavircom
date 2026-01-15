@@ -42,6 +42,7 @@ class PlanPoliza extends Model
         'max_equipos',
         'imagen',
         'mantenimiento_frecuencia_meses',
+        'mantenimiento_dias_anticipacion',
         'generar_cita_automatica',
     ];
 

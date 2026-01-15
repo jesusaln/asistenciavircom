@@ -17,7 +17,7 @@ const isEditing = computed(() => !!props.poliza);
 const showHelpModal = ref(false);
 
 const clienteSeleccionado = computed(() => {
-    return props.clientes.find(c => c.id === form.cliente_id) || null;
+    return props.clientes.find(c => c.id == form.cliente_id) || null;
 });
 
 const handleClienteSeleccionado = (cliente) => {
@@ -28,8 +28,8 @@ const form = useForm({
     cliente_id: props.poliza?.cliente_id || '',
     nombre: props.poliza?.nombre || '',
     descripcion: props.poliza?.descripcion || '',
-    fecha_inicio: props.poliza?.fecha_inicio || new Date().toISOString().split('T')[0],
-    fecha_fin: props.poliza?.fecha_fin || '',
+    fecha_inicio: props.poliza?.fecha_inicio ? props.poliza.fecha_inicio.split('T')[0] : new Date().toISOString().split('T')[0],
+    fecha_fin: props.poliza?.fecha_fin ? props.poliza.fecha_fin.split('T')[0] : '',
     monto_mensual: props.poliza?.monto_mensual || 0,
     dia_cobro: props.poliza?.dia_cobro || 1,
     estado: props.poliza?.estado || 'activa',
@@ -50,7 +50,8 @@ const form = useForm({
     costo_hora_excedente: props.poliza?.costo_hora_excedente || '',
     dias_alerta_vencimiento: props.poliza?.dias_alerta_vencimiento || 30,
     mantenimiento_frecuencia_meses: props.poliza?.mantenimiento_frecuencia_meses || '',
-    proximo_mantenimiento_at: props.poliza?.proximo_mantenimiento_at || '',
+    mantenimiento_dias_anticipacion: props.poliza?.mantenimiento_dias_anticipacion || 7,
+    proximo_mantenimiento_at: props.poliza?.proximo_mantenimiento_at ? props.poliza.proximo_mantenimiento_at.split('T')[0] : '',
     generar_cita_automatica: props.poliza?.generar_cita_automatica ?? false,
 });
 
@@ -181,28 +182,39 @@ const helpSections = [
                                         :cliente-seleccionado="clienteSeleccionado"
                                         @cliente-seleccionado="handleClienteSeleccionado"
                                         label-busqueda="Cliente Asociado *"
-                                        placeholder-busqueda="Escribe el nombre, empresa o RFC del cliente para buscar..."
-                                        :deshabilitado="isEditing"
+                                        placeholder-busqueda="Busque por nombre o RFC..."
+                                        :deshabilitado="isEditing" 
                                     />
                                     <p v-if="form.errors.cliente_id" class="text-red-500 text-xs mt-2">{{ form.errors.cliente_id }}</p>
                                 </div>
 
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                        <div class="md:col-span-1">
-                                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Nombre de la Póliza *</label>
-                                            <input v-model="form.nombre" type="text" placeholder="Ej: Póliza Gold Mantenimiento" required class="w-full border-gray-200 rounded-xl h-12 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold">
-                                            <p v-if="form.errors.nombre" class="text-red-500 text-xs mt-1">{{ form.errors.nombre }}</p>
-                                        </div>
-                                        <div class="md:col-span-1">
-                                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">SLA Respuesta (Horas)</label>
-                                            <input v-model="form.sla_horas_respuesta" type="number" placeholder="Ej: 4" class="w-full border-gray-200 rounded-xl h-12 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-mono">
-                                            <p v-if="form.errors.sla_horas_respuesta" class="text-red-500 text-xs mt-1">{{ form.errors.sla_horas_respuesta }}</p>
-                                        </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                    <div class="md:col-span-1">
+                                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Nombre de la Póliza *</label>
+                                        <input v-model="form.nombre" type="text" placeholder="Ej: Póliza Gold Mantenimiento" required class="w-full border-gray-200 rounded-xl h-12 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold">
+                                        <p v-if="form.errors.nombre" class="text-red-500 text-xs mt-1 font-bold">{{ form.errors.nombre }}</p>
                                     </div>
+                                    <div class="md:col-span-1">
+                                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Estado de Póliza</label>
+                                        <select v-model="form.estado" class="w-full border-gray-200 rounded-xl h-12 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold">
+                                            <option value="activa">Activa ✅</option>
+                                            <option value="inactiva">Inactiva ⏳</option>
+                                            <option value="vencida">Vencida 🛑</option>
+                                            <option value="cancelada">Cancelada ✖️</option>
+                                        </select>
+                                        <p v-if="form.errors.estado" class="text-red-500 text-xs mt-1 font-bold">{{ form.errors.estado }}</p>
+                                    </div>
+                                    <div class="md:col-span-1">
+                                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">SLA Respuesta (Horas)</label>
+                                        <input v-model="form.sla_horas_respuesta" type="number" placeholder="Ej: 4" class="w-full border-gray-200 rounded-xl h-12 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-mono">
+                                        <p v-if="form.errors.sla_horas_respuesta" class="text-red-500 text-xs mt-1 font-bold">{{ form.errors.sla_horas_respuesta }}</p>
+                                    </div>
+                                </div>
 
                                 <div>
                                     <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Alcance y Condiciones del SLA</label>
                                     <textarea v-model="form.descripcion" rows="4" placeholder="Detalle qué incluye la póliza (ej. mantenimientos preventivos, tiempos de respuesta, etc.)" class="w-full border-gray-200 rounded-xl p-4 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"></textarea>
+                                    <p v-if="form.errors.descripcion" class="text-red-500 text-xs mt-1 font-bold">{{ form.errors.descripcion }}</p>
                                 </div>
                             </div>
                         </div>
@@ -308,10 +320,12 @@ const helpSections = [
                                         <select v-model="form.dia_cobro" required class="w-full border-gray-200 rounded-xl h-11 text-sm font-bold">
                                             <option v-for="d in 31" :key="d" :value="d">Día {{ d }}</option>
                                         </select>
+                                        <p v-if="form.errors.dia_cobro" class="text-red-500 text-[10px] mt-1">{{ form.errors.dia_cobro }}</p>
                                     </div>
                                     <div>
                                         <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">Límite Tkt</label>
                                         <input v-model="form.limite_mensual_tickets" type="number" placeholder="∞" class="w-full border-gray-200 rounded-xl h-11 text-center font-bold" />
+                                        <p v-if="form.errors.limite_mensual_tickets" class="text-red-500 text-[10px] mt-1">{{ form.errors.limite_mensual_tickets }}</p>
                                     </div>
                                 </div>
 
@@ -351,10 +365,14 @@ const helpSections = [
                                         <font-awesome-icon icon="toolbox" />
                                         Mantenimiento Preventivo
                                     </div>
-                                    <div class="grid grid-cols-2 gap-3 mb-3">
+                                    <div class="grid grid-cols-3 gap-3 mb-3">
                                         <div>
-                                            <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">Frecuencia (Meses)</label>
+                                            <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">Frec. (Meses)</label>
                                             <input v-model="form.mantenimiento_frecuencia_meses" type="number" placeholder="Ej: 6" class="w-full border-gray-200 rounded-lg h-10 text-xs text-center font-bold" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">Antic. (Días)</label>
+                                            <input v-model="form.mantenimiento_dias_anticipacion" type="number" placeholder="7" class="w-full border-gray-200 rounded-lg h-10 text-xs text-center font-bold" />
                                         </div>
                                         <div>
                                             <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">Próxima Visita</label>
@@ -383,10 +401,12 @@ const helpSections = [
                                     <div class="flex flex-col">
                                         <label class="text-[9px] font-black text-gray-400 uppercase mb-1">Fecha de Inicio</label>
                                         <input v-model="form.fecha_inicio" type="date" required class="w-full border-gray-200 rounded-xl h-10 text-xs font-bold" />
+                                        <p v-if="form.errors.fecha_inicio" class="text-red-500 text-[9px] mt-1">{{ form.errors.fecha_inicio }}</p>
                                     </div>
                                     <div class="flex flex-col">
                                         <label class="text-[9px] font-black text-gray-400 uppercase mb-1">Fecha de Término</label>
                                         <input v-model="form.fecha_fin" type="date" class="w-full border-gray-200 rounded-xl h-10 text-xs font-bold" />
+                                        <p v-if="form.errors.fecha_fin" class="text-red-500 text-[9px] mt-1">{{ form.errors.fecha_fin }}</p>
                                     </div>
                                 </div>
 

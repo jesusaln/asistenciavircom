@@ -276,6 +276,66 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Sección de Firmas -->
+                    <div class="mt-8 pt-8 border-t border-gray-200">
+                        <h3 class="text-md font-bold text-gray-800 mb-6 flex items-center gap-2">
+                            <span>✍️</span> Conformidad y Cierre
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Firma del Cliente -->
+                            <div class="space-y-4">
+                                <div v-if="cita.firma_cliente" class="p-4 bg-white border border-gray-200 rounded-xl shadow-sm">
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Firma del Cliente Registrada</p>
+                                    <img :src="cita.firma_cliente" class="h-32 object-contain mx-auto">
+                                    <div class="mt-3 pt-3 border-t border-gray-100 text-center">
+                                        <p class="text-sm font-bold text-gray-800">{{ cita.nombre_firmante || 'Cliente' }}</p>
+                                        <p class="text-[10px] text-gray-500 uppercase">{{ cita.fecha_firma ? new Date(cita.fecha_firma).toLocaleString() : 'Fecha no registrada' }}</p>
+                                    </div>
+                                </div>
+                                
+                                <div v-else class="bg-white p-2 rounded-xl border border-gray-100 shadow-sm">
+                                    <SignaturePad 
+                                        v-model="form.firma_cliente"
+                                        label="Firma de Conformidad (Cliente)"
+                                        placeholder="El cliente debe firmar aquí"
+                                        :error="form.errors.firma_cliente"
+                                    />
+                                    <div class="mt-4 px-2">
+                                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Nombre de quien recibe</label>
+                                        <input 
+                                            v-model="form.nombre_firmante"
+                                            type="text"
+                                            class="w-full border-gray-200 rounded-lg text-sm focus:ring-indigo-500 transition-all"
+                                            placeholder="Ej. Juan Pérez"
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Firma del Técnico -->
+                            <div class="space-y-4">
+                                <div v-if="cita.firma_tecnico" class="p-4 bg-white border border-gray-200 rounded-xl shadow-sm">
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Firma del Técnico</p>
+                                    <img :src="cita.firma_tecnico" class="h-32 object-contain mx-auto">
+                                    <div class="mt-3 pt-3 border-t border-gray-100 text-center">
+                                        <p class="text-sm font-bold text-gray-800">{{ cita.tecnico?.name || 'Técnico' }}</p>
+                                        <p class="text-[10px] text-gray-500 uppercase">Responable del Servicio</p>
+                                    </div>
+                                </div>
+                                
+                                <div v-else class="bg-white p-2 rounded-xl border border-gray-100 shadow-sm">
+                                    <SignaturePad 
+                                        v-model="form.firma_tecnico"
+                                        label="Firma del Técnico"
+                                        placeholder="Firme aquí para validar el reporte"
+                                        :error="form.errors.firma_tecnico"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Botones de acción -->
@@ -375,6 +435,7 @@ import { computed, onMounted, onUnmounted, ref, nextTick } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import FormField from '@/Components/FormField.vue';
 import BuscarCliente from '@/Components/CreateComponents/BuscarCliente.vue';
+import SignaturePad from '@/Components/UI/SignaturePad.vue';
 
 
 defineOptions({ layout: AppLayout });
@@ -560,6 +621,10 @@ const initFormData = () => {
         tipo_equipo: props.cita.tipo_equipo || '',
         marca_equipo: props.cita.marca_equipo || '',
         modelo_equipo: props.cita.modelo_equipo || '',
+        // Firmas
+        firma_cliente: null,
+        nombre_firmante: props.cita.nombre_firmante || '',
+        firma_tecnico: null,
     };
 };
 

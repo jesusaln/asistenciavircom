@@ -65,6 +65,7 @@ class GeneralConfigController extends Controller
             'tiktok_url' => 'nullable|url|max:255',
             'youtube_url' => 'nullable|url|max:255',
             'linkedin_url' => 'nullable|url|max:255',
+            'n8n_webhook_blog' => 'nullable|url|max:255',
         ]);
 
         if ($validator->fails()) {

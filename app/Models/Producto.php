@@ -296,6 +296,30 @@ class Producto extends Model
      * Accessors
      * ========================= */
 
+    public function getPrecioVentaAttribute($value)
+    {
+        // Si el producto es CVA y tiene precio de compra, aplicar márgenes dinámicos
+        if ($this->origen === 'CVA' && !empty($this->precio_compra) && $this->precio_compra > 0) {
+            try {
+                // Usar caché para no instanciar el servicio miles de veces en colecciones
+                return \Illuminate\Support\Facades\Cache::remember('cva_price_' . $this->id . '_' . $this->precio_compra, 60, function () use ($value) {
+                    $cva = app(\App\Services\CVAService::class);
+                    // Esto usará los tiers configurados en EmpresaConfiguracion actualmente
+                    $details = $cva->normalizeProduct([
+                        'precio' => $this->precio_compra,
+                        'clave' => $this->cva_clave ?: $this->codigo
+                    ]);
+                    return $details['precio'];
+                });
+            } catch (\Exception $e) {
+                return $value;
+            }
+        }
+
+        return $value;
+    }
+
+
     public function getStockDisponibleAttribute()
     {
         // Stock disponible = stock total - cantidad reservada

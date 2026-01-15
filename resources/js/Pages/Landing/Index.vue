@@ -38,9 +38,9 @@ const billingCycle = ref('monthly'); // 'monthly' or 'yearly'
 
 // Variables CSS con fallback al naranja corporativo de Climas del Desierto
 const cssVars = computed(() => ({
-    '--color-primary': empresaData.value.color_principal || '#FF6B35',
-    '--color-primary-soft': (empresaData.value.color_principal || '#FF6B35') + '15',
-    '--color-primary-dark': (empresaData.value.color_principal || '#FF6B35') + 'dd',
+    '--color-primary': empresaData.value.color_principal || '#3B82F6',
+    '--color-primary-soft': (empresaData.value.color_principal || '#3B82F6') + '15',
+    '--color-primary-dark': (empresaData.value.color_principal || '#3B82F6') + 'dd',
     '--color-secondary': empresaData.value.color_secundario || '#D97706',
     '--color-secondary-soft': (empresaData.value.color_secundario || '#D97706') + '15',
     '--color-terciary': empresaData.value.color_terciario || '#B45309',
@@ -180,8 +180,8 @@ const getFaIcon = (plan) => {
 
 <template>
     <Head>
-        <title>{{ empresaData?.nombre_empresa || 'Climas del Desierto' }} - Climatización y Confort</title>
-        <meta name="description" :content="`Expertos en aire acondicionado, calefacción y pólizas de mantenimiento en ${empresaData?.ciudad || 'Hermosillo'}.`" />
+        <title>{{ empresaData?.nombre_empresa || 'Asistencia Vircom' }} - Tecnología y Seguridad</title>
+        <meta name="description" :content="`Expertos en Seguridad Electrónica, CCTV, Redes y Pólizas de Soporte TI en ${empresaData?.ciudad || 'Hermosillo'}.`" />
     </Head>
 
     <div class="min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden selection:bg-[var(--color-primary-soft)] selection:text-[var(--color-primary)] relative" :style="cssVars">
@@ -227,13 +227,13 @@ const getFaIcon = (plan) => {
                         </div>
                         
                         <h1 class="text-5xl lg:text-7xl font-black text-gray-900 leading-[1.1] mb-8 tracking-tighter">
-                            {{ (empresaData?.hero_titulo || 'Climatización Inteligente para tu Hogar').split(' ').slice(0, -3).join(' ') || 'Servicio' }} <br>
-                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">{{ empresaData?.hero_subtitulo || 'Profesional' }}</span> <br>
-                            {{ (empresaData?.hero_titulo || 'para tu Hogar').split(' ').slice(-3).join(' ') }}
+                            {{ (empresaData?.hero_titulo || 'Seguridad y Tecnología para tu Negocio').split(' ').slice(0, -3).join(' ') || 'Soluciones' }} <br>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">{{ empresaData?.hero_subtitulo || 'Inteligente' }}</span> <br>
+                            {{ (empresaData?.hero_titulo || 'para tu Negocio').split(' ').slice(-3).join(' ') }}
                         </h1>
                         
                         <p class="text-xl text-gray-600 mb-10 leading-relaxed max-w-xl">
-                            {{ empresaData?.hero_descripcion || 'Expertos en brindar soluciones profesionales con garantía de satisfacción total.' }}
+                            {{ empresaData?.hero_descripcion || 'Protegemos lo que más te importa con sistemas de videovigilancia, alarmas y soporte TI de clase mundial.' }}
                         </p>
                         
                         <div class="flex flex-col sm:flex-row gap-4">
@@ -242,13 +242,13 @@ const getFaIcon = (plan) => {
                                 class="px-8 py-5 bg-[var(--color-primary)] text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-105 hover:shadow-2xl transition-all flex items-center justify-center gap-3"
                             >
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                                {{ empresaData?.hero_cta_primario || 'Ver Servicios' }}
+                                {{ empresaData?.hero_cta_primario || 'Nuestras Pólizas' }}
                             </Link>
                             <Link 
                                 :href="route('catalogo.index')"
                                 class="px-8 py-5 bg-white text-gray-900 border-2 border-gray-100 rounded-2xl font-black text-sm uppercase tracking-widest hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all flex items-center justify-center gap-3"
                             >
-                                {{ empresaData?.hero_cta_secundario || 'Contáctanos' }}
+                                {{ empresaData?.hero_cta_secundario || 'Nuestros Productos' }}
                             </Link>
                         </div>
                         
@@ -261,7 +261,7 @@ const getFaIcon = (plan) => {
                                 <div class="flex items-center gap-1 text-amber-400 mb-0.5">
                                     <svg v-for="i in 5" :key="i" class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                                 </div>
-                                <p class="text-gray-500 font-medium">Calificado con 4.9/5 por <span class="text-gray-900 border-b border-gray-200">nuestros clientes</span></p>
+                                <p class="text-gray-500 font-medium">Empresas protegidas confirman <span class="text-gray-900 border-b border-gray-200">nuestra calidad</span></p>
                             </div>
                         </div>
                     </div>
@@ -269,25 +269,29 @@ const getFaIcon = (plan) => {
                     <div :class="{'translate-y-0 opacity-100': isVisible, 'translate-y-12 opacity-0': !isVisible}" class="relative transition-all duration-1000 delay-300 ease-out">
                         <!-- Imagen Principal con borde estilizado -->
                         <div class="relative z-10 rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white group">
-                            <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Instalador Profesional">
+                            <img :src="empresaData?.hero_imagen_url || 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Seguridad Tecnológica">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
                         </div>
                         
                         <!-- Floating Cards -->
                         <div class="absolute -bottom-6 -left-6 z-20 bg-white p-6 rounded-3xl shadow-2xl border border-gray-100 max-w-[200px] animate-float">
                             <div class="flex items-center gap-3 mb-2">
-                                <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center text-xl">⚡</div>
-                                <span class="text-xs font-black uppercase tracking-widest text-gray-400">Ahorro</span>
+                                <div class="w-10 h-10 bg-[var(--color-primary-soft)] rounded-xl flex items-center justify-center text-lg text-[var(--color-primary)]">
+                                    <font-awesome-icon icon="laptop" />
+                                </div>
+                                <span class="text-xs font-black uppercase tracking-widest text-gray-400">Tecnología</span>
                             </div>
-                            <p class="text-lg font-bold text-gray-900 leading-tight">Hasta 40% menos en tu recibo</p>
+                            <p class="text-lg font-bold text-gray-900 leading-tight">Soporte TI 24/7 Empresarial</p>
                         </div>
                         
-                        <div class="absolute -top-6 -right-6 z-20 bg-white p-6 rounded-3xl shadow-2xl border border-gray-100 max-w-[200px] animate-float-delayed">
+                        <div class="absolute -top-6 -right-6 z-20 bg-white p-6 rounded-3xl shadow-2xl border border-gray-100 max-w-[220px] animate-float-delayed">
                             <div class="flex items-center gap-3 mb-2">
-                                <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-xl">🌡️</div>
-                                <span class="text-xs font-black uppercase tracking-widest text-gray-400">Confort</span>
+                                <div class="w-10 h-10 bg-[var(--color-primary-soft)] rounded-xl flex items-center justify-center text-lg text-[var(--color-primary)]">
+                                    <font-awesome-icon icon="shield-alt" />
+                                </div>
+                                <span class="text-xs font-black uppercase tracking-widest text-gray-400">Seguridad</span>
                             </div>
-                            <p class="text-lg font-bold text-gray-900 leading-tight">Control total de temperatura</p>
+                            <p class="text-lg font-bold text-gray-900 leading-tight">CCTV con IA y Acceso Remoto</p>
                         </div>
                     </div>
                     
@@ -334,7 +338,7 @@ const getFaIcon = (plan) => {
             <div class="max-w-7xl mx-auto px-4 relative z-10">
                 <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
                     <div class="max-w-2xl">
-                        <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Nuestros Productos</h2>
+                        <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Catálogo Asistencia Vircom</h2>
                         <h3 class="text-4xl lg:text-5xl font-black text-gray-900 tracking-tighter leading-tight">
                             Soluciones de <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Próxima Generación</span>
                         </h3>
@@ -381,7 +385,7 @@ const getFaIcon = (plan) => {
                                     <div class="flex items-center gap-1 text-amber-400 mb-1">
                                         <svg v-for="i in 5" :key="i" class="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M10 1L13 7L19 8L15 13L16 19L10 16L4 19L5 13L1 8L7 7L10 1Z"/></svg>
                                     </div>
-                                    <p class="text-[9px] font-bold text-gray-400 uppercase">Garantía CDD</p>
+                                    <p class="text-[9px] font-bold text-gray-400 uppercase">Garantía Vircom</p>
                                 </div>
                             </div>
                         </div>
@@ -406,15 +410,15 @@ const getFaIcon = (plan) => {
         <OfertaCountdown :empresa="empresaData" :oferta="oferta" />
 
         <!-- CLIMATIZATION SIMULATOR -->
-        <ClimatizationSimulator />
+        <ClimatizationSimulator :empresa="empresaData" />
 
         <!-- POLIZAS DE MANTENIMIENTO -->
         <section class="py-24 bg-white relative">
             <div class="max-w-7xl mx-auto px-4">
                 <div class="text-center mb-20 max-w-3xl mx-auto">
                     <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Tranquilidad Total</h2>
-                    <h3 class="text-4xl lg:text-5xl font-black text-gray-900 tracking-tighter leading-tight mb-6">Pólizas de <span class="text-[var(--color-primary)]">Mantenimiento</span> Preventivo</h3>
-                    <p class="text-lg text-gray-500 font-medium leading-relaxed">Evita gastos innecesarios y alarga la vida de tus equipos con nuestros planes especializados.</p>
+                    <h3 class="text-4xl lg:text-5xl font-black text-gray-900 tracking-tighter leading-tight mb-6">Pólizas de <span class="text-[var(--color-primary)]">Soporte Técnico</span> Empresarial</h3>
+                    <p class="text-lg text-gray-500 font-medium leading-relaxed">Delega los problemas técnicos a los expertos. Mantenimiento preventivo, soporte remoto y respuesta inmediata.</p>
                 </div>
 
                 <!-- Toggle billing -->
@@ -495,9 +499,9 @@ const getFaIcon = (plan) => {
                 <div class="text-center mb-20 max-w-3xl mx-auto">
                     <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Nuestro Método</h2>
                     <h3 class="text-4xl lg:text-5xl font-black text-gray-900 tracking-tighter leading-tight mb-6">
-                        Proceso <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Transparente</span> y Sin Estrés
+                        Implementación <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Impecable</span>
                     </h3>
-                    <p class="text-lg text-gray-500 font-medium leading-relaxed">Del primer contacto a la climatización perfecta, te acompañamos en cada paso.</p>
+                    <p class="text-lg text-gray-500 font-medium leading-relaxed">Desde el diseño del proyecto hasta la puesta en marcha, garantizamos funcionalidad total.</p>
                 </div>
 
                 <!-- Pasos Proceso -->
@@ -507,10 +511,10 @@ const getFaIcon = (plan) => {
                     
                     <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
                         <div v-for="(p, index) in [
-                            {icon: '🔍', title: 'Diagnóstico', desc: 'Evaluamos tu espacio y necesidades térmicas.'},
-                            {icon: '📋', title: 'Propuesta', desc: 'Te entregamos un presupuesto claro y sin sorpresas.'},
-                            {icon: '🛠️', title: 'Instalación', desc: 'Técnicos certificados instalan con limpieza y precisión.'},
-                            {icon: '⭐', title: 'Garantía', desc: 'Aseguramos tu confort con seguimiento post-venta.'}
+                            {icon: '🔍', title: 'Levantamiento', desc: 'Analizamos puntos ciegos y requerimientos de red.'},
+                            {icon: '📋', title: 'Diseño', desc: 'Planos de ubicación y selección de tecnología óptima.'},
+                            {icon: '🛠️', title: 'Instalación', desc: 'Cableado estructurado peinado y equipos configurados.'},
+                            {icon: '⭐', title: 'Capacitación', desc: 'Te enseñamos a usar tu sistema al 100% y damos soporte.'}
                         ]" :key="index" class="group bg-white p-10 rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-200/50 hover:-translate-y-2 transition-all duration-500 hover:border-[var(--color-primary)]">
                             <div class="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center text-4xl mb-8 group-hover:scale-110 group-hover:bg-[var(--color-primary-soft)] transition-all">
                                 {{ p.icon }}
@@ -531,7 +535,7 @@ const getFaIcon = (plan) => {
             <div class="max-w-7xl mx-auto px-4">
                 <div class="text-center mb-16 max-w-2xl mx-auto">
                     <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Experiencias Reales</h2>
-                    <h3 class="text-4xl lg:text-5xl font-black text-gray-900 tracking-tighter">Voces de nuestros <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Clientes Felices</span></h3>
+                    <h3 class="text-4xl lg:text-5xl font-black text-gray-900 tracking-tighter">Voces de nuestros <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Clientes Seguros</span></h3>
                 </div>
             </div>
             
@@ -540,14 +544,14 @@ const getFaIcon = (plan) => {
                 <div class="testimonials-track flex gap-8 animate-scroll group-hover:[animation-play-state:paused]">
                     <!-- Mapeo de testimonios con fallback -->
                     <div v-for="testimonio in (testimonios?.length ? [...testimonios, ...testimonios] : [
-                        {id: 1, nombre: 'Juan Pérez', contenido: 'Excelente servicio, el clima quedó perfecto y ahorré mucho dinero.', entidad: 'Hogar'},
-                        {id: 2, nombre: 'María García', contenido: 'Muy profesionales, llegaron puntuales y dejaron todo limpio.', entidad: 'Oficina'},
-                        {id: 3, nombre: 'Carlos López', contenido: 'La mejor opción en Hermosillo para aire acondicionado.', entidad: 'Hogar'},
-                        {id: 4, nombre: 'Ana Martínez', contenido: 'El sistema inverter cambió mi recibo de luz totalmente.', entidad: 'Negocio'},
-                        {id: 1, nombre: 'Juan Pérez', contenido: 'Excelente servicio, el clima quedó perfecto y ahorré mucho dinero.', entidad: 'Hogar'},
-                        {id: 2, nombre: 'María García', contenido: 'Muy profesionales, llegaron puntuales y dejaron todo limpio.', entidad: 'Oficina'},
-                        {id: 3, nombre: 'Carlos López', contenido: 'La mejor opción en Hermosillo para aire acondicionado.', entidad: 'Hogar'},
-                        {id: 4, nombre: 'Ana Martínez', contenido: 'El sistema inverter cambió mi recibo de luz totalmente.', entidad: 'Negocio'}
+                        {id: 1, nombre: 'Javier Montiel', contenido: 'Instalaron 16 cámaras en mi bodega. La calidad de imagen es increíble y puedo ver todo desde mi celular.', entidad: 'Almacén'},
+                        {id: 2, nombre: 'Dra. Elena Ruiz', contenido: 'El sistema de control de acceso para el consultorio funciona perfecto. Ya no tenemos problemas con llaves.', entidad: 'Clínica'},
+                        {id: 3, nombre: 'Ing. Marcos Díaz', contenido: 'La póliza de soporte nos salvó cuando el servidor falló. Llegaron en menos de 2 horas.', entidad: 'Despacho'},
+                        {id: 4, nombre: 'Restaurante El Fogón', contenido: 'Configuraron todo el punto de venta y las impresoras de cocina. El servicio fluye sin errores.', entidad: 'Restaurante'},
+                        {id: 1, nombre: 'Javier Montiel', contenido: 'Instalaron 16 cámaras en mi bodega. La calidad de imagen es increíble y puedo ver todo desde mi celular.', entidad: 'Almacén'},
+                        {id: 2, nombre: 'Dra. Elena Ruiz', contenido: 'El sistema de control de acceso para el consultorio funciona perfecto. Ya no tenemos problemas con llaves.', entidad: 'Clínica'},
+                        {id: 3, nombre: 'Ing. Marcos Díaz', contenido: 'La póliza de soporte nos salvó cuando el servidor falló. Llegaron en menos de 2 horas.', entidad: 'Despacho'},
+                        {id: 4, nombre: 'Restaurante El Fogón', contenido: 'Configuraron todo el punto de venta y las impresoras de cocina. El servicio fluye sin errores.', entidad: 'Restaurante'}
                     ])" :key="'t-' + testimonio.id + Math.random()" class="flex-shrink-0 w-[400px] bg-gradient-to-br from-gray-50 to-white p-8 rounded-[2.5rem] border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-500">
                         <div class="flex items-center gap-1 text-amber-400 mb-6">
                             <svg v-for="i in 5" :key="i" class="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
@@ -582,12 +586,12 @@ const getFaIcon = (plan) => {
 
                 <div class="space-y-4">
                     <div v-for="(faq, index) in (faqs?.length ? faqs : [
-                        {id: 1, icon: '💡', pregunta: '¿Realmente vale la pena invertir en un aire Inverter?', respuesta: 'Definitivamente. Aunque la inversión inicial es mayor, la tecnología Inverter regula la velocidad del compresor para mantener la temperatura constante, lo que ahorra hasta un 60% en tu recibo de luz comparado con equipos convencionales que apagan y prenden constantemente.'},
-                        {id: 2, icon: '🌡️', pregunta: '¿Cuál es la temperatura ideal para no gastar tanta luz?', respuesta: 'Los expertos recomiendan entre 24°C y 25°C. Por cada grado que bajas la temperatura, el consumo de energía aumenta aproximadamente un 8%. ¡El confort no tiene que ser costoso!'},
-                        {id: 3, icon: '⚡', pregunta: '¿Es mejor dejar el aire prendido todo el día o apagarlo y prenderlo?', respuesta: 'Depende del tiempo. Si vas a salir por menos de una hora, es más eficiente dejarlo encendido (especialmente si es Inverter) para no forzar al equipo a enfriar desde cero. Para ausencias largas, apágalo.'},
-                        {id: 4, icon: '💧', pregunta: '¿Por qué mi aire acondicionado tira agua hacia adentro?', respuesta: 'La causa más común es un desagüe obstruido por suciedad y falta de mantenimiento. También puede ser por falta de gas refrigerante (que congela el equipo) o una mala nivelación en la instalación.'},
-                        {id: 5, icon: '📈', pregunta: '¿Qué significan los SEER y por qué deberían importarme?', respuesta: 'SEER (Seasonal Energy Efficiency Ratio) mide la eficiencia energética. Mientras mayor sea el número SEER, menos electricidad consume el equipo para enfriar lo mismo. Un equipo SEER 20 gastará mucho menos que uno SEER 12.'},
-                        {id: 6, icon: '🧹', pregunta: '¿Cada cuánto debo limpiar los filtros realmente?', respuesta: 'Recomendamos hacerlo una vez al mes. Los filtros sucios obstruyen el flujo de aire, fuerzan el motor, aumentan el consumo eléctrico y pueden esparcir polvo y alérgenos en tu hogar.'}
+                        {id: 1, icon: 'shield-alt', pregunta: '¿Qué servicios ofrecen?', respuesta: 'Ofrecemos soluciones integrales en seguridad electrónica (alarmas, cámaras CCTV), soporte técnico computacional, redes y pólizas de mantenimiento preventivo para empresas y hogares.'},
+                        {id: 2, icon: 'truck', pregunta: '¿Hacen servicio a domicilio?', respuesta: 'Sí, contamos con técnicos certificados que se desplazan a su domicilio o empresa en Hermosillo y alrededores para instalaciones y soporte técnico.'},
+                        {id: 3, icon: 'clock', pregunta: '¿Cuánto tiempo tarda una reparación?', respuesta: 'El tiempo depende de la complejidad, pero la mayoría de los servicios de soporte técnico y reparaciones menores se resuelven en un plazo de 24 a 48 horas.'},
+                        {id: 4, icon: 'medal', pregunta: '¿Ofrecen garantía en sus servicios?', respuesta: 'Absolutamente. Todos nuestros trabajos de instalación y reparación cuentan con garantía por escrito para su total tranquilidad y respaldo.'},
+                        {id: 5, icon: 'camera', pregunta: '¿Qué marcas de cámaras manejas?', respuesta: 'Trabajamos con las mejores marcas del mercado como Hikvision, Dahua y Axis, asegurando la más alta resolución y durabilidad en cada sistema de videovigilancia.'},
+                        {id: 6, icon: 'mobile-alt', pregunta: '¿Puedo monitorear mis cámaras de forma remota?', respuesta: 'Sí, configuramos todos nuestros sistemas para que pueda visualizar sus cámaras en tiempo real desde su celular o computadora, desde cualquier parte del mundo.'}
                     ])" :key="faq.id" 
                         class="bg-white rounded-[2rem] border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group"
                         :class="{'ring-2 ring-[var(--color-primary-soft)]': activeFaq === faq.id}"
@@ -597,7 +601,9 @@ const getFaIcon = (plan) => {
                             class="w-full px-8 py-7 flex items-center justify-between text-left"
                         >
                             <div class="flex items-center gap-5">
-                                <span class="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-xl group-hover:bg-[var(--color-primary-soft)] transition-colors">{{ faq.icon || '❓' }}</span>
+                                <span class="w-12 h-12 rounded-2xl bg-[var(--color-primary-soft)] flex items-center justify-center text-lg text-[var(--color-primary)] transition-colors">
+                                    <font-awesome-icon :icon="faq.icon || 'question'" />
+                                </span>
                                 <span class="font-black text-gray-900 group-hover:text-[var(--color-primary)] transition-colors text-lg leading-snug">{{ faq.pregunta }}</span>
                             </div>
                             <span class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 transition-transform duration-500 shrink-0" :class="{'rotate-180 bg-[var(--color-primary)] text-white shadow-lg': activeFaq === faq.id}">
@@ -636,7 +642,7 @@ const getFaIcon = (plan) => {
         </section>
 
         <!-- BLOG PREVIEW -->
-        <BlogPreview />
+        <BlogPreview :empresa="empresaData" />
 
         <!-- PUBLIC FOOTER -->
         <PublicFooter :empresa="empresaData" />

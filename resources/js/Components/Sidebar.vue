@@ -388,6 +388,9 @@
             <NavLink v-if="$can('view configuracion_empresa')" href="/empresa/landing-content" icon="palette" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Contenido de Landing' : null">
               Contenido de Landing
             </NavLink>
+            <NavLink v-if="$can('view configuracion_empresa')" :href="routeOr('/admin/blog')" icon="blog" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Blog' : null">
+              Blog
+            </NavLink>
             <NavLink v-if="$can('manage-backups')" :href="routeOr('/backup')" icon="database" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Copia de Seguridad' : null">
               Copia de Seguridad
             </NavLink>
@@ -595,7 +598,7 @@ const getCurrentSection = () => {
   }
 
   // Configuración
-  if (path.includes('/usuarios') || path.includes('/roles') || path.includes('/bitacora') || path.includes('/categorias') || path.includes('/marcas') || path.includes('/servicios') || path.includes('/backup') || path.includes('/empresa/configuracion') || path.includes('/empresa/landing-content')) {
+  if (path.includes('/usuarios') || path.includes('/roles') || path.includes('/bitacora') || path.includes('/categorias') || path.includes('/marcas') || path.includes('/servicios') || path.includes('/backup') || path.includes('/empresa/configuracion') || path.includes('/empresa/landing-content') || path.includes('/admin/blog')) {
     return 'configuracion';
   }
 
@@ -620,6 +623,7 @@ const routeOr = (fallback) => {
   if (typeof route === 'function') {
     try {
       if (fallback === '/cva/importar') return route('cva.import');
+      if (fallback === '/admin/blog') return route('admin.blog.index');
       return route('backup.index');
     } catch (e) {
       return fallback;
