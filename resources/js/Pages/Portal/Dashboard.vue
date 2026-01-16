@@ -17,7 +17,7 @@ const props = defineProps({
     rentas: Array,
 });
 
-const activeTab = ref('tickets');
+const activeTab = ref('resumen');
 const revealedPasswords = ref({});
 const isLoadingPassword = ref({});
 
@@ -160,6 +160,19 @@ const getStatusClasses = (estado) => {
                 <!-- Sidebar Navigation -->
                 <aside class="lg:col-span-1 space-y-2">
                     <button 
+                        @click="activeTab = 'resumen'" 
+                        :class="[
+                            'w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left',
+                            activeTab === 'resumen' 
+                                ? 'bg-[var(--color-primary)] text-white shadow-xl shadow-[var(--color-primary)]/20 shadow-sm' 
+                                : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 border border-gray-100'
+                        ]"
+                    >
+                        <font-awesome-icon icon="th-large" /> 
+                        <span class="text-sm uppercase tracking-widest">Resumen</span>
+                    </button>
+
+                    <button 
                         @click="activeTab = 'tickets'" 
                         :class="[
                             'w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left',
@@ -256,6 +269,105 @@ const getStatusClasses = (estado) => {
                 <!-- Tab Panels Area -->
                 <div class="lg:col-span-3">
                     
+                    <!-- Tab: Resumen (NUEVO) -->
+                    <div v-show="activeTab === 'resumen'" class="animate-fade-in space-y-8">
+                        <div class="grid sm:grid-cols-2 gap-6">
+                            <!-- Widget: Soporte -->
+                            <div class="bg-white rounded-[2rem] p-8 shadow-xl shadow-gray-200/50 border border-gray-100 relative overflow-hidden group">
+                                <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-50 rounded-full group-hover:scale-110 transition-transform duration-500"></div>
+                                <div class="relative z-10">
+                                    <div class="flex items-center gap-4 mb-6">
+                                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-xl">
+                                            <font-awesome-icon icon="ticket-alt" />
+                                        </div>
+                                        <h3 class="text-lg font-black text-gray-900 uppercase tracking-tight">Soporte Técnico</h3>
+                                    </div>
+                                    <div class="flex items-end justify-between">
+                                        <div>
+                                            <p class="text-4xl font-black text-gray-900">{{ tickets.total || 0 }}</p>
+                                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Tickets Totales</p>
+                                        </div>
+                                        <button @click="activeTab = 'tickets'" class="text-xs font-black text-blue-600 hover:underline uppercase tracking-widest">Ver Historial</button>
+                                    </div>
+                                    <Link :href="route('portal.tickets.create')" class="mt-8 w-full flex items-center justify-center py-4 bg-gray-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-[var(--color-primary)] transition-all">
+                                        + Solicitar Ayuda Ahora
+                                    </Link>
+                                </div>
+                            </div>
+
+                            <!-- Widget: Pagos -->
+                            <div class="bg-white rounded-[2rem] p-8 shadow-xl shadow-gray-200/50 border border-gray-100 relative overflow-hidden group">
+                                <div class="absolute -right-4 -top-4 w-24 h-24 bg-red-50 rounded-full group-hover:scale-110 transition-transform duration-500"></div>
+                                <div class="relative z-10">
+                                    <div class="flex items-center gap-4 mb-6">
+                                        <div class="w-12 h-12 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center text-xl">
+                                            <font-awesome-icon icon="receipt" />
+                                        </div>
+                                        <h3 class="text-lg font-black text-gray-900 uppercase tracking-tight">Finanzas</h3>
+                                    </div>
+                                    <div class="flex items-end justify-between">
+                                        <div>
+                                            <p class="text-4xl font-black text-red-500">${{ Number(pagosPendientes.reduce((acc, p) => acc + parseFloat(p.total), 0)).toLocaleString('es-MX', {minimumFractionDigits: 2}) }}</p>
+                                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Por Pagar</p>
+                                        </div>
+                                        <button @click="activeTab = 'pagos'" class="text-xs font-black text-red-600 hover:underline uppercase tracking-widest">Detalles</button>
+                                    </div>
+                                    <button @click="activeTab = 'pagos'" class="mt-8 w-full flex items-center justify-center py-4 bg-red-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-red-600 transition-all">
+                                        Pagar Facturas Pendientes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fila Inferior: Póliza Destacada & Equipos -->
+                        <div class="grid lg:grid-cols-3 gap-6">
+                             <!-- Póliza Widget -->
+                             <div class="lg:col-span-2 bg-gradient-to-br from-gray-900 to-gray-800 rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden group">
+                                <div class="absolute right-0 bottom-0 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                                    <font-awesome-icon icon="shield-alt" class="text-[12rem]" />
+                                </div>
+                                <div class="relative z-10">
+                                    <div class="flex justify-between items-start mb-10">
+                                        <div>
+                                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2 font-mono">Contrato Vigente</p>
+                                            <h3 class="text-2xl font-black">{{ polizas[0]?.nombre || 'Sin Póliza Activa' }}</h3>
+                                        </div>
+                                        <div class="px-4 py-2 bg-white/10 backdrop-blur-md rounded-xl text-[10px] font-bold uppercase tracking-widest">
+                                            {{ polizas[0]?.estado || 'N/A' }}
+                                        </div>
+                                    </div>
+
+                                    <div v-if="polizas[0]" class="grid sm:grid-cols-2 gap-8 mb-8 text-center sm:text-left">
+                                        <div class="p-6 bg-white/5 rounded-3xl border border-white/5">
+                                            <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Días Restantes</p>
+                                            <p class="text-3xl font-black">{{ polizas[0]?.dias_para_vencer }} <span class="text-xs text-gray-500">Días</span></p>
+                                        </div>
+                                        <div class="p-6 bg-white/5 rounded-3xl border border-white/5">
+                                            <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Tickets del Mes</p>
+                                            <p class="text-3xl font-black">{{ polizas[0]?.tickets_mes_actual_count }} <span class="text-xs text-gray-500">Consumidos</span></p>
+                                        </div>
+                                    </div>
+
+                                    <button @click="activeTab = 'polizas'" class="flex items-center gap-2 group/btn font-black text-[10px] uppercase tracking-widest text-[var(--color-primary)]">
+                                        Ver todas mis pólizas
+                                        <font-awesome-icon icon="arrow-right" class="group-hover/btn:translate-x-1 transition-transform" />
+                                    </button>
+                                </div>
+                             </div>
+
+                             <!-- Acceso Rápido Tienda -->
+                             <div class="bg-[var(--color-primary)] rounded-[2rem] p-8 text-white flex flex-col justify-between shadow-xl shadow-[var(--color-primary)]/30">
+                                 <div>
+                                     <h3 class="text-xl font-black uppercase tracking-tight mb-2">Comprar Insumos</h3>
+                                     <p class="text-white/80 text-sm font-medium leading-relaxed">¿Necesitas refacciones o equipo nuevo? Visita nuestra tienda online.</p>
+                                 </div>
+                                 <a :href="route('catalogo.index')" class="w-full py-4 bg-white text-[var(--color-primary)] rounded-2xl font-black text-xs uppercase tracking-widest text-center shadow-lg hover:shadow-2xl transition-all">
+                                     Ir a la Tienda 🛍️
+                                 </a>
+                             </div>
+                        </div>
+                    </div>
+
                     <!-- Tab: Tickets -->
                     <div v-show="activeTab === 'tickets'" class="animate-fade-in space-y-6">
                         <div class="flex justify-between items-center px-2">
