@@ -101,7 +101,28 @@ const profileForm = useForm({
     password_confirmation: '',
 });
 
+const rfcRegex = /^([A-ZÑ&]{3,4})\d{6}([A-Z0-9]{3})$/i;
+const rfcError = ref('');
+
+const validateRfc = () => {
+    if (!profileForm.rfc || profileForm.rfc.trim() === '') {
+        rfcError.value = '';
+        return true;
+    }
+    if (!rfcRegex.test(profileForm.rfc.toUpperCase())) {
+        rfcError.value = 'Formato de RFC inválido. Ejemplo: XAXX010101000';
+        return false;
+    }
+    rfcError.value = '';
+    return true;
+};
+
 const updateProfile = () => {
+    if (!validateRfc()) {
+        window.$toast.error('Por favor corrija el RFC antes de continuar.');
+        return;
+    }
+
     profileForm.post(route('portal.perfil.update'), {
         preserveScroll: true,
         onSuccess: () => {
@@ -109,7 +130,10 @@ const updateProfile = () => {
             profileForm.password = '';
             profileForm.password_confirmation = '';
         },
-        onError: () => window.$toast.error('Hubo un error al actualizar el perfil.')
+        onError: (errors) => {
+            const firstError = Object.values(errors)[0];
+            window.$toast.error(firstError || 'Hubo un error al actualizar el perfil.');
+        }
     });
 };
 
@@ -1050,7 +1074,16 @@ const toggleFaq = (id) => {
                                 <div class="grid sm:grid-cols-2 gap-6">
                                     <div class="space-y-2">
                                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">RFC</label>
-                                        <input v-model="profileForm.rfc" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                        <input 
+                                            v-model="profileForm.rfc" 
+                                            @blur="validateRfc"
+                                            type="text" 
+                                            maxlength="13"
+                                            class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all uppercase"
+                                            :class="{'ring-2 ring-red-400': rfcError}"
+                                        />
+                                        <p v-if="rfcError" class="text-red-500 text-xs font-medium">{{ rfcError }}</p>
+                                        <p v-if="profileForm.errors.rfc" class="text-red-500 text-xs font-medium">{{ profileForm.errors.rfc }}</p>
                                     </div>
                                     <div class="space-y-2">
                                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Domicilio Fiscal (C.P.)</label>

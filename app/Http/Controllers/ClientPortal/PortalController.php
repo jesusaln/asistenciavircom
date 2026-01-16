@@ -115,9 +115,9 @@ class PortalController extends Controller
             'empresa' => $this->getEmpresaBranding(),
             'faqs' => \App\Models\LandingFaq::where('empresa_id', \App\Support\EmpresaResolver::resolveId())->where('activo', true)->orderBy('orden')->get(),
             'catalogos' => [
-                'regimenes' => \App\Models\SatRegimenFiscal::orderBy('clave')->get(),
-                'usos_cfdi' => \App\Models\SatUsoCfdi::orderBy('clave')->get(),
-                'estados' => \App\Models\SatEstado::where('activo', true)->orderBy('nombre')->get(),
+                'regimenes' => \Illuminate\Support\Facades\Cache::remember('sat_regimenes_fiscales', 86400, fn() => \App\Models\SatRegimenFiscal::orderBy('clave')->get()),
+                'usos_cfdi' => \Illuminate\Support\Facades\Cache::remember('sat_usos_cfdi', 86400, fn() => \App\Models\SatUsoCfdi::orderBy('clave')->get()),
+                'estados' => \Illuminate\Support\Facades\Cache::remember('sat_estados_activos', 86400, fn() => \App\Models\SatEstado::where('activo', true)->orderBy('nombre')->get()),
             ]
         ]);
     }
@@ -168,7 +168,7 @@ class PortalController extends Controller
             'email_contacto' => $cliente->email,
             'telefono_contacto' => $cliente->telefono ?? $cliente->celular,
             'fecha_limite' => $fechaLimite,
-            'empresa_id' => null, // O la empresa del cliente si existe
+            'empresa_id' => $cliente->empresa_id,
         ]);
 
         return redirect()->route('portal.dashboard')
@@ -330,7 +330,11 @@ class PortalController extends Controller
             return response()->json(['success' => false, 'message' => 'Su línea de crédito no está activa o autorizada.'], 403);
         }
 
-        if ($cliente->credito_disponible < $venta->total) {
+        // Capturar saldo antes del pago para auditoría
+        $saldoAntes = $cliente->saldo_pendiente;
+        $creditoDisponibleAntes = $cliente->credito_disponible;
+
+        if ($creditoDisponibleAntes < $venta->total) {
             return response()->json(['success' => false, 'message' => 'Saldo insuficiente en su línea de crédito.'], 400);
         }
 
@@ -347,16 +351,36 @@ class PortalController extends Controller
             // Si tiene Cuenta por Cobrar, marcarla como pagada
             if ($venta->cuentaPorCobrar) {
                 $cxc = $venta->cuentaPorCobrar;
-                $cxc->monto_pendiente = '0';
+                $cxc->monto_pendiente = 0;
                 $cxc->estado = 'pagado';
                 $cxc->save();
             }
 
             DB::commit();
+
+            // Registrar auditoría del pago con crédito
+            Log::info('Pago con Crédito Comercial', [
+                'cliente_id' => $cliente->id,
+                'cliente_nombre' => $cliente->nombre_razon_social,
+                'venta_id' => $venta->id,
+                'venta_folio' => $venta->folio ?? $venta->numero_venta,
+                'monto' => $venta->total,
+                'saldo_pendiente_antes' => $saldoAntes,
+                'credito_disponible_antes' => $creditoDisponibleAntes,
+                'saldo_pendiente_despues' => $cliente->fresh()->saldo_pendiente,
+                'credito_disponible_despues' => $cliente->fresh()->credito_disponible,
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+
             return response()->json(['success' => true, 'message' => 'Factura pagada con éxito usando su crédito comercial.']);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error pagando venta con crédito: ' . $e->getMessage());
+            Log::error('Error pagando venta con crédito: ' . $e->getMessage(), [
+                'cliente_id' => $cliente->id,
+                'venta_id' => $venta->id,
+                'trace' => $e->getTraceAsString(),
+            ]);
             return response()->json(['success' => false, 'message' => 'Hubo un error al procesar el pago.'], 500);
         }
     }
