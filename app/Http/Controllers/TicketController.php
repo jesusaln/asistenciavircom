@@ -425,6 +425,7 @@ class TicketController extends Controller
 
     public function destroy(Ticket $ticket)
     {
+        $this->authorize('delete', $ticket);
         $ticket->delete();
         return redirect()->route('soporte.index')->with('success', 'Ticket eliminado');
     }
