@@ -449,7 +449,7 @@ const helpSections = [
 
                 <div class="mt-10 p-5 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl text-white">
                     <div class="flex items-center gap-3 mb-2">
-                        <font-awesome-icon icon="lightbulb" class="text-yellow-300" />
+                        <span class="text-yellow-300 text-xl">💡</span>
                         <h4 class="font-bold text-sm tracking-tight">Regla de Oro: Transparencia</h4>
                     </div>
                     <p class="text-xs opacity-90 leading-relaxed">
