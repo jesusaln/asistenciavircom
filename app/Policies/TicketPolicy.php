@@ -48,8 +48,8 @@ class TicketPolicy
      */
     public function delete(User $user, Ticket $ticket): bool
     {
-        // Solo super-admin puede eliminar tickets
-        return $user->hasRole('super-admin');
+        // super-admin y admin pueden eliminar tickets
+        return $user->hasRole(['super-admin', 'admin']);
     }
 
     /**

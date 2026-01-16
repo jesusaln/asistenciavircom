@@ -346,8 +346,8 @@ class TicketController extends Controller
 
         $empresaId = EmpresaResolver::resolveId();
 
-        // Verificar si el usuario puede eliminar (solo super-admin)
-        $canDelete = auth()->user()->hasRole('super-admin');
+        // Verificar si el usuario puede eliminar (super-admin o admin)
+        $canDelete = auth()->user()->hasRole(['super-admin', 'admin']);
 
         return Inertia::render('Soporte/Show', [
             'ticket' => $ticket,
