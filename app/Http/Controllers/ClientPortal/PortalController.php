@@ -116,10 +116,7 @@ class PortalController extends Controller
             'catalogos' => [
                 'regimenes' => \App\Models\SatRegimenFiscal::orderBy('clave')->get(),
                 'usos_cfdi' => \App\Models\SatUsoCfdi::orderBy('clave')->get(),
-                'estados' => \App\Models\SatEstado::where('vigencia_inicio', '<=', now())
-                    ->where(function ($q) {
-                        $q->whereNull('vigencia_fin')->orWhere('vigencia_fin', '>=', now());
-                    })->orderBy('nombre')->get(),
+                'estados' => \App\Models\SatEstado::where('activo', true)->orderBy('nombre')->get(),
             ]
         ]);
     }
