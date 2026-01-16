@@ -458,6 +458,9 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::get('/notifications', [UserNotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/unread-count', [UserNotificationController::class, 'unreadCount'])->name('notifications.unread-count');
     Route::post('/notifications/mark-as-read', [UserNotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::post('/notifications/mark-all-as-read', [UserNotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+    Route::delete('/notifications/{id}', [UserNotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::delete('/notifications', [UserNotificationController::class, 'destroyMultiple'])->name('notifications.destroyMultiple');
 
     // Backup
     Route::middleware(['auth', 'can:manage-backups'])->prefix('admin/backup')->name('backup.')->group(function () {

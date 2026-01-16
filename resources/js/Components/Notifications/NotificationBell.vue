@@ -81,6 +81,7 @@
 
 <script>
 import axios from 'axios'
+import Swal from 'sweetalert2'
 
 export default {
   name: 'NotificationBell',
@@ -206,13 +207,15 @@ export default {
       try {
         await axios.post('/notifications/mark-as-read', { ids: [notificationId] });
 
-        // Actualizar la notificación localmente
-        const notification = this.notifications.find(n => n.id === notificationId);
-        if (notification && !notification.read) {
-          notification.read = true;
-          notification.read_at = new Date().toISOString();
-          // Decrementar el contador local
-          this.unreadCount = Math.max(0, this.unreadCount - 1);
+        // Remover de la lista localmente para evitar acumulación (según petición usuario)
+        const index = this.notifications.findIndex(n => n.id === notificationId);
+        if (index > -1) {
+            const notification = this.notifications[index];
+            if (!notification.read) {
+                this.unreadCount = Math.max(0, this.unreadCount - 1);
+            }
+            // Eliminar de la vista
+            this.notifications.splice(index, 1);
         }
 
       } catch (error) {
@@ -231,15 +234,8 @@ export default {
 
         await axios.post('/notifications/mark-all-as-read');
 
-        // Actualizar todas las notificaciones localmente
-        this.notifications.forEach(notification => {
-          if (!notification.read) {
-            notification.read = true;
-            notification.read_at = new Date().toISOString();
-          }
-        });
-
-        // Actualizar contador
+        // Eliminar todas las notificaciones de la lista para limpiar
+        this.notifications = [];
         this.unreadCount = 0;
 
       } catch (error) {
