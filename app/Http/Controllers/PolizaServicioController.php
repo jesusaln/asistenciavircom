@@ -164,7 +164,15 @@ class PolizaServicioController extends Controller
      */
     public function edit(PolizaServicio $polizaServicio)
     {
-        $polizaServicio->load(['servicios', 'credenciales']);
+        $polizaServicio->load(['servicios', 'credenciales', 'cliente']);
+
+        \Illuminate\Support\Facades\Log::info('DEBUG POLIZA EDIT', [
+            'poliza_id' => $polizaServicio->id,
+            'cliente_id_poliza' => $polizaServicio->cliente_id,
+            'cliente_cargado' => $polizaServicio->cliente ? 'SI' : 'NO',
+            'cliente_data' => $polizaServicio->cliente
+        ]);
+
         // Aseguramos que el cliente de la póliza esté en la lista, incluso si está inactivo
         $clientesList = Cliente::where('id', $polizaServicio->cliente_id)
             ->orWhere('activo', true)
@@ -174,6 +182,7 @@ class PolizaServicioController extends Controller
             'clientes' => $clientesList,
             'servicios' => Servicio::select('id', 'nombre', 'precio')->active()->get(),
             'poliza' => $polizaServicio,
+            'cliente_poliza' => $polizaServicio->cliente,
         ]);
     }
 

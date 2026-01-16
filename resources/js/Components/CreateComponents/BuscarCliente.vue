@@ -754,7 +754,7 @@ watch(() => props.clienteSeleccionado, (nuevoCliente) => {
       inputBusqueda.value?.focus();
     });
   }
-});
+}, { immediate: true });
 
 watch(mostrarListaClientes, (esVisible) => {
   if (esVisible) {
