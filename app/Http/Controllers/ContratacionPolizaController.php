@@ -28,7 +28,7 @@ class ContratacionPolizaController extends Controller
     /**
      * Muestra el formulario de contratación para un plan específico.
      */
-    public function show(string $slug)
+    public function show(Request $request, string $slug)
     {
         $empresaId = EmpresaResolver::resolveId();
         $empresaModel = \App\Models\Empresa::find($empresaId);
@@ -46,6 +46,12 @@ class ContratacionPolizaController extends Controller
         $plan = PlanPoliza::where('slug', $slug)
             ->where('activo', true)
             ->firstOrFail();
+
+        // Pre-calcular precio anual con 15% descuento para mostrarlo correctamente
+        if ($plan->precio_mensual > 0) {
+            $plan->precio_anual_calculado = $plan->precio_mensual * 12 * 0.85;
+            $plan->ahorro_anual_calculado = ($plan->precio_mensual * 12) - $plan->precio_anual_calculado;
+        }
 
         // Si el usuario está autenticado, intentamos pre-cargar sus datos o los de su cliente asociado
         $clienteData = null;
@@ -108,10 +114,13 @@ class ContratacionPolizaController extends Controller
             }
         }
 
+        $cicloInicial = $request->query('ciclo', 'mensual');
+
         return Inertia::render('Contratacion/Show', [
             'empresa' => $empresa,
             'plan' => $plan->append(['icono_display', 'ahorro_anual']),
             'clienteData' => $clienteData,
+            'cicloInicial' => $cicloInicial,
             'catalogos' => [
                 'regimenes' => SatRegimenFiscal::get(),
                 'usosCfdi' => SatUsoCfdi::where('activo', true)->get(),
@@ -265,6 +274,19 @@ class ContratacionPolizaController extends Controller
             $estadoInicial = 'pendiente_pago';
             $estadoPago = 'pendiente';
 
+            // 5. Generar Venta (Ingreso Financiero con IVA)
+            // Regla de negocio: Forzar descuento de 15% para planes anuales
+            if ($esAnual) {
+                // $subtotal = $plan->precio_anual > 0 ? $plan->precio_anual : ($plan->precio_mensual * 12 * 0.85);
+                // Forzamos el 15% para que coincida con lo mostrado en el frontend, ignorando la BD si es diferente
+                $subtotal = $plan->precio_mensual * 12 * 0.85;
+            } else {
+                $subtotal = $plan->precio_mensual;
+            }
+
+            $iva = round($subtotal * 0.16, 2); // 16% IVA México Hardcoded
+            $total = $subtotal + $iva;
+
             // 3. Crear la Póliza
             $poliza = PolizaServicio::create([
                 'empresa_id' => $empresaId,
@@ -283,18 +305,9 @@ class ContratacionPolizaController extends Controller
                 'renovacion_automatica' => !$esServicioUnico, // IMPORTANTE: False si es servicio único
                 'notificar_exceso_limite' => true,
                 'estado' => $estadoInicial,
-                'condiciones_especiales' => "Contratado vía Web.",
+                'condiciones_especiales' => "Contratado vía Web. Ciclo: " . ($esAnual ? 'Anual' : 'Mensual'),
                 'ultimo_reset_consumo_at' => $fechaInicio,
             ]);
-
-            // TODO: Los equipos del cliente se registrarán en un módulo separado (EquiposPoliza)
-            // El modelo Equipo existente es para equipos de RENTA, no para equipos de clientes con póliza.
-            // Por ahora se omite este paso para que el flujo de pago funcione.
-
-            // 5. Generar Venta (Ingreso Financiero con IVA)
-            $subtotal = $esAnual ? $plan->precio_anual : $plan->precio_mensual;
-            $iva = round($subtotal * 0.16, 2); // 16% IVA México Hardcoded
-            $total = $subtotal + $iva;
 
             // Intentar obtener folio de venta
             $folioVenta = null;

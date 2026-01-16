@@ -10,9 +10,10 @@ const props = defineProps({
     clienteData: Object,
     catalogos: Object,
     pasarelas: Object,
+    cicloInicial: { type: String, default: 'mensual' },
 });
 
-const periodoSeleccionado = ref('mensual');
+const periodoSeleccionado = ref(props.cicloInicial || 'mensual');
 const metodoPago = ref('tarjeta');
 const showPaymentModal = ref(false);
 const showTerminos = ref(false);
@@ -57,7 +58,7 @@ const form = useForm({
     pais: props.clienteData?.pais || 'MX',
 
     metodo_pago: 'tarjeta',
-    periodo: 'mensual',
+    periodo: props.cicloInicial || 'mensual',
     aceptar_terminos: false,
     equipos: [{ marca: '', modelo: '', serie: '' }],
 });
@@ -140,7 +141,10 @@ const formatCurrency = (value) => {
 };
 
 const precioPeriodo = computed(() => {
-    return periodoSeleccionado.value === 'anual' ? props.plan.precio_anual : props.plan.precio_mensual;
+    if (periodoSeleccionado.value === 'anual') {
+        return props.plan.precio_anual_calculado || props.plan.precio_anual;
+    }
+    return props.plan.precio_mensual;
 });
 
 const totalPagar = computed(() => {
@@ -597,7 +601,7 @@ const iniciarStripe = async (polizaId) => {
                             </div>
 
                             <div 
-                                v-if="plan.precio_anual"
+                                v-if="plan.precio_anual || plan.precio_anual_calculado"
                                 @click="periodoSeleccionado = 'anual'"
                                 :class="[
                                     'cursor-pointer border-2 rounded-2xl p-6 transition-all relative group',
@@ -605,7 +609,7 @@ const iniciarStripe = async (polizaId) => {
                                 ]"
                             >
                                 <div class="absolute -top-3 right-4 bg-green-500 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg border-2 border-white uppercase">
-                                    Ahorra {{ formatCurrency(plan.ahorro_anual) }}
+                                    Ahorra {{ formatCurrency(plan.ahorro_anual_calculado || plan.ahorro_anual) }}
                                 </div>
                                 <div class="flex justify-between items-center mb-1">
                                     <span class="font-bold text-gray-900">Anual</span>
@@ -614,8 +618,8 @@ const iniciarStripe = async (polizaId) => {
                                     </div>
                                     <div v-else class="w-5 h-5 rounded-full border-2 border-gray-200 group-hover:border-gray-300"></div>
                                 </div>
-                                <div class="text-2xl font-black text-gray-900">{{ formatCurrency(plan.precio_anual) }}</div>
-                                <div class="text-xs text-gray-500 font-medium">Pago unico anual</div>
+                                <div class="text-2xl font-black text-gray-900">{{ formatCurrency(plan.precio_anual_calculado || plan.precio_anual) }}</div>
+                                <div class="text-xs text-gray-500 font-medium">Pago unico anual (-15%)</div>
                             </div>
                         </div>
                     </div>
