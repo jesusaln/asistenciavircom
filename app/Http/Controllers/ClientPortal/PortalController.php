@@ -9,6 +9,7 @@ use App\Models\PolizaServicio;
 use App\Models\Venta;
 use App\Models\Empresa;
 use App\Models\EmpresaConfiguracion;
+use App\Models\LandingFaq;
 use App\Support\EmpresaResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -98,6 +99,7 @@ class PortalController extends Controller
                 'credito_disponible'
             ),
             'empresa' => $this->getEmpresaBranding(),
+            'faqs' => \App\Models\LandingFaq::where('empresa_id', \App\Support\EmpresaResolver::resolveId())->where('activo', true)->orderBy('orden')->get(),
         ]);
     }
 

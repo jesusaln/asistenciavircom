@@ -16,6 +16,7 @@ const props = defineProps({
     credenciales: Array,
     empresa: Object, // Pasado desde el controlador
     rentas: Array,
+    faqs: Array,
 });
 
 const activeTab = ref('resumen');
@@ -77,6 +78,11 @@ const getStatusClasses = (estado) => {
         'cerrado': 'bg-gray-50 text-gray-500 border-gray-100',
     };
     return maps[estado] || 'bg-gray-50 text-gray-500 border-gray-100';
+};
+
+const activeFaq = ref(null);
+const toggleFaq = (id) => {
+    activeFaq.value = activeFaq.value === id ? null : id;
 };
 </script>
 
@@ -260,6 +266,20 @@ const getStatusClasses = (estado) => {
                         <font-awesome-icon icon="receipt" /> 
                         <span class="text-sm uppercase tracking-widest">Historial Pagos</span>
                     </button>
+
+                    <button 
+                        @click="activeTab = 'ayuda'" 
+                        :class="[
+                            'w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left',
+                            activeTab === 'ayuda' 
+                                ? 'bg-[var(--color-primary)] text-white shadow-xl shadow-[var(--color-primary)]/20 shadow-sm' 
+                                : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 border border-gray-100'
+                        ]"
+                    >
+                        <font-awesome-icon icon="question-circle" /> 
+                        <span class="text-sm uppercase tracking-widest">Centro de Ayuda</span>
+                    </button>
+
                     <a 
                         :href="route('catalogo.index')"
                         class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:-translate-y-0.5"
@@ -779,6 +799,79 @@ const getStatusClasses = (estado) => {
                                 <h3 class="text-lg font-black text-gray-900 mb-1">No hay pedidos</h3>
                                 <p class="text-gray-500 font-medium text-sm">Aún no ha realizado compras en nuestra tienda en línea.</p>
                                 <a :href="route('catalogo.index')" class="mt-6 inline-block px-8 py-4 bg-[var(--color-primary)] text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:shadow-xl transition-all">Ir a la Tienda</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Centro de Ayuda -->
+                    <div v-show="activeTab === 'ayuda'" class="animate-fade-in space-y-10">
+                        <div class="px-2">
+                             <h2 class="text-3xl font-black text-gray-900 tracking-tight">Centro de Ayuda</h2>
+                             <p class="text-gray-500 font-medium mt-2">Encuentre respuestas rápidas y recursos para sus servicios.</p>
+                        </div>
+
+                        <!-- Canales de Soporte Rápido -->
+                        <div class="grid sm:grid-cols-3 gap-6">
+                            <div class="bg-white p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 text-center group hover:border-[var(--color-primary)] transition-all">
+                                <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl group-hover:scale-110 transition-transform">
+                                    <font-awesome-icon :icon="['fab', 'whatsapp']" />
+                                </div>
+                                <h4 class="font-black text-gray-900 mb-2 font-mono">WhatsApp</h4>
+                                <p class="text-xs text-gray-500 font-medium mb-4">Atención inmediata para urgencias.</p>
+                                <a :href="'https://wa.me/' + (empresa?.telefono || '521234567890')" target="_blank" class="px-6 py-2 bg-emerald-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all">Abrir Chat</a>
+                            </div>
+
+                            <div class="bg-white p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 text-center group hover:border-[var(--color-primary)] transition-all">
+                                <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl group-hover:scale-110 transition-transform">
+                                    <font-awesome-icon icon="envelope" />
+                                </div>
+                                <h4 class="font-black text-gray-900 mb-2 font-mono">Email</h4>
+                                <p class="text-xs text-gray-500 font-medium mb-4">Consultas generales y seguimientos.</p>
+                                <a :href="'mailto:' + (empresa?.email || 'soporte@asistenciavircom.com')" class="px-6 py-2 bg-blue-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all">Enviar Correo</a>
+                            </div>
+
+                            <div class="bg-white p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 text-center group hover:border-[var(--color-primary)] transition-all">
+                                <div class="w-16 h-16 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl group-hover:scale-110 transition-transform">
+                                    <font-awesome-icon icon="file-pdf" />
+                                </div>
+                                <h4 class="font-black text-gray-900 mb-2 font-mono">Manuales</h4>
+                                <p class="text-xs text-gray-500 font-medium mb-4">Guías de configuración rápidas.</p>
+                                <button @click="$toast.info('Próximamente sección de descargas.')" class="px-6 py-2 bg-gray-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-800 transition-all">Ver Guías</button>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Section -->
+                        <div class="bg-white rounded-[3rem] p-10 shadow-2xl shadow-gray-200/50 border border-gray-50">
+                            <h3 class="text-2xl font-black text-gray-900 mb-10 text-center">Preguntas Frecuentes</h3>
+                            
+                            <div class="space-y-4 max-w-4xl mx-auto">
+                                <div v-for="faq in faqs" :key="faq.id" 
+                                     class="border border-gray-100 rounded-[2rem] overflow-hidden transition-all duration-300"
+                                     :class="activeFaq === faq.id ? 'border-[var(--color-primary)] shadow-lg' : 'hover:border-gray-200'">
+                                    
+                                    <button 
+                                        @click="toggleFaq(faq.id)"
+                                        class="w-full px-8 py-6 flex items-center justify-between text-left group"
+                                    >
+                                        <span class="font-bold text-gray-900 group-hover:text-[var(--color-primary)] transition-colors">{{ faq.pregunta }}</span>
+                                        <font-awesome-icon 
+                                            :icon="activeFaq === faq.id ? 'minus' : 'plus'" 
+                                            class="text-xs transition-transform duration-300"
+                                            :class="activeFaq === faq.id ? 'text-[var(--color-primary)]' : 'text-gray-300'"
+                                        />
+                                    </button>
+
+                                    <div v-show="activeFaq === faq.id" class="px-8 pb-8 animate-fade-in">
+                                        <div class="h-px bg-gray-50 mb-6"></div>
+                                        <p class="text-gray-600 font-medium leading-relaxed whitespace-pre-line text-sm">
+                                            {{ faq.respuesta }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div v-if="faqs.length === 0" class="text-center py-10">
+                                    <p class="text-gray-400 font-bold uppercase tracking-widest text-xs">No hay preguntas frecuentes registradas.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
