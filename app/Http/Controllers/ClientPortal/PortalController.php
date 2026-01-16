@@ -135,7 +135,7 @@ class PortalController extends Controller
         $validated = $request->validate([
             'titulo' => 'required|string|max:255',
             'descripcion' => 'required|string',
-            'categoria_id' => 'required|exists:ticket_categories,id',
+            'categoria_id' => 'nullable|exists:ticket_categories,id',
             'prioridad' => 'required|in:baja,media,alta,urgente',
         ]);
 
