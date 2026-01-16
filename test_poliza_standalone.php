@@ -13,6 +13,7 @@ try {
         if ($p->cliente) {
             echo "Cliente Relation: FOUND - " . $p->cliente->nombre_razon_social . "\n";
             echo "Cliente Object ID: " . $p->cliente->id . "\n";
+            print_r($p->cliente->toArray());
         } else {
             echo "Cliente Relation: NULL\n";
             $client = App\Models\Cliente::withTrashed()->find($p->cliente_id);

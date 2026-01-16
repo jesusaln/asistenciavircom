@@ -16,36 +16,28 @@ const props = defineProps({
 
 const isEditing = computed(() => !!props.poliza);
 const showHelpModal = ref(false);
+const clienteSeleccionado = ref(null);
 
 // Debug para desarrollo
 onMounted(() => {
     console.log('Edit Poliza Mounted');
-    console.log('Poliza:', props.poliza);
     console.log('Cliente from Prop:', props.clientePoliza);
-    console.log('Clientes list length:', props.clientes?.length);
-    console.log('Cliente Seleccionado:', clienteSeleccionado.value);
-});
-
-const clienteSeleccionado = computed(() => {
-    // Intentar buscar en la lista de clientes disponibles
-    const enLista = props.clientes.find(c => c.id == form.cliente_id);
-    if (enLista) return enLista;
-
-    // Fallback: Si no está en la lista pero lo pasamos explícitamente desde el controlador
-    if (props.clientePoliza && props.clientePoliza.id == form.cliente_id) {
-        return props.clientePoliza;
+    
+    // Inicializar cliente seleccionado
+    if (props.clientePoliza) {
+        clienteSeleccionado.value = props.clientePoliza;
+    } else if (props.poliza?.cliente) {
+        clienteSeleccionado.value = props.poliza.cliente;
+    } else if (form.cliente_id) {
+        clienteSeleccionado.value = props.clientes.find(c => c.id == form.cliente_id) || null;
     }
-
-    // Fallback heredado (por si acaso viene anidado)
-    if (props.poliza?.cliente && props.poliza.cliente.id == form.cliente_id) {
-        return props.poliza.cliente;
-    }
-
-    return null;
+    
+    console.log('Cliente Seleccionado Final:', clienteSeleccionado.value);
 });
 
 const handleClienteSeleccionado = (cliente) => {
     form.cliente_id = cliente ? cliente.id : '';
+    clienteSeleccionado.value = cliente;
 };
 
 const form = useForm({
