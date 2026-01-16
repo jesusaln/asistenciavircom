@@ -59,8 +59,6 @@ const caracteristicas = computed(() => {
 
 const formatPrice = (price) => {
     return new Intl.NumberFormat('es-MX', {
-        style: 'currency',
-        currency: 'MXN',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
     }).format(price);
@@ -169,14 +167,16 @@ const padZero = (num) => String(num).padStart(2, '0');
                     
                     <!-- Precios -->
                     <div class="flex items-center justify-center lg:justify-start gap-4 mb-2">
-                        <span class="text-gray-500 line-through text-lg">{{ formatPrice(precioOriginal) }}</span>
-                        <span class="text-3xl lg:text-4xl font-black text-white">{{ formatPrice(precioDescuento) }}</span>
-                        <span class="px-3 py-1 bg-green-500 text-white text-sm font-bold rounded-full animate-pulse">
-                            -{{ descuento }}%
+                        <span class="text-gray-500 line-through text-lg">${{ formatPrice(1249) }}</span>
+                        <div class="flex flex-col items-start leading-none">
+                            <span class="text-3xl lg:text-4xl font-black text-white">${{ formatPrice(999) }} <span class="text-lg font-bold text-gray-400">/ mes</span></span>
+                        </div>
+                        <span class="px-3 py-1 bg-[var(--color-primary)] text-white text-xs font-bold rounded-full animate-pulse shadow-lg shadow-[var(--color-primary)]/40">
+                            ¡Con Báscula!
                         </span>
                     </div>
                     <p class="text-green-400 text-sm font-semibold">
-                        ¡Ahorras {{ formatPrice(ahorro) }}!
+                        Ahorras $250 mensuales en tu renta
                     </p>
                 </div>
                 
