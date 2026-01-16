@@ -225,7 +225,7 @@ const planesCalculados = computed(() => {
         <PublicNavbar :empresa="empresaData" activeTab="inicio" />
 
         <!-- HERO SECTION -->
-        <section class="relative pt-32 pb-24 lg:pt-48 lg:pb-36 bg-gray-50 dark:bg-gray-900 overflow-hidden transition-colors duration-300">
+        <section class="relative pt-24 pb-24 lg:pt-36 lg:pb-36 bg-gray-50 dark:bg-gray-900 overflow-hidden transition-colors duration-300">
             <!-- Interactivte Background Elements -->
             <div class="absolute inset-0 z-0">
                 <!-- Light Mode BG -->
@@ -236,7 +236,6 @@ const planesCalculados = computed(() => {
                 <div class="absolute top-1/2 left-0 w-72 h-72 bg-[var(--color-secondary)] rounded-full blur-[100px] opacity-5 dark:opacity-10"></div>
                 
                 <!-- Floating geometric shapes -->
-                <div class="absolute top-20 left-10 w-24 h-24 border-2 border-[var(--color-primary-soft)] rounded-full animate-float opacity-20 dark:border-white/10"></div>
                 <div class="absolute bottom-20 right-1/4 w-32 h-32 border-2 border-[var(--color-secondary-soft)] rounded-3xl animate-float-delayed opacity-20 border-dashed dark:border-white/10"></div>
             </div>
             

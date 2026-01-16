@@ -119,8 +119,8 @@ const whatsappLink = computed(() => {
                 </div>
             </div>
             
-            <!-- Mapa de Ubicación - Ancho Completo -->
-            <div class="mb-12">
+            <!-- Mapa de Ubicación - Ancho Completo (Solo en Contacto) -->
+            <div v-if="route().current('public.contacto')" class="mb-12">
                 <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4">📍 Encuéntranos</h4>
                 <GoogleMapEmbed 
                     :empresa="empresaData"
