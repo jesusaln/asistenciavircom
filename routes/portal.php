@@ -36,6 +36,8 @@ Route::prefix('portal')->group(function () {
         Route::post('/tickets/{ticket}/comentarios', [PortalController::class, 'storeComment'])->name('portal.tickets.comments.store');
 
         // Pólizas (Cliente)
+        Route::get('/polizas', [PortalController::class, 'polizasIndex'])->name('portal.polizas.index');
+        Route::get('/polizas/{poliza}', [PortalController::class, 'polizaShow'])->name('portal.polizas.show');
         Route::get('/polizas/{poliza}/imprimir', [PortalController::class, 'imprimirContrato'])->name('portal.polizas.imprimir');
 
         // Credenciales (Cliente)

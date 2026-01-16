@@ -303,7 +303,9 @@ const getStatusClasses = (estado) => {
                                         <a :href="route('portal.polizas.imprimir', poliza.id)" target="_blank" class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-[var(--color-primary)] hover:underline flex items-center gap-1">
                                             <font-awesome-icon icon="file-pdf" /> Contrato
                                         </a>
-                                        <!-- <button class="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--color-primary)] hover:underline">Detalles</button> -->
+                                        <Link :href="route('portal.polizas.show', poliza.id)" class="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--color-primary)] hover:underline flex items-center gap-2">
+                                            <font-awesome-icon icon="eye" /> Detalles
+                                        </Link>
                                     </div>
                                 </div>
                             </div>

@@ -169,6 +169,49 @@ class PortalController extends Controller
         return back();
     }
 
+    public function polizasIndex()
+    {
+        $cliente = Auth::guard('client')->user();
+        $polizas = PolizaServicio::where('cliente_id', $cliente->id)
+            ->where('estado', '!=', 'cancelada')
+            ->with(['equipos'])
+            ->orderByDesc('created_at')
+            ->get() // Usamos get para enviar todas, o paginate si son muchas
+            ->each(function ($poliza) {
+                $poliza->append(['dias_para_vencer']);
+            });
+
+        return Inertia::render('Portal/Polizas/Index', [
+            'polizas' => $polizas,
+            'empresa' => $this->getEmpresaBranding(),
+        ]);
+    }
+
+    public function polizaShow(PolizaServicio $poliza)
+    {
+        if ($poliza->cliente_id !== Auth::guard('client')->id()) {
+            abort(403);
+        }
+
+        $poliza->load([
+            'equipos',
+            'servicios',
+            'tickets' => function ($q) {
+                $q->orderByDesc('created_at')->limit(10);
+            },
+            'cuentasPorCobrar' => function ($q) {
+                $q->orderByDesc('created_at')->limit(12);
+            }
+        ]);
+
+        $poliza->append(['porcentaje_horas', 'porcentaje_tickets', 'dias_para_vencer', 'excede_horas', 'tickets_mes_actual_count']);
+
+        return Inertia::render('Portal/Polizas/Show', [
+            'poliza' => $poliza,
+            'empresa' => $this->getEmpresaBranding(),
+        ]);
+    }
+
     public function imprimirContrato(PolizaServicio $poliza)
     {
         // Verificar que la póliza pertenezca al cliente logueado
