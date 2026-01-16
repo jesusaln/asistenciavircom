@@ -175,6 +175,27 @@ const getFaIcon = (plan) => {
     return iconos[plan.tipo] || 'shield-halved';
 };
 
+// Procesar planes para asegurar cálculo de descuento del 15%
+const planesCalculados = computed(() => {
+    return (props.planes || []).map(plan => {
+        if (parseFloat(plan.precio_mensual) > 0) {
+             const mensual = parseFloat(plan.precio_mensual);
+             const anualSinDescuento = mensual * 12;
+             const descuento = 0.15; // 15% solicitado
+             const precioAnual = anualSinDescuento * (1 - descuento);
+             const ahorro = anualSinDescuento - precioAnual;
+             
+             return {
+                 ...plan,
+                 precio_mensual: mensual,
+                 precio_anual: precioAnual,
+                 ahorro_anual: ahorro
+             };
+        }
+        return plan;
+    });
+});
+
 </script>
 
 <template>
@@ -427,12 +448,12 @@ const getFaIcon = (plan) => {
                         <div :class="billingCycle === 'yearly' ? 'translate-x-6 bg-[var(--color-primary)]' : 'translate-x-0 bg-gray-400'" class="w-6 h-6 rounded-full transition-all duration-300 shadow-sm"></div>
                     </button>
                     <span :class="billingCycle === 'yearly' ? 'text-[var(--color-primary)] font-bold' : 'text-gray-400'" class="text-sm flex items-center gap-2">
-                        Anual <span class="px-2 py-0.5 bg-green-100 text-green-600 rounded-full text-[10px] font-black uppercase">-20%</span>
+                        Anual <span class="px-2 py-0.5 bg-green-100 text-green-600 rounded-full text-[10px] font-black uppercase">-15%</span>
                     </span>
                 </div>
 
                 <div class="grid md:grid-cols-3 gap-8">
-                    <div v-for="plan in planes" :key="plan.id" :class="plan.destacado ? 'ring-4 ring-[var(--color-primary-soft)] lg:-translate-y-4' : 'border-gray-100'" class="relative bg-white p-10 rounded-[3rem] border shadow-xl shadow-gray-100/50 flex flex-col group hover:shadow-2xl transition-all duration-500">
+                    <div v-for="plan in planesCalculados" :key="plan.id" :class="plan.destacado ? 'ring-4 ring-[var(--color-primary-soft)] lg:-translate-y-4' : 'border-gray-100'" class="relative bg-white p-10 rounded-[3rem] border shadow-xl shadow-gray-100/50 flex flex-col group hover:shadow-2xl transition-all duration-500">
                         <div v-if="plan.destacado" class="absolute -top-5 left-1/2 -translate-x-1/2 bg-[var(--color-primary)] text-white px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest shadow-xl">Más Popular</div>
                         
                         <div class="mb-10 text-center">
