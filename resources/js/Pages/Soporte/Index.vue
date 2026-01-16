@@ -117,8 +117,8 @@ const getSlaStatusClass = (status) => {
                         <div class="text-sm text-gray-500">SLA Vencido</div>
                     </div>
                     <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-green-500">
-                        <div class="text-2xl font-bold text-gray-900">{{ stats.resueltos_hoy }}</div>
-                        <div class="text-sm text-gray-500">Resueltos Hoy</div>
+                        <div class="text-2xl font-bold text-gray-900">{{ stats.completados_hoy }}</div>
+                        <div class="text-sm text-gray-500">Completados Hoy</div>
                     </div>
                     <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-gray-400 cursor-pointer hover:bg-gray-50 transition" @click="filtros.incluir_cerrados = !filtros.incluir_cerrados; aplicarFiltros()">
                         <div class="text-2xl font-bold text-gray-600">{{ stats.cerrados }}</div>
