@@ -378,17 +378,21 @@ class TicketController extends Controller
     {
         $validated = $request->validate([
             'estado' => 'required|in:abierto,en_progreso,pendiente,resuelto,cerrado',
-            'horas_trabajadas' => 'nullable|numeric|min:0|max:999',
+            'horas_trabajadas' => 'nullable|numeric|min:0.25|max:999',
+            'servicio_inicio_at' => 'nullable|date',
+            'servicio_fin_at' => 'nullable|date|after:servicio_inicio_at',
         ]);
 
         // Si se está resolviendo o cerrando y hay horas trabajadas
         if (in_array($validated['estado'], ['resuelto', 'cerrado']) && isset($validated['horas_trabajadas'])) {
             $horas = (float) $validated['horas_trabajadas'];
+            $inicio = $validated['servicio_inicio_at'] ?? null;
+            $fin = $validated['servicio_fin_at'] ?? null;
 
             if ($validated['estado'] === 'resuelto') {
-                $ticket->marcarComoResuelto($horas);
+                $ticket->marcarComoResuelto($horas, $inicio, $fin);
             } else {
-                $ticket->cerrar($horas);
+                $ticket->cerrar($horas, $inicio, $fin);
             }
         } else {
             $ticket->cambiarEstado($validated['estado']);

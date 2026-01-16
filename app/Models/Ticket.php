@@ -40,6 +40,8 @@ class Ticket extends Model implements Auditable
         'notas_internas',
         'archivos',
         'horas_trabajadas', // Phase 2
+        'servicio_inicio_at',
+        'servicio_fin_at',
     ];
 
     protected $casts = [
@@ -47,9 +49,20 @@ class Ticket extends Model implements Auditable
         'primera_respuesta_at' => 'datetime',
         'resuelto_at' => 'datetime',
         'cerrado_at' => 'datetime',
+        'servicio_inicio_at' => 'datetime',
+        'servicio_fin_at' => 'datetime',
         'archivos' => 'array',
         'horas_trabajadas' => 'decimal:2',
     ];
+
+    // Accessors
+    public function getDuracionServicioAttribute(): ?float
+    {
+        if ($this->servicio_inicio_at && $this->servicio_fin_at) {
+            return round($this->servicio_inicio_at->diffInMinutes($this->servicio_fin_at) / 60, 2);
+        }
+        return null;
+    }
 
     protected $appends = ['sla_status', 'tiempo_abierto', 'is_vip'];
 
@@ -218,7 +231,7 @@ class Ticket extends Model implements Auditable
     }
 
     // Métodos
-    public function marcarComoResuelto(?float $horasTrabajadas = null): void
+    public function marcarComoResuelto(?float $horasTrabajadas = null, ?string $inicio = null, ?string $fin = null): void
     {
         $horasAnteriores = $this->horas_trabajadas;
 
@@ -231,6 +244,11 @@ class Ticket extends Model implements Auditable
             $datosUpdate['horas_trabajadas'] = $horasTrabajadas;
         }
 
+        if ($inicio)
+            $datosUpdate['servicio_inicio_at'] = $inicio;
+        if ($fin)
+            $datosUpdate['servicio_fin_at'] = $fin;
+
         $this->update($datosUpdate);
 
         // Solo registrar consumo si se agregaron nuevas horas (no existían antes)
@@ -239,7 +257,7 @@ class Ticket extends Model implements Auditable
         }
     }
 
-    public function cerrar(?float $horasTrabajadas = null): void
+    public function cerrar(?float $horasTrabajadas = null, ?string $inicio = null, ?string $fin = null): void
     {
         $horasAnteriores = $this->horas_trabajadas;
 
@@ -251,6 +269,11 @@ class Ticket extends Model implements Auditable
         if ($horasTrabajadas !== null) {
             $datosUpdate['horas_trabajadas'] = $horasTrabajadas;
         }
+
+        if ($inicio)
+            $datosUpdate['servicio_inicio_at'] = $inicio;
+        if ($fin)
+            $datosUpdate['servicio_fin_at'] = $fin;
 
         $this->update($datosUpdate);
 

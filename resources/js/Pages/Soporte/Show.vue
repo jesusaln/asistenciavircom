@@ -29,6 +29,22 @@ const agregarComentario = () => {
 const showHorasModal = ref(false);
 const estadoPendiente = ref('');
 const horasTrabajadas = ref('');
+const servicioInicio = ref('');
+const servicioFin = ref('');
+
+import { watch } from 'vue';
+import {  differenceInMinutes, parseISO } from 'date-fns';
+
+watch([servicioInicio, servicioFin], ([inicio, fin]) => {
+    if (inicio && fin) {
+        const d1 = new Date(inicio);
+        const d2 = new Date(fin);
+        if (d2 > d1) {
+            const diffMinutes = (d2 - d1) / (1000 * 60);
+            horasTrabajadas.value = (diffMinutes / 60).toFixed(2);
+        }
+    }
+});
 
 const cambiarEstado = (nuevoEstado) => {
     // SIEMPRE pedir horas al resolver o cerrar para llevar registro de horas-hombre
@@ -42,25 +58,31 @@ const cambiarEstado = (nuevoEstado) => {
 
 const confirmarConsumoHoras = () => {
     const horas = horasTrabajadas.value ? parseFloat(horasTrabajadas.value) : null;
-    enviarCambioEstado(estadoPendiente.value, horas);
+    enviarCambioEstado(estadoPendiente.value, horas, servicioInicio.value, servicioFin.value);
+    
+    // Reset y cerrar
     showHorasModal.value = false;
     horasTrabajadas.value = '';
+    servicioInicio.value = '';
+    servicioFin.value = '';
     estadoPendiente.value = '';
 };
 
 const cancelarConsumoHoras = () => {
-    // Permitir cerrar sin registrar horas
-    enviarCambioEstado(estadoPendiente.value, null);
+    // Cancelar la operación de cambio de estado
     showHorasModal.value = false;
     horasTrabajadas.value = '';
+    servicioInicio.value = '';
+    servicioFin.value = '';
     estadoPendiente.value = '';
 };
 
-const enviarCambioEstado = (estado, horas) => {
+const enviarCambioEstado = (estado, horas, inicio = null, fin = null) => {
     const datos = { estado };
-    if (horas !== null) {
-        datos.horas_trabajadas = horas;
-    }
+    if (horas !== null) datos.horas_trabajadas = horas;
+    if (inicio) datos.servicio_inicio_at = inicio;
+    if (fin) datos.servicio_fin_at = fin;
+    
     router.post(route('soporte.cambiar-estado', props.ticket.id), datos, { preserveScroll: true });
 };
 
@@ -328,8 +350,16 @@ const formatDate = (date) => {
                                     <dt class="text-gray-500">Resuelto</dt>
                                     <dd class="text-green-600">{{ formatDate(ticket.resuelto_at) }}</dd>
                                 </div>
+                                <div v-if="ticket.servicio_inicio_at" class="flex justify-between">
+                                    <dt class="text-gray-500">Inicio Servicio</dt>
+                                    <dd class="text-gray-900">{{ formatDate(ticket.servicio_inicio_at) }}</dd>
+                                </div>
+                                <div v-if="ticket.servicio_fin_at" class="flex justify-between">
+                                    <dt class="text-gray-500">Fin Servicio</dt>
+                                    <dd class="text-gray-900">{{ formatDate(ticket.servicio_fin_at) }}</dd>
+                                </div>
                                 <div v-if="ticket.horas_trabajadas" class="flex justify-between bg-blue-50 -mx-2 px-2 py-1 rounded">
-                                    <dt class="text-blue-600 font-semibold">⏱️ Horas Trabajadas</dt>
+                                    <dt class="text-blue-600 font-semibold">⏱️ Duración Total</dt>
                                     <dd class="text-blue-800 font-bold">{{ ticket.horas_trabajadas }} hrs</dd>
                                 </div>
                             </dl>
@@ -438,8 +468,20 @@ const formatDate = (date) => {
                             </p>
                         </div>
 
-                        <div class="mb-6">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Horas Trabajadas <span class="text-red-500">*</span></label>
+                        <div class="mb-6 space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Inicio Servicio</label>
+                                    <input v-model="servicioInicio" type="datetime-local" class="w-full border-gray-300 rounded-lg focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Fin Servicio</label>
+                                    <input v-model="servicioFin" type="datetime-local" class="w-full border-gray-300 rounded-lg focus:ring-blue-500">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Horas Trabajadas <span class="text-red-500">*</span></label>
                             <div class="relative">
                                 <input 
                                     v-model="horasTrabajadas" 
@@ -459,10 +501,11 @@ const formatDate = (date) => {
                                 ⚠️ Este campo es obligatorio para llevar el registro de horas-hombre
                             </p>
                         </div>
+                    </div>
 
                         <div class="flex gap-3">
                             <button 
-                                @click="showHorasModal = false; estadoPendiente = ''; horasTrabajadas = '';" 
+                                @click="cancelarConsumoHoras" 
                                 class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition"
                             >
                                 Cancelar
