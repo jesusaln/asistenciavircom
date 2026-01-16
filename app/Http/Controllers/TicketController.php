@@ -103,7 +103,10 @@ class TicketController extends Controller
             'abiertos' => Ticket::whereIn('estado', ['abierto', 'en_progreso', 'pendiente'])->count(),
             'sin_asignar' => Ticket::abiertos()->whereNull('asignado_id')->count(),
             'vencidos' => Ticket::vencidos()->count(),
-            'completados_hoy' => 0, // Temporalmente deshabilitado por error 500
+            'completados_hoy' => Ticket::where(function ($q) {
+                $q->whereDate('resuelto_at', date('Y-m-d'))
+                    ->orWhereDate('cerrado_at', date('Y-m-d'));
+            })->count(),
             'cerrados' => Ticket::where('estado', 'cerrado')->count(),
         ];
 
