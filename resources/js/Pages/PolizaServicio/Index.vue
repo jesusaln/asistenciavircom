@@ -47,26 +47,17 @@ const abrirDetalle = async (id) => {
     loading.value = true;
     showModal.value = true;
     try {
-        const response = await axios.get(route('polizas-servicio.show', id), {
-            headers: { 'X-Inertia-Partial-Data': 'poliza,stats' }
-        });
-        // Si el controlador devuelve un render de Inertia, axios obtendrá el JSON si enviamos los headers correctos
-        // Pero el controlador de Show de Laravel devuelve Inertia::render.
-        // Una mejor forma es llamar a una ruta que devuelva JSON o usar local data si ya la tenemos.
-        // Pero Show tiene data extra (tickets, stats, etc).
-        
-        // Vamos a usar Inertia.visit con preventScroll y preserveState para cargar la data en props extra?
-        // No, mejor una petición normal de axios para obtener la data del show.
-        
-        // Reintentamos con una petición simple si el controlador lo permite o creamos una ruta API.
-        // Por ahora, asumimos que obtendremos el HTML si no tenemos cuidado.
-        // En Laravel, si pides JSON a una ruta de Inertia, te devuelve el JSON de los props.
+        // Usar Inertia headers para obtener los props como JSON
         const res = await axios.get(route('polizas-servicio.show', id), {
-            headers: { 'X-Inertia': true, 'X-Inertia-Version': router.page.version }
+            headers: { 
+                'X-Inertia': 'true',
+                'Accept': 'application/json'
+            }
         });
-        selectedPoliza.value = res.data.props;
+        selectedPoliza.value = res.data.props || res.data;
     } catch (error) {
         console.error("Error al cargar detalle:", error);
+        showModal.value = false;
     } finally {
         loading.value = false;
     }
@@ -168,12 +159,12 @@ const cerrarModal = () => {
                                     </td>
                                     <td class="px-4 py-4 text-right">
                                         <div class="flex justify-end gap-2">
-                                            <button @click="abrirDetalle(poliza.id)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Ver detalle">
+                                            <Link :href="route('polizas-servicio.show', poliza.id)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Ver detalle">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
-                                            </button>
+                                            </Link>
                                             <Link :href="route('polizas-servicio.edit', poliza.id)" class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Editar">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
