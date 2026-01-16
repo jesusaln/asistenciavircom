@@ -209,6 +209,7 @@ const helpSections = [
                                     <div class="md:col-span-1">
                                         <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Estado de Póliza</label>
                                         <select v-model="form.estado" class="w-full border-gray-200 rounded-xl h-12 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold">
+                                            <option value="pendiente_pago">Pendiente de Pago 💳</option>
                                             <option value="activa">Activa ✅</option>
                                             <option value="inactiva">Inactiva ⏳</option>
                                             <option value="vencida">Vencida 🛑</option>

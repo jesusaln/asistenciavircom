@@ -127,9 +127,9 @@ class PolizaServicioController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(PolizaServicio $polizaServicio)
+    public function show(PolizaServicio $polizas_servicio)
     {
-        $polizaServicio->load([
+        $polizas_servicio->load([
             'cliente',
             'servicios',
             'equipos',
@@ -143,7 +143,7 @@ class PolizaServicioController extends Controller
         ]);
 
         // Agregar atributos calculados explícitamente
-        $polizaServicio->append([
+        $polizas_servicio->append([
             'porcentaje_horas',
             'porcentaje_tickets',
             'dias_para_vencer',
@@ -151,10 +151,10 @@ class PolizaServicioController extends Controller
         ]);
 
         return Inertia::render('PolizaServicio/Show', [
-            'poliza' => $polizaServicio,
+            'poliza' => $polizas_servicio,
             'stats' => [
-                'tickets_mes' => $polizaServicio->tickets_mes_actual_count,
-                'excede_limite' => $polizaServicio->excede_limite,
+                'tickets_mes' => $polizas_servicio->tickets_mes_actual_count,
+                'excede_limite' => $polizas_servicio->excede_limite,
             ]
         ]);
     }
@@ -162,40 +162,40 @@ class PolizaServicioController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(PolizaServicio $polizaServicio)
+    public function edit(PolizaServicio $polizas_servicio)
     {
-        $polizaServicio->load(['servicios', 'credenciales', 'cliente']);
+        $polizas_servicio->load(['servicios', 'credenciales', 'cliente']);
 
         \Illuminate\Support\Facades\Log::info('DEBUG POLIZA EDIT', [
-            'poliza_id' => $polizaServicio->id,
-            'cliente_id_poliza' => $polizaServicio->cliente_id,
-            'cliente_cargado' => $polizaServicio->cliente ? 'SI' : 'NO',
-            'cliente_data' => $polizaServicio->cliente
+            'poliza_id' => $polizas_servicio->id,
+            'cliente_id_poliza' => $polizas_servicio->cliente_id,
+            'cliente_cargado' => $polizas_servicio->cliente ? 'SI' : 'NO',
+            'cliente_data' => $polizas_servicio->cliente
         ]);
 
         // Aseguramos que el cliente de la póliza esté en la lista, incluso si está inactivo
-        $clientesList = Cliente::where('id', $polizaServicio->cliente_id)
+        $clientesList = Cliente::where('id', $polizas_servicio->cliente_id)
             ->orWhere('activo', true)
             ->get(['id', 'nombre_razon_social', 'email', 'telefono', 'rfc']);
 
         \Illuminate\Support\Facades\Log::info('Enviando a Edit Poliza:', [
-            'poliza_id' => $polizaServicio->id,
-            'cliente_id' => $polizaServicio->cliente_id,
-            'cliente_data' => $polizaServicio->cliente ? $polizaServicio->cliente->toArray() : 'NULL'
+            'poliza_id' => $polizas_servicio->id,
+            'cliente_id' => $polizas_servicio->cliente_id,
+            'cliente_data' => $polizas_servicio->cliente ? $polizas_servicio->cliente->toArray() : 'NULL'
         ]);
 
         return Inertia::render('PolizaServicio/Edit', [
             'clientes' => $clientesList,
             'servicios' => Servicio::select('id', 'nombre', 'precio')->active()->get(),
-            'poliza' => $polizaServicio,
-            'clientePoliza' => $polizaServicio->cliente ? $polizaServicio->cliente->toArray() : null,
+            'poliza' => $polizas_servicio,
+            'clientePoliza' => $polizas_servicio->cliente ? $polizas_servicio->cliente->toArray() : null,
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, PolizaServicio $polizaServicio)
+    public function update(Request $request, PolizaServicio $polizas_servicio)
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
@@ -220,7 +220,7 @@ class PolizaServicioController extends Controller
             $condiciones = $request->condiciones_especiales ?? [];
             $condiciones['equipos_cliente'] = $request->equipos_cliente ?? [];
 
-            $polizaServicio->update(array_merge($request->only([
+            $polizas_servicio->update(array_merge($request->only([
                 'nombre',
                 'descripcion',
                 'fecha_inicio',
@@ -251,11 +251,11 @@ class PolizaServicioController extends Controller
                         'precio_especial' => $item['precio_especial'] ?? null,
                     ];
                 }
-                $polizaServicio->servicios()->sync($syncData);
+                $polizas_servicio->servicios()->sync($syncData);
             }
 
             if ($request->has('equipos')) {
-                $polizaServicio->equipos()->sync($request->equipos);
+                $polizas_servicio->equipos()->sync($request->equipos);
             }
 
             DB::commit();
@@ -269,9 +269,9 @@ class PolizaServicioController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PolizaServicio $polizaServicio)
+    public function destroy(PolizaServicio $polizas_servicio)
     {
-        $polizaServicio->delete();
+        $polizas_servicio->delete();
         return redirect()->route('polizas-servicio.index')->with('success', 'Póliza eliminada correctamente.');
     }
 
@@ -422,9 +422,9 @@ class PolizaServicioController extends Controller
     /**
      * Historial de consumo de una póliza específica (Phase 3)
      */
-    public function historialConsumo(PolizaServicio $polizaServicio)
+    public function historialConsumo(PolizaServicio $polizas_servicio)
     {
-        $polizaServicio->load([
+        $polizas_servicio->load([
             'cliente',
             'tickets' => function ($q) {
                 $q->whereNotNull('horas_trabajadas')
@@ -434,7 +434,7 @@ class PolizaServicioController extends Controller
         ]);
 
         // Agrupar consumo por mes
-        $consumoPorMes = $polizaServicio->tickets()
+        $consumoPorMes = $polizas_servicio->tickets()
             ->whereNotNull('horas_trabajadas')
             ->selectRaw("DATE_TRUNC('month', created_at) as mes, SUM(horas_trabajadas) as total_horas, COUNT(*) as total_tickets")
             ->groupByRaw("DATE_TRUNC('month', created_at)")
@@ -443,7 +443,7 @@ class PolizaServicioController extends Controller
             ->get();
 
         // Tickets recientes con horas
-        $ticketsConHoras = $polizaServicio->tickets()
+        $ticketsConHoras = $polizas_servicio->tickets()
             ->whereNotNull('horas_trabajadas')
             ->with('asignado')
             ->orderByDesc('created_at')
@@ -460,7 +460,7 @@ class PolizaServicioController extends Controller
             ]);
 
         return Inertia::render('PolizaServicio/HistorialConsumo', [
-            'poliza' => $polizaServicio,
+            'poliza' => $polizas_servicio,
             'consumoPorMes' => $consumoPorMes,
             'ticketsConHoras' => $ticketsConHoras,
         ]);
@@ -496,18 +496,18 @@ class PolizaServicioController extends Controller
     /**
      * Generar cobro manual para una póliza
      */
-    public function generarCobro(PolizaServicio $polizaServicio)
+    public function generarCobro(PolizaServicio $polizas_servicio)
     {
         try {
-            $monto = $polizaServicio->monto_mensual;
+            $monto = $polizas_servicio->monto_mensual;
             $iva = round($monto * 0.16, 2);
 
             $cobro = \App\Models\CuentasPorCobrar::create([
-                'empresa_id' => $polizaServicio->empresa_id,
-                'cliente_id' => $polizaServicio->cliente_id,
+                'empresa_id' => $polizas_servicio->empresa_id,
+                'cliente_id' => $polizas_servicio->cliente_id,
                 'cobrable_type' => PolizaServicio::class,
-                'cobrable_id' => $polizaServicio->id,
-                'concepto' => "Mensualidad Póliza {$polizaServicio->folio}",
+                'cobrable_id' => $polizas_servicio->id,
+                'concepto' => "Mensualidad Póliza {$polizas_servicio->folio}",
                 'monto_subtotal' => $monto,
                 'monto_iva' => $iva,
                 'monto_total' => $monto + $iva,
@@ -516,7 +516,7 @@ class PolizaServicioController extends Controller
                 'notas' => "Cobro generado manualmente el " . Carbon::now()->format('d/m/Y'),
             ]);
 
-            $polizaServicio->update(['ultimo_cobro_generado_at' => now()]);
+            $polizas_servicio->update(['ultimo_cobro_generado_at' => now()]);
 
             return back()->with('success', "Cobro generado correctamente por " . number_format((float) $cobro->monto_total, 2) . " MXN");
         } catch (\Exception $e) {
@@ -527,15 +527,15 @@ class PolizaServicioController extends Controller
     /**
      * Enviar recordatorio de renovación al cliente
      */
-    public function enviarRecordatorioRenovacion(PolizaServicio $polizaServicio)
+    public function enviarRecordatorioRenovacion(PolizaServicio $polizas_servicio)
     {
         try {
-            $cliente = $polizaServicio->cliente;
+            $cliente = $polizas_servicio->cliente;
             if (!$cliente || !$cliente->email) {
                 return back()->with('error', 'El cliente no tiene email configurado');
             }
 
-            $cliente->notify(new \App\Notifications\PolizaRenovacionNotification($polizaServicio));
+            $cliente->notify(new \App\Notifications\PolizaRenovacionNotification($polizas_servicio));
 
             return back()->with('success', 'Recordatorio de renovación enviado a ' . $cliente->email);
         } catch (\Exception $e) {

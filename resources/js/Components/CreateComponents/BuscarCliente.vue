@@ -241,12 +241,7 @@
       <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
       </svg>
-      <p class="text-gray-500 text-lg font-medium">
-          {{ mensajeVacio }}
-          <span class="text-xs text-red-400 block mt-1" v-if="true">
-              Debug: CS={{ clienteSeleccionado ? JSON.stringify(clienteSeleccionado).substring(0,50)+'...' : 'NULL' }}
-          </span>
-      </p>
+      <p class="text-gray-500 text-lg font-medium">{{ mensajeVacio }}</p>
       <p class="text-gray-400 text-sm mt-1">{{ submensajeVacio }}</p>
 
       <!-- Botón de acción rápida -->
