@@ -438,7 +438,7 @@ class ClienteController extends Controller
     {
         try {
             // Optimizar carga de relaciones - solo cargar las necesarias para mostrar
-            $cliente->load(['regimen', 'uso', 'estadoSat', 'credenciales']);
+            $cliente->load(['regimen', 'uso', 'estadoSat', 'credenciales', 'documentos']);
             $cliente->loadCount(['cotizaciones', 'ventas', 'pedidos', 'facturas', 'tickets', 'citas', 'polizas']);
             $cliente = $this->formatClienteForView($cliente);
             // Append expensive attributes only here
@@ -500,7 +500,7 @@ class ClienteController extends Controller
     {
         try {
             // Optimizar carga de relaciones - solo cargar las necesarias para editar
-            $cliente->load(['regimen', 'uso', 'estadoSat']);
+            $cliente->load(['regimen', 'uso', 'estadoSat', 'documentos']);
             $cliente = $this->formatClienteForView($cliente);
             $cliente->append(['saldo_pendiente', 'credito_disponible']);
 

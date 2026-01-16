@@ -78,6 +78,9 @@ class ContratacionPolizaController extends Controller
                 'pais' => $cliente->pais ?? 'MX',
                 'email' => $cliente->email,
                 'telefono' => $cliente->telefono,
+                'credito_activo' => $cliente->credito_activo,
+                'credito_disponible' => $cliente->credito_disponible,
+                'estado_credito' => $cliente->estado_credito,
             ];
         }
         // 2. Fallback para Staff
@@ -174,7 +177,7 @@ class ContratacionPolizaController extends Controller
             'estado' => 'required|string|size:3',
             'pais' => 'required|string|max:10',
 
-            'metodo_pago' => 'required|in:paypal,mercadopago,tarjeta',
+            'metodo_pago' => 'required|in:paypal,mercadopago,tarjeta,credito',
             'periodo' => 'required|in:mensual,anual',
             'password' => auth('client')->check() ? 'nullable|confirmed' : 'required|string|min:8|confirmed',
             'aceptar_terminos' => 'accepted',

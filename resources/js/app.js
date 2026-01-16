@@ -21,7 +21,7 @@ import {
   faMoneyCheckAlt, faHandHoldingUsd, faTags, faTag,
   faUndo, faCamera, faImages, faImage, faBarcode, faQrcode,
   faTrashAlt, faBan, faArrowUp, faArrowDown, faSync,
-  faFileContract, faSignature, faFileInvoice, faCoins,
+  faFileContract, faSignature, faFileInvoice, faCoins, faFileImage,
   faWallet, faCreditCard, faUniversity, faUserTie,
   faBuilding, faMapMarkerAlt, faPhone, faEnvelope, faGlobe,     // New icons
   faPalette, faComments, faShieldAlt, faKey,
@@ -57,7 +57,7 @@ library.add(
   faMoneyCheckAlt, faHandHoldingUsd, faTags, faTag,
   faUndo, faCamera, faImages, faImage, faBarcode, faQrcode,
   faTrashAlt, faBan, faArrowUp, faArrowDown, faSync,
-  faFileContract, faSignature, faFileInvoice, faCoins,
+  faFileContract, faSignature, faFileInvoice, faCoins, faFileImage,
   faWallet, faCreditCard, faUniversity, faUserTie,
   faBuilding, faMapMarkerAlt, faPhone, faEnvelope, faGlobe,     // New icons
   faPalette, faComments, faShieldAlt, faKey,

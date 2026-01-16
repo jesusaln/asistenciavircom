@@ -59,6 +59,11 @@ Route::prefix('pago/poliza')->name('pago.poliza.')->group(function () {
         ->name('stripe.webhook')->withoutMiddleware([\App\Http\Middleware\CustomVerifyCsrfToken::class, \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
 
     Route::get('/pasarelas', [PolizaPaymentController::class, 'getAvailableGateways'])->name('pasarelas');
+
+    // Crédito
+    Route::post('/credito/pagar', [PolizaPaymentController::class, 'payWithCredit'])
+        ->middleware('auth:client')
+        ->name('credito.pagar');
 });
 
 // Resultados de Pago Pólizas

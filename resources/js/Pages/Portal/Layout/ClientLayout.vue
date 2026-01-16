@@ -59,6 +59,17 @@ const cssVars = computed(() => ({
                     >
                         Solicitar Soporte
                     </Link>
+                    <Link 
+                        :href="route('portal.credito.index')" 
+                        :class="[
+                            'text-sm font-bold uppercase tracking-widest pb-5 mt-5 transition-all outline-none',
+                            $page.component === 'Portal/Credito/Index' 
+                                ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' 
+                                : 'text-gray-400 hover:text-gray-600'
+                        ]"
+                    >
+                        Línea de Crédito
+                    </Link>
                 </div>
 
                 <div class="hidden sm:flex items-center gap-3 bg-[var(--color-primary-soft)] px-4 py-2 rounded-xl">

@@ -159,7 +159,7 @@ class CheckoutController extends Controller
             'items' => 'required|array|min:1',
             'items.*.producto_id' => 'required',
             'items.*.cantidad' => 'required|integer|min:1',
-            'metodo_pago' => 'required|in:mercadopago,paypal,transferencia,efectivo',
+            'metodo_pago' => 'required|in:mercadopago,paypal,transferencia,efectivo,credito',
             'notas' => 'nullable|string|max:500',
         ]);
 
@@ -318,6 +318,20 @@ class CheckoutController extends Controller
 
             $total = $subtotal + $costoEnvio;
 
+            // VALIDACIÓN DE CRÉDITO
+            if ($validated['metodo_pago'] === 'credito') {
+                $clienteUser = Auth::guard('client')->user();
+                if (!$clienteUser) {
+                    throw new \Exception("Debe iniciar sesión en su cuenta de cliente para usar su línea de crédito.");
+                }
+                if (!$clienteUser->credito_activo || $clienteUser->estado_credito !== 'autorizado') {
+                    throw new \Exception("Su línea de crédito no está activa o autorizada.");
+                }
+                if ($clienteUser->credito_disponible < $total) {
+                    throw new \Exception("Saldo insuficiente en su línea de crédito. Disponible: $" . number_format($clienteUser->credito_disponible, 2));
+                }
+            }
+
             // Crear pedido
             $cliente = $this->getClienteFromSession();
             $clienteTiendaId = null;
@@ -383,7 +397,7 @@ class CheckoutController extends Controller
 
             // SOLO ENVIAR A CVA si el método es Transferencia/Efectivo
             // Para pagos ONLINE (PayPal/MP), esperaremos al WEBHOOK para confirmar y disparar la orden
-            $isManualPayment = in_array($validated['metodo_pago'], ['transferencia', 'efectivo']);
+            $isManualPayment = in_array($validated['metodo_pago'], ['transferencia', 'efectivo', 'credito']);
 
             if (!empty($itemsCVA) && $isManualPayment) {
                 try {
@@ -498,6 +512,11 @@ class CheckoutController extends Controller
                 ],
                 'iniciales' => mb_substr($cliente->nombre_razon_social, 0, 1),
                 'tipo' => 'portal',
+                'credito_activo' => $cliente->credito_activo,
+                'limite_credito' => $cliente->limite_credito,
+                'credito_disponible' => $cliente->credito_disponible,
+                'estado_credito' => $cliente->estado_credito,
+                'dias_credito' => $cliente->dias_credito,
             ];
         }
 

@@ -217,6 +217,8 @@ const ejecutarPasarelaPago = async (polizaId, metodo) => {
             await iniciarMercadoPago(polizaId);
         } else if (metodo === 'tarjeta') {
             await iniciarStripe(polizaId);
+        } else if (metodo === 'credito') {
+            await iniciarCredito(polizaId);
         }
     } catch (error) {
         console.error('Error en pasarela:', error);
@@ -303,6 +305,30 @@ const iniciarStripe = async (polizaId) => {
         window.location.href = data.checkout_url;
     } else {
         throw new Error('Stripe no devolvió una URL de checkout. Verifica las credenciales de Stripe.');
+    }
+};
+
+const iniciarCredito = async (polizaId) => {
+    const response = await fetch(route('pago.poliza.credito.pagar'), {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json', 
+            'X-CSRF-TOKEN': getCsrfToken(),
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ poliza_id: polizaId })
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+        throw new Error(data.message || 'Error al procesar el pago con crédito.');
+    }
+    
+    if (data.redirect) {
+        window.location.href = data.redirect;
+    } else {
+        window.location.href = route('pago.poliza.exito', { poliza_id: polizaId });
     }
 };
 </script>
@@ -873,6 +899,29 @@ const iniciarStripe = async (polizaId) => {
                             <div class="text-xs text-gray-400 font-bold uppercase tracking-tight">México • Efectivo, OXXO, SPEI</div>
                         </div>
                         <div class="ml-auto opacity-0 group-hover:opacity-100 text-[#00AEEF] transition-opacity">→</div>
+                    </button>
+
+                    <!-- Crédito Comercial -->
+                    <button 
+                        v-if="clienteData?.credito_activo"
+                        @click="confirmarPago('credito')"
+                        :disabled="processing || clienteData.credito_disponible < totalPagar"
+                        class="w-full p-6 rounded-2xl border-2 flex items-center gap-4 transition-all group text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                        :class="clienteData.credito_disponible < totalPagar 
+                            ? 'border-gray-100 bg-gray-50 grayscale cursor-not-allowed' 
+                            : 'border-gray-100 hover:border-emerald-500 hover:bg-emerald-50'"
+                    >
+                        <div class="w-14 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden px-2">
+                             <font-awesome-icon icon="credit-card" class="text-xl text-emerald-600" />
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-black text-gray-900 text-sm">Crédito Comercial</div>
+                            <div class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">
+                                {{ clienteData.credito_disponible < totalPagar ? 'Saldo insuficiente' : 'Pagar con mi línea de crédito' }}
+                                • Disp: {{ formatCurrency(clienteData.credito_disponible) }}
+                            </div>
+                        </div>
+                        <div class="ml-auto opacity-0 group-hover:opacity-100 text-emerald-600 transition-opacity">→</div>
                     </button>
                 </div>
                 

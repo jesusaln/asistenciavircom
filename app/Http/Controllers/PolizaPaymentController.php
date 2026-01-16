@@ -8,6 +8,7 @@ use App\Services\PaymentService;
 use App\Support\EmpresaResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class PolizaPaymentController extends Controller
@@ -350,6 +351,66 @@ class PolizaPaymentController extends Controller
         }
 
         return response()->json(['status' => 'ok']);
+    }
+
+    /**
+     * Pagar póliza con línea de crédito
+     */
+    public function payWithCredit(Request $request)
+    {
+        $validated = $request->validate([
+            'poliza_id' => 'required|exists:polizas_servicio,id',
+        ]);
+
+        $cliente = auth('client')->user();
+        $poliza = PolizaServicio::with('planPoliza')->findOrFail($validated['poliza_id']);
+
+        if ($poliza->estado !== 'pendiente_pago') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Esta póliza ya está pagada o no requiere pago.',
+            ], 400);
+        }
+
+        if (!$cliente->credito_activo || $cliente->estado_credito !== 'autorizado') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Su línea de crédito no está activa o autorizada.',
+            ], 403);
+        }
+
+        $total = $poliza->calcularMontoActual();
+
+        if ($cliente->credito_disponible < $total) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Saldo insuficiente en su línea de crédito. Disponible: $' . number_format($cliente->credito_disponible, 2),
+            ], 400);
+        }
+
+        // Procesar pago con crédito
+        try {
+            DB::transaction(function () use ($poliza, $cliente, $total) {
+                $this->paymentService->markPolizaAsPaid(
+                    $poliza,
+                    'CREDITO-' . time(),
+                    'credito',
+                    ['cliente_id' => $cliente->id, 'monto' => $total]
+                );
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pago realizado con éxito usando su crédito comercial.',
+                'redirect' => route('contratacion.exito', ['slug' => $poliza->planPoliza?->slug ?? 'servicio']),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error pagando póliza con crédito: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Hubo un error al procesar el pago con crédito.',
+            ], 500);
+        }
     }
 
     // =========================================================================

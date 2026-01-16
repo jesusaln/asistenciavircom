@@ -12,6 +12,9 @@ use App\Models\EmpresaConfiguracion;
 use App\Support\EmpresaResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use App\Enums\EstadoVenta;
 use Inertia\Inertia;
 
 class PortalController extends Controller
@@ -60,10 +63,16 @@ class PortalController extends Controller
             ->orderBy('fecha')
             ->get();
 
+        $rentas = \App\Models\Renta::where('cliente_id', $cliente->id)
+            ->where('estado', 'activo')
+            ->with(['equipos'])
+            ->get();
+
         return Inertia::render('Portal/Dashboard', [
             'tickets' => $tickets,
             'polizas' => $polizas,
             'pagosPendientes' => $pagosPendientes,
+            'rentas' => $rentas,
             'pedidos' => \App\Models\Pedido::where('cliente_id', $cliente->id)->orderByDesc('created_at')->limit(10)->get(),
             'ventas' => Venta::where('cliente_id', $cliente->id)->orderByDesc('fecha')->limit(50)->get(), // Agregamos historial de ventas
             'credenciales' => $cliente->credenciales()->get()->map(function ($c) {
@@ -77,7 +86,17 @@ class PortalController extends Controller
                     'notas' => $c->notas,
                 ];
             }),
-            'cliente' => $cliente->only('id', 'nombre_razon_social', 'email'),
+            'cliente' => $cliente->only(
+                'id',
+                'nombre_razon_social',
+                'email',
+                'credito_activo',
+                'limite_credito',
+                'dias_credito',
+                'estado_credito',
+                'saldo_pendiente',
+                'credito_disponible'
+            ),
             'empresa' => $this->getEmpresaBranding(),
         ]);
     }
@@ -271,5 +290,53 @@ class PortalController extends Controller
         return response()->json([
             'password' => $credencial->password,
         ]);
+    }
+
+    public function payVentaWithCredit(Request $request)
+    {
+        $validated = $request->validate([
+            'venta_id' => 'required|exists:ventas,id',
+        ]);
+
+        $cliente = Auth::guard('client')->user();
+        $venta = \App\Models\Venta::where('cliente_id', $cliente->id)->findOrFail($validated['venta_id']);
+
+        if ($venta->estado === EstadoVenta::Pagado) {
+            return response()->json(['success' => false, 'message' => 'Esta factura ya está pagada.'], 400);
+        }
+
+        if (!$cliente->credito_activo || $cliente->estado_credito !== 'autorizado') {
+            return response()->json(['success' => false, 'message' => 'Su línea de crédito no está activa o autorizada.'], 403);
+        }
+
+        if ($cliente->credito_disponible < $venta->total) {
+            return response()->json(['success' => false, 'message' => 'Saldo insuficiente en su línea de crédito.'], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            // Actualizar Venta
+            $venta->estado = EstadoVenta::Pagado;
+            $venta->pagado = true;
+            $venta->fecha_pago = now();
+            $venta->metodo_pago = 'credito';
+            $venta->notas_pago = 'Pagado desde Portal de Clientes usando Crédito Comercial.';
+            $venta->save();
+
+            // Si tiene Cuenta por Cobrar, marcarla como pagada
+            if ($venta->cuentaPorCobrar) {
+                $cxc = $venta->cuentaPorCobrar;
+                $cxc->monto_pendiente = 0.00;
+                $cxc->estado = 'pagado';
+                $cxc->save();
+            }
+
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'Factura pagada con éxito usando su crédito comercial.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error pagando venta con crédito: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Hubo un error al procesar el pago.'], 500);
+        }
     }
 }

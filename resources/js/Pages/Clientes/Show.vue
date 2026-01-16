@@ -394,6 +394,11 @@
         </div>
       </section>
 
+      <!-- Expediente de Crédito -->
+      <section class="border-t border-gray-200 pt-6 mt-6">
+           <ExpedienteCredito :cliente="cliente" :documentos="cliente.documentos" />
+      </section>
+
       <!-- Historial de Crédito -->
       <section class="border-t border-gray-200 pt-6 mt-6" v-if="historialCredito && historialCredito.length > 0">
         <div class="flex justify-between items-center mb-4">
@@ -475,6 +480,7 @@ import { computed } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { useCompanyColors } from '@/Composables/useCompanyColors'
 import VaultSection from '@/Components/VaultSection.vue'
+import ExpedienteCredito from './Partials/ExpedienteCredito.vue'
 
 defineOptions({ layout: AppLayout })
 

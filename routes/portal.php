@@ -44,7 +44,15 @@ Route::prefix('portal')->group(function () {
         Route::get('/pedidos', [PortalController::class, 'pedidosIndex'])->name('portal.pedidos.index');
         Route::get('/pedidos/{pedido}', [PortalController::class, 'pedidoShow'])->name('portal.pedidos.show');
 
+        // Crédito (Cliente)
+        Route::get('/credito', [\App\Http\Controllers\ClientPortal\PortalCreditoController::class, 'index'])->name('portal.credito.index');
+        Route::post('/credito/documentos', [\App\Http\Controllers\ClientPortal\PortalCreditoController::class, 'storeDocumento'])->name('portal.credito.documentos.store');
+        Route::delete('/credito/documentos/{documento}', [\App\Http\Controllers\ClientPortal\PortalCreditoController::class, 'destroyDocumento'])->name('portal.credito.documentos.destroy');
+
         // Credenciales (Cliente)
         Route::post('/credenciales/{id}/revelar', [PortalController::class, 'revelarCredencial'])->name('portal.credenciales.revelar');
+
+        // Pagos con Crédito
+        Route::post('/pagos/venta/credito', [PortalController::class, 'payVentaWithCredit'])->name('portal.ventas.pagar-credito');
     });
 });

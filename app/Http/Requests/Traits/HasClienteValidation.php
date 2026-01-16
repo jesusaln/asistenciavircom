@@ -120,6 +120,9 @@ trait HasClienteValidation
                 ? 0
                 : (int) $dias;
         }
+        if ($this->has('estado_credito')) {
+            $dataToMerge['estado_credito'] = $this->input('estado_credito') ?? 'sin_credito';
+        }
 
         // Default País MX
         if ($this->has('pais') || !$this->has('pais') && $this->method() === 'POST') {
@@ -167,6 +170,7 @@ trait HasClienteValidation
             'price_list_id' => ['nullable', 'integer', Rule::exists('price_lists', 'id')->where('activa', true)],
 
             'credito_activo' => ['nullable', 'boolean'],
+            'estado_credito' => ['nullable', 'string', 'in:sin_credito,en_revision,autorizado,suspendido'],
             'limite_credito' => ['nullable', 'numeric', 'min:0'],
             'dias_credito' => ['nullable', 'integer', 'min:0', 'max:365'],
 

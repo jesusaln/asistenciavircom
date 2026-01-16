@@ -78,6 +78,11 @@
           @cp-input="onCpInput"
         />
 
+        <!-- Sección de Expediente de Crédito (Solo en Edit) -->
+        <div class="mt-12 pt-12 border-t border-gray-200">
+             <ExpedienteCredito :cliente="cliente" :documentos="cliente.documentos" />
+        </div>
+
         <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
             <button
               type="button"
@@ -113,6 +118,7 @@ import axios from 'axios'
 import { computed, ref, watch, onMounted } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import ClientForm from './Partials/ClientForm.vue'
+import ExpedienteCredito from './Partials/ExpedienteCredito.vue'
 import { useCompanyColors } from '@/Composables/useCompanyColors'
 
 defineOptions({ layout: AppLayout })
@@ -170,6 +176,7 @@ const form = useForm({
   // Estado y Crédito
   activo: !!props.cliente.activo,
   credito_activo: !!props.cliente.credito_activo,
+  estado_credito: props.cliente.estado_credito ?? 'sin_credito',
   limite_credito: props.cliente.limite_credito ?? '',
   dias_credito: props.cliente.dias_credito ?? 30,
 

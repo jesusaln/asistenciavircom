@@ -63,6 +63,7 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         // ------ Crédito ------
         'password',
         'credito_activo',
+        'estado_credito',
         'limite_credito',
         'dias_credito',
     ];
@@ -87,6 +88,7 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         'activo' => true,
         'uso_cfdi' => 'G03', // G03 - Gastos en general por defecto
         'credito_activo' => false,
+        'estado_credito' => 'sin_credito',
         'limite_credito' => 0,
         'dias_credito' => 0,
         // 'pais' se deja sin valor por defecto para permitir extranjeros
@@ -186,7 +188,13 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
                 ->sum('monto_pendiente');
         }
 
-        return round((float) $deudaVentas + (float) $deudaPrestamos, 2);
+        // 3. Pedidos Online con crédito aún no procesados
+        $deudaPedidos = PedidoOnline::where('cliente_id', $this->id)
+            ->where('metodo_pago', 'credito')
+            ->where('estado', 'pendiente')
+            ->sum('total');
+
+        return round((float) $deudaVentas + (float) $deudaPrestamos + (float) $deudaPedidos, 2);
     }
 
     public function getSaldoPendienteAttribute(): float
@@ -584,5 +592,13 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
     public function credenciales()
     {
         return $this->morphMany(Credencial::class, 'credentialable');
+    }
+
+    /**
+     * Documentos del expediente de crédito
+     */
+    public function documentos(): HasMany
+    {
+        return $this->hasMany(ClienteDocumento::class);
     }
 }

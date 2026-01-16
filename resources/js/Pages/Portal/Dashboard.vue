@@ -14,6 +14,7 @@ const props = defineProps({
     ventas: Array, // Historial de ventas
     credenciales: Array,
     empresa: Object, // Pasado desde el controlador
+    rentas: Array,
 });
 
 const activeTab = ref('tickets');
@@ -35,6 +36,27 @@ const revealPassword = async (id) => {
         alert('No se pudo revelar la contraseña. Intente de nuevo.');
     } finally {
         isLoadingPassword.value[id] = false;
+    }
+};
+
+const payingWithCredit = ref({});
+
+const payWithCredit = async (ventaId) => {
+    if (!confirm('¿Está seguro de querer pagar esta factura usando su crédito comercial?')) return;
+
+    try {
+        payingWithCredit.value[ventaId] = true;
+        const response = await axios.post(route('portal.ventas.pagar-credito'), { venta_id: ventaId });
+        
+        if (response.data.success) {
+            alert(response.data.message);
+            window.location.reload(); // Recargar para actualizar saldos y estados
+        }
+    } catch (error) {
+        console.error('Error al pagar con crédito:', error);
+        alert(error.response?.data?.message || 'Error al procesar el pago.');
+    } finally {
+        payingWithCredit.value[ventaId] = false;
     }
 };
 
@@ -83,9 +105,53 @@ const getStatusClasses = (estado) => {
                         <p class="text-gray-500 font-medium">Tiene {{ pagosPendientes.length }} factura(s) que requieren su atención.</p>
                     </div>
                 </div>
-                <button class="relative z-10 w-full sm:w-auto px-8 py-4 bg-red-500 text-white font-black text-sm uppercase tracking-widest rounded-2xl hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/30 transition-all">
-                    Pagar Ahora
+                <button @click="activeTab = 'pagos'" class="relative z-10 w-full sm:w-auto px-8 py-4 bg-red-500 text-white font-black text-sm uppercase tracking-widest rounded-2xl hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/30 transition-all">
+                    Gestionar Pagos
                 </button>
+            </div>
+
+            <!-- Resumen de Crédito (Vista Rápida) -->
+            <div v-if="cliente.credito_activo || cliente.estado_credito !== 'sin_credito'" 
+                 class="mb-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <div class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/50 flex items-center justify-between group overflow-hidden relative">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-[var(--color-primary-soft)] rounded-full -mr-12 -mt-12 group-hover:scale-125 transition-transform duration-500"></div>
+                    <div class="relative z-10">
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Estado de Crédito</p>
+                        <h3 class="text-xl font-black text-gray-900 flex items-center gap-2">
+                             <font-awesome-icon 
+                                :icon="cliente.estado_credito === 'autorizado' ? 'check-circle' : 'info-circle'" 
+                                :class="cliente.estado_credito === 'autorizado' ? 'text-emerald-500' : 'text-amber-500'" 
+                             />
+                             {{ cliente.estado_credito === 'autorizado' ? 'Autorizado' : (cliente.estado_credito === 'en_revision' ? 'En Revisión' : cliente.estado_credito) }}
+                        </h3>
+                    </div>
+                </div>
+
+                <div v-if="cliente.credito_activo" class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/50 group overflow-hidden relative">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-full -mr-12 -mt-12 group-hover:scale-125 transition-transform duration-500"></div>
+                    <div class="relative z-10">
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Crédito Disponible</p>
+                        <h3 class="text-3xl font-black text-emerald-600">
+                             ${{ Number(cliente.credito_disponible).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}
+                        </h3>
+                    </div>
+                </div>
+
+                <div v-if="cliente.credito_activo" class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/50 group overflow-hidden relative">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-full -mr-12 -mt-12 group-hover:scale-125 transition-transform duration-500"></div>
+                    <div class="relative z-10">
+                         <Link :href="route('portal.credito.index')" class="flex items-center justify-between w-full group/link">
+                            <div>
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Línea Total</p>
+                                <h3 class="text-xl font-black text-gray-900">
+                                    ${{ Number(cliente.limite_credito).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}
+                                </h3>
+                            </div>
+                            <font-awesome-icon icon="chevron-right" class="text-gray-300 group-hover/link:text-[var(--color-primary)] transition-colors" />
+                         </Link>
+                    </div>
+                </div>
             </div>
 
             <!-- Main Content Tabs -->
@@ -157,6 +223,14 @@ const getStatusClasses = (estado) => {
                         <font-awesome-icon icon="shopping-cart" /> 
                         <span class="text-sm uppercase tracking-widest">Mis Pedidos</span>
                     </button>
+
+                    <Link 
+                        :href="route('portal.credito.index')" 
+                        class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 border border-gray-100"
+                    >
+                        <font-awesome-icon icon="credit-card" /> 
+                        <span class="text-sm uppercase tracking-widest">Mi Crédito</span>
+                    </Link>
 
                      <button 
                         @click="activeTab = 'pagos'" 
@@ -381,6 +455,39 @@ const getStatusClasses = (estado) => {
                                 <p class="text-gray-500 font-medium text-sm">Comuníquese con soporte para registrar sus activos.</p>
                             </div>
                         </div>
+
+                        <!-- Equipos de Renta (POS, etc) -->
+                        <div v-if="rentas && rentas.length > 0" class="mt-12">
+                            <div class="px-2 mb-6">
+                                 <h2 class="text-xl font-black text-gray-900 uppercase tracking-tight">Equipos en Renta (POS)</h2>
+                                 <p class="text-gray-500 text-sm font-medium">Equipos activos actualmente bajo contrato de arrendamiento.</p>
+                            </div>
+                            
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <template v-for="renta in rentas" :key="'r-'+renta.id">
+                                    <div v-for="equipo in renta.equipos" :key="'re-'+equipo.id" 
+                                         class="bg-white rounded-[2rem] p-6 shadow-xl shadow-gray-200/50 border border-gray-100 flex items-center gap-6 group hover:border-emerald-500 transition-all relative overflow-hidden">
+                                        
+                                        <!-- Badge Renta -->
+                                        <div class="absolute top-0 right-0 px-4 py-1 bg-emerald-500 text-white text-[8px] font-black uppercase tracking-widest rounded-bl-xl shadow-sm">
+                                            Renta
+                                        </div>
+
+                                        <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-all text-xl">
+                                            <font-awesome-icon :icon="equipo.tipo === 'Laptop' || equipo.tipo === 'Servidor' ? 'server' : 'desktop'" />
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-bold text-gray-900">{{ equipo.nombre || equipo.modelo }}</h4>
+                                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest font-mono">S/N: {{ equipo.numero_serie || 'N/A' }}</p>
+                                            <div class="flex items-center gap-2 mt-2">
+                                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                                <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Contrato {{ renta.numero_contrato }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Tab: Historial Pagos -->
@@ -421,9 +528,18 @@ const getStatusClasses = (estado) => {
                                                 </span>
                                             </td>
                                             <td class="px-8 py-4 text-right">
-                                                <button class="text-gray-300 cursor-not-allowed" title="Próximamente">
-                                                    <font-awesome-icon icon="file-invoice-dollar" />
-                                                </button>
+                                                <div class="flex justify-end gap-2">
+                                                    <button v-if="venta.estado === 'pendiente' && cliente.credito_activo && cliente.credito_disponible >= venta.total"
+                                                            @click="payWithCredit(venta.id)"
+                                                            :disabled="payingWithCredit[venta.id]"
+                                                            class="px-3 py-1 bg-emerald-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all disabled:opacity-50"
+                                                            title="Pagar con Crédito">
+                                                        {{ payingWithCredit[venta.id] ? '...' : 'Pagar con Crédito 💳' }}
+                                                    </button>
+                                                    <button class="text-gray-300 cursor-not-allowed" title="Próximamente">
+                                                        <font-awesome-icon icon="file-invoice-dollar" />
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                         <tr v-if="!ventas || ventas.length === 0">

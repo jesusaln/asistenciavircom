@@ -23,25 +23,25 @@ class PedidoOnlineController extends Controller
             });
         }
 
-        if ($request->filled('estatus_pago')) {
-            $query->where('estatus_pago', $request->estatus_pago);
+        if ($request->filled('metodo_pago')) {
+            $query->where('metodo_pago', $request->metodo_pago);
         }
 
-        if ($request->filled('estatus_pedido')) {
-            $query->where('estatus_pedido', $request->estatus_pedido);
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
         }
 
         $pedidos = $query->paginate(20)->withQueryString();
 
         return Inertia::render('Admin/PedidosOnline/Index', [
             'pedidos' => $pedidos,
-            'filters' => $request->only(['search', 'estatus_pago', 'estatus_pedido'])
+            'filters' => $request->only(['search', 'metodo_pago', 'estado'])
         ]);
     }
 
     public function show($id)
     {
-        $pedido = PedidoOnline::with(['cliente', 'items', 'bitacora.usuario'])->findOrFail($id);
+        $pedido = PedidoOnline::with(['cliente', 'bitacora.usuario'])->findOrFail($id);
 
         return Inertia::render('Admin/PedidosOnline/Show', [
             'pedido' => $pedido
@@ -53,21 +53,16 @@ class PedidoOnlineController extends Controller
         $pedido = PedidoOnline::findOrFail($id);
 
         $request->validate([
-            'estatus_pago' => 'nullable|string',
-            'estatus_pedido' => 'nullable|string',
+            'estado' => 'nullable|string',
             'guia_envio' => 'nullable|string',
             'descripcion_bitacora' => 'required|string'
         ]);
 
-        if ($request->has('estatus_pago')) {
-            $pedido->estatus_pago = $request->estatus_pago;
-            if ($request->estatus_pago === 'pagado' && !$pedido->fecha_pago) {
-                $pedido->fecha_pago = now();
+        if ($request->has('estado')) {
+            $pedido->estado = $request->estado;
+            if ($request->estado === 'pagado' && !$pedido->pagado_at) {
+                $pedido->pagado_at = now();
             }
-        }
-
-        if ($request->has('estatus_pedido')) {
-            $pedido->estatus_pedido = $request->estatus_pedido;
         }
 
         if ($request->has('guia_envio')) {
@@ -80,7 +75,7 @@ class PedidoOnlineController extends Controller
         $pedido->registrarEvento(
             'ACTUALIZACION_MANUAL',
             $request->descripcion_bitacora . " (Por: " . auth()->user()->name . ")",
-            ['cambios' => $request->only(['estatus_pago', 'estatus_pedido', 'guia_envio'])]
+            ['cambios' => $request->only(['estado', 'guia_envio'])]
         );
 
         return redirect()->back()->with('success', 'Pedido actualizado correctamente.');

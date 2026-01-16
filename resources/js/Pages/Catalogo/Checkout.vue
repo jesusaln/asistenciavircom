@@ -447,6 +447,19 @@ onMounted(() => {
                         <div class="mb-8">
                             <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-3">Método de Pago</label>
                             <div class="grid grid-cols-2 gap-3">
+                                <label v-if="cliente?.credito_activo" class="cursor-pointer relative group">
+                                    <input type="radio" v-model="form.metodo_pago" value="credito" class="peer sr-only" :disabled="cliente.credito_disponible < total">
+                                    <div :class="[
+                                        'p-4 rounded-xl border transition-all text-center h-full flex flex-col items-center justify-center gap-1 group-hover:shadow-md',
+                                        cliente.credito_disponible < total 
+                                            ? 'bg-gray-100 border-gray-100 opacity-50 cursor-not-allowed' 
+                                            : 'border-gray-200 bg-gray-50 peer-checked:bg-emerald-50 peer-checked:border-emerald-500 peer-checked:text-emerald-700 group-hover:bg-white'
+                                    ]">
+                                        <font-awesome-icon icon="credit-card" class="mb-1" />
+                                        <span class="font-bold text-[10px] uppercase leading-tight">Crédito Comercial</span>
+                                        <span class="text-[8px] font-black opacity-60">DP: {{ formatCurrency(cliente.credito_disponible) }}</span>
+                                    </div>
+                                </label>
                                 <label class="cursor-pointer relative group">
                                     <input type="radio" v-model="form.metodo_pago" value="mercadopago" class="peer sr-only">
                                     <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 peer-checked:bg-[var(--color-primary-soft)] peer-checked:border-[var(--color-primary)] peer-checked:text-[var(--color-primary)] transition-all text-center h-full flex flex-col items-center justify-center gap-2 group-hover:bg-white group-hover:shadow-md">
@@ -472,7 +485,10 @@ onMounted(() => {
                                     </div>
                                 </label>
                             </div>
-                             <div v-if="form.errors.metodo_pago" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors.metodo_pago }}</div>
+                            <p v-if="cliente?.credito_activo && cliente.credito_disponible < total" class="text-[9px] font-bold text-red-500 mt-2 uppercase tracking-tight">
+                                ⚠️ Saldo insuficiente en su línea de crédito.
+                            </p>
+                            <div v-if="form.errors.metodo_pago" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors.metodo_pago }}</div>
                         </div>
 
                         <!-- Botón de Acción -->

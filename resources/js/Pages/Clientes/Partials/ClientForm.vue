@@ -239,6 +239,27 @@
           </p>
         </div>
 
+        <div class="mb-4">
+          <label for="estado_credito" class="block text-sm font-medium text-gray-700">
+            Estado del Crédito
+          </label>
+          <select
+            id="estado_credito"
+            v-model="form.estado_credito"
+            :class="[
+              'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border-gray-300'
+            ]"
+          >
+            <option value="sin_credito">Sin Crédito</option>
+            <option value="en_revision">En Revisión 🔍</option>
+            <option value="autorizado">Autorizado ✅</option>
+            <option value="suspendido">Suspendido 🚫</option>
+          </select>
+          <p class="mt-1 text-xs text-gray-500">
+            Define el flujo de aprobación del crédito.
+          </p>
+        </div>
+
         <div v-if="form.credito_activo" class="mb-4">
           <label for="limite_credito" class="block text-sm font-medium text-gray-700">
             Límite de Crédito
