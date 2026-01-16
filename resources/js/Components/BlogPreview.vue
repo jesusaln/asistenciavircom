@@ -54,12 +54,12 @@ const articulosSecundarios = computed(() => props.articulos.filter(a => a.id !==
 </script>
 
 <template>
-    <section id="blog" class="py-24 bg-white relative overflow-hidden" :style="cssVars">
+    <section id="blog" class="py-24 bg-white dark:bg-gray-900 relative overflow-hidden transition-colors duration-300" :style="cssVars">
         <!-- Decorative Pattern -->
-        <div class="absolute inset-0 opacity-[0.02] pointer-events-none">
+        <div class="absolute inset-0 opacity-[0.02] dark:opacity-[0.05] pointer-events-none transition-opacity">
             <svg width="100%" height="100%">
                 <pattern id="blogGrid" width="60" height="60" patternUnits="userSpaceOnUse">
-                    <circle cx="30" cy="30" r="1" fill="currentColor" />
+                    <circle cx="30" cy="30" r="1" class="text-gray-900 dark:text-white" fill="currentColor" />
                 </pattern>
                 <rect width="100%" height="100%" fill="url(#blogGrid)" />
             </svg>
@@ -70,16 +70,16 @@ const articulosSecundarios = computed(() => props.articulos.filter(a => a.id !==
             <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-16">
                 <div>
                     <span class="text-[var(--color-primary)] text-xs font-black uppercase tracking-[0.3em] mb-3 block">📰 Blog & Consejos</span>
-                    <h2 class="text-3xl md:text-5xl font-black text-gray-900 tracking-tight">
+                    <h2 class="text-3xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight transition-colors">
                         Aprende sobre <span class="text-[var(--color-primary)]">Tecnología y Seguridad</span>
                     </h2>
-                    <p class="mt-4 text-gray-500 max-w-xl">
+                    <p class="mt-4 text-gray-500 dark:text-gray-400 max-w-xl transition-colors">
                         Tips, guías y tendencias de expertos para potenciar y proteger tu empresa u hogar.
                     </p>
                 </div>
                 
                 <Link 
-                    :href="route('public.blog.index')" 
+                    href="/blog" 
                     class="mt-6 md:mt-0 inline-flex items-center gap-2 text-[var(--color-primary)] font-bold hover:underline group"
                 >
                     Ver todos los artículos
@@ -129,7 +129,7 @@ const articulosSecundarios = computed(() => props.articulos.filter(a => a.id !==
                         </p>
                         
                         <Link 
-                            :href="route('public.blog.show', articuloDestacado.slug)" 
+                            :href="'/blog/' + articuloDestacado.slug" 
                             class="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-xl font-bold text-sm hover:bg-[var(--color-primary)] hover:text-white transition-all duration-300"
                         >
                             Leer artículo
@@ -145,11 +145,11 @@ const articulosSecundarios = computed(() => props.articulos.filter(a => a.id !==
                     <article 
                         v-for="articulo in articulosSecundarios" 
                         :key="articulo.id"
-                        class="group bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:border-[var(--color-primary)]/20 transition-all duration-300"
+                        class="group bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-xl hover:border-[var(--color-primary)]/20 transition-all duration-300"
                     >
                         <div class="flex">
                             <!-- Thumbnail -->
-                            <div class="w-32 md:w-48 flex-shrink-0 bg-gray-100 flex items-center justify-center">
+                            <div class="w-32 md:w-48 flex-shrink-0 bg-gray-100 dark:bg-gray-700 flex items-center justify-center transition-colors">
                                 <img 
                                     v-if="articulo.imagen"
                                     :src="articulo.imagen"
@@ -168,15 +168,15 @@ const articulosSecundarios = computed(() => props.articulos.filter(a => a.id !==
                                     <span class="text-gray-400 text-xs">{{ articulo.tiempo_lectura }}</span>
                                 </div>
                                 
-                                <h3 class="font-bold text-gray-900 mb-2 group-hover:text-[var(--color-primary)] transition-colors line-clamp-2">
+                                <h3 class="font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[var(--color-primary)] transition-colors line-clamp-2">
                                     {{ articulo.titulo }}
                                 </h3>
                                 
-                                <p class="text-sm text-gray-500 line-clamp-2 mb-4">
+                                <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-4 transition-colors">
                                     {{ articulo.extracto }}
                                 </p>
                                 
-                                <Link :href="route('public.blog.show', articulo.slug)" class="inline-flex items-center text-sm font-bold text-[var(--color-primary)]">
+                                <Link :href="'/blog/' + articulo.slug" class="inline-flex items-center text-sm font-bold text-[var(--color-primary)]">
                                     Leer más
                                     <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />

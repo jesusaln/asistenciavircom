@@ -1,6 +1,6 @@
 <script setup>
 import { Link, usePage, useForm } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useCart } from '@/composables/useCart';
 
 const props = defineProps({
@@ -50,15 +50,40 @@ const logout = () => {
     });
 };
 
+// Dark Mode Logic
+const isDarkMode = ref(false);
+
+const toggleDarkMode = () => {
+    isDarkMode.value = !isDarkMode.value;
+    
+    if (isDarkMode.value) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+    }
+};
+
+onMounted(() => {
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        isDarkMode.value = true;
+        document.documentElement.classList.add('dark');
+    } else {
+        isDarkMode.value = false;
+        document.documentElement.classList.remove('dark');
+    }
+});
+
 </script>
 
 <template>
-    <nav class="bg-white/90 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50 transition-all">
+    <nav class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50 transition-all">
         <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
             <!-- Logo / Brand -->
             <Link :href="route('landing')" class="flex items-center gap-4 group">
                 <img v-if="computeLogo" :src="computeLogo" class="h-12 w-auto object-contain transition-transform group-hover:scale-105" :alt="computeBrandName">
-                <span v-else class="text-2xl font-black text-gray-900">
+                <span v-else class="text-2xl font-black text-gray-900 dark:text-white transition-colors">
                     {{ computeBrandName }}
                 </span>
             </Link>
@@ -82,8 +107,8 @@ const logout = () => {
                         :class="[
                             'text-sm font-bold transition-all uppercase tracking-widest pb-1',
                             activeTab === link.id 
-                                ? 'text-gray-900 border-b-2 border-[var(--color-primary)]' 
-                                : 'text-gray-500 hover:text-[var(--color-primary)]'
+                                ? 'text-gray-900 dark:text-white border-b-2 border-[var(--color-primary)]' 
+                                : 'text-gray-500 dark:text-gray-400 hover:text-[var(--color-primary)]'
                         ]"
                     >
                         {{ link.name }}
@@ -101,8 +126,28 @@ const logout = () => {
 
                 <!-- User Actions -->
                 <div class="flex items-center gap-4">
+                     <!-- Dark Mode Toggle -->
+                    <!-- Dark Mode Toggle Button Desktop -->
+                    <button 
+                        @click="toggleDarkMode" 
+                        class="relative z-20 p-2.5 mr-2 rounded-xl text-gray-400 hover:text-[var(--color-primary)] hover:bg-gray-50 dark:hover:bg-gray-800 transition-all focus:outline-none active:scale-90 cursor-pointer"
+                        :title="isDarkMode ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'"
+                        type="button"
+                    >
+                        <!-- Icono Sol (para cuando está oscuro -> ir a claro) -->
+                        <svg v-if="isDarkMode" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <!-- Icono Luna (para cuando está claro -> ir a oscuro) -->
+                        <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </button>
+
+
+
                     <!-- Cart Icon -->
-                    <Link :href="route('tienda.carrito')" class="relative p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-[var(--color-primary)] hover:bg-white hover:shadow-sm transition-all group/cart">
+                    <Link :href="route('tienda.carrito')" class="relative p-2.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-gray-500 dark:text-gray-300 hover:text-[var(--color-primary)] hover:bg-white dark:hover:bg-gray-700 hover:shadow-sm transition-all group/cart">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
@@ -136,10 +181,10 @@ const logout = () => {
                                 leave-from-class="opacity-100 translate-y-0"
                                 leave-to-class="opacity-0 -translate-y-2"
                             >
-                                <div v-if="showUserMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
+                                <div v-if="showUserMenu" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-50">
                                     <Link 
                                         :href="route(currentUser.tipo === 'cliente' ? 'portal.dashboard' : 'dashboard')" 
-                                        class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                        class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                                         @click="showUserMenu = false"
                                     >
                                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,7 +192,7 @@ const logout = () => {
                                         </svg>
                                         Mi Panel
                                     </Link>
-                                    <div class="border-t border-gray-100 my-1"></div>
+                                    <div class="border-t border-gray-100 dark:border-gray-700 my-1"></div>
                                     <button 
                                         @click="logout"
                                         class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
@@ -162,7 +207,7 @@ const logout = () => {
                         </div>
                     </div>
                     <div v-else class="flex items-center gap-4">
-                        <Link :href="route('portal.login')" class="text-sm font-bold text-gray-500 hover:text-[var(--color-primary)] transition-all uppercase tracking-widest">
+                        <Link :href="route('portal.login')" class="text-sm font-bold text-gray-500 dark:text-gray-300 hover:text-[var(--color-primary)] transition-all uppercase tracking-widest">
                             Ingresar
                         </Link>
                         <Link :href="route('portal.register')" class="px-5 py-2.5 bg-[var(--color-primary-soft)] text-[var(--color-primary)] rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[var(--color-primary)] hover:text-white transition-all">
@@ -178,7 +223,23 @@ const logout = () => {
 
             <!-- Mobile Menu -->
             <div class="md:hidden flex items-center gap-3">
-                 <Link :href="route('tienda.carrito')" class="relative p-2 text-gray-500">
+                 <!-- Dark Mode Toggle Mobile -->
+                 <button 
+                    @click="toggleDarkMode" 
+                    class="p-2 text-gray-500 dark:text-gray-300 focus:outline-none active:scale-90 transition-transform relative z-20"
+                    type="button"
+                 >
+                    <svg v-if="isDarkMode" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                 </button>
+
+
+
+                 <Link :href="route('tienda.carrito')" class="relative p-2 text-gray-500 dark:text-gray-300">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
@@ -186,7 +247,7 @@ const logout = () => {
                         {{ itemCount }}
                     </span>
                 </Link>
-                <button class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-900">
+                <button class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
                 </button>
             </div>

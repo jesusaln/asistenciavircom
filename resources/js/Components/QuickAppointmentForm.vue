@@ -105,7 +105,7 @@ const submitForm = () => {
 </script>
 
 <template>
-    <section id="agendar-cita" class="py-24 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden" :style="cssVars">
+    <section id="agendar-cita" class="py-24 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 relative overflow-hidden transition-colors duration-300" :style="cssVars">
         <!-- Decorative Elements -->
         <div class="absolute top-0 left-0 w-96 h-96 bg-[var(--color-primary)] rounded-full blur-[200px] opacity-5 -translate-x-1/2 -translate-y-1/2"></div>
         <div class="absolute bottom-0 right-0 w-96 h-96 bg-blue-500 rounded-full blur-[200px] opacity-5 translate-x-1/2 translate-y-1/2"></div>
@@ -121,10 +121,10 @@ const submitForm = () => {
                     <span class="text-[var(--color-primary)] text-[10px] font-black uppercase tracking-[0.2em]">Agenda en 2 minutos</span>
                 </span>
                 
-                <h2 class="text-3xl md:text-5xl font-black text-gray-900 tracking-tight mb-4">
+                <h2 class="text-3xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight mb-4 transition-colors">
                     Agenda tu <span class="text-[var(--color-primary)]">Cita</span> Hoy
                 </h2>
-                <p class="text-lg text-gray-500 max-w-2xl mx-auto">
+                <p class="text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto transition-colors">
                     Completa el formulario y nos pondremos en contacto contigo para confirmar tu cita.
                 </p>
             </div>
@@ -215,7 +215,7 @@ const submitForm = () => {
             <div class="grid lg:grid-cols-2 gap-12 items-start">
                 <!-- Left: Service Selection -->
                 <div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-6">1. ¿Qué servicio necesitas?</h3>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6 transition-colors">1. ¿Qué servicio necesitas?</h3>
                     
                     <div class="grid grid-cols-2 gap-4">
                         <button
@@ -224,97 +224,97 @@ const submitForm = () => {
                             @click="selectService(servicio)"
                             class="p-6 rounded-2xl border-2 text-left transition-all duration-300 group"
                             :class="selectedService === servicio.id 
-                                ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] shadow-lg' 
-                                : 'border-gray-100 bg-white hover:border-[var(--color-primary)]/30 hover:shadow-md'"
+                                ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] dark:bg-[var(--color-primary)]/20 shadow-lg' 
+                                : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-[var(--color-primary)]/30 hover:shadow-md'"
                         >
                             <span class="text-3xl mb-4 block group-hover:scale-110 transition-transform">{{ servicio.icono }}</span>
-                            <span class="font-bold text-gray-900 block text-sm">{{ servicio.nombre }}</span>
+                            <span class="font-bold text-gray-900 dark:text-white block text-sm transition-colors">{{ servicio.nombre }}</span>
                         </button>
                     </div>
                     
                     <!-- Trust Badges -->
-                    <div class="mt-10 p-6 bg-gray-50 rounded-2xl border border-gray-100">
-                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">¿Por qué agendar con nosotros?</p>
+                    <div class="mt-10 p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700 transition-colors">
+                        <p class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">¿Por qué agendar con nosotros?</p>
                         <div class="space-y-3">
                             <div class="flex items-center gap-3">
-                                <span class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center text-green-600 text-sm">✓</span>
-                                <span class="text-gray-700 text-sm font-medium">Respuesta en menos de 2 horas</span>
+                                <span class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center text-green-600 dark:text-green-400 text-sm">✓</span>
+                                <span class="text-gray-700 dark:text-gray-300 text-sm font-medium transition-colors">Respuesta en menos de 2 horas</span>
                             </div>
                             <div class="flex items-center gap-3">
-                                <span class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center text-green-600 text-sm">✓</span>
-                                <span class="text-gray-700 text-sm font-medium">Técnicos certificados y uniformados</span>
+                                <span class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center text-green-600 dark:text-green-400 text-sm">✓</span>
+                                <span class="text-gray-700 dark:text-gray-300 text-sm font-medium transition-colors">Técnicos certificados y uniformados</span>
                             </div>
                             <div class="flex items-center gap-3">
-                                <span class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center text-green-600 text-sm">✓</span>
-                                <span class="text-gray-700 text-sm font-medium">Garantía por escrito en todos los servicios</span>
+                                <span class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center text-green-600 dark:text-green-400 text-sm">✓</span>
+                                <span class="text-gray-700 dark:text-gray-300 text-sm font-medium transition-colors">Garantía por escrito en todos los servicios</span>
                             </div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Right: Form -->
-                <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
-                    <h3 class="text-lg font-bold text-gray-900 mb-6">2. Tus datos de contacto</h3>
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 transition-colors">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6 transition-colors">2. Tus datos de contacto</h3>
                     
                     <form @submit.prevent="submitForm" class="space-y-5">
                         <!-- Nombre -->
                         <div>
-                            <label for="appointment-nombre" class="block text-sm font-semibold text-gray-700 mb-2">Nombre completo *</label>
+                            <label for="appointment-nombre" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">Nombre completo *</label>
                             <input
                                 id="appointment-nombre"
                                 v-model="form.nombre"
                                 type="text"
                                 required
                                 placeholder="Ej: Juan Pérez"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none"
                             >
                         </div>
                         
                         <!-- Teléfono -->
                         <div>
-                            <label for="appointment-telefono" class="block text-sm font-semibold text-gray-700 mb-2">Teléfono *</label>
+                            <label for="appointment-telefono" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">Teléfono *</label>
                             <input
                                 id="appointment-telefono"
                                 v-model="form.telefono"
                                 type="tel"
                                 required
                                 placeholder="Ej: 614 123 4567"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none"
                             >
                         </div>
                         
                         <!-- Email (opcional) -->
                         <div>
-                            <label for="appointment-email" class="block text-sm font-semibold text-gray-700 mb-2">Email (opcional)</label>
+                            <label for="appointment-email" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">Email (opcional)</label>
                             <input
                                 id="appointment-email"
                                 v-model="form.email"
                                 type="email"
                                 placeholder="tu@email.com"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none"
                             >
                         </div>
                         
                         <!-- Fecha y Hora en grid -->
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label for="appointment-fecha" class="block text-sm font-semibold text-gray-700 mb-2">Fecha preferida</label>
+                                <label for="appointment-fecha" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">Fecha preferida</label>
                                 <input
                                     id="appointment-fecha"
                                     v-model="form.fecha_preferida"
                                     type="date"
                                     :min="minDate"
-                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none"
+                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:[color-scheme:dark] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none"
                                 >
                             </div>
                             <div>
-                                <label for="appointment-hora" class="block text-sm font-semibold text-gray-700 mb-2">Hora preferida</label>
+                                <label for="appointment-hora" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">Hora preferida</label>
                                 <select
                                     id="appointment-hora"
                                     v-model="form.hora_preferida"
-                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none bg-white"
+                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none bg-white dark:bg-gray-900 dark:text-white"
                                 >
-                                    <option value="">Seleccionar</option>
+                                    <option value="" class="text-gray-500">Seleccionar</option>
                                     <option v-for="hora in horasDisponibles" :key="hora" :value="hora">{{ hora }}</option>
                                 </select>
                             </div>
@@ -322,13 +322,13 @@ const submitForm = () => {
                         
                         <!-- Descripción -->
                         <div>
-                            <label for="appointment-descripcion" class="block text-sm font-semibold text-gray-700 mb-2">Detalles adicionales</label>
+                            <label for="appointment-descripcion" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">Detalles adicionales</label>
                             <textarea
                                 id="appointment-descripcion"
                                 v-model="form.descripcion"
                                 rows="3"
                                 placeholder="Describe brevemente tu necesidad..."
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none resize-none"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none resize-none"
                             ></textarea>
                         </div>
                         
