@@ -51,7 +51,6 @@ const caracteristicas = computed(() => {
     }
     return [
         'COMPRA: $12,500 (¡Incluye Báscula!)',
-        'RENTA BÁSICA: $1,000 + IVA (Sin báscula)',
         'RENTA COMPLETA: $1,250 + IVA (Con báscula)',
         'CPU, Monitor, Teclado, Cajón e Impresora'
     ];
@@ -175,9 +174,12 @@ const padZero = (num) => String(num).padStart(2, '0');
                             ¡Con Báscula!
                         </span>
                     </div>
-                    <p class="text-green-400 text-sm font-semibold">
-                        Ahorras $250 mensuales en tu renta
-                    </p>
+                    <div class="flex flex-col gap-1">
+                        <p class="text-green-400 text-sm font-semibold">
+                            Ahorras $250 mensuales en tu renta
+                        </p>
+                        <p class="text-[10px] text-gray-500 italic">* Aplica restricciones</p>
+                    </div>
                 </div>
                 
                 <!-- Centro: Countdown -->
