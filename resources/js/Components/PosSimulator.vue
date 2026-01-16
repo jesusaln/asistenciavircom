@@ -357,7 +357,7 @@ const cssVars = computed(() => ({
                             <span class="text-gray-500">Software Sugerido:</span>
                             <span class="font-black text-[var(--color-primary)] uppercase opacity-90">{{ softwareRecomendado }}</span>
                         </div>
-                        </div>
+
                         <div class="flex justify-between items-center text-sm">
                             <span class="text-gray-500 dark:text-gray-400">Giro Comercial:</span>
                             <span class="font-black text-gray-900 dark:text-white uppercase transition-colors">{{ form.giro }}</span>
@@ -430,6 +430,8 @@ const cssVars = computed(() => ({
             </div>
         </div>
 
+        </div>
+    
     </section>
 </template>
 

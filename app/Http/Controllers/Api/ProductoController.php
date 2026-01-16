@@ -88,12 +88,18 @@ class ProductoController extends Controller
             $sortBy = $request->input('sort_by', 'nombre');
             $sortDirection = $request->input('sort_direction', 'asc');
 
-            $validSortFields = ['nombre', 'codigo', 'precio_venta', 'stock', 'created_at', 'updated_at'];
+            $validSortFields = ['nombre', 'codigo', 'precio_venta', 'stock', 'created_at', 'updated_at', 'disponibilidad'];
             if (!in_array($sortBy, $validSortFields)) {
                 $sortBy = 'nombre';
             }
 
-            $query->orderBy($sortBy, $sortDirection);
+            if ($sortBy === 'disponibilidad') {
+                // Ordenar: Con stock primero, luego por nombre
+                $query->orderByRaw('CASE WHEN stock > 0 THEN 1 ELSE 0 END DESC')
+                    ->orderBy('nombre', 'asc');
+            } else {
+                $query->orderBy($sortBy, $sortDirection);
+            }
 
             // Paginación
             $perPage = min((int) $request->input('per_page', 30), 100);

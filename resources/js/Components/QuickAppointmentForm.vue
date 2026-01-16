@@ -138,13 +138,13 @@ const submitForm = () => {
                 leave-from-class="opacity-100 translate-y-0"
                 leave-to-class="opacity-0 -translate-y-4"
             >
-                <div v-if="showSuccess" class="mb-8 p-6 bg-green-50 border border-green-200 rounded-2xl flex items-center gap-4">
-                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-2xl">
+                <div v-if="showSuccess" class="mb-8 p-6 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-2xl flex items-center gap-4">
+                    <div class="w-12 h-12 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center text-2xl">
                         ✅
                     </div>
                     <div>
-                        <h4 class="font-bold text-green-800">¡Cita Registrada!</h4>
-                        <p class="text-green-700 text-sm">Te contactaremos pronto para confirmar los detalles.</p>
+                        <h4 class="font-bold text-green-800 dark:text-green-300">¡Cita Registrada!</h4>
+                        <p class="text-green-700 dark:text-green-400 text-sm">Te contactaremos pronto para confirmar los detalles.</p>
                     </div>
                 </div>
             </Transition>
@@ -158,15 +158,15 @@ const submitForm = () => {
                 leave-from-class="opacity-100 translate-y-0"
                 leave-to-class="opacity-0 -translate-y-4"
             >
-                <div v-if="errorMessage" class="mb-8 p-6 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-4">
-                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-2xl">
+                <div v-if="errorMessage" class="mb-8 p-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-2xl flex items-center gap-4">
+                    <div class="w-12 h-12 bg-red-100 dark:bg-red-800 rounded-full flex items-center justify-center text-2xl">
                         ⚠️
                     </div>
                     <div class="flex-1">
-                        <h4 class="font-bold text-red-800">Horario No Disponible</h4>
-                        <p class="text-red-700 text-sm">{{ errorMessage }}</p>
+                        <h4 class="font-bold text-red-800 dark:text-red-300">Horario No Disponible</h4>
+                        <p class="text-red-700 dark:text-red-400 text-sm">{{ errorMessage }}</p>
                     </div>
-                    <button @click="errorMessage = ''" class="text-red-400 hover:text-red-600">
+                    <button @click="errorMessage = ''" class="text-red-400 hover:text-red-600 dark:hover:text-red-300">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -183,14 +183,14 @@ const submitForm = () => {
                 leave-from-class="opacity-100 translate-y-0"
                 leave-to-class="opacity-0 -translate-y-4"
             >
-                <div v-if="showSessionExpired" class="mb-8 p-6 bg-amber-50 border border-amber-200 rounded-2xl">
+                <div v-if="showSessionExpired" class="mb-8 p-6 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-2xl">
                     <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-2xl flex-shrink-0">
+                        <div class="w-12 h-12 bg-amber-100 dark:bg-amber-800 rounded-full flex items-center justify-center text-2xl flex-shrink-0">
                             🔄
                         </div>
                         <div class="flex-1">
-                            <h4 class="font-bold text-amber-800 mb-1">Sesión Expirada</h4>
-                            <p class="text-amber-700 text-sm mb-4">
+                            <h4 class="font-bold text-amber-800 dark:text-amber-300 mb-1">Sesión Expirada</h4>
+                            <p class="text-amber-700 dark:text-amber-400 text-sm mb-4">
                                 Tu sesión ha expirado por inactividad. Por favor, recarga la página e intenta nuevamente.
                             </p>
                             <button 
@@ -203,7 +203,7 @@ const submitForm = () => {
                                 Recargar Página
                             </button>
                         </div>
-                        <button @click="showSessionExpired = false" class="text-amber-400 hover:text-amber-600">
+                        <button @click="showSessionExpired = false" class="text-amber-400 hover:text-amber-600 dark:hover:text-amber-300">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
