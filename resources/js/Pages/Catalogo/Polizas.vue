@@ -73,6 +73,26 @@ const getFaIcon = (plan) => {
     };
     return iconos[plan.tipo] || 'shield-halved';
 };
+// Procesar planes para asegurar cálculo de descuento del 15%
+const planesCalculados = computed(() => {
+    return (props.planes || []).map(plan => {
+        if (parseFloat(plan.precio_mensual) > 0) {
+             const mensual = parseFloat(plan.precio_mensual);
+             const anualSinDescuento = mensual * 12;
+             const descuento = 0.15; // 15% solicitado
+             const precioAnual = anualSinDescuento * (1 - descuento);
+             const ahorro = anualSinDescuento - precioAnual;
+             
+             return {
+                 ...plan,
+                 precio_mensual: mensual,
+                 precio_anual: precioAnual,
+                 ahorro_anual: ahorro
+             };
+        }
+        return plan;
+    });
+});
 </script>
 
 <template>
@@ -126,7 +146,7 @@ const getFaIcon = (plan) => {
                         ]"
                     >
                         Anual
-                        <span v-if="periodoSeleccionado !== 'anual'" class="px-2 py-0.5 bg-green-100 text-green-600 rounded-full text-[8px]">-20%</span>
+                        <span v-if="periodoSeleccionado !== 'anual'" class="px-2 py-0.5 bg-green-100 text-green-600 rounded-full text-[8px]">-15%</span>
                         <span v-else class="px-2 py-0.5 bg-white/20 text-white rounded-full text-[8px]">Ahorro</span>
                     </button>
                 </div>
@@ -135,9 +155,9 @@ const getFaIcon = (plan) => {
 
         <!-- Planes Grid -->
         <main class="max-w-7xl mx-auto px-4 pb-32">
-            <div v-if="planes?.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div v-if="planesCalculados?.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <article 
-                    v-for="plan in planes" 
+                    v-for="plan in planesCalculados" 
                     :key="plan.id"
                     :class="[
                         'relative bg-white p-10 rounded-[3rem] border shadow-2xl transition-all duration-500 flex flex-col group',
