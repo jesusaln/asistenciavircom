@@ -141,6 +141,108 @@ class PolizaAutomationService
     }
 
     /**
+     * Procesar pólizas próximas a vencer y enviar notificaciones.
+     * Se ejecuta diariamente.
+     */
+    public function processExpiringPolicies()
+    {
+        Log::info("PolizaAutomationService: Checking expiring policies...");
+
+        // Umbrales de notificación (días antes de vencer)
+        $thresholds = [30, 15, 7, 3, 1];
+
+        $polizas = PolizaServicio::activa()
+            ->whereNotNull('fecha_fin')
+            ->where('fecha_fin', '>=', Carbon::today()) // Que no estén ya vencidas (o sí? quizas el día 0)
+            ->where('fecha_fin', '<=', Carbon::today()->addDays(31))
+            ->with(['cliente', 'empresa'])
+            ->get();
+
+        $count = 0;
+
+        foreach ($polizas as $poliza) {
+            $diasRestantes = $poliza->dias_para_vencer;
+
+            // Verificar si cae en uno de los umbrales
+            if (in_array($diasRestantes, $thresholds)) {
+                
+                // Evitar duplicados el mismo día
+                if ($poliza->ultimo_aviso_vencimiento_at && 
+                    $poliza->ultimo_aviso_vencimiento_at->isSameDay(Carbon::today())) {
+                    continue;
+                }
+
+                $this->sendVencimientoNotification($poliza, $diasRestantes);
+                $count++;
+            }
+            // Notificar el día del vencimiento (0 días)
+            elseif ($diasRestantes === 0) {
+                 if ($poliza->ultimo_aviso_vencimiento_at && 
+                    $poliza->ultimo_aviso_vencimiento_at->isSameDay(Carbon::today())) {
+                    continue;
+                }
+                $this->sendVencimientoNotification($poliza, 0);
+                $count++;
+            }
+        }
+
+        Log::info("PolizaAutomationService: Processed expiring policies. Notifications sent: $count");
+    }
+
+    /**
+     * Enviar notificación de vencimiento vía Email y WhatsApp
+     */
+    protected function sendVencimientoNotification(PolizaServicio $poliza, int $diasRestantes)
+    {
+        try {
+            DB::transaction(function () use ($poliza, $diasRestantes) {
+                
+                // 1. Email Notification
+                if ($poliza->cliente && $poliza->cliente->email) {
+                    // $poliza->cliente->notify(new \App\Notifications\PolizaVencimientoNotification($poliza));
+                    Log::info("Email notification would be sent for Poliza #{$poliza->id} (Expiring in $diasRestantes days)");
+                }
+
+                // 2. WhatsApp Notification
+                $empresa = \App\Models\Empresa::find($poliza->empresa_id);
+                if ($empresa && $empresa->whatsapp_enabled && $poliza->cliente && $poliza->cliente->telefono) {
+                    
+                    $template = 'aviso_vencimiento_poliza'; // Template específico en Meta
+                    
+                    // Variables para el template: {{1}}=NombreCliente, {{2}}=Folio, {{3}}=FechaVencimiento, {{4}}=DiasRestantes
+                    $params = [
+                        $poliza->cliente->nombre_razon_social,
+                        $poliza->folio,
+                        Carbon::parse($poliza->fecha_fin)->format('d/m/Y'),
+                        (string) $diasRestantes
+                    ];
+
+                    \App\Jobs\SendWhatsAppTemplate::dispatch(
+                        $empresa->id,
+                        $poliza->cliente->telefono,
+                        $template,
+                        $empresa->whatsapp_default_language ?? 'es_MX',
+                        $params,
+                        [
+                            'tipo' => 'vencimiento_poliza',
+                            'poliza_id' => $poliza->id,
+                            'dias_restantes' => $diasRestantes
+                        ]
+                    );
+                    
+                    Log::info("PolizaAutomationService: WhatsApp expiration warning queued for Poliza #{$poliza->id}");
+                }
+
+                // Actualizar timestamp
+                $poliza->update(['ultimo_aviso_vencimiento_at' => now()]);
+            });
+
+        } catch (\Exception $e) {
+            Log::error("Error sending expiration notification for Poliza #{$poliza->id}: " . $e->getMessage());
+        }
+    }
+
+    /**
      * Helper to get or create a "Mantenimiento" category for tickets.
      */
     private function getMantenimientoCategoryId($empresaId)
