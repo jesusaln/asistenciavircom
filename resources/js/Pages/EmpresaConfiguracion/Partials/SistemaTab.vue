@@ -79,6 +79,39 @@
                     </div>
                  </div>
             </div>
+            <!-- Bitácora General del Sistema -->
+            <div class="mt-8 bg-white p-6 rounded-xl border border-gray-200">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-md font-medium text-gray-900 flex items-center gap-2">
+                        <FontAwesomeIcon icon="file-alt" class="text-gray-500" />
+                        Bitácora General del Sistema
+                    </h3>
+                    <div class="flex gap-2">
+                        <button @click="fetchLogs" type="button" class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center gap-2">
+                            <FontAwesomeIcon icon="sync" :class="{'fa-spin': loadingLogs}" />
+                            Actualizar
+                        </button>
+                        <button @click="clearLogs" type="button" class="px-3 py-1 text-sm bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors flex items-center gap-2">
+                            <FontAwesomeIcon icon="trash" />
+                            Limpiar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="relative">
+                    <textarea 
+                        v-model="systemLogs" 
+                        readonly 
+                        class="w-full h-96 bg-gray-900 text-green-400 font-mono text-xs p-4 rounded-lg focus:outline-none resize-y"
+                    ></textarea>
+                    <div v-if="loadingLogs" class="absolute inset-0 bg-white/50 flex items-center justify-center rounded-lg">
+                        <FontAwesomeIcon icon="spinner" spin class="text-3xl text-blue-600" />
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                    Visualizando las últimas 500 líneas del archivo de registro (laravel.log).
+                </p>
+            </div>
         </div>
     </div>
 </template>
@@ -88,6 +121,44 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 defineProps({
     form: { type: Object, required: true },
+});
+
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+
+const systemLogs = ref('');
+const loadingLogs = ref(false);
+
+const fetchLogs = async () => {
+    loadingLogs.value = true;
+    try {
+        const response = await axios.get(route('empresa-configuracion.sistema.logs'));
+        systemLogs.value = response.data.logs;
+    } catch (error) {
+        console.error('Error fetching logs:', error);
+        systemLogs.value = 'Error al cargar los registros del sistema.';
+    } finally {
+        loadingLogs.value = false;
+    }
+};
+
+const clearLogs = async () => {
+    if (!confirm('¿Estás seguro de que deseas limpiar la bitácora del sistema? Esta acción no se puede deshacer.')) return;
+
+    loadingLogs.value = true;
+    try {
+        await axios.post(route('empresa-configuracion.sistema.logs.clear'));
+        window.$toast.success('Bitácora limpiada correctamente');
+        fetchLogs();
+    } catch (error) {
+        console.error('Error clearing logs:', error);
+        window.$toast.error('Error al limpiar la bitácora.');
+        loadingLogs.value = false;
+    }
+};
+
+onMounted(() => {
+    fetchLogs();
 });
 </script>
 

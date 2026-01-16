@@ -7,6 +7,7 @@ use App\Models\EmpresaConfiguracion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\File;
 
 class SistemaConfigController extends Controller
 {
@@ -86,5 +87,43 @@ class SistemaConfigController extends Controller
         EmpresaConfiguracion::clearCache();
 
         return redirect()->back()->with('success', 'Configuración de respaldos actualizada correctamente.');
+    }
+
+    /**
+     * Obtener los logs del sistema para la Bitácora General
+     */
+    public function getLogs()
+    {
+        $logPath = storage_path('logs/laravel.log');
+
+        if (!File::exists($logPath)) {
+            return response()->json(['logs' => 'No hay registros de bitácora disponibles.']);
+        }
+
+        // Leer las últimas 500 líneas del log para no saturar
+        $lines = 500;
+        $data = file($logPath);
+        $logs = array_slice($data, -$lines);
+
+        // Unir y devolver
+        return response()->json([
+            'logs' => implode("", array_reverse($logs))
+        ]);
+    }
+
+    /**
+     * Limpiar los logs del sistema
+     */
+    public function clearLogs()
+    {
+        $logPath = storage_path('logs/laravel.log');
+
+        if (File::exists($logPath)) {
+            File::put($logPath, '');
+            Log::info('Bitácora del sistema limpiada por el usuario: ' . auth()->user()->email);
+            return response()->json(['success' => true, 'message' => 'Bitácora limpiada correctamente.']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'No se encontró el archivo de bitácora.']);
     }
 }

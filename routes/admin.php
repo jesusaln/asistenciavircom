@@ -408,6 +408,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::get('/folios/config', [FolioConfigController::class, 'index'])->name('folios.config.index');
         Route::put('/configuracion/tienda', [TiendaConfigController::class, 'update'])->name('tienda.update');
         Route::put('/configuracion/whatsapp', [EmpresaWhatsAppController::class, 'update'])->name('whatsapp.update');
+        Route::get('/configuracion/logs', [SistemaConfigController::class, 'getLogs'])->name('sistema.logs');
+        Route::post('/configuracion/logs/clear', [SistemaConfigController::class, 'clearLogs'])->name('sistema.logs.clear');
 
         // Contenido de Landing
         Route::prefix('landing-content')->name('landing-content.')->group(function () {
