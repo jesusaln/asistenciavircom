@@ -346,7 +346,7 @@ class PortalController extends Controller
             // Si tiene Cuenta por Cobrar, marcarla como pagada
             if ($venta->cuentaPorCobrar) {
                 $cxc = $venta->cuentaPorCobrar;
-                $cxc->monto_pendiente = 0.00;
+                $cxc->monto_pendiente = '0';
                 $cxc->estado = 'pagado';
                 $cxc->save();
             }
