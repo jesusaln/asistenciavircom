@@ -674,7 +674,6 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .ventas-edit {
   min-height: 100vh;
   background: linear-gradient(to bottom right, #f8fafc, #e0f2fe);

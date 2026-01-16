@@ -677,7 +677,6 @@ const triggerBackupInput = () => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 @keyframes slideIn {
     from { opacity: 0; transform: translateX(20px); }
     to { opacity: 1; transform: translateX(0); }

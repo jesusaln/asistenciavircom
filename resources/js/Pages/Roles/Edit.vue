@@ -165,7 +165,6 @@ const submit = () => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 /* Sombras sutiles para la columna pegajosa */
 th.sticky, td.sticky {
   box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1);

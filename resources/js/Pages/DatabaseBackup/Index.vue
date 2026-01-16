@@ -1243,7 +1243,6 @@ const handleSortChange = (value) => {
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 /* Animaciones */
 .fade-enter-active, .fade-leave-active {
     transition: opacity 0.3s ease;

@@ -242,7 +242,6 @@ const cancel = () => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 /* Animaciones para el loading */
 @keyframes spin {
   to {

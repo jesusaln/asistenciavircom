@@ -1036,7 +1036,6 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .clientes-index {
   min-height: 100vh;
   background-color: #f9fafb;

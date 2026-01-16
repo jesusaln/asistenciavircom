@@ -508,7 +508,6 @@ const submit = () => {
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 .form-group {
   margin-bottom: 1.5rem;
 }

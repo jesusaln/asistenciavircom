@@ -535,7 +535,6 @@ const cliente = computed(() => ({
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 /* Estilos opcionales para mejorar layout */
 section + section { margin-top: 2rem; }
 </style>

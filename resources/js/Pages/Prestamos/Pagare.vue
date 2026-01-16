@@ -245,7 +245,6 @@ const generarPDF = (tamano = 'carta') => {
     // Agregar estilos adicionales para impresión
     win.document.head.insertAdjacentHTML('beforeend', `
       <style>
-@import "tailwindcss" reference;
         /* Ocultar elementos del navegador */
         * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
@@ -316,7 +315,6 @@ const generarContenidoPagare = (tamano = 'carta') => {
   <title>${folio} • Pagaré</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-@import "tailwindcss" reference;
     /* ======== PÁGINA ======== */
     @page { size: ${size}; margin: ${margin}; }
     :root {
@@ -1041,7 +1039,6 @@ const generarContenidoPagare = (tamano = 'carta') => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .pagare-page { min-height: 100vh; background-color: #f9fafb; }
 </style>
 

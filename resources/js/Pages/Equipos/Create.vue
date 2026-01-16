@@ -142,7 +142,6 @@ const submit = () => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .input { @apply w-full rounded-md border-gray-300 focus:border-amber-500 focus:ring-amber-500; }
 </style>
 

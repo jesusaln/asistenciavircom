@@ -1827,7 +1827,6 @@ const obtenerTextoUrgencia = (mantenimiento) => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .mantenimientos-index {
   min-height: 100vh;
   background-color: #f9fafb;

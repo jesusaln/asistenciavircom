@@ -304,7 +304,6 @@ const getEstadoLabel = (estado) => {
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 .vacaciones-show {
   min-height: 100vh;
   background-color: #f9fafb;

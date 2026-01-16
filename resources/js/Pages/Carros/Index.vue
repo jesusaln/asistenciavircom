@@ -1141,7 +1141,6 @@ const formatNumber = (num) => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .carros-index {
   min-height: 100vh;
   background-color: #f9fafb;

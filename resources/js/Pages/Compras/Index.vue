@@ -677,7 +677,6 @@ const handleConfirm = () => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .compras-index {
   min-height: 100vh;
   background-color: #f9fafb;

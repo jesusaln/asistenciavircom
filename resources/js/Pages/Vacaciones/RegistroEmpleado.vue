@@ -199,7 +199,6 @@ const getDiasRestantesColor = (diasRestantes) => {
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 </style>
 
 

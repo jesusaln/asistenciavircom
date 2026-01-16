@@ -499,7 +499,6 @@ const validarTelefono = (event) => {
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 /* Animaciones personalizadas */
 @keyframes slideInUp {
   from {

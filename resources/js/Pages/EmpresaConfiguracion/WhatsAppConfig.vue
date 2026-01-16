@@ -466,7 +466,6 @@ const opcionesPlantilla = [
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .whatsapp-config {
   min-height: 100vh;
   background-color: #f9fafb;

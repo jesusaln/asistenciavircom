@@ -626,7 +626,6 @@
 </template>
 
 <style>
-@import "tailwindcss" reference;
 /* Fix for UTF-8 character encoding in modals */
 .modal-content {
     font-family: 'Figtree', 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;

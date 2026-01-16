@@ -395,7 +395,6 @@ const updateAlmacenCompra = async () => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .profile-page {
   min-height: 100vh;
   background-color: #f9fafb;

@@ -415,7 +415,6 @@
   </script>
 
   <style scoped>
-@import "tailwindcss" reference;
   /* Estilos personalizados */
   .citas-show {
     margin-top: 1rem;

@@ -1079,7 +1079,6 @@ const estadisticasConPorcentaje = computed(() => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .pedidos-index {
   min-height: 100vh;
   background-color: #f9fafb;

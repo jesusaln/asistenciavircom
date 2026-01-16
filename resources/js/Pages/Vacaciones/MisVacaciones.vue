@@ -300,7 +300,6 @@ const changePage = (page) => {
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 .mis-vacaciones {
   min-height: 100vh;
   background-color: #f9fafb;

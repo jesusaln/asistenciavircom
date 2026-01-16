@@ -817,7 +817,6 @@ const isToday = (date) => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .citas-index {
   min-height: 100vh;
   background-color: #f9fafb;

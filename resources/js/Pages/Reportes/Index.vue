@@ -870,7 +870,6 @@ const clientesDeudores = computed(() => 0); // Mock
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 .custom-scrollbar::-webkit-scrollbar {
     height: 4px;
 }

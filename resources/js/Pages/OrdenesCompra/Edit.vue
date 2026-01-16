@@ -1130,7 +1130,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 /* Estilos específicos para el modo edición */
 .ordenes-compra-edit {
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);

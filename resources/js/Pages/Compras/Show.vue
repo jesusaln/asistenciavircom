@@ -305,7 +305,6 @@ const accordionOpen = ref(false);
 </script>
 
   <style scoped>
-@import "tailwindcss" reference;
   /* Aquí van tus estilos personalizados */
   </style>
 

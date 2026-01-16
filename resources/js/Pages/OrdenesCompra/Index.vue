@@ -1998,7 +1998,6 @@ const validarEstado = (estado) => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .ordenes-compra-index {
   min-height: 100vh;
   background-color: #f9fafb;

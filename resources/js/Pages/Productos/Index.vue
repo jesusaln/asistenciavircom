@@ -1225,7 +1225,6 @@ const faltanSeriesParaProducto = (producto) => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .productos-index {
  min-height: 100vh;
  background-color: #f9fafb;

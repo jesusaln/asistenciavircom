@@ -415,7 +415,6 @@ const submit = () => {
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 .input-field {
   width: 100%;
   padding: 0.5rem 0.75rem;

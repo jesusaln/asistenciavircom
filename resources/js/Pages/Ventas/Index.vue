@@ -1263,7 +1263,6 @@ const confirmarEnvioEmail = async () => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .ventas-index {
   min-height: 100vh;
   background-color: #f9fafb;

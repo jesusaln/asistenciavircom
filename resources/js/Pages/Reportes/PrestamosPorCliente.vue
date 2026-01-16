@@ -558,7 +558,6 @@ const estadisticasFormateadas = computed(() => ({
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .prestamos-por-cliente {
   min-height: 100vh;
   background-color: #f9fafb;

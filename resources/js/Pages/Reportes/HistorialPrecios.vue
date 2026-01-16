@@ -305,7 +305,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 /* Animaciones para las filas */
 @keyframes fadeIn {
   from {

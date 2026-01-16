@@ -587,7 +587,6 @@ const obtenerLabelEstado = (estado) => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .marcas-index {
   min-height: 100vh;
   background-color: #f9fafb;

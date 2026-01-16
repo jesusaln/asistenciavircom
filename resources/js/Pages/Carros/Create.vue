@@ -436,7 +436,6 @@ const submit = async () => {
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 /* Estilos adicionales para mejorar la experiencia */
 input[type="file"] {
     display: none;

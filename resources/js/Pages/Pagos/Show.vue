@@ -329,7 +329,6 @@ const tieneHistorial = computed(() => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .pagos-show {
   min-height: 100vh;
   background-color: #f9fafb;

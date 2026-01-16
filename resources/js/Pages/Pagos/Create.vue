@@ -562,7 +562,6 @@ watch(
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .pagos-create {
   min-height: 100vh;
   background-color: #f9fafb;

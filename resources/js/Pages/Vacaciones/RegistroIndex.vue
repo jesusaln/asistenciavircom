@@ -98,7 +98,6 @@ const go = (url) => { if (url) router.visit(url, { preserveScroll: true }) }
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 </style>
 
 

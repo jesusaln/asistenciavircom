@@ -221,7 +221,6 @@ const submit = () => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .entregas-dinero-edit {
   min-height: 100vh;
   background-color: #f9fafb;

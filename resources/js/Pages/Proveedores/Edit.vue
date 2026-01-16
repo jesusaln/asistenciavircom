@@ -846,7 +846,6 @@ if (form.email) {
 </script>
 
 <style>
-@import "tailwindcss" reference;
 /* Custom styles for better visual feedback */
 .form-field-error {
   border-color: #fca5a5; /* border-red-300 */

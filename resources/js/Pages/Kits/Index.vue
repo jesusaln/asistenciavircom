@@ -571,7 +571,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 .kits-index {
   min-height: 100vh;
   background-color: #f9fafb;

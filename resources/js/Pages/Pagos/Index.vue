@@ -864,7 +864,6 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .pagos-index {
   min-height: 100vh;
   background-color: #f9fafb;

@@ -100,7 +100,6 @@
   </script>
 
   <style scoped>
-@import "tailwindcss" reference;
   .equipos-show {
     margin-top: 1rem;
   }

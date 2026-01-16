@@ -343,7 +343,6 @@ const historialPagos = computed(() => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .prestamos-show {
   min-height: 100vh;
   background-color: #f9fafb;

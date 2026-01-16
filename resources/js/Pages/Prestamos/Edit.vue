@@ -627,7 +627,6 @@ const getEstadoColor = (estado) => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .prestamos-edit {
   min-height: 100vh;
   background-color: #f9fafb;

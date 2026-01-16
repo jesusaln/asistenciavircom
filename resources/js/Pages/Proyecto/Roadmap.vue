@@ -1045,7 +1045,6 @@ const generatePDF = () => {
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 .custom-scrollbar::-webkit-scrollbar { height: 8px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }

@@ -633,7 +633,6 @@ watch(() => form.value.precio_venta, updateMargen)
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 .kits-create {
   min-height: 100vh;
   background-color: #f9fafb;

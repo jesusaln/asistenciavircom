@@ -1009,7 +1009,6 @@ const handleUnidadDeleted = (unidad) => {
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 .input-field {
     width: 100%;
     padding-left: 0.75rem;

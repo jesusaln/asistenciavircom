@@ -498,7 +498,6 @@ const cancel = () => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 @keyframes spin {
   to {
     transform: rotate(360deg);

@@ -609,7 +609,6 @@ const crearParaEmpleado = () => {
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 .vacaciones-index {
   min-height: 100vh;
   background-color: #f9fafb;

@@ -744,7 +744,6 @@ const crearNuevaCotizacion = () => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .cotizaciones-index {
   min-height: 100vh;
   background-color: #f9fafb;

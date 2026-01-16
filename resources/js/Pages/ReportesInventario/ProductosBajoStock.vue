@@ -196,7 +196,6 @@ const formatDate = (dateString) => {
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 /* Estilos adicionales si son necesarios */
 </style>
 

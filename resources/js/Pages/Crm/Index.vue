@@ -844,7 +844,6 @@ const crearCotizacion = (prospecto) => {
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 .animate-scale-in {
     animation: scale-in 0.2s ease-out;
 }

@@ -589,7 +589,6 @@ const obtenerLabelEstado = (estado) => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .proveedores-index {
   min-height: 100vh;
   background-color: #f9fafb;

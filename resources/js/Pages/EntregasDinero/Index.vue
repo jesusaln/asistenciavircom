@@ -1055,7 +1055,6 @@ const handlePageChange = (newPage) => {
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .entregas-dinero-index {
   min-height: 100vh;
   background-color: #f9fafb;

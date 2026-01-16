@@ -1203,7 +1203,6 @@ if (!form.fecha) {
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 /* Animaciones y estilos adicionales */
 .fade-enter-active, .fade-leave-active {
     transition: opacity 0.3s;

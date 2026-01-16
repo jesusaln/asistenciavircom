@@ -509,7 +509,6 @@ function submit(mode = 'index') {
 </script>
 
 <style scoped>
-@import "tailwindcss" reference;
 /* Mejores focos y estados */
 input:focus, select:focus, textarea:focus {
   outline: none;

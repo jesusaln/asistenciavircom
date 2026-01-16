@@ -886,7 +886,6 @@ const onEditarFila = () => { editarPrestamo(selectedPrestamo.value?.id) }
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .prestamos-index {
   min-height: 100vh;
   background-color: #f9fafb;

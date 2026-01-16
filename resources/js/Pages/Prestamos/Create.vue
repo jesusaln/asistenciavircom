@@ -683,7 +683,6 @@ const opcionesNumeroPagos = Array.from({ length: 60 }, (_, i) => ({
 </template>
 
 <style scoped>
-@import "tailwindcss" reference;
 .prestamos-create {
   min-height: 100vh;
   background-color: #f9fafb;
