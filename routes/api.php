@@ -196,6 +196,7 @@ Route::apiResource('ventas', VentaController::class)->except(['destroy'])->names
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('citas', CitaController::class)->names('api.citas');
     Route::post('/citas/{cita}/reasignar', [CitaController::class, 'reasignar'])->name('api.citas.reasignar');
+    Route::apiResource('tickets', \App\Http\Controllers\Api\TicketApiController::class)->names('api.tickets');
 });
 
 // Cuentas Bancarias
