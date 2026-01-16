@@ -18,12 +18,8 @@ const isEditing = computed(() => !!props.poliza);
 const showHelpModal = ref(false);
 const clienteSeleccionado = ref(null);
 
-// Debug para desarrollo
+// Inicializar cliente seleccionado
 onMounted(() => {
-    console.log('Edit Poliza Mounted');
-    console.log('Cliente from Prop:', props.clientePoliza);
-    
-    // Inicializar cliente seleccionado
     if (props.clientePoliza) {
         clienteSeleccionado.value = props.clientePoliza;
     } else if (props.poliza?.cliente) {
@@ -31,8 +27,6 @@ onMounted(() => {
     } else if (form.cliente_id) {
         clienteSeleccionado.value = props.clientes.find(c => c.id == form.cliente_id) || null;
     }
-    
-    console.log('Cliente Seleccionado Final:', clienteSeleccionado.value);
 });
 
 const handleClienteSeleccionado = (cliente) => {

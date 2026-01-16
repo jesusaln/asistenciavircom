@@ -166,23 +166,10 @@ class PolizaServicioController extends Controller
     {
         $polizas_servicio->load(['servicios', 'credenciales', 'cliente']);
 
-        \Illuminate\Support\Facades\Log::info('DEBUG POLIZA EDIT', [
-            'poliza_id' => $polizas_servicio->id,
-            'cliente_id_poliza' => $polizas_servicio->cliente_id,
-            'cliente_cargado' => $polizas_servicio->cliente ? 'SI' : 'NO',
-            'cliente_data' => $polizas_servicio->cliente
-        ]);
-
         // Aseguramos que el cliente de la póliza esté en la lista, incluso si está inactivo
         $clientesList = Cliente::where('id', $polizas_servicio->cliente_id)
             ->orWhere('activo', true)
             ->get(['id', 'nombre_razon_social', 'email', 'telefono', 'rfc']);
-
-        \Illuminate\Support\Facades\Log::info('Enviando a Edit Poliza:', [
-            'poliza_id' => $polizas_servicio->id,
-            'cliente_id' => $polizas_servicio->cliente_id,
-            'cliente_data' => $polizas_servicio->cliente ? $polizas_servicio->cliente->toArray() : 'NULL'
-        ]);
 
         return Inertia::render('PolizaServicio/Edit', [
             'clientes' => $clientesList,
