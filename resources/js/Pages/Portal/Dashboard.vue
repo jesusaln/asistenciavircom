@@ -4,6 +4,7 @@ import ClientLayout from './Layout/ClientLayout.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { ref } from 'vue';
 import axios from 'axios';
+import { useForm } from '@inertiajs/vue3';
 import PortalConfirmModal from './Components/PortalConfirmModal.vue';
 
 const props = defineProps({
@@ -17,6 +18,7 @@ const props = defineProps({
     empresa: Object, // Pasado desde el controlador
     rentas: Array,
     faqs: Array,
+    catalogos: Object,
 });
 
 const activeTab = ref('resumen');
@@ -78,6 +80,36 @@ const getStatusClasses = (estado) => {
         'cerrado': 'bg-gray-50 text-gray-500 border-gray-100',
     };
     return maps[estado] || 'bg-gray-50 text-gray-500 border-gray-100';
+};
+
+const profileForm = useForm({
+    nombre_razon_social: props.cliente.nombre_razon_social,
+    email: props.cliente.email,
+    telefono: props.cliente.telefono,
+    calle: props.cliente.calle,
+    numero_exterior: props.cliente.numero_exterior,
+    numero_interior: props.cliente.numero_interior,
+    colonia: props.cliente.colonia,
+    municipio: props.cliente.municipio,
+    estado: props.cliente.estado,
+    domicilio_fiscal_cp: props.cliente.domicilio_fiscal_cp,
+    rfc: props.cliente.rfc,
+    regimen_fiscal: props.cliente.regimen_fiscal,
+    uso_cfdi: props.cliente.uso_cfdi,
+    password: '',
+    password_confirmation: '',
+});
+
+const updateProfile = () => {
+    profileForm.post(route('portal.perfil.update'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            window.$toast.success('Perfil actualizado correctamente.');
+            profileForm.password = '';
+            profileForm.password_confirmation = '';
+        },
+        onError: () => window.$toast.error('Hubo un error al actualizar el perfil.')
+    });
 };
 
 const activeFaq = ref(null);
@@ -278,6 +310,19 @@ const toggleFaq = (id) => {
                     >
                         <font-awesome-icon icon="question-circle" /> 
                         <span class="text-sm uppercase tracking-widest">Centro de Ayuda</span>
+                    </button>
+
+                    <button 
+                        @click="activeTab = 'perfil'" 
+                        :class="[
+                            'w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left',
+                            activeTab === 'perfil' 
+                                ? 'bg-[var(--color-primary)] text-white shadow-xl shadow-[var(--color-primary)]/20 shadow-sm' 
+                                : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 border border-gray-100'
+                        ]"
+                    >
+                        <font-awesome-icon icon="user-circle" /> 
+                        <span class="text-sm uppercase tracking-widest">Mi Perfil</span>
                     </button>
 
                     <a 
@@ -874,6 +919,131 @@ const toggleFaq = (id) => {
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Tab: Mi Perfil -->
+                    <div v-show="activeTab === 'perfil'" class="animate-fade-in space-y-10 pb-20">
+                        <div class="px-2">
+                             <h2 class="text-3xl font-black text-gray-900 tracking-tight">Mi Perfil</h2>
+                             <p class="text-gray-500 font-medium mt-2">Gestione sus datos de contacto, facturación y seguridad.</p>
+                        </div>
+
+                        <form @submit.prevent="updateProfile" class="space-y-8">
+                            <!-- Sección: Datos de Contacto -->
+                            <div class="bg-white rounded-[3rem] p-10 shadow-xl border border-gray-100">
+                                <h3 class="text-lg font-black text-gray-900 mb-8 flex items-center gap-3">
+                                    <font-awesome-icon icon="address-book" class="text-[var(--color-primary)]" />
+                                    Datos de Contacto
+                                </h3>
+                                
+                                <div class="grid sm:grid-cols-2 gap-6">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nombre o Razón Social</label>
+                                        <input v-model="profileForm.nombre_razon_social" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Correo Electrónico</label>
+                                        <input v-model="profileForm.email" type="email" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Teléfono</label>
+                                        <input v-model="profileForm.telefono" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                    </div>
+                                </div>
+
+                                <div class="mt-8 pt-8 border-t border-gray-50">
+                                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6">Dirección de Contacto</p>
+                                    <div class="grid sm:grid-cols-3 gap-6">
+                                        <div class="col-span-2 space-y-2">
+                                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Calle</label>
+                                            <input v-model="profileForm.calle" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">No. Exterior</label>
+                                            <input v-model="profileForm.numero_exterior" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">No. Interior</label>
+                                            <input v-model="profileForm.numero_interior" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Colonia</label>
+                                            <input v-model="profileForm.colonia" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Estado</label>
+                                            <select v-model="profileForm.estado" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all">
+                                                <option v-for="est in catalogos.estados" :key="est.id" :value="est.clave">{{ est.nombre }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sección: Datos Fiscales (CFDI 4.0) -->
+                            <div class="bg-white rounded-[3rem] p-10 shadow-xl border border-gray-100">
+                                <h3 class="text-lg font-black text-gray-900 mb-8 flex items-center gap-3">
+                                    <font-awesome-icon icon="file-invoice" class="text-[var(--color-primary)]" />
+                                    Datos Fiscales
+                                </h3>
+                                
+                                <div class="grid sm:grid-cols-2 gap-6">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">RFC</label>
+                                        <input v-model="profileForm.rfc" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Domicilio Fiscal (C.P.)</label>
+                                        <input v-model="profileForm.domicilio_fiscal_cp" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                    </div>
+                                    <div class="space-y-2 sm:col-span-2">
+                                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Régimen Fiscal</label>
+                                        <select v-model="profileForm.regimen_fiscal" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all text-xs">
+                                            <option v-for="reg in catalogos.regimenes" :key="reg.id" :value="reg.clave">
+                                                {{ reg.clave }} - {{ reg.descripcion }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="space-y-2 sm:col-span-2">
+                                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Uso de CFDI Sugerido</label>
+                                        <select v-model="profileForm.uso_cfdi" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all text-xs">
+                                            <option v-for="uso in catalogos.usos_cfdi" :key="uso.id" :value="uso.clave">
+                                                {{ uso.clave }} - {{ uso.descripcion }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sección: Seguridad -->
+                            <div class="bg-gray-900 rounded-[3rem] p-10 shadow-xl text-white">
+                                <h3 class="text-lg font-black mb-8 flex items-center gap-3">
+                                    <font-awesome-icon icon="lock" class="text-[var(--color-primary)]" />
+                                    Seguridad y Contraseña
+                                </h3>
+                                
+                                <div class="grid sm:grid-cols-2 gap-6">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nueva Contraseña</label>
+                                        <input v-model="profileForm.password" type="password" placeholder="Dejar en blanco para no cambiar" class="w-full bg-white/5 border-white/10 rounded-2xl p-4 font-bold text-white focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Confirmar Contraseña</label>
+                                        <input v-model="profileForm.password_confirmation" type="password" class="w-full bg-white/5 border-white/10 rounded-2xl p-4 font-bold text-white focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end pt-6">
+                                <button 
+                                    type="submit" 
+                                    :disabled="profileForm.processing"
+                                    class="px-12 py-5 bg-[var(--color-primary)] text-white rounded-[2rem] font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-orange-500/30 hover:shadow-orange-500/50 hover:-translate-y-1 transition-all disabled:opacity-50"
+                                >
+                                    {{ profileForm.processing ? 'Guardando...' : 'Actualizar mi Información' }}
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

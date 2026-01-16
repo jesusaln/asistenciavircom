@@ -91,15 +91,36 @@ class PortalController extends Controller
                 'id',
                 'nombre_razon_social',
                 'email',
+                'telefono',
+                'rfc',
+                'curp',
+                'regimen_fiscal',
+                'uso_cfdi',
+                'domicilio_fiscal_cp',
+                'calle',
+                'numero_exterior',
+                'numero_interior',
+                'colonia',
+                'municipio',
+                'estado',
                 'credito_activo',
                 'limite_credito',
                 'dias_credito',
                 'estado_credito',
                 'saldo_pendiente',
-                'credito_disponible'
+                'credito_disponible',
+                'tipo_persona'
             ),
             'empresa' => $this->getEmpresaBranding(),
             'faqs' => \App\Models\LandingFaq::where('empresa_id', \App\Support\EmpresaResolver::resolveId())->where('activo', true)->orderBy('orden')->get(),
+            'catalogos' => [
+                'regimenes' => \App\Models\SatRegimenFiscal::orderBy('clave')->get(),
+                'usos_cfdi' => \App\Models\SatUsoCfdi::orderBy('clave')->get(),
+                'estados' => \App\Models\SatEstado::where('vigencia_inicio', '<=', now())
+                    ->where(function ($q) {
+                        $q->whereNull('vigencia_fin')->orWhere('vigencia_fin', '>=', now());
+                    })->orderBy('nombre')->get(),
+            ]
         ]);
     }
 
@@ -340,5 +361,37 @@ class PortalController extends Controller
             Log::error('Error pagando venta con crédito: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Hubo un error al procesar el pago.'], 500);
         }
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $cliente = Auth::guard('client')->user();
+
+        $validated = $request->validate([
+            'nombre_razon_social' => 'required|string|max:255',
+            'email' => 'required|email|unique:clientes,email,' . $cliente->id,
+            'telefono' => 'nullable|string|max:20',
+            'calle' => 'nullable|string|max:255',
+            'numero_exterior' => 'nullable|string|max:20',
+            'numero_interior' => 'nullable|string|max:20',
+            'colonia' => 'nullable|string|max:255',
+            'municipio' => 'nullable|string|max:255',
+            'estado' => 'nullable|string|max:5',
+            'domicilio_fiscal_cp' => 'nullable|string|max:10',
+            'rfc' => 'nullable|string|max:20',
+            'regimen_fiscal' => 'nullable|string|max:10',
+            'uso_cfdi' => 'nullable|string|max:10',
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        if (empty($validated['password'])) {
+            unset($validated['password']);
+        } else {
+            $validated['password'] = bcrypt($validated['password']);
+        }
+
+        $cliente->update($validated);
+
+        return back()->with('success', 'Perfil actualizado correctamente.');
     }
 }

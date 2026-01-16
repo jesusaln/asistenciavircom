@@ -53,6 +53,9 @@ Route::prefix('portal')->group(function () {
         // Credenciales (Cliente)
         Route::post('/credenciales/{id}/revelar', [PortalController::class, 'revelarCredencial'])->name('portal.credenciales.revelar');
 
+        // Perfil (Cliente)
+        Route::post('/perfil', [PortalController::class, 'updateProfile'])->name('portal.perfil.update');
+
         // Pagos con Crédito
         Route::post('/pagos/venta/credito', [PortalController::class, 'payVentaWithCredit'])->name('portal.ventas.pagar-credito');
     });
