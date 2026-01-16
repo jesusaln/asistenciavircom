@@ -64,6 +64,7 @@ class PortalController extends Controller
             'tickets' => $tickets,
             'polizas' => $polizas,
             'pagosPendientes' => $pagosPendientes,
+            'pedidos' => \App\Models\Pedido::where('cliente_id', $cliente->id)->orderByDesc('created_at')->limit(10)->get(),
             'ventas' => Venta::where('cliente_id', $cliente->id)->orderByDesc('fecha')->limit(50)->get(), // Agregamos historial de ventas
             'credenciales' => $cliente->credenciales()->get()->map(function ($c) {
                 // No enviamos el password real al dashboard inicial, solo metadatos
@@ -208,6 +209,33 @@ class PortalController extends Controller
 
         return Inertia::render('Portal/Polizas/Show', [
             'poliza' => $poliza,
+            'empresa' => $this->getEmpresaBranding(),
+        ]);
+    }
+
+    public function pedidosIndex()
+    {
+        $cliente = Auth::guard('client')->user();
+        $pedidos = \App\Models\Pedido::where('cliente_id', $cliente->id)
+            ->orderByDesc('created_at')
+            ->get();
+
+        return Inertia::render('Portal/Pedidos/Index', [
+            'pedidos' => $pedidos,
+            'empresa' => $this->getEmpresaBranding(),
+        ]);
+    }
+
+    public function pedidoShow($id)
+    {
+        $pedido = \App\Models\Pedido::with(['items.pedible'])->findOrFail($id);
+
+        if ($pedido->cliente_id !== Auth::guard('client')->id()) {
+            abort(403);
+        }
+
+        return Inertia::render('Portal/Pedidos/Show', [
+            'pedido' => $pedido,
             'empresa' => $this->getEmpresaBranding(),
         ]);
     }

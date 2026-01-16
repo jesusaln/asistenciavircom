@@ -40,6 +40,10 @@ Route::prefix('portal')->group(function () {
         Route::get('/polizas/{poliza}', [PortalController::class, 'polizaShow'])->name('portal.polizas.show');
         Route::get('/polizas/{poliza}/imprimir', [PortalController::class, 'imprimirContrato'])->name('portal.polizas.imprimir');
 
+        // Pedidos Online (Cliente)
+        Route::get('/pedidos', [PortalController::class, 'pedidosIndex'])->name('portal.pedidos.index');
+        Route::get('/pedidos/{pedido}', [PortalController::class, 'pedidoShow'])->name('portal.pedidos.show');
+
         // Credenciales (Cliente)
         Route::post('/credenciales/{id}/revelar', [PortalController::class, 'revelarCredencial'])->name('portal.credenciales.revelar');
     });

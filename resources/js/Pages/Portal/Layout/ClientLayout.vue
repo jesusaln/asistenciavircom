@@ -41,7 +41,7 @@ const cssVars = computed(() => ({
                         :href="route('portal.dashboard')" 
                         :class="[
                             'text-sm font-bold uppercase tracking-widest pb-5 mt-5 transition-all outline-none',
-                            $page.component === 'Portal/Dashboard' 
+                            ($page.component === 'Portal/Dashboard' || $page.component.startsWith('Portal/Polizas/'))
                                 ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' 
                                 : 'text-gray-400 hover:text-gray-600'
                         ]"

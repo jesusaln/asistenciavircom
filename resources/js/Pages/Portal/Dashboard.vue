@@ -10,6 +10,7 @@ const props = defineProps({
     cliente: Object,
     polizas: Array,
     pagosPendientes: Array,
+    pedidos: Array,
     ventas: Array, // Historial de ventas
     credenciales: Array,
     empresa: Object, // Pasado desde el controlador
@@ -142,6 +143,19 @@ const getStatusClasses = (estado) => {
                     >
                         <font-awesome-icon icon="lock" /> 
                         <span class="text-sm uppercase tracking-widest">Mis Accesos</span>
+                    </button>
+
+                    <button 
+                        @click="activeTab = 'pedidos'" 
+                        :class="[
+                            'w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left',
+                            activeTab === 'pedidos' 
+                                ? 'bg-[var(--color-primary)] text-white shadow-xl shadow-[var(--color-primary)]/20 shadow-sm' 
+                                : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 border border-gray-100'
+                        ]"
+                    >
+                        <font-awesome-icon icon="shopping-cart" /> 
+                        <span class="text-sm uppercase tracking-widest">Mis Pedidos</span>
                     </button>
 
                      <button 
@@ -480,6 +494,60 @@ const getStatusClasses = (estado) => {
                                 </div>
                                 <h3 class="text-lg font-black text-gray-900 mb-1">No hay credenciales</h3>
                                 <p class="text-gray-500 font-medium text-sm">Nuestro equipo aún no ha registrado claves de acceso para su cuenta.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Pedidos -->
+                    <div v-show="activeTab === 'pedidos'" class="animate-fade-in space-y-6">
+                        <div class="px-2">
+                             <h2 class="text-xl font-black text-gray-900 uppercase tracking-tight">Mis Pedidos Online</h2>
+                             <p class="text-gray-500 text-sm font-medium">Siga el estado de sus compras realizadas en nuestra tienda.</p>
+                        </div>
+
+                        <div class="grid gap-6">
+                            <div v-for="pedido in pedidos" :key="pedido.id" 
+                                 class="bg-white rounded-[2rem] p-8 shadow-xl shadow-gray-200/50 border border-gray-100 group hover:border-[var(--color-primary)] transition-all">
+                                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                                    <div class="flex items-center gap-6">
+                                        <div class="w-16 h-16 bg-[var(--color-primary-soft)] rounded-2xl flex items-center justify-center text-[var(--color-primary)] text-2xl">
+                                            <font-awesome-icon icon="box" />
+                                        </div>
+                                        <div>
+                                            <h3 class="text-xl font-black text-gray-900 group-hover:text-[var(--color-primary)] transition-colors">Pedido #{{ pedido.numero_pedido || pedido.id }}</h3>
+                                            <p class="text-sm font-bold text-gray-500">{{ formatDate(pedido.fecha_pedido || pedido.created_at) }}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex flex-col items-end gap-2">
+                                        <span 
+                                            class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 bg-blue-50 text-blue-600"
+                                        >
+                                            {{ pedido.estado }}
+                                        </span>
+                                        <p class="text-lg font-black text-gray-900">${{ Number(pedido.total).toLocaleString('es-MX', {minimumFractionDigits: 2}) }}</p>
+                                    </div>
+                                    
+                                    <div class="flex gap-4">
+                                         <Link :href="route('portal.pedidos.show', pedido.id)" class="px-6 py-3 bg-gray-50 text-gray-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 transition-all border border-gray-200">
+                                            Detalles
+                                        </Link>
+                                    </div>
+                                </div>
+                                
+                                <div v-if="pedido.numero_guia" class="mt-6 pt-6 border-t border-gray-50 flex items-center gap-4 text-emerald-600">
+                                    <font-awesome-icon icon="truck" />
+                                    <p class="text-xs font-bold uppercase tracking-widest">Guía: <span class="text-gray-900 ml-2 font-mono">{{ pedido.numero_guia }}</span> ({{ pedido.empresa_envio }})</p>
+                                </div>
+                            </div>
+
+                            <div v-if="pedidos.length === 0" class="py-20 bg-white rounded-[2rem] border-2 border-dashed border-gray-100 text-center">
+                                <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                                    <font-awesome-icon icon="shopping-cart" size="lg" />
+                                </div>
+                                <h3 class="text-lg font-black text-gray-900 mb-1">No hay pedidos</h3>
+                                <p class="text-gray-500 font-medium text-sm">Aún no ha realizado compras en nuestra tienda en línea.</p>
+                                <a :href="route('catalogo.index')" class="mt-6 inline-block px-8 py-4 bg-[var(--color-primary)] text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:shadow-xl transition-all">Ir a la Tienda</a>
                             </div>
                         </div>
                     </div>
