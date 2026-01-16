@@ -201,8 +201,8 @@ const planesCalculados = computed(() => {
 
 <template>
     <Head>
-        <title>{{ empresaData?.nombre_empresa || 'Asistencia Vircom' }} - Tecnología y Seguridad</title>
-        <meta name="description" :content="`Expertos en Seguridad Electrónica, CCTV, Redes y Pólizas de Soporte TI en ${empresaData?.ciudad || 'Hermosillo'}.`" />
+        <title>{{ empresaData?.nombre_empresa || 'Asistencia Vircom' }} - Redes, CCTV y Seguridad Electrónica</title>
+        <meta name="description" :content="`Proveemos Soluciones Integrales en: Redes, Cámaras de Vigilancia (CCTV), Control de Acceso, Alarmas y GPS Vehicular. Expertos en Seguridad y Tecnología en ${empresaData?.ciudad || 'Hermosillo'}.`" />
     </Head>
 
     <div class="min-h-screen bg-white dark:bg-gray-950 font-sans text-gray-900 dark:text-gray-100 overflow-x-hidden selection:bg-[var(--color-primary-soft)] selection:text-[var(--color-primary)] relative transition-colors duration-300" :style="cssVars">
