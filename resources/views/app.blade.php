@@ -19,9 +19,9 @@
     {{-- Título con nombre de empresa --}}
     <title inertia>
         @if($empresaConfig->nombre_empresa)
-            {{ $empresaConfig->nombre_empresa }} - {{ config('app.name', 'Laravel') }}
+            {{ $empresaConfig->nombre_empresa }}
         @else
-            {{ config('app.name', 'Laravel') }}
+            {{ config('app.name', 'Asistencia Vircom') }}
         @endif
     </title>
 
