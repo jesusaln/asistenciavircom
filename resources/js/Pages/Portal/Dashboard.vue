@@ -92,6 +92,7 @@ const profileForm = useForm({
     colonia: props.cliente.colonia,
     municipio: props.cliente.municipio,
     estado: props.cliente.estado,
+    codigo_postal: props.cliente.codigo_postal,
     domicilio_fiscal_cp: props.cliente.domicilio_fiscal_cp,
     rfc: props.cliente.rfc,
     regimen_fiscal: props.cliente.regimen_fiscal,
@@ -110,6 +111,45 @@ const updateProfile = () => {
         },
         onError: () => window.$toast.error('Hubo un error al actualizar el perfil.')
     });
+};
+
+const searchingCP = ref(false);
+const coloniasEncontradas = ref([]);
+
+const buscarCP = async () => {
+    const cp = profileForm.codigo_postal;
+    if (!cp || cp.length !== 5) return;
+
+    searchingCP.value = true;
+    try {
+        const response = await axios.get(`/api/cp/${cp}`);
+        const data = response.data;
+        
+        profileForm.estado = data.estado_clave || data.estado; // Preferimos la clave si existe
+        profileForm.municipio = data.municipio;
+        coloniasEncontradas.value = data.colonias || [];
+        
+        if (coloniasEncontradas.value.length === 1) {
+            profileForm.colonia = coloniasEncontradas.value[0];
+        }
+
+        // Si el estado es texto largo, intentar buscar la clave en el catálogo
+        if (profileForm.estado.length > 3) {
+            const estadoEncontrado = props.catalogos.estados.find(e => 
+                e.nombre.toLowerCase().includes(data.estado.toLowerCase())
+            );
+            if (estadoEncontrado) {
+                profileForm.estado = estadoEncontrado.clave;
+            }
+        }
+        
+        window.$toast.success('Dirección actualizada por código postal.');
+    } catch (error) {
+        console.error('Error buscando CP:', error);
+        window.$toast.error('No se encontró información para este código postal.');
+    } finally {
+        searchingCP.value = false;
+    }
 };
 
 const activeFaq = ref(null);
@@ -954,6 +994,15 @@ const toggleFaq = (id) => {
                                 <div class="mt-8 pt-8 border-t border-gray-50">
                                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6">Dirección de Contacto</p>
                                     <div class="grid sm:grid-cols-3 gap-6">
+                                        <div class="space-y-2">
+                                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Código Postal</label>
+                                            <div class="relative">
+                                                <input v-model="profileForm.codigo_postal" @blur="buscarCP" type="text" maxlength="5" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                                <div v-if="searchingCP" class="absolute right-4 top-1/2 -translate-y-1/2">
+                                                    <font-awesome-icon icon="spinner" spin class="text-[var(--color-primary)]" />
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="col-span-2 space-y-2">
                                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Calle</label>
                                             <input v-model="profileForm.calle" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
@@ -968,7 +1017,18 @@ const toggleFaq = (id) => {
                                         </div>
                                         <div class="space-y-2">
                                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Colonia</label>
-                                            <input v-model="profileForm.colonia" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                            <template v-if="coloniasEncontradas.length > 0">
+                                                <select v-model="profileForm.colonia" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all">
+                                                    <option v-for="col in coloniasEncontradas" :key="col" :value="col">{{ col }}</option>
+                                                </select>
+                                            </template>
+                                            <template v-else>
+                                                <input v-model="profileForm.colonia" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                            </template>
+                                        </div>
+                                        <div class="space-y-2 text-gray-400">
+                                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Municipio</label>
+                                            <input v-model="profileForm.municipio" type="text" readonly class="w-full bg-gray-100 border-none rounded-2xl p-4 font-bold text-gray-500 cursor-not-allowed" />
                                         </div>
                                         <div class="space-y-2">
                                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Estado</label>
