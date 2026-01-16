@@ -42,7 +42,7 @@ const whatsappLink = computed(() => {
                         <span class="text-xl font-bold text-white">{{ empresaData?.nombre_empresa || empresaData?.nombre || 'Empresa' }}</span>
                     </div>
                     <p class="text-gray-400 text-sm leading-relaxed mb-6">
-                        Expertos en climatización con más de 12 años de experiencia. Instalación, mantenimiento y reparación de equipos.
+                        Proveemos Soluciones Integrales y Profesionales en: Redes, Cámaras de Vigilancia, Control de Acceso, Alarmas, GPS Vehicular
                     </p>
                     <!-- Redes Sociales Dinámicas -->
                     <div class="flex items-center gap-3 flex-wrap">
