@@ -178,11 +178,17 @@ class PolizaServicioController extends Controller
             ->orWhere('activo', true)
             ->get(['id', 'nombre_razon_social', 'email', 'telefono', 'rfc']);
 
+        \Illuminate\Support\Facades\Log::info('Enviando a Edit Poliza:', [
+            'poliza_id' => $polizaServicio->id,
+            'cliente_id' => $polizaServicio->cliente_id,
+            'cliente_data' => $polizaServicio->cliente ? $polizaServicio->cliente->toArray() : 'NULL'
+        ]);
+
         return Inertia::render('PolizaServicio/Edit', [
             'clientes' => $clientesList,
             'servicios' => Servicio::select('id', 'nombre', 'precio')->active()->get(),
             'poliza' => $polizaServicio,
-            'clientePoliza' => $polizaServicio->cliente,
+            'clientePoliza' => $polizaServicio->cliente ? $polizaServicio->cliente->toArray() : null,
         ]);
     }
 
