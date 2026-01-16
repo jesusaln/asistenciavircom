@@ -337,7 +337,7 @@ const getFaIcon = (plan) => {
             <div class="max-w-7xl mx-auto px-4 relative z-10">
                 <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
                     <div class="max-w-2xl">
-                        <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Catálogo Asistencia Vircom</h2>
+                        <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Nuestro Catálogo</h2>
                         <h3 class="text-4xl lg:text-5xl font-black text-gray-900 tracking-tighter leading-tight">
                             Soluciones de <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Próxima Generación</span>
                         </h3>
