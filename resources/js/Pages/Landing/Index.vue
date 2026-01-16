@@ -430,7 +430,7 @@ const planesCalculados = computed(() => {
                             <div class="absolute inset-0 bg-gradient-to-t from-gray-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
                             <div class="absolute top-6 left-6 flex flex-col gap-2 z-10 transition-transform duration-500 group-hover:translate-x-1">
-                                <span class="px-4 py-1.5 bg-white/95 backdrop-blur-xl rounded-full text-[10px] font-black uppercase tracking-[0.1em] text-[var(--color-primary)] shadow-sm border border-gray-100">🔥 Top Ventas</span>
+                                <span class="px-4 py-1.5 bg-white/95 dark:bg-gray-800/90 backdrop-blur-xl rounded-full text-[10px] font-black uppercase tracking-[0.1em] text-[var(--color-primary)] dark:text-white shadow-sm border border-gray-100 dark:border-gray-700">🔥 Top Ventas</span>
                                 <span v-if="item.categoria" class="px-4 py-1.5 bg-gray-900/90 backdrop-blur-xl rounded-full text-[10px] font-black uppercase tracking-[0.1em] text-white shadow-sm">{{ item.categoria }}</span>
                             </div>
 
