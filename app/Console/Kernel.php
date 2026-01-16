@@ -22,6 +22,11 @@ class Kernel extends ConsoleKernel
             ->dailyAt('09:00')
             ->appendOutputTo(storage_path('logs/whatsapp_recordatorios.log'));
 
+        // Enviar alertas de vencimiento de pólizas (30, 15, 7 días antes)
+        $schedule->command('polizas:check-expirations')
+            ->dailyAt('09:30')
+            ->appendOutputTo(storage_path('logs/polizas_vencimientos.log'));
+
         // Sincronizar stock de series automáticamente cada madrugada (02:00 AM)
         $schedule->command('productos:sync-series-stock --auto --notify')
             ->dailyAt('02:00')
