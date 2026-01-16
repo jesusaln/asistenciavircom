@@ -55,6 +55,7 @@ class AppServiceProvider extends ServiceProvider
             'cuentas_por_pagar' => \App\Models\CuentasPorPagar::class,
             'entrega_dinero' => \App\Models\EntregaDinero::class,
             'poliza_servicio' => \App\Models\PolizaServicio::class,
+            'ticket' => \App\Models\Ticket::class,
             // Nota: Para modelos de terceros como User/Tecnico usados por spatie/permission,
             // no definimos alias cortos para no romper pivotes existentes
 
