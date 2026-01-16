@@ -54,6 +54,7 @@ class PolizaServicio extends Model
         // Fase 2 - Alertas
         'dias_alerta_vencimiento',
         'alerta_vencimiento_enviada',
+        'ultimo_aviso_vencimiento_at',
         'ultima_alerta_exceso_at',
         'ultimo_reset_consumo_at',
         'mantenimiento_frecuencia_meses',
@@ -73,6 +74,7 @@ class PolizaServicio extends Model
         'horas_consumidas_mes' => 'decimal:2',
         'costo_hora_excedente' => 'decimal:2',
         'ultimo_cobro_generado_at' => 'datetime',
+        'ultimo_aviso_vencimiento_at' => 'datetime',
         'ultima_alerta_exceso_at' => 'datetime',
         'ultimo_reset_consumo_at' => 'datetime',
         'proximo_mantenimiento_at' => 'date',
