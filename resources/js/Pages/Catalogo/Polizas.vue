@@ -96,7 +96,9 @@ const planesCalculados = computed(() => {
 </script>
 
 <template>
-    <Head :title="`Planes de Póliza - ${empresaData?.nombre_empresa || 'Servicios'}`" />
+    <Head :title="`Planes de Póliza - ${empresaData?.nombre_empresa || 'Servicios'}`">
+        <meta name="description" :content="`Contrata planes de mantenimiento y soporte técnico para tu empresa u hogar en ${empresaData?.ciudad || 'Hermosillo'}. Pólizas mensuales y anuales con descuentos exclusivos.`" />
+    </Head>
 
     <div class="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50/30" :style="cssVars">
         <!-- Widget Flotante de WhatsApp -->

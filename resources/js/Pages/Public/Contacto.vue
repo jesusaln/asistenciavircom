@@ -44,7 +44,9 @@ const submit = () => {
 </script>
 
 <template>
-    <Head :title="`Contacto - ${empresaData?.nombre || empresaData?.nombre_empresa || 'Empresa'}`" />
+    <Head :title="`Contacto - ${empresaData?.nombre || empresaData?.nombre_empresa || 'Empresa'}`">
+        <meta name="description" :content="`Contáctanos en ${empresaData?.ciudad || 'Hermosillo'}. Servicios de soporte técnico, redes, cámaras y facturación. Teléfono: ${empresaData?.telefono}, Email: ${empresaData?.email}.`" />
+    </Head>
 
     <div class="min-h-screen bg-white flex flex-col font-sans" :style="cssVars">
         <!-- Widget Flotante de WhatsApp -->

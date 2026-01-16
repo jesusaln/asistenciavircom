@@ -271,7 +271,9 @@ if (typeof window !== 'undefined') {
 </script>
 
 <template>
-    <Head :title="`Tienda - ${empresaData?.nombre || empresaData?.nombre_empresa || 'Catálogo'}`" />
+    <Head :title="`Tienda - ${empresaData?.nombre || empresaData?.nombre_empresa || 'Catálogo'}`">
+        <meta name="description" :content="`Explora nuestro extenso catálogo de ${empresaData?.nombre_empresa || 'Asistencia Vircom'}. Encuentra computadoras, cámaras de seguridad, redes y accesorios en ${empresaData?.ciudad || 'Hermosillo'}. Envíos a todo México.`" />
+    </Head>
     
     <div class="min-h-screen bg-gray-50 font-sans" :style="cssVars">
         <!-- Widget Flotante de WhatsApp -->

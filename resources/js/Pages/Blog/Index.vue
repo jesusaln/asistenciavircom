@@ -28,7 +28,9 @@ const formatDate = (date) => {
 </script>
 
 <template>
-    <Head title="Blog - Noticias y Tecnología" />
+    <Head title="Blog - Noticias y Tecnología">
+        <meta name="description" :content="`Mantente informado con el Blog de ${props.empresa?.nombre_empresa || 'Asistencia Vircom'}. Noticias sobre seguridad electrónica, tutoriales de tecnología y novedades para tu empresa en ${props.empresa?.ciudad || 'Hermosillo'}.`" />
+    </Head>
     
     <div :style="cssVars" class="min-h-screen bg-gray-50 flex flex-col font-sans">
         <PublicNavbar :empresa="empresa" />
