@@ -3,6 +3,7 @@ import { Link, Head, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import PublicNavbar from '@/Components/PublicNavbar.vue';
 import PublicFooter from '@/Components/PublicFooter.vue';
+import ToastContainer from '@/Components/Toast/ToastContainer.vue';
 
 const props = defineProps({
     empresa: Object,
@@ -88,6 +89,9 @@ const cssVars = computed(() => ({
 
         <!-- Footer con mapa y datos de empresa -->
         <PublicFooter :empresa="empresaData" />
+
+        <!-- Sistema de Notificaciones Premium -->
+        <ToastContainer />
     </div>
 </template>
 

@@ -4,6 +4,7 @@ import ClientLayout from './Layout/ClientLayout.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { ref } from 'vue';
 import axios from 'axios';
+import PortalConfirmModal from './Components/PortalConfirmModal.vue';
 
 const props = defineProps({
     tickets: Object,
@@ -20,6 +21,7 @@ const props = defineProps({
 const activeTab = ref('resumen');
 const revealedPasswords = ref({});
 const isLoadingPassword = ref({});
+const confirmModal = ref(null);
 
 const revealPassword = async (id) => {
     if (revealedPasswords.value[id]) {
@@ -32,8 +34,7 @@ const revealPassword = async (id) => {
         const response = await axios.post(route('portal.credenciales.revelar', id));
         revealedPasswords.value[id] = response.data.password;
     } catch (error) {
-        console.error('Error al revelar credencial:', error);
-        alert('No se pudo revelar la contraseña. Intente de nuevo.');
+        window.$toast.error('No se pudo revelar la contraseña. Intente de nuevo.');
     } finally {
         isLoadingPassword.value[id] = false;
     }
@@ -42,19 +43,21 @@ const revealPassword = async (id) => {
 const payingWithCredit = ref({});
 
 const payWithCredit = async (ventaId) => {
-    if (!confirm('¿Está seguro de querer pagar esta factura usando su crédito comercial?')) return;
+    const confirmed = await confirmModal.value.show();
+    if (!confirmed) return;
 
     try {
         payingWithCredit.value[ventaId] = true;
         const response = await axios.post(route('portal.ventas.pagar-credito'), { venta_id: ventaId });
         
         if (response.data.success) {
-            alert(response.data.message);
-            window.location.reload(); // Recargar para actualizar saldos y estados
+            window.$toast.success(response.data.message, '¡Pago Exitoso!');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
         }
     } catch (error) {
-        console.error('Error al pagar con crédito:', error);
-        alert(error.response?.data?.message || 'Error al procesar el pago.');
+        window.$toast.error(error.response?.data?.message || 'Error al procesar el pago.', 'Error');
     } finally {
         payingWithCredit.value[ventaId] = false;
     }
@@ -782,6 +785,16 @@ const getStatusClasses = (estado) => {
                 </div>
             </div>
         </div>
+
+        <!-- Modal de Confirmación Premium -->
+        <PortalConfirmModal 
+            ref="confirmModal"
+            title="Confirmar Pago"
+            message="¿Estás seguro de querer utilizar tu crédito comercial para liquidar esta factura? El saldo se descontará de tu línea disponible."
+            confirm-label="Sí, pagar ahora"
+            cancel-label="No, volver"
+            type="success"
+        />
     </ClientLayout>
 </template>
 

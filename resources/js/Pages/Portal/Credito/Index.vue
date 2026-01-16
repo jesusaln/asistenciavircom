@@ -48,13 +48,20 @@ const onDrop = (e) => {
 
 const submitUpload = () => {
     uploadForm.post(route('portal.credito.documentos.store'), {
-        onSuccess: () => uploadForm.reset('documento'),
+        onSuccess: () => {
+            uploadForm.reset('documento');
+            window.$toast.success('Documento enviado. Nuestro equipo lo revisará.', '¡Éxito!');
+        },
+        onError: () => window.$toast.error('Hubo un error al subir el archivo.')
     });
 };
 
 const deleteDocumento = (id) => {
     if (confirm('¿Deseas eliminar este documento?')) {
-        useForm({}).delete(route('portal.credito.documentos.destroy', id));
+        useForm({}).delete(route('portal.credito.documentos.destroy', id), {
+            onSuccess: () => window.$toast.success('Documento eliminado correctamente.'),
+            onError: () => window.$toast.error('No se pudo eliminar el documento.')
+        });
     }
 };
 
