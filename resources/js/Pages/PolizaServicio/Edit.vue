@@ -8,7 +8,7 @@ import VaultSection from '@/Components/VaultSection.vue';
 
 const props = defineProps({
     poliza: Object,
-    cliente_poliza: Object,
+    clientePoliza: Object,
     clientes: Array,
     servicios: Array,
     equipos: Array,
@@ -17,14 +17,23 @@ const props = defineProps({
 const isEditing = computed(() => !!props.poliza);
 const showHelpModal = ref(false);
 
+// Debug para desarrollo
+onMounted(() => {
+    console.log('Edit Poliza Mounted');
+    console.log('Poliza:', props.poliza);
+    console.log('Cliente from Prop:', props.clientePoliza);
+    console.log('Clientes list length:', props.clientes?.length);
+    console.log('Cliente Seleccionado:', clienteSeleccionado.value);
+});
+
 const clienteSeleccionado = computed(() => {
     // Intentar buscar en la lista de clientes disponibles
     const enLista = props.clientes.find(c => c.id == form.cliente_id);
     if (enLista) return enLista;
 
     // Fallback: Si no está en la lista pero lo pasamos explícitamente desde el controlador
-    if (props.cliente_poliza && props.cliente_poliza.id == form.cliente_id) {
-        return props.cliente_poliza;
+    if (props.clientePoliza && props.clientePoliza.id == form.cliente_id) {
+        return props.clientePoliza;
     }
 
     // Fallback heredado (por si acaso viene anidado)

@@ -182,7 +182,7 @@ class PolizaServicioController extends Controller
             'clientes' => $clientesList,
             'servicios' => Servicio::select('id', 'nombre', 'precio')->active()->get(),
             'poliza' => $polizaServicio,
-            'cliente_poliza' => $polizaServicio->cliente,
+            'clientePoliza' => $polizaServicio->cliente,
         ]);
     }
 

@@ -5,7 +5,7 @@ $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
 try {
-    $p = App\Models\PolizaServicio::find(8);
+    $p = App\Models\PolizaServicio::find(14);
     if ($p) {
         echo "Poliza encontrada: " . $p->id . "\n";
         echo "Cliente ID: " . $p->cliente_id . "\n";
