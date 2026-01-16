@@ -105,7 +105,10 @@ const getSaludPoliza = () => {
                                 📧 Recordar Renovación
                             </button>
                             <a :href="route('polizas-servicio.pdf-beneficios', poliza.id)" target="_blank" class="px-4 py-2 bg-blue-100 border border-blue-300 rounded-lg hover:bg-blue-200 font-semibold text-blue-700">
-                                📄 PDF
+                                📄 Beneficios
+                            </a>
+                            <a :href="route('polizas-servicio.pdf-contrato', poliza.id)" target="_blank" class="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 font-semibold text-gray-700">
+                                📝 Contrato
                             </a>
                             <Link v-if="poliza.horas_incluidas_mensual" :href="route('polizas-servicio.historial', poliza.id)" class="px-4 py-2 bg-purple-100 border border-purple-300 rounded-lg hover:bg-purple-200 font-semibold text-purple-700">
                                 📊 Historial
@@ -132,6 +135,9 @@ const getSaludPoliza = () => {
                     <div class="flex gap-2">
                         <a :href="route('polizas-servicio.pdf-beneficios', poliza.id)" target="_blank" class="p-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors border border-green-200" title="Ver PDF de Beneficios">
                             📄 Beneficios
+                        </a>
+                        <a :href="route('polizas-servicio.pdf-contrato', poliza.id)" target="_blank" class="p-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200" title="Ver PDF Contrato">
+                            📝 Contrato
                         </a>
                         <Link :href="route('polizas-servicio.edit', poliza.id)" class="p-2 bg-white text-gray-700 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200" title="Editar Póliza">
                             ⚙️ Editar
