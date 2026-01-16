@@ -442,20 +442,12 @@ const planesCalculados = computed(() => {
                             </div>
                         </div>
 
-                        <div class="p-8">
-                            <h4 class="text-lg font-black text-gray-900 dark:text-white mb-3 group-hover:text-[var(--color-primary)] transition-colors line-clamp-2 h-14 leading-[1.3]">{{ item.nombre }}</h4>
+                        <div class="p-6">
+                            <h4 class="text-base font-black text-gray-900 dark:text-white mb-2 group-hover:text-[var(--color-primary)] transition-colors line-clamp-2 h-12 leading-tight text-center">{{ item.nombre }}</h4>
                             
-                            <div class="flex items-center justify-between mt-6">
-                                <div>
-                                    <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-1">Precio Online</p>
-                                    <p class="text-2xl font-black text-gray-900 dark:text-white tracking-tighter transition-colors">${{ formatPrice(item.precio) }}</p>
-                                </div>
-                                <div class="text-right">
-                                    <div class="flex items-center gap-1 text-amber-400 mb-1">
-                                        <svg v-for="i in 5" :key="i" class="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M10 1L13 7L19 8L15 13L16 19L10 16L4 19L5 13L1 8L7 7L10 1Z"/></svg>
-                                    </div>
-                                    <p class="text-[9px] font-bold text-gray-400 uppercase">Garantía Vircom</p>
-                                </div>
+                            <div class="flex flex-col items-center justify-center mt-4">
+                                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-1">Precio Online</p>
+                                <p class="text-xl font-black text-gray-900 dark:text-white tracking-tighter transition-colors">${{ formatPrice(item.precio) }}</p>
                             </div>
                         </div>
                     </article>
