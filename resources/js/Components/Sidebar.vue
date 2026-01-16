@@ -149,6 +149,9 @@
             <NavLink href="/credenciales" icon="key" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Contraseñas' : null">
               Contraseñas
             </NavLink>
+            <NavLink v-if="$can('view categorias') || $can('edit soporte')" href="/soporte/categorias" icon="tags" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Categorías de Tickets' : null">
+              Categorías de Tickets
+            </NavLink>
           </div>
         </div>
 
