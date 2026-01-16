@@ -46,6 +46,7 @@ Route::prefix('portal')->group(function () {
 
         // Crédito (Cliente)
         Route::get('/credito', [\App\Http\Controllers\ClientPortal\PortalCreditoController::class, 'index'])->name('portal.credito.index');
+        Route::get('/credito/solicitud/descargar', [\App\Http\Controllers\ClientPortal\PortalCreditoController::class, 'descargarSolicitud'])->name('portal.credito.solicitud.descargar');
         Route::post('/credito/documentos', [\App\Http\Controllers\ClientPortal\PortalCreditoController::class, 'storeDocumento'])->name('portal.credito.documentos.store');
         Route::delete('/credito/documentos/{documento}', [\App\Http\Controllers\ClientPortal\PortalCreditoController::class, 'destroyDocumento'])->name('portal.credito.documentos.destroy');
 

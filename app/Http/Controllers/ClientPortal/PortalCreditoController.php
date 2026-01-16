@@ -11,7 +11,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use App\Models\Cliente;
+use App\Models\PolizaServicio;
 
 class PortalCreditoController extends Controller
 {
@@ -61,7 +64,7 @@ class PortalCreditoController extends Controller
 
         $request->validate([
             'documento' => 'required|file|max:5120|mimes:pdf,jpg,jpeg,png',
-            'tipo' => 'required|string|in:ine_frontal,ine_trasera,comprobante_domicilio,otro',
+            'tipo' => 'required|string|in:ine_frontal,ine_trasera,comprobante_domicilio,solicitud_credito,otro',
         ]);
 
         try {
@@ -113,5 +116,21 @@ class PortalCreditoController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', 'Error al eliminar.');
         }
+    }
+
+    public function descargarSolicitud()
+    {
+        $cliente = Auth::guard('client')->user();
+        $empresaId = EmpresaResolver::resolveId();
+        $empresa = EmpresaConfiguracion::getConfig($empresaId);
+
+        $logo = $empresa->logo_url ?? asset('images/logo.png');
+
+        return view('portal.impresion.solicitud_credito', [
+            'cliente' => $cliente,
+            'empresa' => $empresa,
+            'logo' => $logo,
+            'fecha' => now()->format('d/m/Y')
+        ]);
     }
 }

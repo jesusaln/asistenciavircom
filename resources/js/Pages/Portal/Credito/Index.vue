@@ -21,7 +21,7 @@ const documentTypes = [
     { value: 'ine_frontal', label: 'INE Frontal' },
     { value: 'ine_trasera', label: 'INE Trasera' },
     { value: 'comprobante_domicilio', label: 'Comprobante de Domicilio' },
-    { value: 'otro', label: 'Otro Documento' },
+    { value: 'solicitud_credito', label: 'Solicitud de Crédito (Firmada)' },
 ];
 
 const creditStatus = computed(() => {
@@ -127,7 +127,12 @@ const getDocLabel = (tipo) => {
                 <div class="lg:col-span-2 space-y-8">
                     <!-- Upload Box -->
                     <div class="bg-white rounded-[2rem] p-8 shadow-xl border border-gray-100">
-                        <h2 class="text-xl font-black text-gray-900 mb-6">Enviar Documentación</h2>
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-xl font-black text-gray-900">Enviar Documentación</h2>
+                            <a :href="route('portal.credito.solicitud.descargar')" target="_blank" class="text-xs font-bold text-[var(--color-primary)] hover:underline flex items-center gap-2 bg-orange-50 px-4 py-2 rounded-xl transition-all">
+                                <font-awesome-icon icon="download" /> Descargar Solicitud Pre-llenada
+                            </a>
+                        </div>
                         
                         <div class="grid sm:grid-cols-2 gap-4 mb-6">
                             <div v-for="type in documentTypes" :key="type.value">
