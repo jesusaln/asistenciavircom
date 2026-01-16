@@ -140,6 +140,24 @@ class LandingController extends Controller
                 'fecha_fin' => $ofertaActiva->fecha_fin?->toIso8601String(),
                 'tiempo_restante' => $ofertaActiva->tiempo_restante,
             ] : null,
+            'articulosBlog' => \App\Models\BlogPost::publicado()
+                ->orderByDesc('publicado_at')
+                ->take(3)
+                ->get()
+                ->map(function ($post) {
+                    return [
+                        'id' => $post->id,
+                        'titulo' => $post->titulo,
+                        'extracto' => $post->resumen ?? \Illuminate\Support\Str::limit(strip_tags($post->contenido), 100),
+                        'imagen' => $post->imagen_portada ? (str_starts_with($post->imagen_portada, 'http') ? $post->imagen_portada : Storage::url($post->imagen_portada)) : null,
+                        'categoria' => $post->categoria ?? 'General',
+                        'icono' => '📝', // Icono por defecto
+                        'fecha' => $post->publicado_at->isoFormat('D MMM YYYY'),
+                        'tiempo_lectura' => $post->tiempo_lectura,
+                        'destacado' => false, // Podríamos añadir lógica para esto
+                        'slug' => $post->slug,
+                    ];
+                }),
             'canLogin' => \Route::has('login'),
             'canRegister' => \Route::has('register'),
         ]);

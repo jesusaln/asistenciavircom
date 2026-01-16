@@ -23,6 +23,7 @@ const props = defineProps({
     oferta: Object,
     laravelVersion: String,
     phpVersion: String,
+    articulosBlog: Array,
 });
 
 const page = usePage();
@@ -662,7 +663,7 @@ const planesCalculados = computed(() => {
         </section>
 
         <!-- BLOG PREVIEW -->
-        <BlogPreview :empresa="empresaData" />
+        <BlogPreview :empresa="empresaData" :articulos="articulosBlog" />
 
         <!-- PUBLIC FOOTER -->
         <PublicFooter :empresa="empresaData" />

@@ -51,4 +51,16 @@ class BlogPost extends Model
         return $query->where('status', 'published')
             ->where('publicado_at', '<=', now());
     }
+
+    public function scopePublicado($query)
+    {
+        return $this->scopePublished($query);
+    }
+
+    public function getTiempoLecturaAttribute()
+    {
+        $words = str_word_count(strip_tags($this->contenido));
+        $minutes = ceil($words / 200);
+        return $minutes . ' min';
+    }
 }

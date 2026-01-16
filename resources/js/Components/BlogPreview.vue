@@ -78,15 +78,15 @@ const articulosSecundarios = computed(() => props.articulos.filter(a => a.id !==
                     </p>
                 </div>
                 
-                <a 
-                    href="#" 
+                <Link 
+                    :href="route('public.blog.index')" 
                     class="mt-6 md:mt-0 inline-flex items-center gap-2 text-[var(--color-primary)] font-bold hover:underline group"
                 >
                     Ver todos los artículos
                     <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
-                </a>
+                </Link>
             </div>
             
             <!-- Articles Grid -->
@@ -128,15 +128,15 @@ const articulosSecundarios = computed(() => props.articulos.filter(a => a.id !==
                             {{ articuloDestacado.extracto }}
                         </p>
                         
-                        <a 
-                            href="#" 
+                        <Link 
+                            :href="route('public.blog.show', articuloDestacado.slug)" 
                             class="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-xl font-bold text-sm hover:bg-[var(--color-primary)] hover:text-white transition-all duration-300"
                         >
                             Leer artículo
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                             </svg>
-                        </a>
+                        </Link>
                     </div>
                 </article>
                 
@@ -176,12 +176,12 @@ const articulosSecundarios = computed(() => props.articulos.filter(a => a.id !==
                                     {{ articulo.extracto }}
                                 </p>
                                 
-                                <a href="#" class="inline-flex items-center text-sm font-bold text-[var(--color-primary)]">
+                                <Link :href="route('public.blog.show', articulo.slug)" class="inline-flex items-center text-sm font-bold text-[var(--color-primary)]">
                                     Leer más
                                     <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                     </svg>
-                                </a>
+                                </Link>
                             </div>
                         </div>
                     </article>
