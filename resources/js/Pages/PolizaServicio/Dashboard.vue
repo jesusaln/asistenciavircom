@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 
 const props = defineProps({
@@ -26,6 +26,18 @@ const getConsumoColor = (porcentaje) => {
     if (porcentaje >= 80) return 'bg-yellow-500';
     return 'bg-green-500';
 };
+
+const enviarRecordatorio = (polizaId) => {
+    if (confirm('¿Enviar recordatorio de renovación al cliente?')) {
+        router.post(route('polizas-servicio.enviar-recordatorio', polizaId));
+    }
+};
+
+const generarCobro = (polizaId) => {
+    if (confirm('¿Generar cobro para esta póliza?')) {
+        router.post(route('polizas-servicio.generar-cobro', polizaId));
+    }
+};
 </script>
 
 <template>
@@ -38,7 +50,7 @@ const getConsumoColor = (porcentaje) => {
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                     <div>
                         <h1 class="text-3xl font-bold text-gray-900">Dashboard de Pólizas</h1>
-                        <p class="text-gray-600 mt-1">Monitoreo de alertas, consumo y facturación</p>
+                        <p class="text-gray-600 mt-1">Control financiero y alertas operativas</p>
                     </div>
                     <div class="flex gap-3">
                         <Link :href="route('polizas-servicio.index')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-semibold">
@@ -50,27 +62,70 @@ const getConsumoColor = (porcentaje) => {
                     </div>
                 </div>
 
-                <!-- Stats Cards -->
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                <!-- KPIs Financieros Premium -->
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+                    <!-- Ingresos Mensuales -->
+                    <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl p-4 text-white shadow-lg col-span-2">
+                        <div class="text-3xl font-black">{{ formatCurrency(stats.ingresos_mensuales) }}</div>
+                        <div class="text-green-100 text-xs font-semibold uppercase tracking-wider mt-1">Ingresos Recurrentes/Mes</div>
+                        <div class="text-[10px] text-green-200 mt-2 opacity-80">
+                            Proyección Anual: <span class="font-bold">{{ formatCurrency(stats.ingresos_anuales_proyectados) }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Pólizas Activas -->
                     <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white shadow-lg">
                         <div class="text-3xl font-black">{{ stats.total_activas }}</div>
-                        <div class="text-blue-100 text-xs font-semibold uppercase tracking-wider">Pólizas Activas</div>
+                        <div class="text-blue-100 text-xs font-semibold uppercase tracking-wider">Activas</div>
                     </div>
-                    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white shadow-lg">
-                        <div class="text-2xl font-black">{{ formatCurrency(stats.ingresos_mensuales) }}</div>
-                        <div class="text-green-100 text-xs font-semibold uppercase tracking-wider">Ingresos/Mes</div>
+                    
+                    <!-- Cobros Pendientes (ALERTA) -->
+                    <div :class="['rounded-xl p-4 shadow-lg', stats.cobros_pendientes > 0 ? 'bg-gradient-to-br from-red-500 to-rose-600 text-white animate-pulse' : 'bg-white border-2 border-gray-200 text-gray-600']">
+                        <div :class="['text-3xl font-black', stats.cobros_pendientes > 0 ? 'text-white' : 'text-gray-400']">
+                            {{ formatCurrency(stats.cobros_pendientes) }}
+                        </div>
+                        <div :class="['text-xs font-semibold uppercase tracking-wider', stats.cobros_pendientes > 0 ? 'text-red-100' : 'text-gray-500']">
+                            Cobros Pendientes
+                        </div>
+                        <div v-if="stats.polizas_con_deuda > 0" class="text-[10px] mt-2 bg-red-900/30 rounded px-2 py-1 text-center">
+                            ⚠️ {{ stats.polizas_con_deuda }} pólizas con deuda
+                        </div>
                     </div>
-                    <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-4 text-white shadow-lg">
-                        <div class="text-3xl font-black">{{ proximasVencer.length }}</div>
-                        <div class="text-orange-100 text-xs font-semibold uppercase tracking-wider">Por Vencer</div>
+                    
+                    <!-- Ingresos por Excedentes -->
+                    <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl p-4 text-white shadow-lg">
+                        <div class="text-2xl font-black">{{ formatCurrency(stats.ingresos_excedentes) }}</div>
+                        <div class="text-amber-100 text-xs font-semibold uppercase tracking-wider">Por Cobrar (Excedentes)</div>
                     </div>
-                    <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-xl p-4 text-white shadow-lg">
-                        <div class="text-3xl font-black">{{ stats.con_exceso_tickets }}</div>
-                        <div class="text-red-100 text-xs font-semibold uppercase tracking-wider">Exceso Tickets</div>
+                    
+                    <!-- Tasa de Retención -->
+                    <div class="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl p-4 text-white shadow-lg">
+                        <div class="text-3xl font-black">{{ stats.tasa_retencion }}%</div>
+                        <div class="text-purple-100 text-xs font-semibold uppercase tracking-wider">Tasa Retención</div>
                     </div>
-                    <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white shadow-lg">
-                        <div class="text-3xl font-black">{{ stats.con_exceso_horas }}</div>
-                        <div class="text-purple-100 text-xs font-semibold uppercase tracking-wider">Exceso Horas</div>
+                </div>
+
+                <!-- Alertas Críticas -->
+                <div v-if="stats.polizas_con_deuda > 0 || stats.con_exceso_horas > 0 || stats.con_exceso_tickets > 0" class="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
+                    <h3 class="font-bold text-red-800 mb-3 flex items-center gap-2">
+                        🚨 Alertas que Requieren Atención Inmediata
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div v-if="stats.polizas_con_deuda > 0" class="bg-white rounded-lg p-3 border border-red-200">
+                            <div class="text-2xl font-black text-red-600">{{ stats.polizas_con_deuda }}</div>
+                            <div class="text-xs text-red-700 font-medium">Pólizas con cobros vencidos</div>
+                            <div class="text-[10px] text-red-400 mt-1">Considere bloquear soporte hasta regularizar</div>
+                        </div>
+                        <div v-if="stats.con_exceso_horas > 0" class="bg-white rounded-lg p-3 border border-purple-200">
+                            <div class="text-2xl font-black text-purple-600">{{ stats.con_exceso_horas }}</div>
+                            <div class="text-xs text-purple-700 font-medium">Exceden horas incluidas</div>
+                            <div class="text-[10px] text-purple-400 mt-1">Facturar horas adicionales</div>
+                        </div>
+                        <div v-if="stats.con_exceso_tickets > 0" class="bg-white rounded-lg p-3 border border-orange-200">
+                            <div class="text-2xl font-black text-orange-600">{{ stats.con_exceso_tickets }}</div>
+                            <div class="text-xs text-orange-700 font-medium">Exceden límite de tickets</div>
+                            <div class="text-[10px] text-orange-400 mt-1">Contactar para upgrade de plan</div>
+                        </div>
                     </div>
                 </div>
 
@@ -91,17 +146,55 @@ const getConsumoColor = (porcentaje) => {
                                             {{ p.nombre }}
                                         </Link>
                                         <div class="text-sm text-gray-500">{{ p.cliente }}</div>
+                                        <div class="text-xs text-green-600 font-bold mt-1">{{ formatCurrency(p.monto_mensual) }}/mes</div>
                                     </div>
                                     <div class="text-right">
                                         <span :class="['px-2 py-1 rounded-lg text-xs font-bold', getAlertLevel(p.dias_restantes).bg, getAlertLevel(p.dias_restantes).text]">
                                             {{ p.dias_restantes <= 0 ? '¡VENCIDA!' : p.dias_restantes + ' días' }}
                                         </span>
                                         <div class="text-xs text-gray-400 mt-1">{{ p.fecha_fin }}</div>
+                                        <button @click="enviarRecordatorio(p.id)" class="mt-2 text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold hover:bg-blue-200 transition">
+                                            📧 Recordar
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                             <div v-if="proximasVencer.length === 0" class="px-6 py-8 text-center text-gray-400">
                                 ✅ No hay pólizas próximas a vencer
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Exceso de Horas (con botón de cobro) -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b bg-gradient-to-r from-purple-50 to-indigo-50">
+                            <h2 class="font-bold text-gray-900 flex items-center gap-2">
+                                ⏱️ Exceso de Horas (Facturar)
+                                <span v-if="excesoHoras.length" class="px-2 py-0.5 bg-purple-500 text-white text-xs rounded-full">{{ excesoHoras.length }}</span>
+                            </h2>
+                        </div>
+                        <div class="divide-y max-h-96 overflow-y-auto">
+                            <div v-for="p in excesoHoras" :key="p.id" class="px-6 py-4 hover:bg-gray-50 transition">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <Link :href="route('polizas-servicio.show', p.id)" class="font-bold text-gray-900 hover:text-blue-600">
+                                            {{ p.nombre }}
+                                        </Link>
+                                        <div class="text-sm text-gray-500">{{ p.cliente }}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-lg font-black text-purple-600">{{ p.horas_usadas }}h / {{ p.horas_incluidas }}h</div>
+                                        <div v-if="p.costo_extra" class="text-xs text-orange-600 font-semibold">
+                                            Excedente: {{ formatCurrency((p.horas_usadas - p.horas_incluidas) * p.costo_extra) }}
+                                        </div>
+                                        <button @click="generarCobro(p.id)" class="mt-2 text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded font-bold hover:bg-green-200 transition">
+                                            💰 Generar Cobro
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-if="excesoHoras.length === 0" class="px-6 py-8 text-center text-gray-400">
+                                ✅ No hay pólizas con exceso de horas
                             </div>
                         </div>
                     </div>
@@ -125,43 +218,12 @@ const getConsumoColor = (porcentaje) => {
                                     </div>
                                     <div class="text-right">
                                         <div class="text-lg font-black text-red-600">{{ p.tickets_usados }}/{{ p.limite }}</div>
-                                        <div class="text-xs text-gray-400">{{ p.porcentaje }}%</div>
+                                        <div class="text-xs text-gray-400">{{ p.porcentaje }}% usado</div>
                                     </div>
                                 </div>
                             </div>
                             <div v-if="excesoTickets.length === 0" class="px-6 py-8 text-center text-gray-400">
                                 ✅ No hay pólizas con exceso de tickets
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Exceso de Horas -->
-                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                        <div class="px-6 py-4 border-b bg-gradient-to-r from-purple-50 to-indigo-50">
-                            <h2 class="font-bold text-gray-900 flex items-center gap-2">
-                                ⏱️ Exceso de Horas
-                                <span v-if="excesoHoras.length" class="px-2 py-0.5 bg-purple-500 text-white text-xs rounded-full">{{ excesoHoras.length }}</span>
-                            </h2>
-                        </div>
-                        <div class="divide-y max-h-96 overflow-y-auto">
-                            <div v-for="p in excesoHoras" :key="p.id" class="px-6 py-4 hover:bg-gray-50 transition">
-                                <div class="flex justify-between items-center">
-                                    <div>
-                                        <Link :href="route('polizas-servicio.show', p.id)" class="font-bold text-gray-900 hover:text-blue-600">
-                                            {{ p.nombre }}
-                                        </Link>
-                                        <div class="text-sm text-gray-500">{{ p.cliente }}</div>
-                                    </div>
-                                    <div class="text-right">
-                                        <div class="text-lg font-black text-purple-600">{{ p.horas_usadas }}h / {{ p.horas_incluidas }}h</div>
-                                        <div v-if="p.costo_extra" class="text-xs text-orange-600 font-semibold">
-                                            Extra: {{ formatCurrency(p.costo_extra) }}/hr
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div v-if="excesoHoras.length === 0" class="px-6 py-8 text-center text-gray-400">
-                                ✅ No hay pólizas con exceso de horas
                             </div>
                         </div>
                     </div>
@@ -229,6 +291,7 @@ const getConsumoColor = (porcentaje) => {
                                             'px-2 py-1 text-xs font-bold rounded-full',
                                             c.estado === 'pagado' ? 'bg-green-100 text-green-800' :
                                             c.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-800' :
+                                            c.estado === 'vencido' ? 'bg-red-100 text-red-800' :
                                             'bg-gray-100 text-gray-800'
                                         ]">
                                             {{ c.estado }}

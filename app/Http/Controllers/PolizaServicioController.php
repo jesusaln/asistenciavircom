@@ -261,15 +261,45 @@ class PolizaServicioController extends Controller
     }
 
     /**
-     * Dashboard de Pólizas - Alertas y Métricas (Phase 3)
+     * Dashboard de Pólizas - Alertas y Métricas (Phase 3 - Premium)
      */
     public function dashboard()
     {
-        // Estadísticas generales
+        // KPIs Financieros Premium
+        $ingresosMensuales = PolizaServicio::activa()->sum('monto_mensual');
+
+        // Cobros pendientes de pólizas (deuda activa)
+        $cobrosPendientes = \App\Models\CuentasPorCobrar::where('cobrable_type', PolizaServicio::class)
+            ->whereIn('estado', ['pendiente', 'vencido'])
+            ->sum('monto_total');
+
+        // Polizas con cobros vencidos (bloquear soporte)
+        $polizasConDeuda = PolizaServicio::activa()
+            ->whereHas('cuentasPorCobrar', function ($q) {
+                $q->where('estado', 'vencido');
+            })
+            ->count();
+
+        // Ingresos potenciales por excedentes de horas
+        $ingresosExcedentes = PolizaServicio::activa()
+            ->whereNotNull('horas_incluidas_mensual')
+            ->whereNotNull('costo_hora_excedente')
+            ->where('horas_consumidas_mes', '>', DB::raw('horas_incluidas_mensual'))
+            ->get()
+            ->sum(function ($p) {
+                $exceso = $p->horas_consumidas_mes - $p->horas_incluidas_mensual;
+                return $exceso * $p->costo_hora_excedente;
+            });
+
+        // Estadísticas generales mejoradas
         $stats = [
             'total_activas' => PolizaServicio::activa()->count(),
             'total_inactivas' => PolizaServicio::where('estado', '!=', 'activa')->count(),
-            'ingresos_mensuales' => PolizaServicio::activa()->sum('monto_mensual'),
+            'ingresos_mensuales' => $ingresosMensuales,
+            'ingresos_anuales_proyectados' => $ingresosMensuales * 12,
+            'cobros_pendientes' => $cobrosPendientes,
+            'polizas_con_deuda' => $polizasConDeuda,
+            'ingresos_excedentes' => $ingresosExcedentes,
             'con_exceso_tickets' => PolizaServicio::activa()
                 ->whereNotNull('limite_mensual_tickets')
                 ->get()
@@ -280,6 +310,8 @@ class PolizaServicioController extends Controller
                 ->get()
                 ->filter(fn($p) => $p->excede_horas)
                 ->count(),
+            // Tasa de retención (últimos 12 meses)
+            'tasa_retencion' => $this->calcularTasaRetencion(),
         ];
 
         // Pólizas próximas a vencer (30 días)
@@ -417,5 +449,82 @@ class PolizaServicioController extends Controller
             'consumoPorMes' => $consumoPorMes,
             'ticketsConHoras' => $ticketsConHoras,
         ]);
+    }
+
+    /**
+     * Calcular tasa de retención de pólizas (últimos 12 meses)
+     */
+    private function calcularTasaRetencion(): float
+    {
+        $hace12Meses = Carbon::now()->subYear();
+
+        // Pólizas que estaban activas hace 12 meses
+        $activasHace12Meses = PolizaServicio::where('fecha_inicio', '<=', $hace12Meses)
+            ->where(function ($q) use ($hace12Meses) {
+                $q->whereNull('fecha_fin')
+                    ->orWhere('fecha_fin', '>=', $hace12Meses);
+            })
+            ->count();
+
+        if ($activasHace12Meses === 0) {
+            return 100; // No hay datos históricos
+        }
+
+        // De esas, cuántas siguen activas hoy
+        $renovadas = PolizaServicio::where('fecha_inicio', '<=', $hace12Meses)
+            ->where('estado', 'activa')
+            ->count();
+
+        return round(($renovadas / $activasHace12Meses) * 100, 1);
+    }
+
+    /**
+     * Generar cobro manual para una póliza
+     */
+    public function generarCobro(PolizaServicio $polizaServicio)
+    {
+        try {
+            $monto = $polizaServicio->monto_mensual;
+            $iva = round($monto * 0.16, 2);
+
+            $cobro = \App\Models\CuentasPorCobrar::create([
+                'empresa_id' => $polizaServicio->empresa_id,
+                'cliente_id' => $polizaServicio->cliente_id,
+                'cobrable_type' => PolizaServicio::class,
+                'cobrable_id' => $polizaServicio->id,
+                'concepto' => "Mensualidad Póliza {$polizaServicio->folio}",
+                'monto_subtotal' => $monto,
+                'monto_iva' => $iva,
+                'monto_total' => $monto + $iva,
+                'estado' => 'pendiente',
+                'fecha_vencimiento' => Carbon::now()->addDays(15),
+                'notas' => "Cobro generado manualmente el " . Carbon::now()->format('d/m/Y'),
+            ]);
+
+            $polizaServicio->update(['ultimo_cobro_generado_at' => now()]);
+
+            return back()->with('success', "Cobro generado correctamente por " . number_format((float) $cobro->monto_total, 2) . " MXN");
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error al generar cobro: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Enviar recordatorio de renovación al cliente
+     */
+    public function enviarRecordatorioRenovacion(PolizaServicio $polizaServicio)
+    {
+        try {
+            $cliente = $polizaServicio->cliente;
+            if (!$cliente || !$cliente->email) {
+                return back()->with('error', 'El cliente no tiene email configurado');
+            }
+
+            $cliente->notify(new \App\Notifications\PolizaRenovacionNotification($polizaServicio));
+
+            return back()->with('success', 'Recordatorio de renovación enviado a ' . $cliente->email);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error al enviar recordatorio: ' . $e->getMessage());
+        }
     }
 }

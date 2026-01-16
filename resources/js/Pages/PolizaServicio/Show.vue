@@ -42,6 +42,32 @@ const getEstadoCobroBadge = (estado) => {
     };
     return colores[estado] || 'bg-gray-100 text-gray-800';
 };
+
+// Acciones Rápidas
+const generarCobro = () => {
+    if (confirm('¿Generar un nuevo cobro para esta póliza?')) {
+        router.post(route('polizas-servicio.generar-cobro', props.poliza.id));
+    }
+};
+
+const enviarRecordatorio = () => {
+    if (confirm('¿Enviar recordatorio de renovación al cliente?')) {
+        router.post(route('polizas-servicio.enviar-recordatorio', props.poliza.id));
+    }
+};
+
+// Indicador de salud de la póliza
+const getSaludPoliza = () => {
+    const diasVencer = props.poliza.dias_para_vencer;
+    const excedeHoras = props.poliza.excede_horas;
+    const porcentajeHoras = props.poliza.porcentaje_horas || 0;
+    
+    if (diasVencer !== null && diasVencer <= 0) return { color: 'bg-red-500', label: 'Vencida', icon: '🔴' };
+    if (diasVencer !== null && diasVencer <= 7) return { color: 'bg-orange-500', label: 'Urgente', icon: '🟠' };
+    if (excedeHoras) return { color: 'bg-purple-500', label: 'Excedida', icon: '🟣' };
+    if (porcentajeHoras >= 80) return { color: 'bg-yellow-500', label: 'Atención', icon: '🟡' };
+    return { color: 'bg-green-500', label: 'Saludable', icon: '🟢' };
+};
 </script>
 
 <template>
@@ -67,14 +93,25 @@ const getEstadoCobroBadge = (estado) => {
                             <p class="text-gray-500">{{ poliza.cliente?.nombre_razon_social }}</p>
                         </div>
                         <div class="flex gap-2 flex-wrap">
-                            <a :href="route('polizas-servicio.pdf-beneficios', poliza.id)" target="_blank" class="px-4 py-2 bg-green-100 border border-green-300 rounded-lg hover:bg-green-200 font-semibold text-green-700">
-                                📄 PDF Beneficios
+                            <!-- Indicador de Salud -->
+                            <div :class="['px-3 py-2 rounded-lg font-bold text-white text-sm flex items-center gap-2', getSaludPoliza().color]">
+                                {{ getSaludPoliza().icon }} {{ getSaludPoliza().label }}
+                            </div>
+                            <!-- Acciones Rápidas -->
+                            <button @click="generarCobro" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold shadow-lg transition">
+                                💰 Cobrar Ahora
+                            </button>
+                            <button v-if="poliza.dias_para_vencer !== null && poliza.dias_para_vencer <= 30" @click="enviarRecordatorio" class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 font-semibold shadow-lg transition">
+                                📧 Recordar Renovación
+                            </button>
+                            <a :href="route('polizas-servicio.pdf-beneficios', poliza.id)" target="_blank" class="px-4 py-2 bg-blue-100 border border-blue-300 rounded-lg hover:bg-blue-200 font-semibold text-blue-700">
+                                📄 PDF
                             </a>
                             <Link v-if="poliza.horas_incluidas_mensual" :href="route('polizas-servicio.historial', poliza.id)" class="px-4 py-2 bg-purple-100 border border-purple-300 rounded-lg hover:bg-purple-200 font-semibold text-purple-700">
-                                📊 Historial Consumo
+                                📊 Historial
                             </Link>
                             <Link :href="route('polizas-servicio.edit', poliza.id)" class="px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 font-semibold text-gray-700">
-                                ⚙️ Editar Configuración
+                                ⚙️ Editar
                             </Link>
                         </div>
                     </div>

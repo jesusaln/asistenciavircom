@@ -380,6 +380,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::get('/polizas-servicio/{polizaServicio}/historial', [PolizaServicioController::class, 'historialConsumo'])->name('polizas-servicio.historial');
     Route::get('/polizas-servicio/{polizaServicio}/pdf-beneficios', [PolizaServicioPDFController::class, 'beneficios'])->name('polizas-servicio.pdf-beneficios');
     Route::get('/polizas-servicio/{polizaServicio}/pdf-contrato', [PolizaServicioPDFController::class, 'contrato'])->name('polizas-servicio.pdf-contrato');
+    Route::post('/polizas-servicio/{polizaServicio}/generar-cobro', [PolizaServicioController::class, 'generarCobro'])->name('polizas-servicio.generar-cobro');
+    Route::post('/polizas-servicio/{polizaServicio}/enviar-recordatorio', [PolizaServicioController::class, 'enviarRecordatorioRenovacion'])->name('polizas-servicio.enviar-recordatorio');
     Route::resource('polizas-servicio', PolizaServicioController::class)->middleware('role:admin|editor|super-admin');
     Route::resource('planes-poliza', PlanPolizaController::class)->middleware('role:admin|editor|super-admin');
 

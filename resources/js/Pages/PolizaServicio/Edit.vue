@@ -58,10 +58,6 @@ const form = useForm({
 const nuevoEquipo = ref({ nombre: '', serie: '' });
 const agregarEquipoCliente = () => {
     if (!nuevoEquipo.value.nombre) return;
-    if (form.equipos_cliente.length >= 5) {
-        alert('Se ha alcanzado el límite de 5 equipos para esta póliza.');
-        return;
-    }
     form.equipos_cliente.push({ ...nuevoEquipo.value });
     nuevoEquipo.value = { nombre: '', serie: '' };
 };
@@ -258,10 +254,10 @@ const helpSections = [
 
                             <!-- Equipos del Cliente -->
                             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                                    <h2 class="font-bold text-gray-800 text-sm">Equipos del Cliente (Máx 5)</h2>
+                            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                                    <h2 class="font-bold text-gray-800 text-sm">Equipos Cubiertos</h2>
                                     <span class="text-[10px] font-bold px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full">
-                                        {{ form.equipos_cliente.length }} / 5
+                                        {{ form.equipos_cliente.length }} equipos
                                     </span>
                                 </div>
                                 <div class="p-6 space-y-4">
