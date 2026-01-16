@@ -104,8 +104,9 @@ class TicketController extends Controller
             'sin_asignar' => Ticket::abiertos()->whereNull('asignado_id')->count(),
             'vencidos' => Ticket::vencidos()->count(),
             'completados_hoy' => Ticket::where(function ($q) {
-                $q->whereDate('resuelto_at', today())
-                    ->orWhereDate('cerrado_at', today());
+                $today = now()->format('Y-m-d');
+                $q->whereDate('resuelto_at', $today)
+                    ->orWhereDate('cerrado_at', $today);
             })->count(),
             'cerrados' => Ticket::where('estado', 'cerrado')->count(),
         ];
