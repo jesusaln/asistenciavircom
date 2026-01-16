@@ -7,6 +7,12 @@ use App\Http\Controllers\HealthController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\Public\ContactoController;
+use App\Http\Controllers\Public\SoportePublicoController; // Import Controller
+
+Route::get('/soporte-tecnico', [SoportePublicoController::class, 'index'])->name('public.soporte'); // Nueva Ruta
+
+
+// Tienda (Público)
 use App\Http\Controllers\PlanPolizaController;
 use App\Http\Controllers\ContratacionPolizaController;
 use App\Http\Controllers\VentaDocumentoController;

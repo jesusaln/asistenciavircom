@@ -142,6 +142,20 @@ class Mantenimiento extends Model
     }
 
     /**
+     * Scope para mantenimientos con alertas pendientes (próximos a vencer o vencidos)
+     */
+    public function scopeConAlertasPendientes($query)
+    {
+        // Reutilizamos la lógica de próximos a vencer con un default de 30 días
+        // Idealmente debería usar la columna dias_anticipacion_alerta, pero para compatibilidad DB simplificamos.
+        return $query->where(function ($q) {
+            $q->where('estado', '!=', self::ESTADO_COMPLETADO)
+                ->whereNotNull('proximo_mantenimiento')
+                ->where('proximo_mantenimiento', '<=', now()->addDays(30));
+        });
+    }
+
+    /**
      * Accessor para obtener días restantes
      */
     public function getDiasRestantesAttribute()
