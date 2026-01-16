@@ -51,7 +51,7 @@ const caracteristicas = computed(() => {
     }
     return [
         'COMPRA: $12,500 (¡Incluye Báscula!)',
-        'RENTA COMPLETA: $1,250 + IVA (Con báscula)',
+        'RENTA COMPLETA: $1,500 (Con báscula)',
         'CPU, Monitor, Teclado, Cajón e Impresora'
     ];
 });
@@ -166,9 +166,9 @@ const padZero = (num) => String(num).padStart(2, '0');
                     
                     <!-- Precios -->
                     <div class="flex items-center justify-center lg:justify-start gap-4 mb-2">
-                        <span class="text-gray-500 line-through text-lg">${{ formatPrice(1249) }}</span>
+                        <span class="text-gray-500 line-through text-lg">${{ formatPrice(1500) }}</span>
                         <div class="flex flex-col items-start leading-none">
-                            <span class="text-3xl lg:text-4xl font-black text-white">${{ formatPrice(999) }} <span class="text-lg font-bold text-gray-400">/ mes</span></span>
+                            <span class="text-3xl lg:text-4xl font-black text-white">${{ formatPrice(1299) }} <span class="text-lg font-bold text-gray-400">/ mes</span></span>
                         </div>
                         <span class="px-3 py-1 bg-[var(--color-primary)] text-white text-xs font-bold rounded-full animate-pulse shadow-lg shadow-[var(--color-primary)]/40">
                             ¡Con Báscula!
@@ -176,7 +176,7 @@ const padZero = (num) => String(num).padStart(2, '0');
                     </div>
                     <div class="flex flex-col gap-1">
                         <p class="text-green-400 text-sm font-semibold">
-                            Ahorras $250 mensuales en tu renta
+                            Ahorras $201 mensuales en tu renta
                         </p>
                         <p class="text-[10px] text-gray-500 italic">* Aplica restricciones</p>
                     </div>
