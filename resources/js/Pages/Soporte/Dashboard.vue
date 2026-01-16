@@ -13,7 +13,9 @@ const props = defineProps({
     ticketsUltimos7Dias: Array,
     cumplimientoSla: Number,
     stats: Object,
-    categorias: Array, // Recibir categorías
+    categorias: Array,
+    horasPorTecnico: Array,
+    horasPorPoliza: Array,
 });
 
 const showCategoryModal = ref(false);
@@ -46,7 +48,14 @@ const prioridadColores = {
                         <h1 class="text-2xl font-bold text-gray-900">Dashboard de Soporte</h1>
                         <p class="text-gray-600">Métricas y rendimiento del equipo</p>
                     </div>
-                    <div class="flex gap-2">
+                    <div class="flex gap-2 flex-wrap">
+                        <a 
+                            :href="route('soporte.reporte.horas-tecnico')" 
+                            target="_blank"
+                            class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition flex items-center gap-2"
+                        >
+                            <span>📄</span> Reporte Horas
+                        </a>
                         <button @click="showCategoryModal = true" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
                             <font-awesome-icon icon="tags" class="mr-2" />
                             Categorías
@@ -180,6 +189,94 @@ const prioridadColores = {
                             <div class="text-xs text-gray-500 mt-2">{{ new Date(dia.fecha).toLocaleDateString('es-MX', { weekday: 'short' }) }}</div>
                             <div class="text-xs font-semibold text-gray-700">{{ dia.total }}</div>
                         </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NUEVO: Sección de Horas Trabajadas -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                    <!-- Horas por Técnico (30 días) -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="text-2xl">⏱️</span>
+                            <h3 class="font-semibold text-gray-900">Horas Trabajadas por Técnico</h3>
+                            <span class="text-xs text-gray-400 ml-auto">Últimos 30 días</span>
+                        </div>
+                        <div v-if="horasPorTecnico && horasPorTecnico.length > 0" class="space-y-3">
+                            <div v-for="item in horasPorTecnico" :key="item.asignado_id" class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-bold">
+                                        {{ item.asignado?.name?.charAt(0) || '?' }}
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">{{ item.asignado?.name || 'Sin asignar' }}</div>
+                                        <div class="text-xs text-gray-500">{{ item.total_tickets }} tickets</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-bold text-blue-600">{{ Number(item.total_horas).toFixed(1) }}h</div>
+                                    <div class="text-xs text-gray-400">{{ (item.total_horas / item.total_tickets).toFixed(1) }}h/ticket</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else class="text-center py-8 text-gray-400">
+                            <div class="text-3xl mb-2">📊</div>
+                            No hay datos de horas registradas
+                        </div>
+                    </div>
+
+                    <!-- Horas por Póliza (Mes actual) -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="text-2xl">🛡️</span>
+                            <h3 class="font-semibold text-gray-900">Consumo de Horas por Póliza</h3>
+                            <span class="text-xs text-gray-400 ml-auto">Mes actual</span>
+                        </div>
+                        <div v-if="horasPorPoliza && horasPorPoliza.length > 0" class="space-y-3">
+                            <div v-for="item in horasPorPoliza" :key="item.poliza_id" class="p-3 rounded-lg border" :class="item.poliza?.horas_incluidas_mensual && Number(item.total_horas) > item.poliza.horas_incluidas_mensual ? 'border-red-200 bg-red-50' : 'border-gray-100 bg-gray-50'">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div>
+                                        <div class="text-sm font-bold text-gray-900">{{ item.poliza?.nombre || 'Póliza' }}</div>
+                                        <div class="text-xs text-gray-500 font-mono">{{ item.poliza?.folio }}</div>
+                                        <div class="text-xs text-gray-400">{{ item.poliza?.cliente?.nombre_razon_social }}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-lg font-bold" :class="item.poliza?.horas_incluidas_mensual && Number(item.total_horas) > item.poliza.horas_incluidas_mensual ? 'text-red-600' : 'text-green-600'">
+                                            {{ Number(item.total_horas).toFixed(1) }}h
+                                        </div>
+                                        <div v-if="item.poliza?.horas_incluidas_mensual" class="text-xs" :class="Number(item.total_horas) > item.poliza.horas_incluidas_mensual ? 'text-red-500 font-bold' : 'text-gray-400'">
+                                            / {{ item.poliza.horas_incluidas_mensual }}h incluídas
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Barra de progreso -->
+                                <div v-if="item.poliza?.horas_incluidas_mensual" class="mt-2">
+                                    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                                        <div 
+                                            class="h-full rounded-full transition-all"
+                                            :class="Number(item.total_horas) > item.poliza.horas_incluidas_mensual ? 'bg-red-500' : 'bg-green-500'"
+                                                :style="{ width: Math.min((item.total_horas / item.poliza.horas_incluidas_mensual) * 100, 100) + '%' }"
+                                        ></div>
+                                    </div>
+                                    <div v-if="Number(item.total_horas) > item.poliza.horas_incluidas_mensual" class="mt-1 text-xs text-red-600 font-bold flex items-center gap-1">
+                                        ⚠️ Excedido por {{ (item.total_horas - item.poliza.horas_incluidas_mensual).toFixed(1) }}h - Considerar ajuste de póliza
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center mt-2">
+                                    <div class="text-xs text-gray-400">{{ item.total_tickets }} tickets atendidos</div>
+                                    <a 
+                                        :href="route('soporte.reporte.consumo-poliza', item.poliza_id)" 
+                                        target="_blank"
+                                        class="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                                    >
+                                        📄 Ver Reporte
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else class="text-center py-8 text-gray-400">
+                            <div class="text-3xl mb-2">🛡️</div>
+                            No hay consumo de horas en pólizas este mes
                         </div>
                     </div>
                 </div>

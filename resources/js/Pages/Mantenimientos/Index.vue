@@ -33,11 +33,9 @@ onMounted(() => {
   }) */
 
   // Verificar si hay mantenimientos que requieren atención (vencidos o próximos)
-  const mantenimientosVencidos = mantenimientos.filter(m => {
+  const mantenimientosVencidos = mantenimientosData.value.filter(m => {
     const estadoLimpio = (m.estado || '').toString().toLowerCase().trim()
-    const esVencido = m.dias_restantes <= 0 && estadoLimpio !== 'completado'
     const esProximo = m.dias_restantes <= 0 // Cualquier mantenimiento con 0 o menos días requiere atención
-    // console.log(`Mantenimiento ${m.id}: dias_restantes=${m.dias_restantes}, estado="${m.estado}" (limpio: "${estadoLimpio}"), esVencido=${esVencido}, esProximo=${esProximo}`)
     return esProximo // Mostrar notificación si requiere atención
   })
 

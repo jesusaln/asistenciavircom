@@ -78,7 +78,6 @@
                                 id="nombre"
                                 placeholder="Ingrese el nombre del servicio"
                                 class="input-field"
-                                required
                             />
                             <div v-if="form.errors.nombre" class="error-message">{{ form.errors.nombre }}</div>
                         </div>
@@ -94,7 +93,6 @@
                                 id="codigo"
                                 placeholder="Código único del servicio"
                                 class="input-field"
-                                required
                             />
                             <div v-if="form.errors.codigo" class="error-message">{{ form.errors.codigo }}</div>
                         </div>
@@ -104,7 +102,7 @@
                             <label for="categoria_id" class="block text-sm font-medium text-gray-700 mb-2">
                                 Categoría <span class="text-red-500">*</span>
                             </label>
-                            <select v-model="form.categoria_id" id="categoria_id" class="input-field" required>
+                            <select v-model="form.categoria_id" id="categoria_id" class="input-field">
                                 <option value="">Seleccione una categoría</option>
                                 <option v-for="categoria in categorias" :key="categoria.id" :value="categoria.id">
                                     {{ categoria.nombre }}
@@ -146,7 +144,6 @@
                                     placeholder="$ 0.00"
                                     class="input-field"
                                     min="0"
-                                    required
                                 />
                             </div>
                             <div v-if="form.errors.precio" class="error-message">{{ form.errors.precio }}</div>
@@ -164,7 +161,6 @@
                                 placeholder="60"
                                 class="input-field"
                                 min="1"
-                                required
                             />
                             <div v-if="form.errors.duracion" class="error-message">{{ form.errors.duracion }}</div>
                         </div>
@@ -220,7 +216,7 @@
                             <label for="estado" class="block text-sm font-medium text-gray-700 mb-2">
                                 Estado <span class="text-red-500">*</span>
                             </label>
-                            <select v-model="form.estado" id="estado" class="input-field" required>
+                            <select v-model="form.estado" id="estado" class="input-field">
                                 <option value="activo">Activo</option>
                                 <option value="inactivo">Inactivo</option>
                             </select>
@@ -288,7 +284,7 @@
                             <label for="sat_clave_unidad" class="block text-sm font-medium text-gray-700 mb-2">
                                 Unidad SAT <span class="text-red-500">*</span>
                             </label>
-                            <select v-model="form.sat_clave_unidad" id="sat_clave_unidad" class="input-field" required>
+                            <select v-model="form.sat_clave_unidad" id="sat_clave_unidad" class="input-field">
                                 <option value="">Seleccione una unidad SAT</option>
                                 <option v-for="unidad in satCatalogos.unidades" :key="unidad.clave" :value="unidad.clave">
                                     {{ unidad.nombre }} ({{ unidad.clave }})
@@ -302,7 +298,7 @@
                             <label for="sat_objeto_imp" class="block text-sm font-medium text-gray-700 mb-2">
                                 Objeto de Impuesto <span class="text-red-500">*</span>
                             </label>
-                            <select v-model="form.sat_objeto_imp" id="sat_objeto_imp" class="input-field" required>
+                            <select v-model="form.sat_objeto_imp" id="sat_objeto_imp" class="input-field">
                                 <option v-for="obj in satCatalogos.objetosImp" :key="obj.clave" :value="obj.clave">
                                     {{ obj.nombre }} ({{ obj.clave }})
                                 </option>

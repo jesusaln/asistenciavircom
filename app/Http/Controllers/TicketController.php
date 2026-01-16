@@ -29,9 +29,16 @@ class TicketController extends Controller
         $query = Ticket::with(['cliente', 'asignado', 'categoria', 'creador']);
         // ->where('empresa_id', $empresaId); // Deshabilitado temporalmente hasta tener multi-tenancy completo
 
+        // Por defecto, excluir cerrados a menos que se solicite explícitamente
+        $incluirCerrados = $request->boolean('incluir_cerrados');
+
         // Filtros
         if ($request->filled('estado')) {
+            // Si se filtra por un estado específico, respetar eso
             $query->where('estado', $request->estado);
+        } elseif (!$incluirCerrados) {
+            // Si no hay filtro de estado y no se piden cerrados, excluirlos
+            $query->where('estado', '!=', 'cerrado');
         }
 
         if ($request->filled('prioridad')) {
@@ -60,10 +67,34 @@ class TicketController extends Controller
             });
         }
 
-        // Ordenamiento
-        $ordenCampo = $request->get('orden', 'created_at');
-        $ordenDir = $request->get('dir', 'desc');
-        $query->orderBy($ordenCampo, $ordenDir);
+        // Ordenamiento por prioridad operativa:
+        // 1. Sin asignar primero (requieren asignación inmediata)
+        // 2. Pendientes (esperando algo)
+        // 3. En progreso (trabajo activo)
+        // 4. Abiertos (recién creados)
+        // 5. Resueltos/Cerrados (solo si se muestran)
+        $query->orderByRaw("
+            CASE 
+                WHEN asignado_id IS NULL AND estado NOT IN ('resuelto', 'cerrado') THEN 0
+                WHEN estado = 'pendiente' THEN 1
+                WHEN estado = 'en_progreso' THEN 2
+                WHEN estado = 'abierto' THEN 3
+                WHEN estado = 'resuelto' THEN 4
+                WHEN estado = 'cerrado' THEN 5
+                ELSE 6
+            END ASC
+        ");
+
+        // Ordenamiento secundario por fecha y prioridad
+        $query->orderByRaw("
+            CASE prioridad 
+                WHEN 'urgente' THEN 0 
+                WHEN 'alta' THEN 1 
+                WHEN 'media' THEN 2 
+                WHEN 'baja' THEN 3 
+                ELSE 4 
+            END ASC
+        ")->orderByDesc('created_at');
 
         $tickets = $query->paginate(20)->appends($request->all());
 
@@ -73,6 +104,7 @@ class TicketController extends Controller
             'sin_asignar' => Ticket::abiertos()->whereNull('asignado_id')->count(),
             'vencidos' => Ticket::vencidos()->count(),
             'resueltos_hoy' => Ticket::where('estado', 'resuelto')->whereDate('completed_at', today())->count(),
+            'cerrados' => Ticket::where('estado', 'cerrado')->count(),
         ];
 
         return Inertia::render('Soporte/Index', [
@@ -80,7 +112,7 @@ class TicketController extends Controller
             'stats' => $stats,
             'categorias' => TicketCategory::where('empresa_id', $empresaId)->activas()->ordenadas()->get(),
             'usuarios' => User::all(['id', 'name']),
-            'filtros' => $request->only(['estado', 'prioridad', 'asignado_id', 'categoria_id', 'buscar']),
+            'filtros' => $request->only(['estado', 'prioridad', 'asignado_id', 'categoria_id', 'buscar', 'incluir_cerrados']),
         ]);
     }
 
@@ -128,6 +160,37 @@ class TicketController extends Controller
             ->whereDate('completed_at', today())
             ->count();
 
+        // === NUEVO: Horas trabajadas por técnico (últimos 30 días) ===
+        $horasPorTecnico = Ticket::whereNotNull('asignado_id')
+            ->whereNotNull('horas_trabajadas')
+            ->where('horas_trabajadas', '>', 0)
+            ->where('updated_at', '>=', now()->subDays(30))
+            ->select(
+                'asignado_id',
+                DB::raw('SUM(horas_trabajadas) as total_horas'),
+                DB::raw('COUNT(*) as total_tickets')
+            )
+            ->groupBy('asignado_id')
+            ->with('asignado:id,name')
+            ->orderByDesc('total_horas')
+            ->get();
+
+        // === NUEVO: Horas por póliza (mes actual) ===
+        $horasPorPoliza = Ticket::whereNotNull('poliza_id')
+            ->whereNotNull('horas_trabajadas')
+            ->where('horas_trabajadas', '>', 0)
+            ->whereMonth('updated_at', now()->month)
+            ->whereYear('updated_at', now()->year)
+            ->select(
+                'poliza_id',
+                DB::raw('SUM(horas_trabajadas) as total_horas'),
+                DB::raw('COUNT(*) as total_tickets')
+            )
+            ->groupBy('poliza_id')
+            ->with(['poliza:id,folio,nombre,horas_incluidas_mensual,cliente_id', 'poliza.cliente:id,nombre_razon_social'])
+            ->orderByDesc('total_horas')
+            ->get();
+
         return Inertia::render('Soporte/Dashboard', [
             'porEstado' => $porEstado,
             'porPrioridad' => $porPrioridad,
@@ -135,6 +198,8 @@ class TicketController extends Controller
             'tiempoPromedioResolucion' => round($tiempoPromedioResolucion ?? 0, 1),
             'ticketsUltimos7Dias' => $ticketsUltimos7Dias,
             'cumplimientoSla' => 100, // SLA simplificado por ahora
+            'horasPorTecnico' => $horasPorTecnico,
+            'horasPorPoliza' => $horasPorPoliza,
             'stats' => [
                 'total_abiertos' => Ticket::where('empresa_id', $empresaId)->abiertos()->count(),
                 'urgentes' => Ticket::where('empresa_id', $empresaId)->abiertos()->where('prioridad', 'urgente')->count(),
@@ -281,11 +346,15 @@ class TicketController extends Controller
 
         $empresaId = EmpresaResolver::resolveId();
 
+        // Verificar si el usuario puede eliminar (solo super-admin)
+        $canDelete = auth()->user()->hasRole('super-admin');
+
         return Inertia::render('Soporte/Show', [
             'ticket' => $ticket,
             'historialCliente' => $historialCliente,
             'categorias' => TicketCategory::where('empresa_id', $empresaId)->activas()->get(),
             'usuarios' => User::all(['id', 'name']),
+            'canDelete' => $canDelete,
         ]);
     }
 

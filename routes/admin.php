@@ -102,6 +102,7 @@ use App\Http\Controllers\DisponibilidadTecnicoController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\LandingContentController;
 use App\Http\Controllers\CredencialController;
+use App\Http\Controllers\Reportes\ReporteSoporteController;
 
 // Forzar patrón numérico para {herramienta}
 Route::pattern('herramienta', '[0-9]+');
@@ -204,6 +205,10 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::post('/{ticket}/asignar', [TicketController::class, 'asignar'])->name('soporte.asignar');
         Route::post('/{ticket}/comentario', [TicketController::class, 'agregarComentario'])->name('soporte.comentario');
         Route::post('/{ticket}/generar-venta', [TicketController::class, 'generarVenta'])->name('soporte.generar-venta');
+
+        // Reportes PDF de Soporte
+        Route::get('/reportes/consumo-poliza/{poliza}', [ReporteSoporteController::class, 'consumoPoliza'])->name('soporte.reporte.consumo-poliza');
+        Route::get('/reportes/horas-tecnico/{usuario?}', [ReporteSoporteController::class, 'horasTecnico'])->name('soporte.reporte.horas-tecnico');
     });
 
     Route::get('/soporte-remoto', [SoporteRemotoController::class, 'index'])->name('soporte-remoto.index')->middleware('can:view soporte');

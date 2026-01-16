@@ -8,6 +8,7 @@ const props = defineProps({
     historialCliente: Array,
     categorias: Array,
     usuarios: Array,
+    canDelete: Boolean, // Permiso de super-admin para eliminar
 });
 
 const nuevoComentario = useForm({
@@ -30,8 +31,8 @@ const estadoPendiente = ref('');
 const horasTrabajadas = ref('');
 
 const cambiarEstado = (nuevoEstado) => {
-    // Si es resuelto/cerrado y tiene póliza con control de horas, pedir horas
-    if (['resuelto', 'cerrado'].includes(nuevoEstado) && props.ticket.poliza?.horas_incluidas_mensual) {
+    // SIEMPRE pedir horas al resolver o cerrar para llevar registro de horas-hombre
+    if (['resuelto', 'cerrado'].includes(nuevoEstado)) {
         estadoPendiente.value = nuevoEstado;
         showHorasModal.value = true;
     } else {
@@ -80,6 +81,12 @@ const agendarCita = () => {
         tipo_servicio: props.ticket.tipo_servicio,
         descripcion: props.ticket.titulo + "\n" + props.ticket.descripcion
     });
+};
+
+const eliminarTicket = () => {
+    if (confirm(`¿Estás seguro de eliminar el ticket ${props.ticket.numero}?\n\nEsta acción no se puede deshacer.`)) {
+        router.delete(route('soporte.destroy', props.ticket.id));
+    }
 };
 
 const estados = ['abierto', 'en_progreso', 'pendiente', 'resuelto', 'cerrado'];
@@ -146,7 +153,7 @@ const formatDate = (date) => {
                         </div>
                         
                         <!-- Acciones Principales -->
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 flex-wrap">
                              <button 
                                 v-if="ticket.tipo_servicio === 'costo' && !ticket.venta_id"
                                 @click="generarVenta"
@@ -167,6 +174,14 @@ const formatDate = (date) => {
                             >
                                 <span>✅</span> Ir a Venta
                             </Link>
+                            <!-- Botón Eliminar (solo super-admin) -->
+                            <button 
+                                v-if="canDelete"
+                                @click="eliminarTicket"
+                                class="px-4 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 font-bold flex items-center gap-2"
+                            >
+                                <span>🗑️</span> Eliminar
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -313,6 +328,10 @@ const formatDate = (date) => {
                                     <dt class="text-gray-500">Resuelto</dt>
                                     <dd class="text-green-600">{{ formatDate(ticket.resuelto_at) }}</dd>
                                 </div>
+                                <div v-if="ticket.horas_trabajadas" class="flex justify-between bg-blue-50 -mx-2 px-2 py-1 rounded">
+                                    <dt class="text-blue-600 font-semibold">⏱️ Horas Trabajadas</dt>
+                                    <dd class="text-blue-800 font-bold">{{ ticket.horas_trabajadas }} hrs</dd>
+                                </div>
                             </dl>
                         </div>
 
@@ -412,41 +431,48 @@ const formatDate = (date) => {
                             </div>
                             <h3 class="text-xl font-bold text-gray-900">Registrar Horas Trabajadas</h3>
                             <p class="text-gray-500 text-sm mt-2">
-                                Este ticket está vinculado a una póliza con control de horas.
-                                Ingresa las horas trabajadas para actualizar el consumo.
+                                Ingresa las horas trabajadas en este ticket para llevar un registro de horas-hombre.
+                                <span v-if="ticket.poliza" class="block mt-1 text-green-600 font-medium">
+                                    Este ticket tiene póliza, las horas se descontarán del consumo mensual.
+                                </span>
                             </p>
                         </div>
 
                         <div class="mb-6">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Horas Trabajadas</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Horas Trabajadas <span class="text-red-500">*</span></label>
                             <div class="relative">
                                 <input 
                                     v-model="horasTrabajadas" 
                                     type="number" 
                                     step="0.25" 
-                                    min="0" 
+                                    min="0.25" 
                                     placeholder="Ej: 1.5"
                                     class="w-full text-center text-2xl font-bold py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                                    required
                                 />
                                 <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">hrs</span>
                             </div>
-                            <p class="text-xs text-gray-500 mt-2 text-center">
-                                Consumo actual: {{ ticket.poliza?.horas_consumidas_mes || 0 }} / {{ ticket.poliza?.horas_incluidas_mensual }} hrs
+                            <p v-if="ticket.poliza?.horas_incluidas_mensual" class="text-xs text-gray-500 mt-2 text-center">
+                                Consumo póliza: {{ ticket.poliza?.horas_consumidas_mes || 0 }} / {{ ticket.poliza?.horas_incluidas_mensual }} hrs
+                            </p>
+                            <p class="text-xs text-amber-600 mt-2 text-center font-medium">
+                                ⚠️ Este campo es obligatorio para llevar el registro de horas-hombre
                             </p>
                         </div>
 
                         <div class="flex gap-3">
                             <button 
-                                @click="cancelarConsumoHoras" 
+                                @click="showHorasModal = false; estadoPendiente = ''; horasTrabajadas = '';" 
                                 class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition"
                             >
-                                Omitir
+                                Cancelar
                             </button>
                             <button 
                                 @click="confirmarConsumoHoras" 
-                                class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition shadow-lg"
+                                :disabled="!horasTrabajadas || parseFloat(horasTrabajadas) <= 0"
+                                class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Registrar
+                                Registrar y {{ estadoPendiente === 'resuelto' ? 'Resolver' : 'Cerrar' }}
                             </button>
                         </div>
                     </div>

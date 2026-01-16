@@ -1,15 +1,16 @@
-@import "tailwindcss";
-@custom-variant dark (&:where(.dark, .dark *));
-@plugin "@tailwindcss/forms";
-@plugin "@tailwindcss/typography";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@source "../../views";
-@source "../../js";
+/* ============================================
+   CDD App - Sistema de Diseño Unificado
+   Paleta: Naranja/Ámbar Profesional
+   ============================================ */
 
-@theme {
-    --font-sans: 'Inter', 'Figtree', sans-serif;
-
-
+:root {
+    /* ===================
+       COLORES PRIMARIOS (Naranja/Ámbar)
+       =================== */
     --color-brand-50: #FFFBEB;
     --color-brand-100: #FEF3C7;
     --color-brand-200: #FDE68A;
@@ -20,13 +21,6 @@
     --color-brand-700: #B45309;
     --color-brand-800: #92400E;
     --color-brand-900: #78350F;
-
-    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-
-    --radius-xl: 0.75rem;
-    --radius-2xl: 1rem;
-
 
     /* ===================
        COLORES SEMÁNTICOS
@@ -75,13 +69,6 @@
     --color-app-border-light: #E5E7EB;
     --color-app-border-medium: #D1D5DB;
     --color-app-border-dark: #9CA3AF;
-
-    /* ===================
-       SOMBRAS
-       =================== */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 [x-cloak] {

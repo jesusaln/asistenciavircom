@@ -149,7 +149,7 @@ class CuentasPorCobrar extends Model
 
         $this->monto_pendiente = max(0, $pendiente);
         $this->save();
-        
+
         // Nota: La sincronización con la Venta relacionada ahora es manejada 
         // automáticamente por CuentasPorCobrarObserver.
     }
@@ -190,11 +190,11 @@ class CuentasPorCobrar extends Model
 
         // ✅ Registrar el pago
         $this->monto_pagado += $monto;
-        
+
         if ($notas) {
             $this->notas = ($this->notas ? $this->notas . "\n" : '') . "Pago recibido: {$monto} - {$notas}";
         }
-        
+
         $this->actualizarEstado();
     }
 
@@ -211,10 +211,10 @@ class CuentasPorCobrar extends Model
         // ✅ FIX #8: Agrupar correctamente las condiciones OR
         return $query->where(function ($q) {
             $q->where('estado', 'vencido')
-              ->orWhere(function ($subQ) {
-                  $subQ->where('fecha_vencimiento', '<', now())
-                       ->where('estado', '!=', 'pagado');
-              });
+                ->orWhere(function ($subQ) {
+                    $subQ->where('fecha_vencimiento', '<', now())
+                        ->where('estado', '!=', 'pagado');
+                });
         });
     }
 
@@ -223,7 +223,7 @@ class CuentasPorCobrar extends Model
      */
     public function recordatorios()
     {
-        return $this->hasMany(RecordatorioCobranza::class);
+        return $this->hasMany(RecordatorioCobranza::class, 'cuenta_por_cobrar_id');
     }
 
     /**
@@ -237,14 +237,14 @@ class CuentasPorCobrar extends Model
         }
 
         $hoy = now();
-        
+
         // ✅ FIX #6: Cálculo más claro de días vencidos
         // Si fecha_vencimiento es futura, diffInDays es negativo
         // Si fecha_vencimiento es pasada, diffInDays es positivo
         if ($this->fecha_vencimiento->isFuture()) {
             return false; // No enviar recordatorios antes del vencimiento
         }
-        
+
         $diasVencido = $hoy->diffInDays($this->fecha_vencimiento); // Siempre positivo
 
         // Día del vencimiento (día 0)

@@ -586,6 +586,12 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         return $this->hasMany(Ticket::class);
     }
 
+    // Relación con Citas
+    public function citas()
+    {
+        return $this->hasMany(Cita::class);
+    }
+
     /**
      * Bóveda de credenciales seguras
      */
