@@ -223,10 +223,10 @@ const cssVars = computed(() => ({
             <div class="px-8 pt-8" :style="cssVars">
                 <div class="flex justify-between items-center mb-4">
                     <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Paso {{ step }} de {{ totalSteps }}</span>
-                    <span class="text-[10px] font-black uppercase tracking-widest text-[var(--color-primary)]">{{ Math.round((step/totalSteps)*100) }}%</span>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-blue-600">{{ Math.round((step/totalSteps)*100) }}%</span>
                 </div>
                 <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div class="h-full bg-[var(--color-primary)] transition-all duration-500 ease-out" :style="`width: ${(step / totalSteps) * 100}%`"></div>
+                    <div class="h-full bg-blue-600 transition-all duration-500 ease-out" :style="`width: ${(step / totalSteps) * 100}%`"></div>
                 </div>
             </div>
 
@@ -429,6 +429,7 @@ const cssVars = computed(() => ({
                 </div>
             </div>
         </div>
+
     </section>
 </template>
 
@@ -448,7 +449,7 @@ input[type="range"]::-webkit-slider-thumb {
     width: 18px;
     border-radius: 50%;
     background: white;
-    border: 3px solid var(--color-primary);
+    border: 3px solid #2563eb;
     cursor: pointer;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }

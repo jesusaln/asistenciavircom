@@ -162,7 +162,6 @@ const getImageUrl = (imagen) => {
     
     return `/storage/${urlStr}`
 }
-
 const getFaIcon = (plan) => {
     if (plan.icono && plan.icono.includes('-')) return plan.icono;
     

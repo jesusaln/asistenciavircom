@@ -165,7 +165,6 @@ class PolizaServicioController extends Controller
     public function edit(PolizaServicio $polizaServicio)
     {
         $polizaServicio->load(['servicios', 'credenciales']);
-
         // Aseguramos que el cliente de la póliza esté en la lista, incluso si está inactivo
         $clientesList = Cliente::where('id', $polizaServicio->cliente_id)
             ->orWhere('activo', true)
