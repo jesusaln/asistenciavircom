@@ -11,6 +11,7 @@
 /bootstrap/cache/*
 /public/build
 /public/hot
+/public/storage
 
 # Environment files
 /.env
