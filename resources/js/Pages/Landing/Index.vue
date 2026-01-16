@@ -443,7 +443,7 @@ const planesCalculados = computed(() => {
                         </div>
 
                         <div class="p-6">
-                            <h4 class="text-base font-black text-gray-900 dark:text-white mb-2 group-hover:text-[var(--color-primary)] transition-colors line-clamp-2 h-12 leading-tight text-center">{{ item.nombre }}</h4>
+                            <h4 :title="item.nombre" class="text-sm font-black text-gray-900 dark:text-white mb-2 group-hover:text-[var(--color-primary)] transition-colors line-clamp-3 h-[3.2rem] leading-tight text-center">{{ item.nombre }}</h4>
                             
                             <div class="flex flex-col items-center justify-center mt-4">
                                 <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-1">Precio Online</p>
