@@ -320,6 +320,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::post('/conciliar', [ConciliacionBancariaController::class, 'conciliar'])->name('conciliacion.conciliar');
     });
 
+    Route::get('cuentas-bancarias/{cuentas_bancaria}/movimientos', [CuentaBancariaController::class, 'movimientos'])->name('cuentas-bancarias.movimientos');
     Route::resource('cuentas-bancarias', CuentaBancariaController::class)->names('cuentas-bancarias');
     Route::resource('cuentas-por-pagar', CuentasPorPagarController::class)->names('cuentas-por-pagar');
     Route::resource('cuentas-por-cobrar', CuentasPorCobrarController::class)->names('cuentas-por-cobrar');
