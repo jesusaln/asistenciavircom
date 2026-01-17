@@ -4,26 +4,26 @@
       <!-- Left: title + description -->
       <div class="min-w-0">
         <div class="flex items-center gap-3 flex-wrap">
-          <h1 class="text-3xl font-bold text-gray-900 truncate">
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white truncate">
             {{ finalTitle }}
           </h1>
 
           <!-- Status pill (opcional) -->
           <span
             v-if="status"
-            :class="['inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ring-1',
+            :class="['inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ring-1 transition-colors',
                      statusClasses.bg, statusClasses.text, statusClasses.ring]"
           >
             {{ statusLabel }}
           </span>
         </div>
 
-        <p v-if="finalDescription" class="text-gray-600 mt-1">
+        <p v-if="finalDescription" class="text-gray-600 dark:text-slate-400 mt-1">
           {{ finalDescription }}
         </p>
 
         <!-- Breadcrumbs slot opcional -->
-        <div v-if="$slots.breadcrumbs" class="mt-2">
+        <div v-if="$slots.breadcrumbs" class="mt-2 text-gray-400">
           <slot name="breadcrumbs" />
         </div>
       </div>
@@ -53,7 +53,7 @@
         <Link
           v-if="showBack"
           :href="backUrl"
-          class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm"
+          class="inline-flex items-center px-4 py-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-lg text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:border-gray-400 dark:hover:border-slate-700 transition-all duration-200 shadow-sm"
         >
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -86,30 +86,17 @@ type Kind =
 type Mode = 'create' | 'edit' | 'show'
 
 const props = defineProps({
-  /** Tipo de documento. Si no lo pasas, se infiere por la ruta (Ziggy o pathname). */
   kind: { type: String as () => Kind, default: undefined },
-
-  /** Modo de la vista: create, edit, show */
   mode: { type: String as () => Mode, default: 'create' },
-
-  /** Overrides de textos (si no se pasan, se usan defaults por tipo+modo) */
   title: { type: String, default: '' },
   description: { type: String, default: '' },
-
-  /** Navegación */
   backUrl: { type: String, required: true },
   backLabel: { type: String, default: 'Volver' },
   showBack: { type: Boolean, default: true },
-
-  /** Vista previa */
   showPreview: { type: Boolean, default: true },
   canPreview: { type: Boolean, default: true },
   previewLabel: { type: String, default: 'Vista Previa' },
-
-  /** Estado (para el pill): borrador, pendiente, aprobada, etc. */
   status: { type: String, default: '' },
-
-  /** Mostrar sección de atajos si hay slot */
   showShortcuts: { type: Boolean, default: false },
 })
 
@@ -119,7 +106,6 @@ defineEmits<{
   (e: 'close-shortcuts'): void
 }>()
 
-/** Textos por tipo y modo */
 const TEXTS: Record<Kind, Record<Mode, { title: string; description: string }>> = {
   pedido: {
     create: { title: 'Nuevo pedido', description: 'Crea un pedido para tus clientes' },
@@ -153,9 +139,7 @@ const TEXTS: Record<Kind, Record<Mode, { title: string; description: string }>> 
   },
 }
 
-/** Intenta inferir el tipo desde el nombre de la ruta (Ziggy) o el pathname. */
 const inferredKind = computed<Kind | undefined>(() => {
-  // Ziggy route name (e.g., "cotizaciones.index")
   const routeFn = typeof globalThis !== 'undefined' ? (globalThis as any).route : undefined
   const current = typeof routeFn === 'function' ? (routeFn().current?.() || routeFn().current || '') : ''
   if (typeof current === 'string' && current) {
@@ -166,8 +150,6 @@ const inferredKind = computed<Kind | undefined>(() => {
     if (current.startsWith('ordenes.'))      return 'ordenCompra'
     if (current.startsWith('rentas.'))       return 'renta'
   }
-
-  // Fallback por pathname
   const p = (typeof window !== 'undefined' ? window.location.pathname : '').toLowerCase()
   if (p.includes('/cotiz'))  return 'cotizacion'
   if (p.includes('/pedido')) return 'pedido'
@@ -178,7 +160,6 @@ const inferredKind = computed<Kind | undefined>(() => {
   return undefined
 })
 
-/** Usa el tipo pasado por props, si no el inferido; por defecto "venta". */
 const resolvedKind = computed<Kind>(() => props.kind ?? inferredKind.value ?? 'venta')
 
 const finalTitle = computed(() =>
@@ -189,23 +170,22 @@ const finalDescription = computed(() =>
   props.description || TEXTS[resolvedKind.value][props.mode].description
 )
 
-/** Estilos del pill de estado */
 const STATUS_STYLES: Record<string, { bg: string; text: string; ring: string; label?: string }> = {
-  borrador:       { bg: 'bg-gray-50',    text: 'text-gray-700',    ring: 'ring-gray-200',    label: 'Borrador' },
-  pendiente:      { bg: 'bg-amber-50',   text: 'text-amber-700',   ring: 'ring-amber-200',   label: 'Pendiente' },
-  aprobada:       { bg: 'bg-emerald-50', text: 'text-emerald-700', ring: 'ring-emerald-200', label: 'Aprobada' },
-  confirmada:     { bg: 'bg-emerald-50', text: 'text-emerald-700', ring: 'ring-emerald-200', label: 'Confirmada' },
-  en_preparacion: { bg: 'bg-sky-50',     text: 'text-sky-700',     ring: 'ring-sky-200',     label: 'En preparación' },
-  listo_entrega:  { bg: 'bg-indigo-50',  text: 'text-indigo-700',  ring: 'ring-indigo-200',  label: 'Listo para entrega' },
-  entregado:      { bg: 'bg-blue-50',    text: 'text-blue-700',    ring: 'ring-blue-200',    label: 'Entregado' },
-  pagado:         { bg: 'bg-green-50',   text: 'text-green-700',   ring: 'ring-green-200',   label: 'Pagado' },
-  cancelado:      { bg: 'bg-rose-50',    text: 'text-rose-700',    ring: 'ring-rose-200',    label: 'Cancelado' },
-  pendiente_pago: { bg: 'bg-amber-50',   text: 'text-amber-700',   ring: 'ring-amber-200',   label: 'Pendiente de pago' },
+  borrador:       { bg: 'bg-gray-50 dark:bg-slate-800',    text: 'text-gray-700 dark:text-slate-300',    ring: 'ring-gray-200 dark:ring-slate-700',    label: 'Borrador' },
+  pendiente:      { bg: 'bg-amber-50 dark:bg-amber-900/20',   text: 'text-amber-700 dark:text-amber-400',   ring: 'ring-amber-200 dark:ring-amber-800/30',   label: 'Pendiente' },
+  aprobada:       { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-700 dark:text-emerald-400', ring: 'ring-emerald-200 dark:ring-emerald-800/30', label: 'Aprobada' },
+  confirmada:     { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-700 dark:text-emerald-400', ring: 'ring-emerald-200 dark:ring-emerald-800/30', label: 'Confirmada' },
+  en_preparacion: { bg: 'bg-sky-50 dark:bg-sky-900/20',     text: 'text-sky-700 dark:text-sky-400',     ring: 'ring-sky-200 dark:ring-sky-800/30',     label: 'En preparación' },
+  listo_entrega:  { bg: 'bg-indigo-50 dark:bg-indigo-900/20',  text: 'text-indigo-700 dark:text-indigo-400',  ring: 'ring-indigo-200 dark:ring-indigo-800/30',  label: 'Listo para entrega' },
+  entregado:      { bg: 'bg-blue-50 dark:bg-blue-900/20',    text: 'text-blue-700 dark:text-blue-400',    ring: 'ring-blue-200 dark:ring-blue-800/30',    label: 'Entregado' },
+  pagado:         { bg: 'bg-green-50 dark:bg-green-900/20',   text: 'text-green-700 dark:text-green-400',   ring: 'ring-green-200 dark:ring-green-800/30',   label: 'Pagado' },
+  cancelado:      { bg: 'bg-rose-50 dark:bg-rose-900/20',    text: 'text-rose-700 dark:text-rose-400',    ring: 'ring-rose-200 dark:ring-rose-800/30',    label: 'Cancelado' },
+  pendiente_pago: { bg: 'bg-amber-50 dark:bg-amber-900/20',   text: 'text-amber-700 dark:text-amber-400',   ring: 'ring-amber-200 dark:ring-amber-800/30',   label: 'Pendiente de pago' },
 }
 
 const statusClasses = computed(() => {
   const key = (props.status || '').toLowerCase().replace(/\s+/g, '_')
-  return STATUS_STYLES[key] ?? { bg: 'bg-gray-50', text: 'text-gray-700', ring: 'ring-gray-200' }
+  return STATUS_STYLES[key] ?? { bg: 'bg-gray-50 dark:bg-slate-800', text: 'text-gray-700 dark:text-slate-300', ring: 'ring-gray-200 dark:ring-slate-700' }
 })
 
 const statusLabel = computed(() => {
@@ -213,4 +193,3 @@ const statusLabel = computed(() => {
   return STATUS_STYLES[key]?.label ?? props.status
 })
 </script>
-

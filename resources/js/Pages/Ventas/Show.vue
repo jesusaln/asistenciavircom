@@ -1,31 +1,40 @@
 <template>
   <Head title="Detalles de Venta" />
 
-  <div class="min-h-screen bg-white py-8">
+  <div class="min-h-screen bg-gray-50 dark:bg-slate-950 py-8 transition-colors duration-300">
     <div class="w-full px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="mb-8">
-        <Link :href="route('ventas.index')" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-4">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-          Volver a Ventas
+        <Link :href="route('ventas.index')" class="inline-flex items-center text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-slate-500 hover:text-gray-900 dark:hover:text-white mb-6 transition-colors group">
+          <div class="w-8 h-8 rounded-xl bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 flex items-center justify-center mr-3 shadow-sm group-hover:scale-110 transition-transform">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </div>
+          Volver al Panel de Ventas
         </Link>
 
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <h1 class="text-3xl font-bold text-gray-900">Detalles de Venta</h1>
-              <p class="text-sm text-gray-500 mt-1">#{{ venta.id }} - {{ venta.numero_venta }}</p>
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-800 p-8">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="flex items-center space-x-6">
+              <div class="w-16 h-16 rounded-2xl flex items-center justify-center shadow-xl transform transition-transform" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
+                <svg class="w-9 h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h1 class="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-wider">Detalles de Venta</h1>
+                <p class="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-[0.3em] mt-1">Ref: {{ venta.numero_venta || venta.id }}</p>
+              </div>
             </div>
-            <div class="flex items-center space-x-3">
-              <span :class="getEstadoClass(venta.estado)" class="px-4 py-2 rounded-full text-sm font-medium">
+            <div class="flex items-center gap-3">
+              <span :class="getEstadoClass(venta.estado)" class="px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-current">
                 {{ getEstadoLabel(venta.estado) }}
               </span>
-              <span v-if="venta.pagado" class="px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                Pagado
+              <span v-if="venta.pagado" class="px-5 py-2.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-emerald-100 dark:border-emerald-800/30">
+                Líquidado
               </span>
-              <span v-else class="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
+              <span v-else class="px-5 py-2.5 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-amber-100 dark:border-amber-800/30">
                 Pendiente de Pago
               </span>
             </div>
@@ -37,134 +46,146 @@
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-8">
           <!-- Sale Information -->
-          <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div class="px-6 py-4 text-white rounded-t-lg" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
-              <h2 class="text-xl font-bold">Información de la Venta</h2>
+          <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-800 overflow-hidden">
+            <div class="px-8 py-5 border-b border-gray-100 dark:border-slate-800/50 flex items-center justify-between" :style="{ background: `linear-gradient(135deg, ${colors.principal}05 0%, ${colors.secundario}03 100%)` }">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-slate-800">
+                  <svg class="w-5 h-5 text-gray-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <h2 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">Información General</h2>
+              </div>
             </div>
-            <div class="px-6 py-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="p-8">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Client -->
-                <div>
-                  <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Cliente</h3>
-                  <div class="space-y-2">
-                    <p class="text-lg font-bold text-gray-900">{{ venta.cliente?.nombre_razon_social || 'Sin cliente' }}</p>
-                    <p v-if="venta.cliente?.email" class="text-sm text-gray-600">{{ venta.cliente?.email }}</p>
-                    <p v-if="venta.cliente?.telefono" class="text-sm text-gray-600">{{ venta.cliente?.telefono }}</p>
-                    <p v-if="venta.cliente?.rfc" class="text-sm text-gray-600">RFC: {{ venta.cliente?.rfc }}</p>
+                <div class="bg-gray-50 dark:bg-slate-950/50 p-6 rounded-2xl border border-gray-100 dark:border-slate-800/50">
+                  <h3 class="text-[9px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-4">Cliente / Receptor</h3>
+                  <div class="space-y-3">
+                    <p class="text-xl font-black text-gray-900 dark:text-white uppercase leading-tight">{{ venta.cliente?.nombre_razon_social || 'Desconocido' }}</p>
+                    <div class="flex items-center text-xs font-bold text-gray-500 dark:text-slate-400">
+                       <svg class="w-4 h-4 mr-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                       {{ venta.cliente?.email || 'Sin correo' }}
+                    </div>
+                    <div class="flex items-center text-xs font-bold text-gray-500 dark:text-slate-400">
+                       <svg class="w-4 h-4 mr-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                       {{ venta.cliente?.telefono || 'Sin teléfono' }}
+                    </div>
+                    <div v-if="venta.cliente?.rfc" class="inline-flex items-center px-2 py-1 bg-gray-100 dark:bg-slate-800 rounded-lg text-[10px] font-black text-gray-600 dark:text-slate-400 uppercase tracking-widest mt-2">
+                       RFC: {{ venta.cliente?.rfc }}
+                    </div>
                   </div>
                 </div>
 
                 <!-- Sale Details -->
-                <div>
-                  <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Detalles</h3>
-                  <div class="space-y-2 text-sm">
-                    <div class="flex justify-between">
-                      <span class="text-gray-600">Fecha:</span>
-                      <span class="font-medium">{{ formatearFecha(venta.fecha) }}</span>
+                <div class="bg-gray-50 dark:bg-slate-950/50 p-6 rounded-2xl border border-gray-100 dark:border-slate-800/50">
+                  <h3 class="text-[9px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-4">Detalles de Operación</h3>
+                  <div class="space-y-4">
+                    <div class="flex justify-between items-center border-b border-gray-100 dark:border-slate-800/50 pb-2">
+                      <span class="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">Fecha:</span>
+                      <span class="text-xs font-black text-gray-900 dark:text-white uppercase">{{ formatearFecha(venta.fecha) }}</span>
                     </div>
-                    <div v-if="venta.almacen" class="flex justify-between">
-                      <span class="text-gray-600">Almacén:</span>
-                      <span class="font-medium">{{ venta.almacen.nombre }}</span>
+                    <div v-if="venta.almacen" class="flex justify-between items-center border-b border-gray-100 dark:border-slate-800/50 pb-2">
+                      <span class="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">Almacén:</span>
+                      <span class="text-xs font-black text-gray-900 dark:text-white uppercase">{{ venta.almacen.nombre }}</span>
                     </div>
-                    <div v-if="venta.vendedor" class="flex justify-between">
-                      <span class="text-gray-600">Vendedor:</span>
-                      <span class="font-medium">{{ venta.vendedor.nombre || venta.vendedor.name }}</span>
+                    <div v-if="venta.vendedor" class="flex justify-between items-center border-b border-gray-100 dark:border-slate-800/50 pb-2">
+                      <span class="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">Vendedor:</span>
+                      <span class="text-xs font-black text-gray-900 dark:text-white uppercase">{{ venta.vendedor.nombre || venta.vendedor.name }}</span>
                     </div>
-                    <div class="flex justify-between">
-                      <span class="text-gray-600">Método de Pago:</span>
-                      <span class="font-medium capitalize">{{ venta.metodo_pago || 'No especificado' }}</span>
+                    <div class="flex justify-between items-center">
+                      <span class="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">Método:</span>
+                      <span class="text-xs font-black text-gray-900 dark:text-white uppercase">{{ venta.metodo_pago || 'N/A' }}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div v-if="venta.notas" class="mt-6">
-                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Notas</h3>
-                <p class="text-sm text-gray-700 bg-white p-3 rounded">{{ venta.notas }}</p>
+              <div v-if="venta.notas" class="mt-8">
+                <h3 class="text-[9px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-3">Observaciones / Notas</h3>
+                <div class="p-5 bg-gray-50 dark:bg-slate-950/50 border border-gray-100 dark:border-slate-800/50 rounded-2xl italic text-sm text-gray-600 dark:text-slate-400">
+                  {{ venta.notas }}
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Products and Services -->
-          <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div class="px-6 py-4 border-b border-gray-200">
-              <h2 class="text-xl font-bold text-gray-900">Productos y Servicios</h2>
-              <p class="text-sm text-gray-500 mt-1">{{ venta.productos.length }} items</p>
+          <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-800 overflow-hidden">
+            <div class="px-8 py-5 border-b border-gray-100 dark:border-slate-800/50 flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-slate-800">
+                  <svg class="w-5 h-5 text-gray-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                </div>
+                <div>
+                    <h2 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">Productos y Servicios</h2>
+                    <p class="text-[9px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">{{ venta.productos.length }} conceptos registrados</p>
+                </div>
+              </div>
             </div>
 
             <div v-if="venta.productos.length > 0" class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-white">
+              <table class="w-full border-collapse">
+                <thead class="bg-gray-50 dark:bg-slate-950/50 border-b border-gray-100 dark:border-slate-800/50">
                   <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto/Servicio</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Cant.</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Unit.</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Desc.</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
+                    <th class="px-8 py-4 text-left text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Concepto</th>
+                    <th class="px-6 py-4 text-center text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Cant.</th>
+                    <th class="px-6 py-4 text-right text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Precio</th>
+                    <th class="px-6 py-4 text-right text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Desc.</th>
+                    <th class="px-8 py-4 text-right text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Subtotal</th>
                   </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="divide-y divide-gray-50 dark:divide-slate-800/30">
                   <template v-for="producto in venta.productos" :key="producto.id">
-                    <tr class="hover:bg-white">
-                      <td class="px-6 py-4">
+                    <tr class="group hover:bg-gray-50/50 dark:hover:bg-slate-800/20 transition-colors">
+                      <td class="px-8 py-5">
                         <div class="flex items-center">
-                          <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-lg"
-                               :class="producto.tipo === 'producto' ? 'bg-purple-100' : 'bg-green-100'">
-                            <svg v-if="producto.tipo === 'producto'" class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div class="flex-shrink-0 h-11 w-11 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-slate-800 border border-gray-100 dark:border-slate-700/50 shadow-sm">
+                            <svg v-if="producto.tipo === 'producto'" class="w-6 h-6 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                             </svg>
-                            <svg v-else class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg v-else class="w-6 h-6 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                           </div>
-                          <div class="ml-4">
-                            <div class="text-sm font-medium text-gray-900">{{ producto.nombre }}</div>
+                          <div class="ml-5">
+                            <div class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight">{{ producto.nombre }}</div>
                             <div class="flex items-center mt-1 space-x-2">
-                              <span :class="producto.tipo === 'producto' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'"
-                                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium capitalize">
+                              <span :class="producto.tipo === 'producto' ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100/50 dark:border-indigo-800/30' : 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100/50 dark:border-emerald-800/30'"
+                                    class="inline-flex items-center px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest">
                                 {{ producto.tipo }}
                               </span>
                               <span v-if="producto.requiere_serie && producto.series && producto.series.length > 0"
-                                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-                                </svg>
-                                {{ producto.series.length }} serie(s)
+                                    class="inline-flex items-center px-2 py-0.5 rounded-lg text-[8px] font-black bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100/50 dark:border-blue-800/30 tracking-widest">
+                                #SERIES: {{ producto.series.length }}
                               </span>
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-center">
-                        <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-100 text-sm font-semibold text-gray-900">
+                      <td class="px-6 py-5 text-center">
+                        <span class="inline-flex items-center justify-center px-3 py-1 bg-gray-100 dark:bg-slate-800 rounded-lg text-xs font-black text-gray-900 dark:text-white">
                           {{ producto.pivot.cantidad }}
                         </span>
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">{{ formatCurrency(producto.pivot.precio) }}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-                        <span v-if="producto.pivot.descuento > 0" class="text-red-600 font-medium">
-                          {{ producto.pivot.descuento }}%
+                      <td class="px-6 py-5 text-right font-bold text-xs text-gray-900 dark:text-white">${{ formatCurrency(producto.pivot.precio) }}</td>
+                      <td class="px-6 py-5 text-right">
+                        <span v-if="producto.pivot.descuento > 0" class="text-[10px] font-black text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 px-2 py-1 rounded-lg border border-rose-100 dark:border-rose-800/30">
+                          -{{ producto.pivot.descuento }}%
                         </span>
-                        <span v-else class="text-gray-400">-</span>
+                        <span v-else class="text-[10px] font-bold text-gray-400 dark:text-slate-500">-</span>
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold text-gray-900">
-                        {{ formatCurrency(producto.pivot.subtotal) }}
+                      <td class="px-8 py-5 text-right">
+                        <span class="text-xs font-black text-gray-900 dark:text-white">${{ formatCurrency(producto.pivot.subtotal) }}</span>
                       </td>
                     </tr>
-                    <!-- Series Row -->
-                    <tr v-if="producto.requiere_serie && producto.series && producto.series.length > 0" class="bg-blue-50">
-                      <td colspan="5" class="px-6 py-3">
-                        <div class="text-xs font-medium text-blue-900 mb-2 flex items-center">
-                          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-                          </svg>
-                          Series vendidas:
-                        </div>
+                    <!-- Series Row Detail -->
+                    <tr v-if="producto.requiere_serie && producto.series && producto.series.length > 0" class="bg-blue-50/10 dark:bg-blue-900/05">
+                      <td colspan="5" class="px-8 py-4">
                         <div class="flex flex-wrap gap-2">
                           <div v-for="(serie, idx) in producto.series" :key="idx"
-                               class="inline-flex items-center bg-white border border-blue-200 rounded-md px-3 py-1.5 shadow-sm">
-                            <span class="text-sm font-mono font-semibold text-gray-900">{{ serie.numero_serie }}</span>
-                            <span class="ml-2 text-xs text-gray-500">• {{ serie.almacen || 'N/A' }}</span>
+                               class="inline-flex flex-col bg-white dark:bg-slate-800/40 border border-blue-100 dark:border-blue-900/30 rounded-xl px-4 py-2 shadow-sm">
+                             <span class="text-[8px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-1">Serie No.</span>
+                             <span class="text-xs font-mono font-bold text-gray-900 dark:text-white tracking-widest">{{ serie.numero_serie }}</span>
                           </div>
                         </div>
                       </td>
@@ -175,469 +196,154 @@
             </div>
 
             <!-- Empty State -->
-            <div v-else class="px-6 py-12 text-center">
-              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-              </svg>
-              <h3 class="mt-2 text-sm font-medium text-gray-900">No hay productos asociados</h3>
-              <p class="mt-1 text-sm text-gray-500">Esta venta no tiene productos o servicios registrados.</p>
+            <div v-else class="px-8 py-20 text-center">
+              <div class="w-20 h-20 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+              </div>
+              <h3 class="text-sm font-black text-gray-400 dark:text-slate-500 uppercase tracking-[0.2em]">Sin conceptos registrados</h3>
             </div>
           </div>
         </div>
 
-        <!-- Sidebar -->
-        <div class="space-y-6">
-          <!-- Summary -->
-          <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div class="px-6 py-4 border-b border-gray-200">
-              <h2 class="text-lg font-semibold text-gray-900">Resumen</h2>
+        <!-- Sidebar Summary & Actions -->
+        <div class="space-y-8">
+          <!-- Financial Summary Card -->
+          <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-800 overflow-hidden">
+            <div class="px-8 py-5 border-b border-gray-100 dark:border-slate-800/50 bg-gray-50 dark:bg-slate-950/20">
+              <h2 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">Resumen de Venta</h2>
             </div>
-            <div class="px-6 py-4 space-y-3">
-              <div class="flex justify-between text-sm">
-                <span class="text-gray-600">Subtotal</span>
-                <span class="font-medium text-gray-900">{{ formatCurrency(venta.subtotal) }}</span>
+            <div class="p-8 space-y-5">
+              <div class="flex justify-between items-center text-xs font-bold">
+                <span class="text-gray-400 dark:text-slate-500 uppercase tracking-widest">Subtotal Global</span>
+                <span class="text-gray-900 dark:text-white">${{ formatCurrency(venta.subtotal) }}</span>
               </div>
-              <div v-if="venta.descuento_general > 0" class="flex justify-between text-sm">
-                <span class="text-gray-600">Descuento General</span>
-                <span class="font-medium text-red-600">-{{ formatCurrency(venta.descuento_general) }}</span>
+              <div v-if="venta.descuento_general > 0" class="flex justify-between items-center text-xs font-bold">
+                <span class="text-rose-600 dark:text-rose-400 uppercase tracking-widest">Descuento Global</span>
+                <span class="text-rose-600 dark:text-rose-400">-${{ formatCurrency(venta.descuento_general) }}</span>
               </div>
-              <div class="flex justify-between text-sm">
-                <span class="text-gray-600">IVA (16%)</span>
-                <span class="font-medium text-gray-900">{{ formatCurrency(venta.iva) }}</span>
+              <div class="flex justify-between items-center text-xs font-bold">
+                <span class="text-gray-400 dark:text-slate-500 uppercase tracking-widest">Impuestos (IVA 16%)</span>
+                <span class="text-gray-900 dark:text-white">${{ formatCurrency(venta.iva) }}</span>
               </div>
-              <div class="pt-3 border-t-2 border-gray-300">
-                <div class="flex justify-between items-center">
-                  <span class="text-base font-semibold text-gray-900">Total</span>
-                  <span class="text-2xl font-bold" :style="{ color: colors.principal }">{{ formatCurrency(venta.total) }}</span>
+              <div class="pt-5 border-t-2 border-gray-100 dark:border-slate-800/50">
+                <div class="flex flex-col gap-2">
+                  <span class="text-[9px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-[0.3em]">Total a Liquidar</span>
+                  <p class="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">
+                    <span class="text-xl font-bold opacity-50 mr-1">$</span>{{ formatCurrency(venta.total).split('.')[0] }}<span class="text-xl opacity-70">.{{ formatCurrency(venta.total).split('.')[1] }}</span>
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Payment Status -->
-          <div :class="venta.pagado ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'"
-               class="rounded-lg border p-4">
-            <div class="flex items-center mb-3">
-              <svg v-if="venta.pagado" class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <svg v-else class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <h3 :class="venta.pagado ? 'text-green-900' : 'text-yellow-900'" class="text-sm font-semibold">
-                {{ venta.pagado ? 'Pago Completado' : 'Pago Pendiente' }}
-              </h3>
-            </div>
-            <dl v-if="venta.pagado" class="space-y-2">
+          <!-- Payment Context Card -->
+          <div :class="venta.pagado ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-800/30' : 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-100 dark:border-amber-800/30'"
+               class="rounded-3xl border p-8 transition-colors duration-300">
+            <div class="flex items-center space-x-4 mb-6">
+              <div :class="venta.pagado ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'" class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform rotate-3">
+                 <svg v-if="venta.pagado" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                 <svg v-else class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              </div>
               <div>
-                <dt class="text-xs text-green-700">Método de Pago</dt>
-                <dd class="text-sm font-medium text-green-900 capitalize">{{ venta.metodo_pago || 'N/A' }}</dd>
+                <h3 :class="venta.pagado ? 'text-emerald-900 dark:text-emerald-300' : 'text-amber-900 dark:text-amber-300'" class="text-xs font-black uppercase tracking-widest">
+                  {{ venta.pagado ? 'Recaudación Exitosa' : 'Pendiente de Cobro' }}
+                </h3>
+                <p class="text-[10px] font-bold text-gray-500 dark:text-slate-400 mt-1 uppercase tracking-tighter">Estado Financiero</p>
               </div>
-              <div v-if="venta.fecha_pago">
-                <dt class="text-xs text-green-700">Fecha de Pago</dt>
-                <dd class="text-sm font-medium text-green-900">{{ formatearFecha(venta.fecha_pago) }}</dd>
+            </div>
+            
+            <div v-if="venta.pagado" class="space-y-4">
+              <div class="bg-white/80 dark:bg-slate-900/40 p-4 rounded-2xl border border-emerald-100/50 dark:border-emerald-800/20">
+                <span class="text-[9px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Método empleado</span>
+                <span class="text-sm font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">{{ venta.metodo_pago || 'Otros' }}</span>
               </div>
-            </dl>
-            <p v-else class="text-sm text-yellow-800">
-              Esta venta aún no ha sido pagada.
+              <div v-if="venta.fecha_pago" class="bg-white/80 dark:bg-slate-900/40 p-4 rounded-2xl border border-emerald-100/50 dark:border-emerald-800/20">
+                <span class="text-[9px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Fecha de liquidación</span>
+                <span class="text-sm font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">{{ formatearFecha(venta.fecha_pago) }}</span>
+              </div>
+            </div>
+            <p v-else class="text-xs font-bold text-amber-700 dark:text-amber-500 uppercase leading-relaxed text-center p-4 bg-amber-100/30 dark:bg-amber-900/10 rounded-2xl border border-amber-200/50 dark:border-amber-800/30">
+              Esta operación aún presenta saldo a favor de la empresa.
             </p>
           </div>
 
-          <!-- Audit -->
-          <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div class="px-6 py-4 border-b border-gray-200">
-              <h2 class="text-lg font-semibold text-gray-900">Auditoría</h2>
-            </div>
-            <div class="px-6 py-4 space-y-3 text-sm">
-              <div>
-                <dt class="text-xs font-medium text-gray-500 flex items-center">
-                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                  </svg>
-                  Creado
-                </dt>
-                <dd class="mt-1 text-gray-900">{{ formatearFechaHora(venta.created_at) }}</dd>
-              </div>
-              <div>
-                <dt class="text-xs font-medium text-gray-500 flex items-center">
-                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  Última Actualización
-                </dt>
-                <dd class="mt-1 text-gray-900">{{ formatearFechaHora(venta.updated_at) }}</dd>
-              </div>
-            </div>
-          </div>
-
-          <!-- Actions -->
-          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 space-y-3">
+          <!-- Actions Grid -->
+          <div class="grid grid-cols-1 gap-3">
             <Link :href="route('ventas.pdf', venta.id)" target="_blank"
-                  class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-white transition-colors">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-              Descargar PDF
+                  class="flex items-center justify-center gap-3 px-6 py-4 bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 text-[10px] font-black uppercase tracking-[0.2em] text-gray-700 dark:text-slate-400 rounded-2xl border-2 border-gray-100 dark:border-slate-800 transition-all transform hover:-translate-y-1 active:translate-y-0">
+               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+               Visualizar PDF
             </Link>
-            <Link :href="route('ventas.ticket', venta.id)" target="_blank"
-                  class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-white transition-colors">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-              </svg>
-              Imprimir Ticket
-            </Link>
-            <Link v-if="canEdit" :href="route('ventas.edit', venta.id)"
-                  class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white transition-colors"
-                  :style="{ backgroundColor: colors.principal }">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              Editar Venta
-            </Link>
-            <button v-if="!venta.pagado" @click="showPagoModal = true"
-                    class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition-colors">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Marcar como Pagado
-            </button>
-            <button v-if="canCancel" @click="cancelarVenta(venta.id)"
-                    class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 transition-colors">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Cancelar Venta
-            </button>
-            <button v-if="canDelete" @click="eliminarVenta(venta.id)"
-                    class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              Eliminar Venta
-            </button>
-          </div>
-
-          <!-- SAT Invoicing -->
-          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 space-y-3">
-            <h3 class="text-sm font-semibold text-gray-900 border-b pb-2 mb-2">Facturación SAT</h3>
             
-            <div v-if="venta.esta_facturada" class="space-y-3">
-              <div class="p-3 bg-blue-50 border border-blue-100 rounded-lg">
-                <p class="text-xs text-blue-800 font-medium">CFDI Timbrado</p>
-                <p class="text-xs text-blue-600 font-mono mt-1 break-all">{{ venta.factura?.uuid }}</p>
-              </div>
-              <a :href="route('cfdi.descargar-xml', venta.factura?.uuid)" target="_blank"
-                 class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-white transition-colors">
-                <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Descargar XML
-              </a>
-              <a :href="route('cfdi.ver-pdf-view', venta.factura?.uuid)" target="_blank"
-                 class="w-full inline-flex justify-center items-center px-4 py-2 border border-blue-600 rounded-md shadow-sm text-sm font-medium text-blue-600 bg-white hover:bg-blue-50 transition-colors">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-                Ver Factura (PDF)
-              </a>
-              <button @click="abrirCancelarFacturaModal"
-                      class="w-full inline-flex justify-center items-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50 transition-colors">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Cancelar Factura (SAT)
-              </button>
-            </div>
+            <Link v-if="canEdit" :href="route('ventas.edit', venta.id)"
+                  class="flex items-center justify-center gap-3 px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl hover:shadow-blue-500/20 transition-all transform hover:-translate-y-1 active:translate-y-0">
+               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+               Modificar Registro
+            </Link>
 
-            <button v-else @click="showFacturarModal = true"
-                    class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    :disabled="isProcessingFactura">
-              <svg v-if="!isProcessingFactura" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04M12 2.944V22m0-19.056c1.11 0 2.22.12 3.291.352 3.174.694 5.254 3.012 5.254 6.225 0 2.969-1.928 5.48-4.686 6.305" />
-              </svg>
-              <svg v-else class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              {{ isProcessingFactura ? 'Procesando...' : 'Facturar (CFDI 4.0)' }}
+            <button v-if="!venta.pagado && !esCancelada(venta)" @click="showPagoModal = true"
+                    class="flex items-center justify-center gap-3 px-6 py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl hover:shadow-emerald-500/20 transition-all transform hover:-translate-y-1 active:translate-y-0">
+               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+               Liquidar Ahora
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Modals -->
-      <!-- Cancel Modal -->
-      <DialogModal :show="showCancelModal" @close="cerrarCancelModal" max-width="md">
+      <!-- Modals Section -->
+      <!-- Pago Modal -->
+      <DialogModal :show="showPagoModal" @close="showPagoModal = false" max-width="lg">
         <template #title>
-          Cancelar Venta
+          <div class="flex items-center space-x-3 text-emerald-600">
+             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+             <span class="text-xl font-black uppercase tracking-widest">Registrar Pago</span>
+          </div>
         </template>
-
         <template #content>
-          <div class="space-y-4 modal-content">
-            <div class="bg-red-50 p-4 rounded-lg">
-              <div class="flex">
-                <div class="flex-shrink-0">
-                  <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
+          <div class="space-y-6 pt-4">
+             <div class="bg-gray-50 dark:bg-slate-950 p-6 rounded-2xl border border-gray-100 dark:border-slate-800">
+                <div class="flex justify-between items-center">
+                   <span class="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Monto Total a Liquidar</span>
+                   <span class="text-2xl font-black text-gray-900 dark:text-white">${{ formatCurrency(venta.total) }}</span>
                 </div>
-                <div class="ml-3">
-                  <h3 class="text-sm font-medium text-red-800">&iquest;Est&aacute; seguro de que desea cancelar esta venta?</h3>
-                  <div class="mt-2 text-sm text-red-700">
-                    <p>Esta acci&oacute;n:</p>
-                    <ul class="list-disc list-inside mt-1 space-y-1">
-                      <li>Devolver&aacute; el inventario al almac&eacute;n</li>
-                      <li>Devolver&aacute; las series a estado disponible</li>
-                      <li>Cambiar&aacute; el estado de la venta a "Cancelada"</li>
-                      <li>No se podr&aacute; deshacer esta acci&oacute;n</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="bg-white p-4 rounded-lg">
-              <div class="flex justify-between items-center">
-                <span class="text-sm font-medium text-gray-700">Venta:</span>
-                <span class="text-sm font-mono text-gray-900">{{ venta.numero_venta }}</span>
-              </div>
-              <div class="flex justify-between items-center mt-2">
-                <span class="text-sm font-medium text-gray-700">Total:</span>
-                <span class="text-lg font-bold text-gray-900">{{ formatCurrency(venta.total) }}</span>
-              </div>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Motivo de cancelaci&oacute;n (opcional)</label>
-              <textarea v-model="motivoCancelacion" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Explique el motivo de la cancelaci&oacute;n..."></textarea>
-            </div>
-            <!-- Admin Force Cancel Option - Always show for admin -->
-            <div v-if="isAdmin" class="bg-orange-50 p-4 rounded-lg border border-orange-200">
-              <div class="flex items-start">
-                <input id="forceCancel" type="checkbox" v-model="forceWithPayments" 
-                       class="h-4 w-4 mt-1 text-orange-600 focus:ring-orange-500 border-gray-300 rounded" />
-                <label for="forceCancel" class="ml-3">
-                  <span class="text-sm font-medium text-orange-800">Forzar cancelaci&oacute;n (Admin)</span>
-                  <p class="text-xs text-orange-700 mt-1">
-                    Esta venta tiene pagos registrados. Al marcar esta opci&oacute;n, se eliminar&aacute;n los registros de pago y entrega de dinero.
-                  </p>
-                </label>
-              </div>
-            </div>
+             </div>
+
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+               <div>
+                  <label class="block text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-2 ml-1">Método de Pago</label>
+                  <select v-model="metodoPago" class="w-full bg-white dark:bg-slate-900 border-2 border-gray-100 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:border-blue-500 transition-all outline-none">
+                    <option value="">Seleccionar método</option>
+                    <option value="efectivo">Efectivo</option>
+                    <option value="transferencia">Transferencia</option>
+                    <option value="cheque">Cheque</option>
+                    <option value="tarjeta">Tarjeta</option>
+                  </select>
+               </div>
+               <div v-if="requiresBankAccount">
+                  <label class="block text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-2 ml-1">Cuenta Destino</label>
+                  <select v-model="cuentaBancariaId" class="w-full bg-white dark:bg-slate-900 border-2 border-gray-100 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:border-blue-500 transition-all outline-none">
+                     <option value="">Seleccionar cuenta</option>
+                     <option v-for="cuenta in cuentasBancarias" :key="cuenta.id" :value="cuenta.id">{{ cuenta.nombre }} - {{ cuenta.banco }}</option>
+                  </select>
+               </div>
+             </div>
+
+             <div>
+                <label class="block text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-2 ml-1">Notas del Pago</label>
+                <textarea v-model="notasPago" rows="3" class="w-full bg-white dark:bg-slate-900 border-2 border-gray-100 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:border-blue-500 transition-all outline-none resize-none" placeholder="Opcional..."></textarea>
+             </div>
           </div>
         </template>
-
         <template #footer>
-          <div class="flex justify-end gap-3">
-            <button @click="cerrarCancelModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
-              Cancelar
-            </button>
-            <button @click="confirmarCancelacion" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-              Confirmar Cancelación
-            </button>
-          </div>
-        </template>
-      </DialogModal>
-
-      <!-- Payment Modal -->
-      <DialogModal :show="showPagoModal" @close="showPagoModal = false" max-width="md">
-        <template #title>
-          Marcar Venta como Pagada
-        </template>
-
-        <template #content>
-          <div class="space-y-4">
-            <div class="bg-white p-4 rounded-lg">
-              <div class="flex justify-between items-center">
-                <span class="text-sm font-medium text-gray-700">Monto Total:</span>
-                <span class="text-lg font-bold text-gray-900">{{ formatCurrency(venta.total) }}</span>
-              </div>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Método de Pago *</label>
-              <select v-model="metodoPago" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">Seleccionar método</option>
-                <option value="efectivo">Efectivo</option>
-                <option value="transferencia">Transferencia</option>
-                <option value="cheque">Cheque</option>
-                <option value="tarjeta">Tarjeta</option>
-                <option value="otros">Otros</option>
-              </select>
-            </div>
-            <!-- Banco SOLO para tarjeta/transferencia (van directo al banco) -->
-            <div v-if="requiresBankAccount">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Cuenta Bancaria (destino) <span class="text-red-500">*</span>
-              </label>
-              <select v-model="cuentaBancariaId" 
-                      :class="{'border-red-500 ring-red-500': !cuentaBancariaId}"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">Seleccionar cuenta bancaria *</option>
-                <option v-for="cuenta in cuentasBancarias" :key="cuenta.id" :value="cuenta.id">
-                  {{ cuenta.banco }} - {{ cuenta.nombre }}
-                </option>
-              </select>
-              <p class="text-xs text-blue-600 mt-1">💳 Tarjeta/Transferencia va directo al banco seleccionado</p>
-            </div>
-            <p v-else-if="metodoPago === 'efectivo'" class="text-xs text-yellow-600 mt-1">
-              💵 El efectivo se registra en "Entregas de Dinero" cuando el vendedor lo entregue
-            </p>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Notas (opcional)</label>
-              <textarea v-model="notasPago" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Agregar notas..."></textarea>
-            </div>
-          </div>
-        </template>
-
-        <template #footer>
-          <div class="flex justify-end gap-3">
-            <button @click="showPagoModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">Cancelar</button>
-            <button @click="confirmarPago" :disabled="!canConfirmPayment" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
-              Confirmar Pago
-            </button>
-          </div>
-        </template>
-      </DialogModal>
-
-      <!-- Invoice Cancel Modal -->
-      <DialogModal :show="showInvoiceCancelModal" @close="showInvoiceCancelModal = false" max-width="md">
-        <template #title>
-          Cancelar Factura Fiscal (SAT)
-        </template>
-
-        <template #content>
-          <div class="space-y-4 modal-content">
-            <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-              <div class="flex">
-                <div class="flex-shrink-0">
-                  <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
-                </div>
-                <div class="ml-3">
-                  <h3 class="text-sm font-medium text-yellow-800">Atención</h3>
-                  <div class="mt-2 text-sm text-yellow-700">
-                    <p>Esta acción solicitará la cancelación oficial ante el SAT. Asegúrese de seleccionar el motivo correcto.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Motivo de Cancelación (SAT) *</label>
-              <select v-model="invoiceCancelReason" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">Seleccione un motivo</option>
-                <option value="02">02 - Comprobante emitido con errores sin relación</option>
-                <option value="01">01 - Comprobante emitido con errores con relación</option>
-                <option value="03">03 - No se llevó a cabo la operación</option>
-                <option value="04">04 - Operación nominativa relacionada en factura global</option>
-              </select>
-            </div>
-
-            <div v-if="invoiceCancelReason === '01'">
-              <label class="block text-sm font-medium text-gray-700 mb-2">Folio de Sustitución (UUID) *</label>
-              <input v-model="invoiceSubstitutionFolio" type="text" placeholder="Ej: 5FB2DB8A-..." 
-                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <p class="text-xs text-gray-500 mt-1">Ingrese el UUID de la factura que sustituye a la cancelada.</p>
-            </div>
-          </div>
-        </template>
-
-        <template #footer>
-          <div class="flex justify-end gap-3">
-            <button @click="showInvoiceCancelModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 font-medium">Cancelar</button>
-            <button @click="confirmarCancelarFactura" 
-                    :disabled="!isValidInvoiceCancel"
-                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-sm transition-colors">
-              Confirmar Cancelación
-            </button>
-          </div>
-        </template>
-      </DialogModal>
-
-      <!-- Facturar Modal -->
-      <DialogModal :show="showFacturarModal" @close="showFacturarModal = false" max-width="md">
-        <template #title>
-          Facturar (CFDI 4.0)
-        </template>
-
-        <template #content>
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Factura</label>
-              <select v-model="facturaForm.tipo_factura" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <option value="ingreso">Ingreso (Normal)</option>
-                <option value="anticipo">Anticipo</option>
-              </select>
-            </div>
-
-            <div v-if="facturaForm.tipo_factura === 'anticipo'" class="space-y-4">
-              <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-xs text-yellow-800">
-                Se generará un CFDI de ingreso con concepto de anticipo. Luego relaciona la factura final con tipo 07.
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Monto del Anticipo (Total)</label>
-                <input v-model="facturaForm.anticipo_monto" type="number" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Método de Pago</label>
-                <select v-model="facturaForm.anticipo_metodo_pago" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                  <option value="">Seleccionar método</option>
-                  <option value="efectivo">Efectivo</option>
-                  <option value="transferencia">Transferencia</option>
-                  <option value="cheque">Cheque</option>
-                  <option value="tarjeta">Tarjeta</option>
-                  <option value="otros">Otros</option>
-                </select>
-              </div>
-            </div>
-
-            <div v-if="facturaForm.tipo_factura === 'ingreso'" class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Relación CFDI (opcional)</label>
-                <select v-model="facturaForm.cfdi_relacion_tipo" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                  <option value="">Sin relación</option>
-                  <option value="01">01 - Nota de crédito de documentos relacionados</option>
-                  <option value="02">02 - Nota de débito de documentos relacionados</option>
-                  <option value="03">03 - Devolución de mercancía sobre facturas o traslados previos</option>
-                  <option value="04">04 - Sustitución de los CFDI previos</option>
-                  <option value="05">05 - Traslados de mercancías facturados previamente</option>
-                  <option value="06">06 - Factura generada por los traslados previos</option>
-                  <option value="07">07 - CFDI por aplicación de anticipo</option>
-                </select>
-              </div>
-              <div v-if="facturaForm.cfdi_relacion_tipo">
-                <label class="block text-sm font-medium text-gray-700 mb-2">UUID(s) Relacionados</label>
-                <textarea v-model="facturaForm.cfdi_relacion_uuids_raw" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Uno por línea o separados por coma"></textarea>
-              </div>
-            </div>
-          </div>
-        </template>
-
-        <template #footer>
-          <div class="flex justify-end gap-3">
-            <button @click="showFacturarModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 font-medium">Cancelar</button>
-            <button @click="confirmarFacturacion" :disabled="isProcessingFactura" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-sm transition-colors">
-              {{ isProcessingFactura ? 'Procesando...' : 'Facturar' }}
-            </button>
+          <div class="flex gap-3">
+             <button @click="showPagoModal = false" class="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-gray-900 dark:text-slate-500 dark:hover:text-white transition-colors">Cerrar</button>
+             <button @click="confirmarPago" :disabled="!canConfirmPayment" class="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-xl disabled:opacity-50 transition-all">Confirmar Liquidación</button>
           </div>
         </template>
       </DialogModal>
     </div>
   </div>
 </template>
-
-<style>
-/* Fix for UTF-8 character encoding in modals */
-.modal-content {
-    font-family: 'Figtree', 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
-}
-
-/* Ensure proper rendering of Spanish characters */
-body, #app {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-}
-</style>
 
 <script setup>
 import { Head, Link, router } from '@inertiajs/vue3';
@@ -647,7 +353,6 @@ import 'notyf/notyf.min.css';
 import DialogModal from '@/Components/DialogModal.vue';
 import { useCompanyColors } from '@/Composables/useCompanyColors';
 
-// Colores de empresa
 const { colors } = useCompanyColors();
 
 const props = defineProps({
@@ -664,210 +369,43 @@ const showPagoModal = ref(false);
 const metodoPago = ref('');
 const cuentaBancariaId = ref('');
 const notasPago = ref('');
-const showCancelModal = ref(false);
-const motivoCancelacion = ref('');
-const forceWithPayments = ref(false);
-const isProcessingFactura = ref(false);
-const showFacturarModal = ref(false);
 
-const facturaForm = ref({
-  tipo_factura: 'ingreso',
-  cfdi_relacion_tipo: '',
-  cfdi_relacion_uuids_raw: '',
-  anticipo_monto: '',
-  anticipo_metodo_pago: ''
-});
+const requiresBankAccount = computed(() => ['tarjeta', 'transferencia'].includes(metodoPago.value));
+const canConfirmPayment = computed(() => metodoPago.value && (!requiresBankAccount.value || cuentaBancariaId.value));
 
-// Computed: banco obligatorio SOLO para tarjeta/transferencia (van directo al banco)
-const requiresBankAccount = computed(() => {
-  return ['tarjeta', 'transferencia'].includes(metodoPago.value);
-});
-
-// Computed: puede confirmar pago
-const canConfirmPayment = computed(() => {
-  if (!metodoPago.value) return false;
-  // Si es tarjeta/transferencia, requiere banco
-  if (requiresBankAccount.value && !cuentaBancariaId.value) return false;
-  return true;
-});
-
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value);
-};
-
-const formatearFecha = (fecha) => {
-  if (!fecha) return 'N/A';
-  return new Date(fecha).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
-};
-
-const formatearFechaHora = (fecha) => {
-  if (!fecha) return 'N/A';
-  return new Date(fecha).toLocaleString('es-MX', {
-    year: 'numeric', month: 'long', day: 'numeric',
-    hour: '2-digit', minute: '2-digit'
-  });
-};
+const formatCurrency = (value) => value.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+const formatearFecha = (fecha) => fecha ? new Date(fecha).toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
+const esCancelada = (v) => v.estado === 'cancelada';
 
 const getEstadoClass = (estado) => {
-  const classes = {
-    'borrador': 'bg-gray-100 text-gray-800',
-    'pendiente': 'bg-yellow-100 text-yellow-800',
-    'aprobada': 'bg-green-100 text-green-800',
-    'cancelada': 'bg-red-100 text-red-800'
+  const map = {
+    'borrador': 'text-gray-400 border-gray-100 dark:border-slate-800',
+    'pendiente': 'text-amber-500 border-amber-100 dark:border-amber-900/30',
+    'aprobada': 'text-emerald-500 border-emerald-100 dark:border-emerald-900/30',
+    'cancelada': 'text-rose-500 border-rose-100 dark:border-rose-900/30'
   };
-  return classes[estado] || 'bg-gray-100 text-gray-800';
+  return map[estado] || 'text-gray-400';
 };
 
-const getEstadoLabel = (estado) => {
-  const labels = {
-    'borrador': 'Borrador',
-    'pendiente': 'Pendiente',
-    'aprobada': 'Aprobada',
-    'cancelada': 'Cancelada'
-  };
-  return labels[estado] || estado;
-};
+const getEstadoLabel = (estado) => estado.toUpperCase();
 
 const confirmarPago = () => {
-  // Validar cuenta bancaria para tarjeta/transferencia
-  if (requiresBankAccount.value && !cuentaBancariaId.value) {
-    notyf.error('Debe seleccionar una cuenta bancaria para pagos con tarjeta o transferencia');
-    return;
-  }
-  
   router.post(route('ventas.marcar-pagado', props.venta.id), {
     metodo_pago: metodoPago.value,
     cuenta_bancaria_id: cuentaBancariaId.value || null,
     notas_pago: notasPago.value
   }, {
     onSuccess: () => {
-      notyf.success('Venta marcada como pagada');
+      notyf.success('Venta liquidada correctamente');
       showPagoModal.value = false;
-      cuentaBancariaId.value = '';
     },
-    onError: () => notyf.error('Error al marcar como pagada')
+    onError: () => notyf.error('Error al procesar el pago')
   });
-};
-
-const cancelarVenta = (id) => {
-  showCancelModal.value = true;
-};
-
-const confirmarCancelacion = () => {
-  router.post(route('ventas.cancel', props.venta.id), {
-    motivo: motivoCancelacion.value,
-    force_with_payments: forceWithPayments.value
-  }, {
-    onSuccess: () => {
-      notyf.success('Venta cancelada exitosamente');
-      showCancelModal.value = false;
-      motivoCancelacion.value = '';
-      forceWithPayments.value = false;
-      router.visit(route('ventas.show', props.venta.id));
-    },
-    onError: (errors) => {
-      const msg = errors.error || 'Error al cancelar la venta';
-      notyf.error(msg);
-    }
-  });
-};
-
-const cerrarCancelModal = () => {
-  showCancelModal.value = false;
-  motivoCancelacion.value = '';
-  forceWithPayments.value = false;
-};
-
-const eliminarVenta = (id) => {
-  if (confirm('¿Estás seguro de que deseas eliminar esta venta permanentemente?')) {
-    router.visit(route('ventas.destroy', id), {
-      method: 'DELETE',
-      preserveState: false,
-      preserveScroll: false,
-      onSuccess: () => {
-        notyf.success('Venta eliminada exitosamente');
-        router.visit(route('ventas.index'));
-      },
-      onError: (errors) => {
-        console.error('Error al eliminar:', errors);
-        const msg = errors.error || 'Error al eliminar la venta';
-        notyf.error(msg);
-      }
-    });
-  }
-};
-
-const confirmarFacturacion = () => {
-  const payload = {
-    tipo_factura: facturaForm.value.tipo_factura
-  };
-
-  if (facturaForm.value.tipo_factura === 'anticipo') {
-    payload.anticipo_monto = facturaForm.value.anticipo_monto;
-    payload.anticipo_metodo_pago = facturaForm.value.anticipo_metodo_pago;
-  } else {
-    payload.cfdi_relacion_tipo = facturaForm.value.cfdi_relacion_tipo || null;
-    if (facturaForm.value.cfdi_relacion_tipo) {
-      const uuids = facturaForm.value.cfdi_relacion_uuids_raw
-        .split(/[\s,]+/)
-        .map((value) => value.trim())
-        .filter((value) => value.length > 0);
-      payload.cfdi_relacion_uuids = uuids;
-    }
-  }
-
-  isProcessingFactura.value = true;
-  router.post(route('ventas.facturar', props.venta.id), payload, {
-    onSuccess: () => {
-      isProcessingFactura.value = false;
-      showFacturarModal.value = false;
-      notyf.success('Factura generada exitosamente');
-    },
-    onError: (errors) => {
-      isProcessingFactura.value = false;
-      const msg = errors.error || Object.values(errors)[0] || 'Error al generar factura';
-      notyf.error(msg);
-    }
-  });
-};
-
-
-// Invoice Cancellation Logic
-const showInvoiceCancelModal = ref(false);
-const invoiceCancelReason = ref('');
-const invoiceSubstitutionFolio = ref('');
-
-const abrirCancelarFacturaModal = () => {
-    invoiceCancelReason.value = '';
-    invoiceSubstitutionFolio.value = '';
-    showInvoiceCancelModal.value = true;
-};
-
-const isValidInvoiceCancel = computed(() => {
-    if (!invoiceCancelReason.value) return false;
-    if (invoiceCancelReason.value === '01' && !invoiceSubstitutionFolio.value) return false;
-    return true;
-});
-
-const confirmarCancelarFactura = () => {
-    if (!isValidInvoiceCancel.value) return;
-
-    if (!confirm('¿Está seguro de solicitar la cancelación de esta factura ante el SAT?')) return;
-
-    router.post(route('ventas.factura.cancelar', props.venta.id), {
-        motivo: invoiceCancelReason.value,
-        folio_sustitucion: invoiceSubstitutionFolio.value
-    }, {
-        onSuccess: () => {
-            showInvoiceCancelModal.value = false;
-            notyf.success('Solicitud de cancelación enviada correctamente');
-            invoiceCancelReason.value = '';
-            invoiceSubstitutionFolio.value = '';
-        },
-        onError: (errors) => {
-            const msg = errors.error || errors.message || 'Error al cancelar la factura';
-            notyf.error(msg);
-        }
-    });
 };
 </script>
+
+<style scoped>
+.min-h-screen {
+  font-family: 'Figtree', sans-serif;
+}
+</style>

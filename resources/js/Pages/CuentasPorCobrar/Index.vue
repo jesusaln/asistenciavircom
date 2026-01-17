@@ -25,10 +25,9 @@
             </div>
         </template>
 
-        <!-- Estadísticas -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg transition-colors">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6 font-black uppercase">
+            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 dark:border-slate-800 transition-all">
+                <div class="p-6 text-gray-900 dark:text-white">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
@@ -47,8 +46,8 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg transition-colors">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 dark:border-slate-800 transition-all">
+                <div class="p-6 text-gray-900 dark:text-white">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
@@ -67,8 +66,8 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg transition-colors">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 dark:border-slate-800 transition-all">
+                <div class="p-6 text-gray-900 dark:text-white">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
@@ -87,8 +86,8 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg transition-colors">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 dark:border-slate-800 transition-all">
+                <div class="p-6 text-gray-900 dark:text-white">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
@@ -109,7 +108,7 @@
         </div>
 
         <!-- Filtros -->
-        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6 transition-colors">
+        <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 dark:border-slate-800 mb-6 transition-all">
             <div class="p-6">
                 <form @submit.prevent="applyFilters" class="flex flex-wrap gap-4 items-end">
                     <div class="w-full md:w-1/3 min-w-[200px]">
@@ -137,8 +136,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Cliente</label>
-                        <select v-model="filters.cliente_id" class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm dark:bg-gray-700 dark:text-white">
+                        <label class="block text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Cliente</label>
+                        <select v-model="filters.cliente_id" class="mt-1 block w-full border-gray-300 dark:border-slate-800 rounded-xl shadow-sm dark:bg-slate-950 dark:text-white focus:ring-blue-500 focus:border-blue-500">
                             <option value="">Todos</option>
                             <option v-for="cliente in clientes" :key="cliente.id" :value="cliente.id">
                                 {{ cliente.nombre_razon_social }}
@@ -156,11 +155,11 @@
         </div>
 
         <!-- Tabla de cuentas -->
-        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg transition-colors">
+        <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-3xl border border-gray-100 dark:border-slate-800 transition-all">
             <div class="p-6">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-700">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                        <thead class="bg-gray-50 dark:bg-slate-800/50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                     Origen
@@ -185,7 +184,7 @@
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
                             <tr v-for="cuenta in cuentas.data" :key="cuenta.id" class="hover:bg-gray-50 dark:hover:bg-gray-700 transaction-colors">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                                     <template v-if="cuenta.cobrable_type && cuenta.cobrable_type.includes('Venta')">

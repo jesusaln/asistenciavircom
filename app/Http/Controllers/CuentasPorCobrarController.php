@@ -412,7 +412,7 @@ class CuentasPorCobrarController extends Controller
                     if ($cuentaBancaria) {
                         $cuentaBancaria->registrarMovimiento(
                             'retiro',
-                            $monto,
+                            (float) $monto,
                             "Reversión de Pago #{$entrega->id}",
                             'reversion'
                         );

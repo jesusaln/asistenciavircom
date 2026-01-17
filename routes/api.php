@@ -205,6 +205,9 @@ Route::apiResource('pedidos', PedidoController::class)->names('api.pedidos');
 // Rutas específicas de ventas ANTES del apiResource
 Route::post('/ventas/validate', [VentaController::class, 'validateSale'])->name('api.ventas.validate');
 Route::get('/ventas/next-numero-venta', [VentaController::class, 'nextNumeroVenta'])->name('api.ventas.next-numero-venta');
+Route::post('/ventas/{id}/marcar-pagado', [VentaController::class, 'marcarPagado'])->name('api.ventas.marcar-pagado');
+Route::post('/ventas/{id}/facturar', [VentaController::class, 'facturar'])->name('api.ventas.facturar');
+Route::post('/ventas/{id}/cancelar-factura', [VentaController::class, 'cancelarFactura'])->name('api.ventas.cancelar-factura');
 
 // Ruta DELETE protegida con autenticación (necesaria para verificar rol de admin)
 Route::middleware('auth:sanctum')->delete('/ventas/{venta}', [VentaController::class, 'destroy'])->name('api.ventas.destroy-protected');

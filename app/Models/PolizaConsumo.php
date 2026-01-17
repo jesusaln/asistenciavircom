@@ -77,7 +77,7 @@ class PolizaConsumo extends Model
     public function scopeMesActual($query)
     {
         return $query->whereMonth('fecha_consumo', now()->month)
-                     ->whereYear('fecha_consumo', now()->year);
+            ->whereYear('fecha_consumo', now()->year);
     }
 
     /**
@@ -98,7 +98,7 @@ class PolizaConsumo extends Model
         int $cantidad = 1,
         ?string $descripcion = null
     ): self {
-        $valorUnitario = match($tipo) {
+        $valorUnitario = match ($tipo) {
             self::TIPO_TICKET => 150,
             self::TIPO_VISITA => $poliza->costo_visita_sitio_extra ?? 650,
             self::TIPO_HORA => $poliza->costo_hora_excedente ?? 350,
@@ -124,9 +124,9 @@ class PolizaConsumo extends Model
      */
     protected static function generarDescripcion(string $tipo, Model $consumible): string
     {
-        return match($tipo) {
-            self::TIPO_TICKET => "Ticket #{$consumible->folio ?? $consumible->id}: " . ($consumible->titulo ?? 'Sin título'),
-            self::TIPO_VISITA => "Cita #{$consumible->id} - " . ($consumible->tipo_servicio ?? 'Visita'),
+        return match ($tipo) {
+            self::TIPO_TICKET => "Ticket #" . ($consumible->folio ?? $consumible->id) . ": " . ($consumible->titulo ?? 'Sin título'),
+            self::TIPO_VISITA => "Cita #" . ($consumible->id) . " - " . ($consumible->tipo_servicio ?? 'Visita'),
             self::TIPO_HORA => "Servicio de " . ($consumible->duracion_horas ?? 1) . " hora(s)",
             default => "Consumo registrado",
         };
@@ -137,7 +137,7 @@ class PolizaConsumo extends Model
      */
     public function getIconoAttribute(): string
     {
-        return match($this->tipo) {
+        return match ($this->tipo) {
             self::TIPO_TICKET => '🎫',
             self::TIPO_VISITA => '🚗',
             self::TIPO_HORA => '⏱️',
@@ -150,7 +150,7 @@ class PolizaConsumo extends Model
      */
     public function getTipoLabelAttribute(): string
     {
-        return match($this->tipo) {
+        return match ($this->tipo) {
             self::TIPO_TICKET => 'Ticket de Soporte',
             self::TIPO_VISITA => 'Visita en Sitio',
             self::TIPO_HORA => 'Hora de Servicio',

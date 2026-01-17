@@ -1,7 +1,7 @@
 <!-- /resources/js/Pages/Ventas/Create.vue -->
 <template>
   <Head title="Crear Venta" />
-  <div class="ventas-create min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
+  <div class="ventas-create min-h-screen bg-gray-50 dark:bg-slate-950 p-6 transition-colors duration-300">
     <div class="w-full">
       <!-- Header -->
       <Header
@@ -16,8 +16,8 @@
 
       <form @submit.prevent="abrirModalPago" class="space-y-8">
         <!-- Información General -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-800 overflow-hidden">
+          <div class="bg-gray-50/50 dark:bg-slate-800/50 px-8 py-5 border-b border-gray-100 dark:border-slate-800/50">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -28,7 +28,7 @@
           <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Número de Venta -->
             <div>
-              <label for="numero_venta" class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+              <label for="numero_venta" class="block text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
                 Número de Venta *
                 <span class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,7 +42,7 @@
                   id="numero_venta"
                   v-model="form.numero_venta"
                   type="text"
-                  class="w-full bg-white text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  class="w-full bg-gray-50 dark:bg-slate-950 text-gray-500 dark:text-slate-500 cursor-not-allowed border-2 border-gray-100 dark:border-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   placeholder="V0001"
                   readonly
                   required
@@ -60,7 +60,7 @@
 
             <!-- Fecha de Venta -->
             <div>
-              <label for="fecha" class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+              <label for="fecha" class="block text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
                 Fecha de Venta *
                 <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,7 +74,7 @@
                   id="fecha"
                   v-model="form.fecha"
                   type="date"
-                  class="w-full bg-white text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  class="w-full bg-gray-50 dark:bg-slate-950 text-gray-500 dark:text-slate-500 cursor-not-allowed border-2 border-gray-100 dark:border-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   readonly
                   required
                 />
@@ -91,7 +91,7 @@
 
             <!-- almacén -->
             <div>
-              <label for="almacen_id" class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+              <label for="almacen_id" class="block text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
                 almacén *
                 <span class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,7 +104,7 @@
                 <select
                   id="almacen_id"
                   v-model="form.almacen_id"
-                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  class="w-full bg-gray-50 dark:bg-slate-950 text-gray-900 dark:text-white border-2 border-gray-100 dark:border-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   required
                 >
                   <option value="">Selecciona un almacén</option>
@@ -223,8 +223,8 @@
         </div>
 
         <!-- Cliente -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-800 overflow-hidden">
+          <div class="bg-gray-50/50 dark:bg-slate-800/50 px-8 py-5 border-b border-gray-100 dark:border-slate-800/50">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
@@ -244,8 +244,8 @@
         </div>
 
         <!-- Productos y Servicios -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-800 overflow-hidden">
+          <div class="bg-gray-50/50 dark:bg-slate-800/50 px-8 py-5 border-b border-gray-100 dark:border-slate-800/50">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
@@ -281,8 +281,8 @@
         </div>
 
         <!-- Notas -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-800 overflow-hidden">
+          <div class="bg-gray-50/50 dark:bg-slate-800/50 px-8 py-5 border-b border-gray-100 dark:border-slate-800/50">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>

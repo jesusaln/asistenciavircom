@@ -489,6 +489,139 @@ class VentaController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Marcar venta como pagada.
+     */
+    public function marcarPagado(Request $request, $id)
+    {
+        try {
+            $venta = Venta::findOrFail($id);
+            $paymentService = app(\App\Services\Ventas\VentaPaymentService::class);
+            $paymentService->markAsPaid($venta, $request->all());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Venta marcada como pagada correctamente.',
+                'data' => $venta->load('cuentaPorCobrar')
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error API Venta MarcarPagado: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al marcar como pagada: ' . $e->getMessage()
+            ], 422);
+        }
+    }
+
+    /**
+     * Facturar una venta (Generar CFDI 4.0)
+     */
+    public function facturar(Request $request, $id)
+    {
+        try {
+            $venta = Venta::findOrFail($id);
+            $cfdiService = app(\App\Services\Cfdi\CfdiService::class);
+
+            $validated = $request->validate([
+                'tipo_factura' => 'nullable|in:ingreso,anticipo',
+                'cfdi_relacion_tipo' => 'nullable|in:01,02,03,04,05,06,07',
+                'cfdi_relacion_uuids' => 'nullable|array',
+                'cfdi_relacion_uuids.*' => 'string|uuid',
+                'anticipo_monto' => 'nullable|numeric|min:0.01',
+                'anticipo_metodo_pago' => 'nullable|in:efectivo,transferencia,cheque,tarjeta,otros',
+            ]);
+
+            $tipoFactura = $validated['tipo_factura'] ?? 'ingreso';
+
+            if ($tipoFactura === 'anticipo') {
+                $result = $cfdiService->facturarAnticipo(
+                    $venta,
+                    (float) $validated['anticipo_monto'],
+                    $validated['anticipo_metodo_pago']
+                );
+            } else {
+                $options = [
+                    'tipo_factura' => 'ingreso',
+                    'cfdi_relacion_tipo' => $validated['cfdi_relacion_tipo'] ?? null,
+                    'cfdi_relacion_uuids' => $validated['cfdi_relacion_uuids'] ?? [],
+                ];
+                $result = $cfdiService->facturarVenta($venta, $options);
+            }
+
+            if (!$result['success']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message']
+                ], 422);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $result['message'],
+                'data' => $venta->load('cfdis')
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error API Venta Facturar: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al facturar: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Cancelar la factura de una venta
+     */
+    public function cancelarFactura(Request $request, $id)
+    {
+        try {
+            $venta = Venta::findOrFail($id);
+            $cancelService = app(\App\Services\Cfdi\CfdiCancelService::class);
+
+            $validated = $request->validate([
+                'motivo' => 'required|string|in:01,02,03,04',
+                'folio_sustitucion' => 'nullable|string|uuid|required_if:motivo,01',
+            ]);
+
+            $cfdi = $venta->cfdi_actual ?? $venta->cfdis()
+                ->whereNotNull('uuid')
+                ->where('estatus', '!=', 'cancelado')
+                ->latest()
+                ->first();
+
+            if (!$cfdi) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontró una factura válida para cancelar.'
+                ], 404);
+            }
+
+            $result = $cancelService->cancelar($cfdi, $validated['motivo'], $validated['folio_sustitucion']);
+
+            if (!$result['success']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message']
+                ], 422);
+            }
+
+            // Actualizar estado de la venta
+            $venta->estado = \App\Enums\EstadoVenta::Cancelada;
+            $venta->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => $result['message']
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error API Venta CancelarFactura: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cancelar factura: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
 
 

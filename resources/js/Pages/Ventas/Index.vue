@@ -785,490 +785,205 @@ const ejecutarBorrado = async () => {
     loading.value = false
   }
 }
-
-// Funci�n para enviar venta por email
-const enviarVentaPorEmail = async (venta) => {
-  try {
-    // Verificar que el cliente tenga email
-    if (!venta.cliente?.email) {
-      notyf.error('El cliente no tiene email configurado')
-      return
-    }
-
-    selectedVentaEmail.value = {
-      ...venta,
-      numero_venta: venta.numero_venta || `V${String(venta.id).padStart(3, "0")}`,
-      email_destino: venta.cliente.email
-    }
-    showEmailModal.value = true
-
-  } catch (error) {
-    console.error('Error en enviarVentaPorEmail:', error)
-    notyf.error('Error inesperado al preparar env�o de venta')
-  }
-}
-
-// Funci�n para confirmar env�o de email
-const confirmarEnvioEmail = async () => {
-  try {
-    const venta = selectedVentaEmail.value
-    if (!venta?.email_destino) {
-      notyf.error('Email de destino no v�lido')
-      return
-    }
-
-    console.log('? Usuario confirm� env�o de venta por email');
-    loading.value = true
-    cerrarEmailModal()
-
-    // Usar axios para tener control total sobre la respuesta
-    const { data } = await axios.post(`/ventas/${venta.id}/enviar-email`, {
-      email_destino: venta.email_destino,
-    })
-
-    if (data?.success) {
-      notyf.success(data.message || 'Venta enviada por email correctamente')
-
-      // Actualizar estado local de la venta usando los datos del servidor
-      const index = ventasOriginales.value.findIndex(v => v.id === venta.id)
-      if (index !== -1 && data.venta) {
-        ventasOriginales.value[index] = {
-          ...ventasOriginales.value[index],
-          email_enviado: data.venta.email_enviado,
-          email_enviado_fecha: data.venta.email_enviado_fecha,
-          estado: data.venta.estado
-        }
-      }
-    } else {
-      throw new Error(data?.error || 'Error desconocido al enviar email')
-    }
-
-  } catch (error) {
-    console.error('Error al enviar venta:', error)
-    // ? MEDIUM PRIORITY FIX #11: Manejo consistente de errores
-    const mensaje = extractErrorMessage(error, 'Error al enviar venta')
-    notyf.error(mensaje)
-  } finally {
-    loading.value = false
-  }
-}
 </script>
 
 <template>
-  <div :style="cssVars">
-    <Head title="Ventas" />
+    <AppLayout title="Ventas">
+        <div :style="cssVars" class="bg-white dark:bg-slate-950 min-h-screen px-6 py-8">
+            <VentasHeader
+                :total="estadisticas.total"
+                :borrador="estadisticas.borrador"
+                :aprobadas="estadisticas.aprobados"
+                :pendientes="estadisticas.pendientes"
+                :cancelada="estadisticas.cancelado"
+                v-model:searchTerm="searchTerm"
+                v-model:sortBy="sortBy"
+                v-model:filtroCfdi="filtroCfdi"
+                @filtrar="handleSearch"
+                @filtro-cfdi-change="handleFilter"
+                @limpiar-filtros="handleLimpiarFiltros"
+                @crear-nuevo="crearNuevaVenta"
+            />
 
-    <div class="ventas-index min-h-screen bg-white">
-    <!-- Contenido principal -->
-    <div class="w-full px-6 py-8">
-      <!-- Header espec�fico de ventas -->
-      <VentasHeader
-        :total="estadisticas.total"
-        :borrador="estadisticas.borrador"
-        :aprobadas="estadisticas.aprobados"
-        :pendientes="estadisticas.pendientes"
-        :cancelada="estadisticas.cancelado"
-        v-model:search-term="searchTerm"
-        v-model:sort-by="sortBy"
-        v-model:filtro-cfdi="filtroCfdi"
-        :config="{
-          module: 'ventas',
-          createButtonText: 'Nueva Venta',
-          searchPlaceholder: 'Buscar por cliente, número...'
-        }"
-        @limpiar-filtros="handleLimpiarFiltros"
-        @crear-nuevo="crearNuevaVenta"
-        @search-change="handleSearch"
-        @filtro-cfdi-change="handleFilter"
-      />
+            <div class="mt-8">
+                <VentasTable
+                    :documentos="documentosVentasPaginados"
+                    :searchTerm="searchTerm"
+                    :sortBy="sortBy"
+                    @ver-detalles="verDetalles"
+                    @editar="editarVenta"
+                    @eliminar="confirmarBorradoReal"
+                    @imprimir="imprimirVenta"
+                    @sort="updateSort"
+                    @marcar-pagado="marcarComoPagado"
+                    @cancelar="cancelarVenta"
+                    @enviar-email="onOpenEmailModal"
+                />
+            </div>
 
-      <!-- Tabla espec�fica de ventas -->
-      <div class="mt-6">
-        <VentasTable
-          :documentos="documentosVentasPaginados"
-          :search-term="searchTerm"
-          :sort-by="sortBy"
-          @ver-detalles="verDetalles"
-          @editar="editarVenta"
-          @eliminar="confirmarEliminacion"
-          @marcar-pagado="marcarComoPagado"
-          @cancelar="cancelarVenta"
-          @enviar-email="enviarVentaPorEmail"
-          @imprimir="imprimirVenta"
-          @sort="updateSort"
+            <!-- Paginación -->
+            <div class="mt-8 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
+                <Pagination
+                    :data="paginationData"
+                    @page-changed="goToPage"
+                />
+            </div>
+        </div>
+
+        <!-- ModalVenta (Detalles) -->
+        <ModalVenta
+            v-if="showModal"
+            :show="showModal"
+            :venta="fila"
+            @close="cerrarModal"
+            @editar="editarFila"
+            @imprimir="imprimirFila"
+            @eliminar="confirmarBorradoReal"
         />
 
-        <!-- Controles de paginaci�n -->
-        <div v-if="paginationData.last_page > 1" class="flex justify-center items-center space-x-2 mt-6">
-          <button
-            @click="prevPage"
-            :disabled="paginationData.current_page === 1"
-            class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Anterior
-          </button>
+        <!-- Modal de Pago -->
+        <DialogModal :show="showPaymentModal" @close="cerrarPaymentModal" maxWidth="md">
+            <template #content>
+                <div class="bg-white dark:bg-slate-950 rounded-3xl shadow-xl w-full overflow-hidden border border-gray-100 dark:border-slate-800 transform transition-all font-sans">
+                    <div class="px-8 py-6 bg-white dark:bg-slate-900 border-b border-gray-50 dark:border-slate-800 flex justify-between items-center">
+                        <h3 class="font-black uppercase tracking-[0.15em] text-sm text-gray-900 dark:text-white">Registrar Pago</h3>
+                        <button @click="cerrarPaymentModal" class="text-gray-300 dark:text-slate-600 hover:text-gray-900 dark:hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
 
-          <div class="flex space-x-1">
-            <button
-              v-for="page in [paginationData.current_page - 1, paginationData.current_page, paginationData.current_page + 1].filter(p => p > 0 && p <= paginationData.last_page)"
-              :key="page"
-              @click="goToPage(page)"
-              :class="[
-                'px-3 py-2 text-sm font-medium border rounded-md transition-all duration-200',
-                page === paginationData.current_page
-                  ? 'text-white shadow-md'
-                  : 'text-gray-700 bg-white hover:bg-white border-gray-300'
-              ]"
-              :style="page === paginationData.current_page ? { backgroundColor: colors.principal, borderColor: colors.principal } : {}"
-            >
-              {{ page }}
-            </button>
-          </div>
+                    <div class="p-8 space-y-6 dark:bg-slate-900/50">
+                        <div v-if="selectedVenta" class="mb-4">
+                            <p class="text-[10px] text-gray-400 dark:text-slate-500 font-black uppercase tracking-widest mb-1">{{ selectedVenta.cliente?.nombre_razon_social || 'Venta' }} #{{ selectedVenta.numero_venta }}</p>
+                            <p class="text-2xl font-black text-gray-900 dark:text-white">Monto: ${{ formatearMoneda(selectedVenta.total) }}</p>
+                        </div>
 
-          <button
-            @click="nextPage"
-            :disabled="paginationData.current_page === paginationData.last_page"
-            class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Siguiente
-          </button>
-        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-2">Método de Pago</label>
+                            <select v-model="metodoPago" class="w-full py-4 px-5 bg-white dark:bg-slate-900 border-2 border-gray-100 dark:border-slate-800 rounded-2xl font-bold text-gray-900 dark:text-white focus:border-gray-900 dark:focus:border-slate-400 focus:ring-0 transition-all">
+                                <option value="">Seleccionar...</option>
+                                <option value="efectivo">Efectivo</option>
+                                <option value="transferencia">Transferencia</option>
+                                <option value="cheque">Cheque</option>
+                                <option value="tarjeta">Tarjeta</option>
+                                <option value="otros">Otros</option>
+                            </select>
+                        </div>
 
-        <!-- Informaci�n de paginaci�n -->
-        <div class="flex justify-between items-center mt-4 text-sm text-gray-600">
-          <div>
-            Mostrando {{ paginationData.from }} - {{ paginationData.to }} de {{ paginationData.total }} ventas
-          </div>
-          <div class="flex items-center space-x-2">
-            <span>Elementos por p�gina:</span>
-            <select
-              :value="paginationData.per_page"
-              @change="changePerPage"
-              class="border border-gray-300 rounded px-2 py-1 text-sm"
-            >
-              <option value="10">10</option>
-              <option value="15">15</option>
-              <option value="25">25</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-            </select>
-          </div>
-        </div>
-      </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-2">Notas / Referencia</label>
+                            <textarea v-model="notasPago" rows="2" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border-2 border-gray-100 dark:border-slate-800 rounded-2xl font-bold text-gray-900 dark:text-white focus:border-gray-900 dark:focus:border-slate-400 focus:ring-0 transition-all" placeholder="Referencia de pago..."></textarea>
+                        </div>
+                    </div>
 
-    </div>
-
-    <!-- Modal de detalles de Venta -->
-    <!-- Modal de detalles de Venta -->
-    <ModalVenta
-      :show="showModal"
-      :selected="fila || {}"
-      @close="cerrarModal"
-      @marcar-pagado="marcarComoPagado"
-      @cancelar="cancelarVenta"
-      @eliminar="confirmarBorradoReal"
-    />
-
-    <!-- Modal de Pago -->
-    <div v-if="showPaymentModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="cerrarPaymentModal">
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-xl max-h-[90vh] overflow-y-auto max-h-[90vh] overflow-y-auto">
-        <!-- Header del modal -->
-        <div class="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 class="text-lg font-medium text-gray-900">Marcar como Pagado</h3>
-          <button @click="cerrarPaymentModal" class="text-gray-400 hover:text-gray-600 transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <div class="p-6">
-          <div v-if="selectedVenta" class="space-y-4">
-            <!-- Informaci�n de la venta -->
-            <div class="bg-white p-4 rounded-lg">
-              <div class="flex justify-between items-center">
-                <span class="text-sm font-medium text-gray-700">Venta:</span>
-                <span class="text-sm font-mono text-gray-900">{{ selectedVenta.numero_venta }}</span>
-              </div>
-              <div class="flex justify-between items-center mt-2">
-                <span class="text-sm font-medium text-gray-700">Total:</span>
-                <span class="text-lg font-bold text-gray-900">${{ formatearMoneda(selectedVenta.total) }}</span>
-              </div>
-            </div>
-
-            <!-- M�todo de pago -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">M�todo de Pago *</label>
-              <select
-                v-model="metodoPago"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">Seleccionar m�todo...</option>
-                <option value="efectivo">Efectivo</option>
-                <option value="transferencia">Transferencia</option>
-                <option value="cheque">Cheque</option>
-                <option value="tarjeta">Tarjeta</option>
-                <option value="otros">Otros</option>
-              </select>
-            </div>
-
-            <!-- Notas del pago -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Notas (opcional)</label>
-              <textarea
-                v-model="notasPago"
-                rows="3"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Agregar notas sobre el pago..."
-              ></textarea>
-            </div>
-          </div>
-        </div>
-
-        <!-- Footer del modal -->
-        <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
-          <button @click="cerrarPaymentModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
-            Cancelar
-          </button>
-          <button
-            @click="confirmarPago"
-            :disabled="!metodoPago || loading"
-            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <span v-if="loading" class="flex items-center">
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Procesando...
-            </span>
-            <span v-else>Confirmar Pago</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal para Cancelar Venta -->
-    <div v-if="showCancelModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="cerrarCancelModal">
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
-        <div class="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 class="text-lg font-medium text-gray-900">Cancelar Venta</h3>
-          <button @click="cerrarCancelModal" class="text-gray-400 hover:text-gray-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <div class="p-6 space-y-4">
-          <div class="bg-red-50 p-4 rounded-lg">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-              </div>
-              <div class="ml-3">
-                <h3 class="text-sm font-medium text-red-800">&iquest;Est&aacute; seguro de que desea cancelar esta venta?</h3>
-                <div class="mt-2 text-sm text-red-700">
-                  <p>Esta acci&oacute;n:</p>
-                  <ul class="list-disc list-inside mt-1 space-y-1">
-                    <li>Devolverá&aacute; el inventario al almac&eacute;n</li>
-                    <li>Devolverá&aacute; las series a estado disponible</li>
-                    <li>Cambiará&aacute; el estado de la venta a "Cancelada"</li>
-                    <li>No se podrá&aacute; deshacer esta acci&oacute;n</li>
-                  </ul>
+                    <div class="px-8 py-6 bg-white/50 dark:bg-slate-950 border-t border-gray-100 dark:border-slate-800 flex flex-col gap-3">
+                        <button @click="confirmarPago" :disabled="loading" class="w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-xl disabled:opacity-50 flex items-center justify-center gap-3 transition-transform active:scale-95">
+                            <span v-if="loading" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+                            {{ loading ? 'Procesando...' : 'Confirmar Pago' }}
+                        </button>
+                        <button @click="cerrarPaymentModal" class="w-full py-3 font-black text-gray-400 dark:text-slate-500 hover:text-gray-900 dark:hover:text-white uppercase text-[10px] tracking-widest transition-colors">Cancelar</button>
+                    </div>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div class="bg-white p-4 rounded-lg">
-            <div class="flex justify-between items-center">
-              <span class="text-sm font-medium text-gray-700">Venta:</span>
-              <span class="text-sm font-mono text-gray-900">{{ selectedVentaCancel?.numero_venta }}</span>
-            </div>
-            <div class="flex justify-between items-center mt-2">
-              <span class="text-sm font-medium text-gray-700">Total:</span>
-              <span class="text-lg font-bold text-gray-900">{{ formatearMoneda(selectedVentaCancel?.total) }}</span>
-            </div>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Motivo de cancelaci&oacute;n (opcional)</label>
-            <textarea v-model="motivoCancelacion" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Explique el motivo de la cancelaci�n..."></textarea>
-          </div>
-          <!-- Admin Force Cancel Option -->
-          <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
-            <div class="flex items-start">
-              <input id="forceCancelIndex" type="checkbox" v-model="forceWithPayments" 
-                     class="h-4 w-4 mt-1 text-orange-600 focus:ring-orange-500 border-gray-300 rounded" />
-              <label for="forceCancelIndex" class="ml-3">
-                <span class="text-sm font-medium text-orange-800">Forzar cancelaci&oacute;n con pagos (Admin)</span>
-                <p class="text-xs text-orange-700 mt-1">
-                  Marcar si la venta tiene pagos registrados. Se eliminar�n los registros de entrega de dinero.
-                </p>
-              </label>
-            </div>
-          </div>
-        </div>
-        <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
-          <button @click="cerrarCancelModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
-            Cancelar
-          </button>
-          <button @click="confirmarCancelacion" :disabled="loading" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-            <span v-if="loading" class="flex items-center">
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Procesando...
-            </span>
-            <span>Confirmar Cancelaci&oacute;n</span>
-          </button>
-        </div>
-      </div>
-    </div>
+            </template>
+        </DialogModal>
 
-    <!-- Modal para Eliminar Venta (Irreversible) -->
-    <div v-if="showDeleteModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="cerrarDeleteModal">
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
-        <div class="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 class="text-lg font-medium text-gray-900">Eliminar Venta</h3>
-          <button @click="cerrarDeleteModal" class="text-gray-400 hover:text-gray-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <div class="p-6 space-y-4">
-          <div class="bg-red-50 p-4 rounded-lg">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </div>
-              <div class="ml-3">
-                <h3 class="text-sm font-medium text-red-800">&iquest;Est&aacute; seguro de que desea ELIMINAR esta venta?</h3>
-                <div class="mt-2 text-sm text-red-700">
-                  <p class="font-bold">Esta acci&oacute;n es IRREVERSIBLE.</p>
-                  <ul class="list-disc list-inside mt-1 space-y-1">
-                    <li>La venta se eliminar&aacute; permanentemente del sistema.</li>
-                    <li>Se mantendrá&aacute; un registro de auditor&iacute;a.</li>
-                    <li>Aseg&uacute;rese de que la venta ya est&aacute; cancelada.</li>
-                  </ul>
+        <!-- Modal de Cancelación -->
+        <DialogModal :show="showCancelModal" @close="cerrarCancelModal" maxWidth="md">
+            <template #content>
+                <div class="bg-white dark:bg-slate-950 rounded-3xl shadow-xl w-full overflow-hidden border border-red-100 dark:border-red-900/30 transform transition-all font-sans">
+                    <div class="px-8 py-6 bg-red-50 dark:bg-red-950 border-b border-red-100 dark:border-red-900/30 flex justify-between items-center">
+                        <h3 class="font-black uppercase tracking-[0.15em] text-sm text-red-700 dark:text-red-400">Cancelar Venta</h3>
+                        <button @click="cerrarCancelModal" class="text-red-300 hover:text-red-700 dark:hover:text-red-300 transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+
+                    <div class="p-8 space-y-6">
+                        <div class="flex items-start gap-4 p-4 bg-red-50/50 dark:bg-red-900/10 rounded-2xl border border-red-100/50 dark:border-red-900/20">
+                            <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-red-800 dark:text-red-400 uppercase tracking-widest mb-1">¡Atención!</p>
+                                <p class="text-xs font-bold text-red-600/80 dark:text-red-400/60 leading-relaxed italic">Esta acción liberará el stock y cancelará los folios de las series vendidas. Esta operación NO se puede deshacer.</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-2">Motivo de Cancelación</label>
+                            <textarea v-model="motivoCancelacion" rows="3" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border-2 border-red-100 dark:border-red-900/30 rounded-2xl font-bold text-gray-900 dark:text-white focus:border-red-500 focus:ring-0 transition-all" placeholder="Describa el motivo..."></textarea>
+                        </div>
+
+                        <div class="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-900/20">
+                            <input type="checkbox" v-model="forceWithPayments" id="forceCancel" class="w-5 h-5 rounded-lg border-2 border-amber-200 dark:border-amber-900/30 text-amber-600 focus:ring-0 bg-white dark:bg-slate-900 transition-all cursor-pointer">
+                            <label for="forceCancel" class="text-[10px] font-black text-amber-800 dark:text-amber-400 uppercase tracking-widest cursor-pointer">Forzar cancelación (Admin)</label>
+                        </div>
+                    </div>
+
+                    <div class="px-8 py-6 bg-red-50/50 dark:bg-slate-950 border-t border-red-100 dark:border-red-900/30 flex flex-col gap-3">
+                        <button @click="confirmarCancelacion" :disabled="loading" class="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-xl transition-all flex items-center justify-center gap-3">
+                             {{ loading ? 'Cancelando...' : 'Confirmar Cancelación' }}
+                        </button>
+                        <button @click="cerrarCancelModal" class="w-full py-3 font-black text-red-400 dark:text-red-500 hover:text-red-800 dark:hover:text-red-300 uppercase text-[10px] tracking-widest transition-colors">Abortar</button>
+                    </div>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div class="bg-white p-4 rounded-lg">
-            <div class="flex justify-between items-center">
-              <span class="text-sm font-medium text-gray-700">Venta:</span>
-              <span class="text-sm font-mono text-gray-900">{{ selectedVentaDelete?.numero_venta }}</span>
-            </div>
-            <div class="flex justify-between items-center mt-2">
-              <span class="text-sm font-medium text-gray-700">Total:</span>
-              <span class="text-lg font-bold text-gray-900">{{ formatearMoneda(selectedVentaDelete?.total) }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
-          <button @click="cerrarDeleteModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
-            Cancelar
-          </button>
-          <button @click="ejecutarBorrado" :disabled="loading" class="px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-            <span v-if="loading" class="flex items-center">
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Eliminando...
-            </span>
-            <span>Confirmar Eliminaci&oacute;n</span>
-          </button>
-        </div>
-      </div>
-    </div>
-    </div>
+            </template>
+        </DialogModal>
 
-    <!-- Modal de Envo de Email -->
-    <div v-if="showEmailModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="cerrarEmailModal">
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-xl">
-        <div class="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 class="text-lg font-medium text-gray-900">Enviar Venta por Email</h3>
-          <button @click="cerrarEmailModal" class="text-gray-400 hover:text-gray-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <div class="p-6 space-y-4">
-          <div class="bg-blue-50 p-4 rounded-lg">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div class="ml-3">
-                <h3 class="text-sm font-medium text-blue-800">Confirmar env&iacute;o</h3>
-                <div class="mt-2 text-sm text-blue-700">
-                  <p>Se enviar&aacute; el PDF de la venta al correo del cliente.</p>
+        <!-- Modal de Eliminación -->
+        <DialogModal :show="showDeleteModal" @close="cerrarDeleteModal" maxWidth="md">
+            <template #content>
+                <div class="bg-white dark:bg-slate-950 rounded-3xl shadow-xl w-full overflow-hidden border border-red-100 dark:border-red-900/30 transform transition-all font-sans">
+                    <div class="px-8 py-10 flex flex-col items-center text-center">
+                        <div class="w-20 h-20 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center mb-6">
+                            <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </div>
+                        <h3 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-widest mb-2">Eliminar Definitivamente</h3>
+                        <p class="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-[0.2em] leading-relaxed">¿Estás seguro de borrar la venta #{{ selectedVentaDelete?.numero_venta || selectedVentaDelete?.id }}? Esta acción es irreversible.</p>
+                    </div>
+
+                    <div class="px-8 py-6 bg-gray-50 dark:bg-slate-900/50 border-t border-gray-100 dark:border-slate-800 flex flex-col gap-3">
+                        <button @click="ejecutarBorrado" :disabled="loading" class="w-full py-4 bg-red-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-xl transition-all">
+                            {{ loading ? 'Borrando...' : 'Sí, Eliminar Registro' }}
+                        </button>
+                        <button @click="cerrarDeleteModal" class="w-full py-3 font-black text-gray-400 dark:text-slate-500 hover:text-gray-900 dark:hover:text-white uppercase text-[10px] tracking-widest transition-colors">Mantener Registro</button>
+                    </div>
                 </div>
-              </div>
-            </div>
-          </div>
+            </template>
+        </DialogModal>
 
-          <div class="bg-white p-4 rounded-lg">
-             <div class="flex justify-between items-center mb-2">
-              <span class="text-sm font-medium text-gray-700">Venta:</span>
-              <span class="text-sm font-mono text-gray-900">{{ selectedVentaEmail?.numero_venta }}</span>
-            </div>
-            <div class="flex justify-between items-center mb-2">
-              <span class="text-sm font-medium text-gray-700">Cliente:</span>
-              <span class="text-sm text-gray-900">{{ selectedVentaEmail?.cliente?.nombre || selectedVentaEmail?.cliente?.nombre_razon_social }}</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm font-medium text-gray-700">Email destino:</span>
-              <span class="text-sm font-mono text-gray-900 bg-white px-2 py-1 rounded border border-gray-200">{{ selectedVentaEmail?.email_destino }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
-          <button @click="cerrarEmailModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
-            Cancelar
-          </button>
-          <button @click="confirmarEnvioEmail" :disabled="loading" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-             <span v-if="loading" class="flex items-center">
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Enviando...
-            </span>
-            <span v-else>Enviar Email</span>
-          </button>
-        </div>
-      </div>
-    </div>
+        <!-- Modal de Enviar Email -->
+        <DialogModal :show="showEmailModal" @close="cerrarEmailModal" maxWidth="md">
+            <template #content>
+                <div class="bg-white dark:bg-slate-950 rounded-3xl shadow-xl w-full overflow-hidden border border-blue-100 dark:border-blue-900/30 transform transition-all font-sans">
+                    <div class="px-8 py-10 flex flex-col items-center text-center">
+                        <div class="w-20 h-20 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mb-6">
+                            <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                        </div>
+                        <h3 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-widest mb-2">Enviar Documento</h3>
+                        <p class="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-6">Se enviará el PDF de la venta al cliente:</p>
+                        
+                        <div class="w-full p-4 bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/20 text-left">
+                            <p class="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Destinatario</p>
+                            <p class="text-sm font-black text-gray-900 dark:text-white truncate">{{ selectedVentaEmail?.cliente?.nombre_razon_social }}</p>
+                            <p class="text-xs font-bold text-gray-500 dark:text-slate-400 italic mb-2">{{ selectedVentaEmail?.cliente?.email }}</p>
+                        </div>
+                    </div>
 
-    <!-- Loading overlay -->
-    <div v-if="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white p-6 rounded-lg shadow-lg">
-        <div class="flex items-center space-x-3">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          <span class="text-gray-700">Procesando...</span>
-        </div>
-      </div>
-    </div>
-  </div>
+                    <div class="px-8 py-6 bg-gray-50 dark:bg-slate-900/50 border-t border-gray-100 dark:border-slate-800 flex flex-col gap-3">
+                        <button @click="confirmarEnviarEmail" :disabled="loading" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-xl transition-all flex items-center justify-center gap-3">
+                            <span v-if="loading" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+                            {{ loading ? 'Enviando...' : 'Enviar Correo Ahora' }}
+                        </button>
+                        <button @click="cerrarEmailModal" class="w-full py-3 font-black text-gray-400 dark:text-slate-500 hover:text-gray-900 dark:hover:text-white uppercase text-[10px] tracking-widest transition-colors">Cancelar</button>
+                    </div>
+                </div>
+            </template>
+        </DialogModal>
+    </AppLayout>
 </template>
 
 <style scoped>
-.ventas-index {
-  min-height: 100vh;
-}
-
-/* Responsive */
-@media (max-width: 640px) {
   .ventas-index .w-full {
     padding-left: 1rem;
     padding-right: 1rem;
@@ -1277,7 +992,7 @@ const confirmarEnvioEmail = async () => {
   .ventas-index h1 {
     font-size: 1.5rem;
   }
-}
+
 
 /* Animaciones suaves */
 @keyframes fadeIn {
