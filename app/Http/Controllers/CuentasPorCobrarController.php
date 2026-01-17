@@ -59,23 +59,23 @@ class CuentasPorCobrarController extends Controller
                 $q->whereHasMorph('cobrable', [Venta::class, Renta::class, \App\Models\PolizaServicio::class], function ($sq, $type) use ($search) {
                     // Buscar en Cliente relacionado
                     $sq->whereHas('cliente', function ($cq) use ($search) {
-                        $cq->where('clientes.nombre_razon_social', 'like', "%{$search}%")
-                            ->orWhere('clientes.rfc', 'like', "%{$search}%")
-                            ->orWhere('clientes.telefono', 'like', "%{$search}%");
+                        $cq->where('clientes.nombre_razon_social', 'ilike', "%{$search}%")
+                            ->orWhere('clientes.rfc', 'ilike', "%{$search}%")
+                            ->orWhere('clientes.telefono', 'ilike', "%{$search}%");
                     });
 
                     // Buscar por folio específico según el tipo
                     if ($type === Venta::class) {
-                        $sq->orWhere('numero_venta', 'like', "%{$search}%");
+                        $sq->orWhere('numero_venta', 'ilike', "%{$search}%");
                     } elseif ($type === Renta::class) {
-                        $sq->orWhere('numero_contrato', 'like', "%{$search}%");
+                        $sq->orWhere('numero_contrato', 'ilike', "%{$search}%");
                     } elseif ($type === \App\Models\PolizaServicio::class) {
-                        $sq->orWhere('folio', 'like', "%{$search}%");
+                        $sq->orWhere('folio', 'ilike', "%{$search}%");
                     }
                 })
                     // También buscar en cliente directo si la CxC tiene cliente_id directo
                     ->orWhereHas('cliente', function ($cq) use ($search) {
-                        $cq->where('clientes.nombre_razon_social', 'like', "%{$search}%");
+                        $cq->where('clientes.nombre_razon_social', 'ilike', "%{$search}%");
                     });
             });
         }
