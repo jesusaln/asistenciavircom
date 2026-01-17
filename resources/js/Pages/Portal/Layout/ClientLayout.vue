@@ -30,12 +30,12 @@ const cssVars = computed(() => ({
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-50 flex flex-col font-sans" :style="cssVars">
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col font-sans transition-colors duration-300" :style="cssVars">
         <!-- Reutilizamos el Navbar Público para consistencia total -->
         <PublicNavbar :empresa="empresaData" activeTab="soporte" />
 
         <!-- Sub-Header del Portal -->
-        <div class="bg-white border-b border-gray-100 shadow-sm">
+        <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm transition-colors">
             <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
                 <div class="flex gap-8">
                     <Link 
@@ -44,7 +44,7 @@ const cssVars = computed(() => ({
                             'text-sm font-bold uppercase tracking-widest pb-5 mt-5 transition-all outline-none',
                             ($page.component === 'Portal/Dashboard' || $page.component.startsWith('Portal/Polizas/'))
                                 ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' 
-                                : 'text-gray-400 hover:text-gray-600'
+                                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
                         ]"
                     >
                         Mis Servicios
@@ -55,7 +55,7 @@ const cssVars = computed(() => ({
                             'text-sm font-bold uppercase tracking-widest pb-5 mt-5 transition-all outline-none',
                             $page.component === 'Portal/CreateTicket' 
                                 ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' 
-                                : 'text-gray-400 hover:text-gray-600'
+                                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
                         ]"
                     >
                         Solicitar Soporte
@@ -66,7 +66,7 @@ const cssVars = computed(() => ({
                             'text-sm font-bold uppercase tracking-widest pb-5 mt-5 transition-all outline-none',
                             $page.component === 'Portal/Credito/Index' 
                                 ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' 
-                                : 'text-gray-400 hover:text-gray-600'
+                                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
                         ]"
                     >
                         Línea de Crédito

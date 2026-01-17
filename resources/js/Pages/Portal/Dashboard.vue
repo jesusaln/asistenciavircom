@@ -282,15 +282,15 @@ const totalPendiente = computed(() => {
             
             <!-- Header de Bienvenida -->
             <div class="mb-10">
-                <h1 class="text-3xl font-black text-gray-900 tracking-tight mb-2">
+                <h1 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight mb-2 transition-colors">
                     Hola, <span class="text-[var(--color-primary)]">{{ cliente.nombre_razon_social?.split(' ')[0] }}</span>
                 </h1>
-                <p class="text-gray-500 font-medium">Gestione sus servicios y soporte técnico desde un solo lugar.</p>
+                <p class="text-gray-500 dark:text-gray-400 font-medium transition-colors">Gestione sus servicios y soporte técnico desde un solo lugar.</p>
             </div>
 
             <!-- Alerta Pagos Pendientes Premium -->
             <div v-if="pagosPendientes && pagosPendientes.length > 0" 
-                 class="mb-10 bg-white border border-red-100 rounded-[2rem] p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl shadow-red-500/5 overflow-hidden relative group">
+                 class="mb-10 bg-white dark:bg-gray-800 border border-red-100 dark:border-red-900/50 rounded-[2rem] p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl shadow-red-500/5 dark:shadow-none overflow-hidden relative group transition-colors">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform"></div>
                 
                 <div class="flex items-center gap-6 relative z-10">
@@ -298,8 +298,8 @@ const totalPendiente = computed(() => {
                         ⚠️
                     </div>
                     <div>
-                        <h3 class="text-xl font-black text-gray-900">Pagos Pendientes</h3>
-                        <p class="text-gray-500 font-medium">Tiene {{ pagosPendientes.length }} factura(s) que requieren su atención.</p>
+                        <h3 class="text-xl font-black text-gray-900 dark:text-white transition-colors">Pagos Pendientes</h3>
+                        <p class="text-gray-500 dark:text-gray-400 font-medium transition-colors">Tiene {{ pagosPendientes.length }} factura(s) que requieren su atención.</p>
                     </div>
                 </div>
                 <button @click="activeTab = 'pagos'" class="relative z-10 w-full sm:w-auto px-8 py-4 bg-red-500 text-white font-black text-sm uppercase tracking-widest rounded-2xl hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/30 transition-all">
@@ -311,11 +311,11 @@ const totalPendiente = computed(() => {
             <div v-if="cliente.credito_activo || cliente.estado_credito !== 'sin_credito'" 
                  class="mb-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 
-                <div class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/50 flex items-center justify-between group overflow-hidden relative">
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-xl shadow-gray-200/50 dark:shadow-none flex items-center justify-between group overflow-hidden relative transition-colors">
                     <div class="absolute top-0 right-0 w-24 h-24 bg-[var(--color-primary-soft)] rounded-full -mr-12 -mt-12 group-hover:scale-125 transition-transform duration-500"></div>
                     <div class="relative z-10">
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Estado de Crédito</p>
-                        <h3 class="text-xl font-black text-gray-900 flex items-center gap-2">
+                        <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1 transition-colors">Estado de Crédito</p>
+                        <h3 class="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2 transition-colors">
                              <font-awesome-icon 
                                 :icon="cliente.estado_credito === 'autorizado' ? 'check-circle' : 'info-circle'" 
                                 :class="cliente.estado_credito === 'autorizado' ? 'text-emerald-500' : 'text-amber-500'" 
@@ -325,23 +325,23 @@ const totalPendiente = computed(() => {
                     </div>
                 </div>
 
-                <div v-if="cliente.credito_activo" class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/50 group overflow-hidden relative">
+                <div v-if="cliente.credito_activo" class="bg-white dark:bg-gray-800 p-8 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-xl shadow-gray-200/50 dark:shadow-none group overflow-hidden relative transition-colors">
                     <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-full -mr-12 -mt-12 group-hover:scale-125 transition-transform duration-500"></div>
                     <div class="relative z-10">
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Crédito Disponible</p>
+                        <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1 transition-colors">Crédito Disponible</p>
                         <h3 class="text-3xl font-black text-emerald-600">
                              ${{ Number(cliente.credito_disponible).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}
                         </h3>
                     </div>
                 </div>
 
-                <div v-if="cliente.credito_activo" class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/50 group overflow-hidden relative">
+                <div v-if="cliente.credito_activo" class="bg-white dark:bg-gray-800 p-8 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-xl shadow-gray-200/50 dark:shadow-none group overflow-hidden relative transition-colors">
                     <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-full -mr-12 -mt-12 group-hover:scale-125 transition-transform duration-500"></div>
                     <div class="relative z-10">
                          <Link :href="route('portal.credito.index')" class="flex items-center justify-between w-full group/link">
                             <div>
-                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Línea Total</p>
-                                <h3 class="text-xl font-black text-gray-900">
+                                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1 transition-colors">Línea Total</p>
+                                <h3 class="text-xl font-black text-gray-900 dark:text-white transition-colors">
                                     ${{ Number(cliente.limite_credito).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}
                                 </h3>
                             </div>
