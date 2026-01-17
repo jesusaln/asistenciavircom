@@ -35,6 +35,10 @@ const form = useForm({
     mantenimiento_frecuencia_meses: props.plan?.mantenimiento_frecuencia_meses || null,
     mantenimiento_dias_anticipacion: props.plan?.mantenimiento_dias_anticipacion || 7,
     generar_cita_automatica: props.plan?.generar_cita_automatica ?? false,
+    visitas_sitio_mensuales: props.plan?.visitas_sitio_mensuales || null,
+    costo_visita_sitio_extra: props.plan?.costo_visita_sitio_extra || null,
+    clausulas: props.plan?.clausulas || '',
+    terminos_pago: props.plan?.terminos_pago || '',
 });
 
 const nuevoBeneficio = ref('');
@@ -239,6 +243,29 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     />
                                 </div>
                             </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Visitas Sitio/Mes</label>
+                                <input 
+                                    v-model.number="form.visitas_sitio_mensuales" 
+                                    type="number" 
+                                    min="0"
+                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Ej: 1"
+                                />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Costo Visita Extra</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                                    <input 
+                                        v-model.number="form.costo_visita_sitio_extra" 
+                                        type="number" 
+                                        step="0.01"
+                                        min="0"
+                                        class="w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -310,7 +337,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                             <span 
                                 v-for="(beneficio, index) in form.beneficios" 
                                 :key="index"
-                                class="inline-flex items-center gap-2 px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-sm"
+                                class="inline-flex items-center gap-2 px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-sm font-bold"
                             >
                                 ✓ {{ beneficio }}
                                 <button type="button" @click="eliminarBeneficio(index)" class="text-green-600 hover:text-red-600">×</button>
@@ -318,6 +345,34 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                             <span v-if="!form.beneficios.length" class="text-gray-400 text-sm">
                                 Agrega los beneficios que se mostrarán en el catálogo
                             </span>
+                        </div>
+                    </div>
+
+                    <!-- Cláusulas y Términos de Pago -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="font-bold text-gray-900 mb-4 border-b pb-2">⚖️ Cláusulas y Condiciones Legales</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Cláusulas del Contrato</label>
+                                <textarea 
+                                    v-model="form.clausulas" 
+                                    rows="8"
+                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm font-mono"
+                                    placeholder="Escribe las cláusulas legales separadas por párrafos..."
+                                ></textarea>
+                                <p class="text-[10px] text-gray-400 mt-1">Estas cláusulas aparecerán en la impresión del contrato para el cliente.</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Términos y Condiciones de Pago</label>
+                                <textarea 
+                                    v-model="form.terminos_pago" 
+                                    rows="3"
+                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                                    placeholder="Ej: El pago debe realizarse los primeros 5 días del mes..."
+                                ></textarea>
+                            </div>
                         </div>
                     </div>
 
