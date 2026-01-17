@@ -112,6 +112,7 @@ class Cita extends Model
         'nombre_firmante',
         'fecha_firma',
         'firma_tecnico',
+        'poliza_id',
     ];
 
     protected $casts = [
@@ -260,6 +261,14 @@ class Cita extends Model
     }
 
     /**
+     * Póliza de servicio asociada
+     */
+    public function poliza()
+    {
+        return $this->belongsTo(PolizaServicio::class, 'poliza_id');
+    }
+
+    /**
      * Ítems de la cita (productos y servicios)
      */
     public function items()
@@ -387,6 +396,14 @@ class Cita extends Model
                 $inicio = Carbon::parse($this->inicio_servicio);
                 $fin = Carbon::parse($this->fin_servicio);
                 $this->tiempo_servicio = (int) $inicio->diffInMinutes($fin);
+            }
+
+            // Registrar consumo de visita en póliza si aplica
+            if ($this->poliza_id) {
+                $poliza = $this->poliza;
+                if ($poliza && $poliza->isActiva()) {
+                    $poliza->registrarVisitaSitio();
+                }
             }
         }
 

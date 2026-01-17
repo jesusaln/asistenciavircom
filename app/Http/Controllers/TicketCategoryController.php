@@ -34,6 +34,7 @@ class TicketCategoryController extends Controller
             'icono' => 'required|string|max:50',
             'sla_horas' => 'required|integer|min:1|max:720',
             'orden' => 'nullable|integer',
+            'consume_poliza' => 'nullable|boolean',
         ]);
 
         $validated['empresa_id'] = EmpresaResolver::resolveId();
@@ -63,6 +64,7 @@ class TicketCategoryController extends Controller
             'sla_horas' => 'required|integer|min:1|max:720',
             'orden' => 'nullable|integer',
             'activo' => 'boolean',
+            'consume_poliza' => 'boolean',
         ]);
 
         $categoria->update($validated);

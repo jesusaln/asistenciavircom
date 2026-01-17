@@ -112,6 +112,16 @@ class Ticket extends Model implements Auditable
                     $ticket->fecha_limite = now()->addHours($horasSla);
                 }
             }
+
+            // Descontar folio de póliza si aplica al crear (Soporte Técnico)
+            if ($ticket->poliza_id && $ticket->categoria_id) {
+                // Usamos delay para evitar problemas de racing conditions con la relación
+                static::saved(function ($t) {
+                    if ($t->wasRecentlyCreated && $t->poliza_id) {
+                        $t->registrarConsumoUnitarioEnPoliza();
+                    }
+                });
+            }
         });
     }
 
@@ -293,7 +303,7 @@ class Ticket extends Model implements Auditable
 
     /**
      * Registrar horas consumidas en la póliza asociada.
-     * NOTA: Este método solo debe llamarse UNA VEZ por ticket.
+     * NOTA: Este método solo debe llamarse UNA VEZ por ticket para las horas.
      */
     public function registrarConsumoEnPoliza(?float $horas = null): void
     {
@@ -306,6 +316,24 @@ class Ticket extends Model implements Auditable
         $poliza = $this->poliza;
         if ($poliza && $poliza->isActiva()) {
             $poliza->registrarConsumoHoras($horasARegistrar, $this);
+        }
+    }
+
+    /**
+     * Registrar el folio (unidad) consumido en la póliza.
+     */
+    public function registrarConsumoUnitarioEnPoliza(): void
+    {
+        if (!$this->poliza_id || !$this->categoria_id) {
+            return;
+        }
+
+        $categoria = $this->categoria;
+        if ($categoria && $categoria->consume_poliza) {
+            $poliza = $this->poliza;
+            if ($poliza && $poliza->isActiva()) {
+                $poliza->registrarTicketSoporte();
+            }
         }
     }
 

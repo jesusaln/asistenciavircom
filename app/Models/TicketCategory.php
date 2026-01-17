@@ -20,12 +20,14 @@ class TicketCategory extends Model
         'sla_horas',
         'orden',
         'activo',
+        'consume_poliza',
     ];
 
     protected $casts = [
         'sla_horas' => 'integer',
         'orden' => 'integer',
         'activo' => 'boolean',
+        'consume_poliza' => 'boolean',
     ];
 
     // Relaciones

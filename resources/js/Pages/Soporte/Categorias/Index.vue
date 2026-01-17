@@ -26,6 +26,8 @@
                    <th class="px-6 py-3 bg-white text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SLA (Horas)</th>
                    <th class="px-6 py-3 bg-white text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Color/Icono</th>
                    <th class="px-6 py-3 bg-white text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tickets</th>
+                   <th class="px-6 py-3 bg-white text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Consumo Póliza</th>
+                   <th class="px-6 py-3 bg-white text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Consumo Póliza</th>
                    <th class="px-6 py-3 bg-white text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                    <th class="px-6 py-3 bg-white text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                 </tr>
@@ -43,6 +45,12 @@
                       </span>
                    </td>
                    <td class="px-6 py-4 text-sm text-gray-500">{{ cat.tickets_count }}</td>
+                   <td class="px-6 py-4 text-sm text-gray-500">
+                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                          :class="cat.consume_poliza ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'">
+                          {{ cat.consume_poliza ? 'Descuenta' : 'Sin Cargo' }}
+                      </span>
+                   </td>
                    <td class="px-6 py-4">
                       <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
                           :class="cat.activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
@@ -101,9 +109,15 @@
                        </select>
                    </div>
                </div>
-               <div class="mb-4 flex items-center">
-                   <input type="checkbox" v-model="form.activo" class="mr-2" />
-                   <label class="text-sm font-medium text-gray-700">Activo</label>
+               <div class="mb-4 flex items-center gap-4">
+                   <div class="flex items-center">
+                       <input type="checkbox" v-model="form.activo" class="mr-2" />
+                       <label class="text-sm font-medium text-gray-700">Activo</label>
+                   </div>
+                   <div class="flex items-center">
+                       <input type="checkbox" v-model="form.consume_poliza" class="mr-2" />
+                       <label class="text-sm font-medium text-gray-700">Descontar de Póliza</label>
+                   </div>
                </div>
                <div class="flex justify-end mt-6">
                    <button type="button" @click="closeModal" class="mr-3 px-4 py-2 text-gray-700 hover:text-gray-900">Cancelar</button>
@@ -135,6 +149,7 @@ const form = useForm({
     icono: 'tag',
     color: 'blue',
     activo: true,
+    consume_poliza: true,
 });
 
 const openModal = (cat = null) => {
@@ -147,6 +162,7 @@ const openModal = (cat = null) => {
         form.icono = cat.icono;
         form.color = cat.color;
         form.activo = !!cat.activo;
+        form.consume_poliza = !!cat.consume_poliza;
     } else {
         form.reset();
         form.id = null;

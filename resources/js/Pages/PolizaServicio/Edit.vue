@@ -63,6 +63,8 @@ const form = useForm({
     mantenimiento_dias_anticipacion: props.poliza?.mantenimiento_dias_anticipacion || 7,
     proximo_mantenimiento_at: props.poliza?.proximo_mantenimiento_at ? props.poliza.proximo_mantenimiento_at.split('T')[0] : '',
     generar_cita_automatica: props.poliza?.generar_cita_automatica ?? false,
+    visitas_sitio_mensuales: props.poliza?.visitas_sitio_mensuales || '',
+    costo_visita_sitio_extra: props.poliza?.costo_visita_sitio_extra || '',
 });
 
 const nuevoEquipo = ref({ nombre: '', serie: '' });
@@ -330,9 +332,7 @@ const helpSections = [
                                         <p v-if="form.errors.dia_cobro" class="text-red-500 text-[10px] mt-1">{{ form.errors.dia_cobro }}</p>
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">Límite Tkt</label>
-                                        <input v-model="form.limite_mensual_tickets" type="number" placeholder="∞" class="w-full border-gray-200 rounded-xl h-11 text-center font-bold" />
-                                        <p v-if="form.errors.limite_mensual_tickets" class="text-red-500 text-[10px] mt-1">{{ form.errors.limite_mensual_tickets }}</p>
+                                        <!-- Espacio reservado o eliminamos si no es necesario -->
                                     </div>
                                 </div>
 
@@ -340,17 +340,31 @@ const helpSections = [
                                 <div class="pt-3 border-t border-dashed">
                                     <div class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-3 flex items-center gap-1">
                                         <font-awesome-icon icon="clock" />
-                                        Control por Horas
+                                        Control de Servicios
                                     </div>
-                                    <div class="grid grid-cols-2 gap-3">
+                                    <div class="grid grid-cols-2 gap-3 mb-3">
+                                        <div>
+                                            <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">Soporte Remoto/Mes</label>
+                                            <input v-model="form.limite_mensual_tickets" type="number" placeholder="Sin límite" class="w-full border-gray-200 rounded-lg h-10 text-xs text-center font-bold" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">Visitas Sitio/Mes</label>
+                                            <input v-model="form.visitas_sitio_mensuales" type="number" placeholder="0" class="w-full border-gray-200 rounded-lg h-10 text-xs text-center font-bold" />
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-3 mb-3">
                                         <div>
                                             <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">Hrs. Incluidas/Mes</label>
                                             <input v-model="form.horas_incluidas_mensual" type="number" placeholder="Sin límite" class="w-full border-gray-200 rounded-lg h-10 text-xs text-center font-bold" />
                                         </div>
                                         <div>
-                                            <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">$ Hora Extra</label>
-                                            <input v-model="form.costo_hora_excedente" type="number" step="0.01" placeholder="0.00" class="w-full border-gray-200 rounded-lg h-10 text-xs text-center font-mono" />
+                                            <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">Costo Visita Extra</label>
+                                            <input v-model="form.costo_visita_sitio_extra" type="number" step="0.01" placeholder="0.00" class="w-full border-gray-200 rounded-lg h-10 text-xs text-center font-mono" />
                                         </div>
+                                    </div>
+                                    <div class="grid grid-cols-1 mb-1">
+                                         <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">Costo Hora Excedente</label>
+                                         <input v-model="form.costo_hora_excedente" type="number" step="0.01" placeholder="0.00" class="w-full border-gray-200 rounded-lg h-10 text-xs text-center font-mono" />
                                     </div>
                                 </div>
 

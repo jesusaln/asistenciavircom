@@ -233,20 +233,18 @@ class PolizaServicio extends Model
      */
     public function getTicketsSoporteMesCountAttribute()
     {
-        // Se consideran tickets de soporte técnico los que NO son asesoría
-        // Categorías que NO cuentan: Asesoría (ID a definir, usaremos nombre por ahora)
+        // Se consideran tickets de soporte los que pertenecen a una categoría marcada para consumir póliza
         return $this->tickets()
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->whereHas('categoria', function ($q) {
-                $q->where('nombre', 'not like', '%Asesoría%')
-                    ->where('nombre', 'not like', '%Consultoría%');
+                $q->where('consume_poliza', true);
             })
             ->count();
     }
 
     /**
-     * Obtener el conteo de tickets de Asesoría (que NO consumen la póliza).
+     * Obtener el conteo de tickets que NO consumen la póliza (Asesorías, etc).
      */
     public function getTicketsAsesoriaMesCountAttribute()
     {
@@ -254,10 +252,7 @@ class PolizaServicio extends Model
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->whereHas('categoria', function ($q) {
-                $q->where(function ($sub) {
-                    $sub->where('nombre', 'like', '%Asesoría%')
-                        ->orWhere('nombre', 'like', '%Consultoría%');
-                });
+                $q->where('consume_poliza', false);
             })
             ->count();
     }
@@ -306,6 +301,14 @@ class PolizaServicio extends Model
     public function registrarVisitaSitio(): void
     {
         $this->increment('visitas_sitio_consumidas_mes');
+    }
+
+    /**
+     * Registrar un ticket de soporte consumido.
+     */
+    public function registrarTicketSoporte(): void
+    {
+        $this->increment('tickets_soporte_consumidos_mes');
     }
 
     /**
