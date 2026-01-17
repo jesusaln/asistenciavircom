@@ -214,6 +214,54 @@
     background: #94a3b8;
 }
 
+/* Dark Mode Scrollbar - Minimalist & Dark Integrated */
+.dark ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.dark ::-webkit-scrollbar-track {
+    background: transparent;
+    /* Se funde con el fondo del sidebar/body */
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background-color: #374151;
+    /* gray-700 */
+    border: 3px solid transparent;
+    /* Padding efecto */
+    background-clip: content-box;
+    /* Hace que el borde sea transparente real */
+    border-radius: 99px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background-color: #4b5563;
+    /* gray-600 */
+    border: 3px solid transparent;
+    background-clip: content-box;
+}
+
+/* Media Query Support */
+@media (prefers-color-scheme: dark) {
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: #374151;
+        border: 3px solid transparent;
+        background-clip: content-box;
+        border-radius: 99px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: #4b5563;
+        border: 3px solid transparent;
+        background-clip: content-box;
+    }
+}
+
 /* Animaciones */
 @keyframes fadeIn {
     from {
