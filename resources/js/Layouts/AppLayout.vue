@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col h-screen bg-gray-50">
+    <div class="flex flex-col h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
         <!-- Navigation Bar -->
         <nav class="bg-gradient-to-r from-gray-900 to-gray-800 shadow-lg border-b border-gray-700">
             <div class="px-4 py-3">
@@ -130,7 +130,7 @@
             <main
                 :class="[
                     {'ml-64': !isSidebarCollapsed, 'ml-20': isSidebarCollapsed},
-                    'flex-1 overflow-y-auto transition-all duration-300 ease-in-out bg-gray-50'
+                    'flex-1 overflow-y-auto transition-all duration-300 ease-in-out bg-gray-50 dark:bg-gray-950'
                 ]"
             >
                 <div class="p-6">
@@ -144,9 +144,9 @@
 
         <!-- Loading Overlay -->
         <div v-if="isLoading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" aria-modal="true" role="dialog">
-            <div class="bg-white rounded-xl p-6 flex items-center space-x-3 shadow-xl">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 flex items-center space-x-3 shadow-xl transition-colors">
                 <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-500" role="status" aria-label="Cargando"></div>
-                <span class="text-gray-700 font-medium">Cargando...</span>
+                <span class="text-gray-700 dark:text-gray-200 font-medium transition-colors">Cargando...</span>
             </div>
         </div>
 
