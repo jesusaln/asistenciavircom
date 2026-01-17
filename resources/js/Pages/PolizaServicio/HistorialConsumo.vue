@@ -42,7 +42,7 @@ const totalTicketsHistorico = () => {
         <Head :title="`Historial Consumo - ${poliza.folio}`" />
 
         <div class="py-6">
-            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="w-full px-4 sm:px-6 lg:px-8">
                 <!-- Header -->
                 <div class="mb-8">
                     <Link :href="route('polizas-servicio.show', poliza.id)" class="text-blue-600 hover:text-blue-800 text-sm mb-2 inline-block">
@@ -123,7 +123,7 @@ const totalTicketsHistorico = () => {
                         </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
+                                <thead class="bg-white">
                                     <tr>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ticket</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Título</th>
@@ -134,7 +134,7 @@ const totalTicketsHistorico = () => {
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200">
-                                    <tr v-for="t in ticketsConHoras" :key="t.id" class="hover:bg-gray-50">
+                                    <tr v-for="t in ticketsConHoras" :key="t.id" class="hover:bg-white">
                                         <td class="px-4 py-3">
                                             <Link :href="route('soporte.show', t.id)" class="font-mono text-blue-600 hover:text-blue-800 text-sm font-bold">
                                                 {{ t.folio }}

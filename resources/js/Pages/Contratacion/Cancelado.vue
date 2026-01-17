@@ -19,7 +19,7 @@ const cssVars = computed(() => ({
 <template>
     <Head title="Pago Cancelado" />
 
-    <div class="min-h-screen bg-gray-50 flex flex-col" :style="cssVars">
+    <div class="min-h-screen bg-white flex flex-col" :style="cssVars">
         <PublicNavbar :empresa="empresa" />
         
         <div class="flex-grow flex items-center justify-center p-4">
@@ -68,7 +68,7 @@ const cssVars = computed(() => ({
                         Intentar de Nuevo
                     </Link>
                     
-                    <Link :href="route('catalogo.polizas')" class="block w-full py-4 border-2 border-gray-200 text-gray-700 font-black text-sm uppercase tracking-widest rounded-xl hover:bg-gray-50 transition">
+                    <Link :href="route('catalogo.polizas')" class="block w-full py-4 border-2 border-gray-200 text-gray-700 font-black text-sm uppercase tracking-widest rounded-xl hover:bg-white transition">
                         Ver Otros Planes
                     </Link>
                     

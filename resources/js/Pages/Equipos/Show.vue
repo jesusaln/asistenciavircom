@@ -1,6 +1,6 @@
 <template>
     <Head title="Ver Equipo" />
-    <div class="equipos-show max-w-4xl mx-auto p-6 bg-gray-50 rounded-lg shadow-md">
+    <div class="equipos-show w-full p-6 bg-white rounded-lg shadow-md">
       <h1 class="text-2xl font-semibold mb-6 text-center">Detalles del Equipo #{{ props.equipo.id }}</h1>
 
       <div class="space-y-6">

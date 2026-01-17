@@ -1,6 +1,6 @@
 <template>
   <Head :title="`Cliente: ${cliente.nombre_razon_social}`" />
-  <div class="max-w-4xl mx-auto p-4" :style="cssVars">
+  <div class="w-full p-4" :style="cssVars">
     <div class="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl overflow-hidden border border-gray-100">
       <!-- Header moderno con gradiente -->
       <div class="p-6 text-white" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
@@ -118,7 +118,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">RFC</label>
-            <p class="text-gray-900 font-mono bg-gray-50 px-2 py-1 rounded inline-block">{{ cliente.rfc }}</p>
+            <p class="text-gray-900 font-mono bg-white px-2 py-1 rounded inline-block">{{ cliente.rfc }}</p>
           </div>
           <div v-if="cliente.curp">
             <label class="block text-sm font-medium text-gray-700 mb-1">CURP</label>
@@ -202,7 +202,7 @@
       <!-- Dirección -->
       <section class="border-b border-gray-200 pb-6 mb-6">
         <h2 class="text-lg font-medium text-gray-900 mb-4">Dirección</h2>
-        <div class="bg-gray-50 rounded-lg p-4">
+        <div class="bg-white rounded-lg p-4">
              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                <div>
                   <h4 class="text-xs font-semibold text-gray-500 uppercase">Calle y Números</h4>
@@ -230,7 +230,7 @@
         <h2 class="text-lg font-medium text-gray-900 mb-4">Módulos Relacionados</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
           <Link :href="route('cotizaciones.index', { cliente_id: cliente.id })" class="block group">
-              <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 transform transition-all duration-200 group-hover:shadow-md group-hover:bg-gray-100 text-center">
+              <div class="bg-white p-3 rounded-xl border border-gray-100 transform transition-all duration-200 group-hover:shadow-md group-hover:bg-gray-100 text-center">
                 <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Cots</h3>
                 <p class="text-xl font-black text-gray-800">{{ cliente.cotizaciones_count || 0 }}</p>
               </div>
@@ -359,7 +359,7 @@
         </div>
         <div class="overflow-x-auto bg-white border border-gray-200 rounded-lg shadow-sm">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Folio</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
@@ -369,7 +369,7 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="compra in historialCompras" :key="compra.id" class="hover:bg-gray-50">
+              <tr v-for="compra in historialCompras" :key="compra.id" class="hover:bg-white">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
                   <Link :href="route('ventas.show', compra.id)">{{ compra.numero_venta }}</Link>
                 </td>
@@ -409,7 +409,7 @@
         </div>
         <div class="overflow-x-auto bg-white border border-gray-200 rounded-lg shadow-sm">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Venta Origen</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vencimiento</th>
@@ -420,7 +420,7 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="credito in historialCredito" :key="credito.id" class="hover:bg-gray-50">
+              <tr v-for="credito in historialCredito" :key="credito.id" class="hover:bg-white">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
                    <Link v-if="credito.venta" :href="route('ventas.show', credito.venta_id)">{{ credito.venta.numero_venta }}</Link>
                    <span v-else>N/A</span>
@@ -465,7 +465,7 @@
       </section>
 
       <!-- Debug (desarrollo) -->
-      <div v-if="isDevelopment" class="mt-6 p-4 bg-gray-50 rounded-md text-xs">
+      <div v-if="isDevelopment" class="mt-6 p-4 bg-white rounded-md text-xs">
         <h3 class="font-semibold mb-2">Debug: Cliente ID {{ cliente.id }}</h3>
         <pre class="text-xs overflow-auto">{{ JSON.stringify(cliente, null, 2) }}</pre>
       </div>

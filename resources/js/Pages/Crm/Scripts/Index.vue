@@ -159,7 +159,7 @@ const getTipoIcon = (tipo) => {
 
 const getTipoHeaderColor = (tipo) => {
     const colors = { apertura: 'bg-gradient-to-r from-blue-500 to-blue-600', seguimiento: 'bg-gradient-to-r from-yellow-500 to-orange-500', cierre: 'bg-gradient-to-r from-green-500 to-green-600', objecion: 'bg-gradient-to-r from-red-500 to-red-600', presentacion: 'bg-gradient-to-r from-purple-500 to-purple-600' };
-    return colors[tipo] || 'bg-gray-500';
+    return colors[tipo] || 'bg-white0';
 };
 
 const nuevoScript = () => {

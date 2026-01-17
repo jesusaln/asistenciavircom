@@ -22,7 +22,7 @@
 
                     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div v-for="image in images" :key="image.filename"
-                             class="border rounded-lg p-4 bg-gray-50">
+                             class="border rounded-lg p-4 bg-white">
                             <div class="mb-3">
                                 <img :src="image.url"
                                      :alt="image.filename"

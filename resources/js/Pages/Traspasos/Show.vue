@@ -2,7 +2,7 @@
 <template>
   <Head title="Detalle de Traspaso" />
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-    <div class="max-w-4xl mx-auto bg-white border border-gray-200 rounded-2xl shadow-sm p-6 space-y-6">
+    <div class="w-full bg-white border border-gray-200 rounded-2xl shadow-sm p-6 space-y-6">
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-bold text-gray-900">Traspaso #{{ traspaso.id }}</h1>
@@ -38,7 +38,7 @@
             v-if="traspaso.productos && traspaso.productos.length"
             v-for="(prod, idx) in traspaso.productos"
             :key="idx"
-            class="px-4 py-3 flex justify-between items-center hover:bg-gray-50"
+            class="px-4 py-3 flex justify-between items-center hover:bg-white"
           >
             <div class="flex items-center">
               <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
@@ -70,17 +70,17 @@
 
       <!-- Información Adicional -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="p-4 bg-gray-50 rounded-lg">
+        <div class="p-4 bg-white rounded-lg">
           <p class="text-xs text-gray-500 uppercase font-semibold mb-1">Referencia</p>
           <p class="text-sm text-gray-800">{{ traspaso.referencia || 'Sin referencia' }}</p>
         </div>
-        <div class="p-4 bg-gray-50 rounded-lg">
+        <div class="p-4 bg-white rounded-lg">
           <p class="text-xs text-gray-500 uppercase font-semibold mb-1">Costo de Transporte</p>
           <p class="text-sm text-gray-800">${{ traspaso.costo_transporte ?? 0 }}</p>
         </div>
       </div>
 
-      <div class="p-4 bg-gray-50 rounded-lg">
+      <div class="p-4 bg-white rounded-lg">
         <p class="text-xs text-gray-500 uppercase font-semibold mb-1">Observaciones</p>
         <p class="text-sm text-gray-800 whitespace-pre-line">{{ traspaso.observaciones || 'Sin observaciones' }}</p>
       </div>

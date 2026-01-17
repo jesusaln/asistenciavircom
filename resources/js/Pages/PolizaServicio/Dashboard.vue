@@ -139,7 +139,7 @@ const generarCobro = (polizaId) => {
                             </h2>
                         </div>
                         <div class="divide-y max-h-96 overflow-y-auto">
-                            <div v-for="p in proximasVencer" :key="p.id" class="px-6 py-4 hover:bg-gray-50 transition">
+                            <div v-for="p in proximasVencer" :key="p.id" class="px-6 py-4 hover:bg-white transition">
                                 <div class="flex justify-between items-start">
                                     <div>
                                         <Link :href="route('polizas-servicio.show', p.id)" class="font-bold text-gray-900 hover:text-blue-600">
@@ -174,7 +174,7 @@ const generarCobro = (polizaId) => {
                             </h2>
                         </div>
                         <div class="divide-y max-h-96 overflow-y-auto">
-                            <div v-for="p in excesoHoras" :key="p.id" class="px-6 py-4 hover:bg-gray-50 transition">
+                            <div v-for="p in excesoHoras" :key="p.id" class="px-6 py-4 hover:bg-white transition">
                                 <div class="flex justify-between items-center">
                                     <div>
                                         <Link :href="route('polizas-servicio.show', p.id)" class="font-bold text-gray-900 hover:text-blue-600">
@@ -208,7 +208,7 @@ const generarCobro = (polizaId) => {
                             </h2>
                         </div>
                         <div class="divide-y max-h-96 overflow-y-auto">
-                            <div v-for="p in excesoTickets" :key="p.id" class="px-6 py-4 hover:bg-gray-50 transition">
+                            <div v-for="p in excesoTickets" :key="p.id" class="px-6 py-4 hover:bg-white transition">
                                 <div class="flex justify-between items-center">
                                     <div>
                                         <Link :href="route('polizas-servicio.show', p.id)" class="font-bold text-gray-900 hover:text-blue-600">
@@ -234,7 +234,7 @@ const generarCobro = (polizaId) => {
                             <h2 class="font-bold text-gray-900">📊 Top Consumo Mensual</h2>
                         </div>
                         <div class="divide-y max-h-96 overflow-y-auto">
-                            <div v-for="(p, index) in topConsumo" :key="p.id" class="px-6 py-3 hover:bg-gray-50 transition">
+                            <div v-for="(p, index) in topConsumo" :key="p.id" class="px-6 py-3 hover:bg-white transition">
                                 <div class="flex justify-between items-center mb-2">
                                     <div class="flex items-center gap-3">
                                         <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">
@@ -273,7 +273,7 @@ const generarCobro = (polizaId) => {
                     </div>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                            <thead class="bg-white">
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th>
@@ -282,7 +282,7 @@ const generarCobro = (polizaId) => {
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
-                                <tr v-for="c in ultimosCobros" :key="c.id" class="hover:bg-gray-50">
+                                <tr v-for="c in ultimosCobros" :key="c.id" class="hover:bg-white">
                                     <td class="px-6 py-4 text-sm text-gray-500">{{ c.fecha }}</td>
                                     <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ c.cliente }}</td>
                                     <td class="px-6 py-4 text-sm font-bold text-gray-900 text-right">{{ formatCurrency(c.monto) }}</td>

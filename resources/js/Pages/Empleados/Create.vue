@@ -127,7 +127,7 @@ const usuarioSeleccionado = computed(() => {
   <Head title="Nuevo Empleado" />
 
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-4xl mx-auto">
+    <div class="w-full">
       <!-- Header -->
       <div class="text-center mb-8">
         <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full mb-4">
@@ -596,7 +596,7 @@ const usuarioSeleccionado = computed(() => {
               <p class="text-sm text-gray-600 mt-1">Adjunta el contrato firmado en formato PDF o imagen</p>
             </div>
 
-            <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center transition-all hover:border-emerald-400 group">
+            <div class="bg-white border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center transition-all hover:border-emerald-400 group">
               <input
                 type="file"
                 id="contrato_adjunto"

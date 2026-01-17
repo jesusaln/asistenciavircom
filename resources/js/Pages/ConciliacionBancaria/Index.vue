@@ -109,7 +109,7 @@
       <!-- Tabla de movimientos -->
       <div class="bg-white rounded-xl shadow-md overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+          <thead class="bg-white">
             <tr>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Concepto</th>
@@ -120,7 +120,7 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="mov in movimientos.data" :key="mov.id" class="hover:bg-gray-50">
+            <tr v-for="mov in movimientos.data" :key="mov.id" class="hover:bg-white">
               <td class="px-4 py-3 text-sm text-gray-900">{{ formatFecha(mov.fecha) }}</td>
               <td class="px-4 py-3 text-sm text-gray-700">
                 <div class="max-w-xs truncate" :title="mov.concepto">{{ mov.concepto || '-' }}</div>
@@ -150,7 +150,7 @@
                   <button
                     v-if="mov.estado === 'pendiente'"
                     @click="ignorar(mov.id)"
-                    class="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                    class="p-2 text-gray-600 hover:bg-white rounded-lg transition-colors"
                     title="Ignorar"
                   >
                     <FontAwesomeIcon :icon="['fas', 'eye-slash']" />
@@ -185,7 +185,7 @@
         </table>
 
         <!-- Paginación -->
-        <div v-if="movimientos.last_page > 1" class="px-4 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+        <div v-if="movimientos.last_page > 1" class="px-4 py-3 bg-white border-t border-gray-200 flex items-center justify-between">
           <div class="text-sm text-gray-500">
             Mostrando {{ movimientos.from }} a {{ movimientos.to }} de {{ movimientos.total }}
           </div>
@@ -197,7 +197,7 @@
               v-html="link.label"
               :class="[
                 'px-3 py-1 rounded text-sm',
-                link.active ? 'bg-blue-600 text-white' : 'bg-white border hover:bg-gray-50',
+                link.active ? 'bg-blue-600 text-white' : 'bg-white border hover:bg-white',
                 !link.url ? 'opacity-50 cursor-not-allowed' : ''
               ]"
             />

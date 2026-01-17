@@ -63,7 +63,7 @@
           </div>
 
           <!-- Estadísticas del almacén -->
-          <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+          <div class="bg-white px-6 py-4 border-b border-gray-200">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div class="text-center">
                 <p class="text-sm text-gray-600">Total Cantidad</p>
@@ -83,7 +83,7 @@
           <!-- Tabla de productos -->
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
+              <thead class="bg-white">
                 <tr>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
@@ -95,7 +95,7 @@
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-                <tr v-for="producto in almacen.productos" :key="producto.producto" class="hover:bg-gray-50">
+                <tr v-for="producto in almacen.productos" :key="producto.producto" class="hover:bg-white">
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm font-medium text-gray-900">{{ producto.producto }}</div>
                   </td>

@@ -138,9 +138,9 @@ const getStatusClasses = (estado) => {
         'abierto': 'bg-blue-50 text-blue-600 border-blue-100',
         'resuelto': 'bg-emerald-50 text-emerald-600 border-emerald-100',
         'en_progreso': 'bg-amber-50 text-amber-600 border-amber-100',
-        'cerrado': 'bg-gray-50 text-gray-500 border-gray-100',
+        'cerrado': 'bg-white text-gray-500 border-gray-100',
     };
-    return maps[estado] || 'bg-gray-50 text-gray-500 border-gray-100';
+    return maps[estado] || 'bg-white text-gray-500 border-gray-100';
 };
 
 const profileForm = useForm({
@@ -607,10 +607,10 @@ const totalPendiente = computed(() => {
                         <div class="bg-white rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
                             <div class="divide-y divide-gray-50">
                                 <div v-for="ticket in tickets.data" :key="ticket.id" class="group">
-                                    <Link :href="route('portal.tickets.show', ticket)" class="block p-6 hover:bg-gray-50/50 transition-all">
+                                    <Link :href="route('portal.tickets.show', ticket)" class="block p-6 hover:bg-white/50 transition-all">
                                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                             <div class="flex gap-4 items-start">
-                                                <div class="mt-1 w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[var(--color-primary-soft)] group-hover:text-[var(--color-primary)] transition-all">
+                                                <div class="mt-1 w-10 h-10 rounded-xl bg-white flex items-center justify-center text-gray-400 group-hover:bg-[var(--color-primary-soft)] group-hover:text-[var(--color-primary)] transition-all">
                                                     <font-awesome-icon icon="ticket-alt" />
                                                 </div>
                                                 <div>
@@ -638,7 +638,7 @@ const totalPendiente = computed(() => {
                                     </Link>
                                 </div>
                                 <div v-if="tickets.data.length === 0" class="p-20 text-center">
-                                    <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
+                                    <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
                                         ✨
                                     </div>
                                     <h3 class="text-lg font-black text-gray-900 mb-2">Todo en Orden</h3>
@@ -649,8 +649,8 @@ const totalPendiente = computed(() => {
 
                         <!-- Pagination Premium -->
                         <div v-if="tickets.next_page_url || tickets.prev_page_url" class="flex justify-center gap-4 pt-4">
-                             <Link v-if="tickets.prev_page_url" :href="tickets.prev_page_url" class="px-6 py-3 bg-white border border-gray-100 rounded-xl font-black text-[10px] uppercase tracking-widest text-gray-500 hover:bg-gray-50 transition-all">Anterior</Link>
-                             <Link v-if="tickets.next_page_url" :href="tickets.next_page_url" class="px-6 py-3 bg-white border border-gray-100 rounded-xl font-black text-[10px] uppercase tracking-widest text-gray-500 hover:bg-gray-50 transition-all">Siguiente</Link>
+                             <Link v-if="tickets.prev_page_url" :href="tickets.prev_page_url" class="px-6 py-3 bg-white border border-gray-100 rounded-xl font-black text-[10px] uppercase tracking-widest text-gray-500 hover:bg-white transition-all">Anterior</Link>
+                             <Link v-if="tickets.next_page_url" :href="tickets.next_page_url" class="px-6 py-3 bg-white border border-gray-100 rounded-xl font-black text-[10px] uppercase tracking-widest text-gray-500 hover:bg-white transition-all">Siguiente</Link>
                         </div>
                     </div>
 
@@ -684,7 +684,7 @@ const totalPendiente = computed(() => {
                                                     {{ poliza.horas_consumidas_mes || 0 }} / {{ poliza.horas_incluidas_mensual }} hrs
                                                 </p>
                                             </div>
-                                            <div class="w-full bg-gray-50 rounded-full h-1.5 overflow-hidden">
+                                            <div class="w-full bg-white rounded-full h-1.5 overflow-hidden">
                                                  <div 
                                                     class="h-full rounded-full transition-all duration-1000 ease-out" 
                                                     :class="poliza.excede_horas ? 'bg-red-500' : 'bg-blue-500'"
@@ -701,7 +701,7 @@ const totalPendiente = computed(() => {
                                                     {{ poliza.tickets_mes_actual_count || 0 }} / {{ poliza.limite_mensual_tickets }}
                                                 </p>
                                             </div>
-                                            <div class="w-full bg-gray-50 rounded-full h-1.5 overflow-hidden">
+                                            <div class="w-full bg-white rounded-full h-1.5 overflow-hidden">
                                                  <div 
                                                     class="bg-emerald-500 h-full rounded-full transition-all duration-1000 ease-out" 
                                                     :style="{ width: Math.min(poliza.porcentaje_tickets || 0, 100) + '%' }"
@@ -719,7 +719,7 @@ const totalPendiente = computed(() => {
                                         </p>
                                     </div>
                                 </div>
-                                <div class="bg-gray-50 px-8 py-4 flex justify-between items-center group-hover:bg-[var(--color-primary-soft)] transition-colors">
+                                <div class="bg-white px-8 py-4 flex justify-between items-center group-hover:bg-[var(--color-primary-soft)] transition-colors">
                                     <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover:text-[var(--color-primary)]">
                                         {{ poliza.renovacion_automatica ? 'Renovación Automática' : 'Renovación Manual' }}
                                     </span>
@@ -751,7 +751,7 @@ const totalPendiente = computed(() => {
                             <template v-for="poliza in polizas" :key="'e-'+poliza.id">
                                 <div v-for="equipo in poliza.equipos" :key="equipo.id" 
                                      class="bg-white rounded-[2rem] p-6 shadow-xl shadow-gray-200/50 border border-gray-100 flex items-center gap-6 group hover:border-[var(--color-primary)] transition-all">
-                                    <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-[var(--color-primary-soft)] group-hover:text-[var(--color-primary)] transition-all text-xl">
+                                    <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-[var(--color-primary-soft)] group-hover:text-[var(--color-primary)] transition-all text-xl">
                                         <font-awesome-icon :icon="equipo.tipo === 'Laptop' || equipo.tipo === 'Servidor' ? 'server' : 'desktop'" />
                                     </div>
                                     <div class="flex-1">
@@ -769,7 +769,7 @@ const totalPendiente = computed(() => {
                             <template v-for="poliza in polizas" :key="'ce-'+poliza.id">
                                 <div v-for="(equipo, idx) in poliza.condiciones_especiales?.equipos_cliente" :key="poliza.id + '-ce-' + idx"
                                      class="bg-white rounded-[2rem] p-6 shadow-xl shadow-gray-200/50 border border-gray-100 flex items-center gap-6 group hover:border-[var(--color-primary)] transition-all">
-                                    <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-[var(--color-primary-soft)] group-hover:text-[var(--color-primary)] transition-all text-xl">
+                                    <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-[var(--color-primary-soft)] group-hover:text-[var(--color-primary)] transition-all text-xl">
                                         <font-awesome-icon icon="desktop" />
                                     </div>
                                     <div class="flex-1">
@@ -784,7 +784,7 @@ const totalPendiente = computed(() => {
 
                             <div v-if="!polizas.some(p => p.equipos?.length > 0 || p.condiciones_especiales?.equipos_cliente?.length > 0)" 
                                  class="col-span-full py-20 bg-white rounded-[2rem] border-2 border-dashed border-gray-100 text-center">
-                                <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
                                     <font-awesome-icon icon="desktop" size="lg" />
                                 </div>
                                 <h3 class="text-lg font-black text-gray-900 mb-1">Sin equipos vinculados</h3>
@@ -809,7 +809,7 @@ const totalPendiente = computed(() => {
                                             Renta
                                         </div>
 
-                                        <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-all text-xl">
+                                        <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-all text-xl">
                                             <font-awesome-icon :icon="equipo.tipo === 'Laptop' || equipo.tipo === 'Servidor' ? 'server' : 'desktop'" />
                                         </div>
                                         <div class="flex-1">
@@ -921,7 +921,7 @@ const totalPendiente = computed(() => {
                         <div class="bg-white rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left">
-                                    <thead class="bg-gray-50 border-b border-gray-100">
+                                    <thead class="bg-white border-b border-gray-100">
                                         <tr>
                                             <th class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Folio</th>
                                             <th class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Fecha</th>
@@ -932,7 +932,7 @@ const totalPendiente = computed(() => {
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-50">
-                                        <tr v-for="venta in ventas.data" :key="venta.id" class="hover:bg-gray-50/50 transition-colors">
+                                        <tr v-for="venta in ventas.data" :key="venta.id" class="hover:bg-white/50 transition-colors">
                                             <td class="px-8 py-4 font-mono text-xs font-bold text-gray-500">#{{ venta.folio || venta.id }}</td>
                                             <td class="px-8 py-4 text-xs font-bold text-gray-900">{{ formatDate(venta.fecha) }}</td>
                                             <td class="px-8 py-4 text-xs font-medium text-gray-600 max-w-xs truncate">{{ venta.notas || 'Venta General' }}</td>
@@ -973,7 +973,7 @@ const totalPendiente = computed(() => {
                                     v-if="link.url"
                                     :href="link.url"
                                     class="px-4 py-2 text-xs font-bold rounded-lg border"
-                                    :class="link.active ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]' : 'bg-white text-gray-500 border-gray-100 hover:bg-gray-50'"
+                                    :class="link.active ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]' : 'bg-white text-gray-500 border-gray-100 hover:bg-white'"
                                     v-html="link.label"
                                 />
                                 <span v-else class="px-4 py-2 text-xs text-gray-400" v-html="link.label"></span>
@@ -999,11 +999,11 @@ const totalPendiente = computed(() => {
                                         </div>
                                         
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <div class="bg-gray-50 p-4 rounded-xl">
+                                            <div class="bg-white p-4 rounded-xl">
                                                 <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Usuario</p>
                                                 <p class="text-sm font-bold text-gray-800">{{ cred.usuario }}</p>
                                             </div>
-                                            <div class="bg-gray-50 p-4 rounded-xl relative overflow-hidden">
+                                            <div class="bg-white p-4 rounded-xl relative overflow-hidden">
                                                 <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Contraseña</p>
                                                 <div class="flex items-center justify-between gap-2">
                                                     <p class="text-sm font-mono font-bold text-gray-800">
@@ -1035,7 +1035,7 @@ const totalPendiente = computed(() => {
                             </div>
 
                             <div v-if="credenciales.length === 0" class="py-20 bg-white rounded-[2rem] border-2 border-dashed border-gray-100 text-center">
-                                <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
                                     <font-awesome-icon icon="lock" size="lg" />
                                 </div>
                                 <h3 class="text-lg font-black text-gray-900 mb-1">No hay credenciales</h3>
@@ -1075,7 +1075,7 @@ const totalPendiente = computed(() => {
                                     </div>
                                     
                                     <div class="flex gap-4">
-                                         <Link :href="route('portal.pedidos.show', pedido.id)" class="px-6 py-3 bg-gray-50 text-gray-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 transition-all border border-gray-200">
+                                         <Link :href="route('portal.pedidos.show', pedido.id)" class="px-6 py-3 bg-white text-gray-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 transition-all border border-gray-200">
                                             Detalles
                                         </Link>
                                     </div>
@@ -1088,7 +1088,7 @@ const totalPendiente = computed(() => {
                             </div>
 
                             <div v-if="pedidos.length === 0" class="py-20 bg-white rounded-[2rem] border-2 border-dashed border-gray-100 text-center">
-                                <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
                                     <font-awesome-icon icon="shopping-cart" size="lg" />
                                 </div>
                                 <h3 class="text-lg font-black text-gray-900 mb-1">No hay pedidos</h3>
@@ -1139,7 +1139,7 @@ const totalPendiente = computed(() => {
                         <div class="bg-white rounded-[3rem] p-10 shadow-2xl shadow-gray-200/50 border border-gray-50">
                             <h3 class="text-2xl font-black text-gray-900 mb-10 text-center">Preguntas Frecuentes</h3>
                             
-                            <div class="space-y-4 max-w-4xl mx-auto">
+                            <div class="space-y-4 w-full">
                                 <div v-for="faq in faqs" :key="faq.id" 
                                      class="border border-gray-100 rounded-[2rem] overflow-hidden transition-all duration-300"
                                      :class="activeFaq === faq.id ? 'border-[var(--color-primary)] shadow-lg' : 'hover:border-gray-200'">
@@ -1157,7 +1157,7 @@ const totalPendiente = computed(() => {
                                     </button>
 
                                     <div v-show="activeFaq === faq.id" class="px-8 pb-8 animate-fade-in">
-                                        <div class="h-px bg-gray-50 mb-6"></div>
+                                        <div class="h-px bg-white mb-6"></div>
                                         <p class="text-gray-600 font-medium leading-relaxed whitespace-pre-line text-sm">
                                             {{ faq.respuesta }}
                                         </p>
@@ -1189,15 +1189,15 @@ const totalPendiente = computed(() => {
                                 <div class="grid sm:grid-cols-2 gap-6">
                                     <div class="space-y-2">
                                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nombre o Razón Social</label>
-                                        <input v-model="profileForm.nombre_razon_social" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                        <input v-model="profileForm.nombre_razon_social" type="text" class="w-full bg-white border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
                                     </div>
                                     <div class="space-y-2">
                                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Correo Electrónico</label>
-                                        <input v-model="profileForm.email" type="email" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                        <input v-model="profileForm.email" type="email" class="w-full bg-white border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
                                     </div>
                                     <div class="space-y-2">
                                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Teléfono</label>
-                                        <input v-model="profileForm.telefono" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                        <input v-model="profileForm.telefono" type="text" class="w-full bg-white border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
                                     </div>
                                 </div>
 
@@ -1207,7 +1207,7 @@ const totalPendiente = computed(() => {
                                         <div class="space-y-2">
                                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Código Postal</label>
                                             <div class="relative">
-                                                <input v-model="profileForm.codigo_postal" @blur="buscarCP" type="text" maxlength="5" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                                <input v-model="profileForm.codigo_postal" @blur="buscarCP" type="text" maxlength="5" class="w-full bg-white border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
                                                 <div v-if="searchingCP" class="absolute right-4 top-1/2 -translate-y-1/2">
                                                     <font-awesome-icon icon="spinner" spin class="text-[var(--color-primary)]" />
                                                 </div>
@@ -1215,25 +1215,25 @@ const totalPendiente = computed(() => {
                                         </div>
                                         <div class="col-span-2 space-y-2">
                                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Calle</label>
-                                            <input v-model="profileForm.calle" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                            <input v-model="profileForm.calle" type="text" class="w-full bg-white border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
                                         </div>
                                         <div class="space-y-2">
                                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">No. Exterior</label>
-                                            <input v-model="profileForm.numero_exterior" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                            <input v-model="profileForm.numero_exterior" type="text" class="w-full bg-white border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
                                         </div>
                                         <div class="space-y-2">
                                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">No. Interior</label>
-                                            <input v-model="profileForm.numero_interior" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                            <input v-model="profileForm.numero_interior" type="text" class="w-full bg-white border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
                                         </div>
                                         <div class="space-y-2">
                                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Colonia</label>
                                             <template v-if="coloniasEncontradas.length > 0">
-                                                <select v-model="profileForm.colonia" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all">
+                                                <select v-model="profileForm.colonia" class="w-full bg-white border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all">
                                                     <option v-for="col in coloniasEncontradas" :key="col" :value="col">{{ col }}</option>
                                                 </select>
                                             </template>
                                             <template v-else>
-                                                <input v-model="profileForm.colonia" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                                <input v-model="profileForm.colonia" type="text" class="w-full bg-white border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
                                             </template>
                                         </div>
                                         <div class="space-y-2 text-gray-400">
@@ -1242,7 +1242,7 @@ const totalPendiente = computed(() => {
                                         </div>
                                         <div class="space-y-2">
                                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Estado</label>
-                                            <select v-model="profileForm.estado" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all">
+                                            <select v-model="profileForm.estado" class="w-full bg-white border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all">
                                                 <option v-for="est in catalogos.estados" :key="est.id" :value="est.clave">{{ est.nombre }}</option>
                                             </select>
                                         </div>
@@ -1265,7 +1265,7 @@ const totalPendiente = computed(() => {
                                             @blur="validateRfc"
                                             type="text" 
                                             maxlength="13"
-                                            class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all uppercase"
+                                            class="w-full bg-white border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all uppercase"
                                             :class="{'ring-2 ring-red-400': rfcError}"
                                         />
                                         <p v-if="rfcError" class="text-red-500 text-xs font-medium">{{ rfcError }}</p>
@@ -1273,11 +1273,11 @@ const totalPendiente = computed(() => {
                                     </div>
                                     <div class="space-y-2">
                                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Domicilio Fiscal (C.P.)</label>
-                                        <input v-model="profileForm.domicilio_fiscal_cp" type="text" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
+                                        <input v-model="profileForm.domicilio_fiscal_cp" type="text" class="w-full bg-white border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all" />
                                     </div>
                                     <div class="space-y-2 sm:col-span-2">
                                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Régimen Fiscal</label>
-                                        <select v-model="profileForm.regimen_fiscal" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all text-xs">
+                                        <select v-model="profileForm.regimen_fiscal" class="w-full bg-white border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all text-xs">
                                             <option v-for="reg in catalogos.regimenes" :key="reg.id" :value="reg.clave">
                                                 {{ reg.clave }} - {{ reg.descripcion }}
                                             </option>
@@ -1285,7 +1285,7 @@ const totalPendiente = computed(() => {
                                     </div>
                                     <div class="space-y-2 sm:col-span-2">
                                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Uso de CFDI Sugerido</label>
-                                        <select v-model="profileForm.uso_cfdi" class="w-full bg-gray-50 border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all text-xs">
+                                        <select v-model="profileForm.uso_cfdi" class="w-full bg-white border-none rounded-2xl p-4 font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all text-xs">
                                             <option v-for="uso in catalogos.usos_cfdi" :key="uso.id" :value="uso.clave">
                                                 {{ uso.clave }} - {{ uso.descripcion }}
                                             </option>

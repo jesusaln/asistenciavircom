@@ -54,7 +54,7 @@ const strengthLabel = computed(() => {
 <template>
     <Head title="Registro de Clientes" />
 
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col font-sans transition-colors duration-300" :style="cssVars">
+    <div class="min-h-screen bg-white dark:bg-gray-900 flex flex-col font-sans transition-colors duration-300" :style="cssVars">
         <PublicNavbar :empresa="empresa" activeTab="soporte" />
 
         <div class="flex-grow flex items-center justify-center p-4">
@@ -83,7 +83,7 @@ const strengthLabel = computed(() => {
                                     type="text" 
                                     placeholder="Juan Pérez"
                                     required
-                                    class="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium placeholder-gray-400 dark:placeholder-gray-500"
+                                    class="w-full px-6 py-4 bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium placeholder-gray-400 dark:placeholder-gray-500"
                                 >
                                 <div v-if="form.errors.nombre" class="text-red-500 text-[10px] font-bold mt-1 ml-1 uppercase tracking-widest">{{ form.errors.nombre }}</div>
                             </div>
@@ -95,7 +95,7 @@ const strengthLabel = computed(() => {
                                     type="email" 
                                     placeholder="ejemplo@correo.com"
                                     required
-                                    class="w-full px-6 py-4 bg-gray-50 border-gray-100 rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium"
+                                    class="w-full px-6 py-4 bg-white border-gray-100 rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium"
                                 >
                                 <div v-if="form.errors.email" class="text-red-500 text-[10px] font-bold mt-1 ml-1 uppercase tracking-widest">{{ form.errors.email }}</div>
                             </div>
@@ -107,7 +107,7 @@ const strengthLabel = computed(() => {
                                     type="tel" 
                                     placeholder="(55) 1234 5678"
                                     required
-                                    class="w-full px-6 py-4 bg-gray-50 border-gray-100 rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium"
+                                    class="w-full px-6 py-4 bg-white border-gray-100 rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium"
                                 >
                                 <div v-if="form.errors.telefono" class="text-red-500 text-[10px] font-bold mt-1 ml-1 uppercase tracking-widest">{{ form.errors.telefono }}</div>
                             </div>
@@ -119,7 +119,7 @@ const strengthLabel = computed(() => {
                                     type="password" 
                                     placeholder="••••••••"
                                     required
-                                    class="w-full px-6 py-4 bg-gray-50 border-gray-100 rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium"
+                                    class="w-full px-6 py-4 bg-white border-gray-100 rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium"
                                 >
                                 <div v-if="form.errors.password" class="text-red-500 text-[10px] font-bold mt-1 ml-1 uppercase tracking-widest">{{ form.errors.password }}</div>
                             </div>
@@ -131,12 +131,12 @@ const strengthLabel = computed(() => {
                                     type="password" 
                                     placeholder="••••••••"
                                     required
-                                    class="w-full px-6 py-4 bg-gray-50 border-gray-100 rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium"
+                                    class="w-full px-6 py-4 bg-white border-gray-100 rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium"
                                 >
                             </div>
 
                             <!-- Password Strength Indicator -->
-                            <div v-if="form.password" class="p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-3 transition-colors">
+                            <div v-if="form.password" class="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-3 transition-colors">
                                 <div class="flex justify-between items-center">
                                     <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Fortaleza</span>
                                     <span :class="{'text-red-500': strength < 3, 'text-yellow-500': strength === 3, 'text-green-500': strength >= 4}" class="text-[10px] font-black uppercase tracking-widest">{{ strengthLabel }}</span>

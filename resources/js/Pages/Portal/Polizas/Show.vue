@@ -24,10 +24,10 @@ const getEstadoBadge = (estado) => {
         activa: 'bg-emerald-50 text-emerald-600 border-emerald-100',
         inactiva: 'bg-amber-50 text-amber-600 border-amber-100',
         vencida: 'bg-red-50 text-red-600 border-red-100',
-        cancelada: 'bg-gray-50 text-gray-500 border-gray-100',
+        cancelada: 'bg-white text-gray-500 border-gray-100',
         pendiente_pago: 'bg-purple-50 text-purple-600 border-purple-100',
     };
-    return colores[estado] || 'bg-gray-50 text-gray-800';
+    return colores[estado] || 'bg-white text-gray-800';
 };
 </script>
 
@@ -53,7 +53,7 @@ const getEstadoBadge = (estado) => {
                         <p class="text-gray-500 font-medium text-sm mt-1">Vence: <strong class="text-gray-700">{{ formatDate(poliza.fecha_fin) }}</strong></p>
                     </div>
                     <div class="flex gap-3 flex-wrap">
-                        <a :href="route('portal.polizas.imprimir', poliza.id)" target="_blank" class="px-6 py-3 bg-gray-50 text-gray-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 transition-all border border-gray-200">
+                        <a :href="route('portal.polizas.imprimir', poliza.id)" target="_blank" class="px-6 py-3 bg-white text-gray-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 transition-all border border-gray-200">
                             <font-awesome-icon icon="file-signature" class="mr-2" /> Contrato
                         </a>
                         <Link :href="route('portal.tickets.create', { poliza_id: poliza.id })" class="px-6 py-3 bg-[var(--color-primary)] text-white rounded-xl font-black text-xs uppercase tracking-widest hover:shadow-lg transition-all">
@@ -95,7 +95,7 @@ const getEstadoBadge = (estado) => {
                                         {{ poliza.horas_consumidas_mes || 0 }} / {{ poliza.horas_incluidas_mensual }} hrs
                                     </p>
                                 </div>
-                                <div class="w-full bg-gray-50 rounded-full h-2 overflow-hidden">
+                                <div class="w-full bg-white rounded-full h-2 overflow-hidden">
                                         <div 
                                         class="h-full rounded-full transition-all duration-1000 ease-out" 
                                         :class="poliza.excede_horas ? 'bg-red-500' : 'bg-[var(--color-primary)]'"
@@ -113,7 +113,7 @@ const getEstadoBadge = (estado) => {
                                         {{ poliza.tickets_mes_actual_count || 0 }} / {{ poliza.limite_mensual_tickets }}
                                     </p>
                                 </div>
-                                <div class="w-full bg-gray-50 rounded-full h-2 overflow-hidden">
+                                <div class="w-full bg-white rounded-full h-2 overflow-hidden">
                                         <div 
                                         class="bg-emerald-500 h-full rounded-full transition-all duration-1000 ease-out" 
                                         :style="{ width: Math.min(poliza.porcentaje_tickets || 0, 100) + '%' }"
@@ -175,7 +175,7 @@ const getEstadoBadge = (estado) => {
                     </div>
 
                     <!-- Aviso de privacidad o Legal simplificado -->
-                     <div class="bg-gray-50 rounded-[2rem] p-6 text-center border border-gray-100">
+                     <div class="bg-white rounded-[2rem] p-6 text-center border border-gray-100">
                         <p class="text-[10px] text-gray-400 uppercase tracking-widest font-black mb-2">Soporte Técnico</p>
                         <p class="text-xs text-gray-500 font-medium mb-4">¿Tiene problemas con sus equipos cubiertos?</p>
                          <Link :href="route('portal.tickets.create', { poliza_id: poliza.id })" class="inline-block px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-black text-xs uppercase tracking-widest hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all">

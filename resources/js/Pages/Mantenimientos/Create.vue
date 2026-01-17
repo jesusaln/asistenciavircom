@@ -1,6 +1,6 @@
 <template>
     <Head title="Crear Mantenimiento" />
-    <div class="max-w-4xl mx-auto">
+    <div class="w-full">
         <div class="bg-white rounded-lg shadow-lg p-6">
             <div class="flex items-center mb-6">
                 <div class="bg-blue-500 p-3 rounded-lg mr-4">
@@ -19,7 +19,7 @@
             <form @submit.prevent="submit" class="space-y-6">
                 <!-- COMPONENTE: VehicleSelect -->
                 <!-- Selección de Carro -->
-                <div class="bg-gray-50 p-4 rounded-lg">
+                <div class="bg-white p-4 rounded-lg">
                     <label for="carro-select" class="block text-gray-700 text-sm font-semibold mb-3">
                         <i class="fas fa-car mr-2"></i>Seleccionar Vehículo
                     </label>
@@ -368,7 +368,7 @@
                     <button
                         type="button"
                         @click="resetForm"
-                        class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all duration-200 flex items-center"
+                        class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-white transition-all duration-200 flex items-center"
                     >
                         <i class="fas fa-undo mr-2"></i>
                         Limpiar Formulario
@@ -378,7 +378,7 @@
                         <button
                             type="button"
                             @click="router.visit(route('mantenimientos.index'))"
-                            class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-all duration-200 flex items-center"
+                            class="px-6 py-3 bg-white0 text-white rounded-lg hover:bg-gray-600 transition-all duration-200 flex items-center"
                         >
                             <i class="fas fa-times mr-2"></i>
                             Cancelar

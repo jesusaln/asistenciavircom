@@ -14,7 +14,7 @@
                     </Link>
                     <Link
                         :href="route('cuentas-por-pagar.index')"
-                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                        class="bg-white0 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
                     >
                         Volver
                     </Link>
@@ -63,7 +63,7 @@
                         <!-- Información de la Compra -->
                         <div class="mb-6">
                             <h3 class="text-lg font-medium text-gray-900 mb-4">Información de la Compra</h3>
-                            <div v-if="cuenta.compra" class="bg-gray-50 p-4 rounded-lg">
+                            <div v-if="cuenta.compra" class="bg-white p-4 rounded-lg">
                                 <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
                                     <div>
                                         <dt class="text-sm font-medium text-gray-500">Número de Compra</dt>
@@ -87,7 +87,7 @@
                                     </div>
                                 </dl>
                             </div>
-                            <div v-else class="bg-gray-50 p-4 rounded-lg text-gray-600">
+                            <div v-else class="bg-white p-4 rounded-lg text-gray-600">
                                 Sin compra asociada
                             </div>
                         </div>
@@ -140,7 +140,7 @@
                                     </div>
                                 </dl>
                             </div>
-                            <div v-else class="bg-gray-50 p-4 rounded-lg text-gray-500 italic">
+                            <div v-else class="bg-white p-4 rounded-lg text-gray-500 italic">
                                 No hay información de CFDI vinculada directamente.
                             </div>
                         </div>
@@ -228,7 +228,7 @@
                         <!-- Historial de Pagos -->
                         <div class="mb-6">
                             <h3 class="text-lg font-medium text-gray-900 mb-4">Gestión de Pagos</h3>
-                            <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="bg-white p-4 rounded-lg">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     <!-- Información de pagos -->
                                     <div class="space-y-2">
@@ -312,7 +312,7 @@
                 <div class="p-6">
                     <div class="space-y-4">
                         <!-- Información de la cuenta -->
-                        <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="bg-white p-4 rounded-lg">
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-sm font-medium text-gray-700">Cuenta:</span>
                                 <span class="text-sm text-gray-900">#{{ cuenta.id }}</span>
@@ -373,7 +373,7 @@
                 </div>
 
                 <!-- Footer del modal -->
-                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
                     <button @click="showPagoModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
                         Cancelar
                     </button>
@@ -404,7 +404,7 @@
                 <div class="p-6">
                     <div class="space-y-4">
                         <!-- Información de la cuenta -->
-                        <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="bg-white p-4 rounded-lg">
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-sm font-medium text-gray-700">Cuenta:</span>
                                 <span class="text-sm text-gray-900">#{{ cuenta.id }}</span>
@@ -468,7 +468,7 @@
                 </div>
 
                 <!-- Footer del modal -->
-                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
                     <button @click="showPagoParcialModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
                         Cancelar
                     </button>

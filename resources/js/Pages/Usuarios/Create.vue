@@ -1,7 +1,7 @@
 <template>
   <Head title="Crear Usuario" />
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-2xl mx-auto">
+    <div class="w-full">
       <!-- Header -->
       <div class="text-center mb-8">
         <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-4">
@@ -49,7 +49,7 @@
                   v-model="form.name"
                   type="text"
                   id="name"
-                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
                   placeholder="Ingresa el nombre completo"
                   :class="{
                     'border-red-300 bg-red-50 focus:ring-red-500': form.errors.name,
@@ -81,7 +81,7 @@
                   v-model="form.email"
                   type="email"
                   id="email"
-                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
                   placeholder="correo@ejemplo.com"
                   :class="{
                     'border-red-300 bg-red-50 focus:ring-red-500': form.errors.email,
@@ -113,7 +113,7 @@
                   v-model="form.telefono"
                   type="tel"
                   id="telefono"
-                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
                   placeholder="Número de teléfono"
                 />
               </div>
@@ -137,7 +137,7 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <div class="form-group">
                     <label for="almacen_venta_id" class="block text-sm font-semibold text-gray-700 mb-2">Almacén de Venta Predeterminado</label>
-                    <select id="almacen_venta_id" v-model="form.almacen_venta_id" class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white text-gray-700">
+                    <select id="almacen_venta_id" v-model="form.almacen_venta_id" class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white text-gray-700">
                        <option :value="null">Seleccione un almacén...</option>
                        <option v-for="almacen in almacenes" :key="almacen.id" :value="almacen.id">{{ almacen.nombre }}</option>
                     </select>
@@ -146,7 +146,7 @@
                  
                  <div class="form-group">
                     <label for="almacen_compra_id" class="block text-sm font-semibold text-gray-700 mb-2">Almacén de Compra Predeterminado</label>
-                    <select id="almacen_compra_id" v-model="form.almacen_compra_id" class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white text-gray-700">
+                    <select id="almacen_compra_id" v-model="form.almacen_compra_id" class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white text-gray-700">
                        <option :value="null">Seleccione un almacén...</option>
                        <option v-for="almacen in almacenes" :key="almacen.id" :value="almacen.id">{{ almacen.nombre }}</option>
                     </select>
@@ -244,7 +244,7 @@
                     v-model="form.password"
                     :type="showPassword ? 'text' : 'password'"
                     id="password"
-                    class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+                    class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
                     placeholder="Mínimo 8 caracteres"
                     :class="{
                       'border-red-300 bg-red-50 focus:ring-red-500': form.errors.password,
@@ -294,7 +294,7 @@
                     v-model="form.password_confirmation"
                     :type="showPasswordConfirmation ? 'text' : 'password'"
                     id="password_confirmation"
-                    class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+                    class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
                     placeholder="Repite la contraseña"
                     :class="{
                       'border-red-300 bg-red-50 focus:ring-red-500': form.errors.password_confirmation || (form.password_confirmation && form.password !== form.password_confirmation),
@@ -337,7 +337,7 @@
           <div class="pt-6 border-t border-gray-200">
             <div class="flex flex-col sm:flex-row gap-4 justify-end">
               <Link :href="route('usuarios.index')"
-                    class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-gray-300 rounded-xl text-gray-700 bg-white hover:bg-gray-50 font-semibold transition-all duration-200 hover:shadow-md">
+                    class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-gray-300 rounded-xl text-gray-700 bg-white hover:bg-white font-semibold transition-all duration-200 hover:shadow-md">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>

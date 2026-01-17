@@ -30,7 +30,7 @@
             </div>
             <h3 class="text-lg font-medium text-gray-900 mb-2">Préstamos por Cliente</h3>
             <p class="text-sm text-gray-500 mb-4">Análisis detallado de préstamos agrupados por cliente</p>
-            <div class="bg-gray-50 p-6 rounded-lg max-w-2xl mx-auto">
+            <div class="bg-white p-6 rounded-lg w-full">
                 <div class="text-center">
                     <p class="text-gray-600">Los datos de préstamos se cargan desde el controlador específico</p>
                     <Link

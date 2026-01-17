@@ -1,6 +1,6 @@
 <template>
   <Head title="Registro de Vacaciones" />
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-white">
     <div class="w-full px-6 py-8">
       <div class="flex items-center justify-between mb-6">
         <div>
@@ -18,7 +18,7 @@
       <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Empleado</th>
                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Departamento</th>
@@ -32,7 +32,7 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="r in registros.data" :key="r.id" class="hover:bg-gray-50">
+              <tr v-for="r in registros.data" :key="r.id" class="hover:bg-white">
                 <td class="px-4 py-3 text-sm text-gray-900">
                   <Link :href="route('registro-vacaciones.por-empleado', r.user_id)" class="text-blue-700 hover:underline">
                     {{ r.empleado?.name || '—' }}

@@ -24,7 +24,7 @@
 
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+                <thead class="bg-white">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proveedor</th>
@@ -35,7 +35,7 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    <tr v-for="compra in comprasFiltradas" :key="compra.id" class="hover:bg-gray-50">
+                    <tr v-for="compra in comprasFiltradas" :key="compra.id" class="hover:bg-white">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatDate(compra.created_at) }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ compra.proveedor?.nombre_razon_social || 'N/A' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ compra.factura || 'N/A' }}</td>
@@ -66,7 +66,7 @@
         <div v-if="comprasPorProveedor.length > 0" class="mt-8">
             <h4 class="text-md font-medium text-gray-900 mb-4">Compras por Proveedor</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div v-for="proveedor in comprasPorProveedor" :key="proveedor.nombre" class="bg-gray-50 p-4 rounded-lg">
+                <div v-for="proveedor in comprasPorProveedor" :key="proveedor.nombre" class="bg-white p-4 rounded-lg">
                     <div class="font-medium text-gray-900">{{ proveedor.nombre }}</div>
                     <div class="text-sm text-gray-600">{{ proveedor.compras }} compras</div>
                     <div class="text-lg font-bold text-red-600">{{ formatCurrency(proveedor.total) }}</div>

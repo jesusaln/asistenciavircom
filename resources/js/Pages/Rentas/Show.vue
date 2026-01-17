@@ -289,7 +289,7 @@ const confirmarPago = async () => {
                             </h2>
                         </div>
                         <div class="divide-y divide-gray-100">
-                            <div v-for="equipo in renta.equipos" :key="equipo.id" class="p-4 hover:bg-gray-50">
+                            <div v-for="equipo in renta.equipos" :key="equipo.id" class="p-4 hover:bg-white">
                                 <div class="flex items-start justify-between">
                                     <div>
                                         <p class="font-medium text-gray-900">{{ equipo.nombre }}</p>
@@ -328,7 +328,7 @@ const confirmarPago = async () => {
                                     <div class="text-2xl font-bold text-green-600">{{ cobranzaStats.pagadas }}</div>
                                     <div class="text-xs text-green-700">Pagadas</div>
                                 </div>
-                                <div class="text-center p-3 bg-gray-50 rounded-lg">
+                                <div class="text-center p-3 bg-white rounded-lg">
                                     <div class="text-2xl font-bold text-gray-600">{{ cobranzaStats.pendientes }}</div>
                                     <div class="text-xs text-gray-600">Pendientes</div>
                                 </div>
@@ -391,7 +391,7 @@ const confirmarPago = async () => {
                                                 ? 'bg-red-50 border-red-300 cursor-pointer hover:border-red-500'
                                                 : getCuentaStatus(cuenta).label === 'Próximo'
                                                     ? 'bg-orange-50 border-orange-300 cursor-pointer hover:border-orange-500'
-                                                    : 'bg-gray-50 border-gray-200 cursor-pointer hover:border-gray-400'
+                                                    : 'bg-white border-gray-200 cursor-pointer hover:border-gray-400'
                                     ]"
                                 >
                                     <!-- Indicador de estado -->
@@ -459,7 +459,7 @@ const confirmarPago = async () => {
             </div>
             
             <div class="p-6 space-y-4">
-                <div class="bg-gray-50 rounded-lg p-4">
+                <div class="bg-white rounded-lg p-4">
                     <div class="flex justify-between mb-2">
                         <span class="text-sm text-gray-600">Vencimiento:</span>
                         <span class="font-medium">{{ formatDate(cuentaSeleccionada?.fecha_vencimiento) }}</span>
@@ -519,7 +519,7 @@ const confirmarPago = async () => {
                 </div>
             </div>
             
-            <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t">
+            <div class="flex justify-end gap-3 px-6 py-4 bg-white border-t">
                 <button @click="showPagoModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
                     Cancelar
                 </button>

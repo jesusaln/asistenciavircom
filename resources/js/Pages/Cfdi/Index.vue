@@ -719,7 +719,7 @@ const getStatusBadgeClass = (status) => {
         case 'cancelado':
             return 'bg-red-50 text-red-700 border-red-100'
         default:
-            return 'bg-gray-50 text-gray-700 border-gray-100'
+            return 'bg-white text-gray-700 border-gray-100'
     }
 }
 
@@ -754,7 +754,7 @@ const getTipoBadgeClass = (tipo) => {
         case 'I': return 'bg-blue-50 text-blue-700 border-blue-100'
         case 'P': return 'bg-purple-50 text-purple-700 border-purple-100'
         case 'E': return 'bg-orange-50 text-orange-700 border-orange-100'
-        default: return 'bg-gray-50 text-gray-600 border-gray-100'
+        default: return 'bg-white text-gray-600 border-gray-100'
     }
 }
 
@@ -1043,7 +1043,7 @@ const mostrarResumenDescarga = (descarga) => {
     let html = `
         <div class="text-left">
             <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="bg-gray-50 rounded-lg p-3 text-center">
+                <div class="bg-white rounded-lg p-3 text-center">
                     <div class="text-2xl font-bold text-gray-800">${total}</div>
                     <div class="text-xs text-gray-500 uppercase">Total procesados</div>
                 </div>
@@ -1148,7 +1148,7 @@ const previousDescargaStatuses = ref({})
 <template>
     <Head title="ADD - Administrador de Documentos Digitales" />
 
-    <div class="py-12 bg-gray-50 min-h-screen transition-colors duration-500">
+    <div class="py-12 bg-white min-h-screen transition-colors duration-500">
         <div class="max-w-none w-full mx-auto px-4 sm:px-6 lg:px-8">
             
             <!-- Header -->
@@ -1253,20 +1253,20 @@ const previousDescargaStatuses = ref({})
             <div class="flex gap-2 mb-6">
                 <button @click="setDireccion('')" 
                         :class="['px-5 py-2.5 rounded-xl font-bold text-sm transition-all border', 
-                                 filters.direccion === '' ? 'bg-gray-900 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200']">
+                                 filters.direccion === '' ? 'bg-gray-900 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-600 hover:bg-white border-gray-200']">
                     Todos
                     <span class="ml-2 px-2 py-0.5 rounded-lg text-xs" :class="filters.direccion === '' ? 'bg-white/20' : 'bg-gray-100'">{{ contadores.total }}</span>
                 </button>
                 <button @click="setDireccion('emitido')" 
                         :class="['px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 border', 
-                                 filters.direccion === 'emitido' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200']">
+                                 filters.direccion === 'emitido' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'bg-white text-gray-600 hover:bg-white border-gray-200']">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
                     Emitidos
                     <span class="px-2 py-0.5 rounded-lg text-xs" :class="filters.direccion === 'emitido' ? 'bg-white/20' : 'bg-gray-100'">{{ contadores.emitidos }}</span>
                 </button>
                 <button @click="setDireccion('recibido')" 
                         :class="['px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 border', 
-                                 filters.direccion === 'recibido' ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/20' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200']">
+                                 filters.direccion === 'recibido' ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/20' : 'bg-white text-gray-600 hover:bg-white border-gray-200']">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
                     Recibidos
                     <span class="px-2 py-0.5 rounded-lg text-xs" :class="filters.direccion === 'recibido' ? 'bg-white/20' : 'bg-gray-100'">{{ contadores.recibidos }}</span>
@@ -1290,7 +1290,7 @@ const previousDescargaStatuses = ref({})
                                     ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-300 shadow-lg shadow-amber-100'
                                     : descarga.status === 'pausado'
                                         ? 'bg-gradient-to-r from-red-50 to-rose-50 border-red-300'
-                                        : 'bg-gray-50 border-gray-100']">
+                                        : 'bg-white border-gray-100']">
                         <!-- Encabezado con dirección y fechas -->
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                             <div class="flex flex-col">
@@ -1474,14 +1474,14 @@ const previousDescargaStatuses = ref({})
                         <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Búsqueda Inteligente</label>
                         <div class="relative group">
                             <input v-model="filters.search" placeholder="Folio, UUID..." 
-                                   class="w-full h-14 pl-12 pr-4 bg-gray-50 border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-0 transition-all placeholder:text-gray-400" />
+                                   class="w-full h-14 pl-12 pr-4 bg-white border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-0 transition-all placeholder:text-gray-400" />
                             <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                         </div>
                     </div>
 
                     <div class="space-y-2">
                         <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Tipo Documento</label>
-                        <select v-model="filters.tipo_comprobante" class="w-full h-14 px-5 bg-gray-50 border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-0 transition-all appearance-none">
+                        <select v-model="filters.tipo_comprobante" class="w-full h-14 px-5 bg-white border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-0 transition-all appearance-none">
                             <option value="">Cualquier Tipo</option>
                             <option value="I">Factura (Ingreso)</option>
                             <option value="P">Pago (Complemento)</option>
@@ -1491,7 +1491,7 @@ const previousDescargaStatuses = ref({})
 
                     <div class="space-y-2">
                         <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Estado Fiscal</label>
-                        <select v-model="filters.estatus" class="w-full h-14 px-5 bg-gray-50 border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-0 transition-all appearance-none">
+                        <select v-model="filters.estatus" class="w-full h-14 px-5 bg-white border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-0 transition-all appearance-none">
                             <option value="">Todos los Estados</option>
                             <option value="vigente">Vigente / Timbrado</option>
                             <option value="cancelado">Cancelado</option>
@@ -1501,8 +1501,8 @@ const previousDescargaStatuses = ref({})
                     <div class="space-y-2">
                         <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Rango de Fecha</label>
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="date" v-model="filters.fecha_inicio" class="w-full h-14 px-3 bg-gray-50 border-2 border-transparent rounded-2xl text-[11px] font-bold focus:bg-white focus:border-blue-100 focus:ring-0 transition-all" />
-                            <input type="date" v-model="filters.fecha_fin" class="w-full h-14 px-3 bg-gray-50 border-2 border-transparent rounded-2xl text-[11px] font-bold focus:bg-white focus:border-blue-100 focus:ring-0 transition-all" />
+                            <input type="date" v-model="filters.fecha_inicio" class="w-full h-14 px-3 bg-white border-2 border-transparent rounded-2xl text-[11px] font-bold focus:bg-white focus:border-blue-100 focus:ring-0 transition-all" />
+                            <input type="date" v-model="filters.fecha_fin" class="w-full h-14 px-3 bg-white border-2 border-transparent rounded-2xl text-[11px] font-bold focus:bg-white focus:border-blue-100 focus:ring-0 transition-all" />
                         </div>
                     </div>
 
@@ -1527,17 +1527,17 @@ const previousDescargaStatuses = ref({})
                         <div class="space-y-2 lg:col-span-2">
                             <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">RFC Emisor</label>
                             <input v-model="filters.rfc_emisor" placeholder="AAA010101AAA" 
-                                   class="w-full h-14 px-4 bg-gray-50 border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-0 transition-all uppercase placeholder:normal-case" />
+                                   class="w-full h-14 px-4 bg-white border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-0 transition-all uppercase placeholder:normal-case" />
                         </div>
                         <div class="space-y-2 lg:col-span-2">
                             <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">RFC Receptor</label>
                             <input v-model="filters.rfc_receptor" placeholder="AAA010101AAA" 
-                                   class="w-full h-14 px-4 bg-gray-50 border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-0 transition-all uppercase placeholder:normal-case" />
+                                   class="w-full h-14 px-4 bg-white border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-0 transition-all uppercase placeholder:normal-case" />
                         </div>
                         <div class="space-y-2">
                             <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Serie</label>
                             <input v-model="filters.serie" placeholder="A" 
-                                   class="w-full h-14 px-4 bg-gray-50 border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-0 transition-all" />
+                                   class="w-full h-14 px-4 bg-white border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-0 transition-all" />
                         </div>
                     </template>
                 </div>
@@ -1548,7 +1548,7 @@ const previousDescargaStatuses = ref({})
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead>
-                            <tr class="bg-gray-50/50 border-b border-gray-200">
+                            <tr class="bg-white/50 border-b border-gray-200">
                                 <th class="px-4 py-6 text-center">
                             <input type="checkbox" :checked="selectedIds.length === cfdiItems.length && cfdiItems.length > 0" @change="toggleSelectAll" class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer" />
                                 </th>
@@ -1603,7 +1603,7 @@ const previousDescargaStatuses = ref({})
                                                     cfdi.tipo_comprobante_nombre === 'Pago' ? 'bg-sky-50 text-sky-600 border-sky-100' :
                                                     cfdi.tipo_comprobante_nombre === 'Nómina' ? 'bg-orange-50 text-orange-600 border-orange-100' :
                                                     cfdi.tipo_comprobante_nombre === 'Traslado' ? 'bg-violet-50 text-violet-600 border-violet-100' :
-                                                    'bg-gray-50 text-gray-600 border-gray-100']"
+                                                    'bg-white text-gray-600 border-gray-100']"
                                                     :title="cfdi.tipo_comprobante_nombre">
                                                     {{ cfdi.tipo_comprobante_nombre || cfdi.tipo_comprobante }}
                                                 </span>
@@ -1783,7 +1783,7 @@ const previousDescargaStatuses = ref({})
                                                                 <div class="text-[10px] text-gray-500 mb-2">
                                                                     📅 {{ pago.fecha_pago?.split('T')[0] }} | Forma: {{ pago.forma_pago }}
                                                                 </div>
-                                                                <div v-for="(doc, dIdx) in pago.doctos_relacionados" :key="dIdx" class="bg-gray-50 p-2 rounded-lg mt-1 text-xs">
+                                                                <div v-for="(doc, dIdx) in pago.doctos_relacionados" :key="dIdx" class="bg-white p-2 rounded-lg mt-1 text-xs">
                                                                     <div class="flex justify-between">
                                                                         <span class="font-bold">{{ doc.serie }}-{{ doc.folio }}</span>
                                                                         <span class="font-black text-gray-700">${{ Number(doc.imp_pagado).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
@@ -1976,7 +1976,7 @@ const previousDescargaStatuses = ref({})
 
                 <!-- Empty State para Grid -->
                 <div v-if="cfdiItems.length === 0" class="bg-white rounded-[2rem] p-20 text-center border border-gray-100 shadow-xl shadow-blue-900/5">
-                    <div class="w-24 h-24 bg-gray-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 border-4 border-white shadow-inner">
+                    <div class="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 border-4 border-white shadow-inner">
                         <svg class="w-10 h-10 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                     </div>
                     <h3 class="text-xl font-black text-gray-400 uppercase tracking-widest">Bóveda Vacía</h3>

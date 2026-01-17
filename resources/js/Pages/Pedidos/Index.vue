@@ -765,7 +765,7 @@ const estadisticasConPorcentaje = computed(() => {
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
   </component>
 
-  <div class="pedidos-index min-h-screen bg-gray-50" :style="cssVars">
+  <div class="pedidos-index min-h-screen bg-white" :style="cssVars">
     <!-- Contenido principal -->
     <div class="w-full px-6 py-8">
       <!-- Header específico de pedidos -->
@@ -827,7 +827,7 @@ const estadisticasConPorcentaje = computed(() => {
           <!-- Table -->
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200/60">
-              <thead class="bg-gray-50/60">
+              <thead class="bg-white/60">
                 <tr>
                   <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha</th>
                   <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Cliente</th>
@@ -843,7 +843,7 @@ const estadisticasConPorcentaje = computed(() => {
                   <tr
                     v-for="pedido in items"
                     :key="pedido.id"
-                    class="group hover:bg-gray-50/60 transition-all duration-150 hover:shadow-sm"
+                    class="group hover:bg-white/60 transition-all duration-150 hover:shadow-sm"
                   >
                     <!-- Fecha -->
                     <td class="px-6 py-4">
@@ -998,7 +998,7 @@ const estadisticasConPorcentaje = computed(() => {
         <button
           @click="handlePageChange(paginationData.current_page - 1)"
           :disabled="paginationData.current_page === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:border-transparent"
+          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:border-transparent"
           :style="focusRingStyle"
         >
           Anterior
@@ -1013,7 +1013,7 @@ const estadisticasConPorcentaje = computed(() => {
               'px-3 py-2 text-sm font-medium border border-gray-300 rounded-md',
               page === paginationData.current_page
                 ? 'text-white'
-                : 'text-gray-700 bg-white hover:bg-gray-50'
+                : 'text-gray-700 bg-white hover:bg-white'
             ]"
             :style="page === paginationData.current_page ? headerGradientStyle : null"
           >
@@ -1024,7 +1024,7 @@ const estadisticasConPorcentaje = computed(() => {
         <button
           @click="handlePageChange(paginationData.current_page + 1)"
           :disabled="paginationData.current_page === paginationData.last_page"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:border-transparent"
+          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:border-transparent"
           :style="focusRingStyle"
         >
           Siguiente

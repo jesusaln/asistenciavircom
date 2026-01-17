@@ -21,7 +21,7 @@ const getStatusClasses = (estado) => {
         'entregado': 'bg-emerald-50 text-emerald-600 border-emerald-100',
         'cancelado': 'bg-red-50 text-red-600 border-red-100',
     };
-    return maps[estado] || 'bg-gray-50 text-gray-500 border-gray-100';
+    return maps[estado] || 'bg-white text-gray-500 border-gray-100';
 };
 </script>
 
@@ -70,7 +70,7 @@ const getStatusClasses = (estado) => {
                 </div>
 
                 <div v-if="pedidos.length === 0" class="py-20 bg-white rounded-[2rem] border-2 border-dashed border-gray-100 text-center">
-                    <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
                         <font-awesome-icon icon="shopping-cart" size="lg" />
                     </div>
                     <h3 class="text-lg font-black text-gray-900 mb-1">No hay pedidos</h3>

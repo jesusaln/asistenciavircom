@@ -473,7 +473,7 @@ onBeforeUnmount(() => {
 <template>
   <Head :title="`Editar Renta ${renta?.numero_contrato || ''}`" />
   <div class="ventas-edit min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-    <div class="max-w-6xl mx-auto">
+    <div class="w-full">
       <!-- Header -->
       <Header
         :title="`Editar Renta ${renta?.numero_contrato || ''}`"

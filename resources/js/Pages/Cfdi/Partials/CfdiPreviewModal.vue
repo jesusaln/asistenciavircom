@@ -3,9 +3,9 @@
         <div v-if="show" class="fixed inset-0 z-[70] flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" @click="emitClose"></div>
 
-            <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-7xl h-[90vh] flex flex-col overflow-hidden animate-fadeIn">
+            <div class="relative bg-white rounded-3xl shadow-2xl w-full w-full h-[90vh] flex flex-col overflow-hidden animate-fadeIn">
                 <!-- Header -->
-                <div class="px-8 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                <div class="px-8 py-4 border-b border-gray-100 flex items-center justify-between bg-white/50">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/20">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -59,7 +59,7 @@
                                     <span class="text-3xl font-black text-blue-700 tracking-tight">{{ formatMoney(parsedCfdiData.total) }}</span>
                                     <span class="block mt-2 text-xs font-bold text-blue-500 uppercase">{{ parsedCfdiData.moneda }}</span>
                                 </div>
-                                <div class="p-6 bg-gray-50 rounded-3xl border border-gray-200">
+                                <div class="p-6 bg-white rounded-3xl border border-gray-200">
                                     <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Fecha Emisión</span>
                                     <span class="text-2xl font-black text-gray-800 tracking-tight">{{ formatDate(parsedCfdiData.fecha) }}</span>
                                 </div>

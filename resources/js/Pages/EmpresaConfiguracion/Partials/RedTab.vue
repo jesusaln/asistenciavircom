@@ -11,7 +11,7 @@
     </header>
 
     <!-- Dominio Principal -->
-    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+    <div class="bg-white rounded-lg p-6 border border-gray-200">
       <h3 class="text-md font-semibold text-gray-700 mb-4 flex items-center">
         <FontAwesomeIcon icon="server" class="mr-2 text-indigo-500" />
         Configuración de Dominio
@@ -72,7 +72,7 @@
     </div>
 
     <!-- Direcciones IP -->
-    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+    <div class="bg-white rounded-lg p-6 border border-gray-200">
       <h3 class="text-md font-semibold text-gray-700 mb-4 flex items-center">
         <FontAwesomeIcon icon="network-wired" class="mr-2 text-green-500" />
         Direcciones IP del Servidor
@@ -108,7 +108,7 @@
     </div>
 
     <!-- Configuración SSL -->
-    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+    <div class="bg-white rounded-lg p-6 border border-gray-200">
       <h3 class="text-md font-semibold text-gray-700 mb-4 flex items-center">
         <FontAwesomeIcon icon="lock" class="mr-2 text-yellow-500" />
         Certificado SSL

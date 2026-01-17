@@ -240,7 +240,7 @@ const closeModal = () => {
                 <!-- Tabla -->
                 <div class="bg-white shadow rounded-lg overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-white">
                             <tr>
                                 <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Número</th>
                                 <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
@@ -255,7 +255,7 @@ const closeModal = () => {
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <tr v-for="gasto in gastos.data" :key="gasto.id" class="hover:bg-gray-50">
+                            <tr v-for="gasto in gastos.data" :key="gasto.id" class="hover:bg-white">
                                 <td class="px-3 py-4 whitespace-nowrap">
                                     <button @click="showGasto(gasto)" class="text-amber-600 hover:text-indigo-900 font-medium">
                                         {{ gasto.numero_compra }}
@@ -359,7 +359,7 @@ const closeModal = () => {
                                     :href="link.url || '#'"
                                     :class="[
                                         'px-3 py-1 text-sm border rounded',
-                                        link.active ? 'text-white' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50',
+                                        link.active ? 'text-white' : 'bg-white text-gray-700 border-gray-300 hover:bg-white',
                                         !link.url ? 'opacity-50 cursor-not-allowed' : ''
                                     ]"
                                     :style="link.active ? headerGradientStyle : null"

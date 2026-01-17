@@ -26,7 +26,7 @@ const formatCurrency = (value) => {
 <template>
     <Head :title="pending ? 'Pago en Proceso' : '¡Contratación Exitosa!'" />
 
-    <div class="min-h-screen bg-gray-50 flex flex-col" :style="cssVars">
+    <div class="min-h-screen bg-white flex flex-col" :style="cssVars">
         <PublicNavbar :empresa="empresa" />
         
         <div class="flex-grow flex items-center justify-center p-4">
@@ -90,7 +90,7 @@ const formatCurrency = (value) => {
                 </div>
 
                 <!-- Resumen de Venta -->
-                <div v-if="venta" class="bg-gray-50 rounded-2xl p-6 mb-8 border border-gray-100 text-left">
+                <div v-if="venta" class="bg-white rounded-2xl p-6 mb-8 border border-gray-100 text-left">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="font-black text-gray-900 uppercase tracking-widest text-xs">Resumen de Venta</h3>
                         <span 

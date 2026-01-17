@@ -1,7 +1,7 @@
 <template>
   <Head :title="`Registro de Vacaciones - ${empleado.name}`" />
-  <div class="min-h-screen bg-gray-50">
-    <div class="max-w-5xl mx-auto px-6 py-8">
+  <div class="min-h-screen bg-white">
+    <div class="w-full px-6 py-8">
       <div class="flex items-center justify-between mb-6">
         <div>
           <h1 class="text-2xl font-bold text-gray-900">Registro de Vacaciones</h1>
@@ -66,7 +66,7 @@
         </div>
         <div v-if="vacaciones && vacaciones.length" class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fechas</th>
                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Días</th>
@@ -76,7 +76,7 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="vacacion in vacaciones" :key="vacacion.id" class="hover:bg-gray-50">
+              <tr v-for="vacacion in vacaciones" :key="vacacion.id" class="hover:bg-white">
                 <td class="px-4 py-3 text-sm text-gray-900">
                   <div>{{ formatDate(vacacion.fecha_inicio) }}</div>
                   <div class="text-gray-500 text-xs">hasta {{ formatDate(vacacion.fecha_fin) }}</div>
@@ -108,7 +108,7 @@
         </div>
         <div v-if="ajustes && ajustes.length" class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha</th>
                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Año</th>

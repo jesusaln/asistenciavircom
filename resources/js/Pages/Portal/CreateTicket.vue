@@ -53,7 +53,7 @@ const cambiarPrioridad = () => {
 
 <template>
   <ClientLayout>
-    <div class="max-w-3xl mx-auto" :style="cssVars">
+    <div class="w-full" :style="cssVars">
       <div class="bg-white shadow-lg sm:rounded-2xl border border-gray-100">
         <div class="px-6 py-8 sm:p-10">
           <!-- Header con icono -->
@@ -164,7 +164,7 @@ const cambiarPrioridad = () => {
   <Teleport to="body">
     <div v-if="showUrgenciaModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="cambiarPrioridad"></div>
+            <div class="fixed inset-0 bg-white0 bg-opacity-75 transition-opacity" aria-hidden="true" @click="cambiarPrioridad"></div>
 
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
@@ -197,7 +197,7 @@ const cambiarPrioridad = () => {
                         </div>
                     </div>
                 </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <div class="bg-white px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                     <button 
                         type="button" 
                         class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
@@ -207,7 +207,7 @@ const cambiarPrioridad = () => {
                     </button>
                     <button 
                         type="button" 
-                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                         @click="cambiarPrioridad"
                     >
                         Cambiar Prioridad

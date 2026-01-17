@@ -44,7 +44,7 @@
 
         <div class="overflow-x-auto mt-6">
             <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+                <thead class="bg-white">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
@@ -59,7 +59,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     <template v-for="venta in ventasFiltradas" :key="venta.id">
-                    <tr class="hover:bg-gray-50">
+                    <tr class="hover:bg-white">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatDate(venta.created_at) }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ venta.cliente?.nombre_razon_social || 'N/A' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">{{ venta.numero_venta || venta.id }}</td>
@@ -88,7 +88,7 @@
                             </button>
                         </td>
                     </tr>
-                    <tr v-if="expandedVentas[venta.id]" class="bg-gray-50">
+                    <tr v-if="expandedVentas[venta.id]" class="bg-white">
                         <td colspan="9" class="px-6 py-4">
                             <div class="text-sm text-gray-700 font-medium mb-2">Detalle de productos y costos</div>
                             <div class="overflow-x-auto">
@@ -149,7 +149,7 @@
         <!-- Resumen adicional -->
         <div v-if="ventasFiltradas.length > 0" class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Ventas por estado -->
-            <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="bg-white p-6 rounded-lg">
                 <h4 class="text-md font-medium text-gray-900 mb-4">Ventas por Estado</h4>
                 <div class="space-y-3">
                     <div class="flex justify-between items-center">
@@ -168,7 +168,7 @@
             </div>
 
             <!-- Top clientes -->
-            <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="bg-white p-6 rounded-lg">
                 <h4 class="text-md font-medium text-gray-900 mb-4">Top Clientes</h4>
                 <div class="space-y-3">
                     <div v-for="cliente in topClientes" :key="cliente.nombre" class="flex justify-between items-center">

@@ -30,7 +30,7 @@
                     </div>
                     <Link 
                         href="/garantias/buscar-serie" 
-                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 font-medium rounded-xl border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 font-medium rounded-xl border border-gray-200 hover:bg-white hover:border-gray-300 transition-all"
                     >
                         <FontAwesomeIcon :icon="['fas', 'barcode']" />
                         Buscar Serie
@@ -96,7 +96,7 @@
 
         <!-- Filtros Expandibles -->
         <div class="bg-white/70 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm mb-6 overflow-hidden">
-            <button @click="showFilters = !showFilters" class="w-full px-5 py-4 flex items-center justify-between hover:bg-gray-50/50 transition-colors">
+            <button @click="showFilters = !showFilters" class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/50 transition-colors">
                 <div class="flex items-center gap-3">
                     <FontAwesomeIcon :icon="['fas', 'filter']" class="text-gray-400" />
                     <span class="font-medium text-gray-700">Filtros Avanzados</span>
@@ -157,7 +157,7 @@
             
             <div class="overflow-x-auto">
                 <table class="w-full">
-                    <thead class="bg-gray-50/80">
+                    <thead class="bg-white/80">
                         <tr>
                             <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Serie</th>
                             <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Producto</th>
@@ -265,7 +265,7 @@
             </div>
 
             <!-- Paginación Premium -->
-            <div class="px-5 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
+            <div class="px-5 py-4 border-t border-gray-100 flex items-center justify-between bg-white/50">
                 <p class="text-sm text-gray-600">
                     Mostrando <span class="font-semibold">{{ seriesVendidas.from || 0 }}</span> a 
                     <span class="font-semibold">{{ seriesVendidas.to || 0 }}</span> de 
@@ -275,7 +275,7 @@
                     <Link 
                         v-if="seriesVendidas.prev_page_url"
                         :href="seriesVendidas.prev_page_url"
-                        class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                        class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-white transition-colors"
                     >
                         <FontAwesomeIcon :icon="['fas', 'chevron-left']" class="mr-1" />
                         Anterior
@@ -283,7 +283,7 @@
                     <Link 
                         v-if="seriesVendidas.next_page_url"
                         :href="seriesVendidas.next_page_url"
-                        class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                        class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-white transition-colors"
                     >
                         Siguiente
                         <FontAwesomeIcon :icon="['fas', 'chevron-right']" class="ml-1" />

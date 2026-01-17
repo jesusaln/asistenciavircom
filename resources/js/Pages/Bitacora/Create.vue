@@ -1,7 +1,7 @@
 <template>
   <Head title="Registrar Actividad" />
-  <div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-white py-8">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="mb-6">
         <div class="flex items-start justify-between gap-4">
@@ -9,7 +9,7 @@
             <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Registrar Actividad</h1>
             <p class="mt-2 text-sm text-gray-600">Captura detallada para tu bitácora. Los campos marcados con * son obligatorios.</p>
           </div>
-          <Link :href="route('bitacora.index')" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-colors shadow-sm">
+          <Link :href="route('bitacora.index')" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-white hover:border-gray-400 transition-colors shadow-sm">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
@@ -157,7 +157,7 @@
                 Inicio <span class="text-red-500">*</span>
               </label>
               <div class="flex gap-2">
-                <button type="button" @click="setNow('inicio_at')" class="text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                <button type="button" @click="setNow('inicio_at')" class="text-xs px-2 py-1 border border-gray-300 rounded hover:bg-white transition-colors">
                   Ahora
                 </button>
               </div>
@@ -177,16 +177,16 @@
             <div class="flex items-center justify-between mb-1">
               <label for="fin_at" class="block text-sm font-medium text-gray-700">Fin</label>
               <div class="flex gap-1 flex-wrap">
-                <button type="button" @click="setNow('fin_at')" class="text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                <button type="button" @click="setNow('fin_at')" class="text-xs px-2 py-1 border border-gray-300 rounded hover:bg-white transition-colors">
                   Ahora
                 </button>
-                <button type="button" @click="sumarMinutos(30)" class="text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                <button type="button" @click="sumarMinutos(30)" class="text-xs px-2 py-1 border border-gray-300 rounded hover:bg-white transition-colors">
                   +30m
                 </button>
-                <button type="button" @click="sumarMinutos(60)" class="text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                <button type="button" @click="sumarMinutos(60)" class="text-xs px-2 py-1 border border-gray-300 rounded hover:bg-white transition-colors">
                   +1h
                 </button>
-                <button type="button" @click="sumarMinutos(120)" class="text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                <button type="button" @click="sumarMinutos(120)" class="text-xs px-2 py-1 border border-gray-300 rounded hover:bg-white transition-colors">
                   +2h
                 </button>
               </div>
@@ -276,7 +276,7 @@
                 type="button"
                 @click="submit('stay')"
                 :disabled="form.processing"
-                class="px-5 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                class="px-5 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
               >
                 <span v-if="!form.processing">Guardar y capturar otra</span>
                 <span v-else class="inline-flex items-center">

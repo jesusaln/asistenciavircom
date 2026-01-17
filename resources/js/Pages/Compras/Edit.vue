@@ -1,7 +1,7 @@
 <template>
   <Head title="Editar Compra" />
   <div class="compras-edit min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-    <div class="max-w-6xl mx-auto">
+    <div class="w-full">
       <!-- Header -->
       <div class="mb-6">
         <Header
@@ -204,7 +204,7 @@
             </h2>
           </div>
           <div class="p-6">
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div class="bg-white border border-gray-200 rounded-lg p-4">
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-sm font-medium text-gray-900">
@@ -242,7 +242,7 @@
             </h2>
           </div>
           <div class="p-6">
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div class="bg-white border border-gray-200 rounded-lg p-4">
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-sm font-medium text-gray-900">

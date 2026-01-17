@@ -60,7 +60,7 @@ const formatDate = (date) => {
         <!-- Tabla -->
         <div class="overflow-x-auto">
           <table class="w-full text-left">
-            <thead class="bg-gray-50 border-b border-gray-100">
+            <thead class="bg-white border-b border-gray-100">
               <tr>
                 <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase">Artículo</th>
                 <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase">Categoría</th>
@@ -71,7 +71,7 @@ const formatDate = (date) => {
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 text-sm">
-              <tr v-for="post in posts" :key="post.id" class="hover:bg-gray-50 transition-colors">
+              <tr v-for="post in posts" :key="post.id" class="hover:bg-white transition-colors">
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3">
                     <img v-if="post.imagen_portada" :src="post.imagen_portada" class="w-10 h-10 rounded object-cover border bg-gray-100">
@@ -111,7 +111,7 @@ const formatDate = (date) => {
                     <button @click="deletePost(post)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Eliminar">
                       <FontAwesomeIcon icon="trash" />
                     </button>
-                    <a v-if="post.status === 'published'" :href="route('public.blog.show', post.slug)" target="_blank" class="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors" title="Ver">
+                    <a v-if="post.status === 'published'" :href="route('public.blog.show', post.slug)" target="_blank" class="p-2 text-gray-600 hover:bg-white rounded-lg transition-colors" title="Ver">
                       <FontAwesomeIcon icon="external-link-alt" />
                     </a>
                   </div>

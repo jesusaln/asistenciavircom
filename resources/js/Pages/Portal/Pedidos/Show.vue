@@ -21,7 +21,7 @@ const getStatusClasses = (estado) => {
         'entregado': 'bg-emerald-50 text-emerald-600 border-emerald-100',
         'cancelado': 'bg-red-50 text-red-600 border-red-100',
     };
-    return maps[estado] || 'bg-gray-50 text-gray-500 border-gray-100';
+    return maps[estado] || 'bg-white text-gray-500 border-gray-100';
 };
 </script>
 
@@ -52,12 +52,12 @@ const getStatusClasses = (estado) => {
                 <div class="lg:col-span-2 space-y-8">
                     <!-- Productos -->
                     <div class="bg-white rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
-                        <div class="px-8 py-6 border-b border-gray-50 bg-gray-50/50">
+                        <div class="px-8 py-6 border-b border-gray-50 bg-white/50">
                             <h3 class="font-black text-gray-900 uppercase tracking-tight text-sm">Resumen de Productos</h3>
                         </div>
                         <div class="divide-y divide-gray-50">
                             <div v-for="item in pedido.items" :key="item.id" class="p-8 flex items-center gap-6">
-                                <div class="w-20 h-20 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-300 text-2xl border border-gray-100 overflow-hidden">
+                                <div class="w-20 h-20 bg-white rounded-2xl flex items-center justify-center text-gray-300 text-2xl border border-gray-100 overflow-hidden">
                                     <img v-if="item.pedible?.imagen_url" :src="item.pedible.imagen_url" class="w-full h-full object-cover" />
                                     <font-awesome-icon v-else icon="box" />
                                 </div>

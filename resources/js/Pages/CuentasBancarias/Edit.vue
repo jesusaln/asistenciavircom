@@ -127,7 +127,7 @@
           <div class="flex justify-end gap-3 pt-4 border-t">
             <Link
               :href="route('cuentas-bancarias.index')"
-              class="px-4 py-2 border rounded-lg hover:bg-gray-50"
+              class="px-4 py-2 border rounded-lg hover:bg-white"
             >
               Cancelar
             </Link>

@@ -1,7 +1,7 @@
 <template>
   <Head title="Mis Vacaciones" />
-  <div class="mis-vacaciones min-h-screen bg-gray-50">
-    <div class="max-w-6xl mx-auto px-6 py-8">
+  <div class="mis-vacaciones min-h-screen bg-white">
+    <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
@@ -89,7 +89,7 @@
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Fechas
@@ -112,7 +112,7 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="vacacion in vacaciones.data" :key="vacacion.id" class="hover:bg-gray-50 transition-colors duration-150">
+              <tr v-for="vacacion in vacaciones.data" :key="vacacion.id" class="hover:bg-white transition-colors duration-150">
                 <td class="px-6 py-4">
                   <div class="text-sm font-medium text-gray-900">
                     {{ formatDate(vacacion.fecha_inicio) }}
@@ -209,7 +209,7 @@
                 v-for="page in getPageNumbers()"
                 :key="page"
                 @click="changePage(page)"
-                :class="page === vacaciones.current_page ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'"
+                :class="page === vacaciones.current_page ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               >
                 {{ page }}

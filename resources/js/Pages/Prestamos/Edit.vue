@@ -268,8 +268,8 @@ const getEstadoColor = (estado) => {
 <template>
   <Head title="Editar Préstamo" />
 
-  <div class="prestamos-edit min-h-screen bg-gray-50">
-    <div class="max-w-4xl mx-auto px-6 py-8">
+  <div class="prestamos-edit min-h-screen bg-white">
+    <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
@@ -288,13 +288,13 @@ const getEstadoColor = (estado) => {
             </span>
             <Link
               :href="`/prestamos/${prestamo.id}`"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
             >
               👁 Ver Detalles
             </Link>
             <Link
               href="/prestamos"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
             >
               ← Volver a Préstamos
             </Link>
@@ -486,7 +486,7 @@ const getEstadoColor = (estado) => {
               <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
                 <Link
                   :href="`/prestamos/${prestamo.id}`"
-                  class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                  class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
                 >
                   ❌ Cancelar
                 </Link>
@@ -579,7 +579,7 @@ const getEstadoColor = (estado) => {
                 </div>
 
                 <!-- Información adicional -->
-                <div class="bg-gray-50 rounded-lg p-4 mt-4">
+                <div class="bg-white rounded-lg p-4 mt-4">
                   <h4 class="text-sm font-medium text-gray-900 mb-2">Estado del Préstamo</h4>
                   <div class="space-y-2 text-sm text-gray-600">
                     <div class="flex justify-between">

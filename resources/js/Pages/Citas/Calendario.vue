@@ -244,7 +244,7 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                         <!-- Botón Hoy -->
                         <button
                             @click="goToToday"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-white transition-colors"
                         >
                             Hoy
                         </button>
@@ -278,7 +278,7 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                                     v-else
                                     v-for="cita in citasPendientes" 
                                     :key="cita.id"
-                                    class="p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
+                                    class="p-4 border-b border-gray-100 hover:bg-white transition-colors cursor-pointer"
                                     @click="openAsignarModal(cita)"
                                 >
                                     <div class="flex items-start justify-between">
@@ -359,7 +359,7 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                             </div>
                             
                             <!-- Leyenda de técnicos -->
-                            <div class="px-6 py-3 bg-gray-50 border-b flex flex-wrap items-center gap-3">
+                            <div class="px-6 py-3 bg-white border-b flex flex-wrap items-center gap-3">
                                 <span class="text-sm text-gray-500">Técnicos:</span>
                                 <div 
                                     v-for="tec in tecnicos" 
@@ -379,7 +379,7 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                                 <div 
                                     v-for="day in ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']" 
                                     :key="day"
-                                    class="px-2 py-3 text-center text-sm font-medium text-gray-500 bg-gray-50"
+                                    class="px-2 py-3 text-center text-sm font-medium text-gray-500 bg-white"
                                 >
                                     {{ day }}
                                 </div>
@@ -392,7 +392,7 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                                     :key="index"
                                     :class="[
                                         'min-h-[120px] p-2 border-b border-r transition-colors',
-                                        !dayObj.isCurrentMonth ? 'bg-gray-50' : '',
+                                        !dayObj.isCurrentMonth ? 'bg-white' : '',
                                         dayObj.isToday ? 'bg-indigo-50 ring-2 ring-inset ring-indigo-500' : '',
                                         dayObj.isPast && dayObj.isCurrentMonth ? 'bg-gray-100/50' : '',
                                     ]"
@@ -503,7 +503,7 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                             </div>
                             
                             <!-- Cliente -->
-                            <div class="bg-gray-50 rounded-xl p-4">
+                            <div class="bg-white rounded-xl p-4">
                                 <p class="text-sm text-gray-500 mb-1">Cliente</p>
                                 <p class="font-semibold text-gray-900">
                                     {{ selectedCita.cliente?.nombre_razon_social }}
@@ -514,7 +514,7 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                             </div>
                             
                             <!-- Fecha y Hora -->
-                            <div class="bg-gray-50 rounded-xl p-4">
+                            <div class="bg-white rounded-xl p-4">
                                 <p class="text-sm text-gray-500 mb-1">Fecha y Hora</p>
                                 <p class="font-semibold text-gray-900 capitalize">
                                     {{ formatDate(selectedCita.fecha_confirmada || selectedCita.fecha_hora?.split('T')[0]) }}
@@ -525,7 +525,7 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                             </div>
                             
                             <!-- Técnico -->
-                            <div v-if="selectedCita.tecnico" class="bg-gray-50 rounded-xl p-4">
+                            <div v-if="selectedCita.tecnico" class="bg-white rounded-xl p-4">
                                 <p class="text-sm text-gray-500 mb-1">Técnico asignado</p>
                                 <div class="flex items-center gap-2">
                                     <span 
@@ -537,7 +537,7 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                             </div>
                             
                             <!-- Dirección -->
-                            <div v-if="selectedCita.direccion_calle" class="bg-gray-50 rounded-xl p-4">
+                            <div v-if="selectedCita.direccion_calle" class="bg-white rounded-xl p-4">
                                 <p class="text-sm text-gray-500 mb-1">Dirección</p>
                                 <p class="text-gray-900">{{ selectedCita.direccion_calle }}</p>
                                 <p class="text-sm text-gray-600">
@@ -550,7 +550,7 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                             </div>
                             
                             <!-- Descripción -->
-                            <div v-if="selectedCita.descripcion" class="bg-gray-50 rounded-xl p-4">
+                            <div v-if="selectedCita.descripcion" class="bg-white rounded-xl p-4">
                                 <p class="text-sm text-gray-500 mb-1">Descripción inicial</p>
                                 <p class="text-gray-700 text-sm">{{ selectedCita.descripcion }}</p>
                             </div>
@@ -582,7 +582,7 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                         </div>
                         
                         <!-- Footer -->
-                        <div class="px-6 py-4 border-t bg-gray-50 rounded-b-2xl flex items-center justify-between">
+                        <div class="px-6 py-4 border-t bg-white rounded-b-2xl flex items-center justify-between">
                             <button
                                 @click="closeCitaDetails"
                                 class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"

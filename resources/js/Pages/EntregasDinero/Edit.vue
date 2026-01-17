@@ -73,8 +73,8 @@ const submit = () => {
 <template>
   <Head title="Editar Entrega de Dinero" />
 
-  <div class="entregas-dinero-edit min-h-screen bg-gray-50">
-    <div class="max-w-2xl mx-auto px-6 py-8">
+  <div class="entregas-dinero-edit min-h-screen bg-white">
+    <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-8 mb-6">
         <div class="flex items-center gap-3 mb-6">
@@ -93,7 +93,7 @@ const submit = () => {
           Actualiza los montos y notas de la entrega seleccionada. Abajo puedes ver la nota original registrada.
         </p>
 
-        <div v-if="props.entrega.notas" class="mb-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <div v-if="props.entrega.notas" class="mb-6 bg-white border border-gray-200 rounded-lg p-4">
           <p class="text-xs font-semibold text-gray-500 uppercase">Nota registrada</p>
           <p class="text-sm text-gray-800 mt-1">{{ props.entrega.notas }}</p>
         </div>

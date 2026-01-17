@@ -149,7 +149,7 @@ const pageLinks = computed(() => props.herramientas?.links || [])
         </select>
       </div>
       <div class="flex items-end">
-        <button @click="clearFilters" class="w-full px-3 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+        <button @click="clearFilters" class="w-full px-3 py-2 bg-white0 text-white rounded hover:bg-gray-600">
           Limpiar Filtros
         </button>
       </div>
@@ -210,7 +210,7 @@ const pageLinks = computed(() => props.herramientas?.links || [])
   <div class="flex gap-2 mt-6 justify-center">
     <Link v-for="l in pageLinks" :key="l.url + l.label" :href="l.url || '#'" preserve-scroll :class="[
       'px-4 py-2 border rounded-lg',
-      l.active ? 'bg-blue-600 text-white border-blue-600' : 'bg-white hover:bg-gray-50'
+      l.active ? 'bg-blue-600 text-white border-blue-600' : 'bg-white hover:bg-white'
     ]" v-html="l.label" />
   </div>
 

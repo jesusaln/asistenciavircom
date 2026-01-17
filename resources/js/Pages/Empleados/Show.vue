@@ -47,8 +47,8 @@ const descargarContrato = () => {
 <template>
   <Head :title="`Empleado - ${empleado.user?.name}`" />
 
-  <div class="min-h-screen bg-gray-50">
-    <div class="max-w-6xl mx-auto px-6 py-8">
+  <div class="min-h-screen bg-white">
+    <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8 flex items-center justify-between">
         <div class="flex items-center space-x-4">
@@ -258,7 +258,7 @@ const descargarContrato = () => {
             </h3>
             
             <div class="space-y-4">
-              <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <div class="p-4 bg-white rounded-lg border border-gray-100">
                 <div class="flex items-center justify-between mb-2">
                   <span class="text-xs font-semibold text-gray-500 uppercase">Contrato Laboral</span>
                   <span v-if="empleado.contrato_adjunto" class="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] rounded-full font-bold uppercase">Adjunto</span>

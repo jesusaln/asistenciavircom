@@ -66,7 +66,7 @@
                 <!-- Categories Grid -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div v-for="(cat, key) in categorias" :key="key" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div class="p-5 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                        <div class="p-5 border-b border-gray-50 flex justify-between items-center bg-white/50">
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-800">{{ cat.titulo }}</h3>
                                 <p class="text-sm text-gray-500">{{ cat.descripcion }}</p>
@@ -79,7 +79,7 @@
                         <div class="p-5">
                             <!-- Quick Stats per Category -->
                             <div class="grid grid-cols-3 gap-4 mb-6">
-                                <div v-for="(stat, statKey) in cat.estadisticas" :key="statKey" class="text-center p-3 bg-gray-50 rounded-lg">
+                                <div v-for="(stat, statKey) in cat.estadisticas" :key="statKey" class="text-center p-3 bg-white rounded-lg">
                                     <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">{{ formatStatLabel(statKey) }}</div>
                                     <div class="font-semibold text-gray-800 text-sm truncate">
                                         {{ formatValue(stat, statKey) }}

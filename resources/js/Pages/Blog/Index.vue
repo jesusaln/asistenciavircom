@@ -32,7 +32,7 @@ const formatDate = (date) => {
         <meta name="description" :content="`Mantente informado con el Blog de ${props.empresa?.nombre_empresa || 'Asistencia Vircom'}. Noticias sobre seguridad electrónica, tutoriales de tecnología y novedades para tu empresa en ${props.empresa?.ciudad || 'Hermosillo'}.`" />
     </Head>
     
-    <div :style="cssVars" class="min-h-screen bg-gray-50 flex flex-col font-sans">
+    <div :style="cssVars" class="min-h-screen bg-white flex flex-col font-sans">
         <PublicNavbar :empresa="empresa" />
 
         <main class="flex-grow">
@@ -42,7 +42,7 @@ const formatDate = (date) => {
                     <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
                         Nuestro <span class="text-[var(--color-primary)]">Blog</span>
                     </h1>
-                    <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    <p class="text-lg text-gray-600 w-full">
                         Explora las últimas tendencias en seguridad electrónica, soporte técnico y soluciones de redes para tu negocio.
                     </p>
                 </div>
@@ -104,7 +104,7 @@ const formatDate = (date) => {
                               v-html="link.label"
                               :class="[
                                   'px-4 py-2 rounded-lg text-sm font-medium transition-colors border',
-                                  link.active ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50',
+                                  link.active ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]' : 'bg-white text-gray-600 border-gray-200 hover:bg-white',
                                   !link.url ? 'opacity-50 cursor-not-allowed' : ''
                               ]"
                         />

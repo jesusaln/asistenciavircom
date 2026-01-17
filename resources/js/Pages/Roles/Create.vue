@@ -116,9 +116,9 @@ const submit = () => {
               
               <div class="overflow-x-auto border border-gray-200 rounded-xl shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200">
-                  <thead class="bg-gray-50">
+                  <thead class="bg-white">
                     <tr>
-                      <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50 z-10">
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider sticky left-0 bg-white z-10">
                         Módulo / Funcionalidad
                       </th>
                       <th v-for="action in actions" :key="action" scope="col" class="px-3 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors" @click="toggleColumn(action)">
@@ -130,8 +130,8 @@ const submit = () => {
                     </tr>
                   </thead>
                   <tbody class="bg-white divide-y divide-gray-200">
-                    <tr v-for="group in permissionGroups" :key="group.module" class="hover:bg-gray-50 transition-colors">
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-white group-hover:bg-gray-50 z-10 flex items-center justify-between cursor-pointer" @click="toggleRow(group)">
+                    <tr v-for="group in permissionGroups" :key="group.module" class="hover:bg-white transition-colors">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-white group-hover:bg-white z-10 flex items-center justify-between cursor-pointer" @click="toggleRow(group)">
                         <span>{{ group.label }}</span>
                         <div class="w-3 h-3 rounded-md border border-gray-300 transition-colors" :class="isRowSelected(group) ? 'bg-purple-600 border-purple-600' : 'bg-white'"></div>
                       </td>

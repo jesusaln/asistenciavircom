@@ -57,8 +57,8 @@ const volver = () => router.visit('/nominas')
 <template>
   <Head :title="`Nómina #${nomina.id}`" />
 
-  <div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-4xl mx-auto px-6">
+  <div class="min-h-screen bg-white py-8">
+    <div class="w-full px-6">
       <!-- Header -->
       <div class="mb-8 flex items-center justify-between">
         <div class="flex items-center space-x-4">
@@ -98,7 +98,7 @@ const volver = () => router.visit('/nominas')
         </div>
 
         <!-- Información del Período -->
-        <div class="grid grid-cols-4 gap-4 px-8 py-4 bg-gray-50 border-b">
+        <div class="grid grid-cols-4 gap-4 px-8 py-4 bg-white border-b">
           <div>
             <p class="text-xs text-gray-500">Período</p>
             <p class="font-medium text-gray-900">{{ nomina.periodo_formateado }}</p>
@@ -184,14 +184,14 @@ const volver = () => router.visit('/nominas')
           </div>
 
           <!-- Notas -->
-          <div v-if="nomina.notas" class="mt-6 bg-gray-50 rounded-lg p-4">
+          <div v-if="nomina.notas" class="mt-6 bg-white rounded-lg p-4">
             <h4 class="text-sm font-semibold text-gray-700 mb-2">Notas</h4>
             <p class="text-sm text-gray-600">{{ nomina.notas }}</p>
           </div>
         </div>
 
         <!-- Acciones -->
-        <div class="px-8 py-6 bg-gray-50 border-t flex items-center justify-between">
+        <div class="px-8 py-6 bg-white border-t flex items-center justify-between">
           <div class="text-xs text-gray-500">
             <p>Creado por: {{ nomina.creado_por?.name || 'Sistema' }}</p>
             <p v-if="nomina.procesado_por">Procesado por: {{ nomina.procesado_por?.name }}</p>

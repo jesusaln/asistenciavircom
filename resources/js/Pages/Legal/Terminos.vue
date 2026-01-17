@@ -29,7 +29,7 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
         <PublicNavbar :empresa="empresa" activeTab="" />
 
         <!-- Content -->
-        <main class="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+        <main class="w-full px-4 sm:px-6 py-12">
             <!-- Header de la página -->
             <div class="mb-12 text-center">
                 <div class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-600 mb-4">
@@ -67,7 +67,7 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                         {{ empresa?.nombre_comercial }} se especializa en soluciones integrales de tecnología y seguridad electrónica, incluyendo:
                     </p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                        <div class="bg-white rounded-xl p-4 border border-gray-100">
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: var(--color-primary); opacity: 0.1;">
                                     <svg class="w-4 h-4" style="color: var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,7 +78,7 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                             </div>
                             <p class="text-sm text-gray-600">Instalación y mantenimiento de sistemas CCTV (Hikvision, Dahua), alarmas monitoreadas y control de acceso.</p>
                         </div>
-                        <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                        <div class="bg-white rounded-xl p-4 border border-gray-100">
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: var(--color-primary); opacity: 0.1;">
                                     <svg class="w-4 h-4" style="color: var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,19 +131,19 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                         Todos los precios están expresados en Pesos Mexicanos (MXN) e incluyen el Impuesto al Valor Agregado (IVA) del 16%, salvo que se indique lo contrario. Aceptamos las siguientes formas de pago:
                     </p>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <div class="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
+                        <div class="bg-white rounded-lg p-3 text-center border border-gray-100">
                             <span class="text-2xl mb-1 block">💵</span>
                             <span class="text-sm font-medium text-gray-700">Efectivo</span>
                         </div>
-                        <div class="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
+                        <div class="bg-white rounded-lg p-3 text-center border border-gray-100">
                             <span class="text-2xl mb-1 block">💳</span>
                             <span class="text-sm font-medium text-gray-700">Tarjetas</span>
                         </div>
-                        <div class="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
+                        <div class="bg-white rounded-lg p-3 text-center border border-gray-100">
                             <span class="text-2xl mb-1 block">🏦</span>
                             <span class="text-sm font-medium text-gray-700">Transferencia</span>
                         </div>
-                        <div class="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
+                        <div class="bg-white rounded-lg p-3 text-center border border-gray-100">
                             <span class="text-2xl mb-1 block">📱</span>
                             <span class="text-sm font-medium text-gray-700">SPEI/CoDi</span>
                         </div>
@@ -223,7 +223,7 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                         <span class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-sm font-bold" style="color: var(--color-primary);">9</span>
                         Contacto
                     </h2>
-                    <div class="bg-gray-50 rounded-xl p-6 border border-gray-100">
+                    <div class="bg-white rounded-xl p-6 border border-gray-100">
                         <p class="text-gray-700 mb-4">
                             Para cualquier duda, aclaración o reclamación relacionada con estos Términos y Condiciones, puede contactarnos a través de:
                         </p>

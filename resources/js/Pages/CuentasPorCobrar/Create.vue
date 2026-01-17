@@ -7,7 +7,7 @@
                 </h2>
                 <Link
                     :href="route('cuentas-por-cobrar.index')"
-                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                    class="bg-white0 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
                 >
                     Cancelar
                 </Link>
@@ -22,7 +22,7 @@
                             <!-- Venta -->
                             <div v-if="venta" class="mb-6">
                                 <h3 class="text-lg font-medium text-gray-900 mb-4">Información de la Venta</h3>
-                                <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="bg-white p-4 rounded-lg">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700">Número de Venta</label>

@@ -39,7 +39,7 @@ const submit = () => {
 
 <template>
   <Head title="Crear Equipo" />
-  <div class="max-w-5xl mx-auto p-6">
+  <div class="w-full p-6">
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold">Nuevo Equipo</h1>
       <Link :href="route('equipos.index')" class="text-amber-600 hover:underline">Volver</Link>

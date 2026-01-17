@@ -15,7 +15,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Logo Principal</label>
                          <div class="mt-1 flex items-center gap-4">
-                            <div class="w-24 h-24 border rounded-lg flex items-center justify-center bg-gray-50 overflow-hidden">
+                            <div class="w-24 h-24 border rounded-lg flex items-center justify-center bg-white overflow-hidden">
                                 <img v-if="logoPreview || form.logo_url" :src="logoPreview || form.logo_url" class="max-w-full max-h-full object-contain" />
                                 <FontAwesomeIcon v-else icon="image" class="text-gray-300 text-3xl" />
                             </div>
@@ -34,7 +34,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Favicon</label>
                          <div class="mt-1 flex items-center gap-4">
-                            <div class="w-12 h-12 border rounded-lg flex items-center justify-center bg-gray-50 overflow-hidden">
+                            <div class="w-12 h-12 border rounded-lg flex items-center justify-center bg-white overflow-hidden">
                                 <img v-if="faviconPreview || form.favicon_url" :src="faviconPreview || form.favicon_url" class="max-w-full max-h-full object-contain" />
                                 <FontAwesomeIcon v-else icon="globe" class="text-gray-300 text-xl" />
                             </div>
@@ -81,7 +81,7 @@
                         <p class="text-xs text-gray-500 mt-1">Usado en notas informativas y elementos de soporte.</p>
                     </div>
 
-                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <div class="bg-white p-4 rounded-lg border border-gray-200">
                         <h4 class="text-sm font-semibold mb-2">Vista Previa</h4>
                         <div class="flex flex-wrap gap-2">
                             <button type="button" class="px-4 py-2 rounded text-white text-sm font-medium" :style="{ backgroundColor: form.color_principal }">Principal</button>

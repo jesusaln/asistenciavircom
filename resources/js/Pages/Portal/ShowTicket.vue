@@ -1,6 +1,6 @@
 <template>
   <ClientLayout>
-    <div class="max-w-4xl mx-auto space-y-6">
+    <div class="w-full space-y-6">
       
       <!-- Encabezado Ticket -->
       <div class="bg-white shadow overflow-hidden sm:rounded-lg">

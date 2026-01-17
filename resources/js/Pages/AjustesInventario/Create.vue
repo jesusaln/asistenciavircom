@@ -202,8 +202,8 @@ const watchAlmacen = () => {
 <template>
   <Head title="Crear Ajuste de Inventario" />
 
-  <div class="min-h-screen bg-gray-50">
-    <div class="max-w-4xl mx-auto px-6 py-8">
+  <div class="min-h-screen bg-white">
+    <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
@@ -380,7 +380,7 @@ const watchAlmacen = () => {
           </div>
 
           <!-- Vista Previa del Resultado -->
-          <div v-if="form.producto_id && form.almacen_id && form.cantidad_ajuste" class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <div v-if="form.producto_id && form.almacen_id && form.cantidad_ajuste" class="bg-white border border-gray-200 rounded-lg p-4">
             <h3 class="text-sm font-medium text-gray-800 mb-3">Vista Previa del Ajuste</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div>

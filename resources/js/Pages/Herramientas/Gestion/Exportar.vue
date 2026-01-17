@@ -1,6 +1,6 @@
 <template>
   <div
-   class="reporte-container max-w-6xl mx-auto bg-white rounded-xl shadow-lg border border-gray-00 p-8
+   class="reporte-w-full w-full bg-white rounded-xl shadow-lg border border-gray-00 p-8
          print:border-0 print:shadow-none print:rounded-none print:p-0 print:mx-0"
   >
     <!-- Encabezado -->
@@ -245,7 +245,7 @@
           <tr
             v-for="(herramienta, index) in herramientas"
             :key="herramienta.id"
-            :class="{'bg-gray-50 print:bg-gray-50': index % 2 !== 0}"
+            :class="{'bg-white print:bg-white': index % 2 !== 0}"
             class="hover:bg-blue-50 transition-colors"
           >
             <td class="border border-gray-300 px-3 py-3 text-center text-gray-600 font-mono font-semibold">
@@ -319,7 +319,7 @@
       <!-- Sin herramientas -->
       <div
         v-if="herramientas.length === 0"
-        class="text-center py-12 border-2 border-t-0 border-gray-300 text-gray-500 italic bg-gray-50"
+        class="text-center py-12 border-2 border-t-0 border-gray-300 text-gray-500 italic bg-white"
       >
         <svg class="w-16 h-16 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -336,7 +336,7 @@
     </div>
 
     <!-- Declaración de responsabilidad -->
-    <div class="mb-10 text-xs text-gray-700 leading-relaxed bg-gray-50 border-2 border-gray-300 rounded-lg p-5">
+    <div class="mb-10 text-xs text-gray-700 leading-relaxed bg-white border-2 border-gray-300 rounded-lg p-5">
       <div class="flex items-start gap-2 mb-2">
         <svg class="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -609,9 +609,9 @@ const formatearFecha = (fecha) => {
     position: static !important;
   }
 
-  .max-w-6xl,
-  .max-w-5xl,
-  .container,
+  .w-full,
+  .w-full,
+  .w-full,
   div[class*='max-w'] {
     max-width: none !important;
     height: auto !important;
@@ -639,7 +639,7 @@ const formatearFecha = (fecha) => {
     background-color: #f3f4f6 !important;
   }
 
-  .bg-gray-50 {
+  .bg-white {
     background-color: #f9fafb !important;
   }
 

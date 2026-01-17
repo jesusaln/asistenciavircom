@@ -204,15 +204,15 @@ const estadisticasItems = computed(() => [
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="text-center p-4 bg-gray-50 rounded-lg">
+          <div class="text-center p-4 bg-white rounded-lg">
             <div class="text-2xl font-bold text-blue-600">{{ props.herramienta.dias_desde_ultimo_mantenimiento || 0 }}</div>
             <div class="text-sm text-gray-600">Días desde último mantenimiento</div>
           </div>
-          <div class="text-center p-4 bg-gray-50 rounded-lg">
+          <div class="text-center p-4 bg-white rounded-lg">
             <div class="text-2xl font-bold text-orange-600">{{ props.herramienta.dias_para_proximo_mantenimiento || 0 }}</div>
             <div class="text-sm text-gray-600">Días para próximo mantenimiento</div>
           </div>
-          <div class="text-center p-4 bg-gray-50 rounded-lg">
+          <div class="text-center p-4 bg-white rounded-lg">
             <div class="text-2xl font-bold text-purple-600">{{ props.herramienta.porcentaje_vida_util || 0 }}%</div>
             <div class="text-sm text-gray-600">Vida útil utilizada</div>
           </div>
@@ -262,7 +262,7 @@ const estadisticasItems = computed(() => [
       <div class="bg-white rounded-lg shadow-sm border p-6">
         <h2 class="text-xl font-semibold mb-4">Estadísticas de Uso</h2>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div v-for="stat in estadisticasItems" :key="stat.label" class="text-center p-3 bg-gray-50 rounded-lg">
+          <div v-for="stat in estadisticasItems" :key="stat.label" class="text-center p-3 bg-white rounded-lg">
             <div class="text-xl font-bold text-blue-600">{{ stat.value }}</div>
             <div class="text-sm text-gray-600">{{ stat.label }}</div>
           </div>
@@ -347,7 +347,7 @@ const estadisticasItems = computed(() => [
   <div v-if="historial_completo && historial_completo.length > 0" class="mt-6 bg-white rounded-lg shadow-sm border p-6">
     <h2 class="text-xl font-semibold mb-4">Historial Reciente</h2>
     <div class="space-y-3">
-      <div v-for="registro in historial_completo.slice(0, 5)" :key="registro.id" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+      <div v-for="registro in historial_completo.slice(0, 5)" :key="registro.id" class="flex items-center justify-between p-3 bg-white rounded-lg">
         <div>
           <div class="font-medium">{{ registro.tipo_accion }}</div>
           <div class="text-sm text-gray-600">{{ formatDateTime(registro.fecha_accion) }}</div>

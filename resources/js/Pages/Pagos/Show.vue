@@ -129,8 +129,8 @@ const tieneHistorial = computed(() => {
 <template>
   <Head title="Detalles de Pago" />
 
-  <div class="pagos-show min-h-screen bg-gray-50">
-    <div class="max-w-4xl mx-auto px-6 py-8">
+  <div class="pagos-show min-h-screen bg-white">
+    <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
@@ -147,7 +147,7 @@ const tieneHistorial = computed(() => {
             </Link>
             <Link
               href="/pagos"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
             >
               ← Volver a Pagos
             </Link>
@@ -206,7 +206,7 @@ const tieneHistorial = computed(() => {
               </div>
 
               <!-- Información del préstamo -->
-              <div class="bg-gray-50 rounded-lg p-4 mb-6">
+              <div class="bg-white rounded-lg p-4 mb-6">
                 <h3 class="text-sm font-medium text-gray-700 mb-3">Información del Préstamo</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
@@ -315,7 +315,7 @@ const tieneHistorial = computed(() => {
                       <div v-if="historial.referencia" class="text-xs text-gray-500">{{ historial.referencia }}</div>
                     </div>
                   </div>
-                  <div v-if="historial.notas" class="text-xs text-gray-600 mt-2 p-2 bg-gray-50 rounded">
+                  <div v-if="historial.notas" class="text-xs text-gray-600 mt-2 p-2 bg-white rounded">
                     {{ historial.notas }}
                   </div>
                 </div>

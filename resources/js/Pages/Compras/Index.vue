@@ -515,7 +515,7 @@ const handleConfirm = () => {
 <template>
   <Head title="Compras" />
 
-  <div class="compras-index min-h-screen bg-gray-50">
+  <div class="compras-index min-h-screen bg-white">
     <!-- Contenido principal -->
     <div class="w-full px-6 py-8">
       <!-- Header específico de compras -->
@@ -582,7 +582,7 @@ const handleConfirm = () => {
         <button
           @click="prevPage"
           :disabled="currentPage === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Anterior
         </button>
@@ -592,7 +592,7 @@ const handleConfirm = () => {
           <template v-if="!visiblePages.includes(1) && totalPages > 7">
             <button
               @click="goToPage(1)"
-              class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white"
             >
               1
             </button>
@@ -608,7 +608,7 @@ const handleConfirm = () => {
               'px-3 py-2 text-sm font-medium border border-gray-300 rounded-md',
               page === currentPage
                 ? 'bg-blue-500 text-white border-blue-500'
-                : 'text-gray-700 bg-white hover:bg-gray-50'
+                : 'text-gray-700 bg-white hover:bg-white'
             ]"
           >
             {{ page }}
@@ -619,7 +619,7 @@ const handleConfirm = () => {
             <span class="px-3 py-2 text-sm text-gray-500">...</span>
             <button
               @click="goToPage(totalPages)"
-              class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white"
             >
               {{ totalPages }}
             </button>
@@ -629,7 +629,7 @@ const handleConfirm = () => {
         <button
           @click="nextPage"
           :disabled="currentPage === totalPages"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Siguiente
         </button>
@@ -684,7 +684,7 @@ const handleConfirm = () => {
 }
 
 @media (max-width: 640px) {
-  .compras-index .max-w-7xl {
+  .compras-index .w-full {
     padding-left: 1rem;
     padding-right: 1rem;
   }

@@ -39,11 +39,11 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Inicio</label>
-                            <input type="date" v-model="descargaForm.fecha_inicio" class="w-full h-12 px-3 bg-gray-50 border-2 border-transparent rounded-xl text-sm font-bold focus:bg-white focus:border-blue-100 focus:ring-0 transition-all" />
+                            <input type="date" v-model="descargaForm.fecha_inicio" class="w-full h-12 px-3 bg-white border-2 border-transparent rounded-xl text-sm font-bold focus:bg-white focus:border-blue-100 focus:ring-0 transition-all" />
                         </div>
                         <div>
                             <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Fin</label>
-                            <input type="date" v-model="descargaForm.fecha_fin" class="w-full h-12 px-3 bg-gray-50 border-2 border-transparent rounded-xl text-sm font-bold focus:bg-white focus:border-blue-100 focus:ring-0 transition-all" />
+                            <input type="date" v-model="descargaForm.fecha_fin" class="w-full h-12 px-3 bg-white border-2 border-transparent rounded-xl text-sm font-bold focus:bg-white focus:border-blue-100 focus:ring-0 transition-all" />
                         </div>
                     </div>
                 </div>
@@ -82,7 +82,7 @@
                      @dragleave="handleDragLeave"
                      @drop="handleDrop"
                      :class="['border-2 border-dashed rounded-2xl p-10 text-center transition-all cursor-pointer', 
-                              isDragging ? 'border-violet-500 bg-violet-50' : 'border-gray-200 hover:border-violet-300 hover:bg-gray-50']"
+                              isDragging ? 'border-violet-500 bg-violet-50' : 'border-gray-200 hover:border-violet-300 hover:bg-white']"
                      @click="triggerFilePicker">
                     <input type="file" ref="fileInput" class="hidden" accept=".xml" @change="handleFileSelect" />
                     
@@ -103,7 +103,7 @@
                 </div>
                 
                 <!-- Preview -->
-                <div v-else class="bg-gray-50 rounded-2xl p-6">
+                <div v-else class="bg-white rounded-2xl p-6">
                     <div v-if="uploadPreview.is_duplicate" class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
                         <p class="text-sm font-bold text-amber-700">âš ï¸ Este CFDI ya existe en el sistema</p>
                         <p class="text-xs text-amber-600 mt-1">UUID: {{ uploadPreview.data?.uuid }}</p>
@@ -170,14 +170,14 @@
     <Teleport to="body">
         <div v-if="showReviewModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" @click="closeReview"></div>
-            <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-fadeIn">
+            <div class="relative bg-white rounded-3xl shadow-2xl w-full w-full max-h-[90vh] flex flex-col overflow-hidden animate-fadeIn">
                 <!-- Header -->
                 <div class="p-8 border-b border-gray-100 flex items-center justify-between">
                     <div>
                         <h3 class="text-2xl font-black text-gray-900 mb-1">Revisar Documentos Descargados</h3>
                         <p class="text-xs text-gray-500 font-bold uppercase tracking-widest">SAT - Staging Area</p>
                     </div>
-                    <button @click="closeReview" class="w-10 h-10 flex items-center justify-center bg-gray-50 text-gray-400 hover:text-gray-600 rounded-full transition-all">
+                    <button @click="closeReview" class="w-10 h-10 flex items-center justify-center bg-white text-gray-400 hover:text-gray-600 rounded-full transition-all">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                 </div>
@@ -189,7 +189,7 @@
                         <p class="text-sm font-black text-gray-500 uppercase tracking-widest">Cargando documentos...</p>
                     </div>
 
-                    <div v-else-if="documentosStaging.length === 0 && duplicadosStaging.length === 0" class="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+                    <div v-else-if="documentosStaging.length === 0 && duplicadosStaging.length === 0" class="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-gray-200">
                         <div class="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-100">
                             <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                         </div>
@@ -210,8 +210,8 @@
                             <div class="grid gap-3">
                                 <div v-for="doc in documentosStaging" :key="doc.id" 
                                      :class="['p-4 rounded-2xl border-2 transition-all flex items-center gap-4 group', 
-                                              doc.importado ? 'bg-gray-50 border-gray-200 opacity-60 grayscale-[0.5]' :
-                                              selectedStagingIds.includes(doc.id) ? 'bg-emerald-50 border-emerald-500 shadow-lg shadow-emerald-500/10' : 'bg-white border-gray-100 hover:border-gray-200 hover:bg-gray-50']">
+                                              doc.importado ? 'bg-white border-gray-200 opacity-60 grayscale-[0.5]' :
+                                              selectedStagingIds.includes(doc.id) ? 'bg-emerald-50 border-emerald-500 shadow-lg shadow-emerald-500/10' : 'bg-white border-gray-100 hover:border-gray-200 hover:bg-white']">
                                 
                                 <!-- Checkbox o Badge Importado -->
                                 <div v-if="doc.importado" class="w-6 h-6 rounded-lg bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center flex-shrink-0" title="Ya importado">
@@ -345,7 +345,7 @@
                 </div>
 
                 <!-- Footer -->
-                <div class="p-8 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
+                <div class="p-8 border-t border-gray-100 bg-white flex items-center justify-between">
                     <p class="text-xs font-black text-gray-500">
                         {{ selectedStagingIds.length }} de {{ documentosStaging.filter(d => !d.importado).length }} pendientes seleccionados
                     </p>
@@ -383,7 +383,7 @@
                     Se eliminará el registro y el <span class="text-red-500">archivo XML</span> permanentemente. Esta acción no se puede deshacer.
                 </p>
 
-                <div v-if="cfdiParaEliminar" class="bg-gray-50 rounded-2xl p-4 mb-8 text-left border border-gray-100">
+                <div v-if="cfdiParaEliminar" class="bg-white rounded-2xl p-4 mb-8 text-left border border-gray-100">
                     <p class="text-[13px] font-black text-gray-400 uppercase tracking-widest mb-1">CFDI seleccionado</p>
                     <p class="text-sm font-black text-gray-800 tracking-tight italic">{{ cfdiParaEliminar.serie }}{{ cfdiParaEliminar.folio }}</p>
                     <p class="text-[10px] text-gray-400 font-mono truncate">{{ cfdiParaEliminar.uuid }}</p>

@@ -82,7 +82,7 @@ const faqs = [
                          <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white">Sistemas Operativos</span>
                     </div>
                     <h1 class="text-5xl md:text-7xl font-black mb-6 tracking-tighter">Centro de <br/><span class="text-[var(--color-primary)]">Soporte Técnico</span></h1>
-                    <p class="text-xl text-gray-400 max-w-2xl mx-auto font-medium">Estamos aquí para resolver sus problemas técnicos y asegurar la continuidad de su negocio.</p>
+                    <p class="text-xl text-gray-400 w-full font-medium">Estamos aquí para resolver sus problemas técnicos y asegurar la continuidad de su negocio.</p>
                 </div>
             </section>
 
@@ -132,12 +132,12 @@ const faqs = [
                              <span class="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--color-primary)]">Soporte Directo</span>
                         </div>
                         <h2 class="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter mb-4">Preguntas Frecuentes</h2>
-                        <p class="text-gray-500 text-lg font-medium max-w-2xl mx-auto">Todo lo que necesita saber sobre nuestros servicios y procesos técnicos para su tranquilidad.</p>
+                        <p class="text-gray-500 text-lg font-medium w-full">Todo lo que necesita saber sobre nuestros servicios y procesos técnicos para su tranquilidad.</p>
                     </div>
 
                     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div v-for="(faq, index) in faqs" :key="index" 
-                             class="p-8 rounded-[2.5rem] bg-gray-50 border border-gray-100 hover:bg-white hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 group flex flex-col">
+                             class="p-8 rounded-[2.5rem] bg-white border border-gray-100 hover:bg-white hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 group flex flex-col">
                             <div class="w-14 h-14 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center text-[var(--color-primary)] mb-6 group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all duration-500 transform group-hover:rotate-6">
                                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="faq.icon"></path>
@@ -160,14 +160,14 @@ const faqs = [
                 <div class="w-full px-4 relative z-10 text-center">
                     <h2 class="text-3xl font-black text-white mb-8 tracking-tight">¿Necesita asistencia inmediata?</h2>
                     <div class="flex flex-col md:flex-row justify-center gap-6">
-                        <a :href="`tel:${empresaData?.telefono}`" class="flex-1 max-w-sm mx-auto md:mx-0 flex items-center gap-5 bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition group">
+                        <a :href="`tel:${empresaData?.telefono}`" class="flex-1 w-full md:mx-0 flex items-center gap-5 bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition group">
                             <span class="w-14 h-14 bg-[var(--color-primary)] rounded-2xl flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform">📞</span>
                             <div class="text-left">
                                 <div class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Llámenos Directo</div>
                                 <div class="text-xl font-black text-white whitespace-nowrap">{{ empresaData?.telefono || 'Consultar' }}</div>
                             </div>
                         </a>
-                        <a :href="`mailto:${empresaData?.email}`" class="flex-1 max-w-sm mx-auto md:mx-0 flex items-center gap-5 bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition group">
+                        <a :href="`mailto:${empresaData?.email}`" class="flex-1 w-full md:mx-0 flex items-center gap-5 bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition group">
                             <span class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform">✉️</span>
                             <div class="text-left">
                                 <div class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Envíenos un Email</div>

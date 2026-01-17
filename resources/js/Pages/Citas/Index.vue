@@ -394,7 +394,7 @@ const isToday = (date) => {
 
 <template>
   <Head title="Citas" />
-  <div class="citas-index min-h-screen bg-gray-50">
+  <div class="citas-index min-h-screen bg-white">
     <div class="w-full px-6 py-8">
       <!-- Header específico de citas -->
       <CitasHeader
@@ -418,7 +418,7 @@ const isToday = (date) => {
       <div v-if="viewMode === 'table'" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha</th>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Cita</th>
@@ -430,7 +430,7 @@ const isToday = (date) => {
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="cita in citasDocumentos" :key="cita.id" class="hover:bg-gray-50 transition-colors duration-150">
+              <tr v-for="cita in citasDocumentos" :key="cita.id" class="hover:bg-white transition-colors duration-150">
                 <td class="px-6 py-4">
                   <div class="text-sm text-gray-900">{{ formatearFecha(cita.raw.fecha_hora) }}</div>
                   <div class="text-xs text-gray-500">{{ formatearHora(cita.raw.fecha_hora) }}</div>
@@ -541,7 +541,7 @@ const isToday = (date) => {
               <button
                 v-if="paginationData.prevPageUrl"
                 @click="handlePageChange(paginationData.currentPage - 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -558,7 +558,7 @@ const isToday = (date) => {
                 v-for="page in [paginationData.currentPage - 1, paginationData.currentPage, paginationData.currentPage + 1].filter(p => p > 0 && p <= paginationData.lastPage)"
                 :key="page"
                 @click="handlePageChange(page)"
-                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'"
+                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               >
                 {{ page }}
@@ -567,7 +567,7 @@ const isToday = (date) => {
               <button
                 v-if="paginationData.nextPageUrl"
                 @click="handlePageChange(paginationData.currentPage + 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -586,7 +586,7 @@ const isToday = (date) => {
 
       <!-- Calendario -->
       <div v-else class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+        <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-white/50">
           <div class="flex items-center gap-4">
             <h2 class="text-lg font-bold text-gray-800 capitalize">{{ monthYearLabel }}</h2>
             <div class="flex gap-1">
@@ -618,7 +618,7 @@ const isToday = (date) => {
         </div>
 
         <div class="grid grid-cols-7 border-b border-gray-100">
-          <div v-for="day in ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']" :key="day" class="py-3 text-center text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-50">
+          <div v-for="day in ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']" :key="day" class="py-3 text-center text-[10px] font-black uppercase tracking-widest text-gray-400 bg-white">
             {{ day }}
           </div>
         </div>
@@ -626,7 +626,7 @@ const isToday = (date) => {
         <div class="grid grid-cols-7 auto-rows-[120px]">
           <div v-for="(day, idx) in daysInMonth" :key="idx" 
                :class="['border-r border-b border-gray-100 p-2 transition-colors relative', 
-                        day.month === 'current' ? 'bg-white' : 'bg-gray-50/50 opacity-60']">
+                        day.month === 'current' ? 'bg-white' : 'bg-white/50 opacity-60']">
             <div class="flex justify-between items-start mb-1">
               <span :class="['text-xs font-bold px-1.5 py-0.5 rounded-md', 
                              isToday(day.date) ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400']">
@@ -673,15 +673,15 @@ const isToday = (date) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Cliente</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ selectedCita.cliente?.nombre_razon_social || 'N/A' }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedCita.cliente?.nombre_razon_social || 'N/A' }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Técnico</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ selectedCita.tecnico?.name || 'N/A' }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedCita.tecnico?.name || 'N/A' }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Tipo de Servicio</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ selectedCita.tipo_servicio || 'N/A' }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedCita.tipo_servicio || 'N/A' }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Estado de Cita</label>
@@ -693,25 +693,25 @@ const isToday = (date) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Fecha y Hora</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ formatearFecha(selectedCita.fecha_hora) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedCita.fecha_hora) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Fecha de creación</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ formatearFecha(selectedCita.created_at) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedCita.created_at) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Última actualización</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ formatearFecha(selectedCita.updated_at) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedCita.updated_at) }}</p>
                     </div>
                   </div>
                 </div>
                 <div v-if="selectedCita.descripcion">
                   <label class="block text-sm font-medium text-gray-700">Descripción inicial</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedCita.descripcion }}</p>
+                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedCita.descripcion }}</p>
                 </div>
                 <div v-if="selectedCita.problema_reportado">
                   <label class="block text-sm font-medium text-gray-700">Problema Reportado</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedCita.problema_reportado }}</p>
+                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedCita.problema_reportado }}</p>
                 </div>
 
                 <!-- Reporte de técnico (Cierre) -->
@@ -758,7 +758,7 @@ const isToday = (date) => {
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
             <button @click="showModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
               {{ modalMode === 'details' ? 'Cerrar' : 'Cancelar' }}
             </button>

@@ -38,12 +38,12 @@
 
         <!-- Tabla de detalles -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+            <div class="px-6 py-4 border-b border-gray-100 bg-white/50">
                 <h3 class="text-lg font-semibold text-gray-900">Detalle por Venta</h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                    <thead class="bg-white">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Venta</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Fecha</th>
@@ -60,7 +60,7 @@
                                 No hay ventas en este periodo
                             </td>
                         </tr>
-                        <tr v-for="venta in detalle.detalles" :key="venta.venta_id" class="hover:bg-gray-50">
+                        <tr v-for="venta in detalle.detalles" :key="venta.venta_id" class="hover:bg-white">
                             <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
                                 {{ venta.numero_venta }}
                             </td>
@@ -84,7 +84,7 @@
                             </td>
                         </tr>
                     </tbody>
-                    <tfoot class="bg-gray-50">
+                    <tfoot class="bg-white">
                         <tr>
                             <td colspan="3" class="px-6 py-4 font-bold text-gray-900">TOTAL</td>
                             <td class="px-6 py-4 text-right font-bold text-gray-900">${{ formatMonto(detalle.total_ventas) }}</td>

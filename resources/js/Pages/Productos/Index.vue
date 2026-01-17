@@ -632,7 +632,7 @@ const faltanSeriesParaProducto = (producto) => {
 <template>
 <div>
     <Head title="Productos" />
-    <div class="productos-index min-h-screen bg-gray-50">
+    <div class="productos-index min-h-screen bg-white">
     <div class="w-full px-6 py-8">
       <!-- Header específico de productos -->
       <ProductosHeader
@@ -656,7 +656,7 @@ const faltanSeriesParaProducto = (producto) => {
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha</th>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Producto</th>
@@ -669,7 +669,7 @@ const faltanSeriesParaProducto = (producto) => {
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="producto in productosDocumentos" :key="producto.id" class="hover:bg-gray-50 transition-colors duration-150">
+              <tr v-for="producto in productosDocumentos" :key="producto.id" class="hover:bg-white transition-colors duration-150">
                 <td class="px-6 py-4">
                   <div class="text-sm text-gray-900">{{ formatearFecha(producto.fecha) }}</div>
                 </td>
@@ -788,7 +788,7 @@ const faltanSeriesParaProducto = (producto) => {
               <button
                 v-if="paginationData.prevPageUrl"
                 @click="handlePageChange(paginationData.currentPage - 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -805,7 +805,7 @@ const faltanSeriesParaProducto = (producto) => {
                 v-for="page in [paginationData.currentPage - 1, paginationData.currentPage, paginationData.currentPage + 1].filter(p => p > 0 && p <= paginationData.lastPage)"
                 :key="page"
                 @click="handlePageChange(page)"
-                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'"
+                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               >
                 {{ page }}
@@ -814,7 +814,7 @@ const faltanSeriesParaProducto = (producto) => {
               <button
                 v-if="paginationData.nextPageUrl"
                 @click="handlePageChange(paginationData.currentPage + 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -853,19 +853,19 @@ const faltanSeriesParaProducto = (producto) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Nombre</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ selectedProducto.nombre }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedProducto.nombre }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Código</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ selectedProducto.codigo || 'N/A' }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedProducto.codigo || 'N/A' }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Precio Venta</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">${{ formatNumber(selectedProducto.precio_venta || 0) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(selectedProducto.precio_venta || 0) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Stock</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ selectedProducto.stock || 0 }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedProducto.stock || 0 }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Estado</label>
@@ -877,17 +877,17 @@ const faltanSeriesParaProducto = (producto) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Fecha de Creación</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ formatearFecha(selectedProducto.created_at) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedProducto.created_at) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Última Actualización</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ formatearFecha(selectedProducto.updated_at) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedProducto.updated_at) }}</p>
                     </div>
                   </div>
                 </div>
                 <div v-if="selectedProducto.descripcion">
                   <label class="block text-sm font-medium text-gray-700">Descripción</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedProducto.descripcion }}</p>
+                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedProducto.descripcion }}</p>
                 </div>
               </div>
             </div>
@@ -912,7 +912,7 @@ const faltanSeriesParaProducto = (producto) => {
             <h4 class="text-sm font-medium text-gray-700 mb-2">Listado de series vendidas</h4>
             <div class="max-h-64 overflow-y-auto border border-gray-200 rounded-lg">
               <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+                <thead class="bg-white">
                   <tr>
                     <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">#</th>
                     <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Número de serie</th>
@@ -932,7 +932,7 @@ const faltanSeriesParaProducto = (producto) => {
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
             <button @click="showModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
               {{ modalMode === 'details' ? 'Cerrar' : 'Cancelar' }}
             </button>
@@ -977,7 +977,7 @@ const faltanSeriesParaProducto = (producto) => {
               Sugerencia aplicada: {{ satSuggestion.clave }} - {{ satSuggestion.descripcion }}
             </div>
           </div>
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
             <button @click="closeSatModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
               Cancelar
             </button>
@@ -1011,7 +1011,7 @@ const faltanSeriesParaProducto = (producto) => {
 
             <div v-else-if="stockDetalle">
               <!-- Información del producto -->
-              <div class="bg-gray-50 rounded-lg p-4 mb-6">
+              <div class="bg-white rounded-lg p-4 mb-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                   <div>
                     <span class="font-medium text-gray-700">Producto:</span>
@@ -1031,7 +1031,7 @@ const faltanSeriesParaProducto = (producto) => {
               <!-- Tabla de stock por almacén -->
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
-                  <thead class="bg-gray-50">
+                  <thead class="bg-white">
                     <tr>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Almacén
@@ -1096,7 +1096,7 @@ const faltanSeriesParaProducto = (producto) => {
          </div>
 
          <!-- Footer del modal -->
-         <div class="flex justify-end px-6 py-4 border-t border-gray-200 bg-gray-50">
+         <div class="flex justify-end px-6 py-4 border-t border-gray-200 bg-white">
            <button @click="showStockModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
              Cerrar
            </button>
@@ -1142,7 +1142,7 @@ const faltanSeriesParaProducto = (producto) => {
                  'text-emerald-800'
                ]">{{ seriesDetalle.counts.en_stock }}</div>
              </div>
-           <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+           <div class="p-3 bg-white border border-gray-200 rounded-lg">
              <div class="text-xs text-gray-700">Series vendidas</div>
              <div class="text-2xl font-semibold text-gray-800">{{ seriesDetalle.counts.vendido }}</div>
            </div>
@@ -1170,7 +1170,7 @@ const faltanSeriesParaProducto = (producto) => {
                   
                   <!-- Series del almacén -->
                   <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                    <thead class="bg-white">
                       <tr>
                         <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">#</th>
                         <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Número de serie</th>
@@ -1178,7 +1178,7 @@ const faltanSeriesParaProducto = (producto) => {
                       </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                      <tr v-for="(s, idx) in grupo.series" :key="s.id" class="hover:bg-gray-50">
+                      <tr v-for="(s, idx) in grupo.series" :key="s.id" class="hover:bg-white">
                         <td class="px-4 py-2 text-sm text-gray-700">{{ idx + 1 }}</td>
                         <td class="px-4 py-2 text-sm font-medium text-gray-900">
                           <template v-if="editSerie.rowId === s.id">
@@ -1216,7 +1216,7 @@ const faltanSeriesParaProducto = (producto) => {
           </div>
        </div>
      </div>
-     <div class="px-6 py-4 border-t bg-gray-50 border-gray-200 text-right flex-shrink-0">
+     <div class="px-6 py-4 border-t bg-white border-gray-200 text-right flex-shrink-0">
        <button @click="showSeriesModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">Cerrar</button>
      </div>
    </div>

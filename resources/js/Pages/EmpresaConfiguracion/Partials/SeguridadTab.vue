@@ -52,15 +52,15 @@
                     <div v-if="form.dkim_enabled" class="grid grid-cols-1 gap-4">
                         <div>
                              <label class="block text-xs font-medium text-gray-500 mb-1">Dominio</label>
-                             <input type="text" v-model="form.dkim_domain" class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50" placeholder="midominio.com" />
+                             <input type="text" v-model="form.dkim_domain" class="w-full px-3 py-2 border border-gray-300 rounded bg-white" placeholder="midominio.com" />
                         </div>
                         <div>
                              <label class="block text-xs font-medium text-gray-500 mb-1">Selector</label>
-                             <input type="text" v-model="form.dkim_selector" class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50" placeholder="default" />
+                             <input type="text" v-model="form.dkim_selector" class="w-full px-3 py-2 border border-gray-300 rounded bg-white" placeholder="default" />
                         </div>
                          <div>
                              <label class="block text-xs font-medium text-gray-500 mb-1">Clave Privada (RSA)</label>
-                             <textarea v-model="form.dkim_public_key" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50 text-xs" placeholder="-----BEGIN PRIVATE KEY-----..."></textarea>
+                             <textarea v-model="form.dkim_public_key" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded bg-white text-xs" placeholder="-----BEGIN PRIVATE KEY-----..."></textarea>
                         </div>
                     </div>
                 </div>

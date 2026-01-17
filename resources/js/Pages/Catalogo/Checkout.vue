@@ -244,7 +244,7 @@ onMounted(() => {
 <template>
     <Head title="Finalizar Compra" />
 
-    <div class="min-h-screen bg-gray-50 flex flex-col font-sans" :style="cssVars">
+    <div class="min-h-screen bg-white flex flex-col font-sans" :style="cssVars">
         <PublicNavbar :empresa="empresa" activeTab="tienda" />
 
         <main class="flex-grow w-full px-4 sm:px-6 lg:px-8 py-8 lg:py-12 w-full">
@@ -274,19 +274,19 @@ onMounted(() => {
                         <div class="grid md:grid-cols-2 gap-6">
                             <div class="space-y-1">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nombre Completo</label>
-                                <input :value="form.nombre" @input="toUpper($event, 'nombre')" type="text" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="Ej. JUAN PÉREZ" required>
+                                <input :value="form.nombre" @input="toUpper($event, 'nombre')" type="text" class="w-full px-5 py-3 bg-white border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="Ej. JUAN PÉREZ" required>
                                 <div v-if="form.errors.nombre" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors.nombre }}</div>
                             </div>
 
                              <div class="space-y-1">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Teléfono (10 dígitos)</label>
-                                <input :value="form.telefono" @input="formatPhone" type="tel" maxlength="10" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="6621234567" required>
+                                <input :value="form.telefono" @input="formatPhone" type="tel" maxlength="10" class="w-full px-5 py-3 bg-white border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="6621234567" required>
                                 <div v-if="form.errors.telefono" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors.telefono }}</div>
                             </div>
 
                             <div class="space-y-1 md:col-span-2">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Correo Electrónico</label>
-                                <input :value="form.email" @input="toLower($event, 'email')" type="email" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="juan@ejemplo.com" required>
+                                <input :value="form.email" @input="toLower($event, 'email')" type="email" class="w-full px-5 py-3 bg-white border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="juan@ejemplo.com" required>
                                 <div v-if="form.errors.email" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors.email }}</div>
                             </div>
                         </div>
@@ -307,7 +307,7 @@ onMounted(() => {
                              <!-- Radio domicilio -->
                             <label class="cursor-pointer relative group">
                                 <input type="radio" v-model="form.tipo_entrega" value="domicilio" class="peer sr-only">
-                                <div class="p-6 rounded-2xl border-2 border-gray-100 bg-gray-50 peer-checked:bg-[var(--color-primary-soft)] peer-checked:border-[var(--color-primary)] transition-all flex flex-col gap-2">
+                                <div class="p-6 rounded-2xl border-2 border-gray-100 bg-white peer-checked:bg-[var(--color-primary-soft)] peer-checked:border-[var(--color-primary)] transition-all flex flex-col gap-2">
                                     <div class="flex justify-between items-center">
                                         <span class="font-black text-gray-900 uppercase tracking-tight">A Domicilio</span>
                                         <svg class="w-6 h-6 text-[var(--color-primary)] opacity-0 peer-checked:opacity-100" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
@@ -320,7 +320,7 @@ onMounted(() => {
                             <!-- Radio recoger -->
                             <label class="cursor-pointer relative group">
                                 <input type="radio" v-model="form.tipo_entrega" value="recoger" class="peer sr-only">
-                                <div class="p-6 rounded-2xl border-2 border-gray-100 bg-gray-50 peer-checked:bg-[var(--color-primary-soft)] peer-checked:border-[var(--color-primary)] transition-all flex flex-col gap-2">
+                                <div class="p-6 rounded-2xl border-2 border-gray-100 bg-white peer-checked:bg-[var(--color-primary-soft)] peer-checked:border-[var(--color-primary)] transition-all flex flex-col gap-2">
                                     <div class="flex justify-between items-center">
                                         <span class="font-black text-gray-900 uppercase tracking-tight">Recoger en Tienda</span>
                                     </div>
@@ -345,7 +345,7 @@ onMounted(() => {
                                 <div class="space-y-1">
                                     <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Código Postal</label>
                                     <div class="relative">
-                                        <input v-model="form.direccion.cp" type="text" maxlength="5" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="Ej. 83000" required>
+                                        <input v-model="form.direccion.cp" type="text" maxlength="5" class="w-full px-5 py-3 bg-white border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="Ej. 83000" required>
                                         <div v-if="loadingCP" class="absolute right-3 top-3 text-gray-400 text-xs animate-spin">⌛</div>
                                     </div>
                                      <div v-if="form.errors['direccion.cp']" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors['direccion.cp'] }}</div>
@@ -366,11 +366,11 @@ onMounted(() => {
                                 <div class="space-y-1">
                                     <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Colonia</label>
                                     <!-- Select si hay colonias, input si no -->
-                                    <select v-if="coloniasDisponibles.length > 0" v-model="form.direccion.colonia" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800">
+                                    <select v-if="coloniasDisponibles.length > 0" v-model="form.direccion.colonia" class="w-full px-5 py-3 bg-white border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800">
                                         <option value="" disabled>Selecciona una colonia</option>
                                         <option v-for="col in coloniasDisponibles" :key="col" :value="col">{{ col }}</option>
                                     </select>
-                                    <input v-else :value="form.direccion.colonia" @input="toUpperNested($event, 'direccion', 'colonia')" type="text" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="Ej. CENTRO" required>
+                                    <input v-else :value="form.direccion.colonia" @input="toUpperNested($event, 'direccion', 'colonia')" type="text" class="w-full px-5 py-3 bg-white border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="Ej. CENTRO" required>
                                     
                                      <div v-if="form.errors['direccion.colonia']" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors['direccion.colonia'] }}</div>
                                 </div>
@@ -378,7 +378,7 @@ onMounted(() => {
 
                             <div class="space-y-1">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Calle y Número</label>
-                                <input :value="form.direccion.calle" @input="toUpperNested($event, 'direccion', 'calle')" type="text" class="w-full px-5 py-3 bg-gray-50 border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="AV. REFORMA 123" required>
+                                <input :value="form.direccion.calle" @input="toUpperNested($event, 'direccion', 'calle')" type="text" class="w-full px-5 py-3 bg-white border-gray-100 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-gray-800 placeholder-gray-300" placeholder="AV. REFORMA 123" required>
                                 <div v-if="form.errors['direccion.calle']" class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ form.errors['direccion.calle'] }}</div>
                             </div>
                         </div>
@@ -393,7 +393,7 @@ onMounted(() => {
                         <!-- Lista de Items Compacta -->
                         <div class="space-y-4 mb-6 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
                             <div v-for="item in items" :key="item.producto_id" class="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-                                <div class="w-12 h-12 bg-gray-50 rounded-lg flex-shrink-0 flex items-center justify-center">
+                                <div class="w-12 h-12 bg-white rounded-lg flex-shrink-0 flex items-center justify-center">
                                      <span class="text-xs font-bold text-gray-400">x{{ item.cantidad }}</span>
                                 </div>
                                 <div class="flex-1 min-w-0">
@@ -453,7 +453,7 @@ onMounted(() => {
                                         'p-4 rounded-xl border transition-all text-center h-full flex flex-col items-center justify-center gap-1 group-hover:shadow-md',
                                         cliente.credito_disponible < total 
                                             ? 'bg-gray-100 border-gray-100 opacity-50 cursor-not-allowed' 
-                                            : 'border-gray-200 bg-gray-50 peer-checked:bg-emerald-50 peer-checked:border-emerald-500 peer-checked:text-emerald-700 group-hover:bg-white'
+                                            : 'border-gray-200 bg-white peer-checked:bg-emerald-50 peer-checked:border-emerald-500 peer-checked:text-emerald-700 group-hover:bg-white'
                                     ]">
                                         <font-awesome-icon icon="credit-card" class="mb-1" />
                                         <span class="font-bold text-[10px] uppercase leading-tight">Crédito Comercial</span>
@@ -462,25 +462,25 @@ onMounted(() => {
                                 </label>
                                 <label class="cursor-pointer relative group">
                                     <input type="radio" v-model="form.metodo_pago" value="mercadopago" class="peer sr-only">
-                                    <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 peer-checked:bg-[var(--color-primary-soft)] peer-checked:border-[var(--color-primary)] peer-checked:text-[var(--color-primary)] transition-all text-center h-full flex flex-col items-center justify-center gap-2 group-hover:bg-white group-hover:shadow-md">
+                                    <div class="p-4 rounded-xl border border-gray-200 bg-white peer-checked:bg-[var(--color-primary-soft)] peer-checked:border-[var(--color-primary)] peer-checked:text-[var(--color-primary)] transition-all text-center h-full flex flex-col items-center justify-center gap-2 group-hover:bg-white group-hover:shadow-md">
                                         <span class="font-bold text-[10px] uppercase">MercadoPago</span>
                                     </div>
                                 </label>
                                 <label class="cursor-pointer relative group">
                                     <input type="radio" v-model="form.metodo_pago" value="paypal" class="peer sr-only">
-                                    <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600 transition-all text-center h-full flex flex-col items-center justify-center gap-2 group-hover:bg-white group-hover:shadow-md">
+                                    <div class="p-4 rounded-xl border border-gray-200 bg-white peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600 transition-all text-center h-full flex flex-col items-center justify-center gap-2 group-hover:bg-white group-hover:shadow-md">
                                         <span class="font-bold text-[10px] uppercase">PayPal</span>
                                     </div>
                                 </label>
                                 <label class="cursor-pointer relative group">
                                     <input type="radio" v-model="form.metodo_pago" value="transferencia" class="peer sr-only">
-                                    <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 peer-checked:bg-green-50 peer-checked:border-green-600 peer-checked:text-green-700 transition-all text-center h-full flex flex-col items-center justify-center gap-2 group-hover:bg-white group-hover:shadow-md">
+                                    <div class="p-4 rounded-xl border border-gray-200 bg-white peer-checked:bg-green-50 peer-checked:border-green-600 peer-checked:text-green-700 transition-all text-center h-full flex flex-col items-center justify-center gap-2 group-hover:bg-white group-hover:shadow-md">
                                         <span class="font-bold text-[10px] uppercase">Transferencia</span>
                                     </div>
                                 </label>
                                 <label class="cursor-pointer relative group">
                                     <input type="radio" v-model="form.metodo_pago" value="efectivo" class="peer sr-only">
-                                    <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 peer-checked:bg-amber-50 peer-checked:border-amber-600 peer-checked:text-amber-700 transition-all text-center h-full flex flex-col items-center justify-center gap-2 group-hover:bg-white group-hover:shadow-md">
+                                    <div class="p-4 rounded-xl border border-gray-200 bg-white peer-checked:bg-amber-50 peer-checked:border-amber-600 peer-checked:text-amber-700 transition-all text-center h-full flex flex-col items-center justify-center gap-2 group-hover:bg-white group-hover:shadow-md">
                                         <span class="font-bold text-[10px] uppercase">Efectivo</span>
                                     </div>
                                 </label>

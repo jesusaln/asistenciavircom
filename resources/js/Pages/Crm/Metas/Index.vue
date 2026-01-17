@@ -55,7 +55,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
-                                    <tr v-for="meta in metas" :key="meta.id" class="hover:bg-gray-50">
+                                    <tr v-for="meta in metas" :key="meta.id" class="hover:bg-white">
                                         <td class="py-4">
                                             <div class="flex items-center gap-3">
                                                 <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-bold text-sm">
@@ -244,7 +244,7 @@
                         </ol>
                     </div>
 
-                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
                         <h4 class="font-semibold text-gray-700 mb-2">Formato esperado:</h4>
                         <pre class="text-xs bg-white p-2 rounded border overflow-x-auto">user_id,tipo,meta_diaria,fecha_inicio,fecha_fin
 1,actividades,10,2025-01-01,2025-12-31

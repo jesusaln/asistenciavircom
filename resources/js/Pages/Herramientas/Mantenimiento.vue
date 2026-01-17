@@ -169,7 +169,7 @@ const pageLinks = computed(() => props.herramientas?.links || [])
 
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
+        <thead class="bg-white">
           <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               <input type="checkbox" :checked="selectedHerramientas.length === items.length && items.length > 0" @change="seleccionarTodas" />
@@ -183,7 +183,7 @@ const pageLinks = computed(() => props.herramientas?.links || [])
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="herramienta in items" :key="herramienta.id" class="hover:bg-gray-50">
+          <tr v-for="herramienta in items" :key="herramienta.id" class="hover:bg-white">
             <td class="px-6 py-4">
               <input
                 type="checkbox"
@@ -231,7 +231,7 @@ const pageLinks = computed(() => props.herramientas?.links || [])
       <div class="flex-1 flex justify-between sm:hidden">
         <Link v-for="l in pageLinks" :key="l.url + l.label" :href="l.url || '#'" preserve-scroll :class="[
           'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
-          l.active ? 'z-10 bg-indigo-50 border-amber-500 text-amber-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+          l.active ? 'z-10 bg-indigo-50 border-amber-500 text-amber-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'
         ]" v-html="l.label" />
       </div>
       <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
@@ -244,7 +244,7 @@ const pageLinks = computed(() => props.herramientas?.links || [])
           <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
             <Link v-for="l in pageLinks" :key="l.url + l.label" :href="l.url || '#'" preserve-scroll :class="[
               'relative inline-flex items-center px-2 py-2 rounded-l-md border text-sm font-medium',
-              l.active ? 'z-10 bg-indigo-50 border-amber-500 text-amber-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+              l.active ? 'z-10 bg-indigo-50 border-amber-500 text-amber-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'
             ]" v-html="l.label" />
           </nav>
         </div>

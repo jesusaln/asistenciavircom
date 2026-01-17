@@ -46,7 +46,7 @@ const submit = () => {
 <template>
     <Head title="Iniciar Sesión" />
 
-    <div :style="cssVars" class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans transition-colors duration-300">
+    <div :style="cssVars" class="min-h-screen bg-white dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans transition-colors duration-300">
         <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
             <Link href="/" class="flex justify-center mb-6">
                 <img v-if="$page.props.empresa_config?.logo_url" :src="$page.props.empresa_config.logo_url" class="h-20 w-auto object-contain" :alt="$page.props.empresa_config.nombre_empresa">

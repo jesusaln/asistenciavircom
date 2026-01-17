@@ -230,11 +230,11 @@ const submitLead = async () => {
 <template>
     <Head title="Asesor de Climatización Expert" />
 
-    <div class="min-h-screen bg-gray-50 flex flex-col font-sans" :style="cssVars">
+    <div class="min-h-screen bg-white flex flex-col font-sans" :style="cssVars">
         <PublicNavbar :empresa="empresa" activeTab="" />
 
         <main class="flex-1 py-12 px-4">
-            <div class="max-w-4xl mx-auto">
+            <div class="w-full">
                 <!-- Header -->
                 <div class="text-center mb-16">
                     <div class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-primary-soft)] rounded-full mb-6">
@@ -247,11 +247,11 @@ const submitLead = async () => {
                     <h1 class="text-4xl md:text-6xl font-black text-gray-900 tracking-tight leading-tight">
                         Tu Confort, <br class="md:hidden"> <span class="text-[var(--color-primary)]">Calculado</span>
                     </h1>
-                    <p class="mt-6 text-gray-500 font-medium max-w-xl mx-auto text-lg">Responde estas breves preguntas y deja que nuestro algoritmo encuentre el clima perfecto para ti.</p>
+                    <p class="mt-6 text-gray-500 font-medium w-full text-lg">Responde estas breves preguntas y deja que nuestro algoritmo encuentre el clima perfecto para ti.</p>
                 </div>
 
                 <!-- Progress Tracker (Custom) -->
-                <div class="mb-12 max-w-md mx-auto">
+                <div class="mb-12 w-full">
                     <div class="flex justify-between mb-4">
                         <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Paso {{ step }} de {{ totalSteps }}</span>
                         <span class="text-[10px] font-black uppercase tracking-widest text-[var(--color-primary)]">{{ Math.round((step/totalSteps)*100) }}% Completado</span>
@@ -310,7 +310,7 @@ const submitLead = async () => {
                                         ]" :key="h.id" 
                                         @click="form.habitacion = h.id"
                                         :class="['p-6 rounded-[2rem] border-2 transition-all duration-300 text-center flex flex-col items-center', 
-                                                form.habitacion === h.id ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] ring-4 ring-[var(--color-primary-soft)]' : 'border-gray-50 bg-gray-50 hover:border-gray-200 group']">
+                                                form.habitacion === h.id ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] ring-4 ring-[var(--color-primary-soft)]' : 'border-gray-50 bg-white hover:border-gray-200 group']">
                                             <span class="text-4xl mb-4 transform group-hover:scale-110 transition-transform">{{ h.icon }}</span>
                                             <span class="font-black text-[10px] uppercase tracking-widest text-gray-900">{{ h.label }}</span>
                                         </button>
@@ -324,7 +324,7 @@ const submitLead = async () => {
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                                         <button @click="form.zona = 'centro'" 
                                                 class="group relative p-8 rounded-[2rem] border-2 transition-all duration-300 text-left overflow-hidden" 
-                                                :class="form.zona === 'centro' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] ring-4 ring-[var(--color-primary-soft)]' : 'border-gray-50 bg-gray-50 hover:border-gray-200'">
+                                                :class="form.zona === 'centro' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] ring-4 ring-[var(--color-primary-soft)]' : 'border-gray-50 bg-white hover:border-gray-200'">
                                             <div class="text-4xl mb-6 transform group-hover:scale-110 transition-transform">🏢</div>
                                             <h3 class="font-black text-gray-900 text-lg mb-2">Zona Centro</h3>
                                             <p class="text-[10px] leading-relaxed text-gray-500">Templado (CDMX, Bajío, Puebla).</p>
@@ -332,7 +332,7 @@ const submitLead = async () => {
 
                                         <button @click="form.zona = 'costa'" 
                                                 class="group relative p-8 rounded-[2rem] border-2 transition-all duration-300 text-left overflow-hidden" 
-                                                :class="form.zona === 'costa' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] ring-4 ring-[var(--color-primary-soft)]' : 'border-gray-50 bg-gray-50 hover:border-gray-200'">
+                                                :class="form.zona === 'costa' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] ring-4 ring-[var(--color-primary-soft)]' : 'border-gray-50 bg-white hover:border-gray-200'">
                                             <div class="text-4xl mb-6 transform group-hover:scale-110 transition-transform">🏖️</div>
                                             <h3 class="font-black text-gray-900 text-lg mb-2">Costas</h3>
                                             <p class="text-[10px] leading-relaxed text-gray-500">Calor húmedo (Cancún, Vallarta, Veracruz).</p>
@@ -340,7 +340,7 @@ const submitLead = async () => {
 
                                         <button @click="form.zona = 'desierto'" 
                                                 class="group relative p-8 rounded-[2rem] border-2 transition-all duration-300 text-left overflow-hidden" 
-                                                :class="form.zona === 'desierto' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] ring-4 ring-[var(--color-primary-soft)]' : 'border-gray-50 bg-gray-50 hover:border-gray-200'">
+                                                :class="form.zona === 'desierto' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] ring-4 ring-[var(--color-primary-soft)]' : 'border-gray-50 bg-white hover:border-gray-200'">
                                             <div class="text-4xl mb-6 transform group-hover:scale-110 transition-transform">🏜️</div>
                                             <h3 class="font-black text-gray-900 text-lg mb-2">Norte / Desierto</h3>
                                             <p class="text-[10px] leading-relaxed text-gray-500">Extremo (Mexicali, Hermosillo, Juárez).</p>
@@ -357,7 +357,7 @@ const submitLead = async () => {
                                 </div>
 
                                 <div class="space-y-12 max-w-2xl">
-                                    <div class="relative p-8 bg-gray-50 rounded-3xl border border-gray-100">
+                                    <div class="relative p-8 bg-white rounded-3xl border border-gray-100">
                                         <div class="flex justify-between items-center mb-6">
                                             <label class="text-sm font-black text-gray-900 uppercase tracking-widest">Tamaño del Área</label>
                                             <span class="px-4 py-1 bg-[var(--color-primary)] text-white font-black rounded-lg text-lg shadow-lg">{{ form.area }} m²</span>
@@ -370,7 +370,7 @@ const submitLead = async () => {
                                     </div>
 
                                     <div class="grid md:grid-cols-2 gap-8">
-                                        <div class="relative p-8 bg-gray-50 rounded-3xl border border-gray-100">
+                                        <div class="relative p-8 bg-white rounded-3xl border border-gray-100">
                                             <label class="block text-sm font-black text-gray-900 uppercase tracking-widest mb-4">Altura del techo</label>
                                             <div class="flex items-center gap-4">
                                                 <input type="number" v-model="form.altura" step="0.1" class="w-full p-4 bg-white rounded-2xl border-none font-black text-2xl focus:ring-2 focus:ring-[var(--color-primary)]" />
@@ -378,7 +378,7 @@ const submitLead = async () => {
                                             </div>
                                             <p class="mt-4 text-[10px] text-gray-400 italic">Estándar: 2.4m - 2.8m</p>
                                         </div>
-                                        <div class="relative p-8 bg-gray-50 rounded-3xl border border-gray-100 flex flex-col justify-center">
+                                        <div class="relative p-8 bg-white rounded-3xl border border-gray-100 flex flex-col justify-center">
                                             <label class="block text-sm font-black text-gray-900 uppercase tracking-widest mb-4">Número de Personas</label>
                                             <div class="flex items-center justify-between gap-6">
                                                 <button @click="form.personas > 1 && form.personas--" class="w-16 h-16 rounded-2xl bg-white shadow-sm border border-gray-100 flex items-center justify-center text-3xl font-black text-gray-400 hover:text-[var(--color-primary)] transition-colors">-</button>
@@ -401,7 +401,7 @@ const submitLead = async () => {
                                     <div class="space-y-6">
                                         <button @click="form.techo_directo = !form.techo_directo" 
                                                 class="w-full p-8 rounded-[2.5rem] border-2 transition-all duration-300 text-left flex items-center gap-6"
-                                                :class="form.techo_directo ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-50 bg-gray-50 hover:border-gray-200'">
+                                                :class="form.techo_directo ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-50 bg-white hover:border-gray-200'">
                                             <div class="text-5xl">🏠</div>
                                             <div>
                                                 <h4 class="font-black text-gray-900 text-lg">Techo Directo</h4>
@@ -414,7 +414,7 @@ const submitLead = async () => {
 
                                         <button @click="form.ventanales = !form.ventanales" 
                                                 class="w-full p-8 rounded-[2.5rem] border-2 transition-all duration-300 text-left flex items-center gap-6"
-                                                :class="form.ventanales ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-50 bg-gray-50 hover:border-gray-200'">
+                                                :class="form.ventanales ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-50 bg-white hover:border-gray-200'">
                                             <div class="text-5xl">🪟</div>
                                             <div>
                                                 <h4 class="font-black text-gray-900 text-lg">Grandes Ventanales</h4>
@@ -427,7 +427,7 @@ const submitLead = async () => {
                                     </div>
 
                                     <div class="space-y-6">
-                                        <div class="p-8 bg-gray-50 rounded-[2.5rem] border border-gray-100">
+                                        <div class="p-8 bg-white rounded-[2.5rem] border border-gray-100">
                                             <label class="block text-sm font-black text-gray-900 uppercase tracking-widest mb-4">Calidad del Aislamiento</label>
                                             <div class="grid grid-cols-1 gap-3">
                                                 <button v-for="ai in [{v:'bueno', t:'Excelente', d:'Muro térmico / Aislante'}, {v:'normal', t:'Estándar', d:'Ladrillo o Block'}, {v:'pobre', t:'Mínimo', d:'Lámina o madera'}]" 
@@ -453,14 +453,14 @@ const submitLead = async () => {
                                     <p class="text-gray-400 font-medium italic">¿Cuánto tiempo estará encendido el equipo al día?</p>
                                     
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                                        <button @click="form.uso_horas = '8'" :class="['p-8 rounded-[2.5rem] border-2 transition-all duration-300 flex items-center gap-6 text-left', form.uso_horas === '8' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] ring-4 ring-[var(--color-primary-soft)]' : 'border-gray-50 bg-gray-50 hover:border-gray-100']">
+                                        <button @click="form.uso_horas = '8'" :class="['p-8 rounded-[2.5rem] border-2 transition-all duration-300 flex items-center gap-6 text-left', form.uso_horas === '8' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] ring-4 ring-[var(--color-primary-soft)]' : 'border-gray-50 bg-white hover:border-gray-100']">
                                             <span class="text-4xl">🌙</span>
                                             <div>
                                                 <span class="block font-black text-gray-900 uppercase tracking-widest text-xs mb-1">8 Horas Diario</span>
                                                 <span class="text-[10px] text-gray-400 font-bold uppercase">Uso moderado (Solo Noche)</span>
                                             </div>
                                         </button>
-                                        <button @click="form.uso_horas = '24'" :class="['p-8 rounded-[2.5rem] border-2 transition-all duration-300 flex items-center gap-6 text-left relative overflow-hidden', form.uso_horas === '24' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] ring-4 ring-[var(--color-primary-soft)]' : 'border-gray-50 bg-gray-50 hover:border-gray-100']">
+                                        <button @click="form.uso_horas = '24'" :class="['p-8 rounded-[2.5rem] border-2 transition-all duration-300 flex items-center gap-6 text-left relative overflow-hidden', form.uso_horas === '24' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] ring-4 ring-[var(--color-primary-soft)]' : 'border-gray-50 bg-white hover:border-gray-100']">
                                             <span class="text-4xl">☀️</span>
                                             <div>
                                                 <span class="block font-black text-gray-900 uppercase tracking-widest text-xs mb-1">Todo el Día</span>
@@ -477,14 +477,14 @@ const submitLead = async () => {
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
                                         <button @click="form.tecnologia = 'convencional'" 
                                                 class="group relative p-8 rounded-[2.5rem] border-2 transition-all duration-300 text-left overflow-hidden min-h-[160px] flex flex-col justify-between" 
-                                                :class="form.tecnologia === 'convencional' ? 'border-gray-900 bg-gray-900 text-white shadow-2xl' : 'border-gray-50 bg-gray-50 hover:border-gray-200'">
+                                                :class="form.tecnologia === 'convencional' ? 'border-gray-900 bg-gray-900 text-white shadow-2xl' : 'border-gray-50 bg-white hover:border-gray-200'">
                                             <h3 class="font-black text-sm uppercase tracking-[0.2em] mb-4">Convencional</h3>
                                             <p class="text-[11px] leading-relaxed font-medium opacity-60">Precio inicial bajo. Ideal para usos de corta duración (menos de 4h al día).</p>
                                         </button>
 
                                         <button @click="form.tecnologia = 'inverter'" 
                                                 class="group relative p-8 rounded-[2.5rem] border-2 transition-all duration-300 text-left overflow-hidden min-h-[160px] flex flex-col justify-between" 
-                                                :class="form.tecnologia === 'inverter' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] ring-4 ring-[var(--color-primary-soft)] shadow-2xl' : 'border-gray-50 bg-gray-50 hover:border-gray-200'">
+                                                :class="form.tecnologia === 'inverter' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] ring-4 ring-[var(--color-primary-soft)] shadow-2xl' : 'border-gray-50 bg-white hover:border-gray-200'">
                                             <div class="flex justify-between items-start mb-4">
                                                 <h3 class="font-black text-gray-900 text-sm uppercase tracking-[0.2em]">Inverter</h3>
                                                 <span class="px-3 py-1 bg-green-100 text-green-700 text-[9px] font-black rounded-full uppercase tracking-widest">Recomendado</span>
@@ -498,15 +498,15 @@ const submitLead = async () => {
                                     <div class="space-y-6">
                                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Suministro Eléctrico</label>
                                         <div class="grid grid-cols-2 gap-4">
-                                            <button @click="form.voltaje = '110'" :class="['py-4 rounded-2xl border-2 font-black transition-all', form.voltaje === '110' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-[var(--color-primary)]' : 'border-gray-50 bg-gray-50 text-gray-400']">110V</button>
-                                            <button @click="form.voltaje = '220'" :class="['py-4 rounded-2xl border-2 font-black transition-all', form.voltaje === '220' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-[var(--color-primary)]' : 'border-gray-50 bg-gray-50 text-gray-400']">220V</button>
+                                            <button @click="form.voltaje = '110'" :class="['py-4 rounded-2xl border-2 font-black transition-all', form.voltaje === '110' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-[var(--color-primary)]' : 'border-gray-50 bg-white text-gray-400']">110V</button>
+                                            <button @click="form.voltaje = '220'" :class="['py-4 rounded-2xl border-2 font-black transition-all', form.voltaje === '220' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-[var(--color-primary)]' : 'border-gray-50 bg-white text-gray-400']">220V</button>
                                         </div>
                                     </div>
                                     <div class="space-y-6">
                                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Modo de Operación</label>
                                         <div class="grid grid-cols-2 gap-4">
-                                            <button @click="form.funcion = 'frio'" :class="['py-4 rounded-2xl border-2 font-black transition-all', form.funcion === 'frio' ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-50 bg-gray-50 text-gray-400']">Solo Frío</button>
-                                            <button @click="form.funcion = 'dual'" :class="['py-4 rounded-2xl border-2 font-black transition-all', form.funcion === 'dual' ? 'border-orange-500 bg-orange-50 text-orange-600' : 'border-gray-50 bg-gray-50 text-gray-400']">Frío/Calor</button>
+                                            <button @click="form.funcion = 'frio'" :class="['py-4 rounded-2xl border-2 font-black transition-all', form.funcion === 'frio' ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-50 bg-white text-gray-400']">Solo Frío</button>
+                                            <button @click="form.funcion = 'dual'" :class="['py-4 rounded-2xl border-2 font-black transition-all', form.funcion === 'dual' ? 'border-orange-500 bg-orange-50 text-orange-600' : 'border-gray-50 bg-white text-gray-400']">Frío/Calor</button>
                                         </div>
                                     </div>
                                 </div>
@@ -514,7 +514,7 @@ const submitLead = async () => {
 
                             <!-- Step 5: Resultados Finales -->
                             <div v-if="step === 5" class="animate-content-in">
-                                <div class="text-center md:max-w-2xl mx-auto py-6">
+                                <div class="text-center md:w-full py-6">
                                     <div class="w-32 h-32 bg-[var(--color-primary-soft)] text-[var(--color-primary)] rounded-full flex items-center justify-center text-5xl mx-auto mb-10 shadow-[0_20px_60px_-15px_rgba(59,130,246,0.3)] animate-bounce">
                                         ✨
                                     </div>
@@ -562,11 +562,11 @@ const submitLead = async () => {
                                         </div>
                                     </div>
 
-                                    <div class="flex flex-col sm:flex-row gap-6 max-w-xl mx-auto">
+                                    <div class="flex flex-col sm:flex-row gap-6 w-full">
                                         <button @click="openLeadModal" class="flex-1 py-6 bg-[var(--color-primary)] text-white rounded-[1.5rem] font-black uppercase tracking-widest text-sm hover:shadow-[0_20px_50px_-15px_rgba(59,130,246,0.5)] transform hover:-translate-y-1 transition-all">
                                             Agendar Especialista
                                         </button>
-                                        <a :href="route('public.asesor.pdf', { btu: calculoBTU, rec: recomendacion.capacidad, 'form[area]': form.area, 'form[altura]': form.altura, 'form[personas]': form.personas, 'form[zona]': form.zona, 'form[habitacion]': form.habitacion, 'form[techo_directo]': form.techo_directo, 'form[ventanales]': form.ventanales, 'form[voltaje]': form.voltaje, 'form[funcion]': form.funcion, 'form[uso_horas]': form.uso_horas, 'form[tecnologia]': form.tecnologia, ahorro: ahorroEstimado })" target="_blank" class="flex-1 py-6 bg-white text-gray-900 border-2 border-gray-100 rounded-[1.5rem] font-black uppercase tracking-widest text-sm hover:bg-gray-50 transform hover:-translate-y-1 transition-all">
+                                        <a :href="route('public.asesor.pdf', { btu: calculoBTU, rec: recomendacion.capacidad, 'form[area]': form.area, 'form[altura]': form.altura, 'form[personas]': form.personas, 'form[zona]': form.zona, 'form[habitacion]': form.habitacion, 'form[techo_directo]': form.techo_directo, 'form[ventanales]': form.ventanales, 'form[voltaje]': form.voltaje, 'form[funcion]': form.funcion, 'form[uso_horas]': form.uso_horas, 'form[tecnologia]': form.tecnologia, ahorro: ahorroEstimado })" target="_blank" class="flex-1 py-6 bg-white text-gray-900 border-2 border-gray-100 rounded-[1.5rem] font-black uppercase tracking-widest text-sm hover:bg-white transform hover:-translate-y-1 transition-all">
                                             Descargar Reporte PDF
                                         </a>
                                     </div>
@@ -599,7 +599,7 @@ const submitLead = async () => {
                                 <button 
                                     v-if="step === 5"
                                     @click="step = 1"
-                                    class="mx-auto px-8 py-4 bg-gray-50 text-gray-500 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-gray-100 transition-all"
+                                    class="mx-auto px-8 py-4 bg-white text-gray-500 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-gray-100 transition-all"
                                 >
                                     Reiniciar Asistente
                                 </button>
@@ -652,15 +652,15 @@ const submitLead = async () => {
                     <div class="space-y-6">
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Nombre Completo</label>
-                            <input v-model="leadForm.nombre" @input="leadForm.nombre = leadForm.nombre.toUpperCase()" type="text" placeholder="TU NOMBRE" class="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all">
+                            <input v-model="leadForm.nombre" @input="leadForm.nombre = leadForm.nombre.toUpperCase()" type="text" placeholder="TU NOMBRE" class="w-full px-6 py-4 bg-white border-none rounded-2xl font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all">
                         </div>
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Teléfono (10 dígitos)</label>
-                            <input v-model="leadForm.telefono" type="tel" maxlength="10" placeholder="Ej. 6861234567" class="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all">
+                            <input v-model="leadForm.telefono" type="tel" maxlength="10" placeholder="Ej. 6861234567" class="w-full px-6 py-4 bg-white border-none rounded-2xl font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all">
                         </div>
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Email <span class="text-gray-300 font-medium">(Opcional)</span></label>
-                            <input v-model="leadForm.email" type="email" placeholder="Ej. juan@ejemplo.com" class="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all">
+                            <input v-model="leadForm.email" type="email" placeholder="Ej. juan@ejemplo.com" class="w-full px-6 py-4 bg-white border-none rounded-2xl font-bold text-gray-900 focus:ring-2 focus:ring-[var(--color-primary)] transition-all">
                         </div>
                         
                         <button 

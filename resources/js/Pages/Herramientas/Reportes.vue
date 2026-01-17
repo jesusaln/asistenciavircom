@@ -182,7 +182,7 @@ const exportarReporte = (formato) => {
               <h3 class="text-lg font-semibold mb-3">Lista de Herramientas</h3>
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
-                  <thead class="bg-gray-50">
+                  <thead class="bg-white">
                     <tr>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Herramienta</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
@@ -279,7 +279,7 @@ const exportarReporte = (formato) => {
             <div>
               <h3 class="text-lg font-semibold mb-3">Herramientas Más Utilizadas</h3>
               <div class="space-y-3">
-                <div v-for="herramienta in herramientas.slice(0, 10)" :key="herramienta.id" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div v-for="herramienta in herramientas.slice(0, 10)" :key="herramienta.id" class="flex items-center justify-between p-3 bg-white rounded-lg">
                   <div>
                     <h4 class="font-medium">{{ herramienta.nombre }}</h4>
                     <p class="text-sm text-gray-600">{{ herramienta.numero_serie }}</p>

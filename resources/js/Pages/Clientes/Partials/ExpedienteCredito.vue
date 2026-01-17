@@ -90,7 +90,7 @@ const getLabel = (tipo) => {
             @drop.prevent="onDrop"
             :class="[
                 'border-2 border-dashed rounded-2xl p-8 transition-all flex flex-col items-center justify-center gap-4',
-                isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-gray-50'
+                isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'
             ]"
         >
             <div class="w-16 h-16 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-400">
@@ -112,7 +112,7 @@ const getLabel = (tipo) => {
                 class="bg-white border border-gray-100 rounded-xl p-4 flex items-center justify-between group hover:border-blue-200 transition-all shadow-sm"
             >
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400">
+                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-gray-400">
                         <font-awesome-icon icon="file-pdf" v-if="doc.extension === 'pdf'" />
                         <font-awesome-icon icon="file-image" v-else />
                     </div>

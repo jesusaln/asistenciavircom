@@ -115,8 +115,8 @@ const historialPagos = computed(() => {
 <template>
   <Head title="Detalles de Préstamo" />
 
-  <div class="prestamos-show min-h-screen bg-gray-50">
-    <div class="max-w-6xl mx-auto px-6 py-8">
+  <div class="prestamos-show min-h-screen bg-white">
+    <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
@@ -127,7 +127,7 @@ const historialPagos = computed(() => {
           <div class="flex items-center space-x-3">
             <Link
               href="/prestamos"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
             >
               ← Volver a Préstamos
             </Link>
@@ -181,7 +181,7 @@ const historialPagos = computed(() => {
               </div>
 
               <!-- Información financiera -->
-              <div class="bg-gray-50 rounded-lg p-4">
+              <div class="bg-white rounded-lg p-4">
                 <h4 class="text-sm font-medium text-gray-900 mb-3">Resumen Financiero</h4>
                 <div class="grid grid-cols-2 gap-4 text-sm">
                   <div>
@@ -237,7 +237,7 @@ const historialPagos = computed(() => {
                           <div
                             v-for="historial in pago.historial_pagos"
                             :key="historial.id"
-                            class="flex justify-between items-center text-xs bg-gray-50 p-2 rounded"
+                            class="flex justify-between items-center text-xs bg-white p-2 rounded"
                           >
                             <div>
                               <span class="font-medium">${{ formatearMoneda(historial.monto_pagado) }}</span>

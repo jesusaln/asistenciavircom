@@ -1,6 +1,6 @@
 <template>
   <Head title="Copias de Seguridad" />
-  <div class="database-backup-index min-h-screen bg-gray-50">
+  <div class="database-backup-index min-h-screen bg-white">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-8 mb-6">
@@ -316,7 +316,7 @@
             <h4 class="font-medium text-gray-900 mb-3">Recomendaciones</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div v-for="rec in monitoringData.monitoring.recommendations" :key="rec.title"
-                   class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                   class="bg-white rounded-lg p-4 border border-gray-200">
                 <div class="flex items-start justify-between mb-2">
                   <h5 class="text-sm font-medium text-gray-900">{{ rec.title }}</h5>
                   <span :class="rec.priority === 'high' ? 'bg-red-100 text-red-800' : rec.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'"
@@ -338,7 +338,7 @@
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th class="px-4 py-4"><input type="checkbox" :checked="allSelectedOnPage" @change="toggleSelectAllOnPage($event)" /></th>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nombre</th>
@@ -349,7 +349,7 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="backup in backups" :key="backup.path" class="hover:bg-gray-50 transition-colors duration-150">
+              <tr v-for="backup in backups" :key="backup.path" class="hover:bg-white transition-colors duration-150">
                 <td class="px-4 py-4"><input type="checkbox" :value="backup.name" v-model="selectedBackups" /></td>
                 <td class="px-6 py-4">
                   <div class="text-sm font-medium text-gray-900">{{ backup.name }}</div>
@@ -432,7 +432,7 @@
               <button
                 v-if="pagination.prevPageUrl"
                 @click="handlePageChange(pagination.currentPage - 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -449,7 +449,7 @@
                 v-for="page in [pagination.currentPage - 1, pagination.currentPage, pagination.currentPage + 1].filter(p => p > 0 && p <= pagination.lastPage)"
                 :key="page"
                 @click="handlePageChange(page)"
-                :class="page === pagination.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'"
+                :class="page === pagination.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               >
                 {{ page }}
@@ -458,7 +458,7 @@
               <button
                 v-if="pagination.nextPageUrl"
                 @click="handlePageChange(pagination.currentPage + 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -506,7 +506,7 @@
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
             <button @click="restoreDialog.show = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
               Cancelar
             </button>
@@ -576,7 +576,7 @@
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
             <button @click="showUploadDialog = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
               Cancelar
             </button>
@@ -623,7 +623,7 @@
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
             <button @click="deleteDialog.show = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
               Cancelar
             </button>
@@ -674,7 +674,7 @@
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
             <button @click="showCleanDialog = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
               Cancelar
             </button>

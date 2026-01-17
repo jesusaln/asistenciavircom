@@ -205,7 +205,7 @@ const planesCalculados = computed(() => {
         <meta name="description" :content="`Proveemos Soluciones Integrales en: Redes, Cámaras de Vigilancia (CCTV), Control de Acceso, Alarmas y GPS Vehicular. Expertos en Seguridad y Tecnología en ${empresaData?.ciudad || 'Hermosillo'}.`" />
     </Head>
 
-    <div class="min-h-screen bg-white dark:bg-gray-950 font-sans text-gray-900 dark:text-gray-100 overflow-x-hidden selection:bg-[var(--color-primary-soft)] selection:text-[var(--color-primary)] relative transition-colors duration-300" :style="cssVars">
+    <div class="min-h-screen bg-white dark:bg-gray-900 font-sans text-gray-900 dark:text-gray-100 overflow-x-hidden selection:bg-[var(--color-primary-soft)] selection:text-[var(--color-primary)] relative transition-colors duration-300" :style="cssVars">
         
         <!-- Progress Bar -->
         <div class="fixed top-0 left-0 h-1 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] z-[100] transition-all duration-150" :style="{ width: scrollProgress + '%' }"></div>
@@ -225,7 +225,7 @@ const planesCalculados = computed(() => {
         <PublicNavbar :empresa="empresaData" activeTab="inicio" />
 
         <!-- HERO SECTION -->
-        <section class="relative pt-24 pb-24 lg:pt-36 lg:pb-36 bg-gray-50 dark:bg-gray-900 overflow-hidden transition-colors duration-300">
+        <section class="relative pt-24 pb-24 lg:pt-36 lg:pb-36 bg-white dark:bg-gray-900 overflow-hidden transition-colors duration-300">
             <!-- Interactivte Background Elements -->
             <div class="absolute inset-0 z-0">
                 <!-- Light Mode BG -->
@@ -346,7 +346,7 @@ const planesCalculados = computed(() => {
         </section>
 
         <!-- TRUST LOGOS -->
-        <section class="py-12 bg-white dark:bg-gray-950 border-y border-gray-100 dark:border-gray-900 transition-colors duration-300">
+        <section class="py-12 bg-white dark:bg-gray-900 border-y border-gray-100 dark:border-gray-900 transition-colors duration-300">
             <div class="w-full px-4">
                 <p class="text-center text-xs font-black uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500 mb-10 transition-colors">Marcas Líderes que Confián en Nosotros</p>
                 <div class="flex flex-wrap justify-between items-center gap-8 opacity-50 grayscale hover:grayscale-0 dark:grayscale-0 dark:opacity-100 dark:brightness-110 transition-all duration-500">
@@ -370,7 +370,7 @@ const planesCalculados = computed(() => {
             <div class="w-full px-4 relative z-10">
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
                     <div v-for="(stat, index) in stats" :key="stat.id" 
-                         class="group relative p-6 lg:p-8 rounded-[2rem] bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/50 hover:bg-white dark:hover:bg-gray-800/80 hover:border-[var(--color-primary)]/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[var(--color-primary)]/20 backdrop-blur-md overflow-hidden flex flex-col justify-center items-center h-full min-h-[220px]"
+                         class="group relative p-6 lg:p-8 rounded-[2rem] bg-white dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/50 hover:bg-white dark:hover:bg-gray-800/80 hover:border-[var(--color-primary)]/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[var(--color-primary)]/20 backdrop-blur-md overflow-hidden flex flex-col justify-center items-center h-full min-h-[220px]"
                          :class="{'translate-y-0 opacity-100': statsAnimated, 'translate-y-12 opacity-0': !statsAnimated}"
                          :style="{ transitionDelay: `${index * 150}ms` }"
                     >
@@ -401,7 +401,7 @@ const planesCalculados = computed(() => {
         </section>
 
         <!-- SERVICES / PRODUCTS FEATURED -->
-        <section class="py-24 bg-gray-50 dark:bg-gray-900 relative overflow-hidden transition-colors duration-300">
+        <section class="py-24 bg-white dark:bg-gray-900 relative overflow-hidden transition-colors duration-300">
             <div class="absolute top-0 right-0 w-96 h-96 bg-[var(--color-primary-soft)] rounded-full blur-[100px] opacity-20"></div>
             
             <div class="w-full px-4 relative z-10">
@@ -423,7 +423,7 @@ const planesCalculados = computed(() => {
                         class="group bg-white dark:bg-gray-800 rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-3 transition-all duration-700 relative"
                         :style="{ transitionDelay: `${index * 100}ms` }"
                     >
-                        <div class="relative aspect-[4/5] bg-gray-50 overflow-hidden">
+                        <div class="relative aspect-[4/5] bg-white overflow-hidden">
                             <img :src="getImageUrl(item.imagen_url) || 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?q=80&w=2070&auto=format&fit=crop'" class="w-full h-full object-contain p-8 group-hover:scale-110 transition-transform duration-1000 ease-in-out" alt="Producto">
                             
                             <!-- Glassmorphism Overlay -->
@@ -455,11 +455,11 @@ const planesCalculados = computed(() => {
                     <!-- Empty State for Featured if none -->
                      <template v-if="!destacados?.length">
                         <article v-for="i in 4" :key="i" class="group bg-white rounded-[2rem] overflow-hidden border border-gray-50 animate-pulse">
-                            <div class="aspect-square bg-gray-50"></div>
+                            <div class="aspect-square bg-white"></div>
                             <div class="p-8 space-y-4">
                                 <div class="h-6 bg-gray-100 rounded-full w-3/4"></div>
-                                <div class="h-4 bg-gray-50 rounded-full w-full"></div>
-                                <div class="h-12 bg-gray-50 rounded-2xl w-full pt-6"></div>
+                                <div class="h-4 bg-white rounded-full w-full"></div>
+                                <div class="h-12 bg-white rounded-2xl w-full pt-6"></div>
                             </div>
                         </article>
                      </template>
@@ -474,7 +474,7 @@ const planesCalculados = computed(() => {
         <PosSimulator :empresa="empresaData" />
 
         <!-- POLIZAS DE MANTENIMIENTO (CYBER DARK & LIGHT) -->
-        <section class="py-32 bg-white dark:bg-gray-950 relative overflow-hidden transition-colors duration-300">
+        <section class="py-32 bg-white dark:bg-gray-900 relative overflow-hidden transition-colors duration-300">
              <!-- Background FX (Dark Only) -->
              <div class="absolute inset-0 pointer-events-none hidden dark:block">
                 <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-[var(--color-primary)] opacity-[0.05] blur-[100px] rounded-full mix-blend-screen animate-pulse"></div>
@@ -490,10 +490,10 @@ const planesCalculados = computed(() => {
              </div>
 
             <div class="w-full px-4 relative z-10">
-                <div class="text-center mb-24 max-w-3xl mx-auto">
+                <div class="text-center mb-24 w-full">
                     <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-6 drop-shadow-md">Tranquilidad Total</h2>
                     <h3 class="text-5xl lg:text-7xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight mb-8 transition-colors">Pólizas de <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-blue-600 dark:to-blue-400">Soporte Técnico</span></h3>
-                    <p class="text-xl text-gray-600 dark:text-gray-400 font-medium leading-relaxed max-w-2xl mx-auto transition-colors">Delega los problemas técnicos a los expertos. Mantenimiento preventivo, soporte remoto y respuesta inmediata.</p>
+                    <p class="text-xl text-gray-600 dark:text-gray-400 font-medium leading-relaxed w-full transition-colors">Delega los problemas técnicos a los expertos. Mantenimiento preventivo, soporte remoto y respuesta inmediata.</p>
                 </div>
 
                 <!-- Toggle billing Moderno -->
@@ -509,7 +509,7 @@ const planesCalculados = computed(() => {
 
                 <div class="grid md:grid-cols-3 gap-8 lg:gap-12">
                     <div v-for="plan in planesCalculados" :key="plan.id" 
-                        :class="plan.destacado ? 'ring-2 ring-[var(--color-primary)] shadow-[0_0_40px_-10px_var(--color-primary)]/50 lg:-translate-y-8 z-20 bg-white dark:bg-gray-900/80' : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-gray-50 dark:bg-gray-900/40'" 
+                        :class="plan.destacado ? 'ring-2 ring-[var(--color-primary)] shadow-[0_0_40px_-10px_var(--color-primary)]/50 lg:-translate-y-8 z-20 bg-white dark:bg-gray-900/80' : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-gray-900/40'" 
                         class="relative backdrop-blur-xl p-8 lg:p-10 rounded-[3rem] border flex flex-col group transition-all duration-700 hover:-translate-y-4"
                     >
                         <!-- Etiqueta Destacado Flotante -->
@@ -594,9 +594,9 @@ const planesCalculados = computed(() => {
         </section>
 
         <!-- PROCESS SECTION - Rediseñado -->
-        <section class="py-24 bg-gray-50 dark:bg-gray-900 overflow-hidden transition-colors duration-300">
+        <section class="py-24 bg-white dark:bg-gray-900 overflow-hidden transition-colors duration-300">
             <div class="w-full px-4">
-                <div class="text-center mb-20 max-w-3xl mx-auto">
+                <div class="text-center mb-20 w-full">
                     <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Nuestro Método</h2>
                     <h3 class="text-4xl lg:text-5xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight mb-6 transition-colors">
                         Implementación <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Impecable</span>
@@ -616,7 +616,7 @@ const planesCalculados = computed(() => {
                             {icon: '🛠️', title: 'Instalación', desc: 'Cableado estructurado peinado y equipos configurados.'},
                             {icon: '⭐', title: 'Capacitación', desc: 'Te enseñamos a usar tu sistema al 100% y damos soporte.'}
                         ]" :key="index" class="group bg-white dark:bg-gray-800 p-10 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 shadow-xl shadow-gray-200/50 dark:shadow-none hover:-translate-y-2 transition-all duration-500 hover:border-[var(--color-primary)] dark:hover:bg-gray-750">
-                            <div class="w-20 h-20 bg-gray-50 dark:bg-gray-700 rounded-3xl flex items-center justify-center text-4xl mb-8 group-hover:scale-110 group-hover:bg-[var(--color-primary-soft)] transition-all">
+                            <div class="w-20 h-20 bg-white dark:bg-gray-700 rounded-3xl flex items-center justify-center text-4xl mb-8 group-hover:scale-110 group-hover:bg-[var(--color-primary-soft)] transition-all">
                                 {{ p.icon }}
                             </div>
                             <div class="relative">
@@ -631,9 +631,9 @@ const planesCalculados = computed(() => {
         </section>
 
         <!-- TESTIMONIOS - Carrusel Animado Corregido -->
-        <section class="py-24 bg-white dark:bg-gray-950 overflow-hidden transition-colors duration-300">
+        <section class="py-24 bg-white dark:bg-gray-900 overflow-hidden transition-colors duration-300">
             <div class="w-full px-4">
-                <div class="text-center mb-16 max-w-2xl mx-auto">
+                <div class="text-center mb-16 w-full">
                     <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Experiencias Reales</h2>
                     <h3 class="text-4xl lg:text-5xl font-black text-gray-900 dark:text-white tracking-tighter transition-colors">Voces de nuestros <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Clientes Seguros</span></h3>
                 </div>
@@ -677,8 +677,8 @@ const planesCalculados = computed(() => {
         <QuickAppointmentForm :empresa="empresaData" />
 
         <!-- FAQ SECTION -->
-        <section class="py-24 bg-gray-50 dark:bg-gray-900 overflow-hidden transition-colors duration-300">
-            <div class="max-w-4xl mx-auto px-4">
+        <section class="py-24 bg-white dark:bg-gray-900 overflow-hidden transition-colors duration-300">
+            <div class="w-full px-4">
                  <div class="text-center mb-16">
                     <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">¿Dudas?</h2>
                     <h3 class="text-4xl lg:text-5xl font-black text-gray-900 dark:text-white tracking-tighter transition-colors">Preguntas Frecuentes</h3>
@@ -706,7 +706,7 @@ const planesCalculados = computed(() => {
                                 </span>
                                 <span class="font-black text-gray-900 dark:text-white group-hover:text-[var(--color-primary)] transition-colors text-lg leading-snug">{{ faq.pregunta }}</span>
                             </div>
-                            <span class="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-700 flex items-center justify-center text-gray-400 transition-transform duration-500 shrink-0" :class="{'rotate-180 bg-[var(--color-primary)] text-white shadow-lg': activeFaq === faq.id}">
+                            <span class="w-10 h-10 rounded-xl bg-white dark:bg-gray-700 flex items-center justify-center text-gray-400 transition-transform duration-500 shrink-0" :class="{'rotate-180 bg-[var(--color-primary)] text-white shadow-lg': activeFaq === faq.id}">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>
                             </span>
                         </button>
@@ -731,7 +731,7 @@ const planesCalculados = computed(() => {
                     <div class="absolute top-0 right-0 w-64 h-64 bg-[var(--color-primary)] rounded-full blur-[100px] opacity-10"></div>
                     <div class="relative z-10">
                         <h4 class="text-3xl font-black mb-4">¿No encuentras lo que buscas?</h4>
-                        <p class="text-gray-400 mb-8 max-w-md mx-auto">Nuestro equipo de expertos está listo para asesorarte de forma personalizada y sin compromiso.</p>
+                        <p class="text-gray-400 mb-8 w-full">Nuestro equipo de expertos está listo para asesorarte de forma personalizada y sin compromiso.</p>
                         <a :href="whatsappLink" target="_blank" class="inline-flex items-center gap-3 px-10 py-5 bg-[var(--color-primary)] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
                              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                              Hablar con un Experto

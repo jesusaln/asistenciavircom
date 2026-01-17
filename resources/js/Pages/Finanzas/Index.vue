@@ -82,7 +82,7 @@ const toggleSection = (id) => {
                                 <!-- Header -->
                                 <button @click="toggleSection(section.id)" 
                                     class="w-full px-6 py-4 flex items-center justify-between text-left focus:outline-none transition-colors duration-200"
-                                    :class="activeSection === section.id ? 'bg-indigo-50 dark:bg-indigo-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-800'">
+                                    :class="activeSection === section.id ? 'bg-indigo-50 dark:bg-indigo-900/20' : 'hover:bg-white dark:hover:bg-gray-800'">
                                     <div class="flex items-center space-x-4">
                                         <div class="p-2 rounded-full" 
                                             :class="activeSection === section.id ? 'bg-indigo-100 text-amber-600 dark:bg-indigo-800 dark:text-indigo-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'">
@@ -104,7 +104,7 @@ const toggleSection = (id) => {
 
                                 <!-- Content -->
                                 <div v-show="activeSection === section.id" 
-                                    class="border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                                    class="border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800/50">
                                     <div class="p-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                                         <Link v-for="link in section.links" :key="link.route" 
                                             :href="route(link.route)"

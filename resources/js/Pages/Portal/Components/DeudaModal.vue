@@ -55,7 +55,7 @@ const facturasVencidas = computed(() => {
                     </p>
 
                     <!-- Resumen Deuda -->
-                    <div class="bg-gray-50 rounded-2xl p-6 mb-6 border border-gray-100">
+                    <div class="bg-white rounded-2xl p-6 mb-6 border border-gray-100">
                         <div class="flex justify-between items-end mb-4">
                             <span class="text-xs font-black text-gray-400 uppercase tracking-widest">Total a Pagar</span>
                             <span class="text-3xl font-black text-gray-900 text-right">
@@ -85,7 +85,7 @@ const facturasVencidas = computed(() => {
                         </button>
                     </div>
                     <button type="button" 
-                        class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-300 shadow-sm px-4 py-3 bg-white text-base font-bold text-gray-500 hover:text-gray-700 hover:bg-gray-50 focus:outline-none sm:text-xs uppercase tracking-widest transition-all"
+                        class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-300 shadow-sm px-4 py-3 bg-white text-base font-bold text-gray-500 hover:text-gray-700 hover:bg-white focus:outline-none sm:text-xs uppercase tracking-widest transition-all"
                         @click="emit('close')">
                         Recordar en otro momento
                     </button>

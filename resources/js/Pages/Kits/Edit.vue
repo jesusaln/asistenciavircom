@@ -1,7 +1,7 @@
 <template>
   <AppLayout :title="`Editar Kit: ${kit.nombre}`">
     <div class="kits-edit">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="w-full px-4 sm:px-6 lg:px-8 py-8">
         <!-- Header -->
         <div class="mb-8">
           <div class="flex justify-between items-center">
@@ -10,14 +10,14 @@
               <p class="mt-2 text-sm text-gray-600">Modifica la información del kit y sus componentes</p>
             </div>
             <div class="flex space-x-3">
-              <Link :href="`/kits/${kit.id}`" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+              <Link :href="`/kits/${kit.id}`" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                 </svg>
                 Ver Kit
               </Link>
-              <Link href="/kits" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+              <Link href="/kits" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path>
                 </svg>
@@ -30,7 +30,7 @@
         <!-- Form -->
         <form @submit.prevent="submitForm" class="bg-white shadow-lg rounded-lg overflow-hidden">
           <!-- Información Básica del Kit -->
-          <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+          <div class="px-6 py-4 bg-white border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Información del Kit</h3>
             <p class="mt-1 text-sm text-gray-600">Modifica el nombre, precio y detalles básicos del kit</p>
           </div>
@@ -92,7 +92,7 @@
           </div>
 
           <!-- Componentes del Kit -->
-          <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+          <div class="px-6 py-4 bg-white border-b border-gray-200">
             <div class="flex justify-between items-center">
               <div>
                 <h3 class="text-lg font-medium text-gray-900">Componentes del Kit</h3>
@@ -112,7 +112,7 @@
             <!-- Lista de Componentes -->
             <div class="space-y-4">
               <div v-for="(componente, index) in form.componentes" :key="index"
-                   class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                   class="bg-white border border-gray-200 rounded-lg p-4">
                 <div class="flex justify-between items-start mb-4">
                   <h4 class="text-sm font-medium text-gray-900">Componente #{{ index + 1 }}</h4>
                   <button type="button" @click="removeComponent(index)"
@@ -220,8 +220,8 @@
           </div>
 
           <!-- Actions -->
-          <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
-            <Link href="/kits" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+          <div class="px-6 py-4 bg-white border-t border-gray-200 flex justify-end space-x-3">
+            <Link href="/kits" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
               Cancelar
             </Link>
             <button type="submit" :disabled="loading"
@@ -261,7 +261,7 @@
           </div>
           <div class="max-h-72 overflow-y-auto border border-gray-200 rounded-lg">
             <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
+              <thead class="bg-white">
                 <tr>
                   <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Sel</th>
                   <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Número de serie</th>
@@ -283,7 +283,7 @@
             </table>
           </div>
         </div>
-        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 text-right">
+        <div class="px-6 py-4 border-t border-gray-200 bg-white text-right">
           <button @click="closeSeriesPicker" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors mr-2">Cancelar</button>
           <button @click="confirmSeries" :disabled="selectedSeries.length !== pickerRequired" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">Usar {{ selectedSeries.length }}/{{ pickerRequired }} series</button>
         </div>

@@ -97,7 +97,7 @@ const deleteGasto = () => {
                     </div>
                     <div class="md:col-span-2">
                         <dt class="text-sm font-medium text-gray-500">Descripción</dt>
-                        <dd class="mt-1 text-sm text-gray-900 whitespace-pre-line bg-gray-50 p-3 rounded-md">
+                        <dd class="mt-1 text-sm text-gray-900 whitespace-pre-line bg-white p-3 rounded-md">
                             {{ gasto.notas || '-' }}
                         </dd>
                     </div>

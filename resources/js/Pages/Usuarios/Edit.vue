@@ -1,7 +1,7 @@
 <template>
   <Head title="Editar Usuario" />
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-2xl mx-auto">
+    <div class="w-full">
       <!-- Header -->
       <div class="text-center mb-8">
         <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-4">
@@ -54,7 +54,7 @@
                   type="text"
                   id="name"
                   :readonly="!isAdmin"
-                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
                   :class="{
                     'border-red-300 bg-red-50 focus:ring-red-500': form.errors.name,
                     'border-green-300 bg-green-50': form.name && !form.errors.name,
@@ -88,7 +88,7 @@
                   type="email"
                   id="email"
                   :readonly="!isAdmin"
-                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
                   :class="{
                     'border-red-300 bg-red-50 focus:ring-red-500': form.errors.email,
                     'border-green-300 bg-green-50': form.email && !form.errors.email && isValidEmail,
@@ -122,7 +122,7 @@
                   type="tel"
                   id="telefono"
                   :readonly="!isAdmin"
-                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
                   :class="{
                     'bg-gray-100 cursor-not-allowed': !isAdmin
                   }"
@@ -155,7 +155,7 @@
                   v-model="selectedAlmacenVenta"
                   @change="updateAlmacenVenta"
                   id="almacen_venta_id"
-                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white appearance-none"
+                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white appearance-none"
                 >
                   <option value="">Sin almacén predeterminado</option>
                   <option v-for="almacen in props.almacenes" :key="almacen.id" :value="almacen.id">
@@ -174,7 +174,7 @@
                   v-model="selectedAlmacenCompra"
                   @change="updateAlmacenCompra"
                   id="almacen_compra_id"
-                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white appearance-none"
+                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white appearance-none"
                 >
                   <option value="">Sin almacén predeterminado</option>
                   <option v-for="almacen in props.almacenes" :key="almacen.id" :value="almacen.id">
@@ -274,7 +274,7 @@
             <!-- Matrix Table -->
             <div class="overflow-x-auto border rounded-xl">
               <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+                <thead class="bg-white">
                   <tr>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Módulo</th>
                     <th v-for="action in actions" :key="action" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -283,7 +283,7 @@
                   </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                  <tr v-for="group in props.permissionGroups" :key="group.module" class="hover:bg-gray-50">
+                  <tr v-for="group in props.permissionGroups" :key="group.module" class="hover:bg-white">
                     <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ group.label }}</td>
                     <td v-for="action in actions" :key="action" class="px-3 py-3 text-center">
                       <template v-if="group.permissions[action]">
@@ -353,7 +353,7 @@
                     v-model="form.password"
                     :type="showPassword ? 'text' : 'password'"
                     id="password"
-                    class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+                    class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
                     placeholder="Mínimo 8 caracteres"
                     :class="{
                       'border-red-300 bg-red-50 focus:ring-red-500': form.errors.password,
@@ -403,7 +403,7 @@
                     v-model="form.password_confirmation"
                     :type="showPasswordConfirmation ? 'text' : 'password'"
                     id="password_confirmation"
-                    class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+                    class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
                     placeholder="Repite la contraseña"
                     :class="{
                       'border-red-300 bg-red-50 focus:ring-red-500': form.errors.password_confirmation || (form.password_confirmation && form.password !== form.password_confirmation),
@@ -446,7 +446,7 @@
           <div class="pt-6 border-t border-gray-200">
             <div class="flex flex-col sm:flex-row gap-4 justify-end">
               <Link :href="route('usuarios.index')"
-                    class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-gray-300 rounded-xl text-gray-700 bg-white hover:bg-gray-50 font-semibold transition-all duration-200 hover:shadow-md">
+                    class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-gray-300 rounded-xl text-gray-700 bg-white hover:bg-white font-semibold transition-all duration-200 hover:shadow-md">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>

@@ -2,7 +2,7 @@
 <template>
   <Head title="Editar Traspaso" />
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-    <div class="max-w-4xl mx-auto bg-white border border-gray-200 rounded-2xl shadow-sm p-6 space-y-6">
+    <div class="w-full bg-white border border-gray-200 rounded-2xl shadow-sm p-6 space-y-6">
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-bold text-gray-900">Editar Traspaso #{{ traspaso.id }}</h1>
@@ -92,7 +92,7 @@
         </div>
         
         <div class="flex justify-end gap-3 pt-4">
-          <Link :href="route('traspasos.index')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+          <Link :href="route('traspasos.index')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-white">
             Cancelar
           </Link>
           <button 

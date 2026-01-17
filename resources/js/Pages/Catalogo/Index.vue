@@ -275,7 +275,7 @@ if (typeof window !== 'undefined') {
         <meta name="description" :content="`Explora nuestro extenso catálogo de ${empresaData?.nombre_empresa || 'Asistencia Vircom'}. Encuentra computadoras, cámaras de seguridad, redes y accesorios en ${empresaData?.ciudad || 'Hermosillo'}. Envíos a todo México.`" />
     </Head>
     
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-950 font-sans transition-colors duration-300" :style="cssVars">
+    <div class="min-h-screen bg-white dark:bg-gray-900 font-sans transition-colors duration-300" :style="cssVars">
         <!-- Widget Flotante de WhatsApp -->
         <WhatsAppWidget :whatsapp="empresaData?.whatsapp" :empresaNombre="empresaData?.nombre || empresaData?.nombre_empresa" />
 
@@ -286,7 +286,7 @@ if (typeof window !== 'undefined') {
         <PublicNavbar :empresa="empresaData" activeTab="tienda" />
 
         <!-- Hero con Búsqueda -->
-        <section class="py-16 bg-gray-50 dark:bg-gray-900 relative overflow-hidden transition-colors">
+        <section class="py-16 bg-white dark:bg-gray-900 relative overflow-hidden transition-colors">
             <!-- Efecto cristal de fondo -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full opacity-30 blur-3xl" 
@@ -295,16 +295,16 @@ if (typeof window !== 'undefined') {
                      style="background-color: var(--color-secondary);"></div>
             </div>
             
-            <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center relative">
+            <div class="w-full px-4 sm:px-6 text-center relative">
                 <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4 transition-colors">
                     Explora nuestros productos
                 </h1>
-                <p class="text-gray-500 dark:text-gray-400 mb-8 max-w-xl mx-auto transition-colors">
+                <p class="text-gray-500 dark:text-gray-400 mb-8 w-full transition-colors">
                     Encuentra lo que necesitas con la mejor calidad y precio
                 </p>
                 
                 <!-- Barra de búsqueda con efecto cristal -->
-                <div class="relative max-w-2xl mx-auto z-50">
+                <div class="relative w-full z-50">
                     <div :class="[
                         'relative bg-white dark:bg-gray-800 rounded-2xl transition-all duration-300',
                         searchFocused ? 'shadow-xl ring-2 rounded-b-none border-b-0' : 'shadow-md'
@@ -335,14 +335,14 @@ if (typeof window !== 'undefined') {
                     <!-- Autocomplete Dropdown (Premium Version) -->
                     <div v-show="searchFocused && suggestions.length > 0" 
                          class="absolute w-full bg-white dark:bg-gray-800 rounded-b-2xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden z-[100] transition-all max-h-[450px] overflow-y-auto ring-1 ring-black/5">
-                        <div class="p-2.5 border-b border-gray-50 flex justify-between items-center bg-gray-50/50 sticky top-0 z-10">
+                        <div class="p-2.5 border-b border-gray-50 flex justify-between items-center bg-white/50 sticky top-0 z-10">
                             <span class="text-[10px] font-black tracking-widest text-gray-400 uppercase ml-2">Sugerencias de productos</span>
                             <button @click="searchFocused = false" class="text-[10px] font-bold text-gray-400 hover:text-gray-600 px-2 uppercase">Cerrar</button>
                         </div>
                         <ul class="divide-y divide-gray-50">
                             <li v-for="sug in suggestions" :key="sug.id">
                                 <Link :href="route('catalogo.show', sug.id)" 
-                                      class="group flex items-center gap-4 px-4 py-3 hover:bg-gray-50 transition-all relative">
+                                      class="group flex items-center gap-4 px-4 py-3 hover:bg-white transition-all relative">
                                     <div class="w-14 h-14 rounded-xl bg-white border border-gray-100 flex-shrink-0 flex items-center justify-center overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-300">
                                         <img :src="getImageUrl({ imagen: sug.image })" alt="" class="w-full h-full object-contain p-1" @error="(e) => (e.target.src = '/img/placeholder-product.png')">
                                     </div>
@@ -376,7 +376,7 @@ if (typeof window !== 'undefined') {
                                 </Link>
                             </li>
                             <li>
-                                <button @click="applyFilters" class="w-full py-3 text-center bg-gray-50 hover:bg-gray-100 text-xs font-bold text-gray-500 transition-colors uppercase tracking-widest">
+                                <button @click="applyFilters" class="w-full py-3 text-center bg-white hover:bg-gray-100 text-xs font-bold text-gray-500 transition-colors uppercase tracking-widest">
                                     Ver todos los resultados para "{{ search }}"
                                 </button>
                             </li>
@@ -485,7 +485,7 @@ if (typeof window !== 'undefined') {
                                             'w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-between group',
                                             selectedCategoria == cat.id 
                                                 ? 'bg-gray-900 text-white shadow-lg' 
-                                                : 'text-gray-500 hover:bg-gray-50'
+                                                : 'text-gray-500 hover:bg-white'
                                         ]">
                                     <span class="truncate">{{ cat.nombre }}</span>
                                     <span :class="selectedCategoria == cat.id ? 'text-gray-400' : 'text-gray-300'" class="text-[10px] font-black">{{ cat.productos_count }}</span>
@@ -538,7 +538,7 @@ if (typeof window !== 'undefined') {
                                 <button @click="soloLocal = !soloLocal; applyFilters()"
                                         :class="[
                                             'px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2',
-                                            soloLocal ? 'bg-green-500 text-white shadow-lg shadow-green-500/20' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                                            soloLocal ? 'bg-green-500 text-white shadow-lg shadow-green-500/20' : 'bg-white text-gray-400 hover:bg-gray-100'
                                         ]">
                                     <div class="w-1.5 h-1.5 rounded-full" :class="soloLocal ? 'bg-white animate-pulse' : 'bg-gray-300'"></div>
                                     Entrega Inmediata
@@ -546,7 +546,7 @@ if (typeof window !== 'undefined') {
                                 <button @click="soloExistencia = !soloExistencia; applyFilters()"
                                         :class="[
                                             'px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2',
-                                            soloExistencia ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                                            soloExistencia ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-400 hover:bg-gray-100'
                                         ]">
                                     <div class="w-1.5 h-1.5 rounded-full" :class="soloExistencia ? 'bg-white' : 'bg-gray-300'"></div>
                                     Con Stock
@@ -556,7 +556,7 @@ if (typeof window !== 'undefined') {
 
                         <div class="flex items-center gap-2 w-full md:w-auto">
                             <select v-model="selectedOrden" @change="applyFilters"
-                                    class="w-full md:w-auto px-5 py-2.5 bg-gray-50 dark:bg-gray-700 border-0 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-300 focus:ring-2 focus:ring-[var(--color-primary-soft)] cursor-pointer transition-colors">
+                                    class="w-full md:w-auto px-5 py-2.5 bg-white dark:bg-gray-700 border-0 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-300 focus:ring-2 focus:ring-[var(--color-primary-soft)] cursor-pointer transition-colors">
                                 <option value="recientes">Novedades</option>
                                 <option value="precio_asc">Precio: Bajo a Alto</option>
                                 <option value="precio_desc">Precio: Alto a Bajo</option>
@@ -578,7 +578,7 @@ if (typeof window !== 'undefined') {
                             </div>
 
                             <!-- Imagen con Contenedor de Diseño -->
-                            <Link :href="route('catalogo.show', producto.id)" class="block relative aspect-square bg-gray-50 dark:bg-gray-900 overflow-hidden m-2 rounded-[2rem] transition-colors">
+                            <Link :href="route('catalogo.show', producto.id)" class="block relative aspect-square bg-white dark:bg-gray-900 overflow-hidden m-2 rounded-[2rem] transition-colors">
                                 <img v-if="getImageUrl(producto)" 
                                      :src="getImageUrl(producto)" 
                                      :alt="producto.nombre"
@@ -644,12 +644,12 @@ if (typeof window !== 'undefined') {
 
                     <!-- Estado Vacío -->
                     <div v-else class="text-center py-24 bg-white dark:bg-gray-800 rounded-[4rem] border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center transition-colors">
-                        <div class="w-32 h-32 mb-8 bg-gray-50 rounded-full flex items-center justify-center relative">
+                        <div class="w-32 h-32 mb-8 bg-white rounded-full flex items-center justify-center relative">
                             <svg class="w-16 h-16 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                             <div class="absolute inset-0 border-2 border-dashed border-gray-100 rounded-full animate-spin-slow"></div>
                         </div>
                         <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-2 transition-colors">Búsqueda sin resultados</h3>
-                        <p class="text-gray-400 dark:text-gray-500 mb-10 max-w-xs mx-auto font-medium transition-colors">Lamentamos no encontrar lo que buscas. Intenta con una marca general o ajustando el presupuesto.</p>
+                        <p class="text-gray-400 dark:text-gray-500 mb-10 w-full font-medium transition-colors">Lamentamos no encontrar lo que buscas. Intenta con una marca general o ajustando el presupuesto.</p>
                         <button @click="clearFilters" 
                                 class="px-10 py-4 bg-gray-900 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] hover:-translate-y-2 transition-all shadow-xl shadow-gray-200">
                             Reiniciar Búsqueda
@@ -666,11 +666,11 @@ if (typeof window !== 'undefined') {
                                           'w-12 h-12 rounded-2xl text-[10px] font-black transition-all flex items-center justify-center shadow-sm',
                                           link.active 
                                             ? 'bg-gray-900 text-white shadow-xl shadow-gray-900/20' 
-                                            : 'bg-white text-gray-400 hover:bg-gray-50 border border-gray-100'
+                                            : 'bg-white text-gray-400 hover:bg-white border border-gray-100'
                                       ]"
                                       v-html="link.label.replace('Previous', '←').replace('Next', '→')" />
                                 <span v-else 
-                                      class="w-12 h-12 rounded-2xl text-[10px] font-black bg-gray-50 text-gray-200 flex items-center justify-center border border-gray-100"
+                                      class="w-12 h-12 rounded-2xl text-[10px] font-black bg-white text-gray-200 flex items-center justify-center border border-gray-100"
                                       v-html="link.label.replace('Previous', '←').replace('Next', '→')" />
                             </template>
                         </div>

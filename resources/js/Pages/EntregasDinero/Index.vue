@@ -442,7 +442,7 @@ const handlePageChange = (newPage) => {
 
 <template>
   <Head title="Entregas de Dinero" />
-  <div class="entregas-dinero-index min-h-screen bg-gray-50">
+  <div class="entregas-dinero-index min-h-screen bg-white">
     <div class="w-full px-6 py-8">
       <!-- Header espec�fico de entregas de dinero -->
       <EntregasDineroHeader
@@ -468,7 +468,7 @@ const handlePageChange = (newPage) => {
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Entregado por</th>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Recibido por</th>
@@ -481,7 +481,7 @@ const handlePageChange = (newPage) => {
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="entrega in entregas.data" :key="entrega.id" class="hover:bg-gray-50 transition-colors duration-150">
+              <tr v-for="entrega in entregas.data" :key="entrega.id" class="hover:bg-white transition-colors duration-150">
                 <td class="px-6 py-4">
                   <div class="text-sm font-medium text-gray-900">{{ entrega.usuario?.name || 'Usuario' }}</div>
                 </td>
@@ -597,7 +597,7 @@ const handlePageChange = (newPage) => {
               <button
                 v-if="paginationData.prevPageUrl"
                 @click="handlePageChange(paginationData.currentPage - 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -614,7 +614,7 @@ const handlePageChange = (newPage) => {
                 v-for="page in [paginationData.currentPage - 1, paginationData.currentPage, paginationData.currentPage + 1].filter(p => p > 0 && p <= paginationData.lastPage)"
                 :key="page"
                 @click="handlePageChange(page)"
-                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'"
+                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               >
                 {{ page }}
@@ -623,7 +623,7 @@ const handlePageChange = (newPage) => {
               <button
                 v-if="paginationData.nextPageUrl"
                 @click="handlePageChange(paginationData.currentPage + 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -649,7 +649,7 @@ const handlePageChange = (newPage) => {
 
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Tipo</th>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Usuario</th>
@@ -662,7 +662,7 @@ const handlePageChange = (newPage) => {
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="registro in registrosAutomaticos" :key="registro.id" class="hover:bg-gray-50 transition-colors duration-150">
+              <tr v-for="registro in registrosAutomaticos" :key="registro.id" class="hover:bg-white transition-colors duration-150">
                 <td class="px-6 py-4">
                   <span :class="registro.tipo === 'cobranza' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'"
                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
@@ -736,11 +736,11 @@ const handlePageChange = (newPage) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Usuario</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ selectedEntrega.usuario?.name || 'Usuario' }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEntrega.usuario?.name || 'Usuario' }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Fecha de Entrega</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ formatearFecha(selectedEntrega.fecha_entrega) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedEntrega.fecha_entrega) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Estado</label>
@@ -752,37 +752,37 @@ const handlePageChange = (newPage) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Monto Efectivo</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.monto_efectivo) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.monto_efectivo) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Monto Cheques</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.monto_cheques) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.monto_cheques) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Monto Tarjetas</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.monto_tarjetas) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.monto_tarjetas) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Total</label>
-                      <p class="mt-1 text-sm font-bold text-gray-900 bg-gray-50 px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.total) }}</p>
+                      <p class="mt-1 text-sm font-bold text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.total) }}</p>
                     </div>
                   </div>
                 </div>
                 <div v-if="selectedEntrega.notas">
                   <label class="block text-sm font-medium text-gray-700">Notas</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ selectedEntrega.notas }}</p>
+                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEntrega.notas }}</p>
                 </div>
                 <div v-if="selectedEntrega.fecha_recibido">
                   <label class="block text-sm font-medium text-gray-700">Fecha de Recepci�n</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ formatearFecha(selectedEntrega.fecha_recibido) }}</p>
+                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedEntrega.fecha_recibido) }}</p>
                 </div>
                 <div v-if="selectedEntrega.recibido_por">
                   <label class="block text-sm font-medium text-gray-700">Recibido Por</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ selectedEntrega.recibido_por_usuario?.name || 'Desconocido' }}</p>
+                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEntrega.recibido_por_usuario?.name || 'Desconocido' }}</p>
                 </div>
                 <div v-if="selectedEntrega.notas_recibido">
                   <label class="block text-sm font-medium text-gray-700">Notas de Recepci�n</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ selectedEntrega.notas_recibido }}</p>
+                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEntrega.notas_recibido }}</p>
                 </div>
               </div>
             </div>
@@ -804,7 +804,7 @@ const handlePageChange = (newPage) => {
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
             <button @click="showModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
               {{ modalMode === 'details' ? 'Cerrar' : 'Cancelar' }}
             </button>
@@ -846,23 +846,23 @@ const handlePageChange = (newPage) => {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <p class="text-sm text-gray-500">Entregado por</p>
-            <p class="text-sm font-semibold text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ entregaParaRecibir.usuario?.name }}</p>
+            <p class="text-sm font-semibold text-gray-900 bg-white px-3 py-2 rounded-md">{{ entregaParaRecibir.usuario?.name }}</p>
           </div>
           <div>
             <p class="text-sm text-gray-500">Recibe</p>
-            <p class="text-sm font-semibold text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ currentUser?.name }}</p>
+            <p class="text-sm font-semibold text-gray-900 bg-white px-3 py-2 rounded-md">{{ currentUser?.name }}</p>
           </div>
           <div>
             <p class="text-sm text-gray-500">Fecha de entrega</p>
-            <p class="text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ formatearFecha(entregaParaRecibir.fecha_entrega) }}</p>
+            <p class="text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(entregaParaRecibir.fecha_entrega) }}</p>
           </div>
           <div>
             <p class="text-sm text-gray-500">Total</p>
-            <p class="text-lg font-bold text-gray-900 bg-gray-50 px-3 py-2 rounded-md">${{ formatNumber(entregaParaRecibir.total) }}</p>
+            <p class="text-lg font-bold text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(entregaParaRecibir.total) }}</p>
           </div>
         </div>
 
-        <div class="bg-gray-50 p-4 rounded-lg space-y-2">
+        <div class="bg-white p-4 rounded-lg space-y-2">
           <p class="text-sm font-medium text-gray-700">Detalle de montos registrados</p>
           <div class="flex flex-wrap gap-2">
             <span v-if="entregaParaRecibir.monto_efectivo > 0" class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Efectivo ${{ formatNumber(entregaParaRecibir.monto_efectivo) }}</span>
@@ -915,7 +915,7 @@ const handlePageChange = (newPage) => {
         </div>
       </div>
 
-      <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+      <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
         <button @click="cerrarRecibirModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
           Cancelar
         </button>
@@ -946,7 +946,7 @@ const handlePageChange = (newPage) => {
           <div class="p-6">
             <div v-if="selectedRegistro" class="space-y-4">
               <!-- Informaci�n del registro -->
-              <div class="bg-gray-50 p-4 rounded-lg space-y-3">
+              <div class="bg-white p-4 rounded-lg space-y-3">
                 <div class="flex justify-between items-center">
                   <span class="text-sm font-medium text-gray-700">Tipo:</span>
                   <span class="text-sm text-gray-900">
@@ -1036,7 +1036,7 @@ const handlePageChange = (newPage) => {
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
             <button @click="cerrarMontoModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
               Cancelar
             </button>

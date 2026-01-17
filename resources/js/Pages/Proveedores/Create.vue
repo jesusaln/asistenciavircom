@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-6xl mx-auto p-6">
+  <div class="w-full p-6">
     <div class="bg-white rounded-lg shadow-lg p-8">
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-3xl font-bold text-gray-900">Crear Proveedor</h1>
@@ -301,7 +301,7 @@
                 v-model="form.municipio"
                 type="text"
                 id="municipio"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-gray-50 text-gray-600"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-gray-600"
                 readonly
               />
             </div>
@@ -315,7 +315,7 @@
                 v-model="form.estado"
                 type="text"
                 id="estado"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-gray-50 text-gray-600"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-gray-600"
                 readonly
               />
             </div>
@@ -329,7 +329,7 @@
                 v-model="form.pais"
                 type="text"
                 id="pais"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-gray-50 text-gray-600"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-gray-600"
                 readonly
               />
             </div>
@@ -341,7 +341,7 @@
           <button
             type="button"
             @click="resetForm"
-            class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
           >
             Limpiar Formulario
           </button>
@@ -374,7 +374,7 @@
     <!-- Modal de Vista Previa -->
     <div v-if="showPreview" class="fixed inset-0 z-50 overflow-y-auto">
       <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="showPreview = false"></div>
+        <div class="fixed inset-0 transition-opacity bg-white0 bg-opacity-75" @click="showPreview = false"></div>
 
         <div class="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
           <div class="px-6 py-4 bg-white">

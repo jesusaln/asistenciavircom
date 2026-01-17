@@ -407,7 +407,7 @@ const formatPrice = (price) => {
                     </div>
 
                     <!-- Content: Hero -->
-                    <div v-if="activeTab === 'hero'" class="p-8 max-w-4xl">
+                    <div v-if="activeTab === 'hero'" class="p-8 w-full">
                         <div class="mb-8">
                             <h3 class="text-xl font-bold text-gray-900">Personalización del Hero</h3>
                             <p class="text-gray-500 text-sm">Cambia los textos principales que ven tus clientes al entrar a la página.</p>
@@ -465,7 +465,7 @@ const formatPrice = (price) => {
                         </div>
                         
                         <div v-if="faqs?.length" class="space-y-3">
-                            <div v-for="faq in faqs" :key="faq.id" class="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
+                            <div v-for="faq in faqs" :key="faq.id" class="bg-white rounded-lg p-4 flex items-center justify-between">
                                 <div class="flex-1">
                                     <p class="font-medium text-gray-900">{{ faq.pregunta }}</p>
                                     <p class="text-sm text-gray-500 mt-1 line-clamp-2">{{ faq.respuesta }}</p>
@@ -495,7 +495,7 @@ const formatPrice = (price) => {
                         </div>
                         
                         <div v-if="testimonios?.length" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div v-for="t in testimonios" :key="t.id" class="bg-gray-50 rounded-lg p-4">
+                            <div v-for="t in testimonios" :key="t.id" class="bg-white rounded-lg p-4">
                                 <div class="flex items-center gap-3 mb-3">
                                     <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
                                         <img v-if="t.foto_url" :src="t.foto_url" class="w-full h-full object-cover" />
@@ -534,7 +534,7 @@ const formatPrice = (price) => {
                         </div>
                         
                         <div v-if="logos?.length" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                            <div v-for="logo in logos" :key="logo.id" class="bg-gray-50 rounded-lg p-4 text-center relative group">
+                            <div v-for="logo in logos" :key="logo.id" class="bg-white rounded-lg p-4 text-center relative group">
                                 <img v-if="logo.logo_url" :src="logo.logo_url" :alt="logo.nombre_empresa" class="h-12 mx-auto object-contain mb-2" />
                                 <p class="text-xs text-gray-600 truncate">{{ logo.nombre_empresa }}</p>
                                 <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
@@ -562,7 +562,7 @@ const formatPrice = (price) => {
                         </div>
                         
                         <div v-if="marcas?.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div v-for="marca in marcas" :key="marca.id" class="bg-gray-50 rounded-2xl p-6 border border-gray-100 group relative">
+                            <div v-for="marca in marcas" :key="marca.id" class="bg-white rounded-2xl p-6 border border-gray-100 group relative">
                                 <div class="flex items-center gap-4">
                                     <div class="w-20 h-20 bg-white rounded-xl shadow-sm flex items-center justify-center p-2">
                                         <img v-if="marca.logo_url" :src="marca.logo_url" :alt="marca.nombre" class="max-h-full max-w-full object-contain" />
@@ -610,7 +610,7 @@ const formatPrice = (price) => {
                         </div>
                         
                         <div v-if="procesos?.length" class="space-y-4">
-                            <div v-for="(p, index) in procesos" :key="p.id" class="flex gap-4 items-start bg-gray-50 rounded-2xl p-6 border border-gray-100 group">
+                            <div v-for="(p, index) in procesos" :key="p.id" class="flex gap-4 items-start bg-white rounded-2xl p-6 border border-gray-100 group">
                                 <div class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl flex-shrink-0">
                                     {{ p.icono || '⚙️' }}
                                 </div>
@@ -652,7 +652,7 @@ const formatPrice = (price) => {
                                     <div class="flex-1">
                                         <div class="flex items-center gap-3 mb-2">
                                             <span class="px-3 py-1 bg-orange-500 rounded-full text-xs font-bold">{{ oferta.titulo }}</span>
-                                            <span :class="oferta.activo ? 'bg-green-500' : 'bg-gray-500'" class="px-2 py-0.5 rounded text-xs">
+                                            <span :class="oferta.activo ? 'bg-green-500' : 'bg-white0'" class="px-2 py-0.5 rounded text-xs">
                                                 {{ oferta.activo ? 'Activo' : 'Inactivo' }}
                                             </span>
                                         </div>

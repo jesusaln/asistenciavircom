@@ -321,7 +321,7 @@
                         </div>
                         
                         <!-- Toggle Producción -->
-                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div class="bg-white p-4 rounded-lg border border-gray-200">
                             <div class="flex items-center justify-between">
                                 <div class="flex flex-col">
                                     <span class="text-sm font-semibold text-gray-900">Modo de Operación</span>
@@ -381,7 +381,7 @@
             </div>
 
             <!-- Información de seguridad -->
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div class="bg-white border border-gray-200 rounded-lg p-4">
                 <h4 class="font-medium text-gray-900 mb-2">🔒 Información de Seguridad</h4>
                 <ul class="text-sm text-gray-600 space-y-1">
                     <li>• Los archivos .key y las contraseñas se almacenan <strong>encriptados</strong> en el servidor.</li>

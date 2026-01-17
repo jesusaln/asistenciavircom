@@ -306,7 +306,7 @@ watch(activeTab, (newTab) => {
 <template>
   <Head title="Configuración de Empresa" />
 
-  <div class="min-h-screen bg-gray-50 pb-20">
+  <div class="min-h-screen bg-white pb-20">
     <div class="w-full px-4 sm:px-6 lg:px-8 py-8">
       
       <!-- Header con Botón de Guardado Sticky -->
@@ -346,7 +346,7 @@ watch(activeTab, (newTab) => {
                   'w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-medium rounded-lg transition-all duration-200 mb-1',
                   activeTab === tab.id
                     ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    : 'text-gray-600 hover:bg-white hover:text-gray-900'
                 ]"
               >
                   <div class="w-6 text-center">

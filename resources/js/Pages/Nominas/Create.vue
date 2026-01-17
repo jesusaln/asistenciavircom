@@ -120,7 +120,7 @@ const formatearMoneda = (num) => {
   <Head title="Nueva Nómina" />
 
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-4xl mx-auto">
+    <div class="w-full">
       <!-- Header -->
       <div class="text-center mb-8">
         <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full mb-4">
@@ -315,7 +315,7 @@ const formatearMoneda = (num) => {
               </div>
             </div>
 
-            <div v-else class="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+            <div v-else class="text-center py-8 text-gray-500 bg-white rounded-lg">
               <p class="text-sm">No hay conceptos adicionales</p>
               <p class="text-xs mt-1">El sueldo base se agregará automáticamente</p>
             </div>

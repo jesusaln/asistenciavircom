@@ -199,7 +199,7 @@ const stepLabels = [
     <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100" :style="cssVars">
         <!-- Header -->
         <header class="bg-white shadow-sm sticky top-0 z-50">
-            <div class="max-w-2xl mx-auto px-4 py-4">
+            <div class="w-full px-4 py-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl bg-[var(--color-primary)] flex items-center justify-center text-white font-bold">
@@ -227,7 +227,7 @@ const stepLabels = [
 
         <!-- Progress Bar -->
         <div class="bg-white border-b">
-            <div class="max-w-2xl mx-auto px-4 py-3">
+            <div class="w-full px-4 py-3">
                 <!-- Steps Indicators -->
                 <div class="flex items-center justify-between mb-3 overflow-x-auto pb-2">
                     <button
@@ -265,7 +265,7 @@ const stepLabels = [
         </div>
 
         <!-- Form Content -->
-        <main class="max-w-2xl mx-auto px-4 py-6">
+        <main class="w-full px-4 py-6">
             <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
                 
                 <!-- PASO 1: Datos Personales -->
@@ -492,7 +492,7 @@ const stepLabels = [
                                 'w-full p-4 rounded-xl border-2 transition-all duration-200 text-left flex items-center gap-4',
                                 form.horario_preferido === key 
                                     ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] shadow-lg' 
-                                    : 'border-gray-200 hover:border-[var(--color-primary)] hover:bg-gray-50'
+                                    : 'border-gray-200 hover:border-[var(--color-primary)] hover:bg-white'
                             ]"
                         >
                             <span class="text-3xl">{{ horario.emoji }}</span>
@@ -632,7 +632,7 @@ const stepLabels = [
                     <!-- Resumen -->
                     <div class="space-y-4 mb-6">
                         <!-- Datos personales -->
-                        <div class="p-4 bg-gray-50 rounded-xl">
+                        <div class="p-4 bg-white rounded-xl">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-lg">👤</span>
                                 <span class="font-semibold text-gray-700">Datos personales</span>
@@ -646,7 +646,7 @@ const stepLabels = [
                         </div>
                         
                         <!-- Dirección -->
-                        <div class="p-4 bg-gray-50 rounded-xl">
+                        <div class="p-4 bg-white rounded-xl">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-lg">📍</span>
                                 <span class="font-semibold text-gray-700">Dirección</span>
@@ -660,7 +660,7 @@ const stepLabels = [
                         </div>
                         
                         <!-- Fecha y Hora -->
-                        <div class="p-4 bg-gray-50 rounded-xl">
+                        <div class="p-4 bg-white rounded-xl">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-lg">📅</span>
                                 <span class="font-semibold text-gray-700">Fecha y horario</span>
@@ -683,7 +683,7 @@ const stepLabels = [
                         </div>
                         
                         <!-- Servicio -->
-                        <div class="p-4 bg-gray-50 rounded-xl">
+                        <div class="p-4 bg-white rounded-xl">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-lg">🔧</span>
                                 <span class="font-semibold text-gray-700">Servicio</span>
@@ -721,7 +721,7 @@ const stepLabels = [
                 </div>
 
                 <!-- Footer con Botones -->
-                <div class="px-6 py-4 bg-gray-50 border-t flex items-center justify-between gap-4">
+                <div class="px-6 py-4 bg-white border-t flex items-center justify-between gap-4">
                     <button
                         v-if="currentStep > 1"
                         @click="prevStep"

@@ -88,7 +88,7 @@ const formatDate = (dateString) => {
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-gray-50 text-gray-400 text-xs uppercase tracking-wider">
+                        <tr class="bg-white text-gray-400 text-xs uppercase tracking-wider">
                             <th class="px-6 py-4 font-semibold">Fecha</th>
                             <th class="px-6 py-4 font-semibold">Origen</th>
                             <th class="px-6 py-4 font-semibold">Destino</th>
@@ -99,7 +99,7 @@ const formatDate = (dateString) => {
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
-                        <tr v-for="traspaso in traspasos.data" :key="traspaso.id" class="hover:bg-gray-50/50 transition-colors group">
+                        <tr v-for="traspaso in traspasos.data" :key="traspaso.id" class="hover:bg-white/50 transition-colors group">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="text-sm font-medium text-gray-900">{{ formatDate(traspaso.fecha) }}</span>
                             </td>
@@ -165,7 +165,7 @@ const formatDate = (dateString) => {
             </div>
             
             <!-- Pagination -->
-            <div v-if="traspasos.links.length > 3" class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+            <div v-if="traspasos.links.length > 3" class="px-6 py-4 bg-white border-t border-gray-100">
                 <Pagination :links="traspasos.links" />
             </div>
         </div>

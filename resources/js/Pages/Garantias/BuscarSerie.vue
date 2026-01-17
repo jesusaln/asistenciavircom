@@ -9,7 +9,7 @@
     </div>
 
     <!-- Main Search Bar -->
-    <div class="max-w-2xl mx-auto mb-10">
+    <div class="w-full mb-10">
       <div class="relative">
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -36,7 +36,7 @@
     </div>
 
     <!-- Resultado Exacto (Card Destacado) -->
-    <div v-if="resultado" class="max-w-4xl mx-auto mb-10 transform transition-all duration-300 ease-in-out">
+    <div v-if="resultado" class="w-full mb-10 transform transition-all duration-300 ease-in-out">
       <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-blue-100 dark:border-gray-700 overflow-hidden">
         <div class="bg-blue-50 dark:bg-gray-700 px-6 py-4 border-b border-blue-100 dark:border-gray-600 flex justify-between items-center">
           <h2 class="text-lg font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
@@ -80,7 +80,7 @@
           </div>
         </div>
 
-        <div class="bg-gray-50 dark:bg-gray-700/50 px-6 py-4 flex justify-end gap-3">
+        <div class="bg-white dark:bg-gray-700/50 px-6 py-4 flex justify-end gap-3">
           <button
             v-if="!resultado.cita_id && resultado.cliente_id"
             @click="crearCita(resultado.producto_serie_id)"
@@ -104,7 +104,7 @@
 
     <!-- Lista de Series Vendidas -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex justify-between items-center">
+      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex justify-between items-center">
         <h3 class="text-lg font-medium text-gray-900 dark:text-white">Historial de Series Vendidas</h3>
         <span class="text-sm text-gray-500" v-if="seriesVendidas.total > 0">
           {{ seriesVendidas.total }} registros encontrados
@@ -113,7 +113,7 @@
 
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-700">
+          <thead class="bg-white dark:bg-gray-700">
             <tr>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Serie</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Producto</th>
@@ -124,7 +124,7 @@
             </tr>
           </thead>
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            <tr v-for="item in seriesVendidas.data" :key="item.producto_serie_id" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <tr v-for="item in seriesVendidas.data" :key="item.producto_serie_id" class="hover:bg-white dark:hover:bg-gray-700 transition-colors">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm font-bold text-gray-900 dark:text-white font-mono">{{ item.numero_serie }}</div>
               </td>
@@ -194,11 +194,11 @@
       </div>
       
       <!-- Paginación -->
-      <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between bg-gray-50 dark:bg-gray-900" v-if="seriesVendidas.prev_page_url || seriesVendidas.next_page_url">
+      <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-gray-900" v-if="seriesVendidas.prev_page_url || seriesVendidas.next_page_url">
          <Link 
            v-if="seriesVendidas.prev_page_url" 
            :href="seriesVendidas.prev_page_url"
-           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
          >
           ← Anterior
          </Link>
@@ -207,7 +207,7 @@
          <Link 
            v-if="seriesVendidas.next_page_url" 
            :href="seriesVendidas.next_page_url"
-           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
          >
           Siguiente →
          </Link>

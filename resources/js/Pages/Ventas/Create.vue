@@ -2,7 +2,7 @@
 <template>
   <Head title="Crear Venta" />
   <div class="ventas-create min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-    <div class="max-w-6xl mx-auto">
+    <div class="w-full">
       <!-- Header -->
       <Header
         title="Nueva Venta"
@@ -42,7 +42,7 @@
                   id="numero_venta"
                   v-model="form.numero_venta"
                   type="text"
-                  class="w-full bg-gray-50 text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  class="w-full bg-white text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   placeholder="V0001"
                   readonly
                   required
@@ -74,7 +74,7 @@
                   id="fecha"
                   v-model="form.fecha"
                   type="date"
-                  class="w-full bg-gray-50 text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  class="w-full bg-white text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   readonly
                   required
                 />
@@ -450,7 +450,7 @@
         </div>
         <div class="max-h-72 overflow-y-auto border border-gray-200 rounded-lg">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Sel</th>
                 <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Número de serie</th>
@@ -472,7 +472,7 @@
           </table>
         </div>
       </div>
-      <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 text-right">
+      <div class="px-6 py-4 border-t border-gray-200 bg-white text-right">
         <button @click="closeSeriesPicker" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors mr-2">Cancelar</button>
         <button @click="confirmSeries" :disabled="selectedSeries.length !== pickerRequired" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">Usar {{ selectedSeries.length }}/{{ pickerRequired }} series</button>
       </div>
@@ -505,7 +505,7 @@
             Los siguientes productos <strong>no tienen precio definido</strong> en la lista de precios seleccionada. 
             Se usará el <strong>precio de venta base</strong>:
           </p>
-          <ul class="list-disc list-inside space-y-2 text-sm text-gray-800 max-h-48 overflow-y-auto bg-gray-50 rounded-lg p-3">
+          <ul class="list-disc list-inside space-y-2 text-sm text-gray-800 max-h-48 overflow-y-auto bg-white rounded-lg p-3">
             <li v-for="(prod, idx) in fallbackPriceProducts" :key="idx" class="flex justify-between items-center">
               <span class="truncate flex-1">{{ prod.nombre }}</span>
               <span class="text-amber-600 font-medium ml-2">${{ formatNumber(prod.precioUsado) }}</span>
@@ -515,7 +515,7 @@
             💡 Puedes configurar precios específicos para cada lista de precios en el módulo de Productos.
           </p>
         </div>
-        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+        <div class="px-6 py-4 border-t border-gray-100 bg-white flex justify-end gap-3">
           <button
             type="button"
             @click="closeFallbackPriceModal"
@@ -656,7 +656,7 @@
         </div>
 
         <!-- Footer -->
-        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+        <div class="px-6 py-4 bg-white border-t border-gray-200 flex justify-end gap-3">
           <button
             @click="cerrarModalPago"
             class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"

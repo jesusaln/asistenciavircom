@@ -480,7 +480,7 @@ const actualizarPedido = () => {
 <template>
   <Head title="Editar Pedido" />
   <div class="pedidos-edit min-h-screen p-6" :style="[cssVars, subtleGradientStyle]">
-    <div class="max-w-6xl mx-auto">
+    <div class="w-full">
       <!-- Loading overlay -->
       <div v-if="isLoading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 flex items-center space-x-3">

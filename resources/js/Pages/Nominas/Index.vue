@@ -72,7 +72,7 @@ const goToPage = (p) => {
 <template>
   <Head title="Nóminas" />
 
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-white">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
@@ -192,7 +192,7 @@ const goToPage = (p) => {
 
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200/60">
-            <thead class="bg-gray-50/60">
+            <thead class="bg-white/60">
               <tr>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Empleado</th>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Período</th>
@@ -206,7 +206,7 @@ const goToPage = (p) => {
             </thead>
 
             <tbody class="bg-white divide-y divide-gray-200/40">
-              <tr v-for="nomina in nominas.data" :key="nomina.id" class="group hover:bg-gray-50/60 transition-all">
+              <tr v-for="nomina in nominas.data" :key="nomina.id" class="group hover:bg-white/60 transition-all">
                 <td class="px-6 py-4">
                   <div class="flex items-center">
                     <div class="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
@@ -294,7 +294,7 @@ const goToPage = (p) => {
               v-for="p in [paginationData.current_page - 1, paginationData.current_page, paginationData.current_page + 1].filter(x => x > 0 && x <= paginationData.last_page)"
               :key="p"
               @click="goToPage(p)"
-              :class="['px-3 py-2 text-sm font-medium border rounded-md', p === paginationData.current_page ? 'bg-emerald-500 text-white border-emerald-500' : 'text-gray-700 bg-white hover:bg-gray-50 border-gray-300']"
+              :class="['px-3 py-2 text-sm font-medium border rounded-md', p === paginationData.current_page ? 'bg-emerald-500 text-white border-emerald-500' : 'text-gray-700 bg-white hover:bg-white border-gray-300']"
             >
               {{ p }}
             </button>

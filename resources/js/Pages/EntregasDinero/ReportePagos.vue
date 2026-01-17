@@ -7,7 +7,7 @@
                 </h2>
                 <Link
                     :href="route('entregas-dinero.index')"
-                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                    class="bg-white0 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
                 >
                     ← Volver a Entregas
                 </Link>
@@ -160,12 +160,12 @@
         <!-- Resumen por Método de Pago -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                <div class="px-6 py-4 bg-white border-b border-gray-200">
                     <h3 class="text-lg font-medium text-gray-900">Resumen por Método de Pago en Entrega</h3>
                 </div>
                 <div class="p-6">
                     <div class="space-y-4">
-                        <div v-for="metodo in resumenMetodos" :key="metodo.metodo" class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div v-for="metodo in resumenMetodos" :key="metodo.metodo" class="flex items-center justify-between p-4 bg-white rounded-lg">
                             <div>
                                 <div class="font-medium text-gray-900">{{ metodo.label }}</div>
                                 <div class="text-sm text-gray-500">{{ metodo.cantidad }} entregas</div>
@@ -179,7 +179,7 @@
             </div>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                <div class="px-6 py-4 bg-white border-b border-gray-200">
                     <h3 class="text-lg font-medium text-gray-900">Desglose de Montos</h3>
                 </div>
                 <div class="p-6">
@@ -212,12 +212,12 @@
 
         <!-- Tabla Detallada -->
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <div class="px-6 py-4 bg-white border-b border-gray-200">
                 <h3 class="text-lg font-medium text-gray-900">Detalle de Pagos Recibidos</h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                    <thead class="bg-white">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Fecha Entrega

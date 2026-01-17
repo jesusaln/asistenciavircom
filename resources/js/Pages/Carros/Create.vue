@@ -1,6 +1,6 @@
 <template>
     <Head title="Crear Carro" />
-    <div class="max-w-4xl mx-auto p-6">
+    <div class="w-full p-6">
         <!-- Título de la página -->
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900 mb-2">Crear Nuevo Carro</h1>
@@ -227,7 +227,7 @@
                     </div>
 
                     <div v-if="previewImage" class="relative">
-                        <img :src="previewImage" alt="Vista previa" class="max-w-xs mx-auto rounded-lg shadow-md">
+                        <img :src="previewImage" alt="Vista previa" class="w-full rounded-lg shadow-md">
                         <button
                             type="button"
                             @click="removeImage"
@@ -247,7 +247,7 @@
                 <button
                     type="button"
                     @click="resetForm"
-                    class="w-full sm:w-auto px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200"
+                    class="w-full sm:w-auto px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-white transition duration-200"
                 >
                     Limpiar Formulario
                 </button>

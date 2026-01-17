@@ -131,7 +131,7 @@ const getPrioridadBadge = (prioridad) => {
         media: 'bg-yellow-500 text-white',
         baja: 'bg-green-500 text-white',
     };
-    return colores[prioridad] || 'bg-gray-500 text-white';
+    return colores[prioridad] || 'bg-white0 text-white';
 };
 
 const formatDate = (date) => {
@@ -227,7 +227,7 @@ const formatDate = (date) => {
                                     :key="comentario.id"
                                     :class="[
                                         'p-4 rounded-lg',
-                                        comentario.es_interno ? 'bg-yellow-50 border-l-4 border-yellow-400' : 'bg-gray-50'
+                                        comentario.es_interno ? 'bg-yellow-50 border-l-4 border-yellow-400' : 'bg-white'
                                     ]"
                                 >
                                     <div class="flex justify-between items-start mb-2">
@@ -506,7 +506,7 @@ const formatDate = (date) => {
                         <div class="flex gap-3">
                             <button 
                                 @click="cancelarConsumoHoras" 
-                                class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition"
+                                class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-white transition"
                             >
                                 Cancelar
                             </button>

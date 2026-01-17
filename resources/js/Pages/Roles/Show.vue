@@ -96,7 +96,7 @@ const getRoleColorClass = (roleName) => {
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
               <Link :href="route('roles.index')" 
-                    class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-white transition-colors">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
@@ -134,7 +134,7 @@ const getRoleColorClass = (roleName) => {
           </div>
 
           <!-- Stats -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-8 bg-gray-50">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-8 bg-white">
             <div class="bg-white rounded-xl p-4 border border-gray-100">
               <div class="flex items-center space-x-3">
                 <div class="p-2 bg-blue-100 rounded-lg">
@@ -198,7 +198,7 @@ const getRoleColorClass = (roleName) => {
           <!-- Users List -->
           <div v-if="role.users.length > 0" class="divide-y divide-gray-100">
             <div v-for="user in role.users" :key="user.id" 
-                 class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                 class="px-6 py-4 flex items-center justify-between hover:bg-white transition-colors">
               <div class="flex items-center space-x-4">
                 <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
                   {{ user.name.charAt(0).toUpperCase() }}
@@ -283,9 +283,9 @@ const getRoleColorClass = (roleName) => {
             Todos los usuarios ya tienen este rol asignado.
           </p>
         </div>
-        <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
+        <div class="px-6 py-4 bg-white flex justify-end space-x-3">
           <button @click="showAddUserModal = false" 
-                  class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                  class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-white transition-colors">
             Cancelar
           </button>
           <button @click="addUser" 

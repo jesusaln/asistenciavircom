@@ -608,7 +608,7 @@ const formatNumber = (num) => {
 <template>
   <Head title="Vehículos" />
 
-  <div class="carros-index min-h-screen bg-gray-50">
+  <div class="carros-index min-h-screen bg-white">
     <!-- Contenido principal -->
     <div class="w-full px-6 py-8">
       <!-- Header específico de vehículos -->
@@ -644,7 +644,7 @@ const formatNumber = (num) => {
 
             <!-- Estadísticas mejoradas -->
             <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              <div class="flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-xl border border-gray-200">
+              <div class="flex items-center gap-2 px-4 py-3 bg-white rounded-xl border border-gray-200">
                 <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -797,7 +797,7 @@ const formatNumber = (num) => {
           <!-- Table -->
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200/60">
-              <thead class="bg-gray-50/60">
+              <thead class="bg-white/60">
                 <tr>
                   <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     <button @click="onSort('fecha')" class="flex items-center gap-1 hover:text-gray-900">
@@ -829,7 +829,7 @@ const formatNumber = (num) => {
                   <tr
                     v-for="carro in items"
                     :key="carro.id"
-                    class="group hover:bg-gray-50/60 transition-all duration-150 hover:shadow-sm"
+                    class="group hover:bg-white/60 transition-all duration-150 hover:shadow-sm"
                   >
                     <!-- Fecha -->
                     <td class="px-6 py-4">
@@ -966,7 +966,7 @@ const formatNumber = (num) => {
         <button
           @click="prevPage"
           :disabled="paginationData.current_page === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Anterior
         </button>
@@ -980,7 +980,7 @@ const formatNumber = (num) => {
               'px-3 py-2 text-sm font-medium border border-gray-300 rounded-md',
               page === paginationData.current_page
                 ? 'bg-blue-500 text-white border-blue-500'
-                : 'text-gray-700 bg-white hover:bg-gray-50'
+                : 'text-gray-700 bg-white hover:bg-white'
             ]"
           >
             {{ page }}
@@ -990,7 +990,7 @@ const formatNumber = (num) => {
         <button
           @click="nextPage"
           :disabled="paginationData.current_page === paginationData.last_page"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Siguiente
         </button>

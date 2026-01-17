@@ -132,7 +132,7 @@ const calcularEstadisticasTecnico = (tecnico) => {
             <div class="text-lg font-bold text-yellow-600">{{ calcularEstadisticasTecnico(tecnico).mantenimiento }}</div>
             <div class="text-sm text-gray-600">En Mant.</div>
           </div>
-          <div class="text-center p-3 bg-gray-50 rounded-lg">
+          <div class="text-center p-3 bg-white rounded-lg">
             <div class="text-lg font-bold text-gray-600">{{ tecnico.email || 'Sin email' }}</div>
             <div class="text-sm text-gray-600">Contacto</div>
           </div>
@@ -142,7 +142,7 @@ const calcularEstadisticasTecnico = (tecnico) => {
         <div v-if="tecnico.herramientas && tecnico.herramientas.length > 0" class="mt-4">
           <h3 class="font-medium text-gray-900 mb-3">Herramientas Asignadas</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            <div v-for="herramienta in tecnico.herramientas.slice(0, 6)" :key="herramienta.id" class="p-3 border rounded-lg bg-gray-50">
+            <div v-for="herramienta in tecnico.herramientas.slice(0, 6)" :key="herramienta.id" class="p-3 border rounded-lg bg-white">
               <div class="flex items-center gap-3">
                 <img v-if="herramienta.foto" :src="`/storage/${herramienta.foto}`" alt="Foto" class="w-10 h-10 object-cover rounded" />
                 <div v-else class="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">

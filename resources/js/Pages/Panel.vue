@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 relative overflow-hidden transition-colors duration-300">
+  <div class="min-h-screen bg-white dark:bg-gray-900 relative overflow-hidden transition-colors duration-300">
 
     <Head title="Panel" />
 
@@ -216,7 +216,7 @@
             <li
               v-for="orden in ordenesPendientesDetallesSafe"
               :key="`oc-${orden.id ?? orden.proveedor ?? Math.random()}`"
-              class="text-base bg-gray-50 dark:bg-gray-700/50 p-3 rounded-md transition-colors"
+              class="text-base bg-white dark:bg-gray-700/50 p-3 rounded-md transition-colors"
             >
               <div class="font-medium">{{ orden.proveedor ?? 'Proveedor N/D' }}</div>
               <div class="text-sm text-gray-600 dark:text-gray-400">Prioridad: <span :class="getPrioridadClass(orden.prioridad)">{{ orden.prioridad ?? 'N/D' }}</span></div>
@@ -258,7 +258,7 @@
               <li
                 v-for="orden in ordenesEnviadasDetallesSafe"
                 :key="`env-${orden.id ?? orden.proveedor ?? Math.random()}`"
-                class="text-base bg-gray-50 dark:bg-gray-700/50 p-3 rounded-md transition-colors"
+                class="text-base bg-white dark:bg-gray-700/50 p-3 rounded-md transition-colors"
               >
                 <div class="font-medium">{{ orden.proveedor ?? 'Proveedor N/D' }}</div>
                 <div class="text-sm text-gray-600 dark:text-gray-400">Total: ${{ orden.total ?? 'N/D' }}</div>
@@ -343,7 +343,7 @@
         <li
           v-for="cita in citasHoyDetallesSafe"
           :key="`cita-${cita.id ?? cita.titulo ?? Math.random()}`"
-          class="flex items-center justify-between text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-md shadow-sm border-l-4 transition-colors"
+          class="flex items-center justify-between text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-700/50 p-4 rounded-md shadow-sm border-l-4 transition-colors"
           :class="cita.estado === 'en_proceso' ? 'border-l-blue-500' : 'border-l-yellow-500'"
         >
           <div class="flex flex-col text-left flex-1 transition-colors">
@@ -411,7 +411,7 @@
         <li
           v-for="tarea in tareasPendientesSafe.tareas"
           :key="`tarea-${tarea.id}`"
-          class="flex items-center justify-between text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-md shadow-sm border-l-4 transition-colors"
+          class="flex items-center justify-between text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-700/50 p-4 rounded-md shadow-sm border-l-4 transition-colors"
           :class="{
             'border-l-blue-500': tarea.estado === 'en_proceso',
             'border-l-yellow-500': tarea.estado === 'pendiente',

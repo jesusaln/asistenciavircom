@@ -69,8 +69,8 @@ const submit = () => {
 <template>
   <Head title="Registrar Entrega de Dinero" />
 
-  <div class="entregas-dinero-create min-h-screen bg-gray-50">
-    <div class="max-w-2xl mx-auto px-6 py-8">
+  <div class="entregas-dinero-create min-h-screen bg-white">
+    <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-8 mb-6">
         <div class="flex items-center gap-3 mb-6">

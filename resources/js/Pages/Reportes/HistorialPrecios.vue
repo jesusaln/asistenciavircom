@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-white">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
@@ -77,7 +77,7 @@
 
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de Cambio</th>
@@ -91,7 +91,7 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="registro in historial" :key="registro.id" class="hover:bg-gray-50">
+              <tr v-for="registro in historial" :key="registro.id" class="hover:bg-white">
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {{ registro.fecha }}
                 </td>

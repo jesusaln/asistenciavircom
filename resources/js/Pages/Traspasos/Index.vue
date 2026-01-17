@@ -152,7 +152,7 @@
       <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Productos</th>
@@ -163,7 +163,7 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="traspaso in traspasos.data" :key="traspaso.id" class="hover:bg-gray-50">
+              <tr v-for="traspaso in traspasos.data" :key="traspaso.id" class="hover:bg-white">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   #{{ traspaso.id }}
                 </td>
@@ -240,14 +240,14 @@
               <Link
                 v-if="traspasos.prev_page_url"
                 :href="traspasos.prev_page_url"
-                class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white"
               >
                 Anterior
               </Link>
               <Link
                 v-if="traspasos.next_page_url"
                 :href="traspasos.next_page_url"
-                class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white"
               >
                 Siguiente
               </Link>
@@ -272,19 +272,19 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div class="p-3 bg-gray-50 rounded-lg">
+        <div class="p-3 bg-white rounded-lg">
           <p class="text-xs text-gray-500 uppercase font-semibold">Origen</p>
           <p class="text-sm font-medium text-gray-900">{{ traspasoSeleccionado?.almacen_origen?.nombre || 'N/D' }}</p>
         </div>
-        <div class="p-3 bg-gray-50 rounded-lg">
+        <div class="p-3 bg-white rounded-lg">
           <p class="text-xs text-gray-500 uppercase font-semibold">Destino</p>
           <p class="text-sm font-medium text-gray-900">{{ traspasoSeleccionado?.almacen_destino?.nombre || 'N/D' }}</p>
         </div>
-        <div class="p-3 bg-gray-50 rounded-lg">
+        <div class="p-3 bg-white rounded-lg">
           <p class="text-xs text-gray-500 uppercase font-semibold">Referencia</p>
           <p class="text-sm text-gray-800">{{ traspasoSeleccionado?.referencia || 'Sin referencia' }}</p>
         </div>
-        <div class="p-3 bg-gray-50 rounded-lg">
+        <div class="p-3 bg-white rounded-lg">
           <p class="text-xs text-gray-500 uppercase font-semibold">Costo transporte</p>
           <p class="text-sm text-gray-800">{{ traspasoSeleccionado?.costo_transporte ?? 0 }}</p>
         </div>
@@ -307,7 +307,7 @@
         </div>
       </div>
 
-      <div class="p-3 bg-gray-50 rounded-lg">
+      <div class="p-3 bg-white rounded-lg">
         <p class="text-xs text-gray-500 uppercase font-semibold">Observaciones</p>
         <p class="text-sm text-gray-800 whitespace-pre-line">{{ traspasoSeleccionado?.observaciones || 'Sin observaciones' }}</p>
       </div>
@@ -334,7 +334,7 @@
         Esta acción regresará la cantidad al almacén origen y descontará del destino.
       </div>
       <div class="flex justify-end gap-3">
-        <button @click="cerrarModalEliminar" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancelar</button>
+        <button @click="cerrarModalEliminar" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-white">Cancelar</button>
         <button @click="eliminarTraspaso" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">Eliminar</button>
       </div>
     </div>

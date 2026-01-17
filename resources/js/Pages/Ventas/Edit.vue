@@ -741,7 +741,7 @@ const pickerRequiredOverride = ref(null);
 <template>
   <Head title="Editar Venta" />
   <div class="ventas-edit min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-    <div class="max-w-6xl mx-auto">
+    <div class="w-full">
       <!-- Header -->
       <Header
         title="Editar Venta"
@@ -827,7 +827,7 @@ const pickerRequiredOverride = ref(null);
 </div>
         <!-- Pago -->
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="px-6 py-4 bg-gray-50 border-b">
+          <div class="px-6 py-4 bg-white border-b">
             <h2 class="text-lg font-semibold text-gray-800">Pago</h2>
           </div>
           <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1016,7 +1016,7 @@ const pickerRequiredOverride = ref(null);
             </div>
             <div class="max-h-72 overflow-y-auto border border-gray-200 rounded-lg">
               <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+                <thead class="bg-white">
                   <tr>
                     <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Sel</th>
                     <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Numero de serie</th>
@@ -1038,8 +1038,8 @@ const pickerRequiredOverride = ref(null);
               </table>
             </div>
           </div>
-          <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
-            <button @click="closeSeriesPicker" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancelar</button>
+          <div class="px-6 py-4 bg-white border-t border-gray-200 flex justify-end gap-3">
+            <button @click="closeSeriesPicker" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-white">Cancelar</button>
             <button @click="confirmSeries" :disabled="selectedSeries.length !== pickerRequired" class="px-4 py-2 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 disabled:opacity-50">Usar {{ selectedSeries.length }}/{{ pickerRequired }} series</button>
           </div>
         </div>

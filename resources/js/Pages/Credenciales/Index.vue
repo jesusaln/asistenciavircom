@@ -170,7 +170,7 @@ const getOwnerName = (item) => {
             <div v-if="credenciales.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div v-for="item in credenciales.data" :key="item.id" class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden group">
                     <!-- Top Info/Owner -->
-                    <div class="p-4 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
+                    <div class="p-4 border-b border-gray-50 bg-white/50 flex justify-between items-center">
                         <div class="flex items-center gap-2">
                             <span class="text-[9px] font-black text-gray-400 uppercase">Vinculado a:</span>
                             <Link :href="getOwnerLink(item)" class="text-[9px] font-black text-indigo-600 hover:text-indigo-800 uppercase underline decoration-indigo-200 transition-all">
@@ -192,7 +192,7 @@ const getOwnerName = (item) => {
                         </div>
 
                         <div class="space-y-3">
-                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                            <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100">
                                 <span class="text-[10px] font-black text-gray-400 uppercase">Usuario</span>
                                 <div class="flex items-center gap-2">
                                     <span class="text-xs font-bold text-gray-700">{{ item.usuario }}</span>
@@ -202,7 +202,7 @@ const getOwnerName = (item) => {
                                 </div>
                             </div>
 
-                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                            <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100">
                                 <span class="text-[10px] font-black text-gray-400 uppercase">Password</span>
                                 <div class="flex items-center gap-2">
                                     <span v-if="revealedPasswords[item.id]" class="text-xs font-mono font-black text-indigo-600 tracking-wider">
@@ -230,7 +230,7 @@ const getOwnerName = (item) => {
                         </div>
                     </div>
 
-                    <div class="px-5 py-3 border-t border-gray-50 bg-gray-50/50 flex items-center justify-between">
+                    <div class="px-5 py-3 border-t border-gray-50 bg-white/50 flex items-center justify-between">
                         <span class="text-[9px] font-black text-gray-400 uppercase">
                              Actualizado {{ new Date(item.updated_at).toLocaleDateString() }}
                         </span>
@@ -244,7 +244,7 @@ const getOwnerName = (item) => {
 
             <!-- Empty State -->
             <div v-else class="bg-white rounded-3xl p-16 text-center shadow-sm border border-gray-100">
-                <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-200">
+                <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-6 text-gray-200">
                     <font-awesome-icon icon="search" size="4x" />
                 </div>
                 <h3 class="text-xl font-black text-gray-800 uppercase mb-2">No se encontraron credenciales</h3>
@@ -260,7 +260,7 @@ const getOwnerName = (item) => {
         <!-- Modal de Creación Global -->
         <div v-if="showingCreateModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
             <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden">
-                <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-white">
                     <h3 class="text-sm font-black text-gray-800 uppercase tracking-widest">
                         Nueva Credencial Global
                     </h3>
@@ -272,7 +272,7 @@ const getOwnerName = (item) => {
                 <form @submit.prevent="submit" class="p-6">
                     <div class="space-y-6">
                         <!-- Selección de Tipo Visual -->
-                        <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <div class="p-4 bg-white rounded-2xl border border-gray-100">
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 px-1">¿A quién pertenece esta credencial?</label>
                             
                             <!-- Toggle Tabs -->
@@ -371,7 +371,7 @@ const getOwnerName = (item) => {
 
                     <!-- Footer Actions -->
                     <div class="mt-8 flex gap-3 pt-6 border-t border-gray-100">
-                        <button type="button" @click="showingCreateModal = false" class="flex-1 h-12 bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 rounded-xl text-xs font-black uppercase transition-all">
+                        <button type="button" @click="showingCreateModal = false" class="flex-1 h-12 bg-white border border-gray-200 hover:bg-white text-gray-600 rounded-xl text-xs font-black uppercase transition-all">
                             Cancelar
                         </button>
                         <button type="submit" :disabled="form.processing" class="flex-1 h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black uppercase transition-all shadow-lg shadow-indigo-200 flex items-center justify-center gap-2">

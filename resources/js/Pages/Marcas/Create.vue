@@ -63,8 +63,8 @@ const cancel = () => {
 <template>
   <Head title="Crear Marca" />
 
-  <div class="min-h-screen bg-gray-50">
-    <div class="max-w-4xl mx-auto px-6 py-8">
+  <div class="min-h-screen bg-white">
+    <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">

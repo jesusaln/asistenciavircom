@@ -99,7 +99,7 @@ const getTipoBadge = (tipo) => {
                 <!-- Tabla de Planes -->
                 <div class="bg-white rounded-xl shadow-sm overflow-hidden">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-white">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plan</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
@@ -110,7 +110,7 @@ const getTipoBadge = (tipo) => {
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
-                            <tr v-for="plan in planes.data" :key="plan.id" class="hover:bg-gray-50">
+                            <tr v-for="plan in planes.data" :key="plan.id" class="hover:bg-white">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         <span class="text-2xl">{{ plan.icono || '🛡️' }}</span>

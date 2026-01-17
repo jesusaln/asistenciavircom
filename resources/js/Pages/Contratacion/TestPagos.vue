@@ -121,7 +121,7 @@ const handleStripe = async () => {
     <Head title="Test de Pagos" />
 
     <div class="min-h-screen bg-gray-100 p-8">
-        <div class="max-w-4xl mx-auto space-y-6">
+        <div class="w-full space-y-6">
             
             <!-- Header -->
             <div class="bg-white rounded-lg shadow p-6">
@@ -137,7 +137,7 @@ const handleStripe = async () => {
 
             <!-- Detalles de la Póliza -->
             <div v-if="poliza" class="bg-white rounded-lg shadow overflow-hidden">
-                <div class="bg-gray-50 px-6 py-4 border-b">
+                <div class="bg-white px-6 py-4 border-b">
                     <h3 class="text-lg font-medium text-gray-900">Póliza Pendiente #{{ poliza.id }}</h3>
                 </div>
                 <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -32,7 +32,7 @@ const submit = () => {
 <template>
     <Head title="Acceso al Portal" />
 
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col font-sans transition-colors duration-300" :style="cssVars">
+    <div class="min-h-screen bg-white dark:bg-gray-900 flex flex-col font-sans transition-colors duration-300" :style="cssVars">
         <PublicNavbar :empresa="empresa" activeTab="soporte" />
 
         <div class="flex-grow flex items-center justify-center p-4">
@@ -61,7 +61,7 @@ const submit = () => {
                                     type="email" 
                                     placeholder="ejemplo@correo.com"
                                     required
-                                    class="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium placeholder-gray-400 dark:placeholder-gray-500"
+                                    class="w-full px-6 py-4 bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium placeholder-gray-400 dark:placeholder-gray-500"
                                 >
                                 <div v-if="form.errors.email" class="text-red-500 text-[10px] font-bold mt-1 ml-1 uppercase tracking-widest">{{ form.errors.email }}</div>
                             </div>
@@ -76,7 +76,7 @@ const submit = () => {
                                     type="password" 
                                     placeholder="••••••••"
                                     required
-                                    class="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium placeholder-gray-400 dark:placeholder-gray-500"
+                                    class="w-full px-6 py-4 bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium placeholder-gray-400 dark:placeholder-gray-500"
                                 >
                             </div>
 

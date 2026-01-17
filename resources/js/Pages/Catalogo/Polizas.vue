@@ -114,7 +114,7 @@ const planesCalculados = computed(() => {
             <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-[var(--color-primary)] opacity-[0.03] rounded-full blur-[120px] -z-10"></div>
             <div class="absolute -bottom-24 left-0 w-[600px] h-[600px] bg-[var(--color-terciary)] opacity-[0.05] rounded-full blur-[100px] -z-10"></div>
 
-            <div class="max-w-4xl mx-auto px-4 text-center">
+            <div class="w-full px-4 text-center">
                 <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-terciary-soft)] border border-[var(--color-terciary-soft)] mb-8 animate-fade-in shadow-sm">
                     <span class="w-2 h-2 rounded-full bg-[var(--color-terciary)] animate-pulse"></span>
                     <span class="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--color-terciary)]">Pólizas Premium de Servicio</span>
@@ -125,7 +125,7 @@ const planesCalculados = computed(() => {
                     <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Sin Límites</span>
                 </h1>
                 
-                <p class="text-xl text-gray-500 dark:text-gray-400 font-medium mb-12 max-w-2xl mx-auto leading-relaxed transition-colors">
+                <p class="text-xl text-gray-500 dark:text-gray-400 font-medium mb-12 w-full leading-relaxed transition-colors">
                     Protección total para sus equipos de climatización. Atención prioritaria, mantenimientos preventivos incluidos y la tranquilidad que su hogar necesita.
                 </p>
                 
@@ -228,7 +228,7 @@ const planesCalculados = computed(() => {
                         v-if="getPrecio(plan) > 0"
                         :href="route('contratacion.show', plan.slug)"
                         class="w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-xl"
-                        :class="plan.destacado ? 'bg-gray-900 text-white hover:bg-black shadow-gray-200' : 'bg-gray-50 text-gray-900 hover:bg-gray-100 shadow-gray-100'"
+                        :class="plan.destacado ? 'bg-gray-900 text-white hover:bg-black shadow-gray-200' : 'bg-white text-gray-900 hover:bg-gray-100 shadow-gray-100'"
                     >
                         Contratar Plan
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>

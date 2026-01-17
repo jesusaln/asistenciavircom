@@ -40,16 +40,16 @@
                         <FontAwesomeIcon :icon="['fas', 'plus']" />
                         Nuevo Prospecto
                     </button>
-                    <Link href="/crm/tareas" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 font-medium rounded-xl border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all">
+                    <Link href="/crm/tareas" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 font-medium rounded-xl border border-gray-200 hover:bg-white hover:border-gray-300 transition-all">
                         <FontAwesomeIcon :icon="['fas', 'tasks']" />
                         Mis Tareas
                         <span v-if="stats.con_actividad_pendiente" class="ml-1 px-2 py-0.5 bg-red-100 text-red-600 text-xs font-bold rounded-full">{{ stats.con_actividad_pendiente }}</span>
                     </Link>
-                    <Link v-if="isAdmin" href="/crm/metas" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 font-medium rounded-xl border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all">
+                    <Link v-if="isAdmin" href="/crm/metas" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 font-medium rounded-xl border border-gray-200 hover:bg-white hover:border-gray-300 transition-all">
                         <FontAwesomeIcon :icon="['fas', 'bullseye']" />
                         Metas
                     </Link>
-                    <Link v-if="isAdmin" href="/crm/campanias" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 font-medium rounded-xl border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all">
+                    <Link v-if="isAdmin" href="/crm/campanias" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 font-medium rounded-xl border border-gray-200 hover:bg-white hover:border-gray-300 transition-all">
                         <FontAwesomeIcon :icon="['fas', 'bullhorn']" />
                         Campañas
                     </Link>
@@ -154,7 +154,7 @@
                 </h3>
                 <div class="space-y-2">
                     <div v-for="(item, index) in leaderboard.slice(0, 5)" :key="item.user_id"
-                         class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50">
+                         class="flex items-center gap-2 p-2 rounded-lg hover:bg-white">
                         <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
                               :class="index === 0 ? 'bg-amber-500 text-white' : index === 1 ? 'bg-gray-400 text-white' : index === 2 ? 'bg-orange-400 text-white' : 'bg-gray-200 text-gray-600'">
                             {{ index + 1 }}
@@ -202,7 +202,7 @@
                 <div class="flex gap-4 min-w-max">
                     <!-- Columnas del Pipeline -->
                     <div v-for="(etapaData, etapaKey) in filteredPipeline" :key="etapaKey" 
-                         class="flex-shrink-0 w-80 bg-gray-50/80 rounded-xl border border-gray-100">
+                         class="flex-shrink-0 w-80 bg-white/80 rounded-xl border border-gray-100">
                         <!-- Header de Etapa -->
                         <div class="p-4 border-b border-gray-100">
                             <div class="flex items-center justify-between mb-2">
@@ -527,7 +527,7 @@
                                 </div>
                             </div>
                             
-                            <div class="flex items-center justify-center gap-3 py-4 px-4 bg-gray-50 rounded-xl mb-4">
+                            <div class="flex items-center justify-center gap-3 py-4 px-4 bg-white rounded-xl mb-4">
                                 <div class="text-center">
                                     <span class="text-xs text-gray-500 block mb-1">De</span>
                                     <span class="px-3 py-1.5 bg-green-100 text-green-700 rounded-lg font-medium text-sm">

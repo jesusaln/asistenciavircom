@@ -45,7 +45,7 @@ const diasFormateados = computed(() => {
     <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100" :style="cssVars">
         <!-- Header -->
         <header class="bg-white shadow-sm">
-            <div class="max-w-lg mx-auto px-4 py-4">
+            <div class="w-full px-4 py-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-[var(--color-primary)] flex items-center justify-center text-white font-bold">
                         {{ empresa?.nombre?.charAt(0) || 'C' }}
@@ -58,7 +58,7 @@ const diasFormateados = computed(() => {
             </div>
         </header>
 
-        <main class="max-w-lg mx-auto px-4 py-6 space-y-6">
+        <main class="w-full px-4 py-6 space-y-6">
             <!-- Estado Principal -->
             <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
                 <div 
@@ -111,7 +111,7 @@ const diasFormateados = computed(() => {
                     </div>
                     
                     <!-- Técnico asignado -->
-                    <div v-if="cita?.tecnico" class="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                    <div v-if="cita?.tecnico" class="flex items-center gap-3 p-4 bg-white rounded-xl">
                         <div class="w-12 h-12 bg-[var(--color-primary)] rounded-full flex items-center justify-center text-white font-bold text-lg">
                             {{ cita.tecnico.nombre?.charAt(0) || '?' }}
                         </div>
@@ -123,7 +123,7 @@ const diasFormateados = computed(() => {
                     </div>
                     
                     <!-- Dirección -->
-                    <div class="p-4 bg-gray-50 rounded-xl">
+                    <div class="p-4 bg-white rounded-xl">
                         <p class="text-sm text-gray-500 mb-1">📍 Dirección del servicio</p>
                         <p class="font-medium text-gray-900">{{ cita?.direccion_completa }}</p>
                         <p v-if="cita?.direccion_referencias" class="text-sm text-gray-500 italic mt-1">
@@ -132,7 +132,7 @@ const diasFormateados = computed(() => {
                     </div>
                     
                     <!-- Servicio -->
-                    <div class="p-4 bg-gray-50 rounded-xl">
+                    <div class="p-4 bg-white rounded-xl">
                         <p class="text-sm text-gray-500 mb-1">🔧 Servicio solicitado</p>
                         <p class="font-medium text-gray-900 capitalize">{{ cita?.tipo_servicio }} - {{ cita?.tipo_equipo }}</p>
                         <p v-if="cita?.nombre_tienda" class="text-sm text-gray-500">
@@ -161,7 +161,7 @@ const diasFormateados = computed(() => {
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
-                        <thead class="bg-gray-50 text-gray-600 font-medium">
+                        <thead class="bg-white text-gray-600 font-medium">
                             <tr>
                                 <th class="px-3 py-2 text-left">Concepto</th>
                                 <th class="px-3 py-2 text-center">Cant.</th>
@@ -253,7 +253,7 @@ const diasFormateados = computed(() => {
                 <a 
                     v-if="empresa?.telefono"
                     :href="`tel:${empresa.telefono}`"
-                    class="flex items-center justify-center gap-2 w-full py-3 border-2 border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors"
+                    class="flex items-center justify-center gap-2 w-full py-3 border-2 border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-white transition-colors"
                 >
                     📞 Llamar: {{ empresa.telefono }}
                 </a>

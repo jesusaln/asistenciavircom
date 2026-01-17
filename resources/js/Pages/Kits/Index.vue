@@ -93,7 +93,7 @@
                 </div>
               </div>
               <button v-if="searchQuery" @click="clearSearch"
-                      class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+                      class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
                 <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
@@ -107,7 +107,7 @@
         <div class="bg-white shadow rounded-lg overflow-hidden">
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
+              <thead class="bg-white">
                 <tr>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Código
@@ -148,7 +148,7 @@
                     No se encontraron kits
                   </td>
                 </tr>
-                <tr v-else v-for="kit in kits" :key="kit.id" class="hover:bg-gray-50">
+                <tr v-else v-for="kit in kits" :key="kit.id" class="hover:bg-white">
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {{ kit.codigo }}
                   </td>
@@ -204,11 +204,11 @@
           <div v-if="pagination.last_page > 1" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
             <div class="flex-1 flex justify-between sm:hidden">
               <button @click="changePage(pagination.current_page - 1)" :disabled="pagination.current_page === 1"
-                      class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                      class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed">
                 Anterior
               </button>
               <button @click="changePage(pagination.current_page + 1)" :disabled="pagination.current_page === pagination.last_page"
-                      class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                      class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed">
                 Siguiente
               </button>
             </div>
@@ -227,7 +227,7 @@
               <div>
                 <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                   <button @click="changePage(pagination.current_page - 1)" :disabled="pagination.current_page === 1"
-                          class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                          class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed">
                     <span class="sr-only">Anterior</span>
                     <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -238,12 +238,12 @@
                             'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
                             page === pagination.current_page
                               ? 'z-10 bg-indigo-50 border-amber-500 text-amber-600'
-                              : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                              : 'bg-white border-gray-300 text-gray-500 hover:bg-white'
                           ]">
                     {{ page }}
                   </button>
                   <button @click="changePage(pagination.current_page + 1)" :disabled="pagination.current_page === pagination.last_page"
-                          class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                          class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed">
                     <span class="sr-only">Siguiente</span>
                     <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -260,10 +260,10 @@
       <div v-if="showModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
           <!-- Background overlay -->
-          <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="closeModal"></div>
+          <div class="fixed inset-0 bg-white0 bg-opacity-75 transition-opacity" @click="closeModal"></div>
 
           <!-- Modal panel -->
-          <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+          <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:w-full sm:w-full">
             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
               <div class="flex justify-between items-start mb-4">
                 <h3 class="text-2xl font-bold text-gray-900" id="modal-title">Detalles del Kit</h3>
@@ -283,7 +283,7 @@
 
               <div v-else-if="selectedKit" class="space-y-6">
                 <!-- Información Básica -->
-                <div class="bg-gray-50 rounded-lg p-4">
+                <div class="bg-white rounded-lg p-4">
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label class="block text-sm font-medium text-gray-500">Código</label>
@@ -313,7 +313,7 @@
                   <h4 class="text-lg font-medium text-gray-900 mb-3">Componentes ({{ selectedKit.kit_items?.length || 0 }})</h4>
                   <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
-                      <thead class="bg-gray-50">
+                      <thead class="bg-white">
                         <tr>
                           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Código</th>
                           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Producto</th>
@@ -350,11 +350,11 @@
               </div>
             </div>
 
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <div class="bg-white px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
               <Link :href="`/kits/${selectedKit?.id}/edit`" v-if="selectedKit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-amber-500 text-base font-medium text-white hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:ml-3 sm:w-auto sm:text-sm">
                 Editar Kit
               </Link>
-              <button @click="closeModal" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:mt-0 sm:w-auto sm:text-sm">
+              <button @click="closeModal" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:mt-0 sm:w-auto sm:text-sm">
                 Cerrar
               </button>
             </div>

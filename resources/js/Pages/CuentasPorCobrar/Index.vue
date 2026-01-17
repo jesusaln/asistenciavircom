@@ -147,7 +147,7 @@
             <div class="p-6">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-white">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Origen
@@ -260,7 +260,7 @@
                                 v-html="link.label"
                                 :class="[
                                     'px-3 py-2 text-sm border rounded',
-                                    link.active ? 'bg-blue-500 text-white border-blue-500' : (link.url ? 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50' : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed')
+                                    link.active ? 'bg-blue-500 text-white border-blue-500' : (link.url ? 'bg-white text-gray-700 border-gray-300 hover:bg-white' : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed')
                                 ]"
                                 :preserve-scroll="link.url ? true : false"
                             />

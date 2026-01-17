@@ -79,7 +79,7 @@ const mostrarVistaPrevia = ref(false);
     <Head title="Ver Cotización" />
     <AppLayout>
         <div class="cotizaciones-show min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-            <div class="max-w-4xl mx-auto">
+            <div class="w-full">
                 <!-- Encabezado -->
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-6">
                     <div class="px-6 py-4 text-white" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
@@ -208,7 +208,7 @@ const mostrarVistaPrevia = ref(false);
 
                         <button
                             @click="mostrarVistaPrevia = true"
-                            class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                            class="bg-white0 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                         >
                             Vista Previa
                         </button>

@@ -1,6 +1,6 @@
 <template>
   <Head title="Editar Técnico" />
-  <div class="max-w-4xl mx-auto p-6">
+  <div class="w-full p-6">
     <!-- Header -->
     <div class="mb-8">
       <div class="flex items-center justify-between">
@@ -301,7 +301,7 @@
           <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
             <Link
               :href="route('tecnicos.index')"
-              class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-white transition-colors"
             >
               Cancelar
             </Link>

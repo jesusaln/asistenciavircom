@@ -187,7 +187,7 @@ const handleCategoriaUpdated = (categoria) => {
     <p class="mt-2 text-gray-600">Cargando formulario...</p>
   </div>
 
-  <form v-if="isDataReady" @submit.prevent="submit" class="bg-white shadow-lg rounded-lg p-8 space-y-8 max-w-4xl">
+  <form v-if="isDataReady" @submit.prevent="submit" class="bg-white shadow-lg rounded-lg p-8 space-y-8 w-full">
     <!-- Información básica -->
     <div class="border-b border-gray-200 pb-6">
       <h2 class="text-lg font-semibold text-gray-900 mb-4">Información Básica</h2>
@@ -376,7 +376,7 @@ const handleCategoriaUpdated = (categoria) => {
     <div class="flex justify-end space-x-4 pt-6">
       <Link
         :href="route('herramientas.index')"
-        class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+        class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-white transition-colors duration-200"
       >
         Cancelar
       </Link>

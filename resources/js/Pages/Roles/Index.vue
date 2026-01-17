@@ -52,7 +52,7 @@ const confirmarEliminacion = (id, name) => {
         <!-- Tabla -->
         <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Rol
@@ -69,7 +69,7 @@ const confirmarEliminacion = (id, name) => {
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="role in roles" :key="role.id" class="hover:bg-gray-50">
+              <tr v-for="role in roles" :key="role.id" class="hover:bg-white">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
                     <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-purple-100 text-purple-600">

@@ -783,7 +783,7 @@ const colorClasses = {
   slate:  { text: 'text-slate-600',   bg: 'bg-slate-50',    border: 'border-slate-200',   ring: 'ring-slate-500/20' },
   indigo: { text: 'text-amber-600',  bg: 'bg-indigo-50',   border: 'border-indigo-200',  ring: 'ring-amber-500/20' },
   emerald:{ text: 'text-emerald-600', bg: 'bg-emerald-50',  border: 'border-emerald-200', ring: 'ring-emerald-500/20' },
-  gray:   { text: 'text-gray-600',    bg: 'bg-gray-50',     border: 'border-gray-200',    ring: 'ring-gray-500/20' }
+  gray:   { text: 'text-gray-600',    bg: 'bg-white',     border: 'border-gray-200',    ring: 'ring-gray-500/20' }
 }
 
 const getColorClasses = (color) => colorClasses[color] || colorClasses.slate
@@ -1155,7 +1155,7 @@ const validarEstado = (estado) => {
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
   </component>
 
-  <div class="ordenes-compra-index min-h-screen bg-gray-50">
+  <div class="ordenes-compra-index min-h-screen bg-white">
     <!-- Contenido principal -->
     <div class="w-full px-6 py-8">
       <!-- Header específico de órdenes de compra -->
@@ -1213,7 +1213,7 @@ const validarEstado = (estado) => {
           <!-- Table -->
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200/60">
-              <thead class="bg-gray-50/60">
+              <thead class="bg-white/60">
                 <tr>
                   <!-- Fecha -->
                   <th
@@ -1330,7 +1330,7 @@ const validarEstado = (estado) => {
                     v-for="doc in items"
                     :key="doc.id"
                     :class="[
-                      'group hover:bg-gray-50/60 transition-all duration-150 hover:shadow-sm',
+                      'group hover:bg-white/60 transition-all duration-150 hover:shadow-sm',
                       doc.estado === 'cancelada' ? 'opacity-50' : ''
                     ]"
                   >
@@ -1514,7 +1514,7 @@ const validarEstado = (estado) => {
         <button
           @click="prevPage"
           :disabled="props.pagination.current_page === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Anterior
         </button>
@@ -1524,7 +1524,7 @@ const validarEstado = (estado) => {
           <template v-if="!visiblePages.includes(1) && props.pagination.last_page > 7">
             <button
               @click="goToPage(1)"
-              class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white"
             >
               1
             </button>
@@ -1540,7 +1540,7 @@ const validarEstado = (estado) => {
               'px-3 py-2 text-sm font-medium border border-gray-300 rounded-md',
               page === props.pagination.current_page
                 ? 'bg-blue-500 text-white border-blue-500'
-                : 'text-gray-700 bg-white hover:bg-gray-50'
+                : 'text-gray-700 bg-white hover:bg-white'
             ]"
           >
             {{ page }}
@@ -1551,7 +1551,7 @@ const validarEstado = (estado) => {
             <span class="px-3 py-2 text-sm text-gray-500">...</span>
             <button
               @click="goToPage(props.pagination.last_page)"
-              class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white"
             >
               {{ props.pagination.last_page }}
             </button>
@@ -1561,7 +1561,7 @@ const validarEstado = (estado) => {
         <button
           @click="nextPage"
           :disabled="props.pagination.current_page === props.pagination.last_page"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Siguiente
         </button>
@@ -1578,7 +1578,7 @@ const validarEstado = (estado) => {
         <div
           :class="{
             'max-w-md': modalMode === 'confirm' || modalMode === 'confirm-duplicate',
-            'max-w-4xl': modalMode === 'details'
+            'w-full': modalMode === 'details'
           }"
           class="bg-white rounded-lg shadow-xl w-full max-h-[90vh] overflow-y-auto p-6 outline-none"
           role="dialog"
@@ -1630,7 +1630,7 @@ const validarEstado = (estado) => {
             </h3>
 
             <!-- Auditoría -->
-            <div v-if="auditoriaForModal" class="mt-2 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div v-if="auditoriaForModal" class="mt-2 p-4 bg-white rounded-lg border border-gray-200">
               <h4 class="text-sm font-semibold text-gray-800 mb-3">Auditoría</h4>
               <div class="grid md:grid-cols-3 gap-3 text-sm">
                 <div>
@@ -1719,7 +1719,7 @@ const validarEstado = (estado) => {
                 <h4 class="text-sm font-medium text-gray-900 mb-2">Productos</h4>
                 <div class="overflow-x-auto">
                   <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                    <thead class="bg-white">
                       <tr>
                         <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                           Nombre
@@ -1757,7 +1757,7 @@ const validarEstado = (estado) => {
               <p v-else class="text-sm text-gray-600">No hay productos asociados.</p>
 
               <!-- Totales para órdenes de compra -->
-              <div v-if="fila.productos?.length" class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div v-if="fila.productos?.length" class="mt-4 p-4 bg-white rounded-lg border border-gray-200">
                 <h4 class="text-sm font-medium text-gray-900 mb-3">Resumen de Orden de Compra</h4>
                 <div class="space-y-2 text-sm">
                   <div class="flex justify-between">
@@ -1869,7 +1869,7 @@ const validarEstado = (estado) => {
             <div
               v-for="(producto, index) in getProductosDelDoc(hoveredDoc)"
               :key="index"
-              class="group p-3 bg-gray-50/70 rounded-lg hover:bg-gray-100/70 hover:shadow-sm transition-all duration-150"
+              class="group p-3 bg-white/70 rounded-lg hover:bg-gray-100/70 hover:shadow-sm transition-all duration-150"
             >
               <div class="flex items-start justify-between">
                 <div class="flex-1 min-w-0 mr-3">
@@ -1978,7 +1978,7 @@ const validarEstado = (estado) => {
           </div>
 
           <div class="mt-6 flex items-center justify-end space-x-3">
-            <button @click="closeSeriesModal" class="px-4 py-2 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">Cancelar</button>
+            <button @click="closeSeriesModal" class="px-4 py-2 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-white">Cancelar</button>
             <button @click="submitSeriesConversion" class="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700">Convertir con series</button>
           </div>
         </div>
@@ -2004,7 +2004,7 @@ const validarEstado = (estado) => {
 }
 
 @media (max-width: 640px) {
-  .ordenes-compra-index .max-w-7xl {
+  .ordenes-compra-index .w-full {
     padding-left: 1rem;
     padding-right: 1rem;
   }
@@ -2056,14 +2056,14 @@ const validarEstado = (estado) => {
 }
 
 @media (prefers-contrast: high) {
-  .bg-gray-50 { background-color: #f9fafb; }
+  .bg-white { background-color: #f9fafb; }
   .border-gray-200 { border-color: #d1d5db; }
 }
 
 button:focus-visible { outline: 2px solid; outline-offset: 2px; }
 
 @media (hover: none) {
-  .hover\:bg-gray-50:hover { background-color: transparent; }
+  .hover\:bg-white:hover { background-color: transparent; }
   .group:hover { transform: none; }
 }
 

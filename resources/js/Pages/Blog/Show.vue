@@ -44,12 +44,12 @@ const shareToTwitter = () => {
         <meta property="og:image" :content="post.imagen_portada">
     </Head>
     
-    <div :style="cssVars" class="min-h-screen bg-gray-50 flex flex-col font-sans">
+    <div :style="cssVars" class="min-h-screen bg-white flex flex-col font-sans">
         <PublicNavbar :empresa="empresa" />
 
         <main class="flex-grow">
             <!-- Article Content -->
-            <article class="max-w-4xl mx-auto px-4 py-12 md:py-20">
+            <article class="w-full px-4 py-12 md:py-20">
                 <!-- Breadcrumbs -->
                 <nav class="flex items-center gap-2 text-sm text-gray-400 mb-8">
                     <Link :href="route('landing')" class="hover:text-[var(--color-primary)] transition-colors">Inicio</Link>

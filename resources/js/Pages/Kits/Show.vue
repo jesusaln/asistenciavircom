@@ -1,7 +1,7 @@
 <template>
   <AppLayout :title="`Kit: ${kit.nombre}`">
     <div class="kits-show">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="w-full px-4 sm:px-6 lg:px-8 py-8">
         <!-- Header -->
         <div class="mb-8">
           <div class="flex justify-between items-center">
@@ -16,7 +16,7 @@
                 </svg>
                 Editar Kit
               </Link>
-              <Link href="/kits" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+              <Link href="/kits" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path>
                 </svg>
@@ -115,7 +115,7 @@
 
         <!-- Detalles del Kit -->
         <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8">
-          <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+          <div class="px-6 py-4 bg-white border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Información del Kit</h3>
           </div>
 
@@ -151,7 +151,7 @@
 
         <!-- Componentes del Kit -->
         <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-          <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+          <div class="px-6 py-4 bg-white border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Componentes del Kit</h3>
             <p class="mt-1 text-sm text-gray-600">Productos que conforman este kit</p>
           </div>
@@ -159,7 +159,7 @@
           <div class="px-6 py-6">
             <div v-if="kit.kit_items && kit.kit_items.length > 0" class="space-y-4">
               <div v-for="item in kit.kit_items" :key="item.id"
-                   class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                   class="border border-gray-200 rounded-lg p-4 hover:bg-white transition-colors">
                 <div class="flex justify-between items-start">
                   <div class="flex-1">
                     <div class="flex items-center space-x-3">

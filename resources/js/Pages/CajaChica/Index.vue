@@ -105,7 +105,7 @@
                                 </select>
                             </div>
                             <div class="flex gap-2">
-                                <button @click="clearFilters" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded">
+                                <button @click="clearFilters" class="bg-white0 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded">
                                     Limpiar
                                 </button>
                                 <button @click="applyFilters" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
@@ -141,7 +141,7 @@
                 <!-- Transactions Table -->
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-white">
                             <tr>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     <button class="flex items-center gap-1" @click="toggleSort('fecha')">
@@ -246,14 +246,14 @@
                             </tr>
                         </tbody>
                         <tfoot v-if="movimientos.data.length">
-                            <tr class="bg-gray-50">
+                            <tr class="bg-white">
                                 <td colspan="4" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase">Totales página</td>
                                 <td class="px-6 py-3 text-sm font-bold text-right">
                                     ${{ formatMoney(totalPagina.monto) }}
                                 </td>
                                 <td colspan="3"></td>
                             </tr>
-                            <tr class="bg-gray-50">
+                            <tr class="bg-white">
                                 <td colspan="4" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase">Ingresos / Egresos página</td>
                                 <td class="px-6 py-3 text-sm font-bold text-right">
                                     <span class="text-green-600">+${{ formatMoney(totalPagina.ingresos) }}</span>
@@ -372,7 +372,7 @@
                 </div>
 
                 <div class="flex justify-end mt-6">
-                    <button @click="closeModal" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2" :disabled="form.processing">
+                    <button @click="closeModal" class="bg-white0 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2" :disabled="form.processing">
                         Cancelar
                     </button>
                     <button @click="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-75" :disabled="form.processing">
@@ -409,7 +409,7 @@
                         </div>
                     </div>
                     <div class="mt-4 flex justify-end gap-2">
-                        <button @click="cerrarComprobante" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                        <button @click="cerrarComprobante" class="bg-white0 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                             Cerrar
                         </button>
                     </div>

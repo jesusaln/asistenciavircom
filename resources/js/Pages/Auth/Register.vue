@@ -30,7 +30,7 @@ const submit = () => {
 <template>
     <Head title="Registro de Usuario" />
 
-    <div :style="cssVars" class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
+    <div :style="cssVars" class="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
         <div class="sm:mx-auto sm:w-full sm:max-w-md">
             <Link href="/" class="flex justify-center mb-6">
                 <img v-if="$page.props.empresa_config?.logo_url" :src="$page.props.empresa_config.logo_url" class="h-20 w-auto object-contain" :alt="$page.props.empresa_config.nombre_empresa">

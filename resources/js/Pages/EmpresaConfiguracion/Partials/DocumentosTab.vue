@@ -66,7 +66,7 @@
                  <div class="pt-6 border-t">
                     <h3 class="text-md font-medium text-gray-900 mb-4">Logo para Documentos PDF</h3>
                     <div class="flex items-center gap-6">
-                        <div class="w-32 h-16 border rounded-lg flex items-center justify-center bg-gray-50 overflow-hidden">
+                        <div class="w-32 h-16 border rounded-lg flex items-center justify-center bg-white overflow-hidden">
                              <img v-if="logoReportesPreview || form.logo_reportes_url" :src="logoReportesPreview || form.logo_reportes_url" class="max-w-full max-h-full object-contain" />
                              <FontAwesomeIcon v-else icon="file-pdf" class="text-gray-300 text-2xl" />
                         </div>

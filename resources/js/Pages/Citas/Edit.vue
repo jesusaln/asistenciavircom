@@ -1,7 +1,7 @@
 <template>
     <div>
         <Head title="Editar Cita" />
-        <div class="max-w-4xl mx-auto">
+        <div class="w-full">
         <div class="bg-white shadow-sm rounded-lg p-6">
             <h1 class="text-2xl font-semibold mb-6 text-gray-800">Editar Cita #{{ cita.id }}</h1>
 
@@ -254,7 +254,7 @@
                     
                     <!-- Resumen de Totales Estimados -->
                      <div v-if="selectedProducts.length > 0" class="mt-4 flex justify-end">
-                        <div class="w-64 space-y-2 bg-gray-50 p-4 rounded-lg">
+                        <div class="w-64 space-y-2 bg-white p-4 rounded-lg">
                             <div class="flex justify-between text-sm">
                                 <span class="text-gray-600">Subtotal:</span>
                                 <span class="font-medium">${{ totalCalculado.subtotal.toLocaleString('es-MX', {minimumFractionDigits: 2}) }}</span>
@@ -285,7 +285,7 @@
                 </div>
 
                 <!-- Sección: Evidencias y Reporte (Editable) -->
-                <div class="border-b border-gray-200 pb-6 bg-gray-50/50 p-6 rounded-xl border border-gray-100">
+                <div class="border-b border-gray-200 pb-6 bg-white/50 p-6 rounded-xl border border-gray-100">
                     <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                         <span>📸</span> Evidencias y Reporte de Servicio
                     </h2>
@@ -339,7 +339,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Agregar Nuevas Evidencias</label>
                         <div class="flex items-center justify-center w-full">
-                            <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                            <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-100 transition-colors">
                                 <div class="flex flex-col items-center justify-center pt-5 pb-6">
                                     <svg class="w-8 h-8 mb-3 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
@@ -427,7 +427,7 @@
                         <button
                             type="button"
                             @click="resetForm"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                         >
                             <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>

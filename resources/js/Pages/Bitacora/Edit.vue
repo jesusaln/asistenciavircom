@@ -1,7 +1,7 @@
 <template>
   <Head title="Editar Actividad" />
   <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
       <!-- Header mejorado -->
       <div class="mb-8">
         <div class="flex items-start justify-between gap-4">
@@ -17,7 +17,7 @@
                 <p class="text-sm text-gray-600">Actualiza los detalles de tu actividad</p>
               </div>
             </div>
-            <div class="flex items-center gap-4 text-xs text-gray-500 bg-gray-50 px-3 py-2 rounded-lg">
+            <div class="flex items-center gap-4 text-xs text-gray-500 bg-white px-3 py-2 rounded-lg">
               <div class="flex items-center">
                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -36,7 +36,7 @@
           <div class="flex gap-2">
             <Link
               :href="route('bitacora.show', actividad.id)"
-              class="inline-flex items-center px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm"
+              class="inline-flex items-center px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-white hover:border-gray-300 transition-all duration-200 shadow-sm"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -332,16 +332,16 @@
               <div class="flex items-center justify-between mb-2">
                 <label for="fin_at" class="block text-sm font-semibold text-gray-700">Fecha y hora de fin</label>
                 <div class="flex gap-1 flex-wrap">
-                  <button type="button" @click="setNow('fin_at')" class="text-xs px-2 py-1 bg-gray-50 text-gray-600 border border-gray-200 rounded hover:bg-gray-100 transition-colors">
+                  <button type="button" @click="setNow('fin_at')" class="text-xs px-2 py-1 bg-white text-gray-600 border border-gray-200 rounded hover:bg-gray-100 transition-colors">
                     Ahora
                   </button>
-                  <button type="button" @click="sumarMinutos(30)" class="text-xs px-2 py-1 bg-gray-50 text-gray-600 border border-gray-200 rounded hover:bg-gray-100 transition-colors">
+                  <button type="button" @click="sumarMinutos(30)" class="text-xs px-2 py-1 bg-white text-gray-600 border border-gray-200 rounded hover:bg-gray-100 transition-colors">
                     +30m
                   </button>
-                  <button type="button" @click="sumarMinutos(60)" class="text-xs px-2 py-1 bg-gray-50 text-gray-600 border border-gray-200 rounded hover:bg-gray-100 transition-colors">
+                  <button type="button" @click="sumarMinutos(60)" class="text-xs px-2 py-1 bg-white text-gray-600 border border-gray-200 rounded hover:bg-gray-100 transition-colors">
                     +1h
                   </button>
-                  <button type="button" @click="sumarMinutos(120)" class="text-xs px-2 py-1 bg-gray-50 text-gray-600 border border-gray-200 rounded hover:bg-gray-100 transition-colors">
+                  <button type="button" @click="sumarMinutos(120)" class="text-xs px-2 py-1 bg-white text-gray-600 border border-gray-200 rounded hover:bg-gray-100 transition-colors">
                     +2h
                   </button>
                 </div>
@@ -434,7 +434,7 @@
         </div>
 
         <!-- Footer del formulario -->
-        <div class="px-8 py-6 bg-gray-50 border-t border-gray-200 rounded-b-2xl">
+        <div class="px-8 py-6 bg-white border-t border-gray-200 rounded-b-2xl">
           <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
             <div class="text-xs text-gray-500 flex items-start">
               <svg class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -447,7 +447,7 @@
                 type="button"
                 @click="resetForm"
                 :disabled="form.processing || !hasChanges"
-                class="px-6 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-sm"
+                class="px-6 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-sm"
               >
                 <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>

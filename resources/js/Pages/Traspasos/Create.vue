@@ -225,8 +225,8 @@ const cancel = () => {
 <template>
   <Head title="Nuevo Traspaso" />
 
-  <div class="min-h-screen bg-gray-50">
-    <div class="max-w-5xl mx-auto px-6 py-8">
+  <div class="min-h-screen bg-white">
+    <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
@@ -408,7 +408,7 @@ const cancel = () => {
             <div
               v-for="(item, index) in form.items"
               :key="index"
-              class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
+              class="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200"
             >
               <div class="flex-1">
                 <p class="font-medium text-gray-900">{{ item.producto_nombre }}</p>

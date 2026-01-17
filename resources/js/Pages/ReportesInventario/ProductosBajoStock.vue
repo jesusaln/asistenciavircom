@@ -72,7 +72,7 @@
       <div v-if="productos.length > 0" class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock Actual</th>
@@ -85,7 +85,7 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="producto in productos" :key="producto.id" class="hover:bg-gray-50">
+              <tr v-for="producto in productos" :key="producto.id" class="hover:bg-white">
                 <td class="px-6 py-4">
                   <div class="flex items-center">
                     <div class="flex-shrink-0 h-10 w-10">

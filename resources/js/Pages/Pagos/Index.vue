@@ -348,7 +348,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
 <template>
   <Head title="Pagos de Préstamos" />
 
-  <div class="pagos-index min-h-screen bg-gray-50">
+  <div class="pagos-index min-h-screen bg-white">
     <!-- Contenido principal -->
     <div class="w-full px-6 py-8">
       <!-- Header -->
@@ -360,7 +360,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
           </div>
           <Link
             href="/prestamos"
-            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
           >
             ← Volver a Préstamos
           </Link>
@@ -453,7 +453,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
 
       <!-- Filtros -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-        <div class="px-6 py-4 bg-gray-50/50 border-b border-gray-200/60">
+        <div class="px-6 py-4 bg-white/50 border-b border-gray-200/60">
           <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
             <!-- Filtros -->
             <div class="flex items-center space-x-3">
@@ -485,7 +485,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
               <!-- Limpiar filtros -->
               <button
                 @click="handleLimpiarFiltros"
-                class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
               >
                 ❌ Limpiar
               </button>
@@ -531,7 +531,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
           <!-- Table -->
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200/60">
-              <thead class="bg-gray-50/60">
+              <thead class="bg-white/60">
                 <tr>
                   <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha Programada</th>
                   <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Cliente</th>
@@ -548,7 +548,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                   <tr
                     v-for="pago in props.pagos.data"
                     :key="pago.id"
-                    class="group hover:bg-gray-50/60 transition-all duration-150 hover:shadow-sm"
+                    class="group hover:bg-white/60 transition-all duration-150 hover:shadow-sm"
                   >
                     <!-- Fecha Programada -->
                     <td class="px-6 py-4">
@@ -685,7 +685,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
         <button
           @click="prevPage"
           :disabled="paginationData.current_page === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Anterior
         </button>
@@ -699,7 +699,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
               'px-3 py-2 text-sm font-medium border border-gray-300 rounded-md',
               page === paginationData.current_page
                 ? 'bg-blue-500 text-white border-blue-500'
-                : 'text-gray-700 bg-white hover:bg-gray-50'
+                : 'text-gray-700 bg-white hover:bg-white'
             ]"
           >
             {{ page }}
@@ -709,7 +709,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
         <button
           @click="nextPage"
           :disabled="paginationData.current_page === paginationData.last_page"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Siguiente
         </button>
@@ -811,7 +811,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
               </div>
 
               <!-- Información financiera -->
-              <div class="bg-gray-50 rounded-lg p-4">
+              <div class="bg-white rounded-lg p-4">
                 <h4 class="text-sm font-medium text-gray-900 mb-3">Información Financiera</h4>
                 <div class="grid grid-cols-2 gap-4 text-sm">
                   <div>

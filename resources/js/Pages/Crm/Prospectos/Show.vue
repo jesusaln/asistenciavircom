@@ -145,7 +145,7 @@
             <!-- Columna derecha: Timeline de actividades -->
             <div class="lg:col-span-2">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-                    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                    <div class="px-6 py-4 border-b border-gray-100 bg-white/50">
                         <h3 class="font-semibold text-gray-900">Historial de Actividades</h3>
                     </div>
                     <div class="p-6">

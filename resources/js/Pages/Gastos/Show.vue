@@ -60,10 +60,10 @@ const deleteGasto = () => {
         </template>
 
         <div class="py-6">
-            <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+            <div class="w-full sm:px-6 lg:px-8">
                 <div class="bg-white shadow rounded-lg overflow-hidden">
                     <!-- Header -->
-                    <div class="px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                    <div class="px-6 py-4 bg-white border-b border-gray-200 flex justify-between items-center">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900">{{ gasto.numero_compra }}</h3>
                             <p class="text-sm text-gray-500">{{ formatDate(gasto.fecha_compra) }}</p>
@@ -135,7 +135,7 @@ const deleteGasto = () => {
                     </div>
 
                     <!-- Acciones -->
-                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+                    <div class="px-6 py-4 bg-white border-t border-gray-200 flex justify-end gap-3">
                         <button v-if="gasto.estado === 'procesada'" @click="cancelGasto"
                             class="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200 transition">
                             Cancelar Gasto

@@ -104,7 +104,7 @@ const submit = () => {
         </template>
 
         <div class="py-6" :style="cssVars">
-            <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+            <div class="w-full sm:px-6 lg:px-8">
                 <form @submit.prevent="submit" class="bg-white shadow rounded-lg p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Categoría -->
@@ -210,7 +210,7 @@ const submit = () => {
                     </div>
 
                     <!-- Preview del monto -->
-                    <div v-if="form.monto" class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <div v-if="form.monto" class="mt-6 p-4 bg-white rounded-lg">
                         <div class="flex justify-between items-center">
                             <span class="text-gray-600">Total del gasto:</span>
                             <span class="text-2xl font-bold text-gray-900">{{ formatCurrency(form.monto) }}</span>

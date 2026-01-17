@@ -113,7 +113,7 @@ const getSaludPoliza = () => {
                             <Link v-if="poliza.horas_incluidas_mensual" :href="route('polizas-servicio.historial', poliza.id)" class="px-4 py-2 bg-purple-100 border border-purple-300 rounded-lg hover:bg-purple-200 font-semibold text-purple-700">
                                 📊 Historial
                             </Link>
-                            <Link :href="route('polizas-servicio.edit', poliza.id)" class="px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 font-semibold text-gray-700">
+                            <Link :href="route('polizas-servicio.edit', poliza.id)" class="px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-white font-semibold text-gray-700">
                                 ⚙️ Editar
                             </Link>
                         </div>
@@ -121,7 +121,7 @@ const getSaludPoliza = () => {
                 </div>
 
                 <!-- Header Modal -->
-                <div v-if="isModal" class="p-6 border-b bg-gray-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div v-if="isModal" class="p-6 border-b bg-white/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <div class="flex items-center gap-3">
                             <span class="font-mono text-lg font-bold text-blue-600">{{ poliza.folio }}</span>
@@ -136,7 +136,7 @@ const getSaludPoliza = () => {
                         <a :href="route('polizas-servicio.pdf-beneficios', poliza.id)" target="_blank" class="p-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors border border-green-200" title="Ver PDF de Beneficios">
                             📄 Beneficios
                         </a>
-                        <a :href="route('polizas-servicio.pdf-contrato', poliza.id)" target="_blank" class="p-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200" title="Ver PDF Contrato">
+                        <a :href="route('polizas-servicio.pdf-contrato', poliza.id)" target="_blank" class="p-2 bg-white text-gray-700 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200" title="Ver PDF Contrato">
                             📝 Contrato
                         </a>
                         <Link :href="route('polizas-servicio.edit', poliza.id)" class="p-2 bg-white text-gray-700 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200" title="Editar Póliza">
@@ -173,7 +173,7 @@ const getSaludPoliza = () => {
                                 </h3>
                             </div>
                             <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50 text-xs font-bold text-gray-500 uppercase">
+                                <thead class="bg-white text-xs font-bold text-gray-500 uppercase">
                                     <tr>
                                         <th class="px-6 py-3 text-left">Servicio</th>
                                         <th class="px-6 py-3 text-center">Cant. Mensual</th>
@@ -208,7 +208,7 @@ const getSaludPoliza = () => {
                                 </h3>
                             </div>
                             <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50 text-xs font-bold text-gray-500 uppercase">
+                                <thead class="bg-white text-xs font-bold text-gray-500 uppercase">
                                     <tr>
                                         <th class="px-6 py-3 text-left">Fecha</th>
                                         <th class="px-6 py-3 text-left">Concepto</th>
@@ -217,7 +217,7 @@ const getSaludPoliza = () => {
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200">
-                                    <tr v-for="cobro in poliza.cuentas_por_cobrar" :key="cobro.id" class="hover:bg-gray-50">
+                                    <tr v-for="cobro in poliza.cuentas_por_cobrar" :key="cobro.id" class="hover:bg-white">
                                         <td class="px-6 py-4 text-xs font-medium text-gray-600">{{ formatDate(cobro.created_at) }}</td>
                                         <td class="px-6 py-4 text-sm text-gray-900">
                                             <div class="font-medium">Mensualidad Póliza</div>
@@ -255,7 +255,7 @@ const getSaludPoliza = () => {
                                 </Link>
                             </div>
                             <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50 text-xs font-bold text-gray-500 uppercase">
+                                <thead class="bg-white text-xs font-bold text-gray-500 uppercase">
                                     <tr>
                                         <th class="px-6 py-3 text-left">Folio</th>
                                         <th class="px-6 py-3 text-left">Título / Asunto</th>
@@ -264,7 +264,7 @@ const getSaludPoliza = () => {
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200">
-                                    <tr v-for="ticket in poliza.tickets" :key="ticket.id" class="hover:bg-gray-50 cursor-pointer" @click="router.visit(route('soporte.show', ticket.id))">
+                                    <tr v-for="ticket in poliza.tickets" :key="ticket.id" class="hover:bg-white cursor-pointer" @click="router.visit(route('soporte.show', ticket.id))">
                                         <td class="px-6 py-4 font-mono text-xs font-bold text-blue-600">{{ ticket.numero }}</td>
                                         <td class="px-6 py-4 text-sm text-gray-900 truncate max-w-xs">{{ ticket.titulo }}</td>
                                         <td class="px-6 py-4">
@@ -418,7 +418,7 @@ const getSaludPoliza = () => {
                                 Equipos Cubiertos ({{ poliza.equipos.length }})
                             </h3>
                             <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                                <div v-for="equipo in poliza.equipos" :key="equipo.id" class="p-2 bg-gray-50 rounded border text-xs">
+                                <div v-for="equipo in poliza.equipos" :key="equipo.id" class="p-2 bg-white rounded border text-xs">
                                     <div class="font-bold text-gray-800">{{ equipo.nombre }}</div>
                                     <div class="text-gray-500 font-mono">S/N: {{ equipo.serie }}</div>
                                 </div>

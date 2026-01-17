@@ -31,7 +31,7 @@
       </div>
     </div>
 
-    <div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="w-full px-4 py-8">
       <!-- Form Container -->
       <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-gray-200/50">
         <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-200/50">

@@ -81,8 +81,8 @@ const cancel = () => {
 <template>
   <Head :title="'Editar Almacen: ' + (form.nombre || 'Sin nombre')" />
 
-  <div class="min-h-screen bg-gray-50">
-    <div class="max-w-4xl mx-auto px-6 py-8">
+  <div class="min-h-screen bg-white">
+    <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
@@ -200,7 +200,7 @@ const cancel = () => {
           </div>
 
           <!-- Información adicional -->
-          <div class="bg-gray-50 rounded-lg p-4">
+          <div class="bg-white rounded-lg p-4">
             <h3 class="text-sm font-medium text-gray-900 mb-2">Información adicional</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>

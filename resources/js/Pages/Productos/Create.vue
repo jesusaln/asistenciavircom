@@ -1,6 +1,6 @@
 <template>
     <Head title="Crear Producto" />
-    <div class="max-w-4xl mx-auto">
+    <div class="w-full">
         <div class="bg-white shadow-sm rounded-lg">
             <!-- Header -->
             <div class="border-b border-gray-200 px-6 py-4">
@@ -234,7 +234,7 @@
                                 Stock Mínimo por Almacén
                             </label>
                             <div class="space-y-3">
-                                <div v-for="almacen in almacenes" :key="almacen.id" class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                <div v-for="almacen in almacenes" :key="almacen.id" class="flex items-center space-x-3 p-3 bg-white rounded-lg">
                                     <div class="flex-1">
                                         <span class="text-sm font-medium text-gray-900">{{ almacen.nombre }}</span>
                                     </div>
@@ -338,7 +338,7 @@
                     </div>
 
                     <!-- Margen de Ganancia (calculado automáticamente) -->
-                    <div v-if="form.precio_compra && form.precio_venta" class="bg-gray-50 p-4 rounded-lg">
+                    <div v-if="form.precio_compra && form.precio_venta" class="bg-white p-4 rounded-lg">
                         <h4 class="text-sm font-medium text-gray-700 mb-2">Análisis de Rentabilidad</h4>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                             <div>
@@ -480,7 +480,7 @@
                     <button
                         type="button"
                         @click="$inertia.visit(route('productos.index'))"
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                     >
                         Cancelar
                     </button>

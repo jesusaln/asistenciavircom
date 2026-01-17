@@ -34,7 +34,7 @@ const submit = () => {
   <Head title="Editar Artículo" />
 
   <div class="py-12">
-    <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+    <div class="w-full sm:px-6 lg:px-8">
       <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg border border-gray-100">
         <!-- Header -->
         <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 flex justify-between items-center">

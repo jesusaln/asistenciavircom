@@ -126,7 +126,7 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
   <Head :title="`Editar - ${empleado.user?.name}`" />
 
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-4xl mx-auto">
+    <div class="w-full">
       <!-- Header -->
       <div class="text-center mb-8">
         <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full mb-4">
@@ -142,7 +142,7 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
           v-if="empleado.puede_imprimir_contrato" 
           @click="imprimirContrato"
           type="button"
-          class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150 mb-4"
+          class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150 mb-4"
         >
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -156,7 +156,7 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
         <form @submit.prevent="submit" class="p-8 space-y-8">
 
           <!-- Estado Activo -->
-          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div class="flex items-center justify-between p-4 bg-white rounded-lg">
             <div>
               <p class="font-medium text-gray-900">Estado del Empleado</p>
               <p class="text-sm text-gray-500">Desactivar marcará al empleado como dado de baja</p>
@@ -496,7 +496,7 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
               <a :href="`/empleados/${empleado.id}/descargar-contrato`" target="_blank" class="text-sm text-blue-600 hover:underline">Ver actual</a>
             </div>
 
-            <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center transition-all hover:border-emerald-400 group">
+            <div class="bg-white border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center transition-all hover:border-emerald-400 group">
               <input
                 type="file"
                 id="contrato_adjunto"

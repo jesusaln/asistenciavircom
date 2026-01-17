@@ -30,7 +30,7 @@ const cssVars = computed(() => ({
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col font-sans transition-colors duration-300" :style="cssVars">
+    <div class="min-h-screen bg-white dark:bg-gray-900 flex flex-col font-sans transition-colors duration-300" :style="cssVars">
         <!-- Reutilizamos el Navbar Público para consistencia total -->
         <PublicNavbar :empresa="empresaData" activeTab="soporte" />
 

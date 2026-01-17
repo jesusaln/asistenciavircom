@@ -654,7 +654,7 @@ const crearNuevaCotizacion = () => {
 <template>
   <Head title="Cotizaciones" />
 
-  <div :style="cssVars" class="cotizaciones-index min-h-screen bg-gray-50">
+  <div :style="cssVars" class="cotizaciones-index min-h-screen bg-white">
     <!-- Contenido principal -->
     <div class="w-full px-6 py-8">
       <!-- Header específico de cotizaciones -->

@@ -15,7 +15,7 @@
                     <button 
                          v-if="isOwner"
                          @click="showingShareModal = true"
-                         class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
+                         class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
                     >
                         <font-awesome-icon icon="users" class="mr-2 text-indigo-500" />
                         Compartir
@@ -141,7 +141,7 @@
                     <div v-if="gastos && gastos.length > 0" class="max-h-64 overflow-y-auto overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead>
-                                <tr class="bg-gray-50">
+                                <tr class="bg-white">
                                     <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase w-20">Fecha</th>
                                     <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase w-32">Categoría</th>
                                     <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
@@ -151,7 +151,7 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                <tr v-for="gasto in gastos" :key="gasto.id" class="hover:bg-gray-50">
+                                <tr v-for="gasto in gastos" :key="gasto.id" class="hover:bg-white">
                                     <td class="px-2 py-2 text-xs text-gray-500">{{ formatDateShort(gasto.fecha_compra) }}</td>
                                     <td class="px-2 py-2 text-xs text-gray-900">{{ gasto.categoria_gasto?.nombre || '-' }}</td>
                                     <td class="px-2 py-2 text-xs text-gray-500 max-w-xs truncate" :title="gasto.notas">{{ gasto.notas || '-' }}</td>
@@ -195,7 +195,7 @@
                     </div>
                     <div v-if="productosProyecto && productosProyecto.length > 0" class="max-h-64 overflow-y-auto">
                         <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50 sticky top-0">
+                            <thead class="bg-white sticky top-0">
                                 <tr>
                                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Producto</th>
                                     <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Cantidad</th>
@@ -205,7 +205,7 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                <tr v-for="prod in productosProyecto" :key="prod.id" class="hover:bg-gray-50">
+                                <tr v-for="prod in productosProyecto" :key="prod.id" class="hover:bg-white">
                                     <td class="px-4 py-2 text-sm text-gray-900">
                                         <div class="font-medium">{{ prod.nombre }}</div>
                                         <div class="text-xs text-gray-500">{{ prod.codigo }}</div>

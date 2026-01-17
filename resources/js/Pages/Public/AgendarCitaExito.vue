@@ -139,7 +139,7 @@ const copiarLink = () => {
                         </div>
                         
                         <!-- Link de seguimiento -->
-                        <div class="bg-gray-50 rounded-2xl p-4">
+                        <div class="bg-white rounded-2xl p-4">
                             <p class="text-sm text-gray-500 mb-2">Consulta el estado de tu cita:</p>
                             <div class="flex items-center gap-2">
                                 <input 

@@ -1,7 +1,7 @@
 <template>
   <Head title="Detalles de Venta" />
 
-  <div class="min-h-screen bg-gray-50 py-8">
+  <div class="min-h-screen bg-white py-8">
     <div class="w-full px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="mb-8">
@@ -80,7 +80,7 @@
 
               <div v-if="venta.notas" class="mt-6">
                 <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Notas</h3>
-                <p class="text-sm text-gray-700 bg-gray-50 p-3 rounded">{{ venta.notas }}</p>
+                <p class="text-sm text-gray-700 bg-white p-3 rounded">{{ venta.notas }}</p>
               </div>
             </div>
           </div>
@@ -94,7 +94,7 @@
 
             <div v-if="venta.productos.length > 0" class="overflow-x-auto">
               <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+                <thead class="bg-white">
                   <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto/Servicio</th>
                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Cant.</th>
@@ -105,7 +105,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                   <template v-for="producto in venta.productos" :key="producto.id">
-                    <tr class="hover:bg-gray-50">
+                    <tr class="hover:bg-white">
                       <td class="px-6 py-4">
                         <div class="flex items-center">
                           <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-lg"
@@ -273,14 +273,14 @@
           <!-- Actions -->
           <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 space-y-3">
             <Link :href="route('ventas.pdf', venta.id)" target="_blank"
-                  class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                  class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-white transition-colors">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
               </svg>
               Descargar PDF
             </Link>
             <Link :href="route('ventas.ticket', venta.id)" target="_blank"
-                  class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                  class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-white transition-colors">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
               </svg>
@@ -327,7 +327,7 @@
                 <p class="text-xs text-blue-600 font-mono mt-1 break-all">{{ venta.factura?.uuid }}</p>
               </div>
               <a :href="route('cfdi.descargar-xml', venta.factura?.uuid)" target="_blank"
-                 class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                 class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-white transition-colors">
                 <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -395,7 +395,7 @@
                 </div>
               </div>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg">
+            <div class="bg-white p-4 rounded-lg">
               <div class="flex justify-between items-center">
                 <span class="text-sm font-medium text-gray-700">Venta:</span>
                 <span class="text-sm font-mono text-gray-900">{{ venta.numero_venta }}</span>
@@ -445,7 +445,7 @@
 
         <template #content>
           <div class="space-y-4">
-            <div class="bg-gray-50 p-4 rounded-lg">
+            <div class="bg-white p-4 rounded-lg">
               <div class="flex justify-between items-center">
                 <span class="text-sm font-medium text-gray-700">Monto Total:</span>
                 <span class="text-lg font-bold text-gray-900">{{ formatCurrency(venta.total) }}</span>

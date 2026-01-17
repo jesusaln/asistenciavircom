@@ -107,7 +107,7 @@ const handleCheckout = async () => {
 <template>
     <Head :title="`Carrito - ${empresaData?.nombre || empresaData?.nombre_empresa || 'Tienda'}`" />
     
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col font-sans transition-colors duration-300" :style="cssVars">
+    <div class="min-h-screen bg-white dark:bg-gray-900 flex flex-col font-sans transition-colors duration-300" :style="cssVars">
         <!-- Widget Flotante de WhatsApp -->
         <WhatsAppWidget :whatsapp="empresaData?.whatsapp" :empresaNombre="empresaData?.nombre || empresaData?.nombre_empresa" />
 
@@ -147,7 +147,7 @@ const handleCheckout = async () => {
                     <div v-for="item in items" :key="item.producto_id"
                          class="bg-white dark:bg-gray-800 rounded-[1.5rem] p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex gap-6 hover:shadow-md transition-all">
                         <!-- Image -->
-                        <div class="w-28 h-28 flex-shrink-0 bg-gray-50 dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 transition-colors">
+                        <div class="w-28 h-28 flex-shrink-0 bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 transition-colors">
                             <img v-if="getImageUrl(item.imagen)" 
                                  :src="getImageUrl(item.imagen)" 
                                  :alt="item.nombre"
@@ -185,7 +185,7 @@ const handleCheckout = async () => {
                             </p>
 
                             <!-- Quantity Controls -->
-                            <div class="flex items-center gap-1 bg-gray-50 dark:bg-gray-700 rounded-xl p-1 border border-gray-100 dark:border-gray-600 transition-colors">
+                            <div class="flex items-center gap-1 bg-white dark:bg-gray-700 rounded-xl p-1 border border-gray-100 dark:border-gray-600 transition-colors">
                                 <button @click="decrementQuantity(item.producto_id)"
                                         class="w-8 h-8 rounded-lg bg-white dark:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-300 hover:text-[var(--color-primary)] hover:shadow-sm transition-all">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -277,7 +277,7 @@ const handleCheckout = async () => {
                     <Link v-for="rel in recomendados" :key="rel.id"
                           :href="route('catalogo.show', rel.id)"
                           class="group bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:border-white dark:hover:border-gray-600 transition-all duration-500">
-                        <div class="aspect-square bg-gray-50 overflow-hidden relative">
+                        <div class="aspect-square bg-white overflow-hidden relative">
                             <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none z-10"></div>
                             <img v-if="getImageUrl(rel.imagen)" 
                                  :src="getImageUrl(rel.imagen)" 

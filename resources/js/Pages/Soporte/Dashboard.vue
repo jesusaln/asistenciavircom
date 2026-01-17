@@ -233,7 +233,7 @@ const prioridadColores = {
                             <span class="text-xs text-gray-400 ml-auto">Mes actual</span>
                         </div>
                         <div v-if="horasPorPoliza && horasPorPoliza.length > 0" class="space-y-3">
-                            <div v-for="item in horasPorPoliza" :key="item.poliza_id" class="p-3 rounded-lg border" :class="item.poliza?.horas_incluidas_mensual && Number(item.total_horas) > item.poliza.horas_incluidas_mensual ? 'border-red-200 bg-red-50' : 'border-gray-100 bg-gray-50'">
+                            <div v-for="item in horasPorPoliza" :key="item.poliza_id" class="p-3 rounded-lg border" :class="item.poliza?.horas_incluidas_mensual && Number(item.total_horas) > item.poliza.horas_incluidas_mensual ? 'border-red-200 bg-red-50' : 'border-gray-100 bg-white'">
                                 <div class="flex justify-between items-start mb-2">
                                     <div>
                                         <div class="text-sm font-bold text-gray-900">{{ item.poliza?.nombre || 'Póliza' }}</div>

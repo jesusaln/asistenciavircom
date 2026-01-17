@@ -159,7 +159,7 @@
                 <div class="fixed inset-0 bg-black bg-opacity-50"></div>
                 <div class="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6">
                     <h3 class="text-xl font-bold text-gray-900 mb-4">Importar Scripts</h3>
-                    <div class="bg-gray-50 border rounded-lg p-3 mb-4">
+                    <div class="bg-white border rounded-lg p-3 mb-4">
                         <pre class="text-xs overflow-x-auto">tipo,nombre,contenido,tips
 apertura,Saludo,Buenos días...,Sonreír
 objecion,Muy caro,Entiendo...,Comparar</pre>

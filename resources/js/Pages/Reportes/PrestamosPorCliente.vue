@@ -212,7 +212,7 @@ const estadisticasFormateadas = computed(() => ({
 <template>
   <Head title="Reporte de Préstamos por Cliente" />
 
-  <div class="prestamos-por-cliente min-h-screen bg-gray-50">
+  <div class="prestamos-por-cliente min-h-screen bg-white">
     <!-- Contenido principal -->
     <div class="w-full px-6 py-8">
       <!-- Header -->
@@ -320,7 +320,7 @@ const estadisticasFormateadas = computed(() => ({
 
             <button
               @click="limpiarFiltros"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-white transition-colors"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -475,7 +475,7 @@ const estadisticasFormateadas = computed(() => ({
           <!-- Lista de préstamos del cliente -->
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
+              <thead class="bg-white">
                 <tr>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Préstamo</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
@@ -486,7 +486,7 @@ const estadisticasFormateadas = computed(() => ({
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-                <tr v-for="prestamo in clienteData.prestamos" :key="prestamo.id" class="hover:bg-gray-50">
+                <tr v-for="prestamo in clienteData.prestamos" :key="prestamo.id" class="hover:bg-white">
                   <td class="px-6 py-4">
                     <div class="text-sm font-medium text-gray-900">#{{ prestamo.id }}</div>
                   </td>

@@ -29,7 +29,7 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
         <PublicNavbar :empresa="empresa" activeTab="" />
 
         <!-- Content -->
-        <main class="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+        <main class="w-full px-4 sm:px-6 py-12">
             <!-- Header de la página -->
             <div class="mb-12 text-center">
                 <div class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-600 mb-4">
@@ -53,7 +53,7 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                         <span class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-sm font-bold" style="color: var(--color-primary);">1</span>
                         Identidad del Responsable
                     </h2>
-                    <div class="bg-gray-50 rounded-xl p-6 border border-gray-100">
+                    <div class="bg-white rounded-xl p-6 border border-gray-100">
                         <p class="text-gray-700 leading-relaxed">
                             <strong>{{ empresa?.nombre }}</strong> (en adelante "la Empresa"), con domicilio en 
                             <span v-if="empresa?.direccion">{{ empresa.direccion }}, </span>
@@ -116,7 +116,7 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                         Los datos personales que recabamos serán utilizados para las siguientes finalidades primarias:
                     </p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                        <div class="bg-white rounded-xl p-4 border border-gray-100">
                             <h3 class="font-semibold text-gray-900 mb-2">Finalidades Primarias</h3>
                             <ul class="text-sm text-gray-600 space-y-1">
                                 <li>• Proveer los productos y servicios solicitados</li>
@@ -126,7 +126,7 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                                 <li>• Cumplir con obligaciones contractuales</li>
                             </ul>
                         </div>
-                        <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                        <div class="bg-white rounded-xl p-4 border border-gray-100">
                             <h3 class="font-semibold text-gray-900 mb-2">Finalidades Secundarias</h3>
                             <ul class="text-sm text-gray-600 space-y-1">
                                 <li>• Enviar promociones y ofertas especiales</li>

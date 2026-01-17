@@ -81,7 +81,7 @@ const submit = () => form.post(route('herramientas.gestion.asignar'))
             class="sr-only peer"
             required
           />
-          <div class="p-4 border-2 rounded-lg cursor-pointer transition-all peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:bg-gray-50">
+          <div class="p-4 border-2 rounded-lg cursor-pointer transition-all peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:bg-white">
             <div class="font-medium text-gray-900">{{ tecnico.nombre_completo || tecnico.nombre }}</div>
             <div class="text-sm text-gray-600">{{ tecnico.telefono || 'Sin teléfono' }}</div>
           </div>
@@ -132,7 +132,7 @@ const submit = () => form.post(route('herramientas.gestion.asignar'))
             v-model="form.herramientas"
             class="sr-only peer"
           />
-          <div class="p-4 border-2 rounded-lg cursor-pointer transition-all peer-checked:border-green-500 peer-checked:bg-green-50 hover:bg-gray-50">
+          <div class="p-4 border-2 rounded-lg cursor-pointer transition-all peer-checked:border-green-500 peer-checked:bg-green-50 hover:bg-white">
             <div class="flex items-start gap-3">
               <img v-if="herramienta.foto" :src="`/storage/${herramienta.foto}`" alt="Foto" class="w-12 h-12 object-cover rounded" />
               <div v-else class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">

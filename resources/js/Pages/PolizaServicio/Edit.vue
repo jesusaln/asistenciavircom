@@ -138,8 +138,8 @@ const helpSections = [
     <AppLayout :title="isEditing ? 'Editar Póliza' : 'Nueva Póliza'">
         <Head :title="isEditing ? 'Editar Póliza' : 'Nueva Póliza'" />
 
-        <div class="py-6 bg-gray-50/50 min-h-screen">
-            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="py-6 bg-white/50 min-h-screen">
+            <div class="w-full px-4 sm:px-6 lg:px-8">
                 <!-- Header con Botón de Ayuda -->
                 <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
@@ -175,7 +175,7 @@ const helpSections = [
                     <div class="lg:col-span-2 space-y-6">
                         <!-- Sección 1: Datos Base -->
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                            <div class="px-8 py-5 border-b border-gray-100 bg-gray-50/30">
+                            <div class="px-8 py-5 border-b border-gray-100 bg-white/30">
                                 <h2 class="font-bold text-gray-800 flex items-center gap-2">
                                     <font-awesome-icon icon="briefcase" class="text-gray-400" />
                                     Configuración General
@@ -243,7 +243,7 @@ const helpSections = [
                                         <button @click="agregarServicio" type="button" class="px-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all">+</button>
                                     </div>
                                     <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                                        <div v-for="(item, index) in form.servicios" :key="item.id" class="p-3 bg-gray-50 rounded-xl border border-gray-100 text-xs">
+                                        <div v-for="(item, index) in form.servicios" :key="item.id" class="p-3 bg-white rounded-xl border border-gray-100 text-xs">
                                             <div class="flex justify-between font-bold text-gray-700 mb-2">
                                                 <span>{{ item.nombre }}</span>
                                                 <button @click="eliminarServicio(index)" type="button" class="text-red-400 hover:text-red-600">✕</button>
@@ -281,7 +281,7 @@ const helpSections = [
                                     </div>
 
                                     <div class="space-y-2 max-h-48 overflow-y-auto pt-2">
-                                        <div v-for="(e, index) in form.equipos_cliente" :key="index" class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                        <div v-for="(e, index) in form.equipos_cliente" :key="index" class="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100">
                                             <div>
                                                 <div class="text-[11px] font-bold text-gray-700">{{ e.nombre }}</div>
                                                 <div class="text-[9px] text-gray-400 font-mono italic">S/N: {{ e.serie || 'N/A' }}</div>
@@ -309,7 +309,7 @@ const helpSections = [
                     <!-- Columna Derecha: Administrativo -->
                     <div class="space-y-6">
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-6">
-                            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                            <div class="px-6 py-4 border-b border-gray-100 bg-white/50">
                                 <h2 class="font-bold text-gray-800 text-sm">Administración y Ciclos</h2>
                             </div>
                             <div class="p-6 space-y-5">
@@ -394,11 +394,11 @@ const helpSections = [
                                 </div>
 
                                 <div class="space-y-3 pt-2">
-                                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100 cursor-pointer hover:bg-blue-50 transition-all" @click="form.notificar_exceso_limite = !form.notificar_exceso_limite">
+                                    <div class="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 cursor-pointer hover:bg-blue-50 transition-all" @click="form.notificar_exceso_limite = !form.notificar_exceso_limite">
                                         <input type="checkbox" v-model="form.notificar_exceso_limite" class="rounded text-blue-600 cursor-pointer" />
                                         <span class="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Notificar excesos</span>
                                     </div>
-                                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100 cursor-pointer hover:bg-blue-50 transition-all" @click="form.renovacion_automatica = !form.renovacion_automatica">
+                                    <div class="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 cursor-pointer hover:bg-blue-50 transition-all" @click="form.renovacion_automatica = !form.renovacion_automatica">
                                         <input type="checkbox" v-model="form.renovacion_automatica" class="rounded text-blue-600 cursor-pointer" />
                                         <span class="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Renovación Auto</span>
                                     </div>

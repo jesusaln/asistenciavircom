@@ -120,7 +120,7 @@ const getSlaStatusClass = (status) => {
                         <div class="text-2xl font-bold text-gray-900">{{ stats.completados_hoy }}</div>
                         <div class="text-sm text-gray-500">Completados Hoy</div>
                     </div>
-                    <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-gray-400 cursor-pointer hover:bg-gray-50 transition" @click="filtros.incluir_cerrados = !filtros.incluir_cerrados; aplicarFiltros()">
+                    <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-gray-400 cursor-pointer hover:bg-white transition" @click="filtros.incluir_cerrados = !filtros.incluir_cerrados; aplicarFiltros()">
                         <div class="text-2xl font-bold text-gray-600">{{ stats.cerrados }}</div>
                         <div class="text-sm text-gray-500 flex items-center gap-1">
                             Cerrados
@@ -155,7 +155,7 @@ const getSlaStatusClass = (status) => {
                             <option v-for="c in categorias" :key="c.id" :value="c.id">{{ c.nombre }}</option>
                         </select>
                         <!-- Toggle Cerrados -->
-                        <label class="flex items-center gap-2 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50" :class="filtros.incluir_cerrados ? 'bg-gray-100 border-gray-400' : ''">
+                        <label class="flex items-center gap-2 px-4 py-2 border rounded-lg cursor-pointer hover:bg-white" :class="filtros.incluir_cerrados ? 'bg-gray-100 border-gray-400' : ''">
                             <input 
                                 type="checkbox" 
                                 v-model="filtros.incluir_cerrados" 
@@ -176,7 +176,7 @@ const getSlaStatusClass = (status) => {
                 <div class="bg-white rounded-xl shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                            <thead class="bg-white">
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
@@ -188,7 +188,7 @@ const getSlaStatusClass = (status) => {
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                <tr v-for="ticket in tickets.data" :key="ticket.id" class="hover:bg-gray-50 cursor-pointer" @click="router.visit(route('soporte.show', ticket.id))">
+                                <tr v-for="ticket in tickets.data" :key="ticket.id" class="hover:bg-white cursor-pointer" @click="router.visit(route('soporte.show', ticket.id))">
                                     <td class="px-4 py-4">
                                         <div class="font-mono text-sm text-orange-600 flex items-center gap-1">
                                             {{ ticket.numero }}
@@ -232,7 +232,7 @@ const getSlaStatusClass = (status) => {
                     </div>
 
                     <!-- Paginación -->
-                    <div v-if="tickets.last_page > 1" class="px-4 py-3 bg-gray-50 border-t flex justify-between items-center">
+                    <div v-if="tickets.last_page > 1" class="px-4 py-3 bg-white border-t flex justify-between items-center">
                         <span class="text-sm text-gray-500">
                             Mostrando {{ tickets.from }} a {{ tickets.to }} de {{ tickets.total }} tickets
                         </span>

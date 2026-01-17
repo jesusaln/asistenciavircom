@@ -2,7 +2,7 @@
 <template>
   <Head title="Crear Pedido" />
   <div class="pedidos-create min-h-screen p-6" :style="[cssVars, subtleGradientStyle]">
-    <div class="max-w-6xl mx-auto">
+    <div class="w-full">
       <!-- Header -->
       <Header
         title="Nuevo Pedido"
@@ -42,7 +42,7 @@
                   id="numero_pedido"
                   v-model="form.numero_pedido"
                   type="text"
-                  class="w-full bg-gray-50 text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:border-transparent"
+                  class="w-full bg-white text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:border-transparent"
                   :style="focusRingStyle"
                   placeholder="P0001"
                   readonly
@@ -75,7 +75,7 @@
                   id="fecha_pedido"
                   v-model="form.fecha_pedido"
                   type="date"
-                  class="w-full bg-gray-50 text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:border-transparent"
+                  class="w-full bg-white text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:border-transparent"
                   :style="focusRingStyle"
                   readonly
                   required

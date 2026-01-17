@@ -130,7 +130,7 @@
       <div v-if="movimientos.length > 0" class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
@@ -142,7 +142,7 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="movimiento in movimientos" :key="movimiento.id" class="hover:bg-gray-50">
+              <tr v-for="movimiento in movimientos" :key="movimiento.id" class="hover:bg-white">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="text-sm text-gray-900">{{ formatDateTime(movimiento.created_at) }}</div>
                 </td>

@@ -161,7 +161,7 @@ const reasignarHerramienta = () => {
           <p>No hay herramientas asignadas que coincidan con la búsqueda</p>
         </div>
         <div class="space-y-3 max-h-96 overflow-y-auto">
-          <label v-for="herramienta in herramientasAsignadasFiltradas" :key="`a-${herramienta.id}`" class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50">
+          <label v-for="herramienta in herramientasAsignadasFiltradas" :key="`a-${herramienta.id}`" class="flex items-center gap-3 p-3 border rounded-lg hover:bg-white">
             <input
               type="checkbox"
               :value="herramienta.id"
@@ -213,7 +213,7 @@ const reasignarHerramienta = () => {
           <p>No hay herramientas disponibles que coincidan con la búsqueda</p>
         </div>
         <div class="space-y-3 max-h-96 overflow-y-auto">
-          <label v-for="herramienta in herramientasDisponiblesFiltradas" :key="`d-${herramienta.id}`" class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50">
+          <label v-for="herramienta in herramientasDisponiblesFiltradas" :key="`d-${herramienta.id}`" class="flex items-center gap-3 p-3 border rounded-lg hover:bg-white">
             <input
               type="checkbox"
               :value="herramienta.id"

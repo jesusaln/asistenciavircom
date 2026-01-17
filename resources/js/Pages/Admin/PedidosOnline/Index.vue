@@ -64,7 +64,7 @@ const handleSearch = () => {
 
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-white">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pedido</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
@@ -76,7 +76,7 @@ const handleSearch = () => {
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <tr v-for="pedido in pedidos.data" :key="pedido.id" class="hover:bg-gray-50">
+                            <tr v-for="pedido in pedidos.data" :key="pedido.id" class="hover:bg-white">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-bold text-gray-900">{{ pedido.numero_pedido }}</div>
                                     <div class="text-xs text-gray-500">{{ pedido.metodo_pago }}</div>

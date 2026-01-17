@@ -115,7 +115,7 @@
                     <div 
                         v-for="(vendedor, index) in top5Vendedores" 
                         :key="vendedor.id"
-                        class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                        class="flex items-center gap-3 p-3 rounded-lg hover:bg-white transition-colors"
                     >
                         <span :class="getMedalClass(index)" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">
                             {{ index + 1 }}
@@ -134,13 +134,13 @@
 
             <!-- Tabla de vendedores -->
             <div class="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                <div class="px-6 py-4 border-b border-gray-100 bg-white/50">
                     <h3 class="text-lg font-semibold text-gray-900">Comisiones por Vendedor</h3>
                 </div>
 
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                    <thead class="bg-white">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Vendedor</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Tipo</th>
@@ -242,7 +242,7 @@
 
                     <form @submit.prevent="procesarPago">
                         <div class="space-y-4">
-                            <div class="p-4 bg-gray-50 rounded-lg">
+                            <div class="p-4 bg-white rounded-lg">
                                 <p class="text-sm text-gray-600">Vendedor</p>
                                 <p class="font-semibold text-gray-900">{{ vendedorSeleccionado?.nombre }}</p>
                                 <p class="text-2xl font-bold text-green-600 mt-2">${{ formatMonto(vendedorSeleccionado?.comision) }}</p>

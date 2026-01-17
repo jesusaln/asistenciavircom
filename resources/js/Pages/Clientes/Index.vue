@@ -597,7 +597,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
 <template>
   <Head title="Clientes" />
 
-  <div class="clientes-index min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors" :style="cssVars">
+  <div class="clientes-index min-h-screen bg-white dark:bg-gray-900 transition-colors" :style="cssVars">
     <!-- Contenido principal -->
     <div class="w-full px-6 py-8">
       <!-- Header específico de clientes -->
@@ -658,7 +658,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
           <!-- Table -->
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200/60">
-              <thead class="bg-gray-50/60 dark:bg-gray-900/60 transition-colors">
+              <thead class="bg-white/60 dark:bg-gray-900/60 transition-colors">
                 <tr>
                   <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Fecha</th>
                   <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
@@ -674,7 +674,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                   <tr
                     v-for="cliente in items"
                     :key="cliente.id"
-                    class="group hover:bg-gray-50/60 dark:hover:bg-gray-700/40 transition-all duration-150 hover:shadow-sm"
+                    class="group hover:bg-white/60 dark:hover:bg-gray-700/40 transition-all duration-150 hover:shadow-sm"
                   >
                     <!-- Fecha -->
                     <td class="px-6 py-4">
@@ -815,7 +815,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
         <button
           @click="prevPage"
           :disabled="paginationData.current_page === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Anterior
         </button>
@@ -829,7 +829,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
               'px-3 py-2 text-sm font-medium border rounded-md transition-all duration-200',
               page === paginationData.current_page
                 ? 'text-white shadow-md'
-                : 'text-gray-700 bg-white hover:bg-gray-50 border-gray-300'
+                : 'text-gray-700 bg-white hover:bg-white border-gray-300'
             ]"
             :style="page === paginationData.current_page ? { backgroundColor: colors.principal, borderColor: colors.principal } : {}"
           >
@@ -840,7 +840,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
         <button
           @click="nextPage"
           :disabled="paginationData.current_page === paginationData.last_page"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Siguiente
         </button>
@@ -948,7 +948,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                   Dirección
                 </h4>
                 
-                <div v-if="selectedCliente.calle || selectedCliente.colonia || selectedCliente.codigo_postal" class="bg-gray-50 rounded-lg p-4 space-y-2">
+                <div v-if="selectedCliente.calle || selectedCliente.colonia || selectedCliente.codigo_postal" class="bg-white rounded-lg p-4 space-y-2">
                   <p class="text-sm text-gray-700">
                     <strong class="text-gray-900">Calle:</strong> {{ selectedCliente.calle || 'N/A' }}
                     <span v-if="selectedCliente.numero_exterior"> #{{ selectedCliente.numero_exterior }}</span>
@@ -987,7 +987,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
             <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
               <button
                 @click="onClose"
-                class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:ring-offset-1"
+                class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-white hover:border-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:ring-offset-1"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

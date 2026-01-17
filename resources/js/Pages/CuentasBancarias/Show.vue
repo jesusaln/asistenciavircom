@@ -95,12 +95,12 @@
 
       <!-- Últimos movimientos -->
       <div class="bg-white rounded-xl shadow-md overflow-hidden">
-        <div class="px-6 py-4 border-b bg-gray-50">
+        <div class="px-6 py-4 border-b bg-white">
           <h3 class="text-lg font-semibold text-gray-900">Últimos Movimientos</h3>
         </div>
         <div v-if="movimientos.length > 0" class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Concepto</th>
@@ -110,7 +110,7 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-              <tr v-for="mov in movimientos" :key="mov.id" class="hover:bg-gray-50">
+              <tr v-for="mov in movimientos" :key="mov.id" class="hover:bg-white">
                 <td class="px-6 py-4 text-sm text-gray-900">{{ formatFecha(mov.fecha) }}</td>
                 <td class="px-6 py-4 text-sm text-gray-900">
                   <div>{{ mov.concepto }}</div>

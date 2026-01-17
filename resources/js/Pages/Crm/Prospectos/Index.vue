@@ -5,7 +5,7 @@
         <!-- Header -->
         <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div class="flex items-center gap-4">
-                <Link href="/crm" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 shadow-sm transition-all">
+                <Link href="/crm" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-white shadow-sm transition-all">
                     <FontAwesomeIcon :icon="['fas', 'arrow-left']" />
                 </Link>
                 <div>
@@ -43,7 +43,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
                     <thead>
-                        <tr class="bg-gray-50/50 border-b border-gray-100">
+                        <tr class="bg-white/50 border-b border-gray-100">
                             <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Prospecto</th>
                             <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Contacto</th>
                             <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Etapa</th>
@@ -124,7 +124,7 @@
             </div>
 
             <!-- Pagination -->
-            <div v-if="prospectos.last_page > 1" class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
+            <div v-if="prospectos.last_page > 1" class="px-6 py-4 bg-white/50 border-t border-gray-100 flex items-center justify-between">
                 <span class="text-sm text-gray-500">
                     Mostrando {{ prospectos.from }} a {{ prospectos.to }} de {{ prospectos.total }} leads
                 </span>
@@ -136,7 +136,7 @@
                         v-html="link.label"
                         :class="[
                             'px-3 py-1.5 rounded-lg text-sm transition-all',
-                            link.active ? 'bg-amber-500 text-white font-bold' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50',
+                            link.active ? 'bg-amber-500 text-white font-bold' : 'bg-white text-gray-700 border border-gray-200 hover:bg-white',
                             !link.url ? 'opacity-50 cursor-not-allowed' : ''
                         ]"
                     />
@@ -194,7 +194,7 @@ const getAvatarColor = (id) => {
 
 const getEtapaBadge = (etapa) => {
     const styles = {
-        prospecto: 'bg-gray-50 text-gray-600 border-gray-200',
+        prospecto: 'bg-white text-gray-600 border-gray-200',
         contactado: 'bg-blue-50 text-blue-600 border-blue-200',
         interesado: 'bg-yellow-50 text-yellow-600 border-yellow-200',
         cotizado: 'bg-purple-50 text-purple-600 border-purple-200',
@@ -202,7 +202,7 @@ const getEtapaBadge = (etapa) => {
         cerrado_ganado: 'bg-green-50 text-green-600 border-green-200',
         cerrado_perdido: 'bg-red-50 text-red-600 border-red-200'
     };
-    return styles[etapa] || 'bg-gray-50 text-gray-600 border-gray-200';
+    return styles[etapa] || 'bg-white text-gray-600 border-gray-200';
 };
 
 const getPrioridadColor = (prioridad) => {
@@ -211,7 +211,7 @@ const getPrioridadColor = (prioridad) => {
         media: 'bg-amber-50 text-amber-700 border-amber-100',
         baja: 'bg-green-50 text-green-700 border-green-100'
     };
-    return styles[prioridad] || 'bg-gray-50 text-gray-700 border-gray-100';
+    return styles[prioridad] || 'bg-white text-gray-700 border-gray-100';
 };
 
 const convertir = (prospecto) => {

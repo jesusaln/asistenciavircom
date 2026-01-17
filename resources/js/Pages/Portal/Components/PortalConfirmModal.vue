@@ -70,7 +70,7 @@ defineExpose({ show });
                             <div class="mt-10 flex flex-col sm:flex-row gap-3">
                                 <button 
                                     @click="handleCancel" 
-                                    class="flex-1 px-8 py-4 bg-gray-50 text-gray-400 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 transition-all"
+                                    class="flex-1 px-8 py-4 bg-white text-gray-400 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 transition-all"
                                 >
                                     {{ cancelLabel }}
                                 </button>

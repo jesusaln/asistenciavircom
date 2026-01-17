@@ -2,7 +2,7 @@
 <template>
   <Head title="Crear Compra" />
   <div class="compras-create min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-    <div class="max-w-6xl mx-auto">
+    <div class="w-full">
       <!-- Header -->
       <div class="mb-6">
         <Header
@@ -58,7 +58,7 @@
                   id="numero_compra"
                   v-model="form.numero_compra"
                   type="text"
-                  class="w-full bg-gray-50 text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  class="w-full bg-white text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   placeholder="C0001"
                   readonly
                   required
@@ -90,7 +90,7 @@
                   id="fecha_compra"
                   v-model="form.fecha_compra"
                   type="date"
-                  class="w-full bg-gray-50 text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  class="w-full bg-white text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   readonly
                   required
                 />

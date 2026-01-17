@@ -38,7 +38,7 @@
 
         <!-- IFrame del Panel RustDesk -->
         <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg h-[800px] border border-gray-200 relative">
-            <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
+            <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-white z-10">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
                 <span class="ml-3 text-gray-600">Cargando panel remoto...</span>
             </div>

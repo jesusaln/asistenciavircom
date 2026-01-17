@@ -57,7 +57,7 @@
                 <div 
                     v-for="tarea in tareas.data" 
                     :key="tarea.id"
-                    class="px-6 py-4 flex items-center gap-4 hover:bg-gray-50 transition-colors"
+                    class="px-6 py-4 flex items-center gap-4 hover:bg-white transition-colors"
                     :class="tarea.completada_at ? 'opacity-60' : ''"
                 >
                     <!-- Checkbox / Completar -->

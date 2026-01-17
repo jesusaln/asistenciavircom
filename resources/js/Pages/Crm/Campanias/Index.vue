@@ -31,7 +31,7 @@
                  class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow">
                 <!-- Header -->
                 <div class="px-5 py-4 border-b border-gray-100" 
-                     :class="c.vigente ? 'bg-gradient-to-r from-purple-50 to-white' : 'bg-gray-50'">
+                     :class="c.vigente ? 'bg-gradient-to-r from-purple-50 to-white' : 'bg-white'">
                     <div class="flex items-center justify-between">
                         <h3 class="font-bold text-gray-900 truncate">{{ c.nombre }}</h3>
                         <span class="px-2.5 py-1 rounded-lg text-xs font-bold"
@@ -73,7 +73,7 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-2">
+                <div class="px-5 py-3 bg-white border-t border-gray-100 flex items-center justify-between gap-2">
                     <div class="flex items-center gap-1">
                         <a :href="`/crm/campanias/${c.id}/exportar`" 
                            class="p-2 rounded-lg bg-green-50 text-green-600 hover:bg-green-100" 
@@ -203,7 +203,7 @@
                         </ol>
                     </div>
 
-                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
                         <h4 class="font-semibold text-gray-700 mb-2">Formato CSV esperado:</h4>
                         <pre class="text-xs bg-white p-2 rounded border overflow-x-auto">tipo,nombre,contenido,tips
 apertura,Saludo inicial,Buenos días...,Sonreír

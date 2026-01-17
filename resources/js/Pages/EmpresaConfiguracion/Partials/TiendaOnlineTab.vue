@@ -25,7 +25,7 @@
 
         <!-- OAuth Section -->
         <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
+            <div class="px-6 py-4 bg-white dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
                 <h4 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <FontAwesomeIcon icon="shield-alt" class="text-blue-500" />
                     Autenticación Social (OAuth)
@@ -110,7 +110,7 @@
 
         <!-- Payment Gateways -->
         <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
+            <div class="px-6 py-4 bg-white dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
                 <h4 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <FontAwesomeIcon icon="credit-card" class="text-green-500" />
                     Pasarelas de Pago
@@ -160,7 +160,7 @@
                             <FontAwesomeIcon icon="university" class="text-blue-500 text-xs" />
                             Cuenta de Destino Automática
                         </label>
-                        <select v-model="form.cuenta_id_mercadopago" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 transition-all">
+                        <select v-model="form.cuenta_id_mercadopago" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 transition-all">
                             <option value="">-- Seleccionar Banco para Depósitos --</option>
                             <option v-for="cuenta in cuentas_bancarias" :key="cuenta.id" :value="cuenta.id">
                                 {{ cuenta.nombre }} ({{ cuenta.banco }}) - {{ cuenta.moneda }}
@@ -211,7 +211,7 @@
                             <FontAwesomeIcon icon="university" class="text-blue-500 text-xs" />
                             Cuenta de Destino Automática
                         </label>
-                        <select v-model="form.cuenta_id_paypal" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 transition-all">
+                        <select v-model="form.cuenta_id_paypal" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 transition-all">
                             <option value="">-- Seleccionar Banco para Depósitos --</option>
                             <option v-for="cuenta in cuentas_bancarias" :key="cuenta.id" :value="cuenta.id">
                                 {{ cuenta.nombre }} ({{ cuenta.banco }}) - {{ cuenta.moneda }}
@@ -266,7 +266,7 @@
                             <FontAwesomeIcon icon="university" class="text-blue-500 text-xs" />
                             Cuenta de Destino Automática
                         </label>
-                        <select v-model="form.cuenta_id_stripe" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 transition-all">
+                        <select v-model="form.cuenta_id_stripe" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 transition-all">
                             <option value="">-- Seleccionar Banco para Depósitos --</option>
                             <option v-for="cuenta in cuentas_bancarias" :key="cuenta.id" :value="cuenta.id">
                                 {{ cuenta.nombre }} ({{ cuenta.banco }}) - {{ cuenta.moneda }}
@@ -363,7 +363,7 @@
                                 Usar Recomendados
                             </button>
                         </div>
-                        <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 border border-gray-200 dark:border-gray-600">
+                        <div class="bg-white dark:bg-gray-700/50 rounded-xl p-4 border border-gray-200 dark:border-gray-600">
                             <div class="space-y-3">
                                 <div v-for="(tier, index) in utilityTiers" :key="index" 
                                      class="grid grid-cols-3 gap-3 items-center">
@@ -395,7 +395,7 @@
                     </div>
                 </div>
             </div>
-            <div v-if="!form.cva_active" class="p-8 text-center bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700">
+            <div v-if="!form.cva_active" class="p-8 text-center bg-white/50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700">
                 <FontAwesomeIcon icon="link-slash" class="text-3xl text-gray-300 mb-3" />
                 <p class="text-sm text-gray-400 font-medium">La integración con CVA está desactivada.</p>
             </div>

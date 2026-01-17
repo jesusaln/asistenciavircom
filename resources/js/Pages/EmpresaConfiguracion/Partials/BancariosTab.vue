@@ -7,7 +7,7 @@
             </h2>
             <p class="text-sm text-gray-500 mb-6">Esta información aparecerá en las cotizaciones y facturas para que los clientes realicen pagos.</p>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-xl border border-gray-200">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 rounded-xl border border-gray-200">
                 <!-- Banco -->
                 <div>
                     <label for="banco" class="block text-sm font-medium text-gray-700 mb-2">

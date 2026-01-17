@@ -237,7 +237,7 @@ function formatCitaFecha(cita) {
     
     <AppLayout>
         <div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-6">
-            <div class="max-w-2xl mx-auto px-4">
+            <div class="w-full px-4">
                 
                 <!-- Header -->
                 <div class="mb-6">
@@ -295,7 +295,7 @@ function formatCitaFecha(cita) {
                             isAtrasada(cita) ? 'bg-red-50 text-red-800 border-b border-red-100' :
                             cita.estado === 'en_proceso' ? 'bg-indigo-500 text-white' :
                             cita.estado === 'completado' ? 'bg-green-500 text-white' :
-                            cita.estado === 'cancelado' ? 'bg-red-100' : 'bg-gray-50'
+                            cita.estado === 'cancelado' ? 'bg-red-100' : 'bg-white'
                         ]">
                             <div class="flex items-center gap-3">
                                 <span class="text-2xl">{{ isAtrasada(cita) ? '⚠️' : getEstadoInfo(cita.estado).icon }}</span>
@@ -365,7 +365,7 @@ function formatCitaFecha(cita) {
                             <!-- Dirección -->
                             <div 
                                 @click="abrirMaps(cita)"
-                                class="flex items-start gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors"
+                                class="flex items-start gap-3 p-3 bg-white rounded-xl cursor-pointer hover:bg-gray-100 transition-colors"
                             >
                                 <span class="text-xl">📍</span>
                                 <div class="flex-1">
@@ -494,7 +494,7 @@ function formatCitaFecha(cita) {
                                 <textarea 
                                     v-model="formCierre.trabajo_realizado"
                                     rows="4"
-                                    class="w-full bg-gray-50 border-gray-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all text-sm"
+                                    class="w-full bg-white border-gray-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all text-sm"
                                     placeholder="Describe detalladamente las reparaciones o mantenimientos hechos..."
                                 ></textarea>
                             </div>
@@ -555,7 +555,7 @@ function formatCitaFecha(cita) {
                         </div>
 
                         <!-- Footer -->
-                        <div class="p-6 bg-gray-50 border-t border-gray-100 flex gap-3">
+                        <div class="p-6 bg-white border-t border-gray-100 flex gap-3">
                             <button 
                                 @click="showCierreModal = false"
                                 class="flex-1 py-3 text-gray-600 font-bold text-sm uppercase tracking-widest hover:bg-gray-200 rounded-2xl transition-all"

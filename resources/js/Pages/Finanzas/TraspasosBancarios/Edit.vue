@@ -44,9 +44,9 @@ const formatDate = (dateString) => {
         </template>
 
         <div class="py-12">
-            <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+            <div class="w-full sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                    <div class="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div class="mb-8 p-4 bg-white rounded-lg border border-gray-200">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1">Cuenta Origen</span>

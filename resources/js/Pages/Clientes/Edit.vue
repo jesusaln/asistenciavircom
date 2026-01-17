@@ -1,6 +1,6 @@
 <template>
   <Head title="Editar Cliente" />
-  <div class="max-w-4xl mx-auto p-4" :style="cssVars">
+  <div class="w-full p-4" :style="cssVars">
     <!-- Card principal con glassmorphism -->
     <div class="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl p-8 border border-gray-100">
       <!-- Header moderno -->
@@ -87,7 +87,7 @@
             <button
               type="button"
               @click="resetForm"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               Restaurar
             </button>

@@ -11,7 +11,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Cargar configuración predefinida</label>
                 <div class="flex flex-wrap gap-2">
                     <button v-for="(prov, key) in proveedoresSMTP" :key="key" type="button" @click="aplicarConfiguracionProveedor(key)"
-                        class="px-3 py-2 text-xs font-medium rounded-md border border-gray-300 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors">
+                        class="px-3 py-2 text-xs font-medium rounded-md border border-gray-300 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors">
                         {{ prov.nombre }}
                     </button>
                 </div>

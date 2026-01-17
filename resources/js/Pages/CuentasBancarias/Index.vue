@@ -78,7 +78,7 @@
             </div>
 
             <!-- Saldo -->
-            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+            <div class="bg-white rounded-lg p-4 mb-4">
               <p class="text-xs text-gray-500 uppercase">Saldo Actual</p>
               <p class="text-2xl font-bold" :class="cuenta.saldo_actual >= 0 ? 'text-green-600' : 'text-red-600'">
                 ${{ formatMonto(cuenta.saldo_actual) }}
@@ -117,7 +117,7 @@
               </button>
               <Link
                 :href="route('cuentas-bancarias.edit', { cuentas_bancaria: cuenta.id })"
-                class="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                class="p-2 text-gray-600 hover:bg-white rounded-lg transition-colors"
                 title="Editar"
               >
                 <FontAwesomeIcon :icon="['fas', 'edit']" />
@@ -176,39 +176,39 @@
 
           <!-- Info -->
           <div class="grid grid-cols-2 gap-4">
-            <div class="bg-gray-50 rounded-lg p-3">
+            <div class="bg-white rounded-lg p-3">
               <p class="text-xs text-gray-500 uppercase">Número de cuenta</p>
               <p class="font-medium text-gray-900">{{ cuentaSeleccionada?.numero_cuenta || 'No especificado' }}</p>
             </div>
-            <div class="bg-gray-50 rounded-lg p-3">
+            <div class="bg-white rounded-lg p-3">
               <p class="text-xs text-gray-500 uppercase">Tipo</p>
               <p class="font-medium text-gray-900 capitalize">{{ cuentaSeleccionada?.tipo }}</p>
             </div>
-            <div class="bg-gray-50 rounded-lg p-3">
+            <div class="bg-white rounded-lg p-3">
               <p class="text-xs text-gray-500 uppercase">Saldo inicial</p>
               <p class="font-medium text-gray-900">${{ formatMonto(cuentaSeleccionada?.saldo_inicial) }}</p>
             </div>
-            <div class="bg-gray-50 rounded-lg p-3">
+            <div class="bg-white rounded-lg p-3">
               <p class="text-xs text-gray-500 uppercase">Movimientos</p>
               <p class="font-medium text-gray-900">{{ cuentaSeleccionada?.movimientos_count }}</p>
             </div>
           </div>
 
           <!-- CLABE -->
-          <div v-if="cuentaSeleccionada?.clabe" class="bg-gray-50 rounded-lg p-3">
+          <div v-if="cuentaSeleccionada?.clabe" class="bg-white rounded-lg p-3">
             <p class="text-xs text-gray-500 uppercase">CLABE Interbancaria</p>
             <p class="font-medium text-gray-900 font-mono">{{ cuentaSeleccionada?.clabe }}</p>
           </div>
 
           <!-- Notas -->
-          <div v-if="cuentaSeleccionada?.notas" class="bg-gray-50 rounded-lg p-3">
+          <div v-if="cuentaSeleccionada?.notas" class="bg-white rounded-lg p-3">
             <p class="text-xs text-gray-500 uppercase">Notas</p>
             <p class="text-gray-700">{{ cuentaSeleccionada?.notas }}</p>
           </div>
         </div>
 
         <!-- Footer -->
-        <div class="flex justify-end gap-3 p-4 border-t bg-gray-50">
+        <div class="flex justify-end gap-3 p-4 border-t bg-white">
           <button @click="showModal = false" class="px-4 py-2 border rounded-lg hover:bg-gray-100">
             Cerrar
           </button>

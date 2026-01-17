@@ -18,10 +18,10 @@ const getStatusClasses = (estado) => {
         'activa': 'bg-emerald-50 text-emerald-600 border-emerald-100',
         'inactiva': 'bg-amber-50 text-amber-600 border-amber-100',
         'vencida': 'bg-red-50 text-red-600 border-red-100',
-        'cancelada': 'bg-gray-50 text-gray-500 border-gray-100',
+        'cancelada': 'bg-white text-gray-500 border-gray-100',
         'pendiente_pago': 'bg-purple-50 text-purple-600 border-purple-100',
     };
-    return maps[estado] || 'bg-gray-50 text-gray-500 border-gray-100';
+    return maps[estado] || 'bg-white text-gray-500 border-gray-100';
 };
 </script>
 
@@ -65,7 +65,7 @@ const getStatusClasses = (estado) => {
                         </div>
                     </div>
                     
-                    <div class="bg-gray-50 px-8 py-6 flex justify-between items-center group-hover:bg-[var(--color-primary-soft)] transition-colors">
+                    <div class="bg-white px-8 py-6 flex justify-between items-center group-hover:bg-[var(--color-primary-soft)] transition-colors">
                         <Link :href="route('portal.polizas.show', poliza.id)" class="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--color-primary)] hover:underline flex items-center gap-2">
                              Ver Detalles <font-awesome-icon icon="arrow-right" />
                         </Link>
@@ -76,7 +76,7 @@ const getStatusClasses = (estado) => {
                 </div>
 
                 <div v-if="polizas.length === 0" class="col-span-full py-20 text-center bg-white rounded-[2rem] border-2 border-dashed border-gray-100">
-                    <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl text-gray-300">
+                    <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 text-2xl text-gray-300">
                         <font-awesome-icon icon="file-contract" />
                     </div>
                     <h3 class="text-xl font-black text-gray-900 mb-2">Sin Pólizas Activas</h3>

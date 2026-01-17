@@ -150,7 +150,7 @@ const origenes = [
         <Head title="Nuevo Ticket de Soporte" />
 
         <div class="py-6">
-            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="w-full px-4 sm:px-6 lg:px-8">
                 <!-- Header -->
                 <div class="mb-6">
                     <Link :href="route('soporte.index')" class="text-orange-600 hover:text-orange-800 text-sm mb-2 inline-block">
@@ -228,7 +228,7 @@ const origenes = [
                                     <div v-if="ticketsCliente.length > 0" class="mt-3 pt-3 border-t">
                                         <div class="text-xs font-semibold text-gray-500 mb-2">Tickets recientes:</div>
                                         <div class="max-h-40 overflow-y-auto pr-1">
-                                            <div v-for="t in ticketsCliente" :key="t.id" class="text-xs py-1 flex justify-between items-center hover:bg-gray-50 rounded px-1">
+                                            <div v-for="t in ticketsCliente" :key="t.id" class="text-xs py-1 flex justify-between items-center hover:bg-white rounded px-1">
                                                 <Link :href="route('soporte.show', t.id)" target="_blank" class="font-mono text-orange-600 hover:text-orange-800 hover:underline">
                                                     {{ t.numero }}
                                                 </Link>
@@ -389,7 +389,7 @@ const origenes = [
 
                             <!-- Botones -->
                             <div class="flex justify-end gap-3 pt-4 border-t">
-                                <Link :href="route('soporte.index')" class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-gray-50">
+                                <Link :href="route('soporte.index')" class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-white">
                                     Cancelar
                                 </Link>
                                 <button 

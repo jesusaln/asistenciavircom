@@ -7,7 +7,7 @@
             </h2>
 
             <!-- Modo Mantenimiento -->
-            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 mb-6">
+            <div class="bg-white p-6 rounded-xl border border-gray-200 mb-6">
                 <div class="flex items-center gap-4 mb-4">
                      <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" v-model="form.mantenimiento" class="sr-only peer">

@@ -658,8 +658,8 @@ const generarContenidoPagare = (tamano = 'carta') => {
 <template>
   <Head title="Pagaré del Préstamo" />
 
-  <div class="pagare-page min-h-screen bg-gray-50">
-    <div class="max-w-5xl mx-auto px-6 py-8">
+  <div class="pagare-page min-h-screen bg-white">
+    <div class="w-full px-6 py-8">
       <!-- Header mejorado -->
       <div class="mb-8">
         <div class="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-6 text-white">
@@ -720,7 +720,7 @@ const generarContenidoPagare = (tamano = 'carta') => {
             </button>
             <button
               @click="validarDatos"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-white transition-colors"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -732,7 +732,7 @@ const generarContenidoPagare = (tamano = 'carta') => {
           <div class="flex items-center gap-2">
             <Link
               :href="`/prestamos/${prestamo.id}`"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-white transition-colors"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -742,7 +742,7 @@ const generarContenidoPagare = (tamano = 'carta') => {
             </Link>
             <Link
               href="/prestamos"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-white transition-colors"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -795,7 +795,7 @@ const generarContenidoPagare = (tamano = 'carta') => {
 
             <!-- Información del contrato -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+              <div class="bg-white rounded-xl p-6 border border-gray-200">
                 <div class="flex items-center mb-3">
                   <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
                     <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -810,7 +810,7 @@ const generarContenidoPagare = (tamano = 'carta') => {
                 <div class="text-lg font-bold text-gray-900">{{ formatearNumeroContrato() }}</div>
               </div>
 
-              <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+              <div class="bg-white rounded-xl p-6 border border-gray-200">
                 <div class="flex items-center mb-3">
                   <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
                     <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -825,7 +825,7 @@ const generarContenidoPagare = (tamano = 'carta') => {
                 <div class="text-lg font-bold text-gray-900">{{ fechaPrimerPago }}</div>
               </div>
 
-              <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+              <div class="bg-white rounded-xl p-6 border border-gray-200">
                 <div class="flex items-center mb-3">
                   <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
                     <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -890,7 +890,7 @@ const generarContenidoPagare = (tamano = 'carta') => {
 
             <!-- Información de las partes -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+              <div class="bg-white rounded-xl p-6 border border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                   <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -913,7 +913,7 @@ const generarContenidoPagare = (tamano = 'carta') => {
                 </div>
               </div>
 
-              <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+              <div class="bg-white rounded-xl p-6 border border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                   <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
@@ -956,12 +956,12 @@ const generarContenidoPagare = (tamano = 'carta') => {
 
             <!-- Firmas visuales mejoradas -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-              <div class="text-center p-6 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+              <div class="text-center p-6 bg-white rounded-xl border-2 border-dashed border-gray-300">
                 <div class="w-3/4 mx-auto h-16 border-b-2 border-gray-700 mb-4"></div>
                 <div class="text-lg font-semibold text-gray-900">{{ cliente.nombre_razon_social }}</div>
                 <div class="text-sm text-gray-600">Deudor(a) — Firma autógrafa</div>
               </div>
-              <div class="text-center p-6 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+              <div class="text-center p-6 bg-white rounded-xl border-2 border-dashed border-gray-300">
                 <div class="w-3/4 mx-auto h-16 border-b-2 border-gray-700 mb-4"></div>
                 <div class="text-lg font-semibold text-gray-900">{{ empresa.nombre_comercial }}  {{ empresa.nombre }}</div>
                 <div class="text-sm text-gray-600">Acreedor — Representante legal</div>

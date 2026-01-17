@@ -91,7 +91,7 @@ const formatNumber = (num) => new Intl.NumberFormat('es-MX', { minimumFractionDi
                 <p class="text-sm text-gray-600">Busca e importa productos directamente al catálogo local</p>
               </div>
             </div>
-            <Link :href="route('productos.index')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">
+            <Link :href="route('productos.index')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-white transition-colors">
               Volver a Productos
             </Link>
           </div>
@@ -128,7 +128,7 @@ const formatNumber = (num) => new Intl.NumberFormat('es-MX', { minimumFractionDi
         <!-- Tabla de Resultados -->
         <div class="overflow-x-auto">
           <table class="w-full text-left">
-            <thead class="bg-gray-50 border-b border-gray-100">
+            <thead class="bg-white border-b border-gray-100">
               <tr>
                 <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase">Clave / SKU</th>
                 <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase">Imágen</th>
@@ -186,7 +186,7 @@ const formatNumber = (num) => new Intl.NumberFormat('es-MX', { minimumFractionDi
               <tr v-if="productos.length === 0 && !loading">
                 <td colspan="6" class="px-6 py-20 text-center">
                   <div class="flex flex-col items-center">
-                    <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
                       <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                       </svg>

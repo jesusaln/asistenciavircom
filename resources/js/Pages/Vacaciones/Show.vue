@@ -1,7 +1,7 @@
 <template>
   <Head title="Detalles de Vacaciones" />
-  <div class="vacaciones-show min-h-screen bg-gray-50">
-    <div class="max-w-4xl mx-auto px-6 py-8">
+  <div class="vacaciones-show min-h-screen bg-white">
+    <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
@@ -85,7 +85,7 @@
             <!-- Motivo -->
             <div>
               <h3 class="text-md font-semibold text-gray-900 mb-2">Motivo</h3>
-              <div class="bg-gray-50 rounded-lg p-4">
+              <div class="bg-white rounded-lg p-4">
                 <p class="text-gray-700">{{ vacacion.motivo || 'No se especificó motivo' }}</p>
               </div>
             </div>
@@ -139,7 +139,7 @@
             <!-- Fechas de creación y actualización -->
             <div>
               <h3 class="text-md font-semibold text-gray-900 mb-2">Fechas del Sistema</h3>
-              <div class="bg-gray-50 rounded-lg p-4 space-y-2">
+              <div class="bg-white rounded-lg p-4 space-y-2">
                 <div class="flex justify-between">
                   <span class="text-gray-600">Fecha de creación:</span>
                   <span class="font-medium">{{ vacacion.created_at ? formatDate(vacacion.created_at) : 'N/A' }}</span>
@@ -161,7 +161,7 @@
             </svg>
             Ajustes de vacaciones (año)
           </h2>
-          <div v-if="(ajustesVacaciones && ajustesVacaciones.length)" class="overflow-x-auto bg-gray-50 border border-gray-200 rounded-lg">
+          <div v-if="(ajustesVacaciones && ajustesVacaciones.length)" class="overflow-x-auto bg-white border border-gray-200 rounded-lg">
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-100">
                 <tr>

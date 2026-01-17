@@ -1,6 +1,6 @@
 <template>
     <Head title="Ver Cita" />
-    <div class="citas-show max-w-4xl mx-auto p-6 bg-gray-50 rounded-lg shadow-md">
+    <div class="citas-show w-full p-6 bg-white rounded-lg shadow-md">
       <h1 class="text-2xl font-semibold mb-6 text-center">Detalles de la Cita #{{ props.cita.id }}</h1>
 
       <div class="space-y-6">
@@ -106,7 +106,7 @@
         <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div v-if="cita.firma_cliente" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                 <label class="block text-gray-500 text-[10px] font-bold uppercase mb-3">Firma de Conformidad (Cliente)</label>
-                <div class="bg-gray-50 rounded-lg p-2 border border-gray-50">
+                <div class="bg-white rounded-lg p-2 border border-gray-50">
                     <img :src="cita.firma_cliente" class="h-24 object-contain mx-auto">
                 </div>
                 <div class="mt-3 text-center">
@@ -117,7 +117,7 @@
 
             <div v-if="cita.firma_tecnico" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                 <label class="block text-gray-500 text-[10px] font-bold uppercase mb-3">Firma del Técnico</label>
-                <div class="bg-gray-50 rounded-lg p-2 border border-gray-50">
+                <div class="bg-white rounded-lg p-2 border border-gray-50">
                     <img :src="cita.firma_tecnico" class="h-24 object-contain mx-auto">
                 </div>
                 <div class="mt-3 text-center">
@@ -133,7 +133,7 @@
           <div v-if="cita.items && cita.items.length > 0" class="bg-white p-4 rounded-md shadow-sm">
             <div class="overflow-x-auto">
               <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+                <thead class="bg-white">
                   <tr>
                     <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
                     <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>

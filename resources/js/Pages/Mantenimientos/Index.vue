@@ -861,7 +861,7 @@ const obtenerTextoUrgencia = (mantenimiento) => {
 <template>
   <div>
     <Head title="Mantenimientos" />
-    <div class="mantenimientos-index min-h-screen bg-gray-50">
+    <div class="mantenimientos-index min-h-screen bg-white">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="bg-white border border-slate-200 rounded-xl shadow-sm mb-6 overflow-hidden">
@@ -887,7 +887,7 @@ const obtenerTextoUrgencia = (mantenimiento) => {
               <div class="flex items-center gap-3">
                 <button
                   @click="limpiarFiltros"
-                  class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200"
+                  class="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1196,7 +1196,7 @@ const obtenerTextoUrgencia = (mantenimiento) => {
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha</th>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Vehículo</th>
@@ -1211,7 +1211,7 @@ const obtenerTextoUrgencia = (mantenimiento) => {
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
               <tr v-for="(mantenimiento, index) in mantenimientosDocumentos" :key="mantenimiento.id" :class="[
-                'hover:bg-gray-50 transition-colors duration-150',
+                'hover:bg-white transition-colors duration-150',
                 mantenimiento.raw.dias_restantes <= 0 ? 'bg-red-50' : '',
                 mantenimiento.raw.prioridad === 'critica' ? 'border-l-4 border-l-red-500' : '',
                 mantenimiento.raw.prioridad === 'alta' ? 'border-l-4 border-l-orange-500' : ''
@@ -1317,7 +1317,7 @@ const obtenerTextoUrgencia = (mantenimiento) => {
                     </button>
                     <button
                       v-else
-                      class="w-8 h-8 bg-gray-50 text-gray-400 rounded-lg cursor-not-allowed"
+                      class="w-8 h-8 bg-white text-gray-400 rounded-lg cursor-not-allowed"
                       title="Vehículo no disponible"
                       disabled
                     >
@@ -1423,7 +1423,7 @@ const obtenerTextoUrgencia = (mantenimiento) => {
               <button
                 v-if="paginationData.prevPageUrl"
                 @click="handlePageChange(paginationData.currentPage - 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -1440,7 +1440,7 @@ const obtenerTextoUrgencia = (mantenimiento) => {
                 v-for="page in [paginationData.currentPage - 1, paginationData.currentPage, paginationData.currentPage + 1].filter(p => p > 0 && p <= paginationData.lastPage)"
                 :key="page"
                 @click="handlePageChange(page)"
-                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'"
+                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               >
                 {{ page }}
@@ -1449,7 +1449,7 @@ const obtenerTextoUrgencia = (mantenimiento) => {
               <button
                 v-if="paginationData.nextPageUrl"
                 @click="handlePageChange(paginationData.currentPage + 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -1468,7 +1468,7 @@ const obtenerTextoUrgencia = (mantenimiento) => {
 
       <!-- Modal de Historial del Vehículo -->
       <div v-if="showHistorialModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showHistorialModal = false">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-lg shadow-xl w-full w-full max-h-[90vh] overflow-y-auto">
           <!-- Header del modal -->
           <div class="flex items-center justify-between p-6 border-b border-gray-200">
             <div>
@@ -1545,7 +1545,7 @@ const obtenerTextoUrgencia = (mantenimiento) => {
               <!-- Lista de mantenimientos -->
               <div class="space-y-3">
                 <h4 class="text-lg font-semibold text-gray-800 mb-4">Lista de Mantenimientos</h4>
-                <div v-for="mantenimiento in historialMantenimientos" :key="mantenimiento.id" class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <div v-for="mantenimiento in historialMantenimientos" :key="mantenimiento.id" class="bg-white p-4 rounded-lg border border-gray-200">
                   <div class="flex items-start justify-between">
                     <div class="flex-1">
                       <div class="flex items-center gap-3 mb-2">
@@ -1603,7 +1603,7 @@ const obtenerTextoUrgencia = (mantenimiento) => {
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
             <button @click="cerrarHistorialModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
               Cerrar
             </button>
@@ -1633,21 +1633,21 @@ const obtenerTextoUrgencia = (mantenimiento) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Vehículo</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">
                         {{ selectedMantenimiento.carro ? selectedMantenimiento.carro.marca + ' ' + selectedMantenimiento.carro.modelo : 'N/A' }}
                       </p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Tipo</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ selectedMantenimiento.tipo }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedMantenimiento.tipo }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Fecha</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ formatearFecha(selectedMantenimiento.fecha) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedMantenimiento.fecha) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Próximo Mantenimiento</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ formatearFecha(selectedMantenimiento.proximo_mantenimiento) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedMantenimiento.proximo_mantenimiento) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Estado</label>
@@ -1659,29 +1659,29 @@ const obtenerTextoUrgencia = (mantenimiento) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Kilometraje Actual</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ formatNumber(selectedMantenimiento.kilometraje_actual || 0) }} km</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatNumber(selectedMantenimiento.kilometraje_actual || 0) }} km</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Costo</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">${{ formatNumber(selectedMantenimiento.costo || 0) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(selectedMantenimiento.costo || 0) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Fecha de Creación</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ formatearFecha(selectedMantenimiento.created_at) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedMantenimiento.created_at) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Última Actualización</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ formatearFecha(selectedMantenimiento.updated_at) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedMantenimiento.updated_at) }}</p>
                     </div>
                   </div>
                 </div>
                 <div v-if="selectedMantenimiento.descripcion">
                   <label class="block text-sm font-medium text-gray-700">Descripción</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedMantenimiento.descripcion }}</p>
+                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedMantenimiento.descripcion }}</p>
                 </div>
                 <div v-if="selectedMantenimiento.notas">
                   <label class="block text-sm font-medium text-gray-700">Notas</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedMantenimiento.notas }}</p>
+                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedMantenimiento.notas }}</p>
                 </div>
               </div>
             </div>
@@ -1703,7 +1703,7 @@ const obtenerTextoUrgencia = (mantenimiento) => {
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
             <button @click="showModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
               {{ modalMode === 'details' ? 'Cerrar' : 'Cancelar' }}
             </button>
@@ -1786,7 +1786,7 @@ const obtenerTextoUrgencia = (mantenimiento) => {
               </div>
 
               <!-- Información del mantenimiento actual -->
-              <div v-if="mantenimientoAReprogramar" class="bg-gray-50 p-4 rounded-lg">
+              <div v-if="mantenimientoAReprogramar" class="bg-white p-4 rounded-lg">
                 <h4 class="text-sm font-medium text-gray-900 mb-2">Información del Mantenimiento</h4>
                 <div class="space-y-1 text-sm text-gray-600">
                   <div><strong>Vehículo:</strong> {{ mantenimientoAReprogramar.raw.carro?.marca }} {{ mantenimientoAReprogramar.raw.carro?.modelo }}</div>

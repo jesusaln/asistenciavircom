@@ -74,7 +74,7 @@ const getDocLabel = (tipo) => {
     <Head title="Mi Crédito" />
 
     <ClientLayout :empresa="empresa">
-        <div class="max-w-5xl mx-auto px-4 sm:px-0">
+        <div class="w-full px-4 sm:px-0">
             <!-- Header -->
             <div class="mb-10">
                 <Link :href="route('portal.dashboard')" class="text-sm font-bold text-gray-400 hover:text-[var(--color-primary)] transition-colors inline-flex items-center gap-2 mb-4">
@@ -162,7 +162,7 @@ const getDocLabel = (tipo) => {
                             @drop.prevent="onDrop"
                             :class="[
                                 'border-2 border-dashed rounded-[2rem] p-12 text-center transition-all',
-                                isDragging ? 'border-[var(--color-primary)] bg-orange-50' : 'border-gray-100 bg-gray-50'
+                                isDragging ? 'border-[var(--color-primary)] bg-orange-50' : 'border-gray-100 bg-white'
                             ]"
                         >
                             <font-awesome-icon icon="cloud-upload-alt" class="text-4xl text-gray-200 mb-4" />
@@ -184,7 +184,7 @@ const getDocLabel = (tipo) => {
                         <div class="grid gap-4">
                             <div 
                                 v-for="doc in cliente.documentos" :key="doc.id"
-                                class="flex items-center justify-between p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:border-blue-200 transition-all"
+                                class="flex items-center justify-between p-4 rounded-2xl bg-white border border-gray-100 hover:border-blue-200 transition-all"
                             >
                                 <div class="flex items-center gap-4">
                                     <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-gray-400 shadow-sm">

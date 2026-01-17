@@ -378,7 +378,7 @@ const obtenerLabelEstado = (estado) => {
 
 <template>
   <Head title="Rentas" />
-  <div class="rentas-index min-h-screen bg-gray-50">
+  <div class="rentas-index min-h-screen bg-white">
     <div class="w-full px-6 py-8">
       <!-- Header específico de rentas -->
       <RentasHeader
@@ -420,7 +420,7 @@ const obtenerLabelEstado = (estado) => {
           </div>
         </div>
         <div class="divide-y divide-gray-100">
-          <div v-for="cobro in proximosCobros" :key="cobro.id" class="px-6 py-4 hover:bg-gray-50 transition-colors duration-150">
+          <div v-for="cobro in proximosCobros" :key="cobro.id" class="px-6 py-4 hover:bg-white transition-colors duration-150">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-4">
                 <div 
@@ -462,7 +462,7 @@ const obtenerLabelEstado = (estado) => {
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Contrato</th>
                 <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Cliente</th>
@@ -474,7 +474,7 @@ const obtenerLabelEstado = (estado) => {
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="renta in rentasDocumentos" :key="renta.id" class="hover:bg-gray-50 transition-colors duration-150">
+              <tr v-for="renta in rentasDocumentos" :key="renta.id" class="hover:bg-white transition-colors duration-150">
                 <td class="px-4 py-4">
                   <div class="text-sm font-medium text-gray-900">{{ renta.titulo }}</div>
                   <div class="text-xs text-gray-500">{{ formatearFecha(renta.fecha) }}</div>
@@ -664,7 +664,7 @@ const obtenerLabelEstado = (estado) => {
               <button
                 v-if="paginationData.prevPageUrl"
                 @click="handlePageChange(paginationData.currentPage - 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -681,7 +681,7 @@ const obtenerLabelEstado = (estado) => {
                 v-for="page in [paginationData.currentPage - 1, paginationData.currentPage, paginationData.currentPage + 1].filter(p => p > 0 && p <= paginationData.lastPage)"
                 :key="page"
                 @click="handlePageChange(page)"
-                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'"
+                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               >
                 {{ page }}
@@ -690,7 +690,7 @@ const obtenerLabelEstado = (estado) => {
               <button
                 v-if="paginationData.nextPageUrl"
                 @click="handlePageChange(paginationData.currentPage + 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -729,19 +729,19 @@ const obtenerLabelEstado = (estado) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Número de Contrato</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ selectedRenta.numero_contrato || 'N/A' }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedRenta.numero_contrato || 'N/A' }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Cliente</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ selectedRenta.cliente?.nombre || 'Sin cliente' }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedRenta.cliente?.nombre || 'Sin cliente' }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Fecha de Inicio</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ formatearFecha(selectedRenta.fecha_inicio) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedRenta.fecha_inicio) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Fecha de Fin</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ formatearFecha(selectedRenta.fecha_fin) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedRenta.fecha_fin) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Estado</label>
@@ -753,15 +753,15 @@ const obtenerLabelEstado = (estado) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Equipos Rentados</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ selectedRenta.equipos?.length || 0 }} equipos</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedRenta.equipos?.length || 0 }} equipos</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Fecha de Creación</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ formatearFecha(selectedRenta.created_at) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedRenta.created_at) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Última Actualización</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{{ formatearFecha(selectedRenta.updated_at) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedRenta.updated_at) }}</p>
                     </div>
                   </div>
                 </div>
@@ -785,7 +785,7 @@ const obtenerLabelEstado = (estado) => {
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
             <button @click="showModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
               {{ modalMode === 'details' ? 'Cerrar' : 'Cancelar' }}
             </button>

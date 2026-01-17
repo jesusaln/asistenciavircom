@@ -129,7 +129,7 @@ const updateAlmacenCompra = async () => {
     <AppLayout>
         <Head title="Mi Perfil" />
 
-        <div class="profile-page min-h-screen bg-gray-50">
+        <div class="profile-page min-h-screen bg-white">
         <!-- Header personalizado -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-8 mb-6 transition-all duration-300 hover:shadow-lg">
             <div class="flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">

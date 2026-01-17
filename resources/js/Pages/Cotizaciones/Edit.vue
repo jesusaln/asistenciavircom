@@ -535,7 +535,7 @@ const ajustarPreciosAutomaticamente = async () => {
 <template>
   <Head title="Editar Cotización" />
   <div class="cotizaciones-edit min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-    <div class="max-w-6xl mx-auto">
+    <div class="w-full">
       <!-- Loading overlay -->
       <div v-if="isLoading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 flex items-center space-x-3">

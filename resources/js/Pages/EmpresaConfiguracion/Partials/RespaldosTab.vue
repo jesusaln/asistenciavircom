@@ -7,14 +7,14 @@
             </h2>
 
             <!-- Selector de proveedor -->
-            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 mb-6">
+            <div class="bg-white p-6 rounded-xl border border-gray-200 mb-6">
                 <h3 class="text-md font-medium text-gray-900 mb-4">Seleccionar Proveedor Cloud</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <button
                         @click="form.cloud_provider = 'none'"
                         :class="[
                             'p-4 rounded-xl border-2 text-left transition-all',
-                            form.cloud_provider === 'none' ? 'border-gray-500 bg-gray-50' : 'border-gray-200 hover:border-gray-300'
+                            form.cloud_provider === 'none' ? 'border-gray-500 bg-white' : 'border-gray-200 hover:border-gray-300'
                         ]"
                     >
                         <FontAwesomeIcon icon="times-circle" class="text-2xl text-gray-400 mb-2" />
@@ -51,7 +51,7 @@
                     <button 
                         @click="connectGoogleDrive"
                         :disabled="connecting"
-                        class="inline-flex items-center gap-3 px-6 py-3 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-all"
+                        class="inline-flex items-center gap-3 px-6 py-3 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-white transition-all"
                     >
                         <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" class="w-5 h-5" alt="">
                         <span class="font-medium text-gray-700">
@@ -94,15 +94,15 @@
 
                     <!-- Espacio -->
                     <div v-if="gdriveSpace" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="bg-gray-50 p-3 rounded-lg border">
+                        <div class="bg-white p-3 rounded-lg border">
                             <div class="text-gray-500">Total</div>
                             <div class="font-semibold text-gray-900">{{ gdriveSpace.total }}</div>
                         </div>
-                        <div class="bg-gray-50 p-3 rounded-lg border">
+                        <div class="bg-white p-3 rounded-lg border">
                             <div class="text-gray-500">Usado</div>
                             <div class="font-semibold text-gray-900">{{ gdriveSpace.used }}</div>
                         </div>
-                        <div class="bg-gray-50 p-3 rounded-lg border">
+                        <div class="bg-white p-3 rounded-lg border">
                             <div class="text-gray-500">Disponible</div>
                             <div class="font-semibold text-green-600">{{ gdriveSpace.free }}</div>
                         </div>
@@ -148,7 +148,7 @@
                         <div v-else class="space-y-2 max-h-48 overflow-y-auto">
                             <div v-for="(file, index) in gdriveFiles" :key="file.id" 
                                 class="flex items-center justify-between p-2 rounded-lg"
-                                :class="index < 3 ? 'bg-blue-50 border border-blue-100' : 'bg-gray-50'"
+                                :class="index < 3 ? 'bg-blue-50 border border-blue-100' : 'bg-white'"
                             >
                                 <div class="flex items-center gap-2">
                                     <FontAwesomeIcon icon="file-archive" :class="index < 3 ? 'text-blue-600' : 'text-blue-500'" />

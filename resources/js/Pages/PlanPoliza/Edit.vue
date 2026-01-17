@@ -66,7 +66,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
         <Head :title="isEditing ? 'Editar Plan de Póliza' : 'Nuevo Plan de Póliza'" />
 
         <div class="py-6">
-            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="w-full px-4 sm:px-6 lg:px-8">
                 <!-- Header -->
                 <div class="mb-6">
                     <Link :href="route('planes-poliza.index')" class="text-blue-600 hover:text-blue-800 text-sm mb-2 inline-block">
@@ -274,7 +274,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                             </div>
 
                             <div class="flex items-center">
-                                <label class="flex items-center gap-3 cursor-pointer p-3 bg-gray-50 rounded-xl border border-gray-100 hover:bg-blue-50 transition-all w-full">
+                                <label class="flex items-center gap-3 cursor-pointer p-3 bg-white rounded-xl border border-gray-100 hover:bg-blue-50 transition-all w-full">
                                     <input type="checkbox" v-model="form.generar_cita_automatica" class="w-5 h-5 rounded text-blue-600">
                                     <div>
                                         <span class="font-semibold text-sm">Autogenerar Citas</span>
@@ -365,7 +365,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
 
                     <!-- Botones -->
                     <div class="flex justify-end gap-3">
-                        <Link :href="route('planes-poliza.index')" class="px-6 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition">
+                        <Link :href="route('planes-poliza.index')" class="px-6 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-white transition">
                             Cancelar
                         </Link>
                         <button 

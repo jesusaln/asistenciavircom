@@ -40,7 +40,7 @@ const getColorPlan = computed(() => {
         <PublicNavbar :empresa="empresa" activeTab="polizas" />
 
         <main class="py-12">
-            <div class="max-w-5xl mx-auto px-4">
+            <div class="w-full px-4">
                 <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
                     <div class="grid grid-cols-1 lg:grid-cols-2">
                         

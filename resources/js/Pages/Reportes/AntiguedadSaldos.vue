@@ -77,7 +77,7 @@ const totalVencido = (props.totales.vencido_1_30 + props.totales.vencido_31_60 +
 <template>
   <Head title="Reporte de Antigüedad de Saldos" />
 
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-white">
     <div class="w-full px-4 sm:px-6 lg:px-8 py-8">
       
       <!-- Header -->
@@ -172,7 +172,7 @@ const totalVencido = (props.totales.vencido_1_30 + props.totales.vencido_31_60 +
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
               <tr>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Límite Crédito</th>
@@ -190,7 +190,7 @@ const totalVencido = (props.totales.vencido_1_30 + props.totales.vencido_31_60 +
                     No hay saldos pendientes para la fecha de corte seleccionada.
                 </td>
               </tr>
-              <tr v-for="row in reporte" :key="row.id" class="hover:bg-gray-50 transition-colors">
+              <tr v-for="row in reporte" :key="row.id" class="hover:bg-white transition-colors">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="text-sm font-medium text-gray-900">
                     <Link :href="route('clientes.show', row.id)" class="hover:text-blue-600 hover:underline">

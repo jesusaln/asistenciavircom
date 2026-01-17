@@ -123,7 +123,7 @@ const cerrarModal = () => {
                 <div class="bg-white rounded-xl shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                            <thead class="bg-white">
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Póliza</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
@@ -135,7 +135,7 @@ const cerrarModal = () => {
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                <tr v-for="poliza in polizas.data" :key="poliza.id" class="hover:bg-gray-50 transition border-transparent border-l-4 hover:border-blue-500">
+                                <tr v-for="poliza in polizas.data" :key="poliza.id" class="hover:bg-white transition border-transparent border-l-4 hover:border-blue-500">
                                     <td class="px-4 py-4">
                                         <div class="font-mono text-xs font-bold text-blue-600">{{ poliza.folio }}</div>
                                         <div class="text-sm font-medium text-gray-900">{{ poliza.nombre }}</div>
@@ -189,7 +189,7 @@ const cerrarModal = () => {
                     </div>
 
                     <!-- Paginación -->
-                    <div v-if="polizas.last_page > 1" class="px-4 py-3 bg-gray-50 border-t flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div v-if="polizas.last_page > 1" class="px-4 py-3 bg-white border-t flex flex-col sm:flex-row justify-between items-center gap-4">
                         <span class="text-sm text-gray-500">
                             Mostrando {{ polizas.from }} a {{ polizas.to }} de {{ polizas.total }} pólizas
                         </span>

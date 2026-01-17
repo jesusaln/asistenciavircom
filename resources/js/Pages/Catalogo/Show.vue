@@ -244,12 +244,12 @@ const decrementar = () => {
         <PublicNavbar :empresa="empresaData" activeTab="tienda" />
 
         <!-- Product Detail -->
-        <main class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+        <main class="w-full px-4 sm:px-6 py-12">
             <div class="grid lg:grid-cols-2 gap-12 lg:gap-16">
                 
                 <!-- Image Section con efecto cristal -->
                 <div class="relative">
-                    <div class="aspect-square rounded-2xl overflow-hidden bg-gray-50 relative group">
+                    <div class="aspect-square rounded-2xl overflow-hidden bg-white relative group">
                         <!-- Efecto cristal/glassmorphism -->
                         <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none z-10"></div>
                         <div class="absolute -inset-4 bg-[var(--color-primary)]/5 blur-3xl rounded-full"></div>
@@ -298,7 +298,7 @@ const decrementar = () => {
                         <button v-for="(img, idx) in producto.imagenes" :key="idx"
                                 @click="mainImage = img"
                                 :class="[
-                                    'w-20 h-20 rounded-xl bg-gray-50 flex-shrink-0 border-2 transition-all p-2',
+                                    'w-20 h-20 rounded-xl bg-white flex-shrink-0 border-2 transition-all p-2',
                                     (mainImage === img || (!mainImage && img === producto.imagen)) ? 'border-[var(--color-primary)]' : 'border-transparent'
                                 ]">
                             <img :src="getImageUrl(img)" class="w-full h-full object-contain" />
@@ -326,7 +326,7 @@ const decrementar = () => {
                     </p>
 
                     <!-- Price con IVA -->
-                    <div class="mb-8 p-6 bg-gray-50 rounded-2xl border border-gray-100 inline-block align-self-start">
+                    <div class="mb-8 p-6 bg-white rounded-2xl border border-gray-100 inline-block align-self-start">
                         <div class="flex items-baseline gap-3">
                             <span class="text-4xl font-black" style="color: var(--color-primary);">
                                 {{ formatCurrency(producto.precio_con_iva) }}
@@ -362,8 +362,8 @@ const decrementar = () => {
                             <table class="w-full text-sm">
                                 <tbody>
                                     <tr v-for="(value, key) in parsedSpecs" :key="key" 
-                                        class="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors">
-                                        <td class="py-3 px-4 font-semibold text-gray-700 bg-gray-50/70 w-1/3 align-top">
+                                        class="border-b border-gray-50 last:border-0 hover:bg-white/50 transition-colors">
+                                        <td class="py-3 px-4 font-semibold text-gray-700 bg-white/70 w-1/3 align-top">
                                             {{ key }}
                                         </td>
                                         <td class="py-3 px-4 text-gray-600">
@@ -537,7 +537,7 @@ const decrementar = () => {
                     <Link v-for="rel in relacionados" :key="rel.id"
                           :href="route('catalogo.show', rel.id)"
                           class="group bg-white rounded-3xl overflow-hidden border border-gray-100 hover:shadow-2xl hover:border-white transition-all duration-500">
-                        <div class="aspect-square bg-gray-50 overflow-hidden relative">
+                        <div class="aspect-square bg-white overflow-hidden relative">
                             <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none z-10"></div>
                             <img v-if="getImageUrl(rel)" 
                                  :src="getImageUrl(rel)" 
@@ -612,7 +612,7 @@ const decrementar = () => {
                         <!-- Botones -->
                         <div class="flex gap-3">
                             <button @click="showCedisModal = false"
-                                    class="flex-1 py-3 px-4 border-2 border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition-colors">
+                                    class="flex-1 py-3 px-4 border-2 border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-white transition-colors">
                                 Cancelar
                             </button>
                             <button @click="confirmAddToCart"
