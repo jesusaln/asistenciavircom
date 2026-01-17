@@ -7,63 +7,98 @@ $app = require_once __DIR__ . '/bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-use App\Models\CuentasPorCobrar;
-use App\Models\Cliente;
-use App\Models\Venta;
-use App\Models\Renta;
-use App\Models\PolizaServicio;
 use Illuminate\Support\Facades\DB;
 
 $search = "MIGUEL";
 
-echo "\n--- DIAGNÓSTICO DE BÚSQUEDA: '$search' ---\n";
+echo "\n--- ANÁLISIS EXHAUSTIVO DE CUENTAS POR COBRAR ---\n";
 
-// 1. Buscar Cliente (incluyendo eliminados)
-$clientes = Cliente::withTrashed()->where('nombre_razon_social', 'ilike', "%{$search}%")->get();
-echo "1. Clientes encontrados con ilike '%$search%' (incluyendo eliminados): " . $clientes->count() . "\n";
+// 1. LISTAR LAS PRIMERAS CXC DE LA TABLA SIN NINGÚN FILTRO
+echo "\n1. Todas las CxC en la tabla (primeras 10):\n";
+$todas = DB::table('cuentas_por_cobrar')
+    ->whereNull('deleted_at')
+    ->orderBy('id', 'desc')
+    ->limit(10)
+    ->get(['id', 'cliente_id', 'cobrable_id', 'cobrable_type', 'empresa_id', 'monto_total', 'estado']);
 
-if ($clientes->count() > 0) {
-    foreach ($clientes as $c) {
-        $estado = $c->deleted_at ? "[ELIMINADO]" : "[ACTIVO]";
-        echo "   [ID: {$c->id}] {$c->nombre_razon_social} $estado\n";
-
-        // Ventas
-        $ventas_count = Venta::where('cliente_id', $c->id)->count();
-        echo "      -> Ventas: $ventas_count\n";
-
-        // Rentas
-        // Check if Renta model exists appropriately
-        if (class_exists(Renta::class)) {
-            $rentas_count = Renta::where('cliente_id', $c->id)->count();
-            echo "      -> Rentas: $rentas_count\n";
-        }
-
-        // Polizas
-        if (class_exists(PolizaServicio::class)) {
-            $polizas_count = PolizaServicio::where('cliente_id', $c->id)->count();
-            echo "      -> Polizas: $polizas_count\n";
-        }
-
-        // CxC directas
-        $cxc_directas = CuentasPorCobrar::where('cliente_id', $c->id)->count();
-        echo "      -> CxC con cliente_id directo: $cxc_directas\n";
-
-        // Búsqueda de CxC via polimorfismo
-        $ids = [$c->id];
-        $cxc_poly = CuentasPorCobrar::whereHasMorph('cobrable', '*', function ($q, $type) use ($ids) {
-            if (method_exists($type, 'cliente')) { // Ojo: esto evalua la clase estática, method_exists necesita objeto o string class.
-                // Mejor usar whereHas si Laravel lo permite en closure morph type
-                // Pero simplifiquemos:
-                $q->whereIn('cliente_id', $ids);
-            }
-        })->count();
-        // Nota: whereHasMorph con '*' y whereIn('cliente_id') asume que todos los cobrables tienen columna cliente_id
-        // Venta, Renta, Poliza la tienen.
-
-        echo "      -> CxC detectadas via cobrable->cliente_id: $cxc_poly\n";
-    }
-} else {
-    echo "   (No se encontraron clientes)\n";
+foreach ($todas as $cxc) {
+    echo "   ID: {$cxc->id} | cliente_id: " . ($cxc->cliente_id ?: 'NULL') . " | cobrable_type: {$cxc->cobrable_type} | cobrable_id: {$cxc->cobrable_id} | empresa_id: {$cxc->empresa_id} | estado: {$cxc->estado}\n";
 }
 
-echo "\n--- FIN DIAGNÓSTICO ---\n";
+// 2. Buscar clientes con MIGUEL
+echo "\n2. Buscando clientes con MIGUEL:\n";
+$clientes = DB::table('clientes')
+    ->whereNull('deleted_at')
+    ->whereRaw("nombre_razon_social ILIKE ?", ["%{$search}%"])
+    ->get(['id', 'nombre_razon_social', 'empresa_id']);
+
+foreach ($clientes as $c) {
+    echo "   Cliente ID: {$c->id} | Nombre: {$c->nombre_razon_social} | empresa_id: {$c->empresa_id}\n";
+}
+
+if ($clientes->count() > 0) {
+    $clienteIds = $clientes->pluck('id')->toArray();
+
+    // 3. Buscar CxC con cliente_id directo
+    echo "\n3. CxC con cliente_id directo de Miguel:\n";
+    $cxcDirectas = DB::table('cuentas_por_cobrar')
+        ->whereIn('cliente_id', $clienteIds)
+        ->whereNull('deleted_at')
+        ->get(['id', 'cliente_id', 'cobrable_type', 'cobrable_id', 'monto_total', 'estado']);
+    echo "   Encontradas: " . $cxcDirectas->count() . "\n";
+    foreach ($cxcDirectas as $cxc) {
+        echo "   -> ID: {$cxc->id} | Type: {$cxc->cobrable_type} | Monto: {$cxc->monto_total} | Estado: {$cxc->estado}\n";
+    }
+
+    // 4. Buscar Rentas de Miguel
+    echo "\n4. Rentas del cliente Miguel:\n";
+    $rentas = DB::table('rentas')
+        ->whereIn('cliente_id', $clienteIds)
+        ->whereNull('deleted_at')
+        ->get(['id', 'cliente_id', 'numero_contrato']);
+    echo "   Encontradas: " . $rentas->count() . "\n";
+    foreach ($rentas as $r) {
+        echo "   -> Renta ID: {$r->id} | Contrato: {$r->numero_contrato}\n";
+
+        // Buscar CxC donde cobrable_id = esta renta
+        $cxcRenta = DB::table('cuentas_por_cobrar')
+            ->where('cobrable_id', $r->id)
+            ->whereNull('deleted_at')
+            ->get(['id', 'cobrable_type', 'monto_total', 'estado', 'cliente_id']);
+        echo "      CxC asociadas a esta renta (por cobrable_id = {$r->id}):\n";
+        if ($cxcRenta->count() > 0) {
+            foreach ($cxcRenta as $cxc) {
+                echo "         -> CxC ID: {$cxc->id} | Type: '{$cxc->cobrable_type}' | cliente_id: " . ($cxc->cliente_id ?: 'NULL') . " | Monto: {$cxc->monto_total} | Estado: {$cxc->estado}\n";
+            }
+        } else {
+            echo "         (NINGUNA)\n";
+        }
+    }
+
+    // 5. Buscar Ventas de Miguel
+    echo "\n5. Ventas del cliente Miguel:\n";
+    $ventas = DB::table('ventas')
+        ->whereIn('cliente_id', $clienteIds)
+        ->whereNull('deleted_at')
+        ->get(['id', 'cliente_id', 'numero_venta', 'total']);
+    echo "   Encontradas: " . $ventas->count() . "\n";
+    foreach ($ventas as $v) {
+        echo "   -> Venta ID: {$v->id} | Número: {$v->numero_venta} | Total: {$v->total}\n";
+
+        // Buscar CxC donde cobrable_id = esta venta
+        $cxcVenta = DB::table('cuentas_por_cobrar')
+            ->where('cobrable_id', $v->id)
+            ->whereNull('deleted_at')
+            ->get(['id', 'cobrable_type', 'monto_total', 'estado']);
+        echo "      CxC asociadas (por cobrable_id = {$v->id}):\n";
+        if ($cxcVenta->count() > 0) {
+            foreach ($cxcVenta as $cxc) {
+                echo "         -> CxC ID: {$cxc->id} | Type: '{$cxc->cobrable_type}' | Monto: {$cxc->monto_total} | Estado: {$cxc->estado}\n";
+            }
+        } else {
+            echo "         (NINGUNA)\n";
+        }
+    }
+}
+
+echo "\n--- FIN ANÁLISIS ---\n";
