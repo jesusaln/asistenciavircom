@@ -59,10 +59,55 @@ class PortalController extends Controller
                 $poliza->append(['porcentaje_horas', 'porcentaje_tickets', 'dias_para_vencer', 'excede_horas', 'tickets_mes_actual_count']);
             });
 
-        $pagosPendientes = Venta::where('cliente_id', $cliente->id)
+        // Ventas pendientes de pago
+        $ventasPendientes = Venta::where('cliente_id', $cliente->id)
             ->whereIn('estado', ['pendiente', 'vencida'])
             ->orderBy('fecha')
-            ->get();
+            ->get()
+            ->map(function ($venta) {
+                return [
+                    'id' => $venta->id,
+                    'tipo' => 'venta',
+                    'folio' => $venta->folio ?? $venta->numero_venta,
+                    'concepto' => 'Venta ' . ($venta->folio ?? $venta->numero_venta),
+                    'total' => $venta->total,
+                    'fecha' => $venta->fecha,
+                    'fecha_vencimiento' => $venta->fecha_vencimiento ?? $venta->fecha,
+                    'estado' => $venta->estado,
+                    'puede_pagar_credito' => true,
+                ];
+            });
+
+        // Cuentas por cobrar pendientes (pólizas, servicios, etc.)
+        $cxcPendientes = \App\Models\CuentasPorCobrar::where('cliente_id', $cliente->id)
+            ->whereIn('estado', ['pendiente', 'vencido'])
+            ->where('monto_pendiente', '>', 0)
+            ->orderBy('fecha_vencimiento')
+            ->get()
+            ->map(function ($cxc) {
+                $concepto = $cxc->notas ?? 'Cuenta por Cobrar';
+                if ($cxc->cobrable_type && $cxc->cobrable) {
+                    if (str_contains($cxc->cobrable_type, 'PolizaServicio')) {
+                        $concepto = 'Mensualidad Póliza ' . ($cxc->cobrable->folio ?? '');
+                    }
+                }
+                return [
+                    'id' => $cxc->id,
+                    'tipo' => 'cxc',
+                    'folio' => 'CXC-' . str_pad($cxc->id, 5, '0', STR_PAD_LEFT),
+                    'concepto' => $concepto,
+                    'total' => $cxc->monto_pendiente,
+                    'fecha' => $cxc->created_at,
+                    'fecha_vencimiento' => $cxc->fecha_vencimiento,
+                    'estado' => $cxc->estado,
+                    'puede_pagar_credito' => false, // Las CxC no se pagan con crédito desde portal
+                ];
+            });
+
+        // Combinar ambas listas
+        $pagosPendientes = $ventasPendientes->concat($cxcPendientes)
+            ->sortBy('fecha_vencimiento')
+            ->values();
 
         $rentas = \App\Models\Renta::where('cliente_id', $cliente->id)
             ->where('estado', 'activo')
