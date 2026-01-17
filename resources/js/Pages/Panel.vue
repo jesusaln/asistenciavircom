@@ -40,21 +40,21 @@
             <div class="flex flex-wrap gap-3">
               <PanLink
                 :href="route('ventas.create')"
-                class="group inline-flex items-center gap-2 px-5 py-3 bg-white text-amber-600 font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+                class="group inline-flex items-center gap-2 px-5 py-3 bg-white dark:bg-amber-600 text-amber-600 dark:text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
               >
                 <FontAwesomeIcon :icon="['fas', 'plus']" class="group-hover:rotate-90 transition-transform duration-300" />
                 Nueva Venta
               </PanLink>
               <PanLink
                 :href="route('citas.create')"
-                class="group inline-flex items-center gap-2 px-5 py-3 bg-white/20 backdrop-blur-sm text-white font-semibold rounded-xl shadow border border-white/30 hover:bg-white/30 hover:shadow-lg transition-all duration-300"
+                class="group inline-flex items-center gap-2 px-5 py-3 bg-white/20 dark:bg-blue-600 backdrop-blur-sm text-white dark:text-white font-semibold rounded-xl shadow border border-white/30 dark:border-blue-500 hover:bg-white/30 dark:hover:bg-blue-700 hover:shadow-lg transition-all duration-300"
               >
                 <FontAwesomeIcon :icon="['fas', 'calendar-plus']" />
                 Nueva Cita
               </PanLink>
               <PanLink
                 :href="route('clientes.create')"
-                class="group inline-flex items-center gap-2 px-5 py-3 bg-white/20 backdrop-blur-sm text-white font-semibold rounded-xl shadow border border-white/30 hover:bg-white/30 hover:shadow-lg transition-all duration-300"
+                class="group inline-flex items-center gap-2 px-5 py-3 bg-white/20 dark:bg-blue-800 backdrop-blur-sm text-white dark:text-white font-semibold rounded-xl shadow border border-white/30 dark:border-blue-700 hover:bg-white/30 dark:hover:bg-blue-900 hover:shadow-lg transition-all duration-300"
               >
                 <FontAwesomeIcon :icon="['fas', 'user-plus']" />
                 Nuevo Cliente
@@ -69,7 +69,7 @@
       <!-- Clientes -->
       <PanLink
         :href="clientesHref"
-        class="group relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
+        class="group relative bg-white dark:bg-gray-800 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
         aria-label="Ir a clientes"
       >
         <!-- Gradient Overlay on Hover -->
@@ -86,7 +86,7 @@
             </h2>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Clientes</p>
           </div>
-          <p class="text-xs text-gray-400 bg-blue-50 px-3 py-1 rounded-full">
+          <p class="text-xs text-gray-400 dark:text-gray-500 bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-full transition-colors">
             +{{ n(clientesNuevosCount) }} este mes
           </p>
         </div>
@@ -95,7 +95,7 @@
       <!-- Productos -->
       <PanLink
         :href="productosHref"
-        class="group relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
+        class="group relative bg-white dark:bg-gray-800 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
         aria-label="Ir a productos"
       >
         <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/0 via-emerald-500/0 to-emerald-600/0 group-hover:from-emerald-500/10 group-hover:via-emerald-500/5 group-hover:to-emerald-600/10 transition-all duration-500 rounded-2xl"></div>
@@ -110,7 +110,7 @@
             </h2>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Productos</p>
           </div>
-          <p class="text-xs text-gray-400 bg-emerald-50 px-3 py-1 rounded-full" :class="{ 'text-red-500 bg-red-50': productosBajoStockCount > 0 }">
+          <p class="text-xs text-gray-400 dark:text-gray-500 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full transition-colors" :class="{ 'text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20': productosBajoStockCount > 0 }">
             {{ productosBajoStockCount > 0 ? `⚠️ ${n(productosBajoStockCount)} bajo stock` : '✓ Stock OK' }}
           </p>
         </div>
@@ -119,7 +119,7 @@
       <!-- Proveedores -->
       <PanLink
         :href="proveedoresHref"
-        class="group relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
+        class="group relative bg-white dark:bg-gray-800 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
         aria-label="Ir a proveedores"
       >
         <div class="absolute inset-0 bg-gradient-to-br from-purple-500/0 via-purple-500/0 to-purple-600/0 group-hover:from-purple-500/10 group-hover:via-purple-500/5 group-hover:to-purple-600/10 transition-all duration-500 rounded-2xl"></div>
@@ -134,16 +134,15 @@
             </h2>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Proveedores</p>
           </div>
-          <p class="text-xs text-gray-400 bg-purple-50 px-3 py-1 rounded-full">
+          <p class="text-xs text-gray-400 dark:text-gray-500 bg-purple-50 dark:bg-purple-900/20 px-3 py-1 rounded-full transition-colors">
             {{ n(proveedoresPedidosPendientesCount) }} pedidos pend.
           </p>
         </div>
       </PanLink>
 
-      <!-- Citas -->
       <PanLink
         :href="citasHref"
-        class="group relative bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
+        class="group relative bg-white dark:bg-gray-800 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
         aria-label="Ir a citas"
       >
         <div class="absolute inset-0 bg-gradient-to-br from-amber-500/0 via-amber-500/0 to-orange-600/0 group-hover:from-amber-500/10 group-hover:via-amber-500/5 group-hover:to-orange-600/10 transition-all duration-500 rounded-2xl"></div>
@@ -158,7 +157,7 @@
             </h2>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Citas</p>
           </div>
-          <p class="text-xs text-gray-400 bg-amber-50 px-3 py-1 rounded-full" :class="{ 'text-amber-600 font-medium': citasHoyCount > 0 }">
+          <p class="text-xs text-gray-400 dark:text-gray-500 bg-amber-50 dark:bg-amber-900/20 px-3 py-1 rounded-full transition-colors" :class="{ 'text-amber-600 dark:text-amber-400 font-medium': citasHoyCount > 0 }">
             {{ citasHoyCount > 0 ? `📅 ${n(citasHoyCount)} hoy` : 'Sin citas hoy' }}
           </p>
         </div>
@@ -167,7 +166,7 @@
       <!-- Mantenimientos -->
       <PanLink
         :href="mantenimientosHref"
-        class="group relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
+        class="group relative bg-white dark:bg-gray-800 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
         aria-label="Ir a mantenimientos"
       >
         <div class="absolute inset-0 bg-gradient-to-br from-rose-500/0 via-rose-500/0 to-rose-600/0 group-hover:from-rose-500/10 group-hover:via-rose-500/5 group-hover:to-rose-600/10 transition-all duration-500 rounded-2xl"></div>
@@ -182,10 +181,10 @@
             </h2>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Mantenimientos</p>
           </div>
-          <p class="text-xs px-3 py-1 rounded-full" :class="{
-            'text-red-600 bg-red-50 font-medium animate-pulse': mantenimientosVencidosCount > 0,
-            'text-orange-600 bg-orange-50': mantenimientosCriticosCount > 0 && mantenimientosVencidosCount === 0,
-            'text-green-600 bg-green-50': mantenimientosVencidosCount === 0 && mantenimientosCriticosCount === 0
+          <p class="text-xs px-3 py-1 rounded-full transition-colors" :class="{
+            'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 font-medium animate-pulse': mantenimientosVencidosCount > 0,
+            'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20': mantenimientosCriticosCount > 0 && mantenimientosVencidosCount === 0,
+            'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20': mantenimientosVencidosCount === 0 && mantenimientosCriticosCount === 0
           }">
             <span v-if="mantenimientosVencidosCount > 0">⚠️ {{ n(mantenimientosVencidosCount) }} vencidos</span>
             <span v-else-if="mantenimientosCriticosCount > 0">⚡ {{ n(mantenimientosCriticosCount) }} críticos</span>
@@ -365,7 +364,7 @@
     <!-- Citas activas del día de hoy -->
     <div
       v-if="citasHoyDetallesSafe.length > 0"
-      class="mt-8 bg-white dark:bg-gray-800/90 p-6 rounded-2xl shadow-lg border-l-8 border-blue-500 transition-colors"
+      class="mt-8 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-blue-500 transition-colors"
     >
       <div class="flex items-center mb-4 transition-colors">
         <FontAwesomeIcon :icon="['fas', 'calendar-alt']" class="h-8 w-8 text-blue-600 mr-3" />
