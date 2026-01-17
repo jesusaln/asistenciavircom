@@ -196,41 +196,7 @@
 
     <!-- Sección de Alertas -->
     <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-      <!-- Alerta de Stock Bajo -->
-      <div
-        v-if="productosBajoStockNombresSafe.length > 0"
-        class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-red-500 flex flex-col justify-between items-start text-left transition-colors"
-      >
-        <div class="w-full">
-          <div class="flex items-center mb-4">
-            <FontAwesomeIcon :icon="['fas', 'exclamation-triangle']" class="h-8 w-8 text-red-600 mr-3" />
-            <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white">Alerta de Stock Bajo</h3>
-          </div>
-          <p class="text-base text-gray-700 dark:text-gray-300 mb-4 transition-colors">
-            Actualmente tienes
-            <strong>{{ n(productosBajoStockNombresSafe.length) }} producto(s) con stock críticamente bajo.</strong>
-            Considera reponerlos pronto para evitar interrupciones.
-          </p>
-          <h4 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2 transition-colors">Productos afectados:</h4>
-          <ul class="text-gray-700 dark:text-gray-300 space-y-1 list-none transition-colors">
-            <li
-              v-for="(productoNombre, i) in productosBajoStockNombresSafe"
-              :key="`low-${i}-${productoNombre}`"
-              class="text-base"
-            >
-              {{ productoNombre }}
-            </li>
-          </ul>
-        </div>
-        <PanLink
-          :href="productosLowHref"
-          class="mt-6 px-6 py-2 bg-red-500 text-white font-semibold rounded-lg shadow hover:bg-red-600 transition-colors duration-300 transform hover:scale-105 list-none"
-          aria-label="Gestionar inventario bajo en stock"
-        >
-          Gestionar Inventario
-          <FontAwesomeIcon :icon="['fas', 'arrow-right']" class="ml-2" />
-        </PanLink>
-      </div>
+
 
       <!-- Alerta de Órdenes de Compra Pendientes -->
       <div
