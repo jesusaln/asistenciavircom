@@ -181,7 +181,7 @@ class CuentasPorCobrarController extends Controller
                 $q->where('id_origen', $cuenta->id)
                     ->where('tipo_origen', 'cuentas_por_cobrar');
             })
-                ->with(['cuentaBancaria', 'user']) // Cargar detalles de banco y usuario
+                ->with(['cuentaBancaria', 'usuario']) // Cargar detalles de banco y usuario
                 ->orderBy('fecha_entrega', 'desc')
                 ->orderBy('created_at', 'desc')
                 ->get();

@@ -23,12 +23,6 @@ return new class extends Migration {
         DB::table('cuentas_por_cobrar')
             ->where('cobrable_type', 'App\Models\PolizaServicio')
             ->update(['cobrable_type' => 'poliza_servicio']);
-
-        // También en otras tablas que usen polimorfismo
-        // cuentas_por_pagar
-        DB::table('cuentas_por_pagar')
-            ->where('cobrable_type', 'App\Models\Compra')
-            ->update(['cobrable_type' => 'compra']);
     }
 
     /**
