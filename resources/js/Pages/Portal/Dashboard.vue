@@ -362,7 +362,7 @@ const totalPendiente = computed(() => {
                             'w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left',
                             activeTab === 'resumen' 
                                 ? 'bg-[var(--color-primary)] text-white shadow-xl shadow-[var(--color-primary)]/20 shadow-sm' 
-                                : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 border border-gray-100'
+                                : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white border border-gray-100 dark:border-gray-700 transition-colors'
                         ]"
                     >
                         <font-awesome-icon icon="th-large" /> 
@@ -375,7 +375,7 @@ const totalPendiente = computed(() => {
                             'w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left',
                             activeTab === 'tickets' 
                                 ? 'bg-[var(--color-primary)] text-white shadow-xl shadow-[var(--color-primary)]/20 shadow-sm' 
-                                : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 border border-gray-100'
+                                : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white border border-gray-100 dark:border-gray-700 transition-colors'
                         ]"
                     >
                         <font-awesome-icon icon="ticket-alt" /> 
@@ -388,7 +388,7 @@ const totalPendiente = computed(() => {
                             'w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left',
                             activeTab === 'polizas' 
                                 ? 'bg-[var(--color-primary)] text-white shadow-xl shadow-[var(--color-primary)]/20 shadow-sm' 
-                                : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 border border-gray-100'
+                                : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white border border-gray-100 dark:border-gray-700 transition-colors'
                         ]"
                     >
                         <font-awesome-icon icon="file-contract" /> 
@@ -401,7 +401,7 @@ const totalPendiente = computed(() => {
                             'w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left',
                             activeTab === 'equipos' 
                                 ? 'bg-[var(--color-primary)] text-white shadow-xl shadow-[var(--color-primary)]/20 shadow-sm' 
-                                : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 border border-gray-100'
+                                : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white border border-gray-100 dark:border-gray-700 transition-colors'
                         ]"
                     >
                         <font-awesome-icon icon="desktop" /> 
@@ -414,7 +414,7 @@ const totalPendiente = computed(() => {
                             'w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left',
                             activeTab === 'credenciales' 
                                 ? 'bg-[var(--color-primary)] text-white shadow-xl shadow-[var(--color-primary)]/20 shadow-sm' 
-                                : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 border border-gray-100'
+                                : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white border border-gray-100 dark:border-gray-700 transition-colors'
                         ]"
                     >
                         <font-awesome-icon icon="lock" /> 
@@ -427,7 +427,7 @@ const totalPendiente = computed(() => {
                             'w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left',
                             activeTab === 'pedidos' 
                                 ? 'bg-[var(--color-primary)] text-white shadow-xl shadow-[var(--color-primary)]/20 shadow-sm' 
-                                : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 border border-gray-100'
+                                : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white border border-gray-100 dark:border-gray-700 transition-colors'
                         ]"
                     >
                         <font-awesome-icon icon="shopping-cart" /> 
@@ -436,7 +436,7 @@ const totalPendiente = computed(() => {
 
                     <Link 
                         :href="route('portal.credito.index')" 
-                        class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 border border-gray-100"
+                        class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white border border-gray-100 dark:border-gray-700"
                     >
                         <font-awesome-icon icon="credit-card" /> 
                         <span class="text-sm uppercase tracking-widest">Mi Crédito</span>
@@ -448,7 +448,7 @@ const totalPendiente = computed(() => {
                             'w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left',
                             activeTab === 'pagos' 
                                 ? 'bg-[var(--color-primary)] text-white shadow-xl shadow-[var(--color-primary)]/20 shadow-sm' 
-                                : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 border border-gray-100'
+                                : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white border border-gray-100 dark:border-gray-700 transition-colors'
                         ]"
                     >
                         <font-awesome-icon icon="receipt" /> 
@@ -461,7 +461,7 @@ const totalPendiente = computed(() => {
                             'w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left',
                             activeTab === 'ayuda' 
                                 ? 'bg-[var(--color-primary)] text-white shadow-xl shadow-[var(--color-primary)]/20 shadow-sm' 
-                                : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 border border-gray-100'
+                                : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white border border-gray-100 dark:border-gray-700 transition-colors'
                         ]"
                     >
                         <font-awesome-icon icon="question-circle" /> 
@@ -474,7 +474,7 @@ const totalPendiente = computed(() => {
                             'w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left',
                             activeTab === 'perfil' 
                                 ? 'bg-[var(--color-primary)] text-white shadow-xl shadow-[var(--color-primary)]/20 shadow-sm' 
-                                : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 border border-gray-100'
+                                : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white border border-gray-100 dark:border-gray-700 transition-colors'
                         ]"
                     >
                         <font-awesome-icon icon="user-circle" /> 

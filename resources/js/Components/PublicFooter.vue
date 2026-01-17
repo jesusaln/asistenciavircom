@@ -29,7 +29,7 @@ const whatsappLink = computed(() => {
 </script>
 
 <template>
-    <footer class="bg-gray-900 text-white pt-20 pb-8 mt-auto">
+    <footer class="bg-gray-900 dark:bg-gray-950 text-white pt-20 pb-8 mt-auto transition-colors">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             <!-- Grid Principal: 4 columnas en desktop -->
