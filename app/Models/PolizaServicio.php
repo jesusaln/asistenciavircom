@@ -302,6 +302,10 @@ class PolizaServicio extends Model
     public function registrarVisitaSitio(): void
     {
         $this->increment('visitas_sitio_consumidas_mes');
+        $this->refresh();
+
+        // Verificar alertas de límite
+        $this->verificarAlertasLimite('visitas');
     }
 
     /**
@@ -310,6 +314,69 @@ class PolizaServicio extends Model
     public function registrarTicketSoporte(): void
     {
         $this->increment('tickets_soporte_consumidos_mes');
+        $this->refresh();
+
+        // Verificar alertas de límite
+        $this->verificarAlertasLimite('tickets');
+    }
+
+    /**
+     * Verificar y enviar alertas de límite (Fase 3).
+     */
+    public function verificarAlertasLimite(string $tipo): void
+    {
+        $limite = $tipo === 'tickets'
+            ? ($this->limite_mensual_tickets ?? 0)
+            : ($this->visitas_sitio_mensuales ?? 0);
+
+        $consumo = $tipo === 'tickets'
+            ? ($this->tickets_soporte_consumidos_mes ?? 0)
+            : ($this->visitas_sitio_consumidas_mes ?? 0);
+
+        if ($limite <= 0)
+            return;
+
+        $porcentaje = round(($consumo / $limite) * 100);
+
+        // Evitar spam: no enviar si ya se envió en las últimas 24 horas
+        if ($this->ultima_alerta_exceso_at && $this->ultima_alerta_exceso_at->diffInHours(now()) < 24) {
+            return;
+        }
+
+        try {
+            // Alerta al 80%: notificar al cliente
+            if ($porcentaje >= 80 && $porcentaje < 100) {
+                $cliente = $this->cliente;
+                if ($cliente && $cliente->email) {
+                    $cliente->notify(new \App\Notifications\PolizaLimiteProximoNotification($this, $tipo, $porcentaje));
+                    \Illuminate\Support\Facades\Log::info("Alerta 80% enviada", [
+                        'poliza' => $this->folio,
+                        'tipo' => $tipo,
+                        'porcentaje' => $porcentaje
+                    ]);
+                }
+            }
+
+            // Alerta al 100%: notificar al admin
+            if ($porcentaje >= 100) {
+                $excedente = $consumo - $limite;
+                $admins = \App\Models\User::role('super-admin')->get();
+                foreach ($admins as $admin) {
+                    $admin->notify(new \App\Notifications\PolizaLimiteExcedidoNotification($this, $tipo, $excedente));
+                }
+
+                $this->update(['ultima_alerta_exceso_at' => now()]);
+
+                \Illuminate\Support\Facades\Log::warning("Límite excedido en póliza", [
+                    'poliza' => $this->folio,
+                    'tipo' => $tipo,
+                    'excedente' => $excedente,
+                    'cliente' => $this->cliente?->nombre_razon_social
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Error enviando alerta de póliza: " . $e->getMessage());
+        }
     }
 
     /**
