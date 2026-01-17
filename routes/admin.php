@@ -329,6 +329,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::post('cuentas-por-cobrar/import-payment-xml', [CuentasPorCobrarController::class, 'importPaymentXml'])->name('cuentas-por-cobrar.import-payment-xml');
     Route::post('cuentas-por-cobrar/apply-payments-xml', [CuentasPorCobrarController::class, 'applyPaymentsFromXml'])->name('cuentas-por-cobrar.apply-payments-xml');
     Route::post('cuentas-por-cobrar/{id}/registrar-pago', [CuentasPorCobrarController::class, 'registrarPago'])->name('cuentas-por-cobrar.registrar-pago');
+    Route::post('cuentas-por-cobrar/anular-pago/{id}', [CuentasPorCobrarController::class, 'anularPago'])->name('cuentas-por-cobrar.anular-pago')->middleware('role:admin|super-admin');
     Route::post('cuentas-por-cobrar/{id}/timbrar-rep', [CuentasPorCobrarController::class, 'timbrarReciboPago'])->name('cuentas-por-cobrar.timbrar-rep');
 
     Route::resource('cuentas-por-cobrar', CuentasPorCobrarController::class)->names('cuentas-por-cobrar');

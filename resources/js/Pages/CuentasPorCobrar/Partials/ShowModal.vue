@@ -131,28 +131,46 @@
                             </div>
                         </div>
 
-                        <!-- Historial de Pagos (Minimalista) -->
+                        <!-- Historial de Pagos (Detallado) -->
                         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                             <div class="px-6 py-4 border-b border-gray-50 flex items-center justify-between">
-                                <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Historial de Movimientos</h3>
+                                <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Historial de Pagos Recibidos</h3>
                                 <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             </div>
-                            <div v-if="cuenta.movimientos_bancarios?.length" class="divide-y divide-gray-50">
-                                <div v-for="mov in cuenta.movimientos_bancarios" :key="mov.id" class="px-6 py-4 flex items-center justify-between hover:bg-white/30 transition-colors">
+                            <div v-if="cuenta.historial_pagos?.length" class="divide-y divide-gray-50">
+                                <div v-for="pago in cuenta.historial_pagos" :key="pago.id" class="px-6 py-4 flex items-center justify-between hover:bg-white/30 transition-colors group">
                                     <div class="flex items-center gap-4">
-                                        <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center border border-emerald-100/50">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                        <div class="w-10 h-10 rounded-xl flex items-center justify-center border"
+                                             :class="pago.estado === 'recibido' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'">
+                                            <svg v-if="pago.metodo_pago === 'efectivo'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                                            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-black text-gray-900">{{ mov.concepto }}</p>
-                                            <p class="text-[10px] text-gray-400 font-bold uppercase mt-0.5 tracking-wider">{{ formatDateShort(mov.fecha) }} • {{ mov.cuenta_bancaria?.nombre }}</p>
+                                            <p class="text-sm font-black text-gray-900 capitalize">{{ pago.metodo_pago.replace('_', ' ') }}</p>
+                                            <p class="text-[10px] text-gray-400 font-bold uppercase mt-0.5 tracking-wider">
+                                                {{ formatDateShort(pago.fecha_entrega) }} 
+                                                <span v-if="pago.cuenta_bancaria">• {{ pago.cuenta_bancaria.banco }}</span>
+                                                <span v-if="pago.estado === 'pendiente'" class="text-amber-500">• (Pendiente Entregar)</span>
+                                            </p>
+                                            <p v-if="pago.notas" class="text-[9px] text-gray-400 italic mt-0.5">{{ pago.notas }}</p>
                                         </div>
                                     </div>
-                                    <span class="text-base font-black text-emerald-600 tabular-nums">{{ formatCurrency(mov.monto) }}</span>
+                                    <div class="flex items-center gap-4">
+                                        <span class="text-base font-black text-emerald-600 tabular-nums">{{ formatCurrency(pago.total) }}</span>
+                                        
+                                        <!-- Botón Anular (Solo Admin) -->
+                                        <!-- Asumiendo que $page.props.auth.user existe. Se oculta si no es admin (o similar, ajustaré logica backend) -->
+                                        <button v-if="$page.props.auth.user?.roles?.some(r => r.name === 'super-admin') || $page.props.auth.user?.id === 1" 
+                                                @click="anularPago(pago.id)"
+                                                class="opacity-0 group-hover:opacity-100 p-2 text-red-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" 
+                                                title="Anular/Revertir Pago (Solo Admin)">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             <div v-else class="p-12 text-center">
-                                <p class="text-[10px] font-black text-gray-300 uppercase tracking-widest">Sin movimientos registrados</p>
+                                <p class="text-[10px] font-black text-gray-300 uppercase tracking-widest">Sin pagos registrados</p>
                             </div>
                         </div>
 
@@ -802,6 +820,23 @@ const confirmarRep = () => {
         },
         onFinish: () => {
             repProcessing.value = false;
+        }
+    });
+};
+
+/* Función para anular pago (entrega de dinero) */
+const anularPago = (id) => {
+    if(!confirm('⚠️ ¿Estás seguro de REVERTIR este pago?\n\nSe realizarán las siguientes acciones:\n1. Se anulará el ingreso en banco/caja.\n2. La cuenta por cobrar volverá a tener saldo pendiente.\n\nEsta acción no se puede deshacer.')) return;
+    
+    router.post(route('cuentas-por-cobrar.anular-pago', id), {}, {
+        preserveScroll: true,
+        onSuccess: () => {
+            notyf.success('Pago revertido correctamente');
+            emit('close');
+        },
+        onError: (errors) => {
+            console.error(errors);
+            notyf.error(errors.error || 'Error al revertir el pago');
         }
     });
 };

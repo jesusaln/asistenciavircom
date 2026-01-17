@@ -139,6 +139,26 @@ class CuentasPorCobrarController extends Controller
                 'cliente' => $cuenta->cobrable->cliente ?? null,
             ];
 
+            // Cargar historial de pagos (Entregas de Dinero)
+            // Buscamos entregas asociadas al cobrable (Venta/Renta) o a la CxC misma
+            $tipoOrigen = $cuenta->cobrable instanceof \App\Models\Renta ? 'renta' : 'venta';
+
+            $pagos = \App\Models\EntregaDinero::where(function ($q) use ($cuenta, $tipoOrigen) {
+                // Pagos asociados al cobrable (lo más común según PaymentService)
+                $q->where('id_origen', $cuenta->cobrable_id)
+                    ->where('tipo_origen', $tipoOrigen);
+            })->orWhere(function ($q) use ($cuenta) {
+                // Pagos asociados directamente a la CxC (casos legacy o directos)
+                $q->where('id_origen', $cuenta->id)
+                    ->where('tipo_origen', 'cuentas_por_cobrar');
+            })
+                ->with(['cuentaBancaria', 'user']) // Cargar detalles de banco y usuario
+                ->orderBy('fecha_entrega', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $cuenta->historial_pagos = $pagos;
+
             // Cargar items/equipos según el tipo real
             $cobrable = $cuenta->cobrable;
             if ($cobrable instanceof Venta) {
@@ -342,6 +362,61 @@ class CuentasPorCobrarController extends Controller
             DB::rollBack();
             Log::error('Error registrando pago en CXC', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return redirect()->back()->withErrors(['error' => 'Error al registrar el pago: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Anular un pago (Entrega de Dinero) realizado a una cuenta.
+     */
+    public function anularPago(Request $request, $id)
+    {
+        try {
+            DB::transaction(function () use ($id) {
+                // 1. Obtener la entrega (Pago)
+                $entrega = \App\Models\EntregaDinero::findOrFail($id);
+                $monto = $entrega->total;
+
+                // 2. Revertir saldo en Cuenta Bancaria (si aplica y fue recibido)
+                // Usamos 'retiro' para restar el saldo de la cuenta
+                if ($entrega->cuenta_bancaria_id && $entrega->estado === 'recibido') {
+                    $cuentaBancaria = \App\Models\CuentaBancaria::find($entrega->cuenta_bancaria_id);
+                    if ($cuentaBancaria) {
+                        $cuentaBancaria->registrarMovimiento(
+                            'retiro',
+                            $monto,
+                            "Reversión de Pago #{$entrega->id}",
+                            'reversion'
+                        );
+                    }
+                }
+
+                // 3. Revertir Cuenta Por Cobrar
+                $cx = null;
+                if ($entrega->tipo_origen === 'cuentas_por_cobrar') {
+                    $cx = CuentasPorCobrar::find($entrega->id_origen);
+                } else {
+                    // Si es venta/renta, buscar la CxC ligada
+                    // Asumimos que hay una sola CxC activa para esa venta/renta
+                    $cx = CuentasPorCobrar::where('cobrable_id', $entrega->id_origen)
+                        ->where('cobrable_type', 'like', '%' . $entrega->tipo_origen . '%')
+                        ->first();
+                }
+
+                if ($cx) {
+                    $cx->monto_pagado = max(0, $cx->monto_pagado - $monto);
+                    $cx->notas .= "\nPago anulado: {$monto} (Ref #{$entrega->id})";
+                    $cx->actualizarEstado();
+                }
+
+                // 4. Eliminar entrega
+                $entrega->delete();
+            });
+
+            return back()->with('success', 'Pago revertido y saldos ajustados correctamente.');
+
+        } catch (\Exception $e) {
+            \Log::error('Error al anular pago: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Error al anular el pago: ' . $e->getMessage()]);
         }
     }
 
