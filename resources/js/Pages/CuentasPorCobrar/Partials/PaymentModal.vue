@@ -36,10 +36,19 @@
                         </select>
                     </div>
 
-                    <div v-if="requiresBankAccount">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Cuenta Bancaria Destino</label>
-                        <select v-model="form.cuenta_bancaria_id" class="w-full py-4 px-5 bg-white border-2 border-gray-100 rounded-2xl font-bold text-gray-900 focus:border-gray-900 focus:ring-0 transition-all">
-                            <option value="">Seleccionar Banco...</option>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">
+                            Cuenta Bancaria Destino 
+                            <span v-if="!requiresBankAccount" class="text-gray-300 font-normal">(Opcional)</span>
+                        </label>
+                        
+                        <div v-if="cuentasBancarias.length === 0" class="p-3 bg-amber-50 rounded-xl border border-amber-100 text-amber-700 text-xs text-center">
+                            <p class="font-bold">⚠️ No hay cuentas bancarias registradas.</p>
+                            <p class="mt-1 text-[10px]">Para métodos bancarios (Transferencia, Tarjeta), registra tus cuentas en el módulo de Finanzas.</p>
+                        </div>
+                        
+                        <select v-else v-model="form.cuenta_bancaria_id" class="w-full py-4 px-5 bg-white border-2 border-gray-100 rounded-2xl font-bold text-gray-900 focus:border-gray-900 focus:ring-0 transition-all">
+                            <option value="">{{ requiresBankAccount ? 'Seleccionar Banco (Requerido)...' : 'Seleccionar Banco (Opcional)...' }}</option>
                             <option v-for="cb in cuentasBancarias" :key="cb.id" :value="cb.id">{{ cb.banco }} - {{ cb.nombre }}</option>
                         </select>
                     </div>
