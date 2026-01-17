@@ -341,6 +341,14 @@ class PolizaServicio extends Model
     }
 
     /**
+     * Relación con las tareas de mantenimiento.
+     */
+    public function mantenimientos(): HasMany
+    {
+        return $this->hasMany(PolizaMantenimiento::class, 'poliza_id');
+    }
+
+    /**
      * Obtener consumos del mes actual.
      */
     public function consumosMesActual()

@@ -39,6 +39,7 @@ Route::prefix('portal')->group(function () {
         Route::get('/polizas', [PortalController::class, 'polizasIndex'])->name('portal.polizas.index');
         Route::get('/polizas/{poliza}', [PortalController::class, 'polizaShow'])->name('portal.polizas.show');
         Route::get('/polizas/{poliza}/imprimir', [PortalController::class, 'imprimirContrato'])->name('portal.polizas.imprimir');
+        Route::post('/polizas/mantenimientos', [\App\Http\Controllers\ClientPortal\PortalMantenimientoController::class, 'store'])->name('portal.polizas.mantenimientos.store');
 
         // Pedidos Online (Cliente)
         Route::get('/pedidos', [PortalController::class, 'pedidosIndex'])->name('portal.pedidos.index');

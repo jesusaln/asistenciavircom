@@ -288,6 +288,13 @@ class PortalController extends Controller
             },
             'cuentasPorCobrar' => function ($q) {
                 $q->orderByDesc('created_at')->limit(12);
+            },
+            // Cargar configuración de mantenimientos y próximas ejecuciones
+            'mantenimientos' => function ($q) {
+                $q->where('activo', true);
+            },
+            'mantenimientos.ejecuciones' => function ($q) {
+                $q->orderByDesc('fecha_programada')->limit(5);
             }
         ]);
 

@@ -1,7 +1,13 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import ClientLayout from '../Layout/ClientLayout.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import DialogModal from '@/Components/DialogModal.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import InputError from '@/Components/InputError.vue';
 
 const props = defineProps({
     poliza: Object,
@@ -83,6 +89,44 @@ const tipoPolizaIcono = () => {
         'premium': '💎',
     };
     return iconos[tipo] || '🛡️';
+};
+
+// --- MANTENIMIENTOS (FASE 2) ---
+const modalSolicitudAbierto = ref(false);
+const mantenimientoSeleccionado = ref(null);
+const formSolicitud = useForm({
+    mantenimiento_id: null,
+    fecha_solicitada: '',
+    hora_solicitada: '',
+    notas: '',
+});
+
+const abrirSolicitud = (mantenimiento) => {
+    mantenimientoSeleccionado.value = mantenimiento;
+    formSolicitud.reset();
+    formSolicitud.mantenimiento_id = mantenimiento.id;
+    // Pre-set fecha para mañana
+    const mañana = new Date();
+    mañana.setDate(mañana.getDate() + 1);
+    formSolicitud.fecha_solicitada = mañana.toISOString().split('T')[0];
+    formSolicitud.hora_solicitada = '09:00';
+    
+    modalSolicitudAbierto.value = true;
+};
+
+const cerrarSolicitud = () => {
+    modalSolicitudAbierto.value = false;
+    formSolicitud.reset();
+    mantenimientoSeleccionado.value = null;
+};
+
+const enviarSolicitud = () => {
+    formSolicitud.post(route('portal.polizas.mantenimientos.store'), {
+        onSuccess: () => {
+            cerrarSolicitud();
+            // Opcional: Mostrar toast de éxito si ClientLayout lo soporta o confiar en el flash message
+        },
+    });
 };
 </script>
 
@@ -230,6 +274,56 @@ const tipoPolizaIcono = () => {
                         </div>
                     </div>
 
+                    <!-- FASE 2: Mantenimientos Incluidos (Autoservicio) -->
+                    <div v-if="poliza.mantenimientos && poliza.mantenimientos.length > 0" class="bg-white rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 p-8">
+                         <h3 class="font-black text-gray-900 uppercase tracking-tight mb-6 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-sm">
+                                <font-awesome-icon icon="tools" />
+                            </div>
+                            Mantenimientos Incluidos
+                        </h3>
+                        
+                        <div class="grid gap-4">
+                            <div v-for="mant in poliza.mantenimientos" :key="mant.id" class="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-100 rounded-2xl bg-gray-50/50 hover:bg-white hover:shadow-lg transition-all">
+                                <div class="mb-4 sm:mb-0">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="px-2 py-0.5 text-[10px] font-black uppercase tracking-widest bg-gray-200 text-gray-600 rounded-full">{{ mant.frecuencia }}</span>
+                                        <span v-if="mant.requiere_visita" class="px-2 py-0.5 text-[10px] font-black uppercase tracking-widest bg-amber-100 text-amber-700 rounded-full">Requiere Visita</span>
+                                    </div>
+                                    <h4 class="font-bold text-gray-900">{{ mant.nombre }}</h4>
+                                    <p class="text-xs text-gray-500 mt-1">{{ mant.descripcion || 'Mantenimiento preventivo programado.' }}</p>
+                                </div>
+                                <button @click="abrirSolicitud(mant)" class="px-4 py-2 bg-white text-purple-600 border border-purple-200 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all shadow-sm">
+                                    Solicitar Ahora
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Historial de Ejecuciones Recientes -->
+                        <div v-if="poliza.mantenimientos_ejecuciones && poliza.mantenimientos_ejecuciones.length > 0" class="mt-8">
+                            <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Actividad Reciente</h4>
+                            <div class="space-y-3">
+                                <div v-for="ejc in poliza.mantenimientos_ejecuciones" :key="ejc.id" class="flex items-center gap-3 text-sm">
+                                    <div class="w-2 h-2 rounded-full" :class="{
+                                        'bg-emerald-500': ejc.resultado === 'ok' || ejc.estado === 'completado',
+                                        'bg-amber-500': ejc.resultado === 'alerta' || ejc.estado === 'pendiente',
+                                        'bg-red-500': ejc.resultado === 'critico' || ejc.estado === 'vencido'
+                                    }"></div>
+                                    <span class="text-gray-900 font-medium flex-1">
+                                        {{ ejc.mantenimiento ? ejc.mantenimiento.nombre : 'Mantenimiento' }}
+                                    </span>
+                                    <span class="text-gray-400 text-xs tabular-nums">
+                                        {{ formatDate(ejc.fecha_programada) }}
+                                    </span>
+                                    <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md" :class="{
+                                        'bg-emerald-100 text-emerald-700': ejc.estado === 'completado',
+                                        'bg-amber-100 text-amber-700': ejc.estado === 'pendiente',
+                                    }">{{ ejc.estado }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Equipos Vinculados -->
                     <div class="bg-white rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 p-8">
                          <h3 class="font-black text-gray-900 uppercase tracking-tight mb-6 flex items-center gap-3">
@@ -292,5 +386,44 @@ const tipoPolizaIcono = () => {
                 </div>
             </div>
         </div>
+
+        <!-- Modal Solicitud Mantenimiento -->
+        <DialogModal :show="modalSolicitudAbierto" @close="cerrarSolicitud">
+            <template #title>
+                Solicitar Mantenimiento: {{ mantenimientoSeleccionado?.nombre }}
+            </template>
+            <template #content>
+                <div class="space-y-4">
+                    <p class="text-sm text-gray-600">
+                        Indica cuándo te gustaría recibir este servicio. Un técnico confirmará la disponibilidad.
+                    </p>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <InputLabel value="Fecha Preferida" />
+                            <input type="date" v-model="formSolicitud.fecha_solicitada" class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" :min="new Date().toISOString().split('T')[0]">
+                            <InputError :message="formSolicitud.errors.fecha_solicitada" />
+                        </div>
+                        <div>
+                            <InputLabel value="Hora Preferida" />
+                            <input type="time" v-model="formSolicitud.hora_solicitada" class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                            <InputError :message="formSolicitud.errors.hora_solicitada" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <InputLabel value="Notas Adicionales (Opcional)" />
+                        <textarea v-model="formSolicitud.notas" rows="3" class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" placeholder="Ej: Favor de revisar específicamente el equipo del mostrador..."></textarea>
+                    </div>
+                </div>
+            </template>
+            <template #footer>
+                <SecondaryButton @click="cerrarSolicitud">Cancelar</SecondaryButton>
+                <PrimaryButton class="ml-2" @click="enviarSolicitud" :disabled="formSolicitud.processing">
+                    {{ formSolicitud.processing ? 'Enviando...' : 'Agendar Solicitud' }}
+                </PrimaryButton>
+            </template>
+        </DialogModal>
+
     </ClientLayout>
 </template>

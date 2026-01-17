@@ -324,6 +324,13 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::post('cuentas-bancarias/{cuentas_bancaria}/registrar-movimiento', [CuentaBancariaController::class, 'registrarMovimientoManual'])->name('cuentas-bancarias.registrar-movimiento');
     Route::resource('cuentas-bancarias', CuentaBancariaController::class)->names('cuentas-bancarias');
     Route::resource('cuentas-por-pagar', CuentasPorPagarController::class)->names('cuentas-por-pagar');
+
+    // Rutas específicas de Cuentas por Cobrar
+    Route::post('cuentas-por-cobrar/import-payment-xml', [CuentasPorCobrarController::class, 'importPaymentXml'])->name('cuentas-por-cobrar.import-payment-xml');
+    Route::post('cuentas-por-cobrar/apply-payments-xml', [CuentasPorCobrarController::class, 'applyPaymentsFromXml'])->name('cuentas-por-cobrar.apply-payments-xml');
+    Route::post('cuentas-por-cobrar/{id}/registrar-pago', [CuentasPorCobrarController::class, 'registrarPago'])->name('cuentas-por-cobrar.registrar-pago');
+    Route::post('cuentas-por-cobrar/{id}/timbrar-rep', [CuentasPorCobrarController::class, 'timbrarReciboPago'])->name('cuentas-por-cobrar.timbrar-rep');
+
     Route::resource('cuentas-por-cobrar', CuentasPorCobrarController::class)->names('cuentas-por-cobrar');
     Route::resource('traspasos-bancarios', TraspasoBancarioController::class)->names('traspasos-bancarios');
 
