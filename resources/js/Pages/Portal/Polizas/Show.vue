@@ -46,12 +46,43 @@ const ahorroMensual = () => {
     return valorServiciosUsados + valorTickets;
 };
 
-const ahorroAcumulado = () => {
-    // Ahorro aproximado desde inicio de la póliza (simplificado)
-    const mesesActivos = Math.max(1, Math.ceil(
-        (new Date() - new Date(props.poliza.fecha_inicio)) / (1000 * 60 * 60 * 24 * 30)
-    ));
-    return ahorroMensual() * mesesActivos * 0.7; // Factor de estimación
+// Calcular próximo cobro basado en día de cobro
+const proximoCobro = () => {
+    const dia = props.poliza.dia_cobro || 1;
+    const hoy = new Date();
+    let fecha = new Date(hoy.getFullYear(), hoy.getMonth(), dia);
+    if (fecha <= hoy) {
+        fecha.setMonth(fecha.getMonth() + 1);
+    }
+    return fecha.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
+};
+
+// Visitas en sitio restantes
+const visitasRestantes = () => {
+    const limite = props.poliza.visitas_sitio_mensuales || 0;
+    const consumidas = props.poliza.visitas_sitio_consumidas_mes || 0;
+    return Math.max(0, limite - consumidas);
+};
+
+// Tickets restantes
+const ticketsRestantes = () => {
+    const limite = props.poliza.limite_mensual_tickets || 0;
+    const consumidos = props.poliza.tickets_mes_actual_count || props.poliza.tickets_soporte_consumidos_mes || 0;
+    return Math.max(0, limite - consumidos);
+};
+
+// Tipo de póliza icono
+const tipoPolizaIcono = () => {
+    const tipo = props.poliza.plan_poliza?.tipo || props.poliza.tipo || 'soporte';
+    const iconos = {
+        'soporte': '💻',
+        'cctv': '📹',
+        'alarmas': '🚨',
+        'pos': '🛒',
+        'asesoria': '💡',
+        'premium': '💎',
+    };
+    return iconos[tipo] || '🛡️';
 };
 </script>
 
@@ -151,6 +182,38 @@ const ahorroAcumulado = () => {
                                         :style="{ width: Math.min(poliza.porcentaje_tickets || 0, 100) + '%' }"
                                         ></div>
                                 </div>
+                            </div>
+
+                            <!-- Barra de Visitas en Sitio -->
+                            <div v-if="poliza.visitas_sitio_mensuales > 0">
+                                <div class="flex justify-between items-end mb-2">
+                                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Visitas en Sitio</p>
+                                    <p class="text-xs font-bold" :class="visitasRestantes() <= 0 ? 'text-amber-500' : 'text-gray-600'">
+                                        {{ poliza.visitas_sitio_consumidas_mes || 0 }} / {{ poliza.visitas_sitio_mensuales }}
+                                    </p>
+                                </div>
+                                <div class="w-full bg-white rounded-full h-2 overflow-hidden">
+                                        <div 
+                                        class="h-full rounded-full transition-all duration-1000 ease-out"
+                                        :class="visitasRestantes() <= 0 ? 'bg-amber-500' : 'bg-purple-500'"
+                                        :style="{ width: Math.min(((poliza.visitas_sitio_consumidas_mes || 0) / poliza.visitas_sitio_mensuales) * 100, 100) + '%' }"
+                                        ></div>
+                                </div>
+                                <p v-if="visitasRestantes() <= 0" class="text-[10px] text-amber-500 mt-2 font-bold">
+                                    ⚠️ Visitas adicionales: {{ formatCurrency(poliza.costo_visita_sitio_extra || 650) }} c/u
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Info de Reinicio -->
+                        <div class="mt-6 p-4 bg-gray-50 rounded-xl flex items-center justify-between">
+                            <div>
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Próximo Reinicio de Consumos</p>
+                                <p class="text-sm font-bold text-gray-700">{{ proximoCobro() }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Próximo Cobro</p>
+                                <p class="text-sm font-bold text-[var(--color-primary)]">{{ formatCurrency(poliza.monto_mensual) }}</p>
                             </div>
                         </div>
 
