@@ -55,8 +55,18 @@ class CuentasPorCobrarController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                // Busqueda polimórfica en Venta, Renta y PolizaServicio
-                $q->whereHasMorph('cobrable', [Venta::class, Renta::class, \App\Models\PolizaServicio::class], function ($sq, $type) use ($search) {
+                // Busqueda polimórfica: Incluir alias cortos y FQCN para cubrir datos históricos
+                $types = [
+                    'venta',
+                    'App\Models\Venta',
+                    'renta',
+                    'App\Models\Renta',
+                    'poliza_servicio',
+                    \App\Models\PolizaServicio::class,
+                    'App\Models\PolizaServicio'
+                ];
+
+                $q->whereHasMorph('cobrable', $types, function ($sq, $type) use ($search) {
                     // Buscar en Cliente relacionado
                     $sq->whereHas('cliente', function ($cq) use ($search) {
                         $cq->where('clientes.nombre_razon_social', 'ilike', "%{$search}%")
@@ -65,11 +75,11 @@ class CuentasPorCobrarController extends Controller
                     });
 
                     // Buscar por folio específico según el tipo
-                    if ($type === Venta::class) {
+                    if ($type === 'venta' || str_ends_with($type, 'Venta')) {
                         $sq->orWhere('numero_venta', 'ilike', "%{$search}%");
-                    } elseif ($type === Renta::class) {
+                    } elseif ($type === 'renta' || str_ends_with($type, 'Renta')) {
                         $sq->orWhere('numero_contrato', 'ilike', "%{$search}%");
-                    } elseif ($type === \App\Models\PolizaServicio::class) {
+                    } elseif ($type === 'poliza_servicio' || str_ends_with($type, 'PolizaServicio')) {
                         $sq->orWhere('folio', 'ilike', "%{$search}%");
                     }
                 })
