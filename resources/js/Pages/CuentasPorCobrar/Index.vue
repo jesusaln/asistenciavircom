@@ -111,10 +111,23 @@
         <!-- Filtros -->
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
             <div class="p-6">
-                <form @submit.prevent="applyFilters" class="flex flex-wrap gap-4">
+                <form @submit.prevent="applyFilters" class="flex flex-wrap gap-4 items-end">
+                    <div class="w-full md:w-1/3 min-w-[200px]">
+                        <label class="block text-sm font-medium text-gray-700">Buscar</label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <input type="text" v-model="filters.search" placeholder="Cliente, Folio, RFC..." 
+                                   class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Estado</label>
-                        <select v-model="filters.estado" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <select v-model="filters.estado" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm min-w-[150px]">
                             <option value="">Todos</option>
                             <option value="pendiente">Pendiente</option>
                             <option value="parcial">Parcial</option>
@@ -308,7 +321,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import axios from 'axios';
 import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';
@@ -317,6 +330,8 @@ import Modal from '@/Components/IndexComponents/Modales.vue';
 import ShowModal from '@/Pages/CuentasPorCobrar/Partials/ShowModal.vue';
 import ImportPaymentXmlModal from '@/Components/CuentasPorCobrar/ImportPaymentXmlModal.vue';
 import PaymentModal from '@/Pages/CuentasPorCobrar/Partials/PaymentModal.vue';
+
+// ... (resto del código)
 
 // Configuración de notificaciones
 const notyf = new Notyf({
@@ -449,6 +464,7 @@ const filters = ref({
     estado: props.filters.estado || '',
     cliente_id: props.filters.cliente_id || '',
     type: props.filters.type || '',
+    search: props.filters.search || '',
 });
 
 const currencyFormatter = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
@@ -465,8 +481,11 @@ const toNumber = (value) => {
 const formatCurrency = (value) => currencyFormatter.format(toNumber(value));
 
 const applyFilters = () => {
-    // Implementar filtrado
-    window.location.href = route('cuentas-por-cobrar.index', filters.value);
+    router.get(route('cuentas-por-cobrar.index'), filters.value, {
+        preserveState: true,
+        preserveScroll: true,
+        replace: true,
+    });
 };
 
 const enviarRecordatorio = (cuenta) => {
