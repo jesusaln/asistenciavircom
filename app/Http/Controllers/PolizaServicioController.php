@@ -157,7 +157,8 @@ class PolizaServicioController extends Controller
         return Inertia::render('PolizaServicio/Show', [
             'poliza' => $polizas_servicio,
             'stats' => [
-                'tickets_mes' => $polizas_servicio->tickets_mes_actual_count,
+                'tickets_mes' => $polizas_servicio->tickets_soporte_mes_count,
+                'tickets_asesoria' => $polizas_servicio->tickets_asesoria_mes_count,
                 'visitas_mes' => $polizas_servicio->visitas_sitio_consumidas_mes,
                 'excede_limite' => $polizas_servicio->excede_limite,
                 'excede_visitas' => $polizas_servicio->excede_limite_visitas,

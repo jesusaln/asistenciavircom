@@ -63,6 +63,7 @@ class PolizaServicio extends Model
         'generar_cita_automatica',
         'visitas_sitio_mensuales',
         'visitas_sitio_consumidas_mes',
+        'tickets_soporte_consumidos_mes',
         'costo_visita_sitio_extra',
     ];
 
@@ -83,6 +84,7 @@ class PolizaServicio extends Model
         'proximo_mantenimiento_at' => 'date',
         'generar_cita_automatica' => 'boolean',
         'visitas_sitio_consumidas_mes' => 'integer',
+        'tickets_soporte_consumidos_mes' => 'integer',
         'costo_visita_sitio_extra' => 'decimal:2',
     ];
 
@@ -215,7 +217,7 @@ class PolizaServicio extends Model
     }
 
     /**
-     * Porcentaje de tickets consumidos.
+     * Porcentaje de tickets consumidos (Soporte Técnico).
      */
     public function getPorcentajeTicketsAttribute(): ?float
     {
@@ -223,7 +225,41 @@ class PolizaServicio extends Model
             return null;
         }
 
-        return round(($this->tickets_mes_actual_count / $this->limite_mensual_tickets) * 100, 1);
+        return round(($this->tickets_soporte_mes_count / $this->limite_mensual_tickets) * 100, 1);
+    }
+
+    /**
+     * Obtener el conteo de tickets de Soporte Técnico (que consumen la póliza).
+     */
+    public function getTicketsSoporteMesCountAttribute()
+    {
+        // Se consideran tickets de soporte técnico los que NO son asesoría
+        // Categorías que NO cuentan: Asesoría (ID a definir, usaremos nombre por ahora)
+        return $this->tickets()
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->whereHas('categoria', function ($q) {
+                $q->where('nombre', 'not like', '%Asesoría%')
+                    ->where('nombre', 'not like', '%Consultoría%');
+            })
+            ->count();
+    }
+
+    /**
+     * Obtener el conteo de tickets de Asesoría (que NO consumen la póliza).
+     */
+    public function getTicketsAsesoriaMesCountAttribute()
+    {
+        return $this->tickets()
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->whereHas('categoria', function ($q) {
+                $q->where(function ($sub) {
+                    $sub->where('nombre', 'like', '%Asesoría%')
+                        ->orWhere('nombre', 'like', '%Consultoría%');
+                });
+            })
+            ->count();
     }
 
     /**
@@ -259,6 +295,7 @@ class PolizaServicio extends Model
         $this->update([
             'horas_consumidas_mes' => 0,
             'visitas_sitio_consumidas_mes' => 0,
+            'tickets_soporte_consumidos_mes' => 0,
             'ultimo_reset_consumo_at' => now(),
         ]);
     }

@@ -293,23 +293,70 @@ const getSaludPoliza = () => {
                             <h3 class="text-lg font-bold mb-4 opacity-90">Resumen Mensual</h3>
                             
                             <div class="space-y-4">
-                                <!-- Consumo de Tickets -->
+                                <!-- Consumo de Servicios Remotos (Soporte Técnico) -->
                                 <div>
-                                    <div class="text-xs opacity-75 uppercase font-bold tracking-wider">Consumo de Tickets</div>
-                                    <div class="flex items-end gap-2 mt-1">
-                                        <span class="text-4xl font-extrabold">{{ stats.tickets_mes }}</span>
-                                        <span class="text-lg opacity-75 pb-1">/ {{ poliza.limite_mensual_tickets || '∞' }}</span>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <div class="text-[10px] opacity-75 uppercase font-black tracking-wider flex items-center gap-1">
+                                            <span>📞</span> Soporte Técnico (Remoto)
+                                        </div>
+                                        <div class="text-[10px] font-black opacity-60">Mensual</div>
                                     </div>
-                                    <div v-if="poliza.limite_mensual_tickets" class="mt-2 w-full bg-blue-900/50 rounded-full h-2">
+                                    <div class="flex items-end gap-2">
+                                        <span class="text-4xl font-extrabold">{{ stats.tickets_mes }}</span>
+                                        <span class="text-lg opacity-75 pb-1">/ {{ poliza.limite_mensual_tickets || '10' }}</span>
+                                    </div>
+                                    <div class="mt-2 w-full bg-blue-900/50 rounded-full h-2">
                                         <div 
                                             class="h-2 rounded-full transition-all duration-500" 
                                             :class="stats.excede_limite ? 'bg-red-400' : 'bg-green-400'"
-                                            :style="{ width: Math.min((stats.tickets_mes / poliza.limite_mensual_tickets) * 100, 100) + '%' }"
+                                            :style="{ width: Math.min((stats.tickets_mes / (poliza.limite_mensual_tickets || 10)) * 100, 100) + '%' }"
                                         ></div>
                                     </div>
-                                    <p v-if="stats.excede_limite" class="mt-2 text-[10px] font-bold bg-red-500/30 p-1 rounded text-center text-red-100">
-                                        ⚠️ LÍMITE EXCEDIDO
+                                    <p class="mt-1.5 text-[11px] opacity-80 leading-tight">
+                                        Incluye: Windows, Software, Impresoras y fallas de Sistema.
                                     </p>
+                                    <p v-if="stats.excede_limite" class="mt-2 text-[10px] font-black bg-red-500/30 p-1 rounded text-center text-red-100">
+                                        ⚠️ LÍMITE DE SOPORTE EXCEDIDO
+                                    </p>
+                                </div>
+
+                                <!-- Consumo de Visitas en Sitio -->
+                                <div class="pt-4 border-t border-white/10">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <div class="text-[10px] opacity-75 uppercase font-black tracking-wider flex items-center gap-1">
+                                            <span>🏠</span> Visitas en Sitio
+                                        </div>
+                                        <div class="text-[10px] font-black opacity-60">Mensual</div>
+                                    </div>
+                                    <div class="flex items-end gap-2">
+                                        <span class="text-4xl font-extrabold">{{ stats.visitas_mes }}</span>
+                                        <span class="text-lg opacity-75 pb-1">/ {{ poliza.visitas_sitio_mensuales || '1' }}</span>
+                                    </div>
+                                    <div class="mt-2 w-full bg-blue-900/40 rounded-full h-2">
+                                        <div 
+                                            class="h-2 rounded-full transition-all duration-500" 
+                                            :class="stats.excede_visitas ? 'bg-red-400' : 'bg-amber-400'"
+                                            :style="{ width: Math.min((stats.visitas_mes / (poliza.visitas_sitio_mensuales || 1)) * 100, 100) + '%' }"
+                                        ></div>
+                                    </div>
+                                    <p v-if="stats.excede_visitas" class="mt-2 text-[10px] font-black bg-red-500/30 p-1 rounded text-center text-red-100 uppercase">
+                                        ⚠️ Visita Extra (Con Costo)
+                                    </p>
+                                </div>
+
+                                <!-- Asesorías (No consumen póliza) -->
+                                <div class="pt-4 border-t border-white/10">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <div class="text-[10px] opacity-75 uppercase font-black tracking-wider flex items-center gap-1">
+                                            <span>💡</span> Asesorías y Consultas
+                                        </div>
+                                        <div class="bg-green-400/20 text-green-300 text-[8px] px-1.5 rounded font-black uppercase">Ilimitado</div>
+                                    </div>
+                                    <div class="flex items-end gap-2">
+                                        <span class="text-3xl font-extrabold">{{ stats.tickets_asesoria || 0 }}</span>
+                                        <span class="text-sm opacity-60 pb-1 italic">realizadas este mes</span>
+                                    </div>
+                                    <p class="mt-1 text-[10px] opacity-70 italic">Consultas sobre uso y procedimientos.</p>
                                 </div>
 
                                 <!-- Consumo de Horas (Phase 2) -->
