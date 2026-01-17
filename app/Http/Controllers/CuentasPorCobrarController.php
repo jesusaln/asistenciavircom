@@ -400,7 +400,7 @@ class CuentasPorCobrarController extends Controller
     public function anularPago(Request $request, $id)
     {
         try {
-            DB::transaction(function () use ($id) {
+            DB::transaction(function () use ($id, $request) {
                 // 1. Obtener la entrega (Pago)
                 $entrega = \App\Models\EntregaDinero::findOrFail($id);
                 $monto = $entrega->total;
@@ -421,20 +421,38 @@ class CuentasPorCobrarController extends Controller
 
                 // 3. Revertir Cuenta Por Cobrar
                 $cx = null;
-                if ($entrega->tipo_origen === 'cuentas_por_cobrar') {
-                    $cx = CuentasPorCobrar::find($entrega->id_origen);
-                } else {
-                    // Si es venta/renta, buscar la CxC ligada
-                    // Asumimos que hay una sola CxC activa para esa venta/renta
-                    $cx = CuentasPorCobrar::where('cobrable_id', $entrega->id_origen)
-                        ->where('cobrable_type', 'like', '%' . $entrega->tipo_origen . '%')
-                        ->first();
+                $cxcId = $request->input('cxc_id');
+
+                if ($cxcId) {
+                    $cx = CuentasPorCobrar::find($cxcId);
+                }
+
+                if (!$cx) {
+                    if ($entrega->tipo_origen === 'cuentas_por_cobrar') {
+                        $cx = CuentasPorCobrar::find($entrega->id_origen);
+                    } else {
+                        // Si es venta/renta, buscar la CxC ligada
+                        // Intentamos buscar una que esté pagada o parcial del mismo cobrable
+                        $cx = CuentasPorCobrar::where('cobrable_id', $entrega->id_origen)
+                            ->where('cobrable_type', $entrega->tipo_origen)
+                            ->whereIn('estado', ['pagado', 'parcial'])
+                            ->first();
+
+                        // Fallback si no hay ninguna pagada/parcial (por si acaso)
+                        if (!$cx) {
+                            $cx = CuentasPorCobrar::where('cobrable_id', $entrega->id_origen)
+                                ->where('cobrable_type', $entrega->tipo_origen)
+                                ->first();
+                        }
+                    }
                 }
 
                 if ($cx) {
                     $cx->monto_pagado = max(0, $cx->monto_pagado - $monto);
-                    $cx->notas .= "\nPago anulado: {$monto} (Ref #{$entrega->id})";
+                    $cx->notas .= "\n[" . now()->format('Y-m-d H:i') . "] Pago anulado: {$monto} (Ref #{$entrega->id})";
                     $cx->actualizarEstado();
+                } else {
+                    \Log::warning("No se encontró CxC para anular pago #{$id}. Origen: {$entrega->tipo_origen} #{$entrega->id_origen}");
                 }
 
                 // 4. Eliminar entrega

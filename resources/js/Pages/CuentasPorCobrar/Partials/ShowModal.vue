@@ -162,7 +162,7 @@
                                         <!-- Asumiendo que $page.props.auth.user existe. Se oculta si no es admin (o similar, ajustaré logica backend) -->
                                         <button v-if="$page.props.auth.user?.roles?.some(r => r.name === 'super-admin') || $page.props.auth.user?.id === 1" 
                                                 @click="anularPago(pago.id)"
-                                                class="opacity-0 group-hover:opacity-100 p-2 text-red-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" 
+                                                class="opacity-40 group-hover:opacity-100 p-2 text-red-400 dark:text-red-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all" 
                                                 title="Anular/Revertir Pago (Solo Admin)">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                         </button>
@@ -828,7 +828,9 @@ const confirmarRep = () => {
 const anularPago = (id) => {
     if(!confirm('⚠️ ¿Estás seguro de REVERTIR este pago?\n\nSe realizarán las siguientes acciones:\n1. Se anulará el ingreso en banco/caja.\n2. La cuenta por cobrar volverá a tener saldo pendiente.\n\nEsta acción no se puede deshacer.')) return;
     
-    router.post(route('cuentas-por-cobrar.anular-pago', id), {}, {
+    router.post(route('cuentas-por-cobrar.anular-pago', id), {
+        cxc_id: props.cuenta?.id
+    }, {
         preserveScroll: true,
         onSuccess: () => {
             notyf.success('Pago revertido correctamente');
