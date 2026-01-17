@@ -275,7 +275,7 @@ if (typeof window !== 'undefined') {
         <meta name="description" :content="`Explora nuestro extenso catálogo de ${empresaData?.nombre_empresa || 'Asistencia Vircom'}. Encuentra computadoras, cámaras de seguridad, redes y accesorios en ${empresaData?.ciudad || 'Hermosillo'}. Envíos a todo México.`" />
     </Head>
     
-    <div class="min-h-screen bg-gray-50 font-sans" :style="cssVars">
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-950 font-sans transition-colors duration-300" :style="cssVars">
         <!-- Widget Flotante de WhatsApp -->
         <WhatsAppWidget :whatsapp="empresaData?.whatsapp" :empresaNombre="empresaData?.nombre || empresaData?.nombre_empresa" />
 
@@ -286,7 +286,7 @@ if (typeof window !== 'undefined') {
         <PublicNavbar :empresa="empresaData" activeTab="tienda" />
 
         <!-- Hero con Búsqueda -->
-        <section class="py-16 bg-gray-50 relative overflow-hidden">
+        <section class="py-16 bg-gray-50 dark:bg-gray-900 relative overflow-hidden transition-colors">
             <!-- Efecto cristal de fondo -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full opacity-30 blur-3xl" 
@@ -296,17 +296,17 @@ if (typeof window !== 'undefined') {
             </div>
             
             <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center relative">
-                <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+                <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4 transition-colors">
                     Explora nuestros productos
                 </h1>
-                <p class="text-gray-500 mb-8 max-w-xl mx-auto">
+                <p class="text-gray-500 dark:text-gray-400 mb-8 max-w-xl mx-auto transition-colors">
                     Encuentra lo que necesitas con la mejor calidad y precio
                 </p>
                 
                 <!-- Barra de búsqueda con efecto cristal -->
                 <div class="relative max-w-2xl mx-auto z-50">
                     <div :class="[
-                        'relative bg-white rounded-2xl transition-all duration-300',
+                        'relative bg-white dark:bg-gray-800 rounded-2xl transition-all duration-300',
                         searchFocused ? 'shadow-xl ring-2 rounded-b-none border-b-0' : 'shadow-md'
                     ]" :style="searchFocused ? { '--tw-ring-color': 'var(--color-primary)' } : {}">
                         <div class="flex items-center">
@@ -320,7 +320,7 @@ if (typeof window !== 'undefined') {
                                 @input="debouncedSuggestions"
                                 type="text" 
                                 placeholder="Buscar productos por nombre, código o descripción..." 
-                                class="w-full h-14 px-4 bg-transparent border-0 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0"
+                                class="w-full h-14 px-4 bg-transparent border-0 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-0"
                             />
                             <button v-if="search" 
                                     @click="clearFilters"
@@ -334,7 +334,7 @@ if (typeof window !== 'undefined') {
 
                     <!-- Autocomplete Dropdown (Premium Version) -->
                     <div v-show="searchFocused && suggestions.length > 0" 
-                         class="absolute w-full bg-white rounded-b-2xl shadow-2xl border border-gray-100 overflow-hidden z-[100] transition-all max-h-[450px] overflow-y-auto ring-1 ring-black/5">
+                         class="absolute w-full bg-white dark:bg-gray-800 rounded-b-2xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden z-[100] transition-all max-h-[450px] overflow-y-auto ring-1 ring-black/5">
                         <div class="p-2.5 border-b border-gray-50 flex justify-between items-center bg-gray-50/50 sticky top-0 z-10">
                             <span class="text-[10px] font-black tracking-widest text-gray-400 uppercase ml-2">Sugerencias de productos</span>
                             <button @click="searchFocused = false" class="text-[10px] font-bold text-gray-400 hover:text-gray-600 px-2 uppercase">Cerrar</button>
@@ -433,7 +433,7 @@ if (typeof window !== 'undefined') {
                 <aside class="w-full lg:w-72 flex-shrink-0 space-y-8">
                     <!-- Móvil: Botón para mostrar filtros -->
                     <button @click="showMobileFilters = !showMobileFilters" 
-                            class="lg:hidden w-full flex items-center justify-between px-6 py-4 bg-white rounded-2xl shadow-sm border border-gray-100 font-bold text-gray-700">
+                            class="lg:hidden w-full flex items-center justify-between px-6 py-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 font-bold text-gray-700 dark:text-gray-200 transition-colors">
                         <span class="flex items-center gap-2">
                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
                              Filtros y Categorías
@@ -446,8 +446,8 @@ if (typeof window !== 'undefined') {
                         showMobileFilters ? 'block animate-fade-in' : 'hidden'
                     ]">
                         <!-- Rango de Precio -->
-                        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
-                            <h3 class="text-xs font-black text-gray-900 uppercase tracking-[0.2em] mb-6 flex items-center justify-between">
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
+                            <h3 class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.2em] mb-6 flex items-center justify-between transition-colors">
                                 Presupuesto
                                 <span class="w-2 h-2 rounded-full bg-green-500"></span>
                             </h3>
@@ -476,8 +476,8 @@ if (typeof window !== 'undefined') {
                         </div>
 
                         <!-- Categorías Populares -->
-                        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
-                            <h3 class="text-xs font-black text-gray-900 uppercase tracking-[0.2em] mb-4">Categorías</h3>
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
+                            <h3 class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.2em] mb-4 transition-colors">Categorías</h3>
                             <div class="space-y-1">
                                 <button v-for="cat in categorias" :key="cat.id"
                                         @click="selectedCategoria = (selectedCategoria == cat.id ? '' : cat.id); applyFilters()"
@@ -494,8 +494,8 @@ if (typeof window !== 'undefined') {
                         </div>
 
                         <!-- Marcas -->
-                        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
-                            <h3 class="text-xs font-black text-gray-900 uppercase tracking-[0.2em] mb-4">Marcas</h3>
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
+                            <h3 class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.2em] mb-4 transition-colors">Marcas</h3>
                             <div class="grid grid-cols-2 gap-2">
                                 <button v-for="marca in marcas" :key="marca.id"
                                         @click="selectedMarca = (selectedMarca == marca.id ? '' : marca.id); applyFilters()"
@@ -522,16 +522,16 @@ if (typeof window !== 'undefined') {
                 <!-- Product List Area -->
                 <div class="flex-1 min-w-0">
                     <!-- Toolbar Principal -->
-                    <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 bg-white dark:bg-gray-800 p-4 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-sm transition-colors">
                         <div class="flex items-center gap-6">
                             <div class="flex flex-col">
-                                <p class="text-[10px] font-black text-gray-300 uppercase tracking-widest leading-none mb-1">Mostrando</p>
-                                <p class="text-sm font-black text-gray-900 leading-none">
+                                <p class="text-[10px] font-black text-gray-300 dark:text-gray-600 uppercase tracking-widest leading-none mb-1 transition-colors">Mostrando</p>
+                                <p class="text-sm font-black text-gray-900 dark:text-white leading-none transition-colors">
                                     {{ filteredCount }} <span class="text-gray-400 font-bold ml-1 uppercase text-[10px]">Productos</span>
                                 </p>
                             </div>
                             
-                            <div class="h-8 w-px bg-gray-100 hidden md:block"></div>
+                            <div class="h-8 w-px bg-gray-100 dark:bg-gray-700 hidden md:block"></div>
                             
                             <!-- Toggles rápidos con diseño Premium -->
                             <div class="flex gap-4">
@@ -556,7 +556,7 @@ if (typeof window !== 'undefined') {
 
                         <div class="flex items-center gap-2 w-full md:w-auto">
                             <select v-model="selectedOrden" @change="applyFilters"
-                                    class="w-full md:w-auto px-5 py-2.5 bg-gray-50 border-0 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-500 focus:ring-2 focus:ring-[var(--color-primary-soft)] cursor-pointer">
+                                    class="w-full md:w-auto px-5 py-2.5 bg-gray-50 dark:bg-gray-700 border-0 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-300 focus:ring-2 focus:ring-[var(--color-primary-soft)] cursor-pointer transition-colors">
                                 <option value="recientes">Novedades</option>
                                 <option value="precio_asc">Precio: Bajo a Alto</option>
                                 <option value="precio_desc">Precio: Alto a Bajo</option>
@@ -568,7 +568,7 @@ if (typeof window !== 'undefined') {
                     <!-- Grid de Productos -->
                     <div v-if="allProducts.length" class="grid grid-cols-2 lg:grid-cols-3 gap-6">
                         <article v-for="producto in allProducts" :key="producto.id"
-                                 class="group bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 hover:shadow-2xl hover:border-white transition-all duration-500 flex flex-col relative">
+                                 class="group bg-white dark:bg-gray-800 rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:border-white dark:hover:border-gray-600 transition-all duration-500 flex flex-col relative">
                             
                             <!-- Badge de Origen Premium -->
                             <div v-if="producto.stock_cedis > 0 && !(producto.stock_local > 0)" class="absolute top-4 right-4 z-30">
@@ -578,7 +578,7 @@ if (typeof window !== 'undefined') {
                             </div>
 
                             <!-- Imagen con Contenedor de Diseño -->
-                            <Link :href="route('catalogo.show', producto.id)" class="block relative aspect-square bg-gray-50 overflow-hidden m-2 rounded-[2rem]">
+                            <Link :href="route('catalogo.show', producto.id)" class="block relative aspect-square bg-gray-50 dark:bg-gray-900 overflow-hidden m-2 rounded-[2rem] transition-colors">
                                 <img v-if="getImageUrl(producto)" 
                                      :src="getImageUrl(producto)" 
                                      :alt="producto.nombre"
@@ -606,16 +606,16 @@ if (typeof window !== 'undefined') {
                                         {{ producto.marca?.nombre || producto.marca }}
                                     </p>
                                     <Link :href="route('catalogo.show', producto.id)">
-                                        <h3 class="font-bold text-gray-900 text-xs sm:text-sm line-clamp-2 leading-relaxed group-hover:text-[var(--color-primary)] transition-colors min-h-[40px]">
+                                        <h3 class="font-bold text-gray-900 dark:text-white text-xs sm:text-sm line-clamp-2 leading-relaxed group-hover:text-[var(--color-primary)] transition-colors min-h-[40px]">
                                             {{ producto.nombre }}
                                         </h3>
                                     </Link>
                                 </div>
 
-                                <div class="mt-auto flex items-center justify-between pt-4 border-t border-gray-50">
+                                <div class="mt-auto flex items-center justify-between pt-4 border-t border-gray-50 dark:border-gray-700 transition-colors">
                                     <div class="flex flex-col">
-                                        <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Inversión</span>
-                                        <span class="text-lg font-black text-gray-900 leading-none">
+                                        <span class="text-[8px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1 transition-colors">Inversión</span>
+                                        <span class="text-lg font-black text-gray-900 dark:text-white leading-none transition-colors">
                                             {{ formatCurrency(producto.precio_con_iva) }}
                                         </span>
                                     </div>
@@ -643,13 +643,13 @@ if (typeof window !== 'undefined') {
                     </div>
 
                     <!-- Estado Vacío -->
-                    <div v-else class="text-center py-24 bg-white rounded-[4rem] border border-gray-100 shadow-sm flex flex-col items-center">
+                    <div v-else class="text-center py-24 bg-white dark:bg-gray-800 rounded-[4rem] border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center transition-colors">
                         <div class="w-32 h-32 mb-8 bg-gray-50 rounded-full flex items-center justify-center relative">
                             <svg class="w-16 h-16 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                             <div class="absolute inset-0 border-2 border-dashed border-gray-100 rounded-full animate-spin-slow"></div>
                         </div>
-                        <h3 class="text-2xl font-black text-gray-900 mb-2">Búsqueda sin resultados</h3>
-                        <p class="text-gray-400 mb-10 max-w-xs mx-auto font-medium">Lamentamos no encontrar lo que buscas. Intenta con una marca general o ajustando el presupuesto.</p>
+                        <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-2 transition-colors">Búsqueda sin resultados</h3>
+                        <p class="text-gray-400 dark:text-gray-500 mb-10 max-w-xs mx-auto font-medium transition-colors">Lamentamos no encontrar lo que buscas. Intenta con una marca general o ajustando el presupuesto.</p>
                         <button @click="clearFilters" 
                                 class="px-10 py-4 bg-gray-900 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] hover:-translate-y-2 transition-all shadow-xl shadow-gray-200">
                             Reiniciar Búsqueda
