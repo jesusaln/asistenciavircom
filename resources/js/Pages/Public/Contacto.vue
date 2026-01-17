@@ -48,7 +48,7 @@ const submit = () => {
         <meta name="description" :content="`Contáctanos en ${empresaData?.ciudad || 'Hermosillo'}. Servicios de soporte técnico, redes, cámaras y facturación. Teléfono: ${empresaData?.telefono}, Email: ${empresaData?.email}.`" />
     </Head>
 
-    <div class="min-h-screen bg-white flex flex-col font-sans" :style="cssVars">
+    <div class="min-h-screen bg-white dark:bg-gray-950 flex flex-col font-sans transition-colors duration-300" :style="cssVars">
         <!-- Widget Flotante de WhatsApp -->
         <WhatsAppWidget :whatsapp="empresaData?.whatsapp" :empresaNombre="empresaData?.nombre || empresaData?.nombre_empresa" />
         
@@ -78,34 +78,34 @@ const submit = () => {
                         
                         <!-- Contact Info Cards -->
                         <div class="lg:col-span-1 space-y-6">
-                            <div class="bg-white p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 group hover:-translate-y-1 transition-all duration-300">
+                            <div class="bg-white dark:bg-gray-900 p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-800 group hover:-translate-y-1 transition-all duration-300">
                                 <div class="w-16 h-16 bg-[var(--color-primary-soft)] rounded-2xl flex items-center justify-center text-[var(--color-primary)] mb-6 text-2xl group-hover:scale-110 transition-transform">📍</div>
-                                <h3 class="text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Visítenos</h3>
-                                <p class="text-gray-900 font-bold leading-relaxed">{{ empresaData?.direccion_completa || empresaData?.direccion || 'Hermosillo, Sonora' }}</p>
+                                <h3 class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2 transition-colors">Visítenos</h3>
+                                <p class="text-gray-900 dark:text-white font-bold leading-relaxed transition-colors">{{ empresaData?.direccion_completa || empresaData?.direccion || 'Hermosillo, Sonora' }}</p>
                             </div>
 
-                            <div class="bg-white p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 group hover:-translate-y-1 transition-all duration-300">
+                            <div class="bg-white dark:bg-gray-900 p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-800 group hover:-translate-y-1 transition-all duration-300">
                                 <div class="w-16 h-16 bg-[var(--color-terciary-soft)] rounded-2xl flex items-center justify-center text-[var(--color-terciary)] mb-6 text-2xl group-hover:scale-110 transition-transform">📞</div>
-                                <h3 class="text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Llámenos</h3>
-                                <p class="text-2xl font-black text-gray-900">{{ empresaData?.telefono || '+52 000 000 0000' }}</p>
-                                <p class="text-sm text-gray-500 font-medium">Lunes a Viernes, 9am - 6pm</p>
+                                <h3 class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2 transition-colors">Llámenos</h3>
+                                <p class="text-2xl font-black text-gray-900 dark:text-white transition-colors">{{ empresaData?.telefono || '+52 000 000 0000' }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 font-medium transition-colors">Lunes a Viernes, 9am - 6pm</p>
                             </div>
 
-                            <div class="bg-white p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 group hover:-translate-y-1 transition-all duration-300">
-                                <div class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-900 mb-6 text-2xl group-hover:scale-110 transition-transform">✉️</div>
-                                <h3 class="text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Escríbanos</h3>
-                                <p class="text-lg font-bold text-gray-900 truncate">{{ empresaData?.email || 'contacto@empresa.com' }}</p>
+                            <div class="bg-white dark:bg-gray-900 p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-800 group hover:-translate-y-1 transition-all duration-300">
+                                <div class="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-2xl flex items-center justify-center text-gray-900 dark:text-white mb-6 text-2xl group-hover:scale-110 transition-transform">✉️</div>
+                                <h3 class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2 transition-colors">Escríbanos</h3>
+                                <p class="text-lg font-bold text-gray-900 dark:text-white truncate transition-colors">{{ empresaData?.email || 'contacto@empresa.com' }}</p>
                             </div>
                         </div>
 
                         <!-- Contact Form -->
                         <div class="lg:col-span-2">
-                            <div class="bg-white p-10 md:p-16 rounded-[3rem] shadow-2xl shadow-gray-200/50 border border-gray-50">
-                                <h2 class="text-3xl font-black text-gray-900 mb-8">Envíe un Mensaje</h2>
+                            <div class="bg-white dark:bg-gray-900 p-10 md:p-16 rounded-[3rem] shadow-2xl shadow-gray-200/50 dark:shadow-none border border-gray-50 dark:border-gray-800 transition-colors">
+                                <h2 class="text-3xl font-black text-gray-900 dark:text-white mb-8 transition-colors">Envíe un Mensaje</h2>
                                 <form @submit.prevent="submit" class="grid md:grid-cols-2 gap-8">
                                     <div class="space-y-2">
-                                        <label class="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">Nombre Completo</label>
-                                        <input v-model="form.nombre" type="text" placeholder="Ej. Juan Pérez" class="w-full px-6 py-4 bg-gray-50 border-gray-100 rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium">
+                                        <label class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 ml-1 transition-colors">Nombre Completo</label>
+                                        <input v-model="form.nombre" type="text" placeholder="Ej. Juan Pérez" class="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium placeholder-gray-400 dark:placeholder-gray-500">
                                     </div>
                                     <div class="space-y-2">
                                         <label class="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">Correo Electrónico</label>
@@ -143,17 +143,17 @@ const submit = () => {
             </section>
 
             <!-- Horarios de Atención -->
-            <section class="py-12 bg-gray-50">
+            <section class="py-12 bg-gray-50 dark:bg-gray-900 transition-colors">
                 <div class="max-w-3xl mx-auto px-4">
-                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                        <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-3 text-lg">
+                    <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3 text-lg transition-colors">
                             <span class="w-10 h-10 bg-[var(--color-primary-soft)] rounded-xl flex items-center justify-center text-xl">🕐</span>
                             Horarios de Atención
                         </h3>
                         <div class="grid sm:grid-cols-3 gap-4 text-center">
-                            <div class="p-4 bg-gray-50 rounded-xl">
-                                <p class="text-sm text-gray-500 mb-1">Lunes - Viernes</p>
-                                <p class="font-bold text-gray-900">9:00 - 18:00</p>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-xl transition-colors">
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1 transition-colors">Lunes - Viernes</p>
+                                <p class="font-bold text-gray-900 dark:text-white transition-colors">9:00 - 18:00</p>
                             </div>
                             <div class="p-4 bg-gray-50 rounded-xl">
                                 <p class="text-sm text-gray-500 mb-1">Sábados</p>

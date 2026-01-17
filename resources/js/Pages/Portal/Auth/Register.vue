@@ -54,14 +54,14 @@ const strengthLabel = computed(() => {
 <template>
     <Head title="Registro de Clientes" />
 
-    <div class="min-h-screen bg-gray-50 flex flex-col font-sans" :style="cssVars">
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col font-sans transition-colors duration-300" :style="cssVars">
         <PublicNavbar :empresa="empresa" activeTab="soporte" />
 
         <div class="flex-grow flex items-center justify-center p-4">
             <div class="w-full max-w-md">
                 
                 <!-- Card Premium -->
-                <div class="bg-white rounded-[3rem] shadow-2xl shadow-gray-200/50 border border-gray-100 p-10 md:p-12 relative overflow-hidden group">
+                <div class="bg-white dark:bg-gray-900 rounded-[3rem] shadow-2xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-800 p-10 md:p-12 relative overflow-hidden group transition-colors duration-300">
                     <!-- Decoración -->
                     <div class="absolute -top-12 -right-12 w-32 h-32 bg-[var(--color-primary-soft)] rounded-full group-hover:scale-110 transition-transform duration-500"></div>
                     <div class="absolute -bottom-12 -left-12 w-24 h-24 bg-[var(--color-terciary-soft)] rounded-full group-hover:scale-110 transition-transform duration-500"></div>
@@ -71,19 +71,19 @@ const strengthLabel = computed(() => {
                             <div class="w-16 h-16 bg-[var(--color-primary-soft)] rounded-2xl flex items-center justify-center text-[var(--color-primary)] mx-auto mb-6 text-2xl">
                                 ✨
                             </div>
-                            <h2 class="text-3xl font-black text-gray-900 tracking-tight">Registro Rápido</h2>
-                            <p class="text-gray-500 font-medium mt-2">Crea tu cuenta para comprar al instante.</p>
+                            <h2 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight transition-colors">Registro Rápido</h2>
+                            <p class="text-gray-500 dark:text-gray-400 font-medium mt-2 transition-colors">Crea tu cuenta para comprar al instante.</p>
                         </div>
 
                         <form @submit.prevent="submit" class="space-y-5">
                             <div class="space-y-1">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nombre Completo</label>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 ml-1 transition-colors">Nombre Completo</label>
                                 <input 
                                     v-model="form.nombre" 
                                     type="text" 
                                     placeholder="Juan Pérez"
                                     required
-                                    class="w-full px-6 py-4 bg-gray-50 border-gray-100 rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium"
+                                    class="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium placeholder-gray-400 dark:placeholder-gray-500"
                                 >
                                 <div v-if="form.errors.nombre" class="text-red-500 text-[10px] font-bold mt-1 ml-1 uppercase tracking-widest">{{ form.errors.nombre }}</div>
                             </div>
@@ -136,7 +136,7 @@ const strengthLabel = computed(() => {
                             </div>
 
                             <!-- Password Strength Indicator -->
-                            <div v-if="form.password" class="p-4 bg-gray-50 rounded-2xl border border-gray-100 space-y-3">
+                            <div v-if="form.password" class="p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-3 transition-colors">
                                 <div class="flex justify-between items-center">
                                     <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Fortaleza</span>
                                     <span :class="{'text-red-500': strength < 3, 'text-yellow-500': strength === 3, 'text-green-500': strength >= 4}" class="text-[10px] font-black uppercase tracking-widest">{{ strengthLabel }}</span>
@@ -176,7 +176,7 @@ const strengthLabel = computed(() => {
                 </div>
 
                 <!-- Footer -->
-                <p class="text-center mt-8 text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                <p class="text-center mt-8 text-gray-400 dark:text-gray-600 text-[10px] font-black uppercase tracking-[0.2em] transition-colors">
                     &copy; {{ new Date().getFullYear() }} {{ empresa?.nombre }} &bull; Tienda Oficial
                 </p>
             </div>
