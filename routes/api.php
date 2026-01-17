@@ -152,6 +152,26 @@ Route::prefix('clientes')->name('api.clientes.')->group(function () {
     Route::get('/{cliente}', [ClienteController::class, 'show'])->name('show');
     Route::put('/{cliente}', [ClienteController::class, 'update'])->name('update');
     Route::delete('/{cliente}', [ClienteController::class, 'destroy'])->name('destroy');
+
+    // Pólizas activas del cliente (para selector en citas)
+    Route::get('/{cliente}/polizas', function ($clienteId) {
+        $polizas = \App\Models\PolizaServicio::where('cliente_id', $clienteId)
+            ->where('estado', 'activa')
+            ->where('fecha_fin', '>=', now())
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'nombre' => $p->nombre,
+                    'folio' => $p->folio,
+                    'visitas_disponibles' => max(0, ($p->visitas_sitio_mensuales ?? 0) - ($p->visitas_sitio_consumidas_mes ?? 0)),
+                    'tickets_disponibles' => ($p->limite_mensual_tickets ?? 999) - ($p->tickets_soporte_consumidos_mes ?? 0),
+                ];
+            });
+
+        return response()->json(['polizas' => $polizas]);
+    })->name('polizas');
 });
 
 // Productos - Definición manual para mayor control

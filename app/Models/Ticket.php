@@ -92,7 +92,25 @@ class Ticket extends Model implements Auditable
             if (empty($ticket->fecha_limite)) {
                 $horasSla = null;
 
-                // 1. Intentar obtener de la póliza
+                // FASE 1: Vinculación automática de póliza si el ticket tiene cliente pero no póliza
+                if (!$ticket->poliza_id && $ticket->cliente_id) {
+                    $polizaActiva = PolizaServicio::where('cliente_id', $ticket->cliente_id)
+                        ->where('estado', 'activa')
+                        ->where('fecha_fin', '>=', now())
+                        ->orderByDesc('created_at')
+                        ->first();
+
+                    if ($polizaActiva) {
+                        $ticket->poliza_id = $polizaActiva->id;
+                        \Illuminate\Support\Facades\Log::info("Ticket vinculado automáticamente a póliza", [
+                            'ticket_folio' => $ticket->folio,
+                            'poliza_id' => $polizaActiva->id,
+                            'cliente_id' => $ticket->cliente_id
+                        ]);
+                    }
+                }
+
+                // 1. Intentar obtener SLA de la póliza
                 if ($ticket->poliza_id) {
                     $poliza = PolizaServicio::find($ticket->poliza_id);
                     if ($poliza && $poliza->sla_horas_respuesta) {

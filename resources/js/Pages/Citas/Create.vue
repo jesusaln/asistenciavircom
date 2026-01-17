@@ -82,7 +82,28 @@
                     :error="form.errors.tecnico_id"
                     required
                   />
-                  <div class="flex flex-col justify-end pb-1" v-if="form.ticket_id">
+                  
+                  <!-- Selector de Póliza -->
+                  <div v-if="clientePolizas.length > 0">
+                    <label class="block text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Póliza de Servicio</label>
+                    <select v-model="form.poliza_id" class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all">
+                      <option value="">Sin póliza (cobro normal)</option>
+                      <option v-for="pol in clientePolizas" :key="pol.id" :value="pol.id">
+                        🛡️ {{ pol.nombre }} - {{ pol.folio }} ({{ pol.visitas_disponibles }} visitas disp.)
+                      </option>
+                    </select>
+                    <p v-if="form.poliza_id" class="text-[10px] text-emerald-600 mt-2 font-bold">✅ Esta visita se descontará de la póliza seleccionada</p>
+                  </div>
+                  <div v-else-if="selectedCliente && clientePolizas.length === 0" class="flex flex-col justify-end pb-1">
+                    <div class="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 rounded-2xl">
+                      <p class="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Sin Póliza</p>
+                      <p class="text-xs text-amber-700 dark:text-amber-300">Este cliente no tiene póliza activa. Esta visita generará un cargo.</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8" v-if="form.ticket_id">
+                  <div class="flex flex-col justify-end pb-1">
                     <div class="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30 rounded-2xl flex items-center gap-3">
                       <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black">🎫</div>
                       <div>
@@ -335,6 +356,7 @@ const form = useForm({
     cliente_id: '',
     tecnico_id: '',
     ticket_id: props.ticket_id || '',
+    poliza_id: '',
     fecha_hora: `${new Date().toISOString().split('T')[0]}T09:00`,
     estado: 'programado',
     prioridad: 'media',
@@ -350,6 +372,8 @@ const form = useForm({
     extra_visit_cost: 0,
     notify: true
 });
+
+const clientePolizas = ref([]);
 
 onMounted(() => {
     // Restaurar borrador si existe
@@ -401,8 +425,25 @@ const updateDateTime = (time) => {
 const onClienteSeleccionado = (cliente) => {
     selectedCliente.value = cliente;
     form.cliente_id = cliente?.id || '';
+    form.poliza_id = ''; // Reset poliza al cambiar cliente
+    clientePolizas.value = []; // Limpiar pólizas previas
+    
     if (cliente?.calle) {
         form.direccion_servicio = `${cliente.calle} ${cliente.num_exterior || ''}, ${cliente.colonia || ''}, ${cliente.municipio || ''}`.replace(/\s+,/g, ',');
+    }
+    
+    // Cargar pólizas activas del cliente
+    if (cliente?.id) {
+        fetch(route('api.clientes.polizas', cliente.id))
+            .then(res => res.json())
+            .then(data => {
+                clientePolizas.value = data.polizas || [];
+                // Autoseleccionar si solo hay una
+                if (clientePolizas.value.length === 1) {
+                    form.poliza_id = clientePolizas.value[0].id;
+                }
+            })
+            .catch(err => console.log('No se pudieron cargar pólizas', err));
     }
 };
 

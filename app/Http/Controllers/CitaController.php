@@ -262,6 +262,7 @@ class CitaController extends Controller
             'marca_equipo' => 'nullable|string|max:255',
             'modelo_equipo' => 'nullable|string|max:255',
             'ticket_id' => 'nullable|integer|exists:tickets,id',
+            'poliza_id' => 'nullable|integer|exists:polizas_servicio,id',
         ], [
             'tecnico_id.required' => 'Debe seleccionar un técnico.',
             'cliente_id.required' => 'Debe seleccionar un cliente.',
@@ -295,17 +296,25 @@ class CitaController extends Controller
 
             // Verificar límite de visitas en sitio por póliza
             $excedeVisitas = false;
-            if ($validated['tipo_servicio'] === 'soporte_sitio') {
+            $poliza = null;
+
+            // FASE 2: Usar póliza del formulario o buscar automáticamente
+            if (!empty($validated['poliza_id'])) {
+                $poliza = \App\Models\PolizaServicio::find($validated['poliza_id']);
+            } elseif ($validated['tipo_servicio'] === 'soporte_sitio' || $validated['tipo_servicio'] === 'diagnostico') {
                 $poliza = \App\Models\PolizaServicio::where('cliente_id', $validated['cliente_id'])
                     ->activa()
                     ->first();
+                if ($poliza) {
+                    $validated['poliza_id'] = $poliza->id;
+                }
+            }
 
-                if ($poliza && $poliza->visitas_sitio_mensuales > 0) {
-                    if ($poliza->excede_limite_visitas) {
-                        $excedeVisitas = true;
-                        // Opcional: Podríamos agregar una nota automática
-                        $validated['notas'] = ($validated['notas'] ?? '') . "\n⚠️ ADVERTENCIA: Esta visita excede el límite mensual de la póliza y debe ser cobrada.";
-                    }
+            if ($poliza && $poliza->visitas_sitio_mensuales > 0) {
+                if ($poliza->excede_limite_visitas) {
+                    $excedeVisitas = true;
+                    // Opcional: Podríamos agregar una nota automática
+                    $validated['notas'] = ($validated['notas'] ?? '') . "\n⚠️ ADVERTENCIA: Esta visita excede el límite mensual de la póliza y debe ser cobrada.";
                 }
             }
 
