@@ -396,13 +396,16 @@ class PolizaServicio extends Model
                 }
             }
 
-            // Alerta al 100%: notificar al admin
+            // Alerta al 100%: notificar al admin y generar cobro
             if ($porcentaje >= 100) {
                 $excedente = $consumo - $limite;
                 $admins = \App\Models\User::role('super-admin')->get();
                 foreach ($admins as $admin) {
                     $admin->notify(new \App\Notifications\PolizaLimiteExcedidoNotification($this, $tipo, $excedente));
                 }
+
+                // FASE 6: Generar cuenta por cobrar automáticamente
+                $this->generarCobroExcedente($tipo, $excedente);
 
                 $this->update(['ultima_alerta_exceso_at' => now()]);
 
@@ -415,6 +418,62 @@ class PolizaServicio extends Model
             }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("Error enviando alerta de póliza: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Generar cuenta por cobrar por excedentes (Fase 6).
+     */
+    public function generarCobroExcedente(string $tipo, int $excedente = 1): ?\App\Models\CuentasPorCobrar
+    {
+        if ($excedente <= 0)
+            return null;
+
+        $costoUnitario = match ($tipo) {
+            'tickets' => 150,
+            'visitas' => $this->costo_visita_sitio_extra ?? 650,
+            'horas' => $this->costo_hora_excedente ?? 350,
+            default => 0,
+        };
+
+        $montoTotal = $excedente * $costoUnitario;
+        if ($montoTotal <= 0)
+            return null;
+
+        $tipoLabel = match ($tipo) {
+            'tickets' => 'Tickets',
+            'visitas' => 'Visitas',
+            'horas' => 'Horas',
+            default => 'Servicios',
+        };
+
+        try {
+            $cxc = \App\Models\CuentasPorCobrar::create([
+                'empresa_id' => $this->empresa_id,
+                'cliente_id' => $this->cliente_id,
+                'cobrable_type' => self::class,
+                'cobrable_id' => $this->id,
+                'folio' => 'EXC-' . $this->folio . '-' . now()->format('Ym'),
+                'concepto' => "Excedente de {$tipoLabel} - Póliza {$this->folio} (" . now()->format('M Y') . ")",
+                'monto_total' => $montoTotal,
+                'monto_pendiente' => $montoTotal,
+                'fecha_emision' => now(),
+                'fecha_vencimiento' => now()->addDays(15),
+                'estado' => 'pendiente',
+            ]);
+
+            \Illuminate\Support\Facades\Log::info("Cobro por excedente generado", [
+                'poliza' => $this->folio,
+                'tipo' => $tipo,
+                'excedente' => $excedente,
+                'monto' => $montoTotal,
+                'cxc_id' => $cxc->id
+            ]);
+
+            return $cxc;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Error generando cobro de excedente: " . $e->getMessage());
+            return null;
         }
     }
 

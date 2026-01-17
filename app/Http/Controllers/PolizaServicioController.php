@@ -407,13 +407,41 @@ class PolizaServicioController extends Controller
                 'estado' => $c->estado,
             ]);
 
+        // Fase 4: Estadísticas de consumos del mes
+        $consumosMes = \App\Models\PolizaConsumo::whereMonth('fecha_consumo', now()->month)
+            ->whereYear('fecha_consumo', now()->year)
+            ->get();
+
+        $statsConsumo = [
+            'tickets_mes' => $consumosMes->where('tipo', 'ticket')->count(),
+            'visitas_mes' => $consumosMes->where('tipo', 'visita')->count(),
+            'ahorro_total_mes' => $consumosMes->sum('ahorro'),
+        ];
+
+        // Últimos consumos (historial reciente)
+        $ultimosConsumos = \App\Models\PolizaConsumo::with(['poliza.cliente'])
+            ->orderByDesc('fecha_consumo')
+            ->limit(15)
+            ->get()
+            ->map(fn($c) => [
+                'id' => $c->id,
+                'icono' => $c->icono,
+                'tipo' => $c->tipo_label,
+                'descripcion' => $c->descripcion,
+                'cliente' => $c->poliza?->cliente?->nombre_razon_social ?? 'N/A',
+                'fecha' => $c->fecha_consumo->format('d/m H:i'),
+                'ahorro' => $c->ahorro,
+            ]);
+
         return Inertia::render('PolizaServicio/Dashboard', [
             'stats' => $stats,
+            'statsConsumo' => $statsConsumo,
             'proximasVencer' => $proximasVencer,
             'excesoTickets' => $excesoTickets,
             'excesoHoras' => $excesoHoras,
             'topConsumo' => $topConsumo,
             'ultimosCobros' => $ultimosCobros,
+            'ultimosConsumos' => $ultimosConsumos,
         ]);
     }
 
