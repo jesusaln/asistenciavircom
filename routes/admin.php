@@ -396,6 +396,13 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::resource('equipos', EquipoController::class)->middleware('role:admin|editor|super-admin');
     Route::resource('rentas', RentasController::class)->middleware('role:admin|editor|super-admin');
     Route::get('/rentas/{renta}/contrato', [RentasContratoController::class, 'contratoPDF'])->name('rentas.contrato');
+    // Dashboard Técnico de Mantenimientos (Pólizas)
+    Route::prefix('tecnico/mantenimientos')->name('admin.mantenimientos.tecnico.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\PolizaMantenimientoTecnicoController::class, 'index'])->name('index');
+        Route::post('/{id}/tomar', [\App\Http\Controllers\Admin\PolizaMantenimientoTecnicoController::class, 'tomarTarea'])->name('tomar');
+        Route::post('/{id}/completar', [\App\Http\Controllers\Admin\PolizaMantenimientoTecnicoController::class, 'completar'])->name('completar');
+    });
+
     Route::get('/polizas-servicio/dashboard', [PolizaServicioController::class, 'dashboard'])->name('polizas-servicio.dashboard');
     Route::get('/polizas-servicio/{polizaServicio}/historial', [PolizaServicioController::class, 'historialConsumo'])->name('polizas-servicio.historial');
     Route::get('/polizas-servicio/{polizaServicio}/pdf-beneficios', [PolizaServicioPDFController::class, 'beneficios'])->name('polizas-servicio.pdf-beneficios');

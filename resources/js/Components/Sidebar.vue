@@ -137,6 +137,9 @@
             <NavLink v-if="$can('view polizas')" href="/polizas-servicio" icon="file-signature" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Pólizas de Servicio' : null">
               Pólizas de Servicio
             </NavLink>
+            <NavLink v-if="$can('view polizas')" href="/tecnico/mantenimientos" icon="tools" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Mantenimientos de Pólizas' : null">
+              Mantenimientos de Pólizas
+            </NavLink>
             <NavLink v-if="$can('view polizas')" href="/planes-poliza" icon="tags" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Administrar Planes' : null">
               Administrar Planes
             </NavLink>
