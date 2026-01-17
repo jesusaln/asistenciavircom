@@ -179,6 +179,7 @@ const form = useForm({
   estado_credito: props.cliente.estado_credito ?? 'sin_credito',
   limite_credito: props.cliente.limite_credito ?? '',
   dias_credito: props.cliente.dias_credito ?? 30,
+  dias_gracia: props.cliente.dias_gracia ?? '',
 
   // Información Fiscal
   tipo_persona: props.cliente.tipo_persona ?? 'fisica',

@@ -66,6 +66,7 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         'estado_credito',
         'limite_credito',
         'dias_credito',
+        'dias_gracia',
     ];
 
     protected $hidden = [
@@ -82,6 +83,7 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         'credito_activo' => 'boolean',
         'limite_credito' => 'decimal:2',
         'dias_credito' => 'integer',
+        'dias_gracia' => 'integer',
     ];
 
     protected $attributes = [
@@ -91,6 +93,7 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         'estado_credito' => 'sin_credito',
         'limite_credito' => 0,
         'dias_credito' => 0,
+        'dias_gracia' => null, // null = usa configuración global
         // 'pais' se deja sin valor por defecto para permitir extranjeros
     ];
 

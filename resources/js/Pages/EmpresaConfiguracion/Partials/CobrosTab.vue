@@ -101,6 +101,37 @@
                 </div>
             </div>
 
+            <!-- Configuración de Bloqueo por Mora -->
+            <div class="bg-white p-6 rounded-xl border border-gray-200 mb-6">
+                <h3 class="text-md font-medium text-gray-900 mb-4 flex items-center gap-2">
+                    <FontAwesomeIcon icon="user-lock" class="text-red-500" />
+                    Bloqueo Automático de Portal
+                </h3>
+                <p class="text-sm text-gray-600 mb-4">
+                    Configura cuándo se debe restringir el acceso al portal de clientes por falta de pago.
+                    El cliente solo podrá acceder para ver sus deudas y realizar pagos.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Días de Gracia para Corte
+                        </label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="number" 
+                                v-model.number="form.dias_gracia_corte" 
+                                min="0"
+                                max="365"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            >
+                            <span class="text-sm text-gray-600 whitespace-nowrap">días después del vencimiento</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Si una factura tiene más de estos días de vencida, se bloqueará el acceso.</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Información sobre el reporte -->
             <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
                 <h4 class="text-sm font-medium text-blue-900 mb-2 flex items-center gap-2">

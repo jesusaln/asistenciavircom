@@ -310,6 +310,34 @@
             {{ form.errors.dias_credito }}
           </div>
         </div>
+
+        <!-- Días de Gracia (Bloqueo Portal) -->
+        <div class="mb-4">
+          <label for="dias_gracia" class="block text-sm font-medium text-gray-700">
+            Días de Gracia (Bloqueo)
+          </label>
+          <div class="mt-1 relative rounded-md shadow-sm">
+            <input
+              type="number"
+              name="dias_gracia"
+              id="dias_gracia"
+              v-model="form.dias_gracia"
+              class="focus:ring-blue-500 focus:border-blue-500 block w-full pr-12 sm:text-sm border-gray-300 rounded-md"
+              placeholder="Automático"
+              min="0"
+              max="365"
+            />
+            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+              <span class="text-gray-500 sm:text-sm">días</span>
+            </div>
+          </div>
+          <p class="mt-1 text-xs text-blue-500">
+            <strong>Bloqueo de Portal:</strong> Días adicionales tras vencimiento antes de bloquear el acceso. Dejar vacío para usar configuración global.
+          </p>
+          <div v-if="form.errors.dias_gracia" class="mt-2 text-sm text-red-600">
+            {{ form.errors.dias_gracia }}
+          </div>
+        </div>
       </div>
     </div>
 

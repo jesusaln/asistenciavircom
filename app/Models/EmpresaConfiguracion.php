@@ -76,6 +76,7 @@ class EmpresaConfiguracion extends Model
         'pagos_dias_anticipacion',
         'intentos_login',
         'tiempo_bloqueo',
+        'dias_gracia_corte',
         'requerir_2fa',
         // Datos bancarios existentes
         'banco',
@@ -258,6 +259,7 @@ class EmpresaConfiguracion extends Model
         'cva_codigo_sucursal' => 'integer',
         'cva_paqueteria_envio' => 'integer',
         'shipping_local_cost' => 'decimal:2',
+        'dias_gracia_corte' => 'integer',
     ];
 
     /**

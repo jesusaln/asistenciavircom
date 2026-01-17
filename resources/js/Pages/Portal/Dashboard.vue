@@ -1,8 +1,8 @@
 <script setup>
-import { Link, Head, useForm } from '@inertiajs/vue3';
+import { Link, Head, useForm, usePage } from '@inertiajs/vue3';
 import ClientLayout from './Layout/ClientLayout.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
 import PortalConfirmModal from './Components/PortalConfirmModal.vue';
 import DeudaModal from './Components/DeudaModal.vue';
@@ -26,6 +26,27 @@ const revealedPasswords = ref({});
 const isLoadingPassword = ref({});
 const confirmModal = ref(null);
 const showDeudaModal = ref(false);
+
+const page = usePage();
+const isBlocked = computed(() => page.props.auth?.client?.portal_blocked || false);
+
+watch(isBlocked, (blocked) => {
+    if (blocked) {
+        activeTab.value = 'pagos';
+    }
+}, { immediate: true });
+
+watch(activeTab, (newTab) => {
+    if (isBlocked.value && newTab !== 'pagos') {
+        setTimeout(() => {
+            activeTab.value = 'pagos';
+            // Usar una notificación discreta o nada para no saturar
+             if (typeof window.$toast !== 'undefined') {
+                window.$toast.error('Menú restringido por adeudos vencidos.');
+             }
+        }, 100);
+    }
+});
 
 onMounted(() => {
     // Si hay pagos pendientes, mostrar modal inmediatamente
@@ -220,6 +241,18 @@ const activeFaq = ref(null);
 const toggleFaq = (id) => {
     activeFaq.value = activeFaq.value === id ? null : id;
 };
+
+// Helper para verificar si una fecha está vencida
+const isOverdue = (dateString) => {
+    if (!dateString) return false;
+    return new Date(dateString) < new Date();
+};
+
+// Computed para calcular el total pendiente
+const totalPendiente = computed(() => {
+    if (!props.pagosPendientes || props.pagosPendientes.length === 0) return 0;
+    return props.pagosPendientes.reduce((acc, pago) => acc + parseFloat(pago.total || 0), 0);
+});
 </script>
 
 <template>
@@ -227,6 +260,25 @@ const toggleFaq = (id) => {
     
     <ClientLayout :empresa="empresa">
         <div class="px-2 sm:px-0">
+            <!-- Banner de Bloqueo por Falta de Pago -->
+            <div v-if="isBlocked" class="mb-8 bg-red-600 rounded-[2rem] p-6 text-white shadow-xl shadow-red-500/20 flex flex-col sm:flex-row items-center justify-between gap-6 border-4 border-red-500 ring-4 ring-red-100 animate-pulse">
+                <div class="flex items-center gap-6">
+                    <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-3xl">
+                        <font-awesome-icon icon="user-lock" />
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-black uppercase tracking-tight mb-1">Servicio Suspendido</h2>
+                        <p class="font-medium text-red-50 text-sm max-w-xl">
+                            Su acceso al portal ha sido limitado temporalmente debido a adeudos vencidos. 
+                            <span class="block mt-1 opacity-80 font-normal">Para restablecer el acceso completo a soporte, pólizas y tienda, por favor regularice su situación.</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs font-bold uppercase tracking-widest opacity-70 mb-1">Total Vencido Aprox.</p>
+                    <p class="text-3xl font-black">${{ Number(totalPendiente).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</p>
+                </div>
+            </div>
             
             <!-- Header de Bienvenida -->
             <div class="mb-10">
@@ -776,8 +828,94 @@ const toggleFaq = (id) => {
 
                     <!-- Tab: Historial y Pagos -->
                     <div v-show="activeTab === 'pagos'" class="animate-fade-in space-y-6" id="historial-pagos">
+                        
+                        <!-- Sección: Pagos Pendientes -->
+                        <div v-if="pagosPendientes && pagosPendientes.length > 0" class="mb-8">
+                            <div class="px-2 mb-4">
+                                <h2 class="text-xl font-black text-gray-900 uppercase tracking-tight flex items-center gap-3">
+                                    <span class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+                                    Pagos Pendientes ({{ pagosPendientes.length }})
+                                </h2>
+                                <p class="text-gray-500 text-sm font-medium">Estos son los pagos que requieren su atención.</p>
+                            </div>
+
+                            <div class="bg-white rounded-[2rem] shadow-xl shadow-red-500/10 border border-red-100 overflow-hidden">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left">
+                                        <thead class="bg-red-50 border-b border-red-100">
+                                            <tr>
+                                                <th class="px-8 py-4 text-[10px] font-black text-red-600 uppercase tracking-widest">Tipo</th>
+                                                <th class="px-8 py-4 text-[10px] font-black text-red-600 uppercase tracking-widest">Folio</th>
+                                                <th class="px-8 py-4 text-[10px] font-black text-red-600 uppercase tracking-widest">Concepto</th>
+                                                <th class="px-8 py-4 text-[10px] font-black text-red-600 uppercase tracking-widest">Vencimiento</th>
+                                                <th class="px-8 py-4 text-[10px] font-black text-red-600 uppercase tracking-widest text-right">Monto</th>
+                                                <th class="px-8 py-4 text-[10px] font-black text-red-600 uppercase tracking-widest text-right">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-red-50">
+                                            <tr v-for="pago in pagosPendientes" :key="pago.tipo + '-' + pago.id" class="hover:bg-red-50/50 transition-colors">
+                                                <td class="px-8 py-4">
+                                                    <span 
+                                                        class="px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest"
+                                                        :class="pago.tipo === 'venta' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'"
+                                                    >
+                                                        {{ pago.tipo === 'venta' ? 'Venta' : 'Servicio' }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-8 py-4 font-mono text-xs font-bold text-gray-500">#{{ pago.folio }}</td>
+                                                <td class="px-8 py-4 text-xs font-medium text-gray-600 max-w-xs truncate">{{ pago.concepto }}</td>
+                                                <td class="px-8 py-4 text-xs font-bold" :class="isOverdue(pago.fecha_vencimiento) ? 'text-red-600' : 'text-gray-900'">
+                                                    {{ formatDate(pago.fecha_vencimiento) }}
+                                                    <span v-if="isOverdue(pago.fecha_vencimiento)" class="ml-1 text-[9px] bg-red-100 text-red-600 px-1 rounded">VENCIDO</span>
+                                                </td>
+                                                <td class="px-8 py-4 text-sm font-black text-red-600 text-right">${{ Number(pago.total).toLocaleString('es-MX', {minimumFractionDigits: 2}) }}</td>
+                                                <td class="px-8 py-4 text-right">
+                                                    <div class="flex justify-end gap-2">
+                                                        <!-- Botón Pagar con Crédito (solo ventas) -->
+                                                        <button v-if="pago.tipo === 'venta' && pago.puede_pagar_credito && cliente.credito_activo && cliente.credito_disponible >= pago.total"
+                                                                @click="payWithCredit(pago.id)"
+                                                                :disabled="payingWithCredit[pago.id]"
+                                                                class="px-3 py-1 bg-emerald-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all disabled:opacity-50"
+                                                                title="Pagar con Crédito">
+                                                            {{ payingWithCredit[pago.id] ? '...' : '💳 Crédito' }}
+                                                        </button>
+                                                        
+                                                        <!-- Botón MercadoPago (solo ventas) -->
+                                                        <button v-if="pago.tipo === 'venta'"
+                                                                @click="payWithMercadoPago(pago.id)"
+                                                                :disabled="payingWithMP[pago.id]"
+                                                                class="px-3 py-1 bg-blue-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all disabled:opacity-50 flex items-center gap-1"
+                                                                title="Pagar Online">
+                                                            <font-awesome-icon :icon="payingWithMP[pago.id] ? 'spinner' : 'credit-card'" :spin="payingWithMP[pago.id]" />
+                                                            {{ payingWithMP[pago.id] ? '...' : 'Pagar' }}
+                                                        </button>
+
+                                                        <!-- Para CxC: Mostrar botón de contacto -->
+                                                        <a v-if="pago.tipo === 'cxc'" 
+                                                           :href="'https://wa.me/' + (empresa?.telefono || '').replace(/\\D/g, '') + '?text=Hola, quiero pagar mi cuenta ' + pago.folio"
+                                                           target="_blank"
+                                                           class="px-3 py-1 bg-green-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-green-600 transition-all flex items-center gap-1">
+                                                            <font-awesome-icon :icon="['fab', 'whatsapp']" /> Coordinar Pago
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot class="bg-red-50 border-t border-red-100">
+                                            <tr>
+                                                <td colspan="4" class="px-8 py-4 text-right text-sm font-black text-gray-700 uppercase tracking-widest">Total Pendiente:</td>
+                                                <td class="px-8 py-4 text-right text-lg font-black text-red-600">${{ totalPendiente.toLocaleString('es-MX', {minimumFractionDigits: 2}) }}</td>
+                                                <td></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección: Historial de Ventas -->
                         <div class="px-2">
-                             <h2 class="text-xl font-black text-gray-900 uppercase tracking-tight">Historial y Pagos Pendientes</h2>
+                             <h2 class="text-xl font-black text-gray-900 uppercase tracking-tight">Historial de Ventas</h2>
                         </div>
 
                         <div class="bg-white rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
@@ -805,39 +943,19 @@ const toggleFaq = (id) => {
                                                     :class="{
                                                         'bg-green-50 text-green-600 border-green-100': venta.estado === 'pagado',
                                                         'bg-yellow-50 text-yellow-600 border-yellow-100': venta.estado === 'pendiente',
-                                                        'bg-red-50 text-red-600 border-red-100': venta.estado === 'cancelado'
+                                                        'bg-red-50 text-red-600 border-red-100': venta.estado === 'cancelado' || venta.estado === 'vencida'
                                                     }"
                                                 >
                                                     {{ venta.estado }}
                                                 </span>
                                             </td>
                                             <td class="px-8 py-4 text-right">
-                                                <div class="flex justify-end gap-2">
-                                                    <button v-if="venta.estado === 'pendiente' && cliente.credito_activo && cliente.credito_disponible >= venta.total"
-                                                            @click="payWithCredit(venta.id)"
-                                                            :disabled="payingWithCredit[venta.id]"
-                                                            class="px-3 py-1 bg-emerald-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all disabled:opacity-50"
-                                                            title="Pagar con Crédito">
-                                                        {{ payingWithCredit[venta.id] ? '...' : 'Pagar con Crédito 💳' }}
-                                                    </button>
-                                                    
-                                                    <a :href="route('portal.ventas.pdf', venta.id)" 
-                                                       target="_blank"
-                                                       class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-gray-200 transition-all flex items-center gap-1"
-                                                       title="Descargar PDF">
-                                                        <font-awesome-icon icon="file-pdf" /> PDF
-                                                    </a>
-                                                    
-                                                    <!-- Botón MercadoPago (Solo si pendiente) -->
-                                                    <button v-if="venta.estado === 'pendiente' || venta.estado === 'vencida'"
-                                                            @click="payWithMercadoPago(venta.id)"
-                                                            :disabled="payingWithMP[venta.id]"
-                                                            class="px-3 py-1 bg-blue-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all disabled:opacity-50 flex items-center gap-1"
-                                                            title="Pagar Online con Tarjeta/MP">
-                                                        <font-awesome-icon :icon="payingWithMP[venta.id] ? 'spinner' : 'credit-card'" :spin="payingWithMP[venta.id]" />
-                                                        {{ payingWithMP[venta.id] ? '...' : 'Pagar' }}
-                                                    </button>
-                                                </div>
+                                                <a :href="route('portal.ventas.pdf', venta.id)" 
+                                                   target="_blank"
+                                                   class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-gray-200 transition-all inline-flex items-center gap-1"
+                                                   title="Descargar PDF">
+                                                    <font-awesome-icon icon="file-pdf" /> PDF
+                                                </a>
                                             </td>
                                         </tr>
                                         <tr v-if="!ventas.data || ventas.data.length === 0">

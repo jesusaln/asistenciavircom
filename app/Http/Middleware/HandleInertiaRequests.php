@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Inertia\Middleware;
 use App\Services\EmpresaConfiguracionService;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Venta;
+use App\Models\CuentasPorCobrar;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -70,9 +72,16 @@ class HandleInertiaRequests extends Middleware
         // 2. Client Auth (Guard: client)
         $client = Auth::guard('client')->user();
         if ($client instanceof \App\Models\Cliente) {
+            $blocked = $this->checkBlockingDebt($client) || session('blocked');
+            \Illuminate\Support\Facades\Log::info('HandleInertiaRequests: Sharing Props (Checked)', [
+                'client_id' => $client->id,
+                'final_blocked' => $blocked
+            ]);
+
             $auth['client'] = array_merge($client->toArray(), [
                 'tipo' => 'cliente',
                 'name' => $client->nombre_razon_social,
+                'portal_blocked' => $blocked,
                 'activo' => (bool) $client->activo,
             ]);
         }
@@ -80,5 +89,29 @@ class HandleInertiaRequests extends Middleware
         $shared['auth'] = $auth;
 
         return array_merge(parent::share($request), $shared);
+    }
+    /**
+     * Verificar si el cliente tiene deudas bloqueantes (Lógica duplicada para Inertia Shared Props debido al orden de middleware)
+     */
+    protected function checkBlockingDebt($cliente): bool
+    {
+        $config = \App\Models\EmpresaConfiguracion::getConfig($cliente->empresa_id);
+        $diasGracia = $cliente->dias_gracia ?? $config->dias_gracia_corte ?? 15;
+        $corteLimitDate = now()->subDays($diasGracia);
+
+        $hasOverdueVentas = Venta::where('cliente_id', $cliente->id)
+            ->whereIn('estado', ['pendiente', 'vencida'])
+            ->where('pagado', false)
+            ->where('fecha', '<', $corteLimitDate)
+            ->exists();
+
+        if ($hasOverdueVentas)
+            return true;
+
+        return CuentasPorCobrar::where('cliente_id', $cliente->id)
+            ->whereIn('estado', ['pendiente', 'vencido'])
+            ->where('monto_pendiente', '>', 0)
+            ->where('fecha_vencimiento', '<', $corteLimitDate)
+            ->exists();
     }
 }

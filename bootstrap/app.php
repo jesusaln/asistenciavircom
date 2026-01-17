@@ -26,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'portal.debt' => \App\Http\Middleware\CheckClientDebt::class,
         ]);
 
         $middleware->redirectGuestsTo(function (Request $request) {

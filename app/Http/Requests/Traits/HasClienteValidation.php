@@ -120,6 +120,12 @@ trait HasClienteValidation
                 ? 0
                 : (int) $dias;
         }
+        if ($this->has('dias_gracia')) {
+            $gracia = $this->input('dias_gracia');
+            $dataToMerge['dias_gracia'] = (is_null($gracia) || $gracia === '')
+                ? null
+                : (int) $gracia;
+        }
         if ($this->has('estado_credito')) {
             $dataToMerge['estado_credito'] = $this->input('estado_credito') ?? 'sin_credito';
         }
@@ -173,6 +179,7 @@ trait HasClienteValidation
             'estado_credito' => ['nullable', 'string', 'in:sin_credito,en_revision,autorizado,suspendido'],
             'limite_credito' => ['nullable', 'numeric', 'min:0'],
             'dias_credito' => ['nullable', 'integer', 'min:0', 'max:365'],
+            'dias_gracia' => ['nullable', 'integer', 'min:0', 'max:365'],
 
             'requiere_factura' => ['nullable', 'boolean'],
             'whatsapp_optin' => ['nullable', 'boolean'],
