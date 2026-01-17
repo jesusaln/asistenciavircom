@@ -55,31 +55,22 @@ class CuentasPorCobrarController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                // Busqueda polimórfica: Incluir alias cortos y FQCN para cubrir datos históricos
-                $types = [
-                    'venta',
-                    'App\Models\Venta',
-                    'renta',
-                    'App\Models\Renta',
-                    'poliza_servicio',
-                    \App\Models\PolizaServicio::class,
-                    'App\Models\PolizaServicio'
-                ];
-
-                $q->whereHasMorph('cobrable', $types, function ($sq, $type) use ($search) {
-                    // Buscar en Cliente relacionado
+                // Busqueda polimórfica: Usar '*' para buscar en TODOS los tipos sin importar formato
+                $q->whereHasMorph('cobrable', '*', function ($sq, $type) use ($search) {
+                    // Buscar en Cliente relacionado (Venta, Renta, Poliza tienen ->cliente())
                     $sq->whereHas('cliente', function ($cq) use ($search) {
                         $cq->where('clientes.nombre_razon_social', 'ilike', "%{$search}%")
                             ->orWhere('clientes.rfc', 'ilike', "%{$search}%")
                             ->orWhere('clientes.telefono', 'ilike', "%{$search}%");
                     });
 
-                    // Buscar por folio específico según el tipo
-                    if ($type === 'venta' || str_ends_with($type, 'Venta')) {
+                    // Buscar por folio específico según el tipo (detectar por substring)
+                    $typeLower = strtolower($type);
+                    if (str_contains($typeLower, 'venta')) {
                         $sq->orWhere('numero_venta', 'ilike', "%{$search}%");
-                    } elseif ($type === 'renta' || str_ends_with($type, 'Renta')) {
+                    } elseif (str_contains($typeLower, 'renta')) {
                         $sq->orWhere('numero_contrato', 'ilike', "%{$search}%");
-                    } elseif ($type === 'poliza_servicio' || str_ends_with($type, 'PolizaServicio')) {
+                    } elseif (str_contains($typeLower, 'poliza')) {
                         $sq->orWhere('folio', 'ilike', "%{$search}%");
                     }
                 })
