@@ -212,22 +212,86 @@
                 <tr>
                     <td>Tickets de Soporte Incluidos</td>
                     <td>{{ $poliza->limite_mensual_tickets > 900 ? 'Ilimitados' : $poliza->limite_mensual_tickets }}
+                        Folios
                     </td>
                 </tr>
                 <tr>
-                    <td>Horas Presenciales</td>
+                    <td>Visitas Presenciales Incluidas</td>
+                    <td>{{ $poliza->visitas_sitio_mensuales ?? 0 }} Visitas al mes</td>
+                </tr>
+                <tr>
+                    <td>Costo Visita Adicional</td>
+                    <td>${{ number_format($poliza->costo_visita_sitio_extra ?? 0, 2) }}</td>
+                </tr>
+                <tr>
+                    <td>Horas de Soporte (Phase 2)</td>
                     <td>{{ $poliza->horas_incluidas_mensual ?? 0 }} Horas</td>
                 </tr>
                 <tr>
-                    <td>Costo Hora Adicional</td>
+                    <td>Costo Hora Excedente</td>
                     <td>${{ number_format($poliza->costo_hora_excedente, 2) }}</td>
                 </tr>
                 <tr>
                     <td>Tiempo de Respuesta (SLA)</td>
-                    <td>{{ $poliza->sla_horas_respuesta }} Horas</td>
+                    <td>{{ $poliza->sla_horas_respuesta }} Horas (Hábiles)</td>
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    <!-- Beneficios Detallados -->
+    @if($poliza->planPoliza && $poliza->planPoliza->beneficios)
+        <div class="section">
+            <div class="section-title">Beneficios del Plan</div>
+            <ul style="padding-left: 20px; font-size: 11px; color: #374151;">
+                @foreach($poliza->planPoliza->beneficios as $beneficio)
+                    <li style="margin-bottom: 5px;">{{ $beneficio }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <!-- Clausulas y Términos -->
+    <div class="section">
+        <div class="section-title">Cláusulas y Condiciones Legales</div>
+        <div
+            style="font-size: 10px; color: #4b5563; text-align: justify; background: #f9fafb; padding: 15px; border-radius: 8px;">
+            @if($poliza->clausulas_especiales)
+                {!! nl2br(e($poliza->clausulas_especiales)) !!}
+            @elseif($poliza->planPoliza && $poliza->planPoliza->clausulas)
+                {!! nl2br(e($poliza->planPoliza->clausulas)) !!}
+            @else
+                1. **Alcance:** Los servicios de soporte técnico remoto cubren fallas de sistema operativo, configuración de
+                software comercial y asistencia en el uso de herramientas de productividad.<br>
+                2. **Visitas:** Las visitas presenciales deberán agendarse con al menos 24 horas de anticipación, salvo
+                emergencias críticas calificadas por el proveedor.<br>
+                3. **Exclusiones:** No se incluye suministro de refacciones, licencias de software, ni reparaciones por
+                daños físicos provocados por mal uso o siniestros (incendio, inundación).<br>
+                4. **Privacidad:** Ambas partes se comprometen a resguardar la confidencialidad de la información técnica y
+                comercial compartida durante el servicio.
+            @endif
+        </div>
+    </div>
+
+    <!-- Condiciones de Pago -->
+    <div class="section">
+        <div class="section-title">Importe y Condiciones de Pago</div>
+        <div style="background: #eff6ff; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+            <div class="row" style="margin-bottom: 0;">
+                <div class="col font-bold">Importe Mensual Recurrente:</div>
+                <div class="col" style="text-align: right; font-size: 16px; font-weight: 900; color: #1e40af;">
+                    ${{ number_format($poliza->monto_mensual, 2) }} MXN
+                </div>
+            </div>
+            <p style="font-size: 10px; color: #60a5fa; margin-top: 5px;">
+                @if($poliza->planPoliza && $poliza->planPoliza->terminos_pago)
+                    {{ $poliza->planPoliza->terminos_pago }}
+                @else
+                    El pago deberá realizarse los primeros {{ $poliza->dia_cobro }} días de cada mes. La falta de pago podrá
+                    resultar en la suspensión temporal del servicio remoto y presencial.
+                @endif
+            </p>
+        </div>
     </div>
 
     <!-- Equipos -->

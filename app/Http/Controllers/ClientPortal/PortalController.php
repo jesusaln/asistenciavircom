@@ -280,6 +280,7 @@ class PortalController extends Controller
         }
 
         $poliza->load([
+            'planPoliza',
             'equipos',
             'servicios',
             'tickets' => function ($q) {

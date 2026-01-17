@@ -53,11 +53,13 @@ const getEstadoBadge = (estado) => {
                         <p class="text-gray-500 font-medium text-sm mt-1">Vence: <strong class="text-gray-700">{{ formatDate(poliza.fecha_fin) }}</strong></p>
                     </div>
                     <div class="flex gap-3 flex-wrap">
-                        <a :href="route('portal.polizas.imprimir', poliza.id)" target="_blank" class="px-6 py-3 bg-white text-gray-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 transition-all border border-gray-200">
-                            <font-awesome-icon icon="file-signature" class="mr-2" /> Contrato
+                        <a :href="route('portal.polizas.imprimir', poliza.id)" target="_blank" class="px-6 py-3 bg-white text-blue-600 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-50 transition-all border-2 border-blue-100 flex items-center gap-2">
+                            <font-awesome-icon icon="file-pdf" /> 
+                            <span>Beneficios y Contrato</span>
                         </a>
-                        <Link :href="route('portal.tickets.create', { poliza_id: poliza.id })" class="px-6 py-3 bg-[var(--color-primary)] text-white rounded-xl font-black text-xs uppercase tracking-widest hover:shadow-lg transition-all">
-                            <font-awesome-icon icon="life-ring" class="mr-2" /> Solicitar Soporte
+                        <Link :href="route('portal.tickets.create', { poliza_id: poliza.id })" class="px-6 py-3 bg-blue-600 shadow-lg shadow-blue-200 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center gap-2">
+                            <font-awesome-icon icon="life-ring" /> 
+                            <span>Solicitar Soporte</span>
                         </Link>
                     </div>
                 </div>
@@ -68,13 +70,19 @@ const getEstadoBadge = (estado) => {
                 <div class="lg:col-span-2 space-y-8">
                     <!-- Descripción -->
                     <div class="bg-white rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 p-8">
-                        <h3 class="font-black text-gray-900 uppercase tracking-tight mb-4 flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-[var(--color-primary-soft)] text-[var(--color-primary)] flex items-center justify-center text-sm">
-                                <font-awesome-icon icon="info-circle" />
+                        <h3 class="font-black text-gray-900 uppercase tracking-tight mb-6 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm">
+                                <font-awesome-icon icon="star" />
                             </div>
-                            Alcance del Servicio
+                            Beneficios Incluidos
                         </h3>
-                        <p class="text-gray-600 font-medium leading-relaxed whitespace-pre-wrap">{{ poliza.descripcion || 'Sin descripción detallada.' }}</p>
+                        <div v-if="poliza.plan_poliza?.beneficios" class="grid sm:grid-cols-2 gap-4">
+                            <div v-for="(beneficio, idx) in poliza.plan_poliza.beneficios" :key="idx" class="flex items-start gap-3 p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
+                                <font-awesome-icon icon="check-circle" class="text-blue-500 mt-0.5" />
+                                <span class="text-sm font-bold text-gray-700 leading-snug">{{ beneficio }}</span>
+                            </div>
+                        </div>
+                        <p v-else class="text-gray-600 font-medium leading-relaxed whitespace-pre-wrap">{{ poliza.descripcion || 'Servicios integrales de soporte y mantenimiento.' }}</p>
                     </div>
 
                     <!-- Consumo Actual -->

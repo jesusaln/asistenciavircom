@@ -41,6 +41,8 @@ class PlanPoliza extends Model
         'min_equipos',
         'max_equipos',
         'imagen',
+        'clausulas',
+        'terminos_pago',
         'mantenimiento_frecuencia_meses',
         'mantenimiento_dias_anticipacion',
         'generar_cita_automatica',

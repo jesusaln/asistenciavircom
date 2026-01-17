@@ -44,6 +44,7 @@ class PolizaServicio extends Model
         'notificar_exceso_limite',
         'renovacion_automatica',
         'condiciones_especiales',
+        'clausulas_especiales',
         'notas',
         'ultimo_cobro_generado_at',
         'sla_horas_respuesta',
