@@ -379,6 +379,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::post('herramientas/gestion/asignar', [GestionHerramientasController::class, 'asignar'])->name('herramientas.gestion.asignar');
 
     Route::get('/citas-calendario', [CitaController::class, 'calendario'])->name('citas-calendario')->middleware('role:ventas|admin|super-admin|tecnico');
+    Route::get('/citas/check-visits-limit', [CitaController::class, 'checkVisitsLimit'])->name('citas.check-visits-limit')->middleware('role:ventas|admin|super-admin');
     Route::resource('citas', CitaController::class)->names('citas')->middleware('role:ventas|admin|super-admin');
     Route::get('/mi-agenda', [CitaController::class, 'miAgenda'])->name('citas.mi-agenda')->middleware('role:ventas|admin|super-admin|tecnico');
 
@@ -480,6 +481,27 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::middleware(['auth', 'can:manage-backups'])->prefix('admin/backup')->name('backup.')->group(function () {
         Route::get('/', [DatabaseBackupController::class, 'index'])->name('index');
         Route::post('/create', [DatabaseBackupController::class, 'create'])->name('create');
+        Route::post('/create-full', [DatabaseBackupController::class, 'createFull'])->name('create-full');
+        Route::post('/create-incremental', [DatabaseBackupController::class, 'createIncremental'])->name('create-incremental');
+        Route::post('/create-secure', [DatabaseBackupController::class, 'createSecure'])->name('create-secure');
+        Route::post('/create-remote', [DatabaseBackupController::class, 'createRemote'])->name('create-remote');
+        Route::get('/download/{filename}', [DatabaseBackupController::class, 'download'])->name('download');
+        Route::delete('/delete/{filename}', [DatabaseBackupController::class, 'delete'])->name('delete');
+        Route::post('/delete-multiple', [DatabaseBackupController::class, 'deleteMultiple'])->name('delete-multiple');
+        Route::post('/restore/{filename}', [DatabaseBackupController::class, 'restore'])->name('restore');
+        Route::post('/granular-restore/{filename}', [DatabaseBackupController::class, 'granularRestore'])->name('granular-restore');
+        Route::post('/clean', [DatabaseBackupController::class, 'clean'])->name('clean');
+        Route::post('/upload', [DatabaseBackupController::class, 'upload'])->name('upload');
+        Route::get('/stats', [DatabaseBackupController::class, 'stats'])->name('stats');
+        Route::get('/verify/{filename}', [DatabaseBackupController::class, 'verify'])->name('verify');
+        Route::get('/verify-advanced/{filename}', [DatabaseBackupController::class, 'verifyAdvanced'])->name('verify-advanced');
+        Route::get('/info/{filename}', [DatabaseBackupController::class, 'info'])->name('info');
+        Route::get('/health-report', [DatabaseBackupController::class, 'healthReport'])->name('health-report');
+        Route::get('/monitoring', [DatabaseBackupController::class, 'monitoring'])->name('monitoring');
+        Route::get('/security-stats', [DatabaseBackupController::class, 'securityStats'])->name('security.stats');
+        Route::get('/compression-stats', [DatabaseBackupController::class, 'compressionStats'])->name('compression.stats');
+        Route::get('/remote-list', [DatabaseBackupController::class, 'listRemote'])->name('remote.list');
+        Route::get('/remote-download/{remotePath}', [DatabaseBackupController::class, 'downloadRemote'])->name('remote.download');
     });
 
     // CFDI
