@@ -8,8 +8,14 @@
       <div class="mb-10 relative">
 
         
-        <div class="relative bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 rounded-3xl p-8 shadow-xl overflow-hidden">
-
+        <div 
+          class="relative rounded-3xl p-8 shadow-xl overflow-hidden transition-all duration-500"
+          :style="{ 
+            background: isDark 
+              ? 'linear-gradient(135deg, #1f2937 0%, #111827 100%)' 
+              : `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` 
+          }"
+        >
           
           <div class="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <!-- Left: Greeting & Date -->
@@ -19,10 +25,10 @@
                   <FontAwesomeIcon :icon="['fas', 'chart-line']" class="h-8 w-8 text-white" />
                 </div>
                 <div>
-                  <h1 class="text-3xl lg:text-4xl font-bold text-white drop-shadow-lg">
+                  <h1 class="text-3xl lg:text-4xl font-bold text-white drop-shadow-lg transition-colors">
                     {{ saludo }}, {{ nombreUsuario }}
                   </h1>
-                  <p class="text-amber-100 text-lg mt-1 flex items-center gap-2">
+                  <p class="text-white/80 dark:text-gray-300 text-lg mt-1 flex items-center gap-2 transition-colors">
                     <FontAwesomeIcon :icon="['fas', 'calendar']" class="opacity-80" />
                     {{ fechaHoy }}
                   </p>
@@ -356,10 +362,10 @@
         </div>
       </div>
 
-      <!-- Citas activas del día de hoy -->
+    <!-- Citas activas del día de hoy -->
     <div
       v-if="citasHoyDetallesSafe.length > 0"
-      class="mt-8 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-blue-500 transition-colors"
+      class="mt-8 bg-white dark:bg-gray-800/90 p-6 rounded-2xl shadow-lg border-l-8 border-blue-500 transition-colors"
     >
       <div class="flex items-center mb-4 transition-colors">
         <FontAwesomeIcon :icon="['fas', 'calendar-alt']" class="h-8 w-8 text-blue-600 mr-3" />
@@ -398,7 +404,7 @@
             <div class="text-base font-medium text-blue-600 mb-1">
               {{ cita.hora ?? '—' }}
             </div>
-            <div class="text-xs text-gray-500">
+            <div class="text-xs text-gray-400 dark:text-gray-500">
               Hoy
             </div>
           </div>
@@ -932,7 +938,7 @@
         </div>
 
         <!-- Gráfico de Productos Más Vendidos -->
-        <div class="group relative bg-white/60 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white/50 overflow-hidden hover:shadow-xl transition-all duration-500">
+        <div class="group relative bg-white/60 dark:bg-gray-800/60 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 overflow-hidden hover:shadow-xl transition-all duration-500">
           <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-400/20 to-emerald-600/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
           <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-400/10 to-transparent rounded-full translate-y-1/2 -translate-x-1/2 blur-xl"></div>
           
@@ -959,13 +965,13 @@
                 :backgroundColor="['rgba(245, 158, 11, 0.85)', 'rgba(217, 119, 6, 0.85)', 'rgba(180, 83, 9, 0.85)', 'rgba(146, 64, 14, 0.85)', 'rgba(120, 53, 15, 0.85)']"
               />
             </div>
-            <div v-else class="h-72 flex items-center justify-center bg-gradient-to-br from-gray-50 to-emerald-50/30 rounded-2xl border border-dashed border-gray-200">
+            <div v-else class="h-72 flex items-center justify-center bg-gradient-to-br from-gray-50 dark:from-gray-700/50 to-emerald-50/30 dark:to-emerald-900/20 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 transition-colors">
               <div class="text-center">
-                <div class="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto mb-4">
-                  <FontAwesomeIcon :icon="['fas', 'box']" class="h-8 w-8 text-emerald-400" />
+                <div class="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-4">
+                  <FontAwesomeIcon :icon="['fas', 'box']" class="h-8 w-8 text-emerald-400 dark:text-emerald-300" />
                 </div>
-                <p class="text-gray-600 font-semibold mb-2">Sin ventas recientes</p>
-                <p class="text-sm text-gray-400 mb-4">Registra ventas para ver el ranking</p>
+                <p class="text-gray-600 dark:text-gray-300 font-semibold mb-2">Sin ventas recientes</p>
+                <p class="text-sm text-gray-400 dark:text-gray-500 mb-4">Registra ventas para ver el ranking</p>
                 <PanLink :href="route('ventas.create')" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300">
                   <FontAwesomeIcon :icon="['fas', 'plus']" class="mr-2" />
                   Nueva Venta
@@ -976,7 +982,7 @@
         </div>
 
         <!-- Gráfico de Estados de Órdenes -->
-        <div class="group relative bg-white/60 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white/50 overflow-hidden hover:shadow-xl transition-all duration-500">
+        <div class="group relative bg-white/60 dark:bg-gray-800/60 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 overflow-hidden hover:shadow-xl transition-all duration-500">
           <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-400/20 to-purple-600/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
           <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-purple-400/10 to-transparent rounded-full translate-y-1/2 -translate-x-1/2 blur-xl"></div>
           
@@ -1000,13 +1006,13 @@
                 :backgroundColor="['rgba(245, 158, 11, 0.9)', 'rgba(217, 119, 6, 0.9)', 'rgba(16, 185, 129, 0.9)', 'rgba(99, 102, 241, 0.9)']"
               />
             </div>
-            <div v-else class="h-72 flex items-center justify-center bg-gradient-to-br from-gray-50 to-purple-50/30 rounded-2xl border border-dashed border-gray-200">
+            <div v-else class="h-72 flex items-center justify-center bg-gradient-to-br from-gray-50 dark:from-gray-700/50 to-purple-50/30 dark:to-purple-900/20 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 transition-colors">
               <div class="text-center">
-                <div class="w-16 h-16 rounded-2xl bg-purple-100 flex items-center justify-center mx-auto mb-4">
-                  <FontAwesomeIcon :icon="['fas', 'clipboard-list']" class="h-8 w-8 text-purple-400" />
+                <div class="w-16 h-16 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mx-auto mb-4">
+                  <FontAwesomeIcon :icon="['fas', 'clipboard-list']" class="h-8 w-8 text-purple-400 dark:text-purple-300" />
                 </div>
-                <p class="text-gray-600 font-semibold mb-2">Sin órdenes de compra</p>
-                <p class="text-sm text-gray-400 mb-4">Gestiona tus proveedores</p>
+                <p class="text-gray-600 dark:text-gray-300 font-semibold mb-2">Sin órdenes de compra</p>
+                <p class="text-sm text-gray-400 dark:text-gray-500 mb-4">Gestiona tus proveedores</p>
                 <PanLink :href="route('ordenescompra.create')" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300">
                   <FontAwesomeIcon :icon="['fas', 'plus']" class="mr-2" />
                   Crear Orden
@@ -1017,7 +1023,7 @@
         </div>
 
         <!-- Gráfico de Crecimiento de Clientes -->
-        <div class="group relative bg-white/60 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white/50 overflow-hidden hover:shadow-xl transition-all duration-500">
+        <div class="group relative bg-white/60 dark:bg-gray-800/60 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 overflow-hidden hover:shadow-xl transition-all duration-500">
           <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-400/20 to-orange-500/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
           <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-amber-400/10 to-transparent rounded-full translate-y-1/2 -translate-x-1/2 blur-xl"></div>
           
@@ -1045,13 +1051,13 @@
                 :show-currency="false"
               />
             </div>
-            <div v-else class="h-72 flex items-center justify-center bg-gradient-to-br from-gray-50 to-amber-50/30 rounded-2xl border border-dashed border-gray-200">
+            <div v-else class="h-72 flex items-center justify-center bg-gradient-to-br from-gray-50 dark:from-gray-700/50 to-amber-50/30 dark:to-orange-900/20 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 transition-colors">
               <div class="text-center">
-                <div class="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center mx-auto mb-4">
-                  <FontAwesomeIcon :icon="['fas', 'users']" class="h-8 w-8 text-amber-400" />
+                <div class="w-16 h-16 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mx-auto mb-4">
+                  <FontAwesomeIcon :icon="['fas', 'users']" class="h-8 w-8 text-amber-400 dark:text-amber-300" />
                 </div>
-                <p class="text-gray-600 font-semibold mb-2">Sin registro de clientes</p>
-                <p class="text-sm text-gray-400 mb-4">Agrega clientes para visualizar el crecimiento</p>
+                <p class="text-gray-600 dark:text-gray-300 font-semibold mb-2">Sin registro de clientes</p>
+                <p class="text-sm text-gray-400 dark:text-gray-500 mb-4">Agrega clientes para visualizar el crecimiento</p>
                 <PanLink :href="route('clientes.create')" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300">
                   <FontAwesomeIcon :icon="['fas', 'plus']" class="mr-2" />
                   Nuevo Cliente
@@ -1067,8 +1073,30 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { computed, ref, onMounted } from 'vue'
+import { router, usePage } from '@inertiajs/vue3'
+
+const page = usePage()
+
+const isDark = ref(false)
+
+const colors = computed(() => ({
+  principal: page.props.empresa_config?.color_principal || '#F59E0B',
+  secundario: page.props.empresa_config?.color_secundario || '#D97706',
+}))
+
+const checkDarkMode = () => {
+    isDark.value = document.documentElement.classList.contains('dark')
+}
+
+onMounted(() => {
+    checkDarkMode()
+    // Observar cambios en la clase dark del html
+    const observer = new MutationObserver(() => {
+        checkDarkMode()
+    })
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+})
 
 const totalCuentasPagar = computed(() => {
   return props.alertasCuentasPagar.vencidas_count +
@@ -1151,8 +1179,6 @@ const props = defineProps({
 })
 
 // ===== Header: Saludo, nombre y fecha =====
-import { usePage } from '@inertiajs/vue3'
-const page = usePage()
 const nombreUsuario = computed(() => page.props.auth?.user?.name?.split(' ')[0] || 'Usuario')
 
 const saludo = computed(() => {
