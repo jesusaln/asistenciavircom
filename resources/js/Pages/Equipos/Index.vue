@@ -610,7 +610,6 @@ const obtenerLabelCondicion = (condicion) => {
 <style scoped>
 .equipos-index {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>
 

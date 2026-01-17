@@ -866,7 +866,6 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
 <style scoped>
 .pagos-index {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 
 .modal-enter-active,

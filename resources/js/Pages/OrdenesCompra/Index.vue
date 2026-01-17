@@ -2000,7 +2000,6 @@ const validarEstado = (estado) => {
 <style scoped>
 .ordenes-compra-index {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 
 @media (max-width: 640px) {
@@ -2056,7 +2055,6 @@ const validarEstado = (estado) => {
 }
 
 @media (prefers-contrast: high) {
-  .bg-white { background-color: #f9fafb; }
   .border-gray-200 { border-color: #d1d5db; }
 }
 

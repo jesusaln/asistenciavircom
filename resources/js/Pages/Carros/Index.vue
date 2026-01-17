@@ -1143,7 +1143,6 @@ const formatNumber = (num) => {
 <style scoped>
 .carros-index {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 
 .modal-enter-active,

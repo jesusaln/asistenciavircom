@@ -574,7 +574,6 @@ const obtenerLabelEstado = (estado) => {
 <style scoped>
 .tecnicos-index {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>
 

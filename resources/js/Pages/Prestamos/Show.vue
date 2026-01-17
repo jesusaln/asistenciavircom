@@ -345,7 +345,6 @@ const historialPagos = computed(() => {
 <style scoped>
 .prestamos-show {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>
 

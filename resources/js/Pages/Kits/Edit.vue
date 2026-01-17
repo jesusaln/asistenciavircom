@@ -664,7 +664,6 @@ watch(() => form.value.precio_venta, updateMargen)
 <style scoped>
 .kits-edit {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>
 

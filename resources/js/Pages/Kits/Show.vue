@@ -398,6 +398,5 @@ onMounted(() => {
 <style scoped>
 .kits-show {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>

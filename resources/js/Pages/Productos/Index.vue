@@ -1227,6 +1227,5 @@ const faltanSeriesParaProducto = (producto) => {
 <style scoped>
 .productos-index {
  min-height: 100vh;
- background-color: #f9fafb;
 }
 </style>

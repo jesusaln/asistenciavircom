@@ -560,6 +560,5 @@ const estadisticasFormateadas = computed(() => ({
 <style scoped>
 .prestamos-por-cliente {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>

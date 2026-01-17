@@ -1265,7 +1265,6 @@ const confirmarEnvioEmail = async () => {
 <style scoped>
 .ventas-index {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 
 /* Responsive */

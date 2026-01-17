@@ -629,7 +629,6 @@ const getEstadoColor = (estado) => {
 <style scoped>
 .prestamos-edit {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>
 

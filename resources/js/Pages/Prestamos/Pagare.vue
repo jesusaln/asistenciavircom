@@ -1039,6 +1039,5 @@ const generarContenidoPagare = (tamano = 'carta') => {
 </template>
 
 <style scoped>
-.pagare-page { min-height: 100vh; background-color: #f9fafb; }
 </style>
 

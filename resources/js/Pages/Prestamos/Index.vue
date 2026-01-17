@@ -888,7 +888,6 @@ const onEditarFila = () => { editarPrestamo(selectedPrestamo.value?.id) }
 <style scoped>
 .prestamos-index {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 
 .modal-enter-active,

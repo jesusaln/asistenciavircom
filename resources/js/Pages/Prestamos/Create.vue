@@ -685,7 +685,6 @@ const opcionesNumeroPagos = Array.from({ length: 60 }, (_, i) => ({
 <style scoped>
 .prestamos-create {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>
 

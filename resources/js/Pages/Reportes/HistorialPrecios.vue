@@ -323,7 +323,6 @@ tbody tr {
 
 /* Hover effects mejorados */
 tbody tr:hover {
-  background-color: #f9fafb;
   transform: translateX(2px);
   transition: all 0.2s ease;
 }

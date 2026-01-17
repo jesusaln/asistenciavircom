@@ -807,7 +807,6 @@ const obtenerLabelEstado = (estado) => {
 <style scoped>
 .rentas-index {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>
 

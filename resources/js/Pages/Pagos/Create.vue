@@ -564,7 +564,6 @@ watch(
 <style scoped>
 .pagos-create {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>
 

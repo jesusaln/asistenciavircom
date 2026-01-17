@@ -302,6 +302,5 @@ const changePage = (page) => {
 <style scoped>
 .mis-vacaciones {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>

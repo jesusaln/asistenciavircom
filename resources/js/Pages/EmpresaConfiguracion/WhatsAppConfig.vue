@@ -468,6 +468,5 @@ const opcionesPlantilla = [
 <style scoped>
 .whatsapp-config {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>

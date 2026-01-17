@@ -1057,7 +1057,6 @@ const handlePageChange = (newPage) => {
 <style scoped>
 .entregas-dinero-index {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>
 

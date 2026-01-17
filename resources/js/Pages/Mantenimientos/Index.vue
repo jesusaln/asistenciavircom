@@ -1829,7 +1829,6 @@ const obtenerTextoUrgencia = (mantenimiento) => {
 <style scoped>
 .mantenimientos-index {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>
 

@@ -561,13 +561,13 @@ const formatearMoneda = (num) => {
 const configEstados = {
   'activo': {
     label: 'Activo',
-    classes: 'bg-green-100 text-green-700',
-    color: 'bg-green-400'
+    classes: 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300',
+    color: 'bg-green-400 dark:bg-green-500'
   },
   'inactivo': {
     label: 'Pendiente',
-    classes: 'bg-amber-100 text-amber-700',
-    color: 'bg-amber-400'
+    classes: 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300',
+    color: 'bg-amber-400 dark:bg-amber-500'
   }
 };
 
@@ -672,7 +672,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                 <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: colors.principal }"></span>
                 Clientes
               </h2>
-              <div class="text-sm font-medium px-3 py-1 rounded-full border" :style="{ backgroundColor: `${colors.principal}10`, color: colors.principal, borderColor: `${colors.principal}30` }">
+              <div class="text-sm font-medium px-3 py-1 rounded-full border transition-colors" :style="isDark ? { backgroundColor: '#1f2937', color: '#e5e7eb', borderColor: '#374151' } : { backgroundColor: `${colors.principal}10`, color: colors.principal, borderColor: `${colors.principal}30` }">
                 {{ items.length }} de {{ paginationData.total }} clientes
               </div>
             </div>
@@ -750,7 +750,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                         <!-- Ver detalles -->
                         <button
                           @click="verDetalles(cliente)"
-                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-1"
+                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60 hover:text-blue-700 dark:hover:text-blue-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-1"
                           title="Ver detalles"
                         >
                           <svg class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -763,7 +763,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                         <Link
                           v-if="cliente.prestamos_count > 0 && $can('view prestamos')"
                           :href="`/reportes/prestamos-por-cliente?cliente_id=${cliente.id}`"
-                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-1"
+                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/40 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/60 hover:text-green-700 dark:hover:text-green-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-1"
                           :title="`Ver ${cliente.prestamos_count} préstamo(s) del cliente`"
                         >
                           <svg class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -775,7 +775,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                         <button
                           v-if="$can('edit clientes')"
                           @click="editarCliente(cliente.id)"
-                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 hover:text-amber-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:ring-offset-1"
+                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/60 hover:text-amber-700 dark:hover:text-amber-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:ring-offset-1"
                           title="Editar cliente"
                         >
                           <svg class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -787,7 +787,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                         <button
                           v-if="!cliente.activo && $can('edit clientes')"
                           @click="aprobarCliente(cliente)"
-                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-1"
+                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/40 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/60 hover:text-green-700 dark:hover:text-green-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-1"
                           title="Aprobar cuenta"
                         >
                           <svg class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -799,8 +799,8 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                         <button
                           v-if="$can('delete clientes')"
                           @click="confirmarEliminacion(cliente)"
-                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-1"
-                          title="Eliminar cliente (solo si no tiene documentos relacionados)"
+                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/60 hover:text-red-700 dark:hover:text-red-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-1"
+                          title="Eliminar cliente"
                         >
                           <svg class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -952,55 +952,55 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                 </div>
 
                 <div>
-                  <p class="text-sm text-gray-600">
-                    <strong>Teléfono:</strong> {{ selectedCliente.telefono || 'N/A' }}
+                  <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors">
+                    <strong class="dark:text-white">Teléfono:</strong> {{ selectedCliente.telefono || 'N/A' }}
                   </p>
-                  <p class="text-sm text-gray-600">
-                    <strong>Fecha de creación:</strong> {{ formatearFecha(selectedCliente.created_at) }}
+                  <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors">
+                    <strong class="dark:text-white">Fecha de creación:</strong> {{ formatearFecha(selectedCliente.created_at) }}
                   </p>
                 </div>
               </div>
 
               <!-- Dirección -->
-              <div class="pt-4 border-t border-gray-200">
-                <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
-                  <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="pt-4 border-t border-gray-200 dark:border-gray-700 transition-colors">
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center transition-colors">
+                  <svg class="w-4 h-4 mr-2 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   Dirección
                 </h4>
                 
-                <div v-if="selectedCliente.calle || selectedCliente.colonia || selectedCliente.codigo_postal" class="bg-white rounded-lg p-4 space-y-2">
-                  <p class="text-sm text-gray-700">
-                    <strong class="text-gray-900">Calle:</strong> {{ selectedCliente.calle || 'N/A' }}
+                <div v-if="selectedCliente.calle || selectedCliente.colonia || selectedCliente.codigo_postal" class="bg-white dark:bg-gray-900/50 rounded-lg p-4 space-y-2 transition-colors">
+                  <p class="text-sm text-gray-700 dark:text-gray-300">
+                    <strong class="text-gray-900 dark:text-white">Calle:</strong> {{ selectedCliente.calle || 'N/A' }}
                     <span v-if="selectedCliente.numero_exterior"> #{{ selectedCliente.numero_exterior }}</span>
                     <span v-if="selectedCliente.numero_interior"> Int. {{ selectedCliente.numero_interior }}</span>
                   </p>
-                  <p class="text-sm text-gray-700">
-                    <strong class="text-gray-900">Colonia:</strong> {{ selectedCliente.colonia || 'N/A' }}
+                  <p class="text-sm text-gray-700 dark:text-gray-300">
+                    <strong class="text-gray-900 dark:text-white">Colonia:</strong> {{ selectedCliente.colonia || 'N/A' }}
                   </p>
-                  <p class="text-sm text-gray-700">
-                    <strong class="text-gray-900">CP:</strong> {{ selectedCliente.codigo_postal || 'N/A' }}
+                  <p class="text-sm text-gray-700 dark:text-gray-300">
+                    <strong class="text-gray-900 dark:text-white">CP:</strong> {{ selectedCliente.codigo_postal || 'N/A' }}
                   </p>
-                  <p class="text-sm text-gray-700">
-                    <strong class="text-gray-900">Municipio:</strong> {{ selectedCliente.municipio || 'N/A' }}
+                  <p class="text-sm text-gray-700 dark:text-gray-300">
+                    <strong class="text-gray-900 dark:text-white">Municipio:</strong> {{ selectedCliente.municipio || 'N/A' }}
                   </p>
-                  <p class="text-sm text-gray-700">
-                    <strong class="text-gray-900">Estado:</strong> {{ selectedCliente.estado || 'N/A' }}
+                  <p class="text-sm text-gray-700 dark:text-gray-300">
+                    <strong class="text-gray-900 dark:text-white">Estado:</strong> {{ selectedCliente.estado || 'N/A' }}
                   </p>
-                  <p class="text-sm text-gray-700">
-                    <strong class="text-gray-900">País:</strong> {{ selectedCliente.pais || 'MX' }}
+                  <p class="text-sm text-gray-700 dark:text-gray-300">
+                    <strong class="text-gray-900 dark:text-white">País:</strong> {{ selectedCliente.pais || 'MX' }}
                   </p>
                 </div>
                 
-                <div v-else class="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start">
-                  <svg class="w-5 h-5 text-amber-600 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div v-else class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-lg p-4 flex items-start transition-colors">
+                  <svg class="w-5 h-5 text-amber-600 dark:text-amber-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <div>
-                    <p class="text-sm font-medium text-amber-900">Sin dirección registrada</p>
-                    <p class="text-xs text-amber-700 mt-1">Este cliente no tiene información de dirección.</p>
+                    <p class="text-sm font-medium text-amber-900 dark:text-amber-200">Sin dirección registrada</p>
+                    <p class="text-xs text-amber-700 dark:text-amber-400 mt-1">Este cliente no tiene información de dirección.</p>
                   </div>
                 </div>
               </div>
@@ -1047,11 +1047,11 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
     </Transition>
 
     <!-- Loading overlay -->
-    <div v-if="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white p-6 rounded-xl shadow-xl">
+    <div v-if="loading" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 transition-all">
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl transition-colors">
         <div class="flex items-center space-x-3">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2" :style="{ borderColor: colors.principal }"></div>
-          <span class="text-gray-700 font-medium">Procesando...</span>
+          <span class="text-gray-700 dark:text-gray-200 font-medium transition-colors">Procesando...</span>
         </div>
       </div>
     </div>
@@ -1061,7 +1061,6 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
 <style scoped>
 .clientes-index {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 
 .modal-enter-active,

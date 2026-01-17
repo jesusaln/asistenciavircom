@@ -397,7 +397,6 @@ const updateAlmacenCompra = async () => {
 <style scoped>
 .profile-page {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 
 .profile-page > * {

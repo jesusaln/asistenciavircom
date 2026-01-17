@@ -588,7 +588,6 @@ const obtenerLabelEstado = (estado) => {
 <style scoped>
 .usuarios-index {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>
 

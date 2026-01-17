@@ -591,7 +591,6 @@ const obtenerLabelEstado = (estado) => {
 <style scoped>
 .proveedores-index {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>
 

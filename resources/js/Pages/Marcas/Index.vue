@@ -589,7 +589,6 @@ const obtenerLabelEstado = (estado) => {
 <style scoped>
 .marcas-index {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>
 

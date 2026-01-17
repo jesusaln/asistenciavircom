@@ -306,7 +306,6 @@ const getEstadoLabel = (estado) => {
 <style scoped>
 .vacaciones-show {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>
 

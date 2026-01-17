@@ -680,7 +680,6 @@ const handleConfirm = () => {
 <style scoped>
 .compras-index {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 
 @media (max-width: 640px) {

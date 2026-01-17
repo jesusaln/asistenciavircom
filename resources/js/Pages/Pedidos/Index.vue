@@ -1081,7 +1081,6 @@ const estadisticasConPorcentaje = computed(() => {
 <style scoped>
 .pedidos-index {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 
 .modal-enter-active,

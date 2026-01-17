@@ -819,7 +819,6 @@ const isToday = (date) => {
 <style scoped>
 .citas-index {
   min-height: 100vh;
-  background-color: #f9fafb;
 }
 </style>
 
