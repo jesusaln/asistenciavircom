@@ -2,7 +2,7 @@
   <div>
     <Head :title="`Editar ${cuenta.nombre}`" />
 
-    <div class="container mx-auto px-6 py-8">
+    <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="flex items-center mb-8">
         <Link :href="route('cuentas-bancarias.index')" class="mr-4 p-2 hover:bg-gray-100 rounded-lg">

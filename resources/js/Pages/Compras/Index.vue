@@ -517,7 +517,7 @@ const handleConfirm = () => {
 
   <div class="compras-index min-h-screen bg-gray-50">
     <!-- Contenido principal -->
-    <div class="max-w-8xl mx-auto px-6 py-8">
+    <div class="w-full px-6 py-8">
       <!-- Header específico de compras -->
       <ComprasHeader
         :total="estadisticas.total"

@@ -599,7 +599,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
 
   <div class="clientes-index min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors" :style="cssVars">
     <!-- Contenido principal -->
-    <div class="max-w-8xl mx-auto px-6 py-8">
+    <div class="w-full px-6 py-8">
       <!-- Header específico de clientes -->
       <ClientesHeader
         :total="estadisticas.total"

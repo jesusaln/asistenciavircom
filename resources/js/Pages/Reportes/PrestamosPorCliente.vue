@@ -214,7 +214,7 @@ const estadisticasFormateadas = computed(() => ({
 
   <div class="prestamos-por-cliente min-h-screen bg-gray-50">
     <!-- Contenido principal -->
-    <div class="max-w-8xl mx-auto px-6 py-8">
+    <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 text-white">

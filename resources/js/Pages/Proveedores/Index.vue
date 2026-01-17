@@ -316,7 +316,7 @@ const obtenerLabelEstado = (estado) => {
 <template>
   <Head title="Proveedores" />
   <div class="proveedores-index min-h-screen bg-gray-50">
-    <div class="max-w-8xl mx-auto px-6 py-8">
+    <div class="w-full px-6 py-8">
       <!-- Header específico de proveedores -->
       <ProveedoresHeader
         :total="estadisticas.total"

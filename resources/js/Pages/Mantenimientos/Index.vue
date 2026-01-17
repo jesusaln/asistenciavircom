@@ -862,7 +862,7 @@ const obtenerTextoUrgencia = (mantenimiento) => {
   <div>
     <Head title="Mantenimientos" />
     <div class="mantenimientos-index min-h-screen bg-gray-50">
-    <div class="max-w-8xl mx-auto px-6 py-8">
+    <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="bg-white border border-slate-200 rounded-xl shadow-sm mb-6 overflow-hidden">
         <!-- Header Principal -->

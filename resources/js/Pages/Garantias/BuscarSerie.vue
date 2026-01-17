@@ -1,7 +1,7 @@
 <template>
   <Head title="Garantías - Buscar Serie" />
   
-  <div class="max-w-7xl mx-auto p-6">
+  <div class="w-full p-6">
     <!-- Header Section -->
     <div class="mb-8 text-center">
       <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Gestión de Garantías</h1>

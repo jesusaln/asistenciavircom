@@ -860,7 +860,7 @@ const confirmarEnvioEmail = async () => {
 
     <div class="ventas-index min-h-screen bg-gray-50">
     <!-- Contenido principal -->
-    <div class="max-w-8xl mx-auto px-6 py-8">
+    <div class="w-full px-6 py-8">
       <!-- Header espec�fico de ventas -->
       <VentasHeader
         :total="estadisticas.total"

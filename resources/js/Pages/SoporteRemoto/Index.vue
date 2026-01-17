@@ -7,7 +7,7 @@
     </template>
 
     <div class="py-6">
-      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+      <div class="w-full sm:px-6 lg:px-8">
         
         <!-- Instrucciones para Clientes -->
         <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 mb-6 rounded-r shadow-sm">

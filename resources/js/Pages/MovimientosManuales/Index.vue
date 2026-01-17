@@ -3,7 +3,7 @@
   <Head title="Movimientos Manuales" />
 
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-    <div class="max-w-7xl mx-auto">
+    <div class="w-full">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">

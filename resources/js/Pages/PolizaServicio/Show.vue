@@ -75,7 +75,7 @@ const getSaludPoliza = () => {
         <Head v-if="!isModal" :title="`Póliza ${poliza.folio}`" />
 
         <div :class="isModal ? 'py-2' : 'py-6'">
-            <div :class="isModal ? 'w-full' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'">
+            <div :class="isModal ? 'w-full' : 'w-full px-4 sm:px-6 lg:px-8'">
                 <!-- Header -->
                 <div v-if="!isModal" class="mb-6">
                     <Link :href="route('polizas-servicio.index')" class="text-blue-600 hover:text-blue-800 text-sm mb-2 inline-block">

@@ -156,7 +156,7 @@ const planesCalculados = computed(() => {
         </section>
 
         <!-- Planes Grid -->
-        <main class="max-w-7xl mx-auto px-4 pb-32">
+        <main class="w-full px-4 pb-32">
             <div v-if="planesCalculados?.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <article 
                     v-for="plan in planesCalculados" 

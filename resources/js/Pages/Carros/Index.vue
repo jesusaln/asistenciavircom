@@ -610,7 +610,7 @@ const formatNumber = (num) => {
 
   <div class="carros-index min-h-screen bg-gray-50">
     <!-- Contenido principal -->
-    <div class="max-w-8xl mx-auto px-6 py-8">
+    <div class="w-full px-6 py-8">
       <!-- Header específico de vehículos -->
       <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-8 mb-6">
         <div class="flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">

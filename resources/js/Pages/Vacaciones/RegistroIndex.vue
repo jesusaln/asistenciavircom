@@ -1,7 +1,7 @@
 <template>
   <Head title="Registro de Vacaciones" />
   <div class="min-h-screen bg-gray-50">
-    <div class="max-w-7xl mx-auto px-6 py-8">
+    <div class="w-full px-6 py-8">
       <div class="flex items-center justify-between mb-6">
         <div>
           <h1 class="text-2xl font-bold text-gray-900">Registro de Vacaciones</h1>

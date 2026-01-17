@@ -78,7 +78,7 @@ const totalVencido = (props.totales.vencido_1_30 + props.totales.vencido_31_60 +
   <Head title="Reporte de Antigüedad de Saldos" />
 
   <div class="min-h-screen bg-gray-50">
-    <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="w-full px-4 sm:px-6 lg:px-8 py-8">
       
       <!-- Header -->
       <div class="mb-8">

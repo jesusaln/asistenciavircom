@@ -302,7 +302,7 @@ const obtenerLabelEstado = (estado) => {
 <template>
   <Head title="Usuarios" />
   <div class="usuarios-index min-h-screen bg-gray-50">
-    <div class="max-w-8xl mx-auto px-6 py-8">
+    <div class="w-full px-6 py-8">
       <!-- Header específico de usuarios -->
       <UsuariosHeader
         :total="estadisticas.total"

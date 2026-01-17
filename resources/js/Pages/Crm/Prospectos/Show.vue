@@ -1,7 +1,7 @@
 <template>
     <Head :title="`Prospecto: ${prospecto.nombre}`" />
 
-    <div class="container mx-auto px-6 py-8 animate-fade-in">
+    <div class="w-full px-6 py-8 animate-fade-in">
         <!-- Header -->
         <div class="mb-6">
             <div class="flex items-center gap-4 mb-4">

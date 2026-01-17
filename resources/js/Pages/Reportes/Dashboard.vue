@@ -11,7 +11,7 @@
              We'll put the period selector in the main content area top right if possible or just below header. -->
         
         <div class="py-6">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="w-full sm:px-6 lg:px-8">
                 
                 <div class="flex justify-end mb-6">
                     <select 

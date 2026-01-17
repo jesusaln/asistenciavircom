@@ -61,7 +61,7 @@ const submit = () => {
                 <div class="absolute -top-24 -right-24 w-96 h-96 bg-[var(--color-primary)] rounded-full blur-[150px] opacity-20"></div>
                 <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-[var(--color-terciary)] rounded-full blur-[150px] opacity-10"></div>
 
-                <div class="max-w-7xl mx-auto px-4 relative z-10 text-center">
+                <div class="w-full px-4 relative z-10 text-center">
                     <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 mb-8">
                          <span class="w-2 h-2 rounded-full bg-[var(--color-terciary)] animate-pulse"></span>
                          <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white">Estamos para Ayudarle</span>
@@ -73,7 +73,7 @@ const submit = () => {
 
             <!-- Contact Content -->
             <section class="py-24 -mt-16 relative z-20">
-                <div class="max-w-7xl mx-auto px-4">
+                <div class="w-full px-4">
                     <div class="grid lg:grid-cols-3 gap-12">
                         
                         <!-- Contact Info Cards -->

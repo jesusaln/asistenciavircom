@@ -247,7 +247,7 @@ onMounted(() => {
     <div class="min-h-screen bg-gray-50 flex flex-col font-sans" :style="cssVars">
         <PublicNavbar :empresa="empresa" activeTab="tienda" />
 
-        <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 w-full">
+        <main class="flex-grow w-full px-4 sm:px-6 lg:px-8 py-8 lg:py-12 w-full">
             <!-- (Header section unchanged) -->
              <div class="mb-10">
                 <h1 class="text-3xl font-black text-gray-900 flex items-center gap-3">

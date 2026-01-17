@@ -239,7 +239,7 @@ const planesCalculados = computed(() => {
                 <div class="absolute bottom-20 right-1/4 w-32 h-32 border-2 border-[var(--color-secondary-soft)] rounded-3xl animate-float-delayed opacity-20 border-dashed dark:border-white/10"></div>
             </div>
             
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="w-full px-4 sm:px-6 lg:px-8 relative z-10">
                 <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
                     
                     <div :class="{'translate-x-0 opacity-100': isVisible, '-translate-x-12 opacity-0': !isVisible}" class="transition-all duration-1000 ease-out">
@@ -347,7 +347,7 @@ const planesCalculados = computed(() => {
 
         <!-- TRUST LOGOS -->
         <section class="py-12 bg-white dark:bg-gray-950 border-y border-gray-100 dark:border-gray-900 transition-colors duration-300">
-            <div class="max-w-7xl mx-auto px-4">
+            <div class="w-full px-4">
                 <p class="text-center text-xs font-black uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500 mb-10 transition-colors">Marcas Líderes que Confián en Nosotros</p>
                 <div class="flex flex-wrap justify-between items-center gap-8 opacity-50 grayscale hover:grayscale-0 dark:grayscale-0 dark:opacity-100 dark:brightness-110 transition-all duration-500">
                      <img v-for="marca in marcas" :key="marca.id" :src="marca.logo_url || `https://placehold.co/200x80?text=${marca.nombre}`" class="h-8 lg:h-12 w-auto object-contain" :alt="marca.nombre">
@@ -367,7 +367,7 @@ const planesCalculados = computed(() => {
                 <div class="absolute -bottom-40 -right-40 w-[600px] h-[600px] rounded-full bg-indigo-600 blur-[120px] mix-blend-screen animate-pulse delay-700"></div>
             </div>
 
-            <div class="max-w-7xl mx-auto px-4 relative z-10">
+            <div class="w-full px-4 relative z-10">
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
                     <div v-for="(stat, index) in stats" :key="stat.id" 
                          class="group relative p-6 lg:p-8 rounded-[2rem] bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/50 hover:bg-white dark:hover:bg-gray-800/80 hover:border-[var(--color-primary)]/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[var(--color-primary)]/20 backdrop-blur-md overflow-hidden flex flex-col justify-center items-center h-full min-h-[220px]"
@@ -404,7 +404,7 @@ const planesCalculados = computed(() => {
         <section class="py-24 bg-gray-50 dark:bg-gray-900 relative overflow-hidden transition-colors duration-300">
             <div class="absolute top-0 right-0 w-96 h-96 bg-[var(--color-primary-soft)] rounded-full blur-[100px] opacity-20"></div>
             
-            <div class="max-w-7xl mx-auto px-4 relative z-10">
+            <div class="w-full px-4 relative z-10">
                 <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
                     <div class="max-w-2xl">
                         <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Nuestro Catálogo</h2>
@@ -489,7 +489,7 @@ const planesCalculados = computed(() => {
                 </svg>
              </div>
 
-            <div class="max-w-7xl mx-auto px-4 relative z-10">
+            <div class="w-full px-4 relative z-10">
                 <div class="text-center mb-24 max-w-3xl mx-auto">
                     <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-6 drop-shadow-md">Tranquilidad Total</h2>
                     <h3 class="text-5xl lg:text-7xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight mb-8 transition-colors">Pólizas de <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-blue-600 dark:to-blue-400">Soporte Técnico</span></h3>
@@ -595,7 +595,7 @@ const planesCalculados = computed(() => {
 
         <!-- PROCESS SECTION - Rediseñado -->
         <section class="py-24 bg-gray-50 dark:bg-gray-900 overflow-hidden transition-colors duration-300">
-            <div class="max-w-7xl mx-auto px-4">
+            <div class="w-full px-4">
                 <div class="text-center mb-20 max-w-3xl mx-auto">
                     <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Nuestro Método</h2>
                     <h3 class="text-4xl lg:text-5xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight mb-6 transition-colors">
@@ -632,7 +632,7 @@ const planesCalculados = computed(() => {
 
         <!-- TESTIMONIOS - Carrusel Animado Corregido -->
         <section class="py-24 bg-white dark:bg-gray-950 overflow-hidden transition-colors duration-300">
-            <div class="max-w-7xl mx-auto px-4">
+            <div class="w-full px-4">
                 <div class="text-center mb-16 max-w-2xl mx-auto">
                     <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Experiencias Reales</h2>
                     <h3 class="text-4xl lg:text-5xl font-black text-gray-900 dark:text-white tracking-tighter transition-colors">Voces de nuestros <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Clientes Seguros</span></h3>

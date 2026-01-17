@@ -193,7 +193,7 @@ const confirmarPago = async () => {
     <Head :title="`Renta ${renta.numero_contrato}`" />
     
     <div class="min-h-screen bg-gradient-to-br from-gray-50 to-orange-50/30 py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="w-full px-4 sm:px-6 lg:px-8">
             
             <!-- Cabecera -->
             <div class="mb-8">

@@ -443,7 +443,7 @@ const handlePageChange = (newPage) => {
 <template>
   <Head title="Entregas de Dinero" />
   <div class="entregas-dinero-index min-h-screen bg-gray-50">
-    <div class="max-w-8xl mx-auto px-6 py-8">
+    <div class="w-full px-6 py-8">
       <!-- Header espec�fico de entregas de dinero -->
       <EntregasDineroHeader
         :total="stats.total || 0"

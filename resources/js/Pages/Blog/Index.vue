@@ -38,7 +38,7 @@ const formatDate = (date) => {
         <main class="flex-grow">
             <!-- Header -->
             <header class="bg-white border-b border-gray-200 py-16">
-                <div class="max-w-7xl mx-auto px-4 text-center">
+                <div class="w-full px-4 text-center">
                     <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
                         Nuestro <span class="text-[var(--color-primary)]">Blog</span>
                     </h1>
@@ -49,7 +49,7 @@ const formatDate = (date) => {
             </header>
 
             <!-- Articles Grid -->
-            <div class="max-w-7xl mx-auto px-4 py-12">
+            <div class="w-full px-4 py-12">
                 <div v-if="posts.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <article v-for="post in posts.data" :key="post.id" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
                         <Link :href="route('public.blog.show', post.slug)" class="block">

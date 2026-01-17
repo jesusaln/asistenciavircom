@@ -356,7 +356,7 @@ const formatPrice = (price) => {
         </template>
 
         <div class="py-8">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="w-full px-4 sm:px-6 lg:px-8">
                 <!-- Tabs -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6 overflow-hidden">
                     <div class="border-b border-gray-100 overflow-x-auto custom-scrollbar">

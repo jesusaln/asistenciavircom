@@ -238,7 +238,7 @@ const obtenerLabelEstado = (estado) => {
 <template>
   <Head title="Marcas" />
   <div class="marcas-index min-h-screen bg-gray-50">
-    <div class="max-w-8xl mx-auto px-6 py-8">
+    <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-8 mb-6">
         <div class="flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">

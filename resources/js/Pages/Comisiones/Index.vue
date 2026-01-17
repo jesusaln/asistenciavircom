@@ -1,7 +1,7 @@
 <template>
     <Head title="Comisiones" />
 
-    <div class="container mx-auto px-6 py-8 animate-fade-in">
+    <div class="w-full px-6 py-8 animate-fade-in">
         <!-- Header -->
         <div class="mb-8">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">

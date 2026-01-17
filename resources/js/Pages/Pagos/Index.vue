@@ -350,7 +350,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
 
   <div class="pagos-index min-h-screen bg-gray-50">
     <!-- Contenido principal -->
-    <div class="max-w-8xl mx-auto px-6 py-8">
+    <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">

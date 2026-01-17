@@ -1,7 +1,7 @@
 <template>
     <Head title="Metas de Empleados" />
 
-    <div class="container mx-auto px-6 py-8 animate-fade-in">
+    <div class="w-full px-6 py-8 animate-fade-in">
         <!-- Header -->
         <div class="flex items-center justify-between mb-8">
             <div>

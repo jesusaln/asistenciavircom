@@ -72,7 +72,7 @@ function getTipoBadge(tipo) {
   <Head title="Movimientos de Inventario" />
 
   <div class="min-h-screen bg-gray-50">
-    <div class="max-w-7xl mx-auto px-6 py-8">
+    <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">

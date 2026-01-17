@@ -76,7 +76,7 @@ const faqs = [
                 <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-[var(--color-primary-dark)] opacity-40"></div>
                 <div class="absolute -top-24 -right-24 w-96 h-96 bg-[var(--color-primary)] rounded-full blur-[150px] opacity-20"></div>
                 
-                <div class="max-w-7xl mx-auto px-4 relative z-10 text-center">
+                <div class="w-full px-4 relative z-10 text-center">
                     <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 mb-8">
                          <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
                          <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white">Sistemas Operativos</span>
@@ -88,7 +88,7 @@ const faqs = [
 
             <!-- Opciones de Soporte -->
             <section class="py-24 -mt-16 relative z-20">
-                <div class="max-w-7xl mx-auto px-4">
+                <div class="w-full px-4">
                     <div class="grid md:grid-cols-2 gap-8">
                         
                         <!-- Opción 1: Clientes Registrados -->
@@ -126,7 +126,7 @@ const faqs = [
 
             <!-- Preguntas Frecuentes Section -->
             <section class="py-24 bg-white overflow-hidden relative">
-                <div class="max-w-7xl mx-auto px-4 relative z-10">
+                <div class="w-full px-4 relative z-10">
                     <div class="text-center mb-16 px-4">
                         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-primary-soft)] border border-[var(--color-primary-soft)] mb-4">
                              <span class="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--color-primary)]">Soporte Directo</span>
@@ -157,7 +157,7 @@ const faqs = [
             <!-- Asistencia Inmediata -->
             <section class="py-20 bg-gray-900 relative overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-[var(--color-primary-dark)] opacity-20"></div>
-                <div class="max-w-7xl mx-auto px-4 relative z-10 text-center">
+                <div class="w-full px-4 relative z-10 text-center">
                     <h2 class="text-3xl font-black text-white mb-8 tracking-tight">¿Necesita asistencia inmediata?</h2>
                     <div class="flex flex-col md:flex-row justify-center gap-6">
                         <a :href="`tel:${empresaData?.telefono}`" class="flex-1 max-w-sm mx-auto md:mx-0 flex items-center gap-5 bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition group">

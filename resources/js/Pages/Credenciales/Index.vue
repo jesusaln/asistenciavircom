@@ -103,7 +103,7 @@ const getOwnerName = (item) => {
     <Head title="Bóveda de Credenciales" />
 
     <AppLayout>
-        <div class="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div class="py-6 px-4 sm:px-6 lg:px-8 w-full">
             <!-- Header -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div class="flex items-center gap-4">

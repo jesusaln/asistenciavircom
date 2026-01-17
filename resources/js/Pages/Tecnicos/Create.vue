@@ -4,7 +4,7 @@
     <!-- Header Section -->
     <div class="relative overflow-hidden bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-lg">
       <div class="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-indigo-600/10"></div>
-      <div class="relative max-w-7xl mx-auto px-4 py-8">
+      <div class="relative w-full px-4 py-8">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-4">
             <div class="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">

@@ -42,7 +42,7 @@ const handleSearch = () => {
         </template>
 
         <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="w-full sm:px-6 lg:px-8">
                 <!-- Filtros -->
                 <div class="bg-white p-4 rounded-lg shadow mb-6 flex gap-4">
                     <input v-model="search" @keyup.enter="handleSearch" type="text" placeholder="Buscar por pedido, email..." class="border-gray-300 rounded-md shadow-sm">

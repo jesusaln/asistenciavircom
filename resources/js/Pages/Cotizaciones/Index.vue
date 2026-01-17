@@ -656,7 +656,7 @@ const crearNuevaCotizacion = () => {
 
   <div :style="cssVars" class="cotizaciones-index min-h-screen bg-gray-50">
     <!-- Contenido principal -->
-    <div class="max-w-8xl mx-auto px-6 py-8">
+    <div class="w-full px-6 py-8">
       <!-- Header específico de cotizaciones -->
       <CotizacionesHeader
         :total="estadisticas.total"

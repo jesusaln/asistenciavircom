@@ -90,7 +90,7 @@ const getRoleColorClass = (roleName) => {
     <Head :title="`Rol: ${role.name}`" />
 
     <div class="py-12">
-      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+      <div class="w-full sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-8">
           <div class="flex items-center justify-between">

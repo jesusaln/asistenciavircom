@@ -191,7 +191,7 @@ const updateAlmacenCompra = async () => {
         </div>
 
         <!-- Contenido principal -->
-        <div class="max-w-8xl mx-auto px-6 py-8">
+        <div class="w-full px-6 py-8">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Información del Perfil -->
                 <div v-if="$page.props.jetstream.canUpdateProfileInformation" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all duration-300">

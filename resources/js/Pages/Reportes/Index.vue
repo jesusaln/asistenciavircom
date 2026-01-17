@@ -33,7 +33,7 @@
         </template>
 
         <div class="py-6">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="w-full sm:px-6 lg:px-8">
                 <!-- Mobile Tab Selector -->
                 <div class="sm:hidden mb-4 px-4">
                     <label for="tabs" class="sr-only">Seleccionar reporte</label>

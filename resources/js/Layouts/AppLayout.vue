@@ -147,15 +147,13 @@
             <main
                 :class="[
                     {'ml-64': !isSidebarCollapsed, 'ml-20': isSidebarCollapsed},
-                    'flex-1 overflow-y-auto transition-all duration-300 ease-in-out bg-gray-50 dark:bg-gray-950'
+                    'flex-1 overflow-y-auto transition-all duration-300 ease-in-out bg-white dark:bg-gray-900'
                 ]"
             >
-                <div class="p-6">
-                    <div v-if="$slots.header" class="mb-6">
-                        <slot name="header" />
-                    </div>
-                    <slot />
+                <div v-if="$slots.header" class="p-6 pb-0">
+                    <slot name="header" />
                 </div>
+                <slot />
             </main>
         </div>
 

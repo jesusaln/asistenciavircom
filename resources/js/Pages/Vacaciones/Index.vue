@@ -1,7 +1,7 @@
 <template>
   <Head title="Gestión de Vacaciones" />
   <div class="vacaciones-index min-h-screen bg-gray-50">
-    <div class="max-w-8xl mx-auto px-6 py-8">
+    <div class="w-full px-6 py-8">
       <!-- Flash success -->
       <div v-if="$page.props.flash && $page.props.flash.success" class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-800">
         {{$page.props.flash.success}}

@@ -408,7 +408,7 @@ const obtenerLabelEstado = (estado) => {
 <template>
   <Head title="Servicios" />
   <div class="servicios-index min-h-screen bg-gray-50">
-    <div class="max-w-8xl mx-auto px-6 py-8">
+    <div class="w-full px-6 py-8">
       <!-- Header específico de servicios -->
       <ServiciosHeader
         :total="estadisticas.total"

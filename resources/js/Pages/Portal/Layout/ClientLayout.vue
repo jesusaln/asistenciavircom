@@ -36,7 +36,7 @@ const cssVars = computed(() => ({
 
         <!-- Sub-Header del Portal -->
         <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm transition-colors">
-            <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="w-full px-4 h-16 flex items-center justify-between">
                 <div class="flex gap-8">
                     <Link 
                         :href="route('portal.dashboard')" 
@@ -82,7 +82,7 @@ const cssVars = computed(() => ({
 
         <!-- Page Content -->
         <main class="flex-grow py-8 px-4">
-            <div class="max-w-7xl mx-auto">
+            <div class="w-full">
                 <slot />
             </div>
         </main>

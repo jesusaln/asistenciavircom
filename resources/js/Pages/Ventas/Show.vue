@@ -2,7 +2,7 @@
   <Head title="Detalles de Venta" />
 
   <div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="mb-8">
         <Link :href="route('ventas.index')" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-4">

@@ -1,9 +1,9 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 relative overflow-hidden transition-colors duration-300">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 relative overflow-hidden transition-colors duration-300">
 
     <Head title="Panel" />
 
-    <div class="container mx-auto px-6 py-8 relative z-10">
+    <div class="w-full px-4 lg:px-8 py-8 relative z-10">
       <!-- Dashboard Header - Hero Section -->
       <div class="mb-10 relative">
 
