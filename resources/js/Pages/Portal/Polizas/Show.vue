@@ -29,6 +29,30 @@ const getEstadoBadge = (estado) => {
     };
     return colores[estado] || 'bg-white text-gray-800';
 };
+
+// Cálculo de ahorro del cliente
+const PRECIO_SERVICIO_NORMAL = 650; // Precio por hora o visita sin póliza
+
+const ahorroMensual = () => {
+    const horasUsadas = props.poliza.horas_consumidas_mes || 0;
+    const visitasUsadas = props.poliza.visitas_sitio_consumidas_mes || 0;
+    const ticketsUsados = props.poliza.tickets_soporte_mes_count || props.poliza.tickets_mes_actual_count || 0;
+    
+    // Cada hora y visita tiene un valor de $650
+    const valorServiciosUsados = (horasUsadas + visitasUsadas) * PRECIO_SERVICIO_NORMAL;
+    // Cada ticket tiene un valor estimado de $150
+    const valorTickets = ticketsUsados * 150;
+    
+    return valorServiciosUsados + valorTickets;
+};
+
+const ahorroAcumulado = () => {
+    // Ahorro aproximado desde inicio de la póliza (simplificado)
+    const mesesActivos = Math.max(1, Math.ceil(
+        (new Date() - new Date(props.poliza.fecha_inicio)) / (1000 * 60 * 60 * 24 * 30)
+    ));
+    return ahorroMensual() * mesesActivos * 0.7; // Factor de estimación
+};
 </script>
 
 <template>
@@ -127,6 +151,18 @@ const getEstadoBadge = (estado) => {
                                         :style="{ width: Math.min(poliza.porcentaje_tickets || 0, 100) + '%' }"
                                         ></div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Ahorro del Cliente -->
+                        <div v-if="ahorroMensual() > 0" class="mt-8 p-6 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-100">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">💰 Tu Ahorro Este Mes</p>
+                                    <p class="text-3xl font-black text-emerald-700">{{ formatCurrency(ahorroMensual()) }}</p>
+                                    <p class="text-xs text-emerald-600/70 mt-1">vs. pagar servicios individuales a $650 c/u</p>
+                                </div>
+                                <div class="text-5xl opacity-30">🎉</div>
                             </div>
                         </div>
                     </div>
