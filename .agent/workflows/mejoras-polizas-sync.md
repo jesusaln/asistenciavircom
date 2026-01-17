@@ -284,7 +284,7 @@ Después de cada fase, verificar:
 | 1 | ✅ Completado | 2026-01-17 |
 | 2 | ✅ Completado | 2026-01-17 |
 | 3 | ✅ Completado | 2026-01-17 |
-| 4 | ⏳ Pendiente | - |
+| 4 | ✅ Completado | 2026-01-17 |
 | 5 | ⏳ Pendiente | - |
 | 6 | ⏳ Pendiente | - |
 

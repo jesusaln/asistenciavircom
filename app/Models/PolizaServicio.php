@@ -298,11 +298,17 @@ class PolizaServicio extends Model
 
     /**
      * Registrar una visita en sitio consumida.
+     * @param Model|null $cita La cita asociada para el historial
      */
-    public function registrarVisitaSitio(): void
+    public function registrarVisitaSitio($cita = null): void
     {
         $this->increment('visitas_sitio_consumidas_mes');
         $this->refresh();
+
+        // Registrar en historial de consumos (Fase 4)
+        if ($cita) {
+            PolizaConsumo::registrar($this, PolizaConsumo::TIPO_VISITA, $cita);
+        }
 
         // Verificar alertas de límite
         $this->verificarAlertasLimite('visitas');
@@ -310,15 +316,48 @@ class PolizaServicio extends Model
 
     /**
      * Registrar un ticket de soporte consumido.
+     * @param Model|null $ticket El ticket asociado para el historial
      */
-    public function registrarTicketSoporte(): void
+    public function registrarTicketSoporte($ticket = null): void
     {
         $this->increment('tickets_soporte_consumidos_mes');
         $this->refresh();
 
+        // Registrar en historial de consumos (Fase 4)
+        if ($ticket) {
+            PolizaConsumo::registrar($this, PolizaConsumo::TIPO_TICKET, $ticket);
+        }
+
         // Verificar alertas de límite
         $this->verificarAlertasLimite('tickets');
     }
+
+    /**
+     * Relación con el historial de consumos.
+     */
+    public function consumos(): HasMany
+    {
+        return $this->hasMany(PolizaConsumo::class, 'poliza_id');
+    }
+
+    /**
+     * Obtener consumos del mes actual.
+     */
+    public function consumosMesActual()
+    {
+        return $this->consumos()
+            ->whereMonth('fecha_consumo', now()->month)
+            ->whereYear('fecha_consumo', now()->year);
+    }
+
+    /**
+     * Calcular ahorro total del mes.
+     */
+    public function getAhorroMesActualAttribute(): float
+    {
+        return $this->consumosMesActual()->sum('ahorro');
+    }
+
 
     /**
      * Verificar y enviar alertas de límite (Fase 3).

@@ -350,7 +350,7 @@ class Ticket extends Model implements Auditable
         if ($categoria && $categoria->consume_poliza) {
             $poliza = $this->poliza;
             if ($poliza && $poliza->isActiva()) {
-                $poliza->registrarTicketSoporte();
+                $poliza->registrarTicketSoporte($this); // Pasar el ticket para historial
             }
         }
     }
