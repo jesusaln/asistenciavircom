@@ -1,24 +1,15 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 relative overflow-hidden transition-colors duration-300">
-    <!-- Background decorative elements - más sutiles -->
-    <div class="fixed inset-0 pointer-events-none overflow-hidden">
-      <div class="absolute -top-40 -right-40 w-96 h-96 bg-blue-100/30 rounded-full blur-3xl"></div>
-      <div class="absolute top-1/3 -left-32 w-80 h-80 bg-slate-200/30 rounded-full blur-3xl"></div>
-      <div class="absolute bottom-0 right-1/4 w-72 h-72 bg-gray-200/20 rounded-full blur-3xl"></div>
-    </div>
+
     <Head title="Panel" />
 
     <div class="container mx-auto px-6 py-8 relative z-10">
       <!-- Dashboard Header - Hero Section -->
       <div class="mb-10 relative">
-        <!-- Background Glow Effect - más sutil -->
-        <div class="absolute -top-20 -left-20 w-72 h-72 bg-blue-400/10 rounded-full blur-3xl"></div>
-        <div class="absolute -top-10 right-0 w-56 h-56 bg-slate-400/10 rounded-full blur-3xl"></div>
+
         
-        <div class="relative bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 rounded-3xl p-8 shadow-2xl overflow-hidden shine-effect gradient-animated glow-amber">
-          <!-- Decorative Elements -->
-          <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-          <div class="absolute bottom-0 left-1/4 w-32 h-32 bg-white/5 rounded-full translate-y-1/2"></div>
+        <div class="relative bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 rounded-3xl p-8 shadow-xl overflow-hidden">
+
           
           <div class="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <!-- Left: Greeting & Date -->
