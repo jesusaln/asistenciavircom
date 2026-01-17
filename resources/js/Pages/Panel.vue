@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 relative overflow-hidden">
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 relative overflow-hidden transition-colors duration-300">
     <!-- Background decorative elements - más sutiles -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden">
       <div class="absolute -top-40 -right-40 w-96 h-96 bg-blue-100/30 rounded-full blur-3xl"></div>
@@ -72,7 +72,7 @@
       <!-- Clientes -->
       <PanLink
         :href="clientesHref"
-        class="group relative bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
+        class="group relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
         aria-label="Ir a clientes"
       >
         <!-- Gradient Overlay on Hover -->
@@ -84,10 +84,10 @@
             <FontAwesomeIcon :icon="['fas', 'users']" class="h-7 w-7 text-white" />
           </div>
           <div>
-            <h2 class="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
               {{ n(clientesCount) }}
             </h2>
-            <p class="text-sm font-medium text-gray-500">Clientes</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Clientes</p>
           </div>
           <p class="text-xs text-gray-400 bg-blue-50 px-3 py-1 rounded-full">
             +{{ n(clientesNuevosCount) }} este mes
@@ -98,7 +98,7 @@
       <!-- Productos -->
       <PanLink
         :href="productosHref"
-        class="group relative bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
+        class="group relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
         aria-label="Ir a productos"
       >
         <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/0 via-emerald-500/0 to-emerald-600/0 group-hover:from-emerald-500/10 group-hover:via-emerald-500/5 group-hover:to-emerald-600/10 transition-all duration-500 rounded-2xl"></div>
@@ -108,10 +108,10 @@
             <FontAwesomeIcon :icon="['fas', 'box']" class="h-7 w-7 text-white" />
           </div>
           <div>
-            <h2 class="text-2xl font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 transition-colors">
               {{ n(productosCount) }}
             </h2>
-            <p class="text-sm font-medium text-gray-500">Productos</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Productos</p>
           </div>
           <p class="text-xs text-gray-400 bg-emerald-50 px-3 py-1 rounded-full" :class="{ 'text-red-500 bg-red-50': productosBajoStockCount > 0 }">
             {{ productosBajoStockCount > 0 ? `⚠️ ${n(productosBajoStockCount)} bajo stock` : '✓ Stock OK' }}
@@ -122,7 +122,7 @@
       <!-- Proveedores -->
       <PanLink
         :href="proveedoresHref"
-        class="group relative bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
+        class="group relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
         aria-label="Ir a proveedores"
       >
         <div class="absolute inset-0 bg-gradient-to-br from-purple-500/0 via-purple-500/0 to-purple-600/0 group-hover:from-purple-500/10 group-hover:via-purple-500/5 group-hover:to-purple-600/10 transition-all duration-500 rounded-2xl"></div>
@@ -132,10 +132,10 @@
             <FontAwesomeIcon :icon="['fas', 'truck']" class="h-7 w-7 text-white" />
           </div>
           <div>
-            <h2 class="text-2xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 transition-colors">
               {{ n(proveedoresCount) }}
             </h2>
-            <p class="text-sm font-medium text-gray-500">Proveedores</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Proveedores</p>
           </div>
           <p class="text-xs text-gray-400 bg-purple-50 px-3 py-1 rounded-full">
             {{ n(proveedoresPedidosPendientesCount) }} pedidos pend.
@@ -156,10 +156,10 @@
             <FontAwesomeIcon :icon="['fas', 'calendar-alt']" class="h-7 w-7 text-white" />
           </div>
           <div>
-            <h2 class="text-2xl font-bold text-gray-900 group-hover:text-amber-600 transition-colors">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-amber-600 transition-colors">
               {{ n(citasCount) }}
             </h2>
-            <p class="text-sm font-medium text-gray-500">Citas</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Citas</p>
           </div>
           <p class="text-xs text-gray-400 bg-amber-50 px-3 py-1 rounded-full" :class="{ 'text-amber-600 font-medium': citasHoyCount > 0 }">
             {{ citasHoyCount > 0 ? `📅 ${n(citasHoyCount)} hoy` : 'Sin citas hoy' }}
@@ -170,7 +170,7 @@
       <!-- Mantenimientos -->
       <PanLink
         :href="mantenimientosHref"
-        class="group relative bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
+        class="group relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
         aria-label="Ir a mantenimientos"
       >
         <div class="absolute inset-0 bg-gradient-to-br from-rose-500/0 via-rose-500/0 to-rose-600/0 group-hover:from-rose-500/10 group-hover:via-rose-500/5 group-hover:to-rose-600/10 transition-all duration-500 rounded-2xl"></div>
@@ -180,10 +180,10 @@
             <FontAwesomeIcon :icon="['fas', 'wrench']" class="h-7 w-7 text-white" />
           </div>
           <div>
-            <h2 class="text-2xl font-bold text-gray-900 group-hover:text-rose-600 transition-colors">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-rose-600 transition-colors">
               {{ n(mantenimientosCount) }}
             </h2>
-            <p class="text-sm font-medium text-gray-500">Mantenimientos</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Mantenimientos</p>
           </div>
           <p class="text-xs px-3 py-1 rounded-full" :class="{
             'text-red-600 bg-red-50 font-medium animate-pulse': mantenimientosVencidosCount > 0,
