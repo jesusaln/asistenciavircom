@@ -107,7 +107,7 @@ const handleCheckout = async () => {
 <template>
     <Head :title="`Carrito - ${empresaData?.nombre || empresaData?.nombre_empresa || 'Tienda'}`" />
     
-    <div class="min-h-screen bg-gray-50 flex flex-col font-sans" :style="cssVars">
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col font-sans transition-colors duration-300" :style="cssVars">
         <!-- Widget Flotante de WhatsApp -->
         <WhatsAppWidget :whatsapp="empresaData?.whatsapp" :empresaNombre="empresaData?.nombre || empresaData?.nombre_empresa" />
 
@@ -116,22 +116,22 @@ const handleCheckout = async () => {
 
         <!-- Main Content -->
         <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 w-full">
-            <h1 class="text-3xl font-black text-gray-900 mb-8 flex items-center gap-3">
+            <h1 class="text-3xl font-black text-gray-900 dark:text-white mb-8 flex items-center gap-3 transition-colors">
                 <span class="w-10 h-10 rounded-xl bg-[var(--color-primary-soft)] flex items-center justify-center text-[var(--color-primary)]">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                 </span>
                 Carrito de Compras
-                <span v-if="itemCount > 0" class="text-lg font-bold text-gray-400">({{ itemCount }})</span>
+                <span v-if="itemCount > 0" class="text-lg font-bold text-gray-400 dark:text-gray-500 transition-colors">({{ itemCount }})</span>
             </h1>
 
-            <div v-if="isEmpty" class="text-center py-20 bg-white rounded-[2rem] shadow-xl shadow-gray-100 border border-gray-100">
+            <div v-if="isEmpty" class="text-center py-20 bg-white dark:bg-gray-800 rounded-[2rem] shadow-xl shadow-gray-100 dark:shadow-none border border-gray-100 dark:border-gray-700 transition-colors">
                 <div class="w-32 h-32 mx-auto mb-8 bg-[var(--color-primary-soft)] rounded-full flex items-center justify-center">
                     <svg class="w-16 h-16 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                 </div>
-                <h2 class="text-2xl font-black text-gray-900 mb-4">Tu carrito está vacío</h2>
-                <p class="text-gray-500 font-medium mb-8">Parece que aún no has agregado nada.</p>
+                <h2 class="text-2xl font-black text-gray-900 dark:text-white mb-4 transition-colors">Tu carrito está vacío</h2>
+                <p class="text-gray-500 dark:text-gray-400 font-medium mb-8 transition-colors">Parece que aún no has agregado nada.</p>
                 <Link :href="route('catalogo.index')" 
                       class="inline-flex items-center gap-2 px-8 py-4 bg-[var(--color-primary)] text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-[var(--color-primary)]/20 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[var(--color-primary)]/30 transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,9 +145,9 @@ const handleCheckout = async () => {
                 <!-- Products List -->
                 <div class="lg:col-span-2 space-y-4">
                     <div v-for="item in items" :key="item.producto_id"
-                         class="bg-white rounded-[1.5rem] p-4 shadow-sm border border-gray-100 flex gap-6 hover:shadow-md transition-shadow">
+                         class="bg-white dark:bg-gray-800 rounded-[1.5rem] p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex gap-6 hover:shadow-md transition-all">
                         <!-- Image -->
-                        <div class="w-28 h-28 flex-shrink-0 bg-gray-50 rounded-2xl overflow-hidden border border-gray-100">
+                        <div class="w-28 h-28 flex-shrink-0 bg-gray-50 dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 transition-colors">
                             <img v-if="getImageUrl(item.imagen)" 
                                  :src="getImageUrl(item.imagen)" 
                                  :alt="item.nombre"
@@ -162,7 +162,7 @@ const handleCheckout = async () => {
                         <!-- Details -->
                         <div class="flex-1 min-w-0 flex flex-col justify-between py-1">
                             <div>
-                                <h3 class="font-bold text-gray-900 text-lg truncate">{{ item.nombre }}</h3>
+                                <h3 class="font-bold text-gray-900 dark:text-white text-lg truncate transition-colors">{{ item.nombre }}</h3>
                                 <p class="text-sm font-black text-[var(--color-primary)] mt-1 tracking-wide">
                                     {{ formatCurrency(item.precio) }}
                                 </p>
@@ -180,21 +180,21 @@ const handleCheckout = async () => {
 
                         <!-- Quantity & Total -->
                         <div class="flex flex-col items-end justify-between py-1">
-                             <p class="text-lg font-black text-gray-900">
+                             <p class="text-lg font-black text-gray-900 dark:text-white transition-colors">
                                 {{ formatCurrency(item.precio * item.cantidad) }}
                             </p>
 
                             <!-- Quantity Controls -->
-                            <div class="flex items-center gap-1 bg-gray-50 rounded-xl p-1 border border-gray-100">
+                            <div class="flex items-center gap-1 bg-gray-50 dark:bg-gray-700 rounded-xl p-1 border border-gray-100 dark:border-gray-600 transition-colors">
                                 <button @click="decrementQuantity(item.producto_id)"
-                                        class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-gray-500 hover:text-[var(--color-primary)] hover:shadow-sm transition-all">
+                                        class="w-8 h-8 rounded-lg bg-white dark:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-300 hover:text-[var(--color-primary)] hover:shadow-sm transition-all">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
                                     </svg>
                                 </button>
-                                <span class="w-8 text-center font-bold text-gray-900 text-sm">{{ item.cantidad }}</span>
+                                <span class="w-8 text-center font-bold text-gray-900 dark:text-white text-sm transition-colors">{{ item.cantidad }}</span>
                                 <button @click="incrementQuantity(item.producto_id)"
-                                        class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-gray-500 hover:text-[var(--color-primary)] hover:shadow-sm transition-all">
+                                        class="w-8 h-8 rounded-lg bg-white dark:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-300 hover:text-[var(--color-primary)] hover:shadow-sm transition-all">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                     </svg>
@@ -206,21 +206,21 @@ const handleCheckout = async () => {
 
                 <!-- Order Summary -->
                 <div class="lg:col-span-1">
-                    <div class="bg-white rounded-[2rem] p-8 shadow-xl shadow-gray-200/50 border border-gray-100 sticky top-28">
-                        <h2 class="text-xl font-black text-gray-900 mb-6 uppercase tracking-tight">Resumen</h2>
+                    <div class="bg-white dark:bg-gray-800 rounded-[2rem] p-8 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 sticky top-28 transition-colors">
+                        <h2 class="text-xl font-black text-gray-900 dark:text-white mb-6 uppercase tracking-tight transition-colors">Resumen</h2>
                         
                         <div class="space-y-4 mb-8">
-                            <div class="flex justify-between text-gray-400 font-medium text-xs uppercase tracking-widest">
+                            <div class="flex justify-between text-gray-400 dark:text-gray-500 font-medium text-xs uppercase tracking-widest transition-colors">
                                 <span>Subtotal (sin IVA)</span>
-                                <span class="font-bold text-gray-600">{{ formatCurrency(subtotalSinIva) }}</span>
+                                <span class="font-bold text-gray-600 dark:text-gray-300 transition-colors">{{ formatCurrency(subtotalSinIva) }}</span>
                             </div>
-                            <div class="flex justify-between text-gray-400 font-medium text-xs uppercase tracking-widest">
+                            <div class="flex justify-between text-gray-400 dark:text-gray-500 font-medium text-xs uppercase tracking-widest transition-colors">
                                 <span>IVA (16%)</span>
-                                <span class="font-bold text-gray-600">{{ formatCurrency(iva) }}</span>
+                                <span class="font-bold text-gray-600 dark:text-gray-300 transition-colors">{{ formatCurrency(iva) }}</span>
                             </div>
-                            <div class="flex justify-between text-gray-500 font-medium text-sm">
+                            <div class="flex justify-between text-gray-500 dark:text-gray-400 font-medium text-sm transition-colors">
                                 <span>Costo de Envío</span>
-                                <span class="font-bold text-gray-900">
+                                <span class="font-bold text-gray-900 dark:text-white transition-colors">
                                     {{ formatCurrency(costoEnvio) }}
                                 </span>
                             </div>
@@ -232,9 +232,9 @@ const handleCheckout = async () => {
                             <div v-if="items.some(i => String(i.producto_id).startsWith('CVA-'))" class="p-3 bg-blue-50 rounded-xl border border-blue-100 text-[10px] font-bold text-blue-700 flex items-center gap-2">
                                 📦 Productos bajo pedido (Entrega 2-4 días hábiles)
                             </div>
-                            <div class="h-px bg-gray-100 my-2"></div>
+                            <div class="h-px bg-gray-100 dark:bg-gray-700 my-2 transition-colors"></div>
                             <div class="flex justify-between text-lg">
-                                <span class="font-black text-gray-900">Total</span>
+                                <span class="font-black text-gray-900 dark:text-white transition-colors">Total</span>
                                 <span class="font-black text-2xl text-[var(--color-primary)]">
                                     {{ formatCurrency(total) }}
                                 </span>
@@ -271,12 +271,12 @@ const handleCheckout = async () => {
             </div>
 
             <!-- Recommended Products -->
-            <div v-if="recomendados?.length" class="mt-20 border-t border-gray-100 pt-12">
-                <h2 class="text-2xl font-black text-gray-900 mb-8">Te podría interesar</h2>
+            <div v-if="recomendados?.length" class="mt-20 border-t border-gray-100 dark:border-gray-800 pt-12 transition-colors">
+                <h2 class="text-2xl font-black text-gray-900 dark:text-white mb-8 transition-colors">Te podría interesar</h2>
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                     <Link v-for="rel in recomendados" :key="rel.id"
                           :href="route('catalogo.show', rel.id)"
-                          class="group bg-white rounded-3xl overflow-hidden border border-gray-100 hover:shadow-2xl hover:border-white transition-all duration-500">
+                          class="group bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:border-white dark:hover:border-gray-600 transition-all duration-500">
                         <div class="aspect-square bg-gray-50 overflow-hidden relative">
                             <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none z-10"></div>
                             <img v-if="getImageUrl(rel.imagen)" 
@@ -293,7 +293,7 @@ const handleCheckout = async () => {
                             </div>
                         </div>
                         <div class="p-5">
-                            <h3 class="font-bold text-gray-900 text-sm line-clamp-2 group-hover:text-[var(--color-primary)] transition-colors mb-2">
+                            <h3 class="font-bold text-gray-900 dark:text-white text-sm line-clamp-2 group-hover:text-[var(--color-primary)] transition-colors mb-2">
                                 {{ rel.nombre }}
                             </h3>
                             <div class="flex items-center justify-between">
