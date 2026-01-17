@@ -59,8 +59,7 @@ class CuentasPorCobrarController extends Controller
                 $q->whereHasMorph('cobrable', [Venta::class, Renta::class, \App\Models\PolizaServicio::class], function ($sq, $type) use ($search) {
                     // Buscar en Cliente relacionado
                     $sq->whereHas('cliente', function ($cq) use ($search) {
-                        $cq->where(DB::raw("CONCAT(clientes.nombre, ' ', COALESCE(clientes.apellidos, ''))"), 'like', "%{$search}%")
-                            ->orWhere('clientes.razon_social', 'like', "%{$search}%")
+                        $cq->where('clientes.nombre_razon_social', 'like', "%{$search}%")
                             ->orWhere('clientes.rfc', 'like', "%{$search}%")
                             ->orWhere('clientes.telefono', 'like', "%{$search}%");
                     });
@@ -76,8 +75,7 @@ class CuentasPorCobrarController extends Controller
                 })
                     // También buscar en cliente directo si la CxC tiene cliente_id directo
                     ->orWhereHas('cliente', function ($cq) use ($search) {
-                        $cq->where(DB::raw("CONCAT(clientes.nombre, ' ', COALESCE(clientes.apellidos, ''))"), 'like', "%{$search}%")
-                            ->orWhere('clientes.razon_social', 'like', "%{$search}%");
+                        $cq->where('clientes.nombre_razon_social', 'like', "%{$search}%");
                     });
             });
         }
