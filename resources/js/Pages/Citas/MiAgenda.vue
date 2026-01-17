@@ -31,6 +31,7 @@ const procesando = ref(false);
 const formCierre = useForm({
     trabajo_realizado: '',
     fotos_finales: [],
+    cerrar_ticket: false,
 });
 
 const previewFotos = ref([]);
@@ -496,6 +497,21 @@ function formatCitaFecha(cita) {
                                     class="w-full bg-gray-50 border-gray-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all text-sm"
                                     placeholder="Describe detalladamente las reparaciones o mantenimientos hechos..."
                                 ></textarea>
+                            </div>
+
+                            <!-- OPCIÓN PARA CERRAR TICKET ASOCIADO (Solo si tiene ticket_id) -->
+                            <div v-if="citaActiva?.ticket_id" class="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl">
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input 
+                                        type="checkbox" 
+                                        v-model="formCierre.cerrar_ticket"
+                                        class="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                    >
+                                    <div class="flex-1">
+                                        <div class="text-xs font-bold text-indigo-900 uppercase">Resolver Ticket #{{ citaActiva.ticket_id }}</div>
+                                        <p class="text-[10px] text-indigo-600">Marcar el ticket como resuelto automáticamente.</p>
+                                    </div>
+                                </label>
                             </div>
 
                             <!-- Fotos Finales -->

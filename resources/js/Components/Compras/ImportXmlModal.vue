@@ -1097,6 +1097,7 @@ import { debounce } from 'lodash';
 
 const props = defineProps({
   show: { type: Boolean, default: false },
+  almacenesList: { type: Array, default: () => [] }
 });
 
 const emit = defineEmits(['close', 'import']);
@@ -1398,15 +1399,34 @@ const creandoCompra = ref(false);
 const fetchAlmacenes = async () => {
   try {
     const response = await axios.get('/api/almacenes');
-    almacenes.value = response.data || [];
+    // Manejar estructura de respuesta { success: true, data: [...] }
+    if (response.data && Array.isArray(response.data.data)) {
+      almacenes.value = response.data.data;
+    } else if (Array.isArray(response.data)) {
+      almacenes.value = response.data;
+    } else {
+      almacenes.value = [];
+    }
+    
     // Preseleccionar el primero si existe
     if (almacenes.value.length > 0) {
       selectedAlmacenId.value = almacenes.value[0].id;
     }
   } catch (e) {
     console.error('Error cargando almacenes:', e);
+    almacenes.value = [];
   }
 };
+
+// Inicializar almacenes desde props si están disponibles
+watch(() => props.almacenesList, (newVal) => {
+  if (newVal && newVal.length > 0) {
+    almacenes.value = newVal;
+    if (!selectedAlmacenId.value && almacenes.value.length > 0) {
+      selectedAlmacenId.value = almacenes.value[0].id;
+    }
+  }
+}, { immediate: true });
 
 // Cuentas bancarias
 const debugBanksResponse = ref("");

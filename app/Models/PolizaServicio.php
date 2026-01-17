@@ -61,6 +61,9 @@ class PolizaServicio extends Model
         'mantenimiento_dias_anticipacion',
         'proximo_mantenimiento_at',
         'generar_cita_automatica',
+        'visitas_sitio_mensuales',
+        'visitas_sitio_consumidas_mes',
+        'costo_visita_sitio_extra',
     ];
 
     protected $casts = [
@@ -79,6 +82,8 @@ class PolizaServicio extends Model
         'ultimo_reset_consumo_at' => 'datetime',
         'proximo_mantenimiento_at' => 'date',
         'generar_cita_automatica' => 'boolean',
+        'visitas_sitio_consumidas_mes' => 'integer',
+        'costo_visita_sitio_extra' => 'decimal:2',
     ];
 
     // NOTA: No usar $appends global para evitar N+1 queries.
@@ -247,14 +252,35 @@ class PolizaServicio extends Model
     }
 
     /**
-     * Resetear consumo mensual de horas.
+     * Resetear consumo mensual de horas y visitas.
      */
     public function resetearConsumoMensual(): void
     {
         $this->update([
             'horas_consumidas_mes' => 0,
+            'visitas_sitio_consumidas_mes' => 0,
             'ultimo_reset_consumo_at' => now(),
         ]);
+    }
+
+    /**
+     * Registrar una visita en sitio consumida.
+     */
+    public function registrarVisitaSitio(): void
+    {
+        $this->increment('visitas_sitio_consumidas_mes');
+    }
+
+    /**
+     * Verificar si excede el límite de visitas en sitio.
+     */
+    public function getExcedeLimiteVisitasAttribute(): bool
+    {
+        if (!$this->visitas_sitio_mensuales) {
+            return false;
+        }
+
+        return $this->visitas_sitio_consumidas_mes >= $this->visitas_sitio_mensuales;
     }
 
     /**

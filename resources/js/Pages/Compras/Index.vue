@@ -660,6 +660,7 @@ const handleConfirm = () => {
     <!-- Modal de importación XML -->
     <ImportXmlModal
       :show="showImportXmlModal"
+      :almacenes-list="props.almacenes_list"
       @close="showImportXmlModal = false"
       @import="handleXmlImport"
     />

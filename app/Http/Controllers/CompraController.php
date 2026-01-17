@@ -77,6 +77,7 @@ class CompraController extends Controller
                     'to' => $paginator->lastItem(),
                 ],
                 'is_admin' => Auth::check() && $user && $user->hasAnyRole(['admin', 'super-admin']),
+                'almacenes_list' => Almacen::select('id', 'nombre', 'ubicacion')->where('estado', 'activo')->orderBy('nombre')->get(),
             ]);
         } catch (\Exception $e) {
             Log::error('Error en CompraController@index: ' . $e->getMessage());

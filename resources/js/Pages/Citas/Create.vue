@@ -266,6 +266,24 @@
                             required
                         />
 
+                        <!-- Advertencia de Límite de Visitas en Sitio -->
+                        <div v-if="visitInfo && form.tipo_servicio === 'soporte_sitio'" 
+                             class="md:col-span-2 p-4 rounded-lg flex items-start gap-3 border mb-4"
+                             :class="visitInfo.excede_limite ? 'bg-amber-50 border-amber-200' : 'bg-blue-50 border-blue-200'">
+                            <span class="text-xl">{{ visitInfo.excede_limite ? '⚠️' : 'ℹ️' }}</span>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-sm" :class="visitInfo.excede_limite ? 'text-amber-800' : 'text-blue-800'">
+                                    {{ visitInfo.excede_limite ? 'Límite de Visitas Excedido' : 'Información de Póliza' }}
+                                </h3>
+                                <p class="text-xs" :class="visitInfo.excede_limite ? 'text-amber-700' : 'text-blue-700'">
+                                    Este cliente tiene <strong>{{ visitInfo.visitas_consumidas }} / {{ visitInfo.visitas_incluidas }}</strong> visitas en sitio consumidas este mes.
+                                </p>
+                                <p v-if="visitInfo.excede_limite" class="mt-1 text-xs font-semibold text-amber-900 border-t border-amber-100 pt-1">
+                                    Esta visita tendrá un costo adicional de ${{ visitInfo.costo_extra || '0.00' }}.
+                                </p>
+                            </div>
+                        </div>
+
                         <div class="md:col-span-2">
                             <FormField
                                 v-model="form.descripcion"
@@ -440,9 +458,36 @@ const props = defineProps({
 // Referencias reactivas para el buscador de clientes
 const selectedCliente = ref(null);
 const showSuccessMessage = ref(false);
+const visitInfo = ref(null);
+const loadingVisits = ref(false);
 
 // Referencias a los componentes
 const buscarClienteRef = ref(null);
+
+// Formulario usando useForm de Inertia con campos adicionales
+const form = useForm({
+    tecnico_id: '',
+    cliente_id: '',
+    fecha_hora: '',
+    descripcion: '',
+    numero_serie: '',
+    tipo_servicio: '',
+    estado: 'pendiente',
+    prioridad: '',
+    garantia: '',
+    fecha_compra: '',
+    direccion_servicio: '',
+    observaciones: '',
+    evidencias: '',
+    foto_equipo: null,
+    foto_hoja_servicio: null,
+    foto_identificacion: null,
+    notas: '',
+    tipo_equipo: '',
+    marca_equipo: '',
+    modelo_equipo: '',
+    ticket_id: '',
+});
 
 
 
@@ -477,6 +522,7 @@ const prioridadOptions = [
 
 const tipoServicioOptions = [
     { value: '', text: 'Selecciona el tipo de servicio', disabled: true },
+    { value: 'soporte_sitio', text: 'Soporte en Sitio' },
     { value: 'garantia', text: 'Garantía' },
     { value: 'instalacion', text: 'Instalación' },
     { value: 'reparacion', text: 'Reparación' },
@@ -514,6 +560,8 @@ const marcasOptions = computed(() => [
 
 // Fallback para datalist (nombres de marcas)
 const marcasComunes = computed(() => props.marcas.map(m => m.nombre));
+
+
 
 // =====================================================
 // NUEVO: Variables para selector de fecha/hora mejorado
@@ -627,7 +675,42 @@ const onClienteSeleccionado = (cliente) => {
     if (cliente && cliente.direccion) {
         form.direccion_servicio = cliente.direccion;
     }
+
+    checkVisitsLimit();
 };
+
+const checkVisitsLimit = async () => {
+    if (!form.cliente_id || form.tipo_servicio !== 'soporte_sitio') {
+        visitInfo.value = null;
+        return;
+    }
+
+    loadingVisits.value = true;
+    try {
+        const response = await axios.get(route('citas.check-visits-limit'), {
+            params: { cliente_id: form.cliente_id }
+        });
+        if (response.data.has_policy) {
+            visitInfo.value = response.data;
+        } else {
+            visitInfo.value = null;
+        }
+    } catch (error) {
+        console.error('Error al consultar límites de visitas:', error);
+    } finally {
+        loadingVisits.value = false;
+    }
+};
+
+// Observar cambios en tipo de servicio
+import { watch } from 'vue';
+watch(() => form.tipo_servicio, (newVal) => {
+    if (newVal === 'soporte_sitio') {
+        checkVisitsLimit();
+    } else {
+        visitInfo.value = null;
+    }
+});
 
 const applyPrefillFromProps = () => {
     const prefill = props.prefill || {};
@@ -669,30 +752,7 @@ const onCrearNuevoCliente = (nombreBuscado) => {
 
 
 
-// Formulario usando useForm de Inertia con campos adicionales
-const form = useForm({
-    tecnico_id: '',
-    cliente_id: '',
-    fecha_hora: '',
-    descripcion: '',
-    numero_serie: '',
-    tipo_servicio: '',
-    estado: 'pendiente',
-    prioridad: '',
-    garantia: '',
-    fecha_compra: '',
-    direccion_servicio: '',
-    observaciones: '',
-    evidencias: '',
-    foto_equipo: null,
-    foto_hoja_servicio: null,
-    foto_identificacion: null,
-    notas: '',
-    tipo_equipo: '',
-    marca_equipo: '',
-    modelo_equipo: '',
-    ticket_id: '',
-});
+
 
 // Computed para errores globales
 const hasGlobalErrors = computed(() => {

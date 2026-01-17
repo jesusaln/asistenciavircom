@@ -231,9 +231,9 @@ class Ticket extends Model implements Auditable
     }
 
     // Métodos
-    public function marcarComoResuelto(?float $horasTrabajadas = null, ?string $inicio = null, ?string $fin = null): void
+    public function marcarComoResuelto(?float $horasTrabajadas = null, ?string $inicio = null, ?string $fin = null, bool $incrementar = false): void
     {
-        $horasAnteriores = $this->horas_trabajadas;
+        $horasPrevias = (float) ($this->horas_trabajadas ?? 0);
 
         $datosUpdate = [
             'estado' => 'resuelto',
@@ -241,7 +241,16 @@ class Ticket extends Model implements Auditable
         ];
 
         if ($horasTrabajadas !== null) {
-            $datosUpdate['horas_trabajadas'] = $horasTrabajadas;
+            $nuevasHoras = $incrementar ? ($horasPrevias + $horasTrabajadas) : $horasTrabajadas;
+            $datosUpdate['horas_trabajadas'] = $nuevasHoras;
+
+            // Registrar diferencia en póliza si existe
+            if ($this->poliza_id) {
+                $diferencia = $incrementar ? $horasTrabajadas : ($horasTrabajadas - $horasPrevias);
+                if ($diferencia > 0) {
+                    $this->registrarConsumoEnPoliza($diferencia);
+                }
+            }
         }
 
         if ($inicio)
@@ -250,16 +259,11 @@ class Ticket extends Model implements Auditable
             $datosUpdate['servicio_fin_at'] = $fin;
 
         $this->update($datosUpdate);
-
-        // Solo registrar consumo si se agregaron nuevas horas (no existían antes)
-        if ($horasTrabajadas !== null && !$horasAnteriores) {
-            $this->registrarConsumoEnPoliza();
-        }
     }
 
-    public function cerrar(?float $horasTrabajadas = null, ?string $inicio = null, ?string $fin = null): void
+    public function cerrar(?float $horasTrabajadas = null, ?string $inicio = null, ?string $fin = null, bool $incrementar = false): void
     {
-        $horasAnteriores = $this->horas_trabajadas;
+        $horasPrevias = (float) ($this->horas_trabajadas ?? 0);
 
         $datosUpdate = [
             'estado' => 'cerrado',
@@ -267,7 +271,16 @@ class Ticket extends Model implements Auditable
         ];
 
         if ($horasTrabajadas !== null) {
-            $datosUpdate['horas_trabajadas'] = $horasTrabajadas;
+            $nuevasHoras = $incrementar ? ($horasPrevias + $horasTrabajadas) : $horasTrabajadas;
+            $datosUpdate['horas_trabajadas'] = $nuevasHoras;
+
+            // Registrar diferencia en póliza si existe
+            if ($this->poliza_id) {
+                $diferencia = $incrementar ? $horasTrabajadas : ($horasTrabajadas - $horasPrevias);
+                if ($diferencia > 0) {
+                    $this->registrarConsumoEnPoliza($diferencia);
+                }
+            }
         }
 
         if ($inicio)
@@ -276,28 +289,23 @@ class Ticket extends Model implements Auditable
             $datosUpdate['servicio_fin_at'] = $fin;
 
         $this->update($datosUpdate);
-
-        // Solo registrar consumo si se agregaron nuevas horas (no existían antes)
-        // Esto evita doble registro si ya se marcó como resuelto con horas
-        if ($horasTrabajadas !== null && !$horasAnteriores) {
-            $this->registrarConsumoEnPoliza();
-        }
     }
 
     /**
      * Registrar horas consumidas en la póliza asociada.
      * NOTA: Este método solo debe llamarse UNA VEZ por ticket.
      */
-    protected function registrarConsumoEnPoliza(): void
+    public function registrarConsumoEnPoliza(?float $horas = null): void
     {
-        // Solo procesar si hay horas trabajadas y póliza asociada
-        if (!$this->horas_trabajadas || !$this->poliza_id) {
+        $horasARegistrar = $horas ?? (float) ($this->horas_trabajadas ?? 0);
+
+        if ($horasARegistrar <= 0 || !$this->poliza_id) {
             return;
         }
 
         $poliza = $this->poliza;
-        if ($poliza && $poliza->horas_incluidas_mensual) {
-            $poliza->registrarConsumoHoras((float) $this->horas_trabajadas, $this);
+        if ($poliza && $poliza->isActiva()) {
+            $poliza->registrarConsumoHoras($horasARegistrar, $this);
         }
     }
 

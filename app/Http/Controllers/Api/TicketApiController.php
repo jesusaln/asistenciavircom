@@ -32,7 +32,7 @@ class TicketApiController extends Controller
 
     public function show($id)
     {
-        $ticket = Ticket::with(['cliente', 'categoria', 'asignado', 'comentarios.creador', 'poliza'])->findOrFail($id);
+        $ticket = Ticket::with(['cliente', 'categoria', 'asignado', 'comentarios.user', 'poliza'])->findOrFail($id);
         return response()->json($ticket);
     }
 
@@ -60,9 +60,7 @@ class TicketApiController extends Controller
                 if ($request->has('servicio_inicio_at') && $request->has('servicio_fin_at')) {
                     $ticket->servicio_inicio_at = $validated['servicio_inicio_at'];
                     $ticket->servicio_fin_at = $validated['servicio_fin_at'];
-                    // El accessor calculará duracion, pero debemos guardar? 
-                    // El modelo tiene un accessor `duracion_servicio`, pero `horas_trabajadas` es fillable.
-                    // Calculamos horas trabajadas
+
                     $start = \Carbon\Carbon::parse($validated['servicio_inicio_at']);
                     $end = \Carbon\Carbon::parse($validated['servicio_fin_at']);
                     $diff = $start->diffInMinutes($end) / 60;
@@ -76,8 +74,8 @@ class TicketApiController extends Controller
         if ($request->filled('nota')) {
             $ticket->comentarios()->create([
                 'user_id' => $request->user()->id,
-                'mensaje' => $validated['nota'],
-                'es_interno' => false // Por defecto público al cliente, o configurable
+                'contenido' => $validated['nota'],
+                'es_interno' => false
             ]);
         }
 

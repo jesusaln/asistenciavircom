@@ -159,3 +159,8 @@ Route::get('/img/profile-photos/{filename}', function ($filename) {
     $mimeType = mime_content_type($fullPath) ?: 'image/png';
     return response()->file($fullPath, ['Content-Type' => $mimeType]);
 })->name('image.profile-photo');
+
+// Webhook específico para Portal de Clientes (Pagos Ventas)
+Route::post('/webhooks/portal/mercadopago', [\App\Http\Controllers\ClientPortal\PortalPaymentController::class, 'webhookMercadoPago'])
+    ->name('portal.pagos.mercadopago.webhook')
+    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);

@@ -6,6 +6,7 @@ const props = defineProps({
     empresa: Object,
     cita: Object,
     timeline: Array,
+    cargos: Object, // Added cargos prop
 });
 
 const cssVars = computed(() => ({
@@ -141,6 +142,59 @@ const diasFormateados = computed(() => {
                             {{ cita.descripcion }}
                         </p>
                     </div>
+                </div>
+            </div>
+
+            <!-- Estado de Cuenta (Cargos) -->
+            <div v-if="cargos && cargos.items.length > 0" class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-gray-900">💰 Estado de Cuenta</h3>
+                    <span 
+                        :class="[
+                            'px-3 py-1 rounded-full text-xs font-bold uppercase',
+                            cargos.estado_pago === 'pagado' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                        ]"
+                    >
+                        {{ cargos.estado_pago === 'pagado' ? 'PAGADO' : 'PENDIENTE DE PAGO' }}
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50 text-gray-600 font-medium">
+                            <tr>
+                                <th class="px-3 py-2 text-left">Concepto</th>
+                                <th class="px-3 py-2 text-center">Cant.</th>
+                                <th class="px-3 py-2 text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr v-for="(item, index) in cargos.items" :key="index">
+                                <td class="px-3 py-2 text-gray-900">{{ item.nombre }}</td>
+                                <td class="px-3 py-2 text-center text-gray-500">{{ item.cantidad }}</td>
+                                <td class="px-3 py-2 text-right text-gray-900 font-medium">
+                                    ${{ Number(item.subtotal).toLocaleString('es-MX', {minimumFractionDigits: 2}) }}
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="border-t border-gray-200">
+                            <tr>
+                                <td colspan="2" class="px-3 py-3 text-right font-bold text-gray-900">Total a Pagar:</td>
+                                <td class="px-3 py-3 text-right font-bold text-blue-600 text-lg">
+                                    ${{ Number(cargos.total).toLocaleString('es-MX', {minimumFractionDigits: 2}) }}
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div v-if="cargos.estado_pago !== 'pagado'" class="mt-4">
+                    <button disabled class="w-full py-3 bg-gray-200 text-gray-500 font-bold rounded-xl cursor-not-allowed">
+                        💳 Pagar Ahora (Próximamente)
+                    </button>
+                    <p class="text-xs text-center text-gray-500 mt-2">
+                        Fecha límite de pago: {{ cargos.fecha_vencimiento || 'Inmediato' }}
+                    </p>
                 </div>
             </div>
 

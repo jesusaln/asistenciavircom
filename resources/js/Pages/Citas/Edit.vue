@@ -102,6 +102,30 @@
                             required
                         />
 
+                        <!-- OPCIÓN PARA CERRAR TICKET ASOCIADO -->
+                        <div v-if="cita.ticket_id && form.estado === 'completado'" class="md:col-span-2 mt-[-1rem] transition-all animate-fade-in">
+                            <div class="p-4 bg-indigo-50 border border-indigo-100 rounded-xl flex items-start gap-3 shadow-sm">
+                                <div class="p-2 bg-indigo-100 rounded-lg">
+                                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                                <label class="flex-1 cursor-pointer">
+                                    <div class="flex items-center space-x-3">
+                                        <input 
+                                            type="checkbox" 
+                                            v-model="form.cerrar_ticket"
+                                            class="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                        >
+                                        <span class="text-sm font-bold text-indigo-900">
+                                            Resolver ticket #{{ cita.ticket_id }} automáticamente
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-indigo-600 mt-2 ml-8">
+                                        Al activar esta opción, el ticket se marcará como <strong>resuelto</strong> y se guardará el reporte técnico en su historial.
+                                    </p>
+                                </label>
+                            </div>
+                        </div>
+
                         <FormField
                             v-model="form.prioridad"
                             label="Prioridad"
@@ -204,8 +228,48 @@
                     </div>
                 </div>
 
+                <!-- Sección: Productos y Servicios Utilizados -->
+                <div class="border-b border-gray-200 pb-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Productos y Servicios (Cargos Extra)</h2>
+                    
+                    <BuscarProducto
+                        :productos="productos"
+                        :servicios="servicios"
+                        @agregar-producto="onAgregarProducto"
+                        :validar-stock="true"
+                        almacen-id="1" 
+                    />
 
-
+                    <ProductosSeleccionados
+                        :selected-products="selectedProducts"
+                        :productos="productos"
+                        :quantities="quantities"
+                        :prices="prices"
+                        :discounts="discounts"
+                        @eliminar-producto="onEliminarProducto"
+                        @update-quantity="onUpdateQuantity"
+                        @update-price="onUpdatePrice"
+                        @update-discount="onUpdateDiscount"
+                    />
+                    
+                    <!-- Resumen de Totales Estimados -->
+                     <div v-if="selectedProducts.length > 0" class="mt-4 flex justify-end">
+                        <div class="w-64 space-y-2 bg-gray-50 p-4 rounded-lg">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Subtotal:</span>
+                                <span class="font-medium">${{ totalCalculado.subtotal.toLocaleString('es-MX', {minimumFractionDigits: 2}) }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">IVA (16%):</span>
+                                <span class="font-medium">${{ totalCalculado.iva.toLocaleString('es-MX', {minimumFractionDigits: 2}) }}</span>
+                            </div>
+                            <div class="flex justify-between text-lg font-bold border-t pt-2 border-gray-200">
+                                <span>Total:</span>
+                                <span class="text-blue-600">${{ totalCalculado.total.toLocaleString('es-MX', {minimumFractionDigits: 2}) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Sección: Notas -->
                 <div class="border-b border-gray-200 pb-6">
@@ -226,15 +290,34 @@
                         <span>📸</span> Evidencias y Reporte de Servicio
                     </h2>
                     
-                    <!-- Campo de Trabajo Realizado -->
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Reporte del Trabajo Realizado</label>
-                        <textarea
-                            v-model="form.trabajo_realizado"
-                            class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-vertical bg-white"
-                            rows="3"
-                            placeholder="Describe el trabajo realizado, hallazgos importantes, etc..."
-                        ></textarea>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Reporte del Trabajo Realizado</label>
+                            <textarea
+                                v-model="form.trabajo_realizado"
+                                class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-vertical bg-white"
+                                rows="3"
+                                placeholder="Describe el trabajo realizado, hallazgos importantes, etc..."
+                            ></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tiempo del Servicio (Minutos)</label>
+                            <div class="relative">
+                                <input
+                                    type="number"
+                                    v-model="form.tiempo_servicio"
+                                    class="w-full border-gray-300 rounded-lg py-3 pl-4 pr-12 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                    placeholder="Ej. 60"
+                                    min="0"
+                                >
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">min</span>
+                                </div>
+                            </div>
+                            <p class="mt-2 text-[10px] text-gray-500 italic">
+                                * Se convertirá a horas para el ticket (60 min = 1 hr)
+                            </p>
+                        </div>
                     </div>
 
                     <!-- Galería de Fotos Existentes -->
@@ -381,7 +464,7 @@
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
-                            {{ isEdit ? 'Actualizar Cita' : 'Crear Cita' }}
+                            {{ form.estado === 'completado' ? 'Finalizar y Guardar Servicio' : (isEdit ? 'Actualizar Cita' : 'Crear Cita') }}
                         </span>
                     </button>
                 </div>
@@ -430,15 +513,19 @@
 </template>
 
 <script setup>
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import { computed, onMounted, onUnmounted, ref, nextTick } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import FormField from '@/Components/FormField.vue';
 import BuscarCliente from '@/Components/CreateComponents/BuscarCliente.vue';
 import SignaturePad from '@/Components/UI/SignaturePad.vue';
+import ProductosSeleccionados from '@/Components/CreateComponents/ProductosSeleccionados.vue';
+import BuscarProducto from '@/Components/CreateComponents/BuscarProducto.vue';
 
 
 defineOptions({ layout: AppLayout });
+
+const isEdit = true;
 
 const props = defineProps({
     cita: {
@@ -447,6 +534,8 @@ const props = defineProps({
     },
     tecnicos: Array,
     clientes: Array,
+    productos: Array,
+    servicios: Array,
     errors: {
         type: Object,
         default: () => ({})
@@ -460,8 +549,99 @@ const showSuccessMessage = ref(false);
 // Referencias a los componentes
 const buscarClienteRef = ref(null);
 
+// Variables para productos y servicios
+const selectedProducts = ref([]);
+const quantities = ref({});
+const prices = ref({});
+const discounts = ref({});
+const serials = ref({});
 
+// Cargar items existentes
+onMounted(() => {
+    if (props.cita.items && props.cita.items.length > 0) {
+        props.cita.items.forEach(item => {
+            const citableType = item.citable_type.includes('Producto') ? 'producto' : 'servicio';
+            const key = `${citableType}-${item.citable_id}`;
+            const productoOriginal = citableType === 'producto' 
+                ? props.productos.find(p => p.id === item.citable_id) 
+                : props.servicios.find(s => s.id === item.citable_id);
+                
+            if (productoOriginal) {
+                const itemData = {
+                    ...productoOriginal,
+                    id: item.citable_id,
+                    tipo: citableType,
+                    precio: item.precio // Usar precio guardado
+                };
+                
+                selectedProducts.value.push(itemData);
+                quantities.value[key] = item.cantidad;
+                prices.value[key] = item.precio;
+                discounts.value[key] = item.descuento;
+            }
+        });
+    }
+});
 
+const onAgregarProducto = (item) => {
+    const key = `${item.tipo}-${item.id}`;
+    
+    // Verificar si ya existe
+    if (selectedProducts.value.some(p => `${p.tipo}-${p.id}` === key)) {
+        // Incrementar cantidad
+        const currentQty = quantities.value[key] || 0;
+        quantities.value[key] = Number(currentQty) + 1;
+        showTemporaryMessage('Cantidad actualizada', 'info');
+        return;
+    }
+    
+    selectedProducts.value.push(item);
+    quantities.value[key] = 1;
+    prices.value[key] = item.precio_venta || item.precio || 0;
+    discounts.value[key] = 0;
+    showTemporaryMessage('Producto agregado', 'success');
+};
+
+const onEliminarProducto = (item) => {
+    selectedProducts.value = selectedProducts.value.filter(p => `${p.tipo}-${p.id}` !== `${item.tipo}-${item.id}`);
+    const key = `${item.tipo}-${item.id}`;
+    delete quantities.value[key];
+    delete prices.value[key];
+    delete discounts.value[key];
+};
+
+const onUpdateQuantity = (key, qty) => {
+    quantities.value[key] = qty;
+};
+
+const onUpdatePrice = (key, price) => {
+    prices.value[key] = price;
+};
+
+const onUpdateDiscount = (key, discount) => {
+    discounts.value[key] = discount;
+};
+
+const totalCalculado = computed(() => {
+    let subtotal = 0;
+    selectedProducts.value.forEach(p => {
+        const key = `${p.tipo}-${p.id}`;
+        const qty = quantities.value[key] || 1;
+        const price = prices.value[key] || 0;
+        const discount = discounts.value[key] || 0;
+        
+        const itemSubtotal = qty * price;
+        const itemDiscount = itemSubtotal * (discount / 100);
+        subtotal += (itemSubtotal - itemDiscount);
+    });
+    
+    const iva = subtotal * 0.16;
+    return {
+        subtotal,
+        iva,
+        total: subtotal + iva
+    };
+});
 // Opciones de selección mejoradas
 const tecnicosOptions = computed(() => [
     { value: '', text: 'Selecciona un técnico', disabled: true },
@@ -613,7 +793,8 @@ const initFormData = () => {
         direccion_servicio: props.cita.direccion_servicio || '',
         observaciones: props.cita.observaciones || '',
         notas: props.cita.notas || '',
-        notas: props.cita.notas || '',
+        // Funcionalidad extra
+        cerrar_ticket: false,
         // Reporte
         trabajo_realizado: props.cita.trabajo_realizado || '',
         nuevas_fotos: [],
@@ -621,6 +802,7 @@ const initFormData = () => {
         tipo_equipo: props.cita.tipo_equipo || '',
         marca_equipo: props.cita.marca_equipo || '',
         modelo_equipo: props.cita.modelo_equipo || '',
+        tiempo_servicio: props.cita.tiempo_servicio || '',
         // Firmas
         firma_cliente: null,
         nombre_firmante: props.cita.nombre_firmante || '',
@@ -773,6 +955,19 @@ const validateForm = () => {
         errors.push('La fecha de la cita no puede ser anterior a hoy');
     }
 
+    // Validar firmas si el estado es COMPLETADO
+    if (form.estado === 'completado') {
+        if (!form.firma_cliente && !props.cita.firma_cliente) {
+            errors.push('La firma del cliente es obligatoria para finalizar el servicio');
+        }
+        if (!form.firma_tecnico && !props.cita.firma_tecnico) {
+            errors.push('La firma del técnico es obligatoria para finalizar el servicio');
+        }
+        if (!form.trabajo_realizado && !props.cita.trabajo_realizado) {
+            errors.push('Debe describir el trabajo realizado para finalizar el servicio');
+        }
+    }
+
     return errors;
 };
 
@@ -785,30 +980,26 @@ const submit = () => {
         return;
     }
 
-    const formData = new FormData();
+    // Validar y preparar items
+    const itemsData = selectedProducts.value.map(p => {
+        const key = `${p.tipo}-${p.id}`;
+        return {
+            id: p.id,
+            tipo: p.tipo,
+            cantidad: quantities.value[key] || 1,
+            precio: prices.value[key] || 0,
+            descuento: discounts.value[key] || 0,
+            notas: '' // Opcional
+        };
+    });
 
-    // Agregar todos los campos del formulario
-    for (const key in form.data()) {
-        formData.append(key, form[key] || '');
-    }
-
-    // Método PUT simulado para Laravel
-    formData.append('_method', 'PUT');
-
-    // Adjuntar archivos de fotos si existen
-    if (form.foto_equipo) {
-        formData.append('foto_equipo', form.foto_equipo);
-    }
-    if (form.foto_hoja_servicio) {
-        formData.append('foto_hoja_servicio', form.foto_hoja_servicio);
-    }
-    if (form.foto_identificacion) {
-        formData.append('foto_identificacion', form.foto_identificacion);
-    }
-
-    // Usar router.post con _method para simular PUT
-    form.post(route('citas.update', props.cita.id), {
-        data: formData,
+    // Usar la capacidad de Inertia para simular PUT con archivos
+    form.transform((data) => ({
+        ...data,
+        items: itemsData,
+        _method: 'PUT',
+    })).post(route('citas.update', props.cita.id), {
+        forceFormData: true,
         preserveScroll: true,
         onStart: () => {
             showSuccessMessage.value = false;
@@ -834,6 +1025,14 @@ const submit = () => {
         }
     });
 };
+
+// Observar cambios en el estado para resetear el flag de cerrar ticket
+import { watch } from 'vue';
+watch(() => form.estado, (newVal) => {
+    if (newVal !== 'completado') {
+        form.cerrar_ticket = false;
+    }
+});
 
 // Función para comprimir imágenes
 const compressImage = async (file) => {

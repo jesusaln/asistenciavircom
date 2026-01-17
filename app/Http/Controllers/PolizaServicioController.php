@@ -75,6 +75,8 @@ class PolizaServicioController extends Controller
             'mantenimiento_frecuencia_meses' => 'nullable|integer|min:1|max:24',
             'proximo_mantenimiento_at' => 'nullable|date',
             'generar_cita_automatica' => 'nullable|boolean',
+            'visitas_sitio_mensuales' => 'nullable|integer|min:0',
+            'costo_visita_sitio_extra' => 'nullable|numeric|min:0',
         ]);
 
         DB::beginTransaction();
@@ -105,6 +107,8 @@ class PolizaServicioController extends Controller
                 'mantenimiento_frecuencia_meses' => $request->mantenimiento_frecuencia_meses,
                 'proximo_mantenimiento_at' => $request->proximo_mantenimiento_at,
                 'generar_cita_automatica' => $request->generar_cita_automatica ?? false,
+                'visitas_sitio_mensuales' => $request->visitas_sitio_mensuales,
+                'costo_visita_sitio_extra' => $request->costo_visita_sitio_extra,
             ]);
 
             if ($request->has('servicios')) {
@@ -154,7 +158,9 @@ class PolizaServicioController extends Controller
             'poliza' => $polizas_servicio,
             'stats' => [
                 'tickets_mes' => $polizas_servicio->tickets_mes_actual_count,
+                'visitas_mes' => $polizas_servicio->visitas_sitio_consumidas_mes,
                 'excede_limite' => $polizas_servicio->excede_limite,
+                'excede_visitas' => $polizas_servicio->excede_limite_visitas,
             ]
         ]);
     }
@@ -200,6 +206,8 @@ class PolizaServicioController extends Controller
             'mantenimiento_dias_anticipacion' => 'nullable|integer|min:1|max:30',
             'proximo_mantenimiento_at' => 'nullable|date',
             'generar_cita_automatica' => 'nullable|boolean',
+            'visitas_sitio_mensuales' => 'nullable|integer|min:0',
+            'costo_visita_sitio_extra' => 'nullable|numeric|min:0',
         ]);
 
         DB::beginTransaction();
@@ -228,6 +236,8 @@ class PolizaServicioController extends Controller
                 'mantenimiento_dias_anticipacion',
                 'proximo_mantenimiento_at',
                 'generar_cita_automatica',
+                'visitas_sitio_mensuales',
+                'costo_visita_sitio_extra',
             ]), ['condiciones_especiales' => $condiciones]));
 
             if ($request->has('servicios')) {

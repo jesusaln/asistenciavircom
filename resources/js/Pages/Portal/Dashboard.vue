@@ -1,11 +1,11 @@
 <script setup>
-import { Link, Head } from '@inertiajs/vue3';
+import { Link, Head, useForm } from '@inertiajs/vue3';
 import ClientLayout from './Layout/ClientLayout.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
-import { useForm } from '@inertiajs/vue3';
 import PortalConfirmModal from './Components/PortalConfirmModal.vue';
+import DeudaModal from './Components/DeudaModal.vue';
 
 const props = defineProps({
     tickets: Object,
@@ -13,9 +13,9 @@ const props = defineProps({
     polizas: Array,
     pagosPendientes: Array,
     pedidos: Array,
-    ventas: Array, // Historial de ventas
+    ventas: Object, // Changed from Array to Object (paginated)
     credenciales: Array,
-    empresa: Object, // Pasado desde el controlador
+    empresa: Object,
     rentas: Array,
     faqs: Array,
     catalogos: Object,
@@ -25,12 +25,31 @@ const activeTab = ref('resumen');
 const revealedPasswords = ref({});
 const isLoadingPassword = ref({});
 const confirmModal = ref(null);
+const showDeudaModal = ref(false);
+
+onMounted(() => {
+    // Si hay pagos pendientes, mostrar modal inmediatamente
+    if (props.pagosPendientes && props.pagosPendientes.length > 0) {
+        showDeudaModal.value = true;
+    }
+});
+
+const handlePagarDeuda = () => {
+    showDeudaModal.value = false;
+    activeTab.value = 'pagos';
+    // Opcional: Scrollear a la tabla de pagos
+    setTimeout(() => {
+        const el = document.getElementById('historial-pagos');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }, 300);
+};
 
 const revealPassword = async (id) => {
     if (revealedPasswords.value[id]) {
         delete revealedPasswords.value[id];
         return;
     }
+// ... (rest of logic)
 
     try {
         isLoadingPassword.value[id] = true;
@@ -44,6 +63,27 @@ const revealPassword = async (id) => {
 };
 
 const payingWithCredit = ref({});
+const payingWithMP = ref({});
+
+
+
+const payWithMercadoPago = async (ventaId) => {
+    try {
+        payingWithMP.value[ventaId] = true;
+        const response = await axios.post(route('portal.pagos.mercadopago.crear'), { venta_id: ventaId });
+        
+        if (response.data.success && response.data.init_point) {
+            window.location.href = response.data.init_point; 
+        } else {
+             window.$toast.error(response.data.message || 'No se pudo iniciar el pago.');
+        }
+    } catch (error) {
+         window.$toast.error(error.response?.data?.message || 'Error al conectar con pasarela.');
+    } finally {
+        payingWithMP.value[ventaId] = false;
+    }
+};
+
 
 const payWithCredit = async (ventaId) => {
     const confirmed = await confirmModal.value.show();
@@ -734,10 +774,10 @@ const toggleFaq = (id) => {
                         </div>
                     </div>
 
-                    <!-- Tab: Historial Pagos -->
-                    <div v-show="activeTab === 'pagos'" class="animate-fade-in space-y-6">
+                    <!-- Tab: Historial y Pagos -->
+                    <div v-show="activeTab === 'pagos'" class="animate-fade-in space-y-6" id="historial-pagos">
                         <div class="px-2">
-                             <h2 class="text-xl font-black text-gray-900 uppercase tracking-tight">Historial de Transacciones</h2>
+                             <h2 class="text-xl font-black text-gray-900 uppercase tracking-tight">Historial y Pagos Pendientes</h2>
                         </div>
 
                         <div class="bg-white rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
@@ -754,7 +794,7 @@ const toggleFaq = (id) => {
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-50">
-                                        <tr v-for="venta in ventas" :key="venta.id" class="hover:bg-gray-50/50 transition-colors">
+                                        <tr v-for="venta in ventas.data" :key="venta.id" class="hover:bg-gray-50/50 transition-colors">
                                             <td class="px-8 py-4 font-mono text-xs font-bold text-gray-500">#{{ venta.folio || venta.id }}</td>
                                             <td class="px-8 py-4 text-xs font-bold text-gray-900">{{ formatDate(venta.fecha) }}</td>
                                             <td class="px-8 py-4 text-xs font-medium text-gray-600 max-w-xs truncate">{{ venta.notas || 'Venta General' }}</td>
@@ -780,18 +820,46 @@ const toggleFaq = (id) => {
                                                             title="Pagar con Crédito">
                                                         {{ payingWithCredit[venta.id] ? '...' : 'Pagar con Crédito 💳' }}
                                                     </button>
-                                                    <button class="text-gray-300 cursor-not-allowed" title="Próximamente">
-                                                        <font-awesome-icon icon="file-invoice-dollar" />
+                                                    
+                                                    <a :href="route('portal.ventas.pdf', venta.id)" 
+                                                       target="_blank"
+                                                       class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-gray-200 transition-all flex items-center gap-1"
+                                                       title="Descargar PDF">
+                                                        <font-awesome-icon icon="file-pdf" /> PDF
+                                                    </a>
+                                                    
+                                                    <!-- Botón MercadoPago (Solo si pendiente) -->
+                                                    <button v-if="venta.estado === 'pendiente' || venta.estado === 'vencida'"
+                                                            @click="payWithMercadoPago(venta.id)"
+                                                            :disabled="payingWithMP[venta.id]"
+                                                            class="px-3 py-1 bg-blue-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all disabled:opacity-50 flex items-center gap-1"
+                                                            title="Pagar Online con Tarjeta/MP">
+                                                        <font-awesome-icon :icon="payingWithMP[venta.id] ? 'spinner' : 'credit-card'" :spin="payingWithMP[venta.id]" />
+                                                        {{ payingWithMP[venta.id] ? '...' : 'Pagar' }}
                                                     </button>
                                                 </div>
                                             </td>
                                         </tr>
-                                        <tr v-if="!ventas || ventas.length === 0">
+                                        <tr v-if="!ventas.data || ventas.data.length === 0">
                                             <td colspan="6" class="px-8 py-12 text-center text-gray-400 text-sm font-medium">No se encontraron registros de ventas.</td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+
+                         <!-- Pagination -->
+                         <div v-if="ventas.links && ventas.links.length > 3" class="flex justify-center gap-2 mt-4">
+                            <template v-for="(link, key) in ventas.links" :key="key">
+                                <Link 
+                                    v-if="link.url"
+                                    :href="link.url"
+                                    class="px-4 py-2 text-xs font-bold rounded-lg border"
+                                    :class="link.active ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]' : 'bg-white text-gray-500 border-gray-100 hover:bg-gray-50'"
+                                    v-html="link.label"
+                                />
+                                <span v-else class="px-4 py-2 text-xs text-gray-400" v-html="link.label"></span>
+                            </template>
                         </div>
                     </div>
 
@@ -1150,6 +1218,13 @@ const toggleFaq = (id) => {
             confirm-label="Sí, pagar ahora"
             cancel-label="No, volver"
             type="success"
+        />
+        <DeudaModal 
+            :show="showDeudaModal" 
+            :pagos-pendientes="pagosPendientes"
+            :empresa="empresa"
+            @close="showDeudaModal = false"
+            @pagar="handlePagarDeuda"
         />
     </ClientLayout>
 </template>

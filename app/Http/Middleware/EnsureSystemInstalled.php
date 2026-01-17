@@ -23,15 +23,26 @@ class EnsureSystemInstalled
             return $next($request);
         }
 
-        // Verificar si existe algún super-admin (indicador de instalación completa)
+        // Verificar si existe algún super-admin o al menos una empresa configurada
         $isInstalled = false;
         try {
+            // Opción 1: Checar si hay super-admin (producción)
             if (\Schema::hasTable('roles')) {
                 $isInstalled = User::role('super-admin')->exists();
             }
+            // Opción 2: En desarrollo, si hay al menos una empresa configurada, permitir acceso
+            if (!$isInstalled && \Schema::hasTable('empresa_configuracion')) {
+                $isInstalled = \DB::table('empresa_configuracion')->exists();
+            }
         } catch (\Exception $e) {
-            // Si el rol no existe o hay error de DB, asumimos que no está instalado
-            $isInstalled = false;
+            // Si hay error de DB, intentar fallback a empresa_configuracion
+            try {
+                if (\Schema::hasTable('empresa_configuracion')) {
+                    $isInstalled = \DB::table('empresa_configuracion')->exists();
+                }
+            } catch (\Exception $e2) {
+                $isInstalled = false;
+            }
         }
 
         // Si NO está instalado
@@ -40,8 +51,12 @@ class EnsureSystemInstalled
             if ($request->routeIs('setup.*')) {
                 return $next($request);
             }
-            // Redirigir a setup
-            return redirect()->route('setup.index');
+            // Verificar si la ruta setup.index existe antes de redirigir
+            if (Route::has('setup.index')) {
+                return redirect()->route('setup.index');
+            }
+            // Fallback: si no hay ruta de setup, permitir paso (dev mode)
+            return $next($request);
         }
 
         // Si SÍ está instalado

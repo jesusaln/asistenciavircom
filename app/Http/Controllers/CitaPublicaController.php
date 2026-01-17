@@ -303,12 +303,31 @@ class CitaPublicaController extends Controller
             abort(404, 'Cita no encontrada');
         }
 
-        $cita->load(['cliente', 'tecnico']);
+        $cita->load(['cliente', 'tecnico', 'venta.items.ventable', 'venta.cuentaPorCobrar']);
 
         $empresa = Empresa::find($cita->empresa_id);
 
         // Timeline de estados
         $timeline = $this->buildTimeline($cita);
+
+        // Datos financieros
+        $cargos = null;
+        if ($cita->venta) {
+            $cargos = [
+                'folio' => $cita->venta->numero_venta ?? $cita->venta->id,
+                'total' => $cita->venta->total,
+                'estado_pago' => $cita->venta->pagado ? 'pagado' : 'pendiente',
+                'items' => $cita->venta->items->map(function ($item) {
+                    return [
+                        'nombre' => $item->ventable->nombre ?? 'Item eliminado',
+                        'cantidad' => $item->cantidad,
+                        'precio' => $item->precio,
+                        'subtotal' => $item->subtotal, // Usar subtotal ya que es el final con descuentos
+                    ];
+                }),
+                'fecha_vencimiento' => $cita->venta->cuentaPorCobrar?->fecha_vencimiento?->format('d/m/Y'),
+            ];
+        }
 
         return Inertia::render('Public/SeguimientoCita', [
             'empresa' => [
@@ -350,6 +369,7 @@ class CitaPublicaController extends Controller
                 'created_at' => $cita->created_at->format('d/m/Y H:i'),
             ],
             'timeline' => $timeline,
+            'cargos' => $cargos,
         ]);
     }
 

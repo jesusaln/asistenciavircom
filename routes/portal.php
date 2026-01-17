@@ -57,6 +57,8 @@ Route::prefix('portal')->group(function () {
         Route::post('/perfil', [PortalController::class, 'updateProfile'])->name('portal.perfil.update');
 
         // Pagos con Crédito
+        Route::get('/ventas/{id}/pdf', [PortalController::class, 'descargarVentaPdf'])->name('portal.ventas.pdf');
         Route::post('/pagos/venta/credito', [PortalController::class, 'payVentaWithCredit'])->name('portal.ventas.pagar-credito');
+        Route::post('/pagos/venta/mercadopago', [\App\Http\Controllers\ClientPortal\PortalPaymentController::class, 'createMercadoPago'])->name('portal.pagos.mercadopago.crear');
     });
 });

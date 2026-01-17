@@ -293,6 +293,22 @@ class CitaController extends Controller
                 $validated['fecha_hora']
             );
 
+            // Verificar límite de visitas en sitio por póliza
+            $excedeVisitas = false;
+            if ($validated['tipo_servicio'] === 'soporte_sitio') {
+                $poliza = \App\Models\PolizaServicio::where('cliente_id', $validated['cliente_id'])
+                    ->activa()
+                    ->first();
+
+                if ($poliza && $poliza->visitas_sitio_mensuales > 0) {
+                    if ($poliza->excede_limite_visitas) {
+                        $excedeVisitas = true;
+                        // Opcional: Podríamos agregar una nota automática
+                        $validated['notas'] = ($validated['notas'] ?? '') . "\n⚠️ ADVERTENCIA: Esta visita excede el límite mensual de la póliza y debe ser cobrada.";
+                    }
+                }
+            }
+
             // Guardar archivos y obtener sus rutas
             $filePaths = $this->saveFiles($request, ['foto_equipo', 'foto_hoja_servicio', 'foto_identificacion']);
 
@@ -302,7 +318,7 @@ class CitaController extends Controller
                 'descuento_items' => 0,
                 'iva' => 0,
                 'total' => 0,
-                'notas' => $request->notas,
+                'notas' => $validated['notas'] ?? $request->notas,
             ]));
 
 
@@ -359,18 +375,31 @@ class CitaController extends Controller
     {
         $cita->load(['items.citable']);
 
-        $tecnicos = User::tecnicos()->select('id', 'name as nombre')->get();
+        $tecnicos = User::role('Tecnico')->select('id', 'name')->get(); // Optimization: use role instead of scope if possible, or keep scope
+        // Actually maintain existing logic but optimize
+        $tecnicos = User::tecnicos()->select('id', 'name')->get();
+
         try {
-            $clientes = Cliente::all();
+            $clientes = Cliente::all(['id', 'nombre_fiscal', 'nombre_comercial', 'telefono', 'email', 'direccion_calle', 'direccion_colonia', 'direccion_cp']);
         } catch (Exception $e) {
             Log::error('Error loading clientes in CitaController@edit: ' . $e->getMessage());
             $clientes = [];
         }
 
+        $productos = \App\Models\Producto::where('estado', 'activo')
+            ->select('id', 'nombre', 'precio_venta', 'precio_compra', 'tipo_producto')
+            ->get();
+
+        $servicios = \App\Models\Servicio::where('estado', 'activo')
+            ->select('id', 'nombre', 'precio')
+            ->get();
+
         return Inertia::render('Citas/Edit', [
             'cita' => $cita,
             'tecnicos' => $tecnicos,
             'clientes' => $clientes,
+            'productos' => $productos,
+            'servicios' => $servicios,
         ]);
     }
 
@@ -409,11 +438,14 @@ class CitaController extends Controller
             'foto_hoja_servicio' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'foto_identificacion' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'tipo_equipo' => 'nullable|string|max:255',
+            'items' => 'nullable|array', // Allow items array
             'marca_equipo' => 'nullable|string|max:255',
             'modelo_equipo' => 'nullable|string|max:255',
             'firma_cliente' => 'nullable|string',
             'nombre_firmante' => 'nullable|string|max:255',
             'firma_tecnico' => 'nullable|string',
+            'cerrar_ticket' => 'nullable|boolean',
+            'tiempo_servicio' => 'nullable|integer|min:0',
         ]);
 
         try {
@@ -491,7 +523,224 @@ class CitaController extends Controller
             // Actualizar la cita con los datos validados y las rutas de los archivos
             $cita->update($dataToUpdate);
 
-            // No se procesan items ni se recalculan totales (funcionalidad de venta removida)
+            // Si se marcó para cerrar el ticket y el estado es completado
+            if ($request->boolean('cerrar_ticket') && $cita->estado === Cita::ESTADO_COMPLETADO && $cita->ticket_id) {
+                $ticket = \App\Models\Ticket::find($cita->ticket_id);
+                if ($ticket && !in_array($ticket->estado, ['resuelto', 'cerrado'])) {
+                    $horas = null;
+                    if ($request->filled('tiempo_servicio')) {
+                        $horas = round($request->input('tiempo_servicio') / 60, 2);
+                    }
+
+                    // Usar el método del modelo para resolver y registrar en póliza
+                    $ticket->marcarComoResuelto($horas, null, null, true);
+
+                    // Agregar comentario al ticket
+                    $tiempoTexto = $request->filled('tiempo_servicio') ? "\n⏱️ Tiempo registrado: " . $request->input('tiempo_servicio') . " min" : "";
+                    $ticket->comentarios()->create([
+                        'user_id' => auth()->id(),
+                        'contenido' => "✅ Ticket resuelto automáticamente al completar la cita #{$cita->id}.{$tiempoTexto}" .
+                            ($request->trabajo_realizado ? "\n\nTrabajo realizado:\n" . $request->trabajo_realizado : ""),
+                        'tipo' => 'estado',
+                        'es_interno' => false
+                    ]);
+                }
+            }
+
+            // Si el estado pasó a COMPLETADO y es soporte en sitio, registrar visita en la póliza (si no se registró antes)
+            if ($dataToUpdate['estado'] === Cita::ESTADO_COMPLETADO && $cita->getOriginal('estado') !== Cita::ESTADO_COMPLETADO && $cita->tipo_servicio === 'soporte_sitio') {
+                $poliza = \App\Models\PolizaServicio::where('cliente_id', $cita->cliente_id)->activa()->first();
+                if ($poliza) {
+                    $poliza->registrarVisitaSitio();
+                }
+            }
+
+            // Procesar items y calcular totales
+            if ($request->has('items')) {
+                $itemsData = $request->input('items');
+
+                // Verificar cobertura de póliza
+                $poliza = \App\Models\PolizaServicio::where('cliente_id', $cita->cliente_id)->activa()->first();
+                $cubiertoPorPoliza = false;
+
+                if ($poliza) {
+                    // Si ya se registró la visita (bloque anterior) o si es mantenimiento incluido
+                    // Verificamos si NO excedió el límite.
+                    // Nota: Si el bloque anterior corrió, 'visitas_sitio_consumidas_mes' ya aumentó.
+                    // Si el consumo actual < limite, entonces hay cupo disponible.
+                    // FIX: Usar < estrictamente (si consumo=2 y limite=2, ya no hay cupo para la 3ra)
+                    $limiteVisitas = $poliza->visitas_sitio_mensuales ?? 0;
+                    $consumoActual = $poliza->visitas_sitio_consumidas_mes ?? 0;
+
+                    // Verificamos si YA se descontó en el bloque anterior (líneas 550-556)
+                    // El bloque anterior usa $cita->tipo_servicio (valor en DB) para checar 'soporte_sitio'.
+                    // Si el request trae un cambio de tipo de servicio, el bloque anterior podría no haber coincidido con la realidad final,
+                    // o viceversa. Para seguridad, asumimos que si se aplica cobertura aquí, debe contarse la visita.
+
+                    // Checamos si debemos "reservar" el cupo
+                    if ($consumoActual < $limiteVisitas) {
+                        $cubiertoPorPoliza = true;
+                    }
+                }
+
+                // Limpiar items anteriores
+                $cita->items()->delete();
+
+                $subtotalCita = 0;
+                $ivaCita = 0;
+                $totalCita = 0;
+                $empresaConfig = \App\Models\EmpresaConfiguracion::first();
+                $ivaPorcentaje = $empresaConfig ? $empresaConfig->iva_porcentaje : 16.00;
+
+                $seAplicoCoberturaEnItems = false;
+
+                foreach ($itemsData as $item) {
+                    $cantidad = $item['cantidad'] ?? 1;
+                    $precioOriginal = $item['precio'] ?? 0;
+                    $descuentoInfo = $item['descuento'] ?? 0;
+                    $notasItem = $item['notas'] ?? null;
+
+                    // Lógica de Póliza: Servicios a $0 si está cubierto
+                    $esServicio = ($item['tipo'] === 'servicio');
+                    $precioAplicado = $precioOriginal;
+
+                    if ($esServicio && $cubiertoPorPoliza) {
+                        $precioAplicado = 0;
+                        $notasItem = trim(($notasItem ?? '') . " (Cubierto por Póliza #{$poliza->folio})");
+                        $seAplicoCoberturaEnItems = true;
+                    }
+
+                    // Calcular montos del item
+                    $subtotalItem = $cantidad * $precioAplicado;
+                    $descuentoMonto = $subtotalItem * ($descuentoInfo / 100);
+                    $subtotalItemConDescuento = $subtotalItem - $descuentoMonto;
+
+                    $citaItem = new \App\Models\CitaItem([
+                        'empresa_id' => $cita->empresa_id,
+                        'cita_id' => $cita->id,
+                        'citable_type' => $esServicio ? \App\Models\Servicio::class : \App\Models\Producto::class,
+                        'citable_id' => $item['id'],
+                        'cantidad' => $cantidad,
+                        'precio' => $precioAplicado,
+                        'descuento' => $descuentoInfo,
+                        'descuento_monto' => $descuentoMonto,
+                        'subtotal' => $subtotalItemConDescuento,
+                        'notas' => $notasItem,
+                    ]);
+                    $citaItem->save();
+
+                    $subtotalCita += $subtotalItemConDescuento;
+                }
+
+                // Asegurar que se descuente la visita si se aplicó cobertura y NO se había descontado antes
+                if ($seAplicoCoberturaEnItems && $poliza) {
+                    // Verificamos si el bloque de arriba (550) ya lo ejecutó.
+                    // Condición 550: estado=COMPLETADO, original!=COMPLETADO, tipo=soporte_sitio
+                    $yaDescontoArriba = ($dataToUpdate['estado'] === \App\Models\Cita::ESTADO_COMPLETADO
+                        && $cita->getOriginal('estado') !== \App\Models\Cita::ESTADO_COMPLETADO
+                        && $cita->tipo_servicio === 'soporte_sitio');
+
+                    if (!$yaDescontoArriba) {
+                        $poliza->registrarVisitaSitio();
+                    }
+                }
+
+                $ivaCita = $subtotalCita * ($ivaPorcentaje / 100);
+                $totalCita = $subtotalCita + $ivaCita;
+
+                $cita->update([
+                    'subtotal' => $subtotalCita,
+                    'iva' => $ivaCita,
+                    'total' => $totalCita,
+                    'descuento_general' => 0, // Por ahora 0, implementar si se requiere descuento global
+                ]);
+            }
+
+            // Generar Venta y CuentasPorCobrar si se completó la cita y hay items
+            if ($cita->estado === Cita::ESTADO_COMPLETADO && $cita->items()->count() > 0) {
+                // Verificar si ya existe una venta para esta cita
+                $existeVenta = \App\Models\Venta::where('cita_id', $cita->id)->exists();
+
+                if (!$existeVenta) {
+                    $user = auth()->user();
+                    // Buscar almacén: del usuario, default config, o el principal
+                    $almacenId = $user->almacen_venta_id
+                        ?? \App\Models\Almacen::where('nombre', 'like', '%principal%')->first()?->id
+                        ?? \App\Models\Almacen::first()?->id;
+
+                    if ($almacenId) {
+                        try {
+                            DB::beginTransaction();
+
+                            // Crear Venta
+                            $venta = \App\Models\Venta::create([
+                                'numero_venta' => 'V-' . time() . '-' . $cita->id, // Simple generation logic, adjust as needed
+                                'empresa_id' => $cita->empresa_id,
+                                'cliente_id' => $cita->cliente_id,
+                                'cita_id' => $cita->id,
+                                'fecha' => now(),
+                                'estado' => 'pendiente',
+                                'subtotal' => $cita->subtotal,
+                                'iva' => $cita->iva,
+                                'total' => $cita->total,
+                                'almacen_id' => $almacenId,
+                                'vendedor_type' => $user ? get_class($user) : \App\Models\User::class,
+                                'vendedor_id' => $user ? $user->id : ($cita->tecnico_id ?? 1),
+                                'notas' => 'Generada automáticamente desde Cita #' . $cita->id,
+                                'pagado' => false,
+                            ]);
+
+                            // Crear Items de Venta
+                            foreach ($cita->items as $cItem) {
+                                \App\Models\VentaItem::create([
+                                    'empresa_id' => $venta->empresa_id,
+                                    'venta_id' => $venta->id,
+                                    'ventable_type' => $cItem->citable_type,
+                                    'ventable_id' => $cItem->citable_id,
+                                    'cantidad' => $cItem->cantidad,
+                                    'precio' => $cItem->precio,
+                                    'descuento' => $cItem->descuento,
+                                    'subtotal' => $cItem->subtotal,
+                                    'costo_unitario' => 0, // Se debería calcular si es producto
+                                ]);
+
+                                // Decrementar Stock si es producto
+                                if ($cItem->citable_type === \App\Models\Producto::class) {
+                                    // Lógica de inventario simplificada, idealmente usar servicio de inventario
+                                    // $producto = $cItem->citable;
+                                    // $producto->decrementarStock($cItem->cantidad, $almacenId);
+                                }
+                            }
+
+                            // Crear Cuenta Por Cobrar
+                            \App\Models\CuentasPorCobrar::create([
+                                'monto_total' => $venta->total,
+                                'monto_pendiente' => $venta->total, // FIX: Explicit value for not null constraint
+                                'saldo_pendiente' => $venta->total, // Legacy field maybe? keeping for safety
+                                'empresa_id' => $venta->empresa_id,
+                                'cliente_id' => $venta->cliente_id,
+                                'cobrable_type' => \App\Models\Venta::class,
+                                'cobrable_id' => $venta->id,
+                                'folio' => 'CXC-' . $venta->id, // O generar folio secuencial
+                                'fecha_emision' => now(),
+                                'fecha_vencimiento' => now()->addDays($cita->cliente->dias_credito ?? 15),
+                                'monto' => $venta->total,
+                                'saldo_pendiente' => $venta->total,
+                                'estado' => 'pendiente',
+                                'concepto' => 'Cargo por servicio Cita #' . $cita->id,
+                            ]);
+
+                            DB::commit();
+                        } catch (\Exception $e) {
+                            DB::rollBack();
+                            Log::error('Error generando venta para cita #' . $cita->id . ': ' . $e->getMessage());
+                            // No lanzamos excepción para no bloquear la actualización de la cita, pero logueamos
+                        }
+                    } else {
+                        Log::warning('No se pudo generar venta para cita #' . $cita->id . ': Falta almacén asignado.');
+                    }
+                }
+            }
 
 
             DB::commit();
@@ -1146,6 +1395,7 @@ class CitaController extends Controller
             $request->validate([
                 'trabajo_realizado' => 'nullable|string',
                 'fotos_finales.*' => 'nullable|image|max:5120', // Máx 5MB por foto
+                'cerrar_ticket' => 'nullable|boolean',
             ]);
 
             $finServicio = now();
@@ -1171,6 +1421,34 @@ class CitaController extends Controller
                 'trabajo_realizado' => $request->trabajo_realizado,
                 'fotos_finales' => count($filePaths) > 0 ? $filePaths : null,
             ]);
+
+            // Si es soporte en sitio, registrar consumo en la póliza si tiene una
+            if ($cita->tipo_servicio === 'soporte_sitio') {
+                $poliza = \App\Models\PolizaServicio::where('cliente_id', $cita->cliente_id)->activa()->first();
+                if ($poliza) {
+                    $poliza->registrarVisitaSitio();
+                }
+            }
+
+            // Si se marcó para cerrar el ticket
+            if ($request->boolean('cerrar_ticket') && $cita->ticket_id) {
+                $ticket = \App\Models\Ticket::find($cita->ticket_id);
+                if ($ticket && !in_array($ticket->estado, ['resuelto', 'cerrado'])) {
+                    $horas = $tiempoServicio ? round($tiempoServicio / 60, 2) : null;
+
+                    $ticket->marcarComoResuelto($horas, null, null, true);
+
+                    // Agregar comentario al ticket
+                    $tiempoTexto = $tiempoServicio ? "\n⏱️ Tiempo registrado: {$tiempoServicio} min" : "";
+                    $ticket->comentarios()->create([
+                        'user_id' => auth()->id(),
+                        'contenido' => "✅ Ticket resuelto automáticamente desde 'Mi Agenda' al completar la cita #{$cita->id}.{$tiempoTexto}" .
+                            ($request->trabajo_realizado ? "\n\nTrabajo realizado:\n" . $request->trabajo_realizado : ""),
+                        'tipo' => 'estado',
+                        'es_interno' => false
+                    ]);
+                }
+            }
 
             return back()->with('success', '✅ ¡Servicio completado exitosamente!');
 
@@ -1224,5 +1502,31 @@ class CitaController extends Controller
         $url = "https://wa.me/52{$telefono}?text=" . urlencode($mensaje);
 
         return Inertia::location($url);
+    }
+    public function checkVisitsLimit(Request $request)
+    {
+        $clienteId = $request->query('cliente_id');
+        if (!$clienteId) {
+            return response()->json(['success' => false, 'message' => 'Falta cliente_id']);
+        }
+
+        $poliza = \App\Models\PolizaServicio::where('cliente_id', $clienteId)
+            ->activa()
+            ->first();
+
+        if (!$poliza) {
+            return response()->json([
+                'has_policy' => false,
+                'message' => 'El cliente no tiene una póliza activa.'
+            ]);
+        }
+
+        return response()->json([
+            'has_policy' => true,
+            'visitas_incluidas' => $poliza->visitas_sitio_mensuales,
+            'visitas_consumidas' => $poliza->visitas_sitio_consumidas_mes,
+            'excede_limite' => $poliza->excede_limite_visitas,
+            'costo_extra' => $poliza->costo_visita_sitio_extra,
+        ]);
     }
 }

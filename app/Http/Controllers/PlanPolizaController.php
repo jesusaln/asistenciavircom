@@ -73,6 +73,8 @@ class PlanPolizaController extends Controller
             'max_equipos' => 'nullable|integer|min:1',
             'mantenimiento_frecuencia_meses' => 'nullable|integer|min:1|max:24',
             'generar_cita_automatica' => 'nullable|boolean',
+            'visitas_sitio_mensuales' => 'nullable|integer|min:0',
+            'costo_visita_sitio_extra' => 'nullable|numeric|min:0',
         ]);
 
         $validated['slug'] = Str::slug($validated['nombre']) . '-' . Str::random(6);
@@ -136,6 +138,8 @@ class PlanPolizaController extends Controller
             'max_equipos' => 'nullable|integer|min:1',
             'mantenimiento_frecuencia_meses' => 'nullable|integer|min:1|max:24',
             'generar_cita_automatica' => 'nullable|boolean',
+            'visitas_sitio_mensuales' => 'nullable|integer|min:0',
+            'costo_visita_sitio_extra' => 'nullable|numeric|min:0',
         ]);
 
         $planesPoliza->update($validated);

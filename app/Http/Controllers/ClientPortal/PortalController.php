@@ -75,7 +75,7 @@ class PortalController extends Controller
             'pagosPendientes' => $pagosPendientes,
             'rentas' => $rentas,
             'pedidos' => \App\Models\Pedido::where('cliente_id', $cliente->id)->orderByDesc('created_at')->limit(10)->get(),
-            'ventas' => Venta::where('cliente_id', $cliente->id)->orderByDesc('fecha')->limit(50)->get(), // Agregamos historial de ventas
+            'ventas' => Venta::where('cliente_id', $cliente->id)->orderByDesc('fecha')->paginate(20)->withQueryString(), // Historial de ventas paginado
             'credenciales' => $cliente->credenciales()->get()->map(function ($c) {
                 // No enviamos el password real al dashboard inicial, solo metadatos
                 return [
@@ -113,7 +113,7 @@ class PortalController extends Controller
                 'tipo_persona'
             ),
             'empresa' => $this->getEmpresaBranding(),
-            'faqs' => \App\Models\LandingFaq::where('empresa_id', \App\Support\EmpresaResolver::resolveId())->where('activo', true)->orderBy('orden')->get(),
+            'faqs' => LandingFaq::where('empresa_id', EmpresaResolver::resolveId())->where('activo', true)->orderBy('orden')->get(),
             'catalogos' => [
                 'regimenes' => \Illuminate\Support\Facades\Cache::remember('sat_regimenes_fiscales', 86400, fn() => \App\Models\SatRegimenFiscal::orderBy('clave')->get()),
                 'usos_cfdi' => \Illuminate\Support\Facades\Cache::remember('sat_usos_cfdi', 86400, fn() => \App\Models\SatUsoCfdi::orderBy('clave')->get()),
@@ -320,7 +320,7 @@ class PortalController extends Controller
         ]);
 
         $cliente = Auth::guard('client')->user();
-        $venta = \App\Models\Venta::where('cliente_id', $cliente->id)->findOrFail($validated['venta_id']);
+        $venta = Venta::where('cliente_id', $cliente->id)->findOrFail($validated['venta_id']);
 
         if ($venta->estado === EstadoVenta::Pagado) {
             return response()->json(['success' => false, 'message' => 'Esta factura ya está pagada.'], 400);
@@ -351,7 +351,7 @@ class PortalController extends Controller
             // Si tiene Cuenta por Cobrar, marcarla como pagada
             if ($venta->cuentaPorCobrar) {
                 $cxc = $venta->cuentaPorCobrar;
-                $cxc->monto_pendiente = 0;
+                $cxc->monto_pendiente = 0.00;
                 $cxc->estado = 'pagado';
                 $cxc->save();
             }
@@ -416,5 +416,45 @@ class PortalController extends Controller
         $cliente->update($validated);
 
         return back()->with('success', 'Perfil actualizado correctamente.');
+    }
+    public function descargarVentaPdf(Request $request, $id)
+    {
+        $cliente = Auth::guard('client')->user();
+        $venta = Venta::where('cliente_id', $cliente->id)
+            ->with([
+                'cliente',
+                'almacen',
+                'items.series.productoSerie',
+                'vendedor'
+            ])
+            ->with([
+                'items.ventable' => function ($morphTo) {
+                    $morphTo->morphWith([
+                        \App\Models\Producto::class => ['kitItems.item'],
+                    ]);
+                }
+            ])
+            ->findOrFail($id);
+
+        try {
+            /** @var \App\Services\PdfGeneratorService $pdfService */
+            $pdfService = app(\App\Services\PdfGeneratorService::class);
+
+            $piePagina = EmpresaConfiguracion::getPiePagina('ventas');
+
+            $pdf = $pdfService->loadView('ventas.pdf', [
+                'venta' => $venta,
+                'piePagina' => $piePagina
+            ]);
+
+            $filename = 'venta-' . $venta->numero_venta . '.pdf';
+
+            // Siempre descargar para el cliente
+            return $pdfService->download($pdf, $filename);
+
+        } catch (\Exception $e) {
+            Log::error('Error generando PDF de venta desde portal: ' . $e->getMessage());
+            return back()->with('error', 'No se pudo generar el documento. Intente más tarde.');
+        }
     }
 }
