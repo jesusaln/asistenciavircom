@@ -194,20 +194,20 @@
       <!-- Alerta de Stock Bajo -->
       <div
         v-if="productosBajoStockNombresSafe.length > 0"
-        class="bg-white p-6 rounded-2xl shadow-lg border-l-8 border-red-500 flex flex-col justify-between items-start text-left"
+        class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-red-500 flex flex-col justify-between items-start text-left transition-colors"
       >
         <div class="w-full">
           <div class="flex items-center mb-4">
             <FontAwesomeIcon :icon="['fas', 'exclamation-triangle']" class="h-8 w-8 text-red-600 mr-3" />
-            <h3 class="text-2xl font-extrabold text-gray-900">Alerta de Stock Bajo</h3>
+            <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white">Alerta de Stock Bajo</h3>
           </div>
-          <p class="text-base text-gray-700 mb-4">
+          <p class="text-base text-gray-700 dark:text-gray-300 mb-4 transition-colors">
             Actualmente tienes
             <strong>{{ n(productosBajoStockNombresSafe.length) }} producto(s) con stock críticamente bajo.</strong>
             Considera reponerlos pronto para evitar interrupciones.
           </p>
-          <h4 class="text-lg font-bold text-gray-800 mb-2">Productos afectados:</h4>
-          <ul class="text-gray-700 space-y-1 list-none">
+          <h4 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2 transition-colors">Productos afectados:</h4>
+          <ul class="text-gray-700 dark:text-gray-300 space-y-1 list-none transition-colors">
             <li
               v-for="(productoNombre, i) in productosBajoStockNombresSafe"
               :key="`low-${i}-${productoNombre}`"
@@ -230,28 +230,27 @@
       <!-- Alerta de Órdenes de Compra Pendientes -->
       <div
         v-if="proveedoresPedidosPendientesCount > 0"
-        class="bg-white p-6 rounded-2xl shadow-lg border-l-8 border-amber-500 flex flex-col justify-between items-start text-left"
+        class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-amber-500 flex flex-col justify-between items-start text-left transition-colors"
       >
         <div class="w-full">
           <div class="flex items-center mb-4">
             <FontAwesomeIcon :icon="['fas', 'clipboard-list']" class="h-8 w-8 text-amber-600 mr-3" />
-            <h3 class="text-2xl font-extrabold text-gray-900">Órdenes de Compra Pendientes</h3>
+            <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white">Órdenes de Compra Pendientes</h3>
           </div>
-          <p class="text-base text-gray-700 mb-4">
+          <p class="text-base text-gray-700 dark:text-gray-300 mb-4 transition-colors">
             Tienes <strong>{{ n(proveedoresPedidosPendientesCount) }} orden(es) de compra pendientes</strong> con proveedores.
           </p>
-
-          <h4 class="text-lg font-bold text-gray-800 mb-2">Detalles de órdenes:</h4>
-          <ul class="text-gray-700 space-y-2 list-none">
+          <h4 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2 transition-colors">Detalles de órdenes:</h4>
+          <ul class="text-gray-700 dark:text-gray-300 space-y-2 list-none transition-colors">
             <li
               v-for="orden in ordenesPendientesDetallesSafe"
               :key="`oc-${orden.id ?? orden.proveedor ?? Math.random()}`"
-              class="text-base bg-gray-50 p-3 rounded-md"
+              class="text-base bg-gray-50 dark:bg-gray-700/50 p-3 rounded-md transition-colors"
             >
               <div class="font-medium">{{ orden.proveedor ?? 'Proveedor N/D' }}</div>
-              <div class="text-sm text-gray-600">Prioridad: <span :class="getPrioridadClass(orden.prioridad)">{{ orden.prioridad ?? 'N/D' }}</span></div>
-              <div class="text-sm text-gray-600">Fecha esperada: {{ orden.fecha_esperada ?? 'N/D' }}</div>
-              <div v-if="orden.dias_retraso !== null" class="text-sm">
+              <div class="text-sm text-gray-600 dark:text-gray-400">Prioridad: <span :class="getPrioridadClass(orden.prioridad)">{{ orden.prioridad ?? 'N/D' }}</span></div>
+              <div class="text-sm text-gray-600 dark:text-gray-400">Fecha esperada: {{ orden.fecha_esperada ?? 'N/D' }}</div>
+              <div v-if="orden.dias_retraso !== null" class="text-sm transition-colors">
                 <span :class="getRetrasoClass(orden.dias_retraso)">
                   {{ orden.dias_retraso > 0 ? `${orden.dias_retraso} ${orden.dias_retraso === 1 ? 'día' : 'días'} de retraso` : 'En tiempo' }}
                 </span>
@@ -272,28 +271,28 @@
         <!-- Alerta de Órdenes de Compra Enviadas -->
         <div
           v-if="ordenesEnviadasDetallesSafe.length > 0"
-          class="bg-white p-6 rounded-2xl shadow-lg border-l-8 border-green-500 flex flex-col justify-between items-start text-left"
+          class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-green-500 flex flex-col justify-between items-start text-left transition-colors"
         >
           <div class="w-full">
             <div class="flex items-center mb-4">
               <FontAwesomeIcon :icon="['fas', 'paper-plane']" class="h-8 w-8 text-green-600 mr-3" />
-              <h3 class="text-2xl font-extrabold text-gray-900">Órdenes de Compra Enviadas</h3>
+              <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white">Órdenes de Compra Enviadas</h3>
             </div>
-            <p class="text-base text-gray-700 mb-4">
+            <p class="text-base text-gray-700 dark:text-gray-300 mb-4 transition-colors">
               Tienes <strong>{{ n(ordenesEnviadasDetallesSafe.length) }} orden(es) de compra enviada(s)</strong> a proveedores esperando confirmación.
             </p>
 
-            <h4 class="text-lg font-bold text-gray-800 mb-2">Últimas órdenes enviadas:</h4>
-            <ul class="text-gray-700 space-y-2 list-none">
+            <h4 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2 transition-colors">Últimas órdenes enviadas:</h4>
+            <ul class="text-gray-700 dark:text-gray-300 space-y-2 list-none transition-colors">
               <li
                 v-for="orden in ordenesEnviadasDetallesSafe"
                 :key="`env-${orden.id ?? orden.proveedor ?? Math.random()}`"
-                class="text-base bg-gray-50 p-3 rounded-md"
+                class="text-base bg-gray-50 dark:bg-gray-700/50 p-3 rounded-md transition-colors"
               >
                 <div class="font-medium">{{ orden.proveedor ?? 'Proveedor N/D' }}</div>
-                <div class="text-sm text-gray-600">Total: ${{ orden.total ?? 'N/D' }}</div>
-                <div class="text-sm text-gray-600">Fecha envío: {{ orden.fecha_envio ?? 'N/D' }}</div>
-                <div class="text-sm text-gray-600">Fecha esperada: {{ orden.fecha_esperada ?? 'N/D' }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">Total: ${{ orden.total ?? 'N/D' }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">Fecha envío: {{ orden.fecha_envio ?? 'N/D' }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">Fecha esperada: {{ orden.fecha_esperada ?? 'N/D' }}</div>
               </li>
             </ul>
           </div>
@@ -310,38 +309,38 @@
         <!-- Alerta de Mantenimientos Críticos -->
         <div
           v-if="mantenimientosVencidosCount > 0 || mantenimientosCriticosCount > 0"
-          class="bg-white p-6 rounded-2xl shadow-lg border-l-8 border-red-500 flex flex-col justify-between items-start text-left"
+          class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-red-500 flex flex-col justify-between items-start text-left transition-colors"
         >
           <div class="w-full">
             <div class="flex items-center mb-4">
               <FontAwesomeIcon :icon="['fas', 'wrench']" class="h-8 w-8 text-red-600 mr-3" />
-              <h3 class="text-2xl font-extrabold text-gray-900">Mantenimientos Urgentes</h3>
+              <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white">Mantenimientos Urgentes</h3>
             </div>
-            <p class="text-base text-gray-700 mb-4">
-              <span v-if="mantenimientosVencidosCount > 0" class="text-red-600 font-bold">
+            <p class="text-base text-gray-700 dark:text-gray-300 mb-4 transition-colors">
+              <span v-if="mantenimientosVencidosCount > 0" class="text-red-600 dark:text-red-400 font-bold">
                 ¡ATENCIÓN! {{ n(mantenimientosVencidosCount) }} mantenimiento(s) vencido(s)
               </span>
-              <span v-if="mantenimientosCriticosCount > 0" class="text-orange-600 font-bold">
+              <span v-if="mantenimientosCriticosCount > 0" class="text-orange-600 dark:text-orange-400 font-bold">
                 {{ n(mantenimientosCriticosCount) }} mantenimiento(s) crítico(s) requieren atención inmediata
               </span>
             </p>
 
-            <div v-if="mantenimientosCriticosDetallesSafe.length > 0" class="space-y-2">
-              <h4 class="text-lg font-bold text-gray-800 mb-2">Mantenimientos críticos:</h4>
-              <ul class="text-gray-700 space-y-2 list-none">
+            <div v-if="mantenimientosCriticosDetallesSafe.length > 0" class="space-y-2 transition-colors">
+              <h4 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2">Mantenimientos críticos:</h4>
+              <ul class="text-gray-700 dark:text-gray-300 space-y-2 list-none transition-colors">
                 <li
                   v-for="mantenimiento in mantenimientosCriticosDetallesSafe.slice(0, 3)"
                   :key="`mantenimiento-${mantenimiento.id ?? Math.random()}`"
-                  class="text-base bg-red-50 p-3 rounded-md border-l-4 border-red-500"
+                  class="text-base bg-red-50 dark:bg-red-900/20 p-3 rounded-md border-l-4 border-red-500 transition-colors"
                 >
                   <div class="font-medium">{{ mantenimiento.carro?.marca }} {{ mantenimiento.carro?.modelo }}</div>
-                  <div class="text-sm text-gray-600">{{ mantenimiento.tipo }}</div>
-                  <div class="text-sm text-red-600 font-medium">
+                  <div class="text-sm text-gray-600 dark:text-gray-400">{{ mantenimiento.tipo }}</div>
+                  <div class="text-sm text-red-600 dark:text-red-400 font-medium whitespace-nowrap">
                     {{ mantenimiento.dias_restantes < 0 ? `${Math.abs(mantenimiento.dias_restantes)} días vencido` : 'Próximo a vencer' }}
                   </div>
                 </li>
               </ul>
-              <div v-if="mantenimientosCriticosDetallesSafe.length > 3" class="text-sm text-gray-500 mt-2">
+              <div v-if="mantenimientosCriticosDetallesSafe.length > 3" class="text-sm text-gray-500 dark:text-gray-400 mt-2">
                 Y {{ n(mantenimientosCriticosDetallesSafe.length - 3) }} más...
               </div>
             </div>
@@ -360,32 +359,32 @@
       <!-- Citas activas del día de hoy -->
     <div
       v-if="citasHoyDetallesSafe.length > 0"
-      class="mt-8 bg-white p-6 rounded-2xl shadow-lg border-l-8 border-blue-500"
+      class="mt-8 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-blue-500 transition-colors"
     >
-      <div class="flex items-center mb-4">
+      <div class="flex items-center mb-4 transition-colors">
         <FontAwesomeIcon :icon="['fas', 'calendar-alt']" class="h-8 w-8 text-blue-600 mr-3" />
-        <h3 class="text-2xl font-extrabold text-gray-900">Citas activas del día de hoy</h3>
+        <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white transition-colors">Citas activas del día de hoy</h3>
       </div>
-      <p class="text-base text-gray-700 mb-4">
+      <p class="text-base text-gray-700 dark:text-gray-300 mb-4 transition-colors">
         Tienes <strong>{{ n(citasHoyDetallesSafe.length) }} cita(s) activa(s)</strong> programadas para hoy (en proceso y pendientes).
       </p>
-      <ul class="space-y-2">
+      <ul class="space-y-2 transition-colors">
         <li
           v-for="cita in citasHoyDetallesSafe"
           :key="`cita-${cita.id ?? cita.titulo ?? Math.random()}`"
-          class="flex items-center justify-between text-gray-800 bg-gray-50 p-4 rounded-md shadow-sm border-l-4"
+          class="flex items-center justify-between text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-md shadow-sm border-l-4 transition-colors"
           :class="cita.estado === 'en_proceso' ? 'border-l-blue-500' : 'border-l-yellow-500'"
         >
-          <div class="flex flex-col text-left flex-1">
-            <div class="font-semibold text-lg text-gray-900 mb-1">
+          <div class="flex flex-col text-left flex-1 transition-colors">
+            <div class="font-semibold text-lg text-gray-900 dark:text-white mb-1 transition-colors">
               {{ cita.titulo ?? 'Sin título' }}
             </div>
-            <div class="text-sm text-gray-700">Cliente: {{ cita.cliente ?? 'N/D' }}</div>
-            <div class="text-sm text-gray-700">Técnico: {{ cita.tecnico ?? 'N/D' }}</div>
-            <div class="mt-2">
+            <div class="text-sm text-gray-700 dark:text-gray-400 transition-colors">Cliente: {{ cita.cliente ?? 'N/D' }}</div>
+            <div class="text-sm text-gray-700 dark:text-gray-400 transition-colors">Técnico: {{ cita.tecnico ?? 'N/D' }}</div>
+            <div class="mt-2 transition-colors">
               <span
                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                :class="cita.estado === 'en_proceso' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'"
+                :class="cita.estado === 'en_proceso' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300'"
               >
                 <FontAwesomeIcon
                   :icon="cita.estado === 'en_proceso' ? ['fas', 'cog'] : ['fas', 'clock']"
@@ -418,44 +417,44 @@
     <!-- Mis Tareas Pendientes -->
     <div
       v-if="tareasPendientesSafe.total > 0"
-      class="mt-8 bg-white p-6 rounded-2xl shadow-lg border-l-8 border-purple-500"
+      class="mt-8 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-purple-500 transition-colors"
     >
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center">
           <FontAwesomeIcon :icon="['fas', 'tasks']" class="h-8 w-8 text-purple-600 mr-3" />
-          <h3 class="text-2xl font-extrabold text-gray-900">Mis Tareas Pendientes</h3>
+          <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white transition-colors">Mis Tareas Pendientes</h3>
         </div>
         <div class="flex items-center gap-2">
-          <span v-if="tareasPendientesSafe.en_proceso > 0" class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+          <span v-if="tareasPendientesSafe.en_proceso > 0" class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 py-1 rounded-full text-xs font-medium transition-colors">
             {{ tareasPendientesSafe.en_proceso }} en proceso
           </span>
-          <span v-if="tareasPendientesSafe.pendientes > 0" class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
+          <span v-if="tareasPendientesSafe.pendientes > 0" class="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 px-2 py-1 rounded-full text-xs font-medium transition-colors">
             {{ tareasPendientesSafe.pendientes }} pendientes
           </span>
         </div>
       </div>
-      <p class="text-base text-gray-700 mb-4">
+      <p class="text-base text-gray-700 dark:text-gray-300 mb-4 transition-colors">
         Tienes <strong>{{ n(tareasPendientesSafe.total) }} tarea(s)</strong> asignadas que requieren tu atención.
       </p>
-      <ul class="space-y-2">
+      <ul class="space-y-2 transition-colors">
         <li
           v-for="tarea in tareasPendientesSafe.tareas"
           :key="`tarea-${tarea.id}`"
-          class="flex items-center justify-between text-gray-800 bg-gray-50 p-4 rounded-md shadow-sm border-l-4"
+          class="flex items-center justify-between text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-md shadow-sm border-l-4 transition-colors"
           :class="{
             'border-l-blue-500': tarea.estado === 'en_proceso',
             'border-l-yellow-500': tarea.estado === 'pendiente',
             'border-l-red-500': tarea.vencida
           }"
         >
-          <div class="flex flex-col text-left flex-1">
-            <div class="font-semibold text-lg text-gray-900 mb-1">
+          <div class="flex flex-col text-left flex-1 transition-colors">
+            <div class="font-semibold text-lg text-gray-900 dark:text-white mb-1 transition-colors">
               {{ tarea.titulo }}
             </div>
-            <div v-if="tarea.descripcion" class="text-sm text-gray-600 mb-1">
+            <div v-if="tarea.descripcion" class="text-sm text-gray-600 dark:text-gray-400 mb-1 transition-colors">
               {{ tarea.descripcion }}
             </div>
-            <div class="flex flex-wrap gap-2 text-xs text-gray-500">
+            <div class="flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400 transition-colors">
               <span v-if="tarea.cliente">
                 <FontAwesomeIcon :icon="['fas', 'user']" class="mr-1" />
                 {{ tarea.cliente }}
@@ -469,16 +468,16 @@
                 Asignado por: {{ tarea.creador }}
               </span>
             </div>
-            <div class="mt-2 flex items-center gap-2">
+            <div class="mt-2 flex items-center gap-2 transition-colors">
               <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                :class="tarea.estado === 'en_proceso' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'"
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors"
+                :class="tarea.estado === 'en_proceso' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300'"
               >
                 {{ tarea.estado_label }}
               </span>
               <span
                 v-if="tarea.vencida"
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 transition-colors"
               >
                 <FontAwesomeIcon :icon="['fas', 'exclamation-triangle']" class="mr-1" />
                 Vencida
@@ -526,7 +525,7 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Cuentas por Pagar -->
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
           <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center">
@@ -542,17 +541,17 @@
           <div class="p-4 space-y-3">
             <!-- Vencidas -->
             <div v-if="alertasCuentasPagarSafe.vencidas_count > 0" 
-                 class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                 class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r-lg transition-colors">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-red-800 font-bold flex items-center">
+                <span class="text-red-800 dark:text-red-300 font-bold flex items-center transition-colors">
                   <span class="w-3 h-3 bg-red-500 rounded-full mr-2 animate-pulse"></span>
                   VENCIDAS
                 </span>
-                <span class="text-red-600 font-bold text-lg">${{ formatMonto(sumaMontos(alertasCuentasPagarSafe.vencidas)) }}</span>
+                <span class="text-red-600 dark:text-red-400 font-bold text-lg">${{ formatMonto(sumaMontos(alertasCuentasPagarSafe.vencidas)) }}</span>
               </div>
               <div class="space-y-1">
                 <div v-for="cuenta in alertasCuentasPagarSafe.vencidas.slice(0, 3)" :key="cuenta.id" 
-                     class="flex justify-between text-sm text-red-700">
+                     class="flex justify-between text-sm text-red-700 dark:text-red-400 transition-colors">
                   <span class="truncate flex-1 mr-2">{{ cuenta.proveedor }}</span>
                   <span class="font-medium whitespace-nowrap">${{ formatMonto(cuenta.monto_pendiente) }}</span>
                 </div>
@@ -564,17 +563,17 @@
 
             <!-- 1 Semana -->
             <div v-if="alertasCuentasPagarSafe.semana_count > 0"
-                 class="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-r-lg">
+                 class="bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-500 p-4 rounded-r-lg transition-colors">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-orange-800 font-semibold flex items-center">
+                <span class="text-orange-800 dark:text-orange-300 font-semibold flex items-center transition-colors">
                   <span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
                   Próximos 7 días
                 </span>
-                <span class="text-orange-600 font-bold">${{ formatMonto(sumaMontos(alertasCuentasPagarSafe.semana)) }}</span>
+                <span class="text-orange-600 dark:text-orange-400 font-bold">${{ formatMonto(sumaMontos(alertasCuentasPagarSafe.semana)) }}</span>
               </div>
               <div class="space-y-1">
                 <div v-for="cuenta in alertasCuentasPagarSafe.semana.slice(0, 2)" :key="cuenta.id"
-                     class="flex justify-between text-sm text-orange-700">
+                     class="flex justify-between text-sm text-orange-700 dark:text-orange-400 transition-colors">
                   <span class="truncate flex-1 mr-2">{{ cuenta.proveedor }}</span>
                   <span class="whitespace-nowrap">{{ cuenta.fecha_vencimiento }}</span>
                 </div>
@@ -583,17 +582,17 @@
 
             <!-- 15 días -->
             <div v-if="alertasCuentasPagarSafe.quincena_count > 0"
-                 class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
+                 class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-4 rounded-r-lg transition-colors">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-yellow-800 font-semibold flex items-center">
+                <span class="text-yellow-800 dark:text-yellow-300 font-semibold flex items-center transition-colors">
                   <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
                   En 15 días ({{ alertasCuentasPagarSafe.quincena_count }})
                 </span>
-                <span class="text-yellow-600 font-bold">${{ formatMonto(sumaMontos(alertasCuentasPagarSafe.quincena)) }}</span>
+                <span class="text-yellow-600 dark:text-yellow-400 font-bold">${{ formatMonto(sumaMontos(alertasCuentasPagarSafe.quincena)) }}</span>
               </div>
               <div class="space-y-1">
                 <div v-for="cuenta in alertasCuentasPagarSafe.quincena.slice(0, 3)" :key="cuenta.id"
-                     class="flex justify-between text-sm text-yellow-700">
+                     class="flex justify-between text-sm text-yellow-700 dark:text-yellow-400 transition-colors">
                   <span class="truncate flex-1 mr-2">{{ cuenta.numero }} - {{ cuenta.proveedor }}</span>
                   <span class="font-medium whitespace-nowrap">${{ formatMonto(cuenta.monto_pendiente) }} ({{ cuenta.fecha_vencimiento }})</span>
                 </div>
@@ -605,17 +604,17 @@
 
             <!-- 30 días -->
             <div v-if="alertasCuentasPagarSafe.mes_count > 0"
-                 class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+                 class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 p-4 rounded-r-lg transition-colors">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-blue-800 font-semibold flex items-center">
+                <span class="text-blue-800 dark:text-blue-300 font-semibold flex items-center transition-colors">
                   <span class="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>
                   En 30 días ({{ alertasCuentasPagarSafe.mes_count }})
                 </span>
-                <span class="text-blue-600 font-bold">${{ formatMonto(sumaMontos(alertasCuentasPagarSafe.mes)) }}</span>
+                <span class="text-blue-600 dark:text-blue-400 font-bold">${{ formatMonto(sumaMontos(alertasCuentasPagarSafe.mes)) }}</span>
               </div>
               <div class="space-y-1">
                 <div v-for="cuenta in alertasCuentasPagarSafe.mes.slice(0, 5)" :key="cuenta.id"
-                     class="flex justify-between text-sm text-blue-700">
+                     class="flex justify-between text-sm text-blue-700 dark:text-blue-400 transition-colors">
                   <span class="truncate flex-1 mr-2">{{ cuenta.numero }} - {{ cuenta.proveedor }}</span>
                   <span class="font-medium whitespace-nowrap">${{ formatMonto(cuenta.monto_pendiente) }} ({{ cuenta.fecha_vencimiento }})</span>
                 </div>
@@ -626,7 +625,7 @@
             </div>
 
             <!-- Sin alertas -->
-            <div v-if="totalCuentasPagar === 0" class="text-center py-6 text-gray-500">
+            <div v-if="totalCuentasPagar === 0" class="text-center py-6 text-gray-500 dark:text-gray-400 transition-colors">
               <FontAwesomeIcon :icon="['fas', 'check-circle']" class="h-10 w-10 text-green-400 mb-2" />
               <p class="font-medium">¡Todo al día!</p>
             </div>
@@ -641,7 +640,7 @@
         </div>
 
         <!-- Cuentas por Cobrar -->
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
           <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center">
@@ -657,13 +656,13 @@
           <div class="p-4 space-y-3">
             <!-- Vencidas -->
             <div v-if="alertasCuentasCobrarSafe.vencidas_count > 0"
-                 class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                 class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r-lg transition-colors">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-red-800 font-bold flex items-center">
+                <span class="text-red-800 dark:text-red-300 font-bold flex items-center transition-colors">
                   <span class="w-3 h-3 bg-red-500 rounded-full mr-2 animate-pulse"></span>
                   VENCIDAS
                 </span>
-                <span class="text-red-600 font-bold text-lg">${{ formatMonto(sumaMontos(alertasCuentasCobrarSafe.vencidas)) }}</span>
+                <span class="text-red-600 dark:text-red-400 font-bold text-lg">${{ formatMonto(sumaMontos(alertasCuentasCobrarSafe.vencidas)) }}</span>
               </div>
               <div class="space-y-1">
                 <div v-for="cuenta in alertasCuentasCobrarSafe.vencidas.slice(0, 3)" :key="cuenta.id"
@@ -756,7 +755,7 @@
         </div>
         
         <!-- Préstamos -->
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
           <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center">
@@ -772,17 +771,17 @@
           <div class="p-4 space-y-3">
             <!-- Vencidas -->
             <div v-if="alertasPrestamosSafe.vencidas_count > 0"
-                 class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                 class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r-lg transition-colors">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-red-800 font-bold flex items-center">
+                <span class="text-red-800 dark:text-red-300 font-bold flex items-center transition-colors">
                   <span class="w-3 h-3 bg-red-500 rounded-full mr-2 animate-pulse"></span>
                   VENCIDAS
                 </span>
-                <span class="text-red-600 font-bold text-lg">${{ formatMonto(sumaMontos(alertasPrestamosSafe.vencidas)) }}</span>
+                <span class="text-red-600 dark:text-red-400 font-bold text-lg transition-colors">${{ formatMonto(sumaMontos(alertasPrestamosSafe.vencidas)) }}</span>
               </div>
               <div class="space-y-1">
                 <div v-for="pago in alertasPrestamosSafe.vencidas.slice(0, 3)" :key="pago.id"
-                     class="flex justify-between text-sm text-red-700">
+                     class="flex justify-between text-sm text-red-700 dark:text-red-400 transition-colors">
                   <span class="truncate flex-1 mr-2">{{ pago.cliente }} (Pago {{ pago.numero_pago }})</span>
                   <span class="font-medium whitespace-nowrap">${{ formatMonto(pago.monto_pendiente) }}</span>
                 </div>
@@ -794,17 +793,17 @@
 
             <!-- 1 Semana -->
             <div v-if="alertasPrestamosSafe.semana_count > 0"
-                 class="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-r-lg">
+                 class="bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-500 p-4 rounded-r-lg transition-colors">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-orange-800 font-semibold flex items-center">
+                <span class="text-orange-800 dark:text-orange-300 font-semibold flex items-center transition-colors">
                   <span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
                   Próximos 7 días
                 </span>
-                <span class="text-orange-600 font-bold">${{ formatMonto(sumaMontos(alertasPrestamosSafe.semana)) }}</span>
+                <span class="text-orange-600 dark:text-orange-400 font-bold transition-colors">${{ formatMonto(sumaMontos(alertasPrestamosSafe.semana)) }}</span>
               </div>
               <div class="space-y-1">
                 <div v-for="pago in alertasPrestamosSafe.semana.slice(0, 2)" :key="pago.id"
-                     class="flex justify-between text-sm text-orange-700">
+                     class="flex justify-between text-sm text-orange-700 dark:text-orange-400 transition-colors">
                   <span class="truncate flex-1 mr-2">{{ pago.cliente }}</span>
                   <span class="whitespace-nowrap">{{ pago.fecha_vencimiento }}</span>
                 </div>
@@ -813,17 +812,17 @@
 
             <!-- 15 días -->
             <div v-if="alertasPrestamosSafe.quincena_count > 0"
-                 class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
+                 class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-4 rounded-r-lg transition-colors">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-yellow-800 font-semibold flex items-center">
+                <span class="text-yellow-800 dark:text-yellow-300 font-semibold flex items-center transition-colors">
                   <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
                   En 15 días ({{ alertasPrestamosSafe.quincena_count }})
                 </span>
-                <span class="text-yellow-600 font-bold">${{ formatMonto(sumaMontos(alertasPrestamosSafe.quincena)) }}</span>
+                <span class="text-yellow-600 dark:text-yellow-400 font-bold transition-colors">${{ formatMonto(sumaMontos(alertasPrestamosSafe.quincena)) }}</span>
               </div>
               <div class="space-y-1">
                 <div v-for="pago in alertasPrestamosSafe.quincena.slice(0, 3)" :key="pago.id"
-                     class="flex justify-between text-sm text-yellow-700">
+                     class="flex justify-between text-sm text-yellow-700 dark:text-yellow-400 transition-colors">
                   <span class="truncate flex-1 mr-2">{{ pago.cliente }} (Pago {{ pago.numero_pago }})</span>
                   <span class="font-medium whitespace-nowrap">${{ formatMonto(pago.monto_pendiente) }} ({{ pago.fecha_vencimiento }})</span>
                 </div>
@@ -835,17 +834,17 @@
 
             <!-- 30 días -->
             <div v-if="alertasPrestamosSafe.mes_count > 0"
-                 class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+                 class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 p-4 rounded-r-lg transition-colors">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-blue-800 font-semibold flex items-center">
+                <span class="text-blue-800 dark:text-blue-300 font-semibold flex items-center transition-colors">
                   <span class="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>
                   En 30 días ({{ alertasPrestamosSafe.mes_count }})
                 </span>
-                <span class="text-blue-600 font-bold">${{ formatMonto(sumaMontos(alertasPrestamosSafe.mes)) }}</span>
+                <span class="text-blue-600 dark:text-blue-400 font-bold transition-colors">${{ formatMonto(sumaMontos(alertasPrestamosSafe.mes)) }}</span>
               </div>
               <div class="space-y-1">
                 <div v-for="pago in alertasPrestamosSafe.mes.slice(0, 5)" :key="pago.id"
-                     class="flex justify-between text-sm text-blue-700">
+                     class="flex justify-between text-sm text-blue-700 dark:text-blue-400 transition-colors">
                   <span class="truncate flex-1 mr-2">{{ pago.cliente }} (Pago {{ pago.numero_pago }})</span>
                   <span class="font-medium whitespace-nowrap">${{ formatMonto(pago.monto_pendiente) }} ({{ pago.fecha_vencimiento }})</span>
                 </div>
@@ -856,7 +855,7 @@
             </div>
 
             <!-- Sin alertas -->
-            <div v-if="totalPrestamos === 0" class="text-center py-6 text-gray-500">
+            <div v-if="totalPrestamos === 0" class="text-center py-6 text-gray-500 dark:text-gray-400 transition-colors">
               <FontAwesomeIcon :icon="['fas', 'check-circle']" class="h-10 w-10 text-green-400 mb-2" />
               <p class="font-medium">¡Todo al día!</p>
             </div>
@@ -880,15 +879,15 @@
             <FontAwesomeIcon :icon="['fas', 'chart-pie']" class="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 class="text-2xl font-bold text-gray-900">Análisis y Tendencias</h2>
-            <p class="text-gray-500 text-sm">Visualiza el rendimiento de tu negocio</p>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Análisis y Tendencias</h2>
+            <p class="text-gray-500 dark:text-gray-400 text-sm transition-colors">Visualiza el rendimiento de tu negocio</p>
           </div>
         </div>
       </div>
       
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Gráfico de Ventas Mensuales -->
-        <div class="group relative bg-white/60 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white/50 overflow-hidden hover:shadow-xl transition-all duration-500">
+        <div class="group relative bg-white/60 dark:bg-gray-800/60 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 overflow-hidden hover:shadow-xl transition-all duration-500">
           <!-- Decorative gradient -->
           <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-blue-600/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
           <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-blue-400/10 to-transparent rounded-full translate-y-1/2 -translate-x-1/2 blur-xl"></div>
@@ -900,8 +899,8 @@
                   <FontAwesomeIcon :icon="['fas', 'chart-line']" class="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 class="text-lg font-bold text-gray-900">Ventas Mensuales</h3>
-                  <p class="text-xs text-gray-500">Últimos 6 meses</p>
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white transition-colors">Ventas Mensuales</h3>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 transition-colors">Últimos 6 meses</p>
                 </div>
               </div>
               <span class="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-medium rounded-full">Tendencia</span>
@@ -916,13 +915,13 @@
                 :fill="true"
               />
             </div>
-            <div v-else class="h-72 flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50/30 rounded-2xl border border-dashed border-gray-200">
+            <div v-else class="h-72 flex items-center justify-center bg-gradient-to-br from-gray-50 dark:from-gray-700/50 to-blue-50/30 dark:to-blue-900/20 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 transition-colors">
               <div class="text-center">
-                <div class="w-16 h-16 rounded-2xl bg-blue-100 flex items-center justify-center mx-auto mb-4">
-                  <FontAwesomeIcon :icon="['fas', 'chart-line']" class="h-8 w-8 text-blue-400" />
+                <div class="w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mx-auto mb-4">
+                  <FontAwesomeIcon :icon="['fas', 'chart-line']" class="h-8 w-8 text-blue-400 dark:text-blue-300" />
                 </div>
-                <p class="text-gray-600 font-semibold mb-2">Sin datos de ventas</p>
-                <p class="text-sm text-gray-400 mb-4">Registra tus primeras ventas</p>
+                <p class="text-gray-600 dark:text-gray-300 font-semibold mb-2">Sin datos de ventas</p>
+                <p class="text-sm text-gray-400 dark:text-gray-500 mb-4">Registra tus primeras ventas</p>
                 <PanLink :href="route('ventas.create')" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300">
                   <FontAwesomeIcon :icon="['fas', 'plus']" class="mr-2" />
                   Nueva Venta
@@ -944,8 +943,8 @@
                   <FontAwesomeIcon :icon="['fas', 'box']" class="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 class="text-lg font-bold text-gray-900">Productos Más Vendidos</h3>
-                  <p class="text-xs text-gray-500">Últimos 30 días</p>
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white transition-colors">Productos Más Vendidos</h3>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 transition-colors">Últimos 30 días</p>
                 </div>
               </div>
               <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-xs font-medium rounded-full">Top 5</span>
@@ -988,8 +987,8 @@
                   <FontAwesomeIcon :icon="['fas', 'clipboard-list']" class="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 class="text-lg font-bold text-gray-900">Órdenes de Compra</h3>
-                  <p class="text-xs text-gray-500">Por estado</p>
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white transition-colors">Órdenes de Compra</h3>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 transition-colors">Por estado</p>
                 </div>
               </div>
               <span class="px-3 py-1 bg-purple-50 text-purple-600 text-xs font-medium rounded-full">Distribución</span>
@@ -1029,8 +1028,8 @@
                   <FontAwesomeIcon :icon="['fas', 'users']" class="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 class="text-lg font-bold text-gray-900">Crecimiento de Clientes</h3>
-                  <p class="text-xs text-gray-500">Últimos 6 meses</p>
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white transition-colors">Crecimiento de Clientes</h3>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 transition-colors">Últimos 6 meses</p>
                 </div>
               </div>
               <span class="px-3 py-1 bg-amber-50 text-amber-600 text-xs font-medium rounded-full">Evolución</span>
@@ -1198,25 +1197,25 @@ const truncateProductName = (name, maxLength = 15) => {
 const getPrioridadClass = (prioridad) => {
   switch (prioridad) {
     case 'urgente':
-      return 'text-red-600 font-semibold'
+      return 'text-red-600 dark:text-red-400 font-semibold'
     case 'alta':
-      return 'text-orange-600 font-medium'
+      return 'text-orange-600 dark:text-orange-400 font-medium'
     case 'media':
-      return 'text-yellow-600'
+      return 'text-yellow-600 dark:text-yellow-400'
     case 'baja':
-      return 'text-green-600'
+      return 'text-green-600 dark:text-green-400'
     default:
-      return 'text-gray-600'
+      return 'text-gray-600 dark:text-gray-400'
   }
 }
 
 const getRetrasoClass = (diasRetraso) => {
   if (diasRetraso === 0) {
-    return 'text-green-600'
+    return 'text-green-600 dark:text-green-400'
   } else if (diasRetraso > 0) {
-    return 'text-red-600 font-semibold'
+    return 'text-red-600 dark:text-red-400 font-semibold'
   }
-  return 'text-gray-600'
+  return 'text-gray-600 dark:text-gray-400'
 }
 
 // ===== Fallbacks defensivos
