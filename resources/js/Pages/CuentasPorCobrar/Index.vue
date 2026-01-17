@@ -220,14 +220,15 @@
                                             </svg>
                                         </button>
 
-                                        <!-- Editar -->
-                                        <Link :href="route('cuentas-por-cobrar.edit', cuenta.id)"
-                                              class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 hover:text-amber-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:ring-offset-1"
-                                              title="Editar">
+                                        <!-- Pagar (Reemplaza Editar) -->
+                                        <button v-if="cuenta.estado !== 'pagado'"
+                                                @click="abrirModalPago(cuenta.id)"
+                                                class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:ring-offset-1"
+                                                title="Registrar Pago">
                                             <svg class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
-                                        </Link>
+                                        </button>
 
                                         <!-- Enviar recordatorio de pago (solo si está pendiente o parcial) - Discapacitado para Rentas por ahora -->
                                         <button v-if="['pendiente', 'parcial'].includes(cuenta.estado) && cuenta.cobrable?.cliente?.email && (!cuenta.cobrable_type || cuenta.cobrable_type.includes('Venta'))"
@@ -295,6 +296,13 @@
             :cuentas-bancarias="cuentasBancarias"
             @close="cerrarModalDetalles"
         />
+
+        <PaymentModal
+            :show="showPaymentModal"
+            :cuenta="selectedCuenta"
+            :cuentas-bancarias="cuentasBancarias"
+            @close="cerrarModalPago"
+        />
     </AppLayout>
 </template>
 
@@ -308,6 +316,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import Modal from '@/Components/IndexComponents/Modales.vue';
 import ShowModal from '@/Pages/CuentasPorCobrar/Partials/ShowModal.vue';
 import ImportPaymentXmlModal from '@/Components/CuentasPorCobrar/ImportPaymentXmlModal.vue';
+import PaymentModal from '@/Pages/CuentasPorCobrar/Partials/PaymentModal.vue';
 
 // Configuración de notificaciones
 const notyf = new Notyf({
@@ -337,7 +346,31 @@ const modalMode = ref('details');
 const showDetailsModal = ref(false);
 const selectedCuenta = ref(null);
 const showImportPaymentModal = ref(false);
+const showPaymentModal = ref(false); // Para el nuevo modal de pago directo
 const cuentasBancarias = ref([]);
+
+// Función para abrir modal de pago directo
+const abrirModalPago = async (id) => {
+    try {
+        // Reutilizamos la ruta show para obtener info fresca y cuentas bancarias
+        const response = await axios.get(route('cuentas-por-cobrar.show', id));
+        if (response.data) {
+            selectedCuenta.value = response.data.cuenta;
+            cuentasBancarias.value = response.data.cuentasBancarias;
+            showPaymentModal.value = true;
+        }
+    } catch (error) {
+        console.error('Error al cargar datos de cuenta:', error);
+        notyf.error('Error al cargar la información de la cuenta');
+    }
+};
+
+const cerrarModalPago = () => {
+    showPaymentModal.value = false;
+    selectedCuenta.value = null;
+    // Opcional: Recargar la página si se realizó un pago (Inertia reload)
+    // Pero PaymentModal usa router.post que ya hace reload
+};
 
 // Función para abrir modal de confirmación de email
 const abrirModalEmail = (cuenta) => {

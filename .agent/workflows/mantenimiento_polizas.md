@@ -235,9 +235,9 @@ CREATE TABLE poliza_mantenimiento_ejecuciones (
 |------|--------|-------|-------|
 | 1 | ✅ Completado | 2026-01-17 | Migraciones y Modelos |
 | 2 | ✅ Completado | 2026-01-17 | Servicio y Comandos |
-| 3 | ⏳ Pendiente | - | Dashboard Técnico |
+| 3 | ✅ Completado | 2026-01-17 | Dashboard Técnico (Vista + Lógica) |
 | 4 | ⏳ Pendiente | - | Notificaciones |
-| 5 | 🚧 En Progreso | 2026-01-17 | Visualización y Solicitud Manual en Portal Cliente |
+| 5 | ✅ Completado | 2026-01-17 | Portal Cliente (Historial + Solicitudes) |
 
 ---
 
