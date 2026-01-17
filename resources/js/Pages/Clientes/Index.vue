@@ -11,6 +11,26 @@ import ClientesHeader from '@/Components/IndexComponents/ClientesHeader.vue'
 
 defineOptions({ layout: AppLayout })
 
+// Estado reactivo para Modo Oscuro
+const isDark = ref(false)
+let observer = null
+
+onMounted(() => {
+  isDark.value = document.documentElement.classList.contains('dark')
+  observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === 'class') {
+        isDark.value = document.documentElement.classList.contains('dark')
+      }
+    })
+  })
+  observer.observe(document.documentElement, { attributes: true })
+})
+
+onBeforeUnmount(() => {
+  if (observer) observer.disconnect()
+})
+
 // Colores de empresa
 const { cssVars, primaryButtonStyle, headerGradientStyle, colors } = useCompanyColors()
 
@@ -599,7 +619,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
 
   <div class="clientes-index min-h-screen bg-white dark:bg-gray-900 transition-colors" :style="cssVars">
     <!-- Contenido principal -->
-    <div class="w-full px-6 py-8">
+    <div class="w-full px-4 lg:px-8 py-8 transition-all">
       <!-- Header específico de clientes -->
       <ClientesHeader
         :total="estadisticas.total"
@@ -643,7 +663,10 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
       <div class="mt-6">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
           <!-- Header con gradiente de empresa -->
-          <div class="px-6 py-4 border-b border-gray-200/60" :style="{ background: `linear-gradient(135deg, ${colors.principal}15 0%, ${colors.secundario}10 100%)` }">
+          <div 
+            class="px-6 py-4 border-b border-gray-200/60 transition-colors" 
+            :style="{ background: isDark ? 'linear-gradient(135deg, #1f2937 0%, #111827 100%)' : `linear-gradient(135deg, ${colors.principal}15 0%, ${colors.secundario}10 100%)` }"
+          >
             <div class="flex items-center justify-between">
               <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-tight flex items-center gap-2 transition-colors">
                 <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: colors.principal }"></span>
@@ -792,14 +815,14 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                 <tr v-else>
                   <td :colspan="6" class="px-6 py-16 text-center">
                     <div class="flex flex-col items-center space-y-4">
-                      <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                        <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center transition-colors">
+                        <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                       </div>
                       <div class="space-y-1">
-                        <p class="text-gray-700 font-medium">No hay clientes</p>
-                        <p class="text-sm text-gray-500">Los clientes aparecerán aquí cuando se creen</p>
+                        <p class="text-gray-700 dark:text-gray-300 font-medium transition-colors">No hay clientes</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 transition-colors">Los clientes aparecerán aquí cuando se creen</p>
                       </div>
                     </div>
                   </td>
@@ -815,7 +838,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
         <button
           @click="prevPage"
           :disabled="paginationData.current_page === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           Anterior
         </button>
@@ -829,7 +852,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
               'px-3 py-2 text-sm font-medium border rounded-md transition-all duration-200',
               page === paginationData.current_page
                 ? 'text-white shadow-md'
-                : 'text-gray-700 bg-white hover:bg-white border-gray-300'
+                : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-700'
             ]"
             :style="page === paginationData.current_page ? { backgroundColor: colors.principal, borderColor: colors.principal } : {}"
           >
@@ -840,7 +863,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
         <button
           @click="nextPage"
           :disabled="paginationData.current_page === paginationData.last_page"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           Siguiente
         </button>
@@ -855,7 +878,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
         @click.self="onClose"
       >
         <div
-          class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 outline-none"
+          class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 outline-none transition-colors"
           role="dialog"
           aria-modal="true"
           :aria-label="`Modal de Cliente`"
@@ -987,7 +1010,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
             <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
               <button
                 @click="onClose"
-                class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-white hover:border-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:ring-offset-1"
+                class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:ring-offset-1"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
