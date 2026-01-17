@@ -561,7 +561,7 @@
                   <span class="truncate flex-1 mr-2">{{ cuenta.proveedor }}</span>
                   <span class="font-medium whitespace-nowrap">${{ formatMonto(cuenta.monto_pendiente) }}</span>
                 </div>
-                <div v-if="alertasCuentasPagarSafe.vencidas.length > 3" class="text-xs text-red-500 mt-1">
+                <div v-if="alertasCuentasPagarSafe.vencidas.length > 3" class="text-xs text-red-500 dark:text-red-400/80 mt-1 transition-colors">
                   +{{ alertasCuentasPagarSafe.vencidas.length - 3 }} más...
                 </div>
               </div>
@@ -602,7 +602,7 @@
                   <span class="truncate flex-1 mr-2">{{ cuenta.numero }} - {{ cuenta.proveedor }}</span>
                   <span class="font-medium whitespace-nowrap">${{ formatMonto(cuenta.monto_pendiente) }} ({{ cuenta.fecha_vencimiento }})</span>
                 </div>
-                <div v-if="alertasCuentasPagarSafe.quincena.length > 3" class="text-xs text-yellow-500 mt-1">
+                <div v-if="alertasCuentasPagarSafe.quincena.length > 3" class="text-xs text-yellow-500 dark:text-yellow-400/80 mt-1 transition-colors">
                   +{{ alertasCuentasPagarSafe.quincena.length - 3 }} más...
                 </div>
               </div>
@@ -624,7 +624,7 @@
                   <span class="truncate flex-1 mr-2">{{ cuenta.numero }} - {{ cuenta.proveedor }}</span>
                   <span class="font-medium whitespace-nowrap">${{ formatMonto(cuenta.monto_pendiente) }} ({{ cuenta.fecha_vencimiento }})</span>
                 </div>
-                <div v-if="alertasCuentasPagarSafe.mes.length > 5" class="text-xs text-blue-500 mt-1">
+                <div v-if="alertasCuentasPagarSafe.mes.length > 5" class="text-xs text-blue-500 dark:text-blue-400/80 mt-1 transition-colors">
                   +{{ alertasCuentasPagarSafe.mes.length - 5 }} más...
                 </div>
               </div>
@@ -672,11 +672,11 @@
               </div>
               <div class="space-y-1">
                 <div v-for="cuenta in alertasCuentasCobrarSafe.vencidas.slice(0, 3)" :key="cuenta.id"
-                     class="flex justify-between text-sm text-red-700">
+                     class="flex justify-between text-sm text-red-700 dark:text-red-400 transition-colors">
                   <span class="truncate flex-1 mr-2">{{ cuenta.cliente }}</span>
                   <span class="font-medium whitespace-nowrap">${{ formatMonto(cuenta.monto_pendiente) }}</span>
                 </div>
-                <div v-if="alertasCuentasCobrarSafe.vencidas.length > 3" class="text-xs text-red-500 mt-1">
+                <div v-if="alertasCuentasCobrarSafe.vencidas.length > 3" class="text-xs text-red-500 dark:text-red-400/80 mt-1 transition-colors">
                   +{{ alertasCuentasCobrarSafe.vencidas.length - 3 }} más...
                 </div>
               </div>
@@ -684,17 +684,17 @@
 
             <!-- 1 Semana -->
             <div v-if="alertasCuentasCobrarSafe.semana_count > 0"
-                 class="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-r-lg">
+                 class="bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-500 p-4 rounded-r-lg transition-colors">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-orange-800 font-semibold flex items-center">
+                <span class="text-orange-800 dark:text-orange-300 font-semibold flex items-center transition-colors">
                   <span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
                   Próximos 7 días
                 </span>
-                <span class="text-orange-600 font-bold">${{ formatMonto(sumaMontos(alertasCuentasCobrarSafe.semana)) }}</span>
+                <span class="text-orange-600 dark:text-orange-400 font-bold transition-colors">${{ formatMonto(sumaMontos(alertasCuentasCobrarSafe.semana)) }}</span>
               </div>
               <div class="space-y-1">
                 <div v-for="cuenta in alertasCuentasCobrarSafe.semana.slice(0, 2)" :key="cuenta.id"
-                     class="flex justify-between text-sm text-orange-700">
+                     class="flex justify-between text-sm text-orange-700 dark:text-orange-400 transition-colors">
                   <span class="truncate flex-1 mr-2">{{ cuenta.cliente }}</span>
                   <span class="whitespace-nowrap">{{ cuenta.fecha_vencimiento }}</span>
                 </div>
@@ -703,21 +703,21 @@
 
             <!-- 15 días -->
             <div v-if="alertasCuentasCobrarSafe.quincena_count > 0"
-                 class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
+                 class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-4 rounded-r-lg transition-colors">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-yellow-800 font-semibold flex items-center">
+                <span class="text-yellow-800 dark:text-yellow-300 font-semibold flex items-center transition-colors">
                   <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
                   En 15 días ({{ alertasCuentasCobrarSafe.quincena_count }})
                 </span>
-                <span class="text-yellow-600 font-bold">${{ formatMonto(sumaMontos(alertasCuentasCobrarSafe.quincena)) }}</span>
+                <span class="text-yellow-600 dark:text-yellow-400 font-bold transition-colors">${{ formatMonto(sumaMontos(alertasCuentasCobrarSafe.quincena)) }}</span>
               </div>
               <div class="space-y-1">
                 <div v-for="cuenta in alertasCuentasCobrarSafe.quincena.slice(0, 3)" :key="cuenta.id"
-                     class="flex justify-between text-sm text-yellow-700">
+                     class="flex justify-between text-sm text-yellow-700 dark:text-yellow-400 transition-colors">
                   <span class="truncate flex-1 mr-2">{{ cuenta.numero }} - {{ cuenta.cliente }}</span>
                   <span class="font-medium whitespace-nowrap">${{ formatMonto(cuenta.monto_pendiente) }} ({{ cuenta.fecha_vencimiento }})</span>
                 </div>
-                <div v-if="alertasCuentasCobrarSafe.quincena.length > 3" class="text-xs text-yellow-500 mt-1">
+                <div v-if="alertasCuentasCobrarSafe.quincena.length > 3" class="text-xs text-yellow-500 dark:text-yellow-400/80 mt-1 transition-colors">
                   +{{ alertasCuentasCobrarSafe.quincena.length - 3 }} más...
                 </div>
               </div>
@@ -725,28 +725,28 @@
 
             <!-- 30 días -->
             <div v-if="alertasCuentasCobrarSafe.mes_count > 0"
-                 class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+                 class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 p-4 rounded-r-lg transition-colors">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-blue-800 font-semibold flex items-center">
+                <span class="text-blue-800 dark:text-blue-300 font-semibold flex items-center transition-colors">
                   <span class="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>
                   En 30 días ({{ alertasCuentasCobrarSafe.mes_count }})
                 </span>
-                <span class="text-blue-600 font-bold">${{ formatMonto(sumaMontos(alertasCuentasCobrarSafe.mes)) }}</span>
+                <span class="text-blue-600 dark:text-blue-400 font-bold transition-colors">${{ formatMonto(sumaMontos(alertasCuentasCobrarSafe.mes)) }}</span>
               </div>
               <div class="space-y-1">
                 <div v-for="cuenta in alertasCuentasCobrarSafe.mes.slice(0, 5)" :key="cuenta.id"
-                     class="flex justify-between text-sm text-blue-700">
+                     class="flex justify-between text-sm text-blue-700 dark:text-blue-400 transition-colors">
                   <span class="truncate flex-1 mr-2">{{ cuenta.numero }} - {{ cuenta.cliente }}</span>
                   <span class="font-medium whitespace-nowrap">${{ formatMonto(cuenta.monto_pendiente) }} ({{ cuenta.fecha_vencimiento }})</span>
                 </div>
-                <div v-if="alertasCuentasCobrarSafe.mes.length > 5" class="text-xs text-blue-500 mt-1">
+                <div v-if="alertasCuentasCobrarSafe.mes.length > 5" class="text-xs text-blue-500 dark:text-blue-400/80 mt-1 transition-colors">
                   +{{ alertasCuentasCobrarSafe.mes.length - 5 }} más...
                 </div>
               </div>
             </div>
 
             <!-- Sin alertas -->
-            <div v-if="totalCuentasCobrar === 0" class="text-center py-6 text-gray-500">
+            <div v-if="totalCuentasCobrar === 0" class="text-center py-6 text-gray-500 dark:text-gray-400 transition-colors">
               <FontAwesomeIcon :icon="['fas', 'check-circle']" class="h-10 w-10 text-green-400 mb-2" />
               <p class="font-medium">¡Todo al día!</p>
             </div>
@@ -791,7 +791,7 @@
                   <span class="truncate flex-1 mr-2">{{ pago.cliente }} (Pago {{ pago.numero_pago }})</span>
                   <span class="font-medium whitespace-nowrap">${{ formatMonto(pago.monto_pendiente) }}</span>
                 </div>
-                <div v-if="alertasPrestamosSafe.vencidas.length > 3" class="text-xs text-red-500 mt-1">
+                <div v-if="alertasPrestamosSafe.vencidas.length > 3" class="text-xs text-red-500 dark:text-red-400/80 mt-1 transition-colors">
                   +{{ alertasPrestamosSafe.vencidas.length - 3 }} más...
                 </div>
               </div>
@@ -832,7 +832,7 @@
                   <span class="truncate flex-1 mr-2">{{ pago.cliente }} (Pago {{ pago.numero_pago }})</span>
                   <span class="font-medium whitespace-nowrap">${{ formatMonto(pago.monto_pendiente) }} ({{ pago.fecha_vencimiento }})</span>
                 </div>
-                <div v-if="alertasPrestamosSafe.quincena.length > 3" class="text-xs text-yellow-500 mt-1">
+                <div v-if="alertasPrestamosSafe.quincena.length > 3" class="text-xs text-yellow-500 dark:text-yellow-400/80 mt-1 transition-colors">
                   +{{ alertasPrestamosSafe.quincena.length - 3 }} más...
                 </div>
               </div>
@@ -854,7 +854,7 @@
                   <span class="truncate flex-1 mr-2">{{ pago.cliente }} (Pago {{ pago.numero_pago }})</span>
                   <span class="font-medium whitespace-nowrap">${{ formatMonto(pago.monto_pendiente) }} ({{ pago.fecha_vencimiento }})</span>
                 </div>
-                <div v-if="alertasPrestamosSafe.mes.length > 5" class="text-xs text-blue-500 mt-1">
+                <div v-if="alertasPrestamosSafe.mes.length > 5" class="text-xs text-blue-500 dark:text-blue-400/80 mt-1 transition-colors">
                   +{{ alertasPrestamosSafe.mes.length - 5 }} más...
                 </div>
               </div>
