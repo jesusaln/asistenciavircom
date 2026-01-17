@@ -31,6 +31,12 @@ class EntregaDineroService
         ?int $cuentaBancariaId = null // ✅ Nuevo parámetro opcional
     ): EntregaDinero {
         $estado = self::estadoPorMetodo($metodoPago);
+
+        // ✅ Si se dirige explícitamente a un banco (ej. depósito en efectivo), se considera ingresado/recibido inmediatamente
+        if ($cuentaBancariaId) {
+            $estado = 'recibido';
+        }
+
         return self::crearDesdeOrigen(
             $tipoOrigen,
             $idOrigen,
