@@ -52,6 +52,36 @@ class CuentasPorCobrarController extends Controller
             }
         }
 
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                // Busqueda polimórfica en Venta, Renta y PolizaServicio
+                $q->whereHasMorph('cobrable', [Venta::class, Renta::class, \App\Models\PolizaServicio::class], function ($sq, $type) use ($search) {
+                    // Buscar en Cliente relacionado
+                    $sq->whereHas('cliente', function ($cq) use ($search) {
+                        $cq->where(DB::raw("CONCAT(nombre, ' ', COALESCE(apellidos, ''))"), 'like', "%{$search}%")
+                            ->orWhere('razon_social', 'like', "%{$search}%")
+                            ->orWhere('rfc', 'like', "%{$search}%")
+                            ->orWhere('telefono', 'like', "%{$search}%");
+                    });
+
+                    // Buscar por folio específico según el tipo
+                    if ($type === Venta::class) {
+                        $sq->orWhere('numero_venta', 'like', "%{$search}%");
+                    } elseif ($type === Renta::class) {
+                        $sq->orWhere('numero_contrato', 'like', "%{$search}%");
+                    } elseif ($type === \App\Models\PolizaServicio::class) {
+                        $sq->orWhere('folio', 'like', "%{$search}%");
+                    }
+                })
+                    // También buscar en cliente directo si la CxC tiene cliente_id directo
+                    ->orWhereHas('cliente', function ($cq) use ($search) {
+                        $cq->where(DB::raw("CONCAT(nombre, ' ', COALESCE(apellidos, ''))"), 'like', "%{$search}%")
+                            ->orWhere('razon_social', 'like', "%{$search}%");
+                    });
+            });
+        }
+
         $sortBy = $request->get('sort_by', 'created_at');
         $sortDirection = $request->get('sort_direction', 'desc');
 
