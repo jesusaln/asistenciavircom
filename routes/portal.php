@@ -25,7 +25,7 @@ Route::prefix('portal')->group(function () {
     });
 
     // Rutas Protegidas del Portal
-    Route::middleware(['auth:client', 'portal.debt'])->group(function () {
+    Route::middleware(['auth:client', \App\Http\Middleware\CheckClientDebt::class])->group(function () {
         Route::post('/logout', [AuthController::class, 'destroy'])->name('portal.logout');
         Route::get('/', [PortalController::class, 'dashboard'])->name('portal.dashboard');
         Route::get('/manual', [PortalController::class, 'showManual'])->name('portal.manual');
