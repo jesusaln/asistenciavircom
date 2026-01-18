@@ -32,16 +32,24 @@ class ImageProxyController extends Controller
         }
 
         return \Illuminate\Support\Facades\Cache::remember('img_proxy_' . md5($url), now()->addHours(24), function () use ($url) {
+            $placeholderPath = public_path('images/placeholder-product.svg');
+            $fallbackResponse = function () use ($placeholderPath) {
+                if (file_exists($placeholderPath)) {
+                    return response()->file($placeholderPath);
+                }
+                return abort(404);
+            };
+
             try {
                 // Usar HTTP Client de Laravel con User-Agent para evitar bloqueos
                 $response = \Illuminate\Support\Facades\Http::withHeaders([
                     'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                     'Referer' => 'https://www.grupocva.com/',
-                ])->timeout(30)->get($url);
+                ])->timeout(15)->get($url);
 
                 if ($response->failed()) {
                     \Log::warning("Image Proxy Failed for URL: {$url}", ['status' => $response->status()]);
-                    return abort(404);
+                    return $fallbackResponse();
                 }
 
                 $content = $response->body();
@@ -49,29 +57,29 @@ class ImageProxyController extends Controller
 
                 // Si CVA nos regresa HTML (ej. error o fragmento con tag img), intentar extraer la imagen real
                 if (str_contains(strtolower($mime), 'html')) {
-                    \Log::info("Image Proxy received HTML for {$url}, attempting to extract img src");
-
                     // Buscar <img src='...'> o <img src="..."> en el contenido HTML
                     if (preg_match("/<img[^>]+src=['\"]([^'\"]+)['\"]/i", $content, $matches)) {
                         $realImageUrl = $matches[1];
-                        \Log::info("Extracted real image URL: {$realImageUrl}");
 
-                        // Hacer fetch de la imagen real
+                        // Si es la imagen de "No Disponible" de CVA que sabemos que falla, devolver placeholder local
+                        if (str_contains($realImageUrl, 'na1.gif')) {
+                            return $fallbackResponse();
+                        }
+
+                        // Hacer fetch de la imagen real con un timeout más corto
                         $response = \Illuminate\Support\Facades\Http::withHeaders([
                             'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                             'Referer' => 'https://www.grupocva.com/',
-                        ])->timeout(30)->get($realImageUrl);
+                        ])->timeout(10)->get($realImageUrl);
 
                         if ($response->successful()) {
                             $content = $response->body();
                             $mime = $response->header('Content-Type') ?? 'image/jpeg';
                         } else {
-                            \Log::error("Failed to fetch real image from extracted URL: {$realImageUrl}");
-                            return abort(404);
+                            return $fallbackResponse();
                         }
                     } else {
-                        \Log::error("Image Proxy returned HTML but no img tag found for URL: {$url}");
-                        return abort(404);
+                        return $fallbackResponse();
                     }
                 }
 
@@ -79,8 +87,8 @@ class ImageProxyController extends Controller
                     ->header('Content-Type', $mime)
                     ->header('Cache-Control', 'public, max-age=86400');
             } catch (\Exception $e) {
-                \Log::error("Image Proxy Exception: " . $e->getMessage());
-                return abort(404);
+                \Log::error("Image Proxy Exception: " . $e->getMessage() . " for URL: " . $url);
+                return $fallbackResponse();
             }
         });
     }
