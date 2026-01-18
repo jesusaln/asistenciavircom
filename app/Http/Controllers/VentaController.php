@@ -93,8 +93,25 @@ class VentaController extends Controller
     public function store(StoreVentaRequest $request)
     {
         try {
-            // Sanitize series data
+            $user = Auth::user();
             $validatedData = $request->validated();
+
+            // Authorization Checks
+            if (isset($validatedData['vendedor_id'])) {
+                $vendedor = \App\Models\User::find($validatedData['vendedor_id']);
+                if (!$vendedor || $vendedor->empresa_id !== $user->empresa_id) {
+                    throw new \Illuminate\Auth\Access\AuthorizationException('El vendedor seleccionado no pertenece a su empresa.');
+                }
+            }
+
+            if (isset($validatedData['almacen_id'])) {
+                $almacen = \App\Models\Almacen::find($validatedData['almacen_id']);
+                if (!$almacen || $almacen->empresa_id !== $user->empresa_id) {
+                    throw new \Illuminate\Auth\Access\AuthorizationException('El almacén seleccionado no pertenece a su empresa.');
+                }
+            }
+
+            // Sanitize series data
             if (isset($validatedData['productos'])) {
                 $validatedData['productos'] = $this->ventaValidationService->sanitizeProductData($validatedData['productos']);
 
@@ -125,6 +142,15 @@ class VentaController extends Controller
             return redirect()->route('ventas.index')
                 ->with('success', 'Venta creada exitosamente.');
 
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            Log::warning('Authorization error creating venta', [
+                'error' => $e->getMessage(),
+                'user_id' => Auth::id(),
+                'request_data' => $request->except(['password', 'password_confirmation']),
+            ]);
+            return redirect()->back()
+                ->withErrors(['message' => $e->getMessage()])
+                ->withInput();
         } catch (\Exception $e) {
             // âœ… Enhanced error handling
             Log::error('Error creating venta', [
@@ -284,6 +310,9 @@ class VentaController extends Controller
      */
     public function marcarPagado(Request $request, Venta $venta)
     {
+        // Authorization: Ensure the user can update this specific venta
+        $this->authorize('update', $venta);
+
         try {
             Log::info('Marcar pagado request', [
                 'venta_id' => $venta->id,
@@ -359,12 +388,52 @@ class VentaController extends Controller
 
         return back()->with('success', $result['message']);
     }
+        $validated = $request->validate([
+            'tipo_factura' => 'nullable|in:ingreso,anticipo',
+            'cfdi_relacion_tipo' => 'nullable|in:01,02,03,04,05,06,07',
+            'cfdi_relacion_uuids' => 'nullable|array',
+            'cfdi_relacion_uuids.*' => 'string|uuid',
+            'anticipo_monto' => 'nullable|numeric|min:0.01',
+            'anticipo_metodo_pago' => 'nullable|in:efectivo,transferencia,cheque,tarjeta,otros',
+        ]);
+
+        $tipoFactura = $validated['tipo_factura'] ?? 'ingreso';
+
+        if ($tipoFactura === 'anticipo') {
+            if (empty($validated['anticipo_monto']) || empty($validated['anticipo_metodo_pago'])) {
+                return back()->withErrors([
+                    'anticipo_monto' => 'Monto y método de pago son obligatorios para facturar anticipo.',
+                ]);
+            }
+
+            $result = $cfdiService->facturarAnticipo(
+                $venta,
+                (float) $validated['anticipo_monto'],
+                $validated['anticipo_metodo_pago']
+            );
+        } else {
+            $options = [
+                'tipo_factura' => 'ingreso',
+                'cfdi_relacion_tipo' => $validated['cfdi_relacion_tipo'] ?? null,
+                'cfdi_relacion_uuids' => $validated['cfdi_relacion_uuids'] ?? [],
+            ];
+            $result = $cfdiService->facturarVenta($venta, $options);
+        }
+
+        if (!$result['success']) {
+            return back()->with('error', $result['message']);
+        }
+
+        return back()->with('success', $result['message']);
+    }
 
     /**
      * Cancelar la factura de una venta
      */
     public function cancelarFactura(Request $request, Venta $venta, \App\Services\Cfdi\CfdiCancelService $cancelService)
     {
+        $this->authorize('update', $venta); // Add authorization check
+
         Log::info('=== CANCELAR FACTURA ===', [
             'venta_id' => $venta->id,
             'numero_venta' => $venta->numero_venta,

@@ -195,7 +195,6 @@ class PolizaServicioController extends Controller
             'nombre' => 'required|string|max:255',
             'monto_mensual' => 'required|numeric|min:0',
             'dia_cobro' => 'required|integer|min:1|max:31',
-            'estado' => 'required|string|in:activa,inactiva,vencida,cancelada',
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'nullable|date',
             'sla_horas_respuesta' => 'nullable|integer|min:1|max:168',
@@ -223,7 +222,6 @@ class PolizaServicioController extends Controller
                 'fecha_fin',
                 'monto_mensual',
                 'dia_cobro',
-                'estado',
                 'limite_mensual_tickets',
                 'notificar_exceso_limite',
                 'renovacion_automatica',
@@ -269,6 +267,10 @@ class PolizaServicioController extends Controller
      */
     public function destroy(PolizaServicio $polizas_servicio)
     {
+        if ($polizas_servicio->tickets()->exists() || $polizas_servicio->citas()->exists()) {
+            return redirect()->route('polizas-servicio.index')->with('error', 'No se puede eliminar la póliza porque tiene tickets o citas asociadas.');
+        }
+
         $polizas_servicio->delete();
         return redirect()->route('polizas-servicio.index')->with('success', 'Póliza eliminada correctamente.');
     }
@@ -304,24 +306,28 @@ class PolizaServicioController extends Controller
                 return $exceso * $p->costo_hora_excedente;
             });
 
+        // Pre-cargar el conteo de tickets del mes actual para evitar N+1
+        $polizasActivas = PolizaServicio::activa()
+            ->withCount(['tickets' => function ($query) {
+                $query->whereMonth('created_at', now()->month)
+                      ->whereYear('created_at', now()->year);
+            }])
+            ->get();
+
         // Estadísticas generales mejoradas
         $stats = [
-            'total_activas' => PolizaServicio::activa()->count(),
+            'total_activas' => $polizasActivas->count(),
             'total_inactivas' => PolizaServicio::where('estado', '!=', 'activa')->count(),
             'ingresos_mensuales' => $ingresosMensuales,
             'ingresos_anuales_proyectados' => $ingresosMensuales * 12,
             'cobros_pendientes' => $cobrosPendientes,
             'polizas_con_deuda' => $polizasConDeuda,
             'ingresos_excedentes' => $ingresosExcedentes,
-            'con_exceso_tickets' => PolizaServicio::activa()
-                ->whereNotNull('limite_mensual_tickets')
-                ->get()
-                ->filter(fn($p) => $p->excede_limite)
+            'con_exceso_tickets' => $polizasActivas->whereNotNull('limite_mensual_tickets')
+                ->filter(fn($p) => $p->tickets_count >= $p->limite_mensual_tickets)
                 ->count(),
-            'con_exceso_horas' => PolizaServicio::activa()
-                ->whereNotNull('horas_incluidas_mensual')
-                ->get()
-                ->filter(fn($p) => $p->excede_horas)
+            'con_exceso_horas' => $polizasActivas->whereNotNull('horas_incluidas_mensual')
+                ->filter(fn($p) => $p->horas_consumidas_mes >= $p->horas_incluidas_mensual)
                 ->count(),
             // Tasa de retención (últimos 12 meses)
             'tasa_retencion' => $this->calcularTasaRetencion(),

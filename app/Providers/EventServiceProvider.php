@@ -10,6 +10,19 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\ClientCreated::class => [
             \App\Listeners\StoreClientNotification::class,
         ],
+
+        \App\Events\TicketCreado::class => [
+            \App\Listeners\AsignacionInteligenteListener::class,
+            \App\Listeners\NotificarClienteTicketCreado::class,
+        ],
+
+        \App\Events\CitaCompletada::class => [
+            \App\Listeners\ActualizarTicketDesdeCita::class,
+        ],
+
+        \App\Events\PolizaProximaAVencer::class => [
+            \App\Listeners\CrearTicketRenovacion::class,
+        ],
         
         // Venta Events
         \App\Events\VentaCreated::class => [

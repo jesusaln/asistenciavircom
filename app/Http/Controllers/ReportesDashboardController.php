@@ -32,6 +32,38 @@ class ReportesDashboardController extends Controller
      */
     public function index(Request $request)
     {
+        $user = auth()->user();
+
+        // Si el usuario es técnico y no admin/super-admin, mostrar su dashboard personal
+        if ($user->hasRole('tecnico') && !$user->hasRole('admin') && !$user->hasRole('super-admin')) {
+            
+            $misTicketsUrgentes = \App\Models\Ticket::where('asignado_id', $user->id)
+                ->whereIn('estado', ['abierto', 'en_progreso'])
+                ->orderByRaw("FIELD(prioridad, 'urgente', 'alta', 'media', 'baja')")
+                ->orderBy('fecha_limite', 'asc')
+                ->take(5)
+                ->get();
+            
+            $misProximasCitas = \App\Models\Cita::where('tecnico_id', $user->id)
+                ->where('fecha_hora', '>=', now())
+                ->whereIn('estado', ['programado', 'en_proceso'])
+                ->orderBy('fecha_hora', 'asc')
+                ->take(3)
+                ->get();
+
+            $ticketsVencidosCount = \App\Models\Ticket::where('asignado_id', $user->id)
+                ->whereIn('estado', ['abierto', 'en_progreso'])
+                ->where('fecha_limite', '<', now())
+                ->count();
+
+            return Inertia::render('Reportes/DashboardAgente', [
+                'misTicketsUrgentes' => $misTicketsUrgentes,
+                'misProximasCitas' => $misProximasCitas,
+                'ticketsVencidosCount' => $ticketsVencidosCount,
+            ]);
+        }
+
+        // --- Lógica existente para Admins y Ventas ---
         $periodo = $request->get('periodo', 'mes'); // dia, semana, mes, trimestre, año
 
         // Determinar rango de fechas

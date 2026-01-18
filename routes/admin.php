@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\SatCatalogosController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ClienteDocumentoController;
+use App\Http\Controllers\ClienteHubController;
 use App\Http\Controllers\ClienteCreditoPDFController;
 use App\Http\Controllers\PrestamoController;
 use App\Http\Controllers\PagoPrestamoController;
@@ -229,6 +230,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::post('ordenescompra/{id}/cancelar', [OrdenCompraController::class, 'cancelar'])->name('ordenescompra.cancelar');
 
     Route::resource('clientes', ClienteController::class)->names('clientes')->middleware('can:view clientes')->where(['cliente' => '[0-9]+']);
+    Route::get('/clientes/{cliente}/hub', [ClienteHubController::class, 'show'])->name('clientes.hub')->middleware('can:view clientes');
     Route::post('clientes/{cliente}/documentos', [ClienteDocumentoController::class, 'store'])->name('clientes.documentos.store');
     Route::delete('clientes/documentos/{documento}', [ClienteDocumentoController::class, 'destroy'])->name('clientes.documentos.destroy');
     Route::get('clientes/{cliente}/contrato-credito', [ClienteCreditoPDFController::class, 'contrato'])->name('clientes.contrato-credito');

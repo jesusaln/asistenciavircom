@@ -5,6 +5,7 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Models\EmpresaConfiguracion;
+use App\Console\Commands\PolizasVerificarVencimientos;
 
 class Kernel extends ConsoleKernel
 {
@@ -26,6 +27,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('polizas:check-expirations')
             ->dailyAt('09:30')
             ->appendOutputTo(storage_path('logs/polizas_vencimientos.log'));
+
+        // Verificar pólizas próximas a vencer y disparar eventos
+        $schedule->command('polizas:verificar-vencimientos')
+            ->dailyAt('09:30')
+            ->appendOutputTo(storage_path('logs/polizas_verificar_vencimientos.log'));
 
         // Sincronizar stock de series automáticamente cada madrugada (02:00 AM)
         $schedule->command('productos:sync-series-stock --auto --notify')

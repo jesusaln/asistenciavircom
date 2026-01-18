@@ -410,6 +410,10 @@ class Cita extends Model
         $this->estado = $nuevoEstado;
         $this->save();
 
+        if ($nuevoEstado === self::ESTADO_COMPLETADO) {
+            \App\Events\CitaCompletada::dispatch($this);
+        }
+
         return true;
     }
 

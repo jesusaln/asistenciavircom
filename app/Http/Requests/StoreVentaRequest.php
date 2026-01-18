@@ -25,6 +25,7 @@ class StoreVentaRequest extends FormRequest
             'cliente_id' => 'nullable|exists:clientes,id',
             'price_list_id' => 'nullable|exists:price_lists,id',
             'cita_id' => 'nullable|exists:citas,id',
+            'vendedor_id' => 'nullable|exists:users,id', // Added validation rule for vendedor_id
             'almacen_id' => [
                 'required',
                 'exists:almacenes,id',

@@ -13,6 +13,7 @@ const props = defineProps({
     polizas: Array,
     pagosPendientes: Array,
     pedidos: Array,
+    citas: Array,
     ventas: Object, // Changed from Array to Object (paginated)
     credenciales: Array,
     empresa: Object,
@@ -396,6 +397,19 @@ const totalPendiente = computed(() => {
                     </button>
 
                     <button 
+                        @click="activeTab = 'citas'" 
+                        :class="[
+                            'w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left',
+                            activeTab === 'citas' 
+                                ? 'bg-[var(--color-primary)] text-white shadow-xl shadow-[var(--color-primary)]/20 shadow-sm' 
+                                : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white border border-gray-100 dark:border-gray-700 transition-colors'
+                        ]"
+                    >
+                        <font-awesome-icon icon="calendar-check" /> 
+                        <span class="text-sm uppercase tracking-widest">Mis Citas</span>
+                    </button>
+
+                    <button 
                         @click="activeTab = 'equipos'" 
                         :class="[
                             'w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left',
@@ -738,6 +752,31 @@ const totalPendiente = computed(() => {
                                 <p class="text-gray-400 font-bold mb-6">No tiene pólizas vigentes en su cuenta.</p>
                                 <Link :href="route('catalogo.polizas')" class="px-8 py-4 bg-[var(--color-primary)] text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:shadow-xl transition-all inline-block">Ver Catálogo de Pólizas</Link>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Citas -->
+                    <div v-show="activeTab === 'citas'" class="animate-fade-in space-y-6">
+                        <div class="px-2">
+                            <h2 class="text-xl font-black text-gray-900 uppercase tracking-tight">Mis Próximas Citas</h2>
+                        </div>
+                        <div v-if="citas && citas.length > 0" class="grid gap-6 md:grid-cols-2">
+                            <div v-for="cita in citas" :key="cita.id" class="bg-white rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 p-8">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-xl">
+                                        <font-awesome-icon icon="calendar-check" />
+                                    </div>
+                                    <span class="px-3 py-1 bg-blue-100 text-blue-600 text-[10px] font-black rounded-full uppercase tracking-widest border border-blue-200">
+                                        {{ cita.estado }}
+                                    </span>
+                                </div>
+                                <p class="text-lg font-black text-gray-900">{{ formatDate(cita.fecha_hora) }}</p>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Técnico: {{ cita.tecnico?.name || 'Por confirmar' }}</p>
+                                <p class="text-sm text-gray-600 mt-4 h-10 overflow-hidden">{{ cita.descripcion }}</p>
+                            </div>
+                        </div>
+                        <div v-else class="py-20 text-center bg-white rounded-[2rem] border-2 border-dashed border-gray-100">
+                            <p class="text-gray-400 font-bold">No tiene citas programadas.</p>
                         </div>
                     </div>
 
@@ -1131,7 +1170,7 @@ const totalPendiente = computed(() => {
                                 </div>
                                 <h4 class="font-black text-gray-900 mb-2 font-mono">Manuales</h4>
                                 <p class="text-xs text-gray-500 font-medium mb-4">Guías de configuración rápidas.</p>
-                                <button @click="$toast.info('Próximamente sección de descargas.')" class="px-6 py-2 bg-gray-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-800 transition-all">Ver Guías</button>
+                                <Link :href="route('portal.manual')" class="px-6 py-2 bg-gray-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-800 transition-all">Ver Manual</Link>
                             </div>
                         </div>
 

@@ -16,6 +16,12 @@ class PolizaServicio extends Model
 
     protected $table = 'polizas_servicio';
 
+    const ESTADO_ACTIVA = 'activa';
+    const ESTADO_INACTIVA = 'inactiva';
+    const ESTADO_VENCIDA = 'vencida';
+    const ESTADO_CANCELADA = 'cancelada';
+    const ESTADO_PENDIENTE_PAGO = 'pendiente_pago';
+
     protected static function booted()
     {
         static::creating(function (PolizaServicio $poliza) {
@@ -28,6 +34,38 @@ class PolizaServicio extends Model
             }
         });
     }
+
+    /**
+     * Cancela la póliza si no está ya cancelada.
+     */
+    public function cancelar(): bool
+    {
+        if ($this->estado === self::ESTADO_CANCELADA) {
+            return true; // Ya está cancelada
+        }
+
+        $this->estado = self::ESTADO_CANCELADA;
+        return $this->save();
+    }
+
+    /**
+     * Activa la póliza.
+     */
+    public function activar(): bool
+    {
+        $this->estado = self::ESTADO_ACTIVA;
+        return $this->save();
+    }
+
+    /**
+     * Desactiva la póliza (la pone inactiva).
+     */
+    public function desactivar(): bool
+    {
+        $this->estado = self::ESTADO_INACTIVA;
+        return $this->save();
+    }
+
 
     protected $fillable = [
         'empresa_id',
@@ -136,6 +174,14 @@ class PolizaServicio extends Model
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class, 'poliza_id');
+    }
+
+    /**
+     * Relación con las Citas de servicio vinculadas a esta póliza.
+     */
+    public function citas(): HasMany
+    {
+        return $this->hasMany(Cita::class, 'poliza_id');
     }
 
     /**

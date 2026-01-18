@@ -141,6 +141,10 @@ class Ticket extends Model implements Auditable
                 });
             }
         });
+
+        static::created(function ($ticket) {
+            \App\Events\TicketCreado::dispatch($ticket);
+        });
     }
 
     // Relaciones

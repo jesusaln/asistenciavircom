@@ -16,6 +16,7 @@ use App\Models\VentaItem; // <<< NUEVO
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class TicketController extends Controller
 {
@@ -250,36 +251,11 @@ class TicketController extends Controller
             // Procesar archivos si existen
             if ($request->hasFile('archivos')) {
                 foreach ($request->file('archivos') as $archivo) {
-                    $ordenArchivo = 'ticket_' . time() . '_' . uniqid() . '.webp';
-                    $rutaRelativa = 'tickets/' . $ordenArchivo;
-                    $rutaCompleta = storage_path('app/public/' . $rutaRelativa);
-
-                    // Asegurar directorio
-                    if (!file_exists(dirname($rutaCompleta))) {
-                        mkdir(dirname($rutaCompleta), 0755, true);
+                    // Usar el sistema de archivos de Laravel para más seguridad y flexibilidad
+                    $path = Storage::disk('public')->putFile('tickets', $archivo);
+                    if ($path) {
+                        $rutasArchivos[] = $path;
                     }
-
-                    // Validación Estricta (Magic Bytes) via getimagesize
-                    $imagenInfo = @getimagesize($archivo->getPathname());
-                    if (!$imagenInfo) {
-                        throw new \Exception("El archivo {$archivo->getClientOriginalName()} no es una imagen válida o está corrupto.");
-                    }
-
-                    $mime = $imagenInfo['mime'];
-                    $img = match ($mime) {
-                        'image/jpeg' => imagecreatefromjpeg($archivo->getPathname()),
-                        'image/png' => imagecreatefrompng($archivo->getPathname()),
-                        'image/webp' => imagecreatefromwebp($archivo->getPathname()),
-                        default => null,
-                    };
-
-                    if (!$img) {
-                        throw new \Exception("No se pudo procesar la imagen {$archivo->getClientOriginalName()}.");
-                    }
-
-                    imagewebp($img, $rutaCompleta, 80);
-                    imagedestroy($img);
-                    $rutasArchivos[] = $rutaRelativa;
                 }
             }
 
@@ -308,9 +284,7 @@ class TicketController extends Controller
 
             // Limpieza de archivos físicos creados en este intento fallido
             foreach ($rutasArchivos as $ruta) {
-                if (file_exists(storage_path('app/public/' . $ruta))) {
-                    @unlink(storage_path('app/public/' . $ruta));
-                }
+                Storage::disk('public')->delete($ruta);
             }
 
             \Log::error('Error creando ticket: ' . $e->getMessage());
@@ -363,6 +337,8 @@ class TicketController extends Controller
 
     public function update(Request $request, Ticket $ticket)
     {
+        $this->authorize('update', $ticket);
+
         $validated = $request->validate([
             'titulo' => 'sometimes|string|max:255',
             'descripcion' => 'sometimes|string',
@@ -379,6 +355,8 @@ class TicketController extends Controller
 
     public function cambiarEstado(Request $request, Ticket $ticket)
     {
+        $this->authorize('update', $ticket);
+        
         $validated = $request->validate([
             'estado' => 'required|in:abierto,en_progreso,pendiente,resuelto,cerrado',
             'horas_trabajadas' => 'nullable|numeric|min:0.25|max:999',
@@ -406,6 +384,8 @@ class TicketController extends Controller
 
     public function asignar(Request $request, Ticket $ticket)
     {
+        $this->authorize('update', $ticket);
+        
         $validated = $request->validate([
             'asignado_id' => 'required|exists:users,id',
         ]);
@@ -530,18 +510,8 @@ class TicketController extends Controller
             $user = auth()->user();
             $almacenId = $user->almacen_venta_id ?? \App\Models\Almacen::first()->id;
 
-            // Generar numero_venta
-            $prefijo = 'V';
-            $ultimaVenta = Venta::where('numero_venta', 'like', 'V%')
-                ->orderBy('id', 'desc')
-                ->lockForUpdate()
-                ->first();
-
-            $numero = 1;
-            if ($ultimaVenta && preg_match('/V(\d+)/', $ultimaVenta->numero_venta, $matches)) {
-                $numero = ((int) $matches[1]) + 1;
-            }
-            $numeroVenta = $prefijo . str_pad($numero, 4, '0', STR_PAD_LEFT);
+            // Usar FolioService para una generación atómica y centralizada del folio
+            $numeroVenta = app(\App\Services\Folio\FolioService::class)->getNextFolio('venta');
 
             // Buscar o crear servicio de soporte
             // Usar la categoría del primer servicio existente como base

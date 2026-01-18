@@ -28,6 +28,7 @@ Route::prefix('portal')->group(function () {
     Route::middleware(['auth:client', 'portal.debt'])->group(function () {
         Route::post('/logout', [AuthController::class, 'destroy'])->name('portal.logout');
         Route::get('/', [PortalController::class, 'dashboard'])->name('portal.dashboard');
+        Route::get('/manual', [PortalController::class, 'showManual'])->name('portal.manual');
 
         // Tickets (Cliente)
         Route::get('/tickets/crear', [PortalController::class, 'create'])->name('portal.tickets.create');
@@ -40,6 +41,9 @@ Route::prefix('portal')->group(function () {
         Route::get('/polizas/{poliza}', [PortalController::class, 'polizaShow'])->name('portal.polizas.show');
         Route::get('/polizas/{poliza}/imprimir', [PortalController::class, 'imprimirContrato'])->name('portal.polizas.imprimir');
         Route::post('/polizas/mantenimientos', [\App\Http\Controllers\ClientPortal\PortalMantenimientoController::class, 'store'])->name('portal.polizas.mantenimientos.store');
+
+        // Citas (Cliente)
+        Route::get('/citas', [PortalController::class, 'citasIndex'])->name('portal.citas.index');
 
         // Pedidos Online (Cliente)
         Route::get('/pedidos', [PortalController::class, 'pedidosIndex'])->name('portal.pedidos.index');

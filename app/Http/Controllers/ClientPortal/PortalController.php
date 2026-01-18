@@ -114,11 +114,19 @@ class PortalController extends Controller
             ->with(['equipos'])
             ->get();
 
+        $citas = \App\Models\Cita::where('cliente_id', $cliente->id)
+            ->where('fecha_hora', '>=', now())
+            ->orderBy('fecha_hora', 'asc')
+            ->with('tecnico:id,name')
+            ->take(3)
+            ->get();
+
         return Inertia::render('Portal/Dashboard', [
             'tickets' => $tickets,
             'polizas' => $polizas,
             'pagosPendientes' => $pagosPendientes,
             'rentas' => $rentas,
+            'citas' => $citas,
             'pedidos' => \App\Models\Pedido::where('cliente_id', $cliente->id)->orderByDesc('created_at')->limit(10)->get(),
             'ventas' => Venta::where('cliente_id', $cliente->id)->orderByDesc('fecha')->paginate(20)->withQueryString(), // Historial de ventas paginado
             'credenciales' => $cliente->credenciales()->get()->map(function ($c) {
@@ -350,6 +358,36 @@ class PortalController extends Controller
             'empresa' => $empresa,
             'cliente' => $cliente,
             'logo' => $empresa->logo_url ?? asset('images/logo.png'),
+        ]);
+    }
+
+    public function citasIndex()
+    {
+        $cliente = Auth::guard('client')->user();
+        $citas = \App\Models\Cita::where('cliente_id', $cliente->id)
+            ->with('tecnico:id,name')
+            ->orderByDesc('fecha_hora')
+            ->paginate(15);
+
+        return Inertia::render('Portal/Citas/Index', [
+            'citas' => $citas,
+            'empresa' => $this->getEmpresaBranding(),
+        ]);
+    }
+
+    public function showManual()
+    {
+        try {
+            $manualPath = base_path('docs/MANUAL_CLIENTE.md');
+            $manualContent = \Illuminate\Support\Facades\File::get($manualPath);
+        } catch (\Exception $e) {
+            Log::error('No se pudo encontrar el manual del cliente: ' . $e->getMessage());
+            $manualContent = "El manual del usuario no se encuentra disponible en este momento. Por favor, contacte a soporte.";
+        }
+
+        return Inertia::render('Portal/Manual', [
+            'manualContent' => $manualContent,
+            'empresa' => $this->getEmpresaBranding(),
         ]);
     }
 

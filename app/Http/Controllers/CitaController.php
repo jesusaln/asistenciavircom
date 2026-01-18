@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 use Exception;
+use App\Services\VentaFromCitaService;
 
 class CitaController extends Controller
 {
@@ -238,7 +239,7 @@ class CitaController extends Controller
             'fecha_hora' => [
                 'required',
                 'date',
-                'after:now',
+                'after_or_equal:now',
                 function ($attribute, $value, $fail) {
                     $fecha = Carbon::parse($value);
                     if ($fecha->isSunday()) {
@@ -275,6 +276,9 @@ class CitaController extends Controller
 
         try {
             DB::beginTransaction();
+
+            // Bloqueo pesimista para evitar race conditions al agendar para el mismo técnico
+            User::where('id', $validated['tecnico_id'])->lockForUpdate()->firstOrFail();
 
             // Verificar disponibilidad del técnico
             $this->verificarDisponibilidadTecnico(
@@ -667,88 +671,7 @@ class CitaController extends Controller
 
             // Generar Venta y CuentasPorCobrar si se completó la cita y hay items
             if ($cita->estado === Cita::ESTADO_COMPLETADO && $cita->items()->count() > 0) {
-                // Verificar si ya existe una venta para esta cita
-                $existeVenta = \App\Models\Venta::where('cita_id', $cita->id)->exists();
-
-                if (!$existeVenta) {
-                    $user = auth()->user();
-                    // Buscar almacén: del usuario, default config, o el principal
-                    $almacenId = $user->almacen_venta_id
-                        ?? \App\Models\Almacen::where('nombre', 'like', '%principal%')->first()?->id
-                        ?? \App\Models\Almacen::first()?->id;
-
-                    if ($almacenId) {
-                        try {
-                            DB::beginTransaction();
-
-                            // Crear Venta
-                            $venta = \App\Models\Venta::create([
-                                'numero_venta' => 'V-' . time() . '-' . $cita->id, // Simple generation logic, adjust as needed
-                                'empresa_id' => $cita->empresa_id,
-                                'cliente_id' => $cita->cliente_id,
-                                'cita_id' => $cita->id,
-                                'fecha' => now(),
-                                'estado' => 'pendiente',
-                                'subtotal' => $cita->subtotal,
-                                'iva' => $cita->iva,
-                                'total' => $cita->total,
-                                'almacen_id' => $almacenId,
-                                'vendedor_type' => $user ? get_class($user) : \App\Models\User::class,
-                                'vendedor_id' => $user ? $user->id : ($cita->tecnico_id ?? 1),
-                                'notas' => 'Generada automáticamente desde Cita #' . $cita->id,
-                                'pagado' => false,
-                            ]);
-
-                            // Crear Items de Venta
-                            foreach ($cita->items as $cItem) {
-                                \App\Models\VentaItem::create([
-                                    'empresa_id' => $venta->empresa_id,
-                                    'venta_id' => $venta->id,
-                                    'ventable_type' => $cItem->citable_type,
-                                    'ventable_id' => $cItem->citable_id,
-                                    'cantidad' => $cItem->cantidad,
-                                    'precio' => $cItem->precio,
-                                    'descuento' => $cItem->descuento,
-                                    'subtotal' => $cItem->subtotal,
-                                    'costo_unitario' => 0, // Se debería calcular si es producto
-                                ]);
-
-                                // Decrementar Stock si es producto
-                                if ($cItem->citable_type === \App\Models\Producto::class) {
-                                    // Lógica de inventario simplificada, idealmente usar servicio de inventario
-                                    // $producto = $cItem->citable;
-                                    // $producto->decrementarStock($cItem->cantidad, $almacenId);
-                                }
-                            }
-
-                            // Crear Cuenta Por Cobrar
-                            \App\Models\CuentasPorCobrar::create([
-                                'monto_total' => $venta->total,
-                                'monto_pendiente' => $venta->total, // FIX: Explicit value for not null constraint
-                                'saldo_pendiente' => $venta->total, // Legacy field maybe? keeping for safety
-                                'empresa_id' => $venta->empresa_id,
-                                'cliente_id' => $venta->cliente_id,
-                                'cobrable_type' => \App\Models\Venta::class,
-                                'cobrable_id' => $venta->id,
-                                'folio' => 'CXC-' . $venta->id, // O generar folio secuencial
-                                'fecha_emision' => now(),
-                                'fecha_vencimiento' => now()->addDays($cita->cliente->dias_credito ?? 15),
-                                'monto' => $venta->total,
-                                'saldo_pendiente' => $venta->total,
-                                'estado' => 'pendiente',
-                                'concepto' => 'Cargo por servicio Cita #' . $cita->id,
-                            ]);
-
-                            DB::commit();
-                        } catch (\Exception $e) {
-                            DB::rollBack();
-                            Log::error('Error generando venta para cita #' . $cita->id . ': ' . $e->getMessage());
-                            // No lanzamos excepción para no bloquear la actualización de la cita, pero logueamos
-                        }
-                    } else {
-                        Log::warning('No se pudo generar venta para cita #' . $cita->id . ': Falta almacén asignado.');
-                    }
-                }
+                app(VentaFromCitaService::class)->createFromCita($cita);
             }
 
 

@@ -82,7 +82,7 @@ class Venta extends Model
     protected function casts(): array
     {
         return [
-            'estado' => 'string', // Temporarily remove enum cast to debug
+            'estado' => EstadoVenta::class,
             'subtotal' => 'decimal:2',
             'descuento_general' => 'decimal:2',
             'iva' => 'decimal:2',
