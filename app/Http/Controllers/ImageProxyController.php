@@ -34,9 +34,11 @@ class ImageProxyController extends Controller
         $placeholderPath = public_path('images/placeholder-product.svg');
         $fallbackResponse = function () use ($placeholderPath) {
             if (file_exists($placeholderPath)) {
-                return response()->file($placeholderPath);
+                return response(file_get_contents($placeholderPath))
+                    ->header('Content-Type', 'image/svg+xml')
+                    ->header('Cache-Control', 'public, max-age=86400');
             }
-            return abort(404);
+            return response('', 404);
         };
 
         try {
