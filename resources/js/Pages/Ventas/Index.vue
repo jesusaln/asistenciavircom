@@ -824,8 +824,8 @@ const ejecutarBorrado = async () => {
             <!-- Paginación -->
             <div class="mt-8 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
                 <Pagination
-                    :data="paginationData"
-                    @page-changed="goToPage"
+                    :pagination-data="paginationData"
+                    @page-change="goToPage"
                 />
             </div>
         </div>

@@ -6,7 +6,13 @@ import { Link } from '@inertiajs/vue3'
 const props = defineProps({
   paginationData: {
     type: Object,
-    required: true
+    required: false,
+    default: () => ({})
+  },
+  links: {
+    type: Array,
+    required: false,
+    default: () => []
   }
 })
 
@@ -14,6 +20,25 @@ const emit = defineEmits(['page-change', 'per-page-change'])
 
 // Computed para extraer datos de paginación
 const pagination = computed(() => {
+  // Si se pasaron links pero no paginationData, intentar extraer información básica
+  if (props.links && props.links.length > 0 && Object.keys(props.paginationData).length === 0) {
+    const activeLink = props.links.find(l => l.active);
+    const prevLink = props.links[0]?.url;
+    const nextLink = props.links[props.links.length - 1]?.url;
+    
+    return {
+      currentPage: activeLink ? parseInt(activeLink.label) || 1 : 1,
+      lastPage: Math.max(...props.links.map(l => parseInt(l.label)).filter(n => !isNaN(n))) || 1,
+      perPage: 15,
+      from: 0,
+      to: 0,
+      total: 0,
+      prevPageUrl: props.links.find(l => l.label.includes('Anterior'))?.url,
+      nextPageUrl: props.links.find(l => l.label.includes('Siguiente'))?.url,
+      links: props.links
+    }
+  }
+
   const data = props.paginationData
   return {
     currentPage: data.current_page || 1,

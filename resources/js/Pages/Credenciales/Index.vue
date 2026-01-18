@@ -84,6 +84,17 @@ const copyToClipboard = (text) => {
     notyf.success('Copiado al portapapeles');
 };
 
+const handlePageChange = (page) => {
+    router.get(route('credenciales.index'), {
+        search: search.value,
+        cliente_id: clienteId.value,
+        page: page
+    }, {
+        preserveState: true,
+        replace: true
+    });
+};
+
 const getOwnerLink = (item) => {
     if (item.credentialable_type === 'App\\Models\\Cliente') {
         return route('clientes.show', item.credentialable_id);
@@ -253,7 +264,7 @@ const getOwnerName = (item) => {
 
             <!-- Pagination -->
             <div v-if="credenciales.links.length > 3" class="mt-10 flex justify-center">
-                <Pagination :links="credenciales.links" />
+                <Pagination :pagination-data="credenciales" @page-change="handlePageChange" />
             </div>
         </div>
 

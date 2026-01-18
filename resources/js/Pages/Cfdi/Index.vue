@@ -1971,7 +1971,7 @@ const previousDescargaStatuses = ref({})
 
                 <!-- Paginación Premium Grid -->
                 <div class="flex items-center justify-center py-4">
-                    <Pagination :paginationData="cfdis" @page-change="handlePageChange" />
+                    <Pagination :pagination-data="cfdis" @page-change="handlePageChange" />
                 </div>
 
                 <!-- Empty State para Grid -->

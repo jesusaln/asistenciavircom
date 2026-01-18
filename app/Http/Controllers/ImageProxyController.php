@@ -47,10 +47,32 @@ class ImageProxyController extends Controller
                 $content = $response->body();
                 $mime = $response->header('Content-Type') ?? 'image/jpeg';
 
-                // Si por alguna razón CVA nos regresa HTML (ej. error oculto), no cachear y dar 404
+                // Si CVA nos regresa HTML (ej. error o fragmento con tag img), intentar extraer la imagen real
                 if (str_contains(strtolower($mime), 'html')) {
-                    \Log::error("Image Proxy returned HTML instead of image for URL: {$url}");
-                    return abort(404);
+                    \Log::info("Image Proxy received HTML for {$url}, attempting to extract img src");
+
+                    // Buscar <img src='...'> o <img src="..."> en el contenido HTML
+                    if (preg_match("/<img[^>]+src=['\"]([^'\"]+)['\"]/i", $content, $matches)) {
+                        $realImageUrl = $matches[1];
+                        \Log::info("Extracted real image URL: {$realImageUrl}");
+
+                        // Hacer fetch de la imagen real
+                        $response = \Illuminate\Support\Facades\Http::withHeaders([
+                            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                            'Referer' => 'https://www.grupocva.com/',
+                        ])->timeout(15)->get($realImageUrl);
+
+                        if ($response->successful()) {
+                            $content = $response->body();
+                            $mime = $response->header('Content-Type') ?? 'image/jpeg';
+                        } else {
+                            \Log::error("Failed to fetch real image from extracted URL: {$realImageUrl}");
+                            return abort(404);
+                        }
+                    } else {
+                        \Log::error("Image Proxy returned HTML but no img tag found for URL: {$url}");
+                        return abort(404);
+                    }
                 }
 
                 return response($content)

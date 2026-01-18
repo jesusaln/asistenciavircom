@@ -54,6 +54,10 @@ const formatDate = (dateString) => {
         day: 'numeric'
     });
 };
+
+const handlePageChange = (page) => {
+    router.get(route('traspasos-bancarios.index'), { page }, { preserveState: true });
+};
 </script>
 
 <template>
@@ -166,7 +170,7 @@ const formatDate = (dateString) => {
             
             <!-- Pagination -->
             <div v-if="traspasos.links.length > 3" class="px-6 py-4 bg-white border-t border-gray-100">
-                <Pagination :links="traspasos.links" />
+                <Pagination :pagination-data="traspasos" @page-change="handlePageChange" />
             </div>
         </div>
     </div>
