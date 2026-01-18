@@ -388,44 +388,7 @@ class VentaController extends Controller
 
         return back()->with('success', $result['message']);
     }
-        $validated = $request->validate([
-            'tipo_factura' => 'nullable|in:ingreso,anticipo',
-            'cfdi_relacion_tipo' => 'nullable|in:01,02,03,04,05,06,07',
-            'cfdi_relacion_uuids' => 'nullable|array',
-            'cfdi_relacion_uuids.*' => 'string|uuid',
-            'anticipo_monto' => 'nullable|numeric|min:0.01',
-            'anticipo_metodo_pago' => 'nullable|in:efectivo,transferencia,cheque,tarjeta,otros',
-        ]);
 
-        $tipoFactura = $validated['tipo_factura'] ?? 'ingreso';
-
-        if ($tipoFactura === 'anticipo') {
-            if (empty($validated['anticipo_monto']) || empty($validated['anticipo_metodo_pago'])) {
-                return back()->withErrors([
-                    'anticipo_monto' => 'Monto y método de pago son obligatorios para facturar anticipo.',
-                ]);
-            }
-
-            $result = $cfdiService->facturarAnticipo(
-                $venta,
-                (float) $validated['anticipo_monto'],
-                $validated['anticipo_metodo_pago']
-            );
-        } else {
-            $options = [
-                'tipo_factura' => 'ingreso',
-                'cfdi_relacion_tipo' => $validated['cfdi_relacion_tipo'] ?? null,
-                'cfdi_relacion_uuids' => $validated['cfdi_relacion_uuids'] ?? [],
-            ];
-            $result = $cfdiService->facturarVenta($venta, $options);
-        }
-
-        if (!$result['success']) {
-            return back()->with('error', $result['message']);
-        }
-
-        return back()->with('success', $result['message']);
-    }
 
     /**
      * Cancelar la factura de una venta
