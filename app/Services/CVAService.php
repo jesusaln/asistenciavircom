@@ -503,7 +503,11 @@ class CVAService
 
         // Detectar URL de imagen en múltiples campos posibles
         $imagenUrl = null;
-        if (!empty($item['imagen'])) {
+
+        // Priorizar imágenes de alta resolución (V2) si existen
+        if (!empty($item['imagenes']) && is_array($item['imagenes']) && !empty($item['imagenes'][0])) {
+            $imagenUrl = trim($item['imagenes'][0]);
+        } elseif (!empty($item['imagen'])) {
             $imagenUrl = trim($item['imagen']);
         } elseif (!empty($item['imagen_fabricante'])) {
             $imagenUrl = trim($item['imagen_fabricante']);
@@ -687,11 +691,18 @@ class CVAService
         ];
 
         // Descargar imagen si existe
-        if (!empty($item['imagen'])) {
+        $sourceImage = null;
+        if (!empty($item['imagenes']) && is_array($item['imagenes']) && !empty($item['imagenes'][0])) {
+            $sourceImage = $item['imagenes'][0];
+        } elseif (!empty($item['imagen'])) {
+            $sourceImage = $item['imagen'];
+        }
+
+        if ($sourceImage) {
             try {
-                $imgResponse = Http::get($item['imagen']);
+                $imgResponse = Http::get($sourceImage);
                 if ($imgResponse->successful()) {
-                    $ext = pathinfo($item['imagen'], PATHINFO_EXTENSION) ?: 'jpg';
+                    $ext = pathinfo($sourceImage, PATHINFO_EXTENSION) ?: 'jpg';
                     // Reemplazar caracteres especiales en la clave para el nombre de archivo
                     $fileName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $item['clave']);
                     $path = 'productos/' . $fileName . '.' . $ext;

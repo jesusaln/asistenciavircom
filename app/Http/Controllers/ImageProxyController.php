@@ -65,6 +65,15 @@ class ImageProxyController extends Controller
                     if (preg_match("/<img[^>]+src=['\"]([^'\"]+)['\"]/i", $content, $matches)) {
                         $realImageUrl = $matches[1];
 
+                        // Si es la imagen de "No Disponible" de CVA que sabemos que falla, o si queremos forzar una mejor imagen
+                        if (str_contains($realImageUrl, 'na1.gif') || str_contains($url, 'me2.grupocva.com')) {
+                            // Intentar resolver por clave de producto si es una URL de CVA
+                            $resolved = $this->resolveFallbackCvaImage($url);
+                            if ($resolved) {
+                                return $resolved;
+                            }
+                        }
+
                         if (str_contains($realImageUrl, 'na1.gif')) {
                             return null;
                         }
@@ -81,6 +90,13 @@ class ImageProxyController extends Controller
                             ];
                         }
                     }
+
+                    // Si no hubo suerte con regex, intentar resolver por DB igual
+                    $resolved = $this->resolveFallbackCvaImage($url);
+                    if ($resolved) {
+                        return $resolved;
+                    }
+
                     return null;
                 }
 
@@ -102,5 +118,55 @@ class ImageProxyController extends Controller
             \Log::error("Image Proxy Exception: " . $e->getMessage() . " for URL: " . $url);
             return $fallbackResponse();
         }
+    }
+
+    /**
+     * Intenta encontrar una imagen alternativa para un URL de CVA
+     * buscando el producto en nuestra DB y pidiendo imágenes HD a la API
+     */
+    private function resolveFallbackCvaImage($url)
+    {
+        try {
+            // Buscar producto que use esta imagen
+            $producto = \App\Models\Producto::where('imagen', $url)
+                ->whereNotNull('cva_clave')
+                ->first();
+
+            if (!$producto) {
+                // Intentar extraer el ID fProd de la URL (ej: fProd=10477696)
+                if (preg_match('/fProd=(\d+)/', $url, $m)) {
+                    $producto = \App\Models\Producto::where('imagen', 'like', "%fProd={$m[1]}%")
+                        ->whereNotNull('cva_clave')
+                        ->first();
+                }
+            }
+
+            if ($producto && $producto->cva_clave) {
+                $service = app(\App\Services\CVAService::class);
+                $images = $service->getHighResImages($producto->cva_clave);
+
+                if (!empty($images) && is_array($images)) {
+                    $realUrl = $images[0];
+                    $response = \Illuminate\Support\Facades\Http::withHeaders([
+                        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Referer' => 'https://www.grupocva.com/',
+                    ])->timeout(10)->get($realUrl);
+
+                    if ($response->successful()) {
+                        // Opcional: Actualizar el producto en DB para no volver a pasar por aquí con este producto
+                        $producto->update(['imagen' => $realUrl]);
+
+                        return [
+                            'content' => base64_encode($response->body()),
+                            'mime' => $response->header('Content-Type') ?? 'image/jpeg'
+                        ];
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::debug("Fallback CVA Resolution failed: " . $e->getMessage());
+        }
+
+        return null;
     }
 }
