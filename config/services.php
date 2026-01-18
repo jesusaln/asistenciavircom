@@ -104,4 +104,10 @@ return [
         'concept_code_pago' => env('CONTPAQI_CONCEPT_CODE_PAGO', '100'),
         'concept_code_anticipo' => env('CONTPAQI_CONCEPT_CODE_ANTICIPO', '4CLIMAS'),
     ],
+
+    'ollama' => [
+        'base_url' => env('OLLAMA_BASE_URL', 'http://localhost:11434'),
+        'model' => env('OLLAMA_MODEL', 'llama3.1'),
+        'temperature' => env('OLLAMA_TEMPERATURE', 0.7),
+    ],
 ];

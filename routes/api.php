@@ -285,6 +285,9 @@ Route::prefix('cobranzas')->name('api.cobranzas.')->middleware(['auth:sanctum', 
 Route::prefix('webhooks')->name('api.webhooks.')->group(function () {
     Route::get('/whatsapp', [WhatsAppWebhookController::class, 'verify'])->name('whatsapp.verify');
     Route::post('/whatsapp', [WhatsAppWebhookController::class, 'receive'])->name('whatsapp.receive');
+
+    // Chatbot IA Webhook
+    Route::post('/chat', [\App\Http\Controllers\Api\ChatbotController::class, 'chat'])->name('chat');
 });
 
 // =====================================================
