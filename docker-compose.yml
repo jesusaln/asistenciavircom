@@ -22,8 +22,17 @@ services:
       - cdd_net
     depends_on:
       - db
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - ollama
+
+  # Servicio de IA Ollama
+  ollama:
+    image: ollama/ollama:latest
+    container_name: asistenciavircom-ollama
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - cdd_net
 
   # Servidor Web Nginx
   web:
@@ -88,3 +97,4 @@ volumes:
   db_data:
     external: true
     name: cdd_app_vps_db_data
+  ollama_data:
