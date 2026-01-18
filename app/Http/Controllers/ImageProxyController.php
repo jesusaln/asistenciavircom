@@ -116,6 +116,17 @@ class ImageProxyController extends Controller
 
         } catch (\Exception $e) {
             \Log::error("Image Proxy Exception: " . $e->getMessage() . " for URL: " . $url);
+
+            // Si falló por timeout o error de red, intentar el último recurso: resolver por API V2
+            if (str_contains($url, 'grupocva.com')) {
+                $resolved = $this->resolveFallbackCvaImage($url);
+                if ($resolved) {
+                    return response(base64_decode($resolved['content']))
+                        ->header('Content-Type', $resolved['mime'])
+                        ->header('Cache-Control', 'public, max-age=86400');
+                }
+            }
+
             return $fallbackResponse();
         }
     }
