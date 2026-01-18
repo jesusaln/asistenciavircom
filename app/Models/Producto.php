@@ -29,6 +29,7 @@ class Producto extends Model
         'tipo_producto' => 'string',
         'cva_last_sync' => 'datetime',
         'stock_cedis' => 'integer',
+        'destacado' => 'boolean',
     ];
 
     protected $fillable = [
@@ -63,6 +64,7 @@ class Producto extends Model
         'cva_clave',
         'stock_cedis',
         'cva_last_sync',
+        'destacado',
     ];
 
     protected $attributes = [

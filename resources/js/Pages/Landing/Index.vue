@@ -138,16 +138,14 @@ const toggleFaq = (id) => {
     activeFaq.value = activeFaq.value === id ? null : id;
 };
 
-const getImageUrl = (imagen) => {
+const getImageUrl = (item) => {
+    if (!item) return null
+    const imagen = typeof item === 'string' ? item : (item.imagen_url || item.imagen)
     if (!imagen) return null
+
     let urlStr = String(imagen).trim()
     
-    // Si el backend nos mandó /storage/http... por error, lo limpiamos
-    if (urlStr.startsWith('/storage/http')) {
-        urlStr = urlStr.replace('/storage/', '')
-    }
-    
-    // Si ya es una URL absoluta o relativa al protocolo
+    // Si viene de CVA o es URL externa
     if (urlStr.toLowerCase().startsWith('http') || urlStr.startsWith('//')) {
         try {
             return route('img.proxy', { u: btoa(urlStr) })
@@ -424,7 +422,7 @@ const planesCalculados = computed(() => {
                         :style="{ transitionDelay: `${index * 100}ms` }"
                     >
                         <div class="relative aspect-[4/5] bg-white overflow-hidden">
-                            <img :src="getImageUrl(item.imagen_url) || 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?q=80&w=2070&auto=format&fit=crop'" class="w-full h-full object-contain p-8 group-hover:scale-110 transition-transform duration-1000 ease-in-out" alt="Producto">
+                            <img :src="getImageUrl(item) || 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?q=80&w=2070&auto=format&fit=crop'" class="w-full h-full object-contain p-8 group-hover:scale-110 transition-transform duration-1000 ease-in-out" alt="Producto">
                             
                             <!-- Glassmorphism Overlay -->
                             <div class="absolute inset-0 bg-gradient-to-t from-gray-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>

@@ -27,55 +27,75 @@ class LandingController extends Controller
     {
         $config = EmpresaConfiguracion::getConfig();
 
-        // Obtener productos MÁS VENDIDOS basados en estadísticas reales de ventas
-        // Suma de cantidades vendidas en los últimos 90 días
-        $masVendidosIds = VentaItem::where('ventable_type', Producto::class)
-            ->where('created_at', '>=', now()->subDays(90))
-            ->select('ventable_id', DB::raw('SUM(cantidad) as total_vendido'))
-            ->groupBy('ventable_id')
-            ->orderByDesc('total_vendido')
-            ->take(8) // Obtener top 8 para tener margen
-            ->pluck('ventable_id')
-            ->toArray();
+        // 1. Intentar obtener productos marcados manualmente como destacados (NUEVA LÓGICA)
+        $destacadosManuales = Producto::where('estado', 'activo')
+            ->where('destacado', true)
+            ->take(4)
+            ->get();
 
-        // Si hay productos vendidos, obtenerlos en orden de ventas
-        if (!empty($masVendidosIds)) {
-            $destacados = Producto::whereIn('id', $masVendidosIds)
-                ->where('estado', 'activo')
-                ->get()
-                ->sortBy(function ($producto) use ($masVendidosIds) {
-                    return array_search($producto->id, $masVendidosIds);
-                })
-                ->take(4)
-                ->map(function ($producto) {
-                    $precioSinIva = $producto->precio_venta;
-                    $precioConIva = round($precioSinIva * 1.16, 2); // IVA 16%
-                    return [
-                        'id' => $producto->id,
-                        'nombre' => $producto->nombre,
-                        'precio' => $precioConIva,
-                        'imagen_url' => $producto->imagen ? (str_starts_with($producto->imagen, 'http') ? $producto->imagen : Storage::url($producto->imagen)) : null,
-                        'categoria' => $producto->categoria->nombre ?? 'General',
-                    ];
-                })
-                ->values();
+        if ($destacadosManuales->count() > 0) {
+            $destacados = $destacadosManuales->map(function ($producto) {
+                $precioSinIva = $producto->precio_venta;
+                $precioConIva = round($precioSinIva * 1.16, 2);
+                return [
+                    'id' => $producto->id,
+                    'nombre' => $producto->nombre,
+                    'precio' => $precioConIva,
+                    'imagen_url' => $producto->imagen ? (str_starts_with($producto->imagen, 'http') ? $producto->imagen : Storage::url($producto->imagen)) : null,
+                    'categoria' => $producto->categoria->nombre ?? 'General',
+                    'cva_clave' => $producto->cva_clave,
+                ];
+            });
         } else {
-            // Si no hay ventas, mostrar productos activos recientes como fallback
-            $destacados = Producto::where('estado', 'activo')
-                ->latest()
-                ->take(4)
-                ->get()
-                ->map(function ($producto) {
-                    $precioSinIva = $producto->precio_venta;
-                    $precioConIva = round($precioSinIva * 1.16, 2); // IVA 16%
-                    return [
-                        'id' => $producto->id,
-                        'nombre' => $producto->nombre,
-                        'precio' => $precioConIva,
-                        'imagen_url' => $producto->imagen ? (str_starts_with($producto->imagen, 'http') ? $producto->imagen : Storage::url($producto->imagen)) : null,
-                        'categoria' => $producto->categoria->nombre ?? 'General',
-                    ];
-                });
+            // FALLBACK 1: Productos MÁS VENDIDOS
+            $masVendidosIds = VentaItem::where('ventable_type', Producto::class)
+                ->where('created_at', '>=', now()->subDays(90))
+                ->select('ventable_id', DB::raw('SUM(cantidad) as total_vendido'))
+                ->groupBy('ventable_id')
+                ->orderByDesc('total_vendido')
+                ->take(8)
+                ->pluck('ventable_id')
+                ->toArray();
+
+            if (!empty($masVendidosIds)) {
+                $destacados = Producto::whereIn('id', $masVendidosIds)
+                    ->where('estado', 'activo')
+                    ->get()
+                    ->sortBy(function ($producto) use ($masVendidosIds) {
+                        return array_search($producto->id, $masVendidosIds);
+                    })
+                    ->take(4)
+                    ->map(function ($producto) {
+                        $precioSinIva = $producto->precio_venta;
+                        $precioConIva = round($precioSinIva * 1.16, 2);
+                        return [
+                            'id' => $producto->id,
+                            'nombre' => $producto->nombre,
+                            'precio' => $precioConIva,
+                            'imagen_url' => $producto->imagen ? (str_starts_with($producto->imagen, 'http') ? $producto->imagen : Storage::url($producto->imagen)) : null,
+                            'categoria' => $producto->categoria->nombre ?? 'General',
+                            'cva_clave' => $producto->cva_clave,
+                        ];
+                    });
+            } else {
+                // FALLBACK 2: Productos activos recientes
+                $destacados = Producto::where('estado', 'activo')
+                    ->latest()
+                    ->take(4)
+                    ->get()
+                    ->map(function ($producto) {
+                        $precioSinIva = $producto->precio_venta;
+                        $precioConIva = round($precioSinIva * 1.16, 2);
+                        return [
+                            'id' => $producto->id,
+                            'nombre' => $producto->nombre,
+                            'precio' => $precioConIva,
+                            'imagen_url' => $producto->imagen ? (str_starts_with($producto->imagen, 'http') ? $producto->imagen : Storage::url($producto->imagen)) : null,
+                            'categoria' => $producto->categoria->nombre ?? 'General',
+                            'cva_clave' => $producto->cva_clave,
+                        ];
+                    });
+            }
         }
 
         // Cargar contenido dinámico de la landing
@@ -84,7 +104,9 @@ class LandingController extends Controller
         $logosClientes = LandingLogoCliente::activo()->ordenado()->get();
         $marcas = LandingMarcaAutorizada::activo()->ordenado()->get();
         $procesos = LandingProceso::activo()->ordenado()->get();
-        $planes = PlanPoliza::activos()->ordenado()->get();
+
+        // Mostrar SOLO los planes destacados en la landing (Limitado a 3 como pidió el usuario)
+        $planes = PlanPoliza::activos()->destacados()->ordenado()->take(3)->get();
 
         // Obtener la oferta activa y vigente (solo la primera)
         $ofertaActiva = LandingOferta::activo()->vigente()->ordenado()->first();

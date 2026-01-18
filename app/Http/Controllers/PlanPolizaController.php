@@ -174,6 +174,16 @@ class PlanPolizaController extends Controller
     }
 
     /**
+     * Toggle estado destacado del plan.
+     */
+    public function toggleDestacado(PlanPoliza $planesPoliza)
+    {
+        $planesPoliza->update(['destacado' => !$planesPoliza->destacado]);
+
+        return back()->with('success', 'Visibilidad en index actualizada.');
+    }
+
+    /**
      * Catálogo público de planes (sin autenticación).
      */
     public function catalogo()

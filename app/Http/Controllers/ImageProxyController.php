@@ -156,21 +156,30 @@ class ImageProxyController extends Controller
                 $service = app(\App\Services\CVAService::class);
                 $images = $service->getHighResImages($producto->cva_clave);
 
-                if (!empty($images) && is_array($images)) {
-                    $realUrl = $images[0];
-                    $response = \Illuminate\Support\Facades\Http::withHeaders([
-                        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                        'Referer' => 'https://www.grupocva.com/',
-                    ])->timeout(10)->get($realUrl);
+                // Si no hay imágenes "oficiales", intentar adivinar por patrón
+                if (empty($images)) {
+                    $clave = $producto->cva_clave;
+                    $images = [
+                        "https://www.grupocva.com/articulos_img/{$clave}.jpg",
+                        "https://www.grupocva.com/nuevo/catalogo/product_images/{$clave}.jpg",
+                        "https://www.grupocva.com/articulos_img/{$clave}.JPG",
+                    ];
+                }
 
-                    if ($response->successful()) {
-                        // Opcional: Actualizar el producto en DB para no volver a pasar por aquí con este producto
-                        $producto->update(['imagen' => $realUrl]);
+                foreach ($images as $realUrl) {
+                    try {
+                        $response = \Illuminate\Support\Facades\Http::withHeaders([
+                            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                            'Referer' => 'https://www.grupocva.com/',
+                        ])->timeout(8)->get($realUrl);
 
-                        return [
-                            'content' => base64_encode($response->body()),
-                            'mime' => $response->header('Content-Type') ?? 'image/jpeg'
-                        ];
+                        if ($response->successful() && str_contains($response->header('Content-Type'), 'image')) {
+                            return [
+                                'content' => base64_encode($response->body()),
+                                'mime' => $response->header('Content-Type') ?? 'image/jpeg'
+                            ];
+                        }
+                    } catch (\Exception $e) {
                     }
                 }
             }

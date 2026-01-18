@@ -249,6 +249,15 @@ const toggleProducto = (id) => {
   })
 }
 
+const toggleDestacado = (id) => {
+  router.put(route('productos.toggle-destacado', id), {}, {
+    preserveScroll: true,
+    onSuccess: () => {
+      notyf.success('Visibilidad en index actualizada')
+    }
+  })
+}
+
 const csrfToken = () => {
   const meta = typeof document !== 'undefined' ? document.querySelector('meta[name="csrf-token"]') : null
   return meta ? meta.getAttribute('content') : ''
@@ -665,6 +674,7 @@ const faltanSeriesParaProducto = (producto) => {
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Precio</th>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Stock</th>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
+                <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">En Inicio</th>
                 <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
@@ -705,6 +715,18 @@ const faltanSeriesParaProducto = (producto) => {
                   <span :class="obtenerClasesEstado(producto.estado)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                     {{ obtenerLabelEstado(producto.estado) }}
                   </span>
+                </td>
+                <td class="px-6 py-4 text-center">
+                  <button
+                    @click="toggleDestacado(producto.id)"
+                    class="transition-all duration-300 transform hover:scale-125"
+                    :class="producto.raw.destacado ? 'text-amber-500 scale-110' : 'text-gray-300 hover:text-amber-300'"
+                    :title="producto.raw.destacado ? 'Quitar del inicio' : 'Mostrar en el inicio'"
+                  >
+                    <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                      <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                  </button>
                 </td>
                 <td class="px-6 py-4 text-right">
                   <div class="flex items-center justify-end space-x-1">

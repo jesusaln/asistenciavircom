@@ -243,6 +243,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::post('/productos/validate-stock', [ProductoController::class, 'validateStock'])->name('productos.validateStock');
     Route::post('/productos/recalcular-precios', [ProductoController::class, 'recalcularPrecios'])->name('productos.recalcular-precios');
     Route::put('/productos/{producto}/toggle', [ProductoController::class, 'toggle'])->name('productos.toggle');
+    Route::put('/productos/{producto}/toggle-destacado', [ProductoController::class, 'toggleDestacado'])->name('productos.toggle-destacado');
 
     // Integración CVA Admin
     Route::prefix('cva')->name('cva.')->group(function () {
@@ -414,6 +415,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::post('/polizas-servicio/{polizaServicio}/enviar-recordatorio', [PolizaServicioController::class, 'enviarRecordatorioRenovacion'])->name('polizas-servicio.enviar-recordatorio');
     Route::resource('polizas-servicio', PolizaServicioController::class)->middleware('role:admin|editor|super-admin');
     Route::resource('planes-poliza', PlanPolizaController::class)->middleware('role:admin|editor|super-admin');
+    Route::put('/planes-poliza/{planes_poliza}/toggle-destacado', [PlanPolizaController::class, 'toggleDestacado'])->name('planes-poliza.toggle-destacado');
 
     Route::resource('entregas-dinero', EntregaDineroController::class)->middleware('role:admin|ventas|super-admin');
     Route::post('/entregas-dinero/{id}/marcar-recibido', [EntregaDineroController::class, 'marcarRecibido'])->name('entregas-dinero.marcar-recibido')->middleware('role:admin|super-admin');

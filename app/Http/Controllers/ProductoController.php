@@ -1224,4 +1224,14 @@ class ProductoController extends Controller
 
         return "{$path}/{$filename}";
     }
+
+    /**
+     * Alternar el estado de destacado de un producto para la landing page.
+     */
+    public function toggleDestacado(Producto $producto)
+    {
+        $producto->update(['destacado' => !$producto->destacado]);
+
+        return back()->with('success', 'Visibilidad en index actualizada.');
+    }
 }

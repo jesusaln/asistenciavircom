@@ -27,6 +27,10 @@ const toggleActivo = (plan) => {
     router.put(route('planes-poliza.toggle', plan.id), {}, { preserveScroll: true });
 };
 
+const toggleDestacado = (plan) => {
+    router.put(route('planes-poliza.toggle-destacado', plan.id), {}, { preserveScroll: true });
+};
+
 const eliminarPlan = (plan) => {
     if (confirm(`¿Eliminar el plan "${plan.nombre}"?`)) {
         router.delete(route('planes-poliza.destroy', plan.id));
@@ -106,6 +110,7 @@ const getTipoBadge = (tipo) => {
                                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Precio/Mes</th>
                                 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Horas Inc.</th>
                                 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Estado</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">En Index</th>
                                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Acciones</th>
                             </tr>
                         </thead>
@@ -149,6 +154,17 @@ const getTipoBadge = (tipo) => {
                                                 plan.activo ? 'translate-x-5' : 'translate-x-0'
                                             ]"
                                         ></span>
+                                    </button>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <button 
+                                        @click="toggleDestacado(plan)"
+                                        :class="[
+                                            'px-3 py-1 rounded-lg text-xs font-bold transition-all border',
+                                            plan.destacado ? 'bg-amber-100 text-amber-700 border-amber-300' : 'bg-gray-50 text-gray-400 border-gray-100 hover:border-amber-200'
+                                        ]"
+                                    >
+                                        {{ plan.destacado ? '⭐ En Index' : 'Mostrar' }}
                                     </button>
                                 </td>
                                 <td class="px-6 py-4 text-right">

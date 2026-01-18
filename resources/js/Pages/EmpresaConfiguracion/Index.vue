@@ -24,6 +24,7 @@ import TiendaOnlineTab from './Partials/TiendaOnlineTab.vue'
 import FoliosTab from './Partials/FoliosTab.vue'
 import RespaldosTab from './Partials/RespaldosTab.vue'
 import RedesSocialesTab from './Partials/RedesSocialesTab.vue'
+import ApiKeysTab from './Partials/ApiKeysTab.vue'
 
 defineOptions({ layout: AppLayout })
 
@@ -36,7 +37,7 @@ const props = defineProps({
 // Inicializar tab desde URL hash o default
 const getInitialTab = () => {
   const hash = window.location.hash.replace('#', '');
-  const validTabs = ['general', 'visual', 'redes-sociales', 'folios', 'documentos', 'impuestos', 'bancarios', 'correo', 'whatsapp', 'cobros', 'pagos', 'certificados', 'red', 'tienda', 'respaldos', 'sistema', 'seguridad', 'danger'];
+  const validTabs = ['general', 'visual', 'redes-sociales', 'folios', 'documentos', 'impuestos', 'bancarios', 'correo', 'whatsapp', 'api-keys', 'cobros', 'pagos', 'certificados', 'red', 'tienda', 'respaldos', 'sistema', 'seguridad', 'danger'];
   return validTabs.includes(hash) ? hash : 'general';
 };
 
@@ -52,6 +53,7 @@ const tabs = [
   { id: 'bancarios', nombre: 'Datos Bancarios', icono: 'university', component: BancariosTab }, // Changed icon
   { id: 'correo', nombre: 'Configuración Correo', icono: 'envelope', component: CorreoTab },
   { id: 'whatsapp', nombre: 'WhatsApp API', icono: 'comments', component: WhatsAppTab },
+  { id: 'api-keys', nombre: 'Inteligencia Artificial', icono: 'robot', component: ApiKeysTab },
   { id: 'cobros', nombre: 'Cobranza', icono: 'file-invoice-dollar', component: CobrosTab },
   { id: 'pagos', nombre: 'Cuentas por Pagar', icono: 'hand-holding-usd', component: PagosTab },
   { id: 'certificados', nombre: 'Certificados SAT', icono: 'key', component: CertificadosTab },
@@ -73,6 +75,7 @@ const tabRoutes = {
   bancarios: 'empresa-configuracion.bancarios.update',
   correo: 'empresa-configuracion.correo.update',
   whatsapp: 'empresa-configuracion.whatsapp.update',
+  'api-keys': 'empresa-configuracion.api-keys.update',
   cobros: 'empresa-configuracion.cobros.update',
   pagos: 'empresa-configuracion.pagos.update',
   certificados: null,
@@ -272,6 +275,17 @@ const form = useForm({
   cva_utility_percentage: props.configuracion.cva_utility_percentage || 15.00,
   cva_codigo_sucursal: props.configuracion.cva_codigo_sucursal || 1,
   cva_paqueteria_envio: props.configuracion.cva_paqueteria_envio || 4,
+
+  // AI & API Keys
+  ai_provider: props.configuracion.ai_provider || 'groq',
+  groq_api_key: '', // Sensitive
+  groq_model: props.configuracion.groq_model || 'llama-3.3-70b-versatile',
+  groq_temperature: props.configuracion.groq_temperature || 0.7,
+  ollama_base_url: props.configuracion.ollama_base_url || 'http://localhost:11434',
+  ollama_model: props.configuracion.ollama_model || 'llama3.1',
+  chatbot_enabled: props.configuracion.chatbot_enabled ?? true,
+  chatbot_system_prompt: props.configuracion.chatbot_system_prompt || '',
+  chatbot_name: props.configuracion.chatbot_name || 'VircomBot',
 })
 
 const currentTabComponent = computed(() => {
