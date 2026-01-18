@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\AI\OllamaService;
+use App\Services\AI\GroqService;
 use App\Models\Cita;
 use App\Models\Producto;
 use App\Models\Servicio;
@@ -15,11 +16,13 @@ use Carbon\Carbon;
 
 class ChatbotController extends Controller
 {
-    protected $ollama;
+    protected $aiService;
+    protected string $provider;
 
-    public function __construct(OllamaService $ollama)
+    public function __construct(OllamaService $ollama, GroqService $groq)
     {
-        $this->ollama = $ollama;
+        $this->provider = config('services.ai_provider', 'groq');
+        $this->aiService = $this->provider === 'groq' ? $groq : $ollama;
     }
 
     public function chat(Request $request)
@@ -117,10 +120,24 @@ class ChatbotController extends Controller
             ]
         ];
 
-        // 1. Llamar a Ollama
-        $response = $this->ollama->chat($history, $tools);
+        // Groq siempre soporta tools, Ollama depende del modelo
+        $supportsTools = true;
+        if ($this->provider === 'ollama') {
+            $toolSupportedModels = ['llama3.1:8b', 'llama3.1:70b', 'qwen2.5:7b', 'mistral', 'mixtral'];
+            $currentModel = config('services.ollama.model', 'llama3');
+            $supportsTools = collect($toolSupportedModels)->contains(fn($m) => str_starts_with($currentModel, $m));
+        }
+
+        // 1. Llamar al servicio de IA (con o sin tools)
+        if ($supportsTools) {
+            $response = $this->aiService->chat($history, $tools);
+        } else {
+            $history[0]['content'] .= "\n\nNOTA: Si el cliente quiere agendar una cita, pídele sus datos y confirma que alguien del equipo lo contactará.";
+            $response = $this->aiService->chat($history);
+        }
 
         if (!$response['success']) {
+            Log::error('VircomBot Error:', ['response' => $response]);
             return response()->json(['error' => 'No disponible por el momento.'], 503);
         }
 
@@ -155,19 +172,40 @@ class ChatbotController extends Controller
                             break;
                     }
 
-                    // Agregar resultado al historial
-                    $history[] = $aiMessage; // El mensaje original del asistente (con la llamada a herramienta)
+                    // Agregar resultado al historial - formato compatible con OpenAI/Groq
+                    // El mensaje del asistente con tool_calls
+                    $assistantMessage = [
+                        'role' => 'assistant',
+                        'content' => null,
+                        'tool_calls' => array_map(function ($tc) {
+                            return [
+                                'id' => $tc['id'] ?? 'call_' . uniqid(),
+                                'type' => 'function',
+                                'function' => [
+                                    'name' => $tc['function']['name'],
+                                    'arguments' => is_array($tc['function']['arguments'])
+                                        ? json_encode($tc['function']['arguments'])
+                                        : $tc['function']['arguments']
+                                ]
+                            ];
+                        }, $aiMessage['tool_calls'])
+                    ];
+                    $history[] = $assistantMessage;
+
+                    // Respuesta de la herramienta
                     $history[] = [
                         'role' => 'tool',
+                        'tool_call_id' => $toolCall['id'] ?? 'call_' . uniqid(),
                         'content' => json_encode($toolResult),
                     ];
 
-                    // 3. Volver a llamar a Ollama con el resultado de la herramienta
-                    $finalResponse = $this->ollama->chat($history); // Sin tools esta vez para que genere texto final
+                    // 3. Volver a llamar al servicio de IA con el resultado de la herramienta
+                    $finalResponse = $this->aiService->chat($history);
 
                     if ($finalResponse['success']) {
+                        $content = $finalResponse['data']['message']['content'] ?? 'Listo, he procesado tu solicitud.';
                         return response()->json([
-                            'message' => $finalResponse['data']['message']['content'],
+                            'message' => $content,
                             'action_taken' => $functionName
                         ]);
                     }
@@ -181,7 +219,7 @@ class ChatbotController extends Controller
 
         // Respuesta normal de texto
         return response()->json([
-            'message' => $aiMessage['content']
+            'message' => $aiMessage['content'] ?? 'Lo siento, no pude procesar tu solicitud.'
         ]);
     }
 

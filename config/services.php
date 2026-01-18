@@ -110,4 +110,13 @@ return [
         'model' => env('OLLAMA_MODEL', 'llama3.1'),
         'temperature' => env('OLLAMA_TEMPERATURE', 0.7),
     ],
+
+    'groq' => [
+        'api_key' => env('GROQ_API_KEY', ''),
+        'model' => env('GROQ_MODEL', 'llama-3.1-70b-versatile'),
+        'temperature' => env('GROQ_TEMPERATURE', 0.7),
+    ],
+
+    // Proveedor de IA preferido: 'groq' o 'ollama'
+    'ai_provider' => env('AI_PROVIDER', 'groq'),
 ];

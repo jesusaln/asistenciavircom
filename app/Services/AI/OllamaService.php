@@ -43,7 +43,7 @@ class OllamaService
 
             Log::info('Ollama Request:', ['payload' => $payload]);
 
-            $response = Http::timeout(60)
+            $response = Http::timeout(120)
                 ->post("{$this->baseUrl}/api/chat", $payload);
 
             if ($response->failed()) {
