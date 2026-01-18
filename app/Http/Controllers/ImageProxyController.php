@@ -37,7 +37,7 @@ class ImageProxyController extends Controller
                 $response = \Illuminate\Support\Facades\Http::withHeaders([
                     'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                     'Referer' => 'https://www.grupocva.com/',
-                ])->timeout(15)->get($url);
+                ])->timeout(30)->get($url);
 
                 if ($response->failed()) {
                     \Log::warning("Image Proxy Failed for URL: {$url}", ['status' => $response->status()]);
@@ -60,7 +60,7 @@ class ImageProxyController extends Controller
                         $response = \Illuminate\Support\Facades\Http::withHeaders([
                             'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                             'Referer' => 'https://www.grupocva.com/',
-                        ])->timeout(15)->get($realImageUrl);
+                        ])->timeout(30)->get($realImageUrl);
 
                         if ($response->successful()) {
                             $content = $response->body();

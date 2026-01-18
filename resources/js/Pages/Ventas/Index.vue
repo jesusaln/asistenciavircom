@@ -788,9 +788,9 @@ const ejecutarBorrado = async () => {
 </script>
 
 <template>
-    <AppLayout title="Ventas">
-        <div :style="cssVars" class="bg-white dark:bg-slate-950 min-h-screen px-6 py-8">
-            <VentasHeader
+    <Head title="Ventas" />
+    <div :style="cssVars" class="bg-white dark:bg-slate-950 min-h-screen px-6 py-8">
+        <VentasHeader
                 :total="estadisticas.total"
                 :borrador="estadisticas.borrador"
                 :aprobadas="estadisticas.aprobados"
@@ -980,7 +980,6 @@ const ejecutarBorrado = async () => {
                 </div>
             </template>
         </DialogModal>
-    </AppLayout>
 </template>
 
 <style scoped>
