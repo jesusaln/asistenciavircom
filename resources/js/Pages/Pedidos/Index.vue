@@ -604,28 +604,28 @@ const formatearMoneda = (num) => {
 const configEstados = {
   'borrador': {
     label: 'Borrador',
-    classes: 'bg-gray-100 text-gray-700',
-    color: 'bg-gray-400'
+    classes: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300',
+    color: 'bg-gray-400 dark:bg-gray-500'
   },
   'pendiente': {
     label: 'Pendiente',
-    classes: 'bg-yellow-100 text-yellow-700',
-    color: 'bg-yellow-400'
+    classes: 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300',
+    color: 'bg-yellow-400 dark:bg-yellow-500'
   },
   'confirmado': {
     label: 'Confirmado',
-    classes: 'bg-blue-100 text-blue-700',
-    color: 'bg-blue-400'
+    classes: 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300',
+    color: 'bg-blue-400 dark:bg-blue-500'
   },
   'enviado_venta': {
     label: 'Enviado a Venta',
-    classes: 'bg-purple-100 text-purple-700',
-    color: 'bg-purple-400'
+    classes: 'bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300',
+    color: 'bg-purple-400 dark:bg-purple-500'
   },
   'cancelado': {
     label: 'Cancelado',
-    classes: 'bg-red-100 text-red-700',
-    color: 'bg-red-400'
+    classes: 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300',
+    color: 'bg-red-400 dark:bg-red-500'
   }
 };
 
@@ -765,7 +765,7 @@ const estadisticasConPorcentaje = computed(() => {
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
   </component>
 
-  <div class="pedidos-index min-h-screen bg-white" :style="cssVars">
+  <div class="pedidos-index min-h-screen bg-white dark:bg-gray-900 transition-colors" :style="cssVars">
     <!-- Contenido principal -->
     <div class="w-full px-6 py-8">
       <!-- Header específico de pedidos -->
@@ -790,7 +790,7 @@ const estadisticasConPorcentaje = computed(() => {
       />
 
       <!-- Información de paginación -->
-      <div class="flex justify-between items-center mb-4 text-sm text-gray-600">
+      <div class="flex justify-between items-center mb-4 text-sm text-gray-600 dark:text-gray-400">
         <div>
           Mostrando {{ paginationData.from }} - {{ paginationData.to }} de {{ paginationData.total }} pedidos
         </div>
@@ -799,7 +799,7 @@ const estadisticasConPorcentaje = computed(() => {
           <select
             :value="paginationData.per_page"
             @change="handlePerPageChange(parseInt($event.target.value))"
-            class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:border-transparent"
+            class="border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-colors"
             :style="focusRingStyle"
           >
             <option value="10">10</option>
@@ -813,12 +813,12 @@ const estadisticasConPorcentaje = computed(() => {
 
       <!-- Tabla de pedidos -->
       <div class="mt-6">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
           <!-- Header -->
-          <div class="px-6 py-4 border-b border-gray-200/60" :style="subtleGradientStyle">
+          <div class="px-6 py-4 border-b border-gray-200/60 dark:border-gray-700" :style="subtleGradientStyle">
             <div class="flex items-center justify-between">
-              <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Pedidos</h2>
-              <div class="text-sm text-gray-600 bg-white/70 px-3 py-1 rounded-full border border-gray-200/50">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">Pedidos</h2>
+              <div class="text-sm text-gray-600 dark:text-gray-400 bg-white/70 dark:bg-gray-700/70 px-3 py-1 rounded-full border border-gray-200/50 dark:border-gray-600/50">
                 {{ items.length }} de {{ paginationData.total }} pedidos
               </div>
             </div>
@@ -826,32 +826,32 @@ const estadisticasConPorcentaje = computed(() => {
 
           <!-- Table -->
           <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200/60">
-              <thead class="bg-white/60">
+            <table class="min-w-full divide-y divide-gray-200/60 dark:divide-gray-700">
+              <thead class="bg-white/60 dark:bg-gray-900/60">
                 <tr>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Cliente</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">N° Pedido</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Total</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
-                  <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Fecha</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">N° Pedido</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Total</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+                  <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
                 </tr>
               </thead>
 
-              <tbody class="bg-white divide-y divide-gray-200/40">
+              <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200/40 dark:divide-gray-700/40">
                 <template v-if="items.length > 0">
                   <tr
                     v-for="pedido in items"
                     :key="pedido.id"
-                    class="group hover:bg-white/60 transition-all duration-150 hover:shadow-sm"
+                    class="group hover:bg-white/60 dark:hover:bg-gray-700/60 transition-all duration-150 hover:shadow-sm"
                   >
                     <!-- Fecha -->
                     <td class="px-6 py-4">
                       <div class="flex flex-col space-y-0.5">
-                        <div class="text-sm font-medium text-gray-900">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white">
                           {{ formatearFecha(pedido.fecha || pedido.created_at) }}
                         </div>
-                        <div class="text-xs text-gray-500">
+                        <div class="text-xs text-gray-500 dark:text-gray-400">
                           {{ formatearHora(pedido.fecha || pedido.created_at) }}
                         </div>
                       </div>
@@ -860,10 +860,10 @@ const estadisticasConPorcentaje = computed(() => {
                     <!-- Cliente -->
                     <td class="px-6 py-4">
                       <div class="flex flex-col space-y-0.5">
-                        <div class="text-sm font-medium text-gray-900 group-hover:text-gray-800">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white group-hover:text-gray-800 dark:group-hover:text-gray-100">
                           {{ pedido.cliente?.nombre_razon_social || 'Sin cliente' }}
                         </div>
-                        <div v-if="pedido.cliente?.email" class="text-xs text-gray-500 truncate max-w-48">
+                        <div v-if="pedido.cliente?.email" class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-48">
                           {{ pedido.cliente?.email }}
                         </div>
                       </div>
@@ -871,14 +871,14 @@ const estadisticasConPorcentaje = computed(() => {
 
                     <!-- N° Pedido -->
                     <td class="px-6 py-4">
-                      <div class="text-sm font-mono font-medium text-gray-700 bg-gray-100/60 px-2 py-1 rounded-md inline-block">
+                      <div class="text-sm font-mono font-medium text-gray-700 dark:text-gray-300 bg-gray-100/60 dark:bg-gray-700/60 px-2 py-1 rounded-md inline-block">
                         {{ pedido.numero_pedido || 'N/A' }}
                       </div>
                     </td>
 
                     <!-- Total -->
                     <td class="px-6 py-4">
-                      <div class="text-sm font-semibold text-gray-900">
+                      <div class="text-sm font-semibold text-gray-900 dark:text-white">
                         ${{ formatearMoneda(pedido.total || 0) }}
                       </div>
                     </td>
@@ -975,14 +975,14 @@ const estadisticasConPorcentaje = computed(() => {
                 <tr v-else>
                   <td :colspan="6" class="px-6 py-16 text-center">
                     <div class="flex flex-col items-center space-y-4">
-                      <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                        <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                        <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                       </div>
                       <div class="space-y-1">
-                        <p class="text-gray-700 font-medium">No hay pedidos</p>
-                        <p class="text-sm text-gray-500">Los pedidos aparecerán aquí cuando se creen</p>
+                        <p class="text-gray-700 dark:text-gray-300 font-medium">No hay pedidos</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Los pedidos aparecerán aquí cuando se creen</p>
                       </div>
                     </div>
                   </td>
@@ -998,7 +998,7 @@ const estadisticasConPorcentaje = computed(() => {
         <button
           @click="handlePageChange(paginationData.current_page - 1)"
           :disabled="paginationData.current_page === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:border-transparent"
+          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-white dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:border-transparent transition-colors"
           :style="focusRingStyle"
         >
           Anterior
@@ -1010,10 +1010,10 @@ const estadisticasConPorcentaje = computed(() => {
             :key="page"
             @click="handlePageChange(page)"
             :class="[
-              'px-3 py-2 text-sm font-medium border border-gray-300 rounded-md',
+              'px-3 py-2 text-sm font-medium border border-gray-300 dark:border-gray-600 rounded-md transition-colors',
               page === paginationData.current_page
                 ? 'text-white'
-                : 'text-gray-700 bg-white hover:bg-white'
+                : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700'
             ]"
             :style="page === paginationData.current_page ? headerGradientStyle : null"
           >
@@ -1024,7 +1024,7 @@ const estadisticasConPorcentaje = computed(() => {
         <button
           @click="handlePageChange(paginationData.current_page + 1)"
           :disabled="paginationData.current_page === paginationData.last_page"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:border-transparent"
+          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-white dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:border-transparent transition-colors"
           :style="focusRingStyle"
         >
           Siguiente
@@ -1067,11 +1067,11 @@ const estadisticasConPorcentaje = computed(() => {
     />
 
     <!-- Loading overlay -->
-    <div v-if="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white p-6 rounded-lg shadow-lg">
+    <div v-if="loading" class="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 backdrop-blur-sm">
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
         <div class="flex items-center space-x-3">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2" :style="{ borderBottomColor: colors.principal }"></div>
-          <span class="text-gray-700">Procesando...</span>
+          <span class="text-gray-700 dark:text-gray-200">Procesando...</span>
         </div>
       </div>
     </div>

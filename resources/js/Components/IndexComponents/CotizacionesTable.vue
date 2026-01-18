@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
     <!-- Header -->
-    <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 px-6 py-4 border-b border-gray-200/60">
+    <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-800 dark:to-gray-700/50 px-6 py-4 border-b border-gray-200/60 dark:border-gray-700">
       <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Cotizaciones</h2>
-        <div class="text-sm text-gray-600 bg-white/70 px-3 py-1 rounded-full border border-gray-200/50">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">Cotizaciones</h2>
+        <div class="text-sm text-gray-600 dark:text-gray-400 bg-white/70 dark:bg-gray-700/70 px-3 py-1 rounded-full border border-gray-200/50 dark:border-gray-600/50">
           {{ items.length }} de {{ total }} cotizaciones
         </div>
       </div>
@@ -12,12 +12,12 @@
 
     <!-- Table -->
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200/60">
-        <thead class="bg-gray-50/60">
+      <table class="min-w-full divide-y divide-gray-200/60 dark:divide-gray-700">
+        <thead class="bg-gray-50/60 dark:bg-gray-900/60">
           <tr>
             <!-- Fecha -->
             <th
-              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors duration-150"
+              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700/60 transition-colors duration-150"
               @click="onSort('fecha')"
             >
               <div class="flex items-center space-x-1">
@@ -36,7 +36,7 @@
 
             <!-- Cliente -->
             <th
-              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors duration-150"
+              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700/60 transition-colors duration-150"
               @click="onSort('cliente')"
             >
               <div class="flex items-center space-x-1">
@@ -55,7 +55,7 @@
 
             <!-- N° Cotización -->
             <th
-              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors duration-150"
+              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700/60 transition-colors duration-150"
               @click="onSort('numero_cotizacion')"
             >
               <div class="flex items-center space-x-1">
@@ -74,7 +74,7 @@
 
             <!-- Total -->
             <th
-              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors duration-150"
+              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700/60 transition-colors duration-150"
               @click="onSort('total')"
             >
               <div class="flex items-center space-x-1">
@@ -93,7 +93,7 @@
 
             <!-- Estado -->
             <th
-              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors duration-150"
+              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700/60 transition-colors duration-150"
               @click="onSort('estado')"
             >
               <div class="flex items-center space-x-1">
@@ -111,29 +111,29 @@
             </th>
 
             <!-- Acciones -->
-            <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
               Acciones
             </th>
           </tr>
         </thead>
 
-        <tbody class="bg-white divide-y divide-gray-200/40">
+        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200/40 dark:divide-gray-700/40">
           <template v-if="items.length > 0">
             <tr
               v-for="doc in items"
               :key="doc.id"
               :class="[
-                'group hover:bg-gray-50/60 transition-all duration-150 hover:shadow-sm',
+                'group hover:bg-gray-50/60 dark:hover:bg-gray-700/60 transition-all duration-150 hover:shadow-sm',
                 doc.estado === 'cancelado' ? 'opacity-50' : ''
               ]"
             >
               <!-- Fecha -->
               <td class="px-6 py-4">
                 <div class="flex flex-col space-y-0.5">
-                  <div class="text-sm font-medium text-gray-900">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">
                     {{ formatearFecha(doc.created_at || doc.fecha) }}
                   </div>
-                  <div class="text-xs text-gray-500">
+                  <div class="text-xs text-gray-500 dark:text-gray-400">
                     {{ formatearHora(doc.created_at || doc.fecha) }}
                   </div>
                 </div>
@@ -142,10 +142,10 @@
               <!-- Cliente -->
               <td class="px-6 py-4">
                 <div class="flex flex-col space-y-0.5">
-                  <div class="text-sm font-medium text-gray-900 group-hover:text-gray-800">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white group-hover:text-gray-800 dark:group-hover:text-gray-100">
                     {{ doc.cliente?.nombre || 'Sin cliente' }}
                   </div>
-                  <div v-if="doc.cliente?.email" class="text-xs text-gray-500 truncate max-w-48">
+                  <div v-if="doc.cliente?.email" class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-48">
                     {{ doc.cliente.email }}
                   </div>
                 </div>
@@ -153,14 +153,14 @@
 
               <!-- N° Cotización -->
               <td class="px-6 py-4">
-                <div class="text-sm font-mono font-medium text-gray-700 bg-gray-100/60 px-2 py-1 rounded-md inline-block">
+                <div class="text-sm font-mono font-medium text-gray-700 dark:text-gray-300 bg-gray-100/60 dark:bg-gray-700/60 px-2 py-1 rounded-md inline-block">
                   {{ doc.numero_cotizacion_display || doc.numero_cotizacion || doc.id || 'N/A' }}
                 </div>
               </td>
 
               <!-- Total -->
               <td class="px-6 py-4">
-                <div class="text-sm font-semibold text-gray-900">
+                <div class="text-sm font-semibold text-gray-900 dark:text-white">
                   <template v-if="typeof doc.total !== 'undefined' && doc.total !== null">
                     ${{ formatearMoneda(doc.total) }}
                   </template>
@@ -250,14 +250,14 @@
           <tr v-else>
             <td :colspan="6" class="px-6 py-16 text-center">
               <div class="flex flex-col items-center space-y-4">
-                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                  <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                  <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
                 <div class="space-y-1">
-                  <p class="text-gray-700 font-medium">No hay cotizaciones</p>
-                  <p class="text-sm text-gray-500">Las cotizaciones aparecerán aquí cuando se creen</p>
+                  <p class="text-gray-700 dark:text-gray-300 font-medium">No hay cotizaciones</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Las cotizaciones aparecerán aquí cuando se creen</p>
                 </div>
               </div>
             </td>
@@ -283,15 +283,15 @@ const emit = defineEmits([
 
 // Estados de cotizaciones
 const estadosConfig = {
-  'borrador': { label: 'Borrador', classes: 'bg-yellow-100 text-yellow-700', color: 'bg-yellow-400' },
-  'pendiente': { label: 'Pendiente', classes: 'bg-gray-100 text-gray-700', color: 'bg-gray-400' },
-  'aprobada': { label: 'Aprobada', classes: 'bg-blue-100 text-blue-700', color: 'bg-blue-400' },
-  'rechazada': { label: 'Rechazada', classes: 'bg-red-100 text-red-700', color: 'bg-red-400' },
-  'enviada': { label: 'Enviada', classes: 'bg-purple-100 text-purple-700', color: 'bg-purple-400' },
-  'enviado_pedido': { label: 'Enviado a Pedido', classes: 'bg-orange-100 text-orange-700', color: 'bg-orange-400' },
-  'convertida_pedido': { label: 'Convertida a Pedido', classes: 'bg-green-100 text-green-700', color: 'bg-green-400' },
-  'cancelado': { label: 'Cancelado', classes: 'bg-red-100 text-red-700', color: 'bg-red-400' },
-  'sin_estado': { label: 'Sin Estado', classes: 'bg-gray-100 text-gray-500', color: 'bg-gray-400' }
+  'borrador': { label: 'Borrador', classes: 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300', color: 'bg-yellow-400 dark:bg-yellow-500' },
+  'pendiente': { label: 'Pendiente', classes: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300', color: 'bg-gray-400 dark:bg-gray-500' },
+  'aprobada': { label: 'Aprobada', classes: 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300', color: 'bg-blue-400 dark:bg-blue-500' },
+  'rechazada': { label: 'Rechazada', classes: 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300', color: 'bg-red-400 dark:bg-red-500' },
+  'enviada': { label: 'Enviada', classes: 'bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300', color: 'bg-purple-400 dark:bg-purple-500' },
+  'enviado_pedido': { label: 'Enviado a Pedido', classes: 'bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300', color: 'bg-orange-400 dark:bg-orange-500' },
+  'convertida_pedido': { label: 'Convertida a Pedido', classes: 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300', color: 'bg-green-400 dark:bg-green-500' },
+  'cancelado': { label: 'Cancelado', classes: 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300', color: 'bg-red-400 dark:bg-red-500' },
+  'sin_estado': { label: 'Sin Estado', classes: 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400', color: 'bg-gray-400 dark:bg-gray-500' }
 }
 
 const obtenerClasesEstado = (estado) => estadosConfig[estado]?.classes || 'bg-gray-100 text-gray-700'

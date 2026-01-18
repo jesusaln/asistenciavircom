@@ -654,7 +654,7 @@ const crearNuevaCotizacion = () => {
 <template>
   <Head title="Cotizaciones" />
 
-  <div :style="cssVars" class="cotizaciones-index min-h-screen bg-white">
+  <div :style="cssVars" class="cotizaciones-index min-h-screen bg-white dark:bg-gray-900 transition-colors">
     <!-- Contenido principal -->
     <div class="w-full px-6 py-8">
       <!-- Header específico de cotizaciones -->
@@ -732,11 +732,11 @@ const crearNuevaCotizacion = () => {
     />
 
     <!-- Loading overlay -->
-    <div v-if="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white p-6 rounded-xl shadow-lg">
+    <div v-if="loading" class="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 backdrop-blur-sm">
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
         <div class="flex items-center space-x-3">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2" :style="{ borderColor: colors.principal }"></div>
-          <span class="text-gray-700">Procesando...</span>
+          <span class="text-gray-700 dark:text-gray-200">Procesando...</span>
         </div>
       </div>
     </div>
@@ -777,6 +777,10 @@ const crearNuevaCotizacion = () => {
 .pagination-info {
   font-size: 0.875rem;
   color: #4b5563;
+}
+
+:root.dark .pagination-info {
+  color: #9ca3af;
 }
 
 .pagination-controls button:focus {
