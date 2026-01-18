@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import ClientLayout from './Layout/ClientLayout.vue';
+import ClientLayout from '../Layout/ClientLayout.vue';
 
 const props = defineProps({
     citas: Object,
