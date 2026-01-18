@@ -22,6 +22,8 @@ services:
       - cdd_net
     depends_on:
       - db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   # Servidor Web Nginx
   web:
