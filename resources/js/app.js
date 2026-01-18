@@ -33,7 +33,7 @@ import {
   faCalendarPlus, faUserPlus, faBell, faAddressBook, faSpinner, faDesktop,
   faCloudUploadAlt, faUnlink, faFileArchive, faPlug, faListOl, faFolderOpen, faTasks, faCheckCircle,
   faPen, faTrashCan,
-  faBullseye, faBullhorn, faColumns, faTrophy, faInbox, faList,
+  faBullseye, faBullhorn, faColumns, faTrophy, faInbox, faList, faBoxOpen,
   faBalanceScale, faTruckLoading, faMedal, faFileUpload, faUserCheck,
   faCrown, faShieldHalved, faBuildingShield, faMobileAlt, faQuestion,
   faBlog, faNewspaper, faShareAlt, faMagic, faExternalLinkAlt, faGem, faCheckDouble,
@@ -74,7 +74,8 @@ library.add(
   faCrown, faShieldHalved, faBuildingShield, faMobileAlt, faQuestion,
   faBlog, faNewspaper, faShareAlt, faMagic, faExternalLinkAlt,
   faFacebook, faTwitter, faGem, faCheckDouble,
-  faThLarge, faQuestionCircle, faServer, faVideo, faUserLock
+  faThLarge, faQuestionCircle, faServer, faVideo, faUserLock,
+  faBullseye, faBullhorn, faColumns, faTrophy, faInbox, faBoxOpen
 );
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';

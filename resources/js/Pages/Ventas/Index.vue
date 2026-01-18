@@ -10,6 +10,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import VentasHeader from '@/Components/IndexComponents/VentasHeader.vue'
 import VentasTable from '@/Components/IndexComponents/VentasTable.vue'
 import ModalVenta from '@/Components/IndexComponents/ModalVenta.vue'
+import DialogModal from '@/Components/DialogModal.vue'
 import Pagination from '@/Components/Pagination.vue'
 import { useCompanyColors } from '@/Composables/useCompanyColors'
 
@@ -738,6 +739,36 @@ const cerrarDeleteModal = () => {
 const cerrarEmailModal = () => {
     showEmailModal.value = false
     selectedVentaEmail.value = null
+}
+
+const onOpenEmailModal = (venta) => {
+    if (!venta) return
+    selectedVentaEmail.value = venta
+    showEmailModal.value = true
+}
+
+const confirmarEnviarEmail = async () => {
+    if (!selectedVentaEmail.value) return
+
+    try {
+        loading.value = true
+        notyf.success('Enviando correo...')
+
+        const { data } = await axios.post(`/ventas/${selectedVentaEmail.value.id}/email`)
+
+        if (data?.success) {
+            notyf.success(data.message || 'Correo enviado exitosamente')
+            cerrarEmailModal()
+        } else {
+            throw new Error(data?.error || 'Error al enviar el correo')
+        }
+    } catch (error) {
+        console.error('Error al enviar email:', error)
+        const mensaje = extractErrorMessage(error, 'Error al enviar el correo')
+        notyf.error(mensaje)
+    } finally {
+        loading.value = false
+    }
 }
 
 const confirmarBorradoReal = (id) => {
