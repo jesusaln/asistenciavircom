@@ -86,3 +86,5 @@ networks:
 
 volumes:
   db_data:
+    external: true
+    name: cdd_app_vps_db_data
