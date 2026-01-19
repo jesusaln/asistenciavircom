@@ -57,10 +57,14 @@ class PanelAlertsService
             } catch (\Exception $e) {
                 \Log::error("Error loading accounts payable alerts: " . $e->getMessage());
                 return [
-                    "vencidas" => [], "vencidas_count" => 0,
-                    "semana" => [], "semana_count" => 0,
-                    "quincena" => [], "quincena_count" => 0,
-                    "mes" => [], "mes_count" => 0,
+                    "vencidas" => [],
+                    "vencidas_count" => 0,
+                    "semana" => [],
+                    "semana_count" => 0,
+                    "quincena" => [],
+                    "quincena_count" => 0,
+                    "mes" => [],
+                    "mes_count" => 0,
                 ];
             }
         });
@@ -90,28 +94,28 @@ class PanelAlertsService
 
             try {
                 // Usamos cobrable.cliente para manejar Venta y Renta polimórficamente
-                $vencidas = CuentasPorCobrar::with("cobrable.cliente")
+                $vencidas = CuentasPorCobrar::with(["cobrable.cliente", "cliente"])
                     ->where("estado", "pendiente")
                     ->where("fecha_vencimiento", "<", $now)
                     ->orderBy("fecha_vencimiento")
                     ->limit(10)
                     ->get();
 
-                $semana = CuentasPorCobrar::with("cobrable.cliente")
+                $semana = CuentasPorCobrar::with(["cobrable.cliente", "cliente"])
                     ->where("estado", "pendiente")
                     ->whereBetween("fecha_vencimiento", [$now, $now->copy()->addDays(7)])
                     ->orderBy("fecha_vencimiento")
                     ->limit(10)
                     ->get();
 
-                $quincena = CuentasPorCobrar::with("cobrable.cliente")
+                $quincena = CuentasPorCobrar::with(["cobrable.cliente", "cliente"])
                     ->where("estado", "pendiente")
                     ->whereBetween("fecha_vencimiento", [$now->copy()->addDays(8), $now->copy()->addDays(15)])
                     ->orderBy("fecha_vencimiento")
                     ->limit(10)
                     ->get();
 
-                $mes = CuentasPorCobrar::with("cobrable.cliente")
+                $mes = CuentasPorCobrar::with(["cobrable.cliente", "cliente"])
                     ->where("estado", "pendiente")
                     ->whereBetween("fecha_vencimiento", [$now->copy()->addDays(16), $now->copy()->addDays(30)])
                     ->orderBy("fecha_vencimiento")
@@ -132,10 +136,14 @@ class PanelAlertsService
                 \Log::error("Error loading accounts receivable alerts: " . $e->getMessage());
 
                 return [
-                    "vencidas" => [], "vencidas_count" => 0,
-                    "semana" => [], "semana_count" => 0,
-                    "quincena" => [], "quincena_count" => 0,
-                    "mes" => [], "mes_count" => 0,
+                    "vencidas" => [],
+                    "vencidas_count" => 0,
+                    "semana" => [],
+                    "semana_count" => 0,
+                    "quincena" => [],
+                    "quincena_count" => 0,
+                    "mes" => [],
+                    "mes_count" => 0,
                 ];
             }
         });
@@ -145,7 +153,7 @@ class PanelAlertsService
     {
         return $cuentas->map(function ($cuenta) use ($now) {
             $diasVencimiento = Carbon::parse($cuenta->fecha_vencimiento)->diffInDays($now, false);
-            
+
             // Determinar origen y detalles
             $origen = $cuenta->cobrable;
             $numero = "N/A";
@@ -153,20 +161,32 @@ class PanelAlertsService
             $link_id = null;
 
             if ($origen) {
-                if ($cuenta->cobrable_type === 'App\\Models\\Venta') {
-                   $numero = $origen->numero_venta ?? $origen->folio ?? $origen->id;
-                   $cliente = $origen->cliente->nombre_razon_social ?? "Sin cliente";
-                   $link_id = $origen->id;
-                } elseif ($cuenta->cobrable_type === 'App\\Models\\Renta') {
-                   $numero = $origen->numero_contrato ?? $origen->id;
-                   $cliente = $origen->cliente->nombre_razon_social ?? "Sin cliente";
-                   $link_id = $origen->id;
+                // Si ya tenemos el cliente directamente cargado, lo usamos
+                if ($cuenta->relationLoaded('cliente') && $cuenta->cliente) {
+                    $cliente = $cuenta->cliente->nombre_razon_social;
+                } elseif (isset($origen->cliente)) {
+                    $cliente = $origen->cliente->nombre_razon_social ?? "Sin cliente";
                 }
+
+                // Determinar número/folio y link
+                if (str_contains($cuenta->cobrable_type, 'Venta') || $cuenta->cobrable_type === 'venta') {
+                    $numero = $origen->numero_venta ?? $origen->folio ?? $origen->id;
+                    $link_id = $origen->id;
+                } elseif (str_contains($cuenta->cobrable_type, 'Renta') || $cuenta->cobrable_type === 'renta') {
+                    $numero = $origen->numero_contrato ?? $origen->id;
+                    $link_id = $origen->id;
+                } elseif (str_contains($cuenta->cobrable_type, 'Poliza') || $cuenta->cobrable_type === 'poliza_servicio') {
+                    $numero = $origen->folio ?? $origen->id;
+                    $link_id = $origen->id;
+                }
+            } else if ($cuenta->cliente) {
+                // Fallback si no hay cobrable pero hay cliente
+                $cliente = $cuenta->cliente->nombre_razon_social;
             }
 
             return [
                 "id" => $cuenta->id,
-                "venta_id" => (isset($cuenta->cobrable_type) && $cuenta->cobrable_type === 'App\\Models\\Venta') ? $link_id : null, 
+                "venta_id" => (isset($cuenta->cobrable_type) && $cuenta->cobrable_type === 'App\\Models\\Venta') ? $link_id : null,
                 "cobrable_type" => $cuenta->cobrable_type,
                 "cobrable_id" => $cuenta->cobrable_id,
                 "numero" => $numero,
@@ -230,10 +250,14 @@ class PanelAlertsService
             } catch (\Exception $e) {
                 \Log::error("Error loading loan alerts: " . $e->getMessage());
                 return [
-                    "vencidas" => [], "vencidas_count" => 0,
-                    "semana" => [], "semana_count" => 0,
-                    "quincena" => [], "quincena_count" => 0,
-                    "mes" => [], "mes_count" => 0,
+                    "vencidas" => [],
+                    "vencidas_count" => 0,
+                    "semana" => [],
+                    "semana_count" => 0,
+                    "quincena" => [],
+                    "quincena_count" => 0,
+                    "mes" => [],
+                    "mes_count" => 0,
                 ];
             }
         });

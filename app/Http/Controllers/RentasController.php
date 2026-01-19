@@ -99,7 +99,7 @@ class RentasController extends Controller
             ->count();
 
         // Próximos 5 cobros con detalles completos
-        $proximosCobros = CuentasPorCobrar::with(['cobrable.cliente'])
+        $proximosCobros = CuentasPorCobrar::with(['cobrable.cliente', 'cliente'])
             ->where('cobrable_type', 'renta')
             ->where('estado', '!=', 'pagado')
             ->where('fecha_vencimiento', '>=', $hoy)
@@ -110,14 +110,19 @@ class RentasController extends Controller
                 $fechaVenc = Carbon::parse($cuenta->fecha_vencimiento);
                 $diasRestantes = $hoy->diffInDays($fechaVenc, false);
 
+                // Priorizar cliente directo de la cuenta, luego desde el cobrable
+                $nombreCliente = $cuenta->cliente->nombre_razon_social
+                    ?? $cuenta->cobrable->cliente->nombre_razon_social
+                    ?? 'Sin cliente';
+
                 return [
                     'id' => $cuenta->id,
                     'renta_id' => $cuenta->cobrable_id,
                     'numero_contrato' => $cuenta->cobrable->numero_contrato ?? 'N/A',
-                    'cliente' => $cuenta->cobrable->cliente->nombre_razon_social ?? 'Sin cliente',
+                    'cliente' => $nombreCliente,
                     'monto' => $cuenta->monto_pendiente,
                     'fecha_vencimiento' => $cuenta->fecha_vencimiento,
-                    'dias_restantes' => $diasRestantes,
+                    'dias_restantes' => (int) $diasRestantes,
                     'notas' => $cuenta->notas,
                 ];
             });
