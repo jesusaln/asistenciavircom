@@ -348,6 +348,35 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                         </div>
                     </div>
 
+                    <!-- Servicios Incluidos -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="font-bold text-gray-900 mb-4 border-b pb-2">🛠️ Servicios Incluidos (Autofill)</h3>
+                        <p class="text-xs text-gray-500 mb-4">Selecciona los servicios que se cargarán automáticamente al contratar esta póliza.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-60 overflow-y-auto p-2 border rounded-lg bg-gray-50">
+                            <label 
+                                v-for="servicio in servicios" 
+                                :key="servicio.id" 
+                                class="flex items-start gap-3 p-3 bg-white border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 hover:shadow-sm transition-all shadow-sm"
+                                :class="{ 'border-blue-500 ring-1 ring-blue-500 bg-blue-50': form.incluye_servicios.includes(servicio.id) }"
+                            >
+                                <input 
+                                    type="checkbox" 
+                                    :value="servicio.id" 
+                                    v-model="form.incluye_servicios"
+                                    class="mt-1 w-4 h-4 rounded text-blue-600 border-gray-300 focus:ring-blue-500"
+                                >
+                                <div>
+                                    <span class="block text-sm font-bold text-gray-800">{{ servicio.nombre }}</span>
+                                    <span class="block text-xs text-gray-500 font-mono" v-if="servicio.precio > 0">${{ servicio.precio }}</span>
+                                </div>
+                            </label>
+                            <div v-if="!servicios.length" class="col-span-full text-center text-gray-400 py-4 italic">
+                                No hay servicios activos en el catálogo.
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Cláusulas y Términos de Pago -->
                     <div class="bg-white rounded-xl shadow-sm p-6">
                         <h3 class="font-bold text-gray-900 mb-4 border-b pb-2">⚖️ Cláusulas y Condiciones Legales</h3>
