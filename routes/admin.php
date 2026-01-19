@@ -432,6 +432,10 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::get('/configuracion/api', [EmpresaConfiguracionController::class, 'getConfig'])->name('api');
         Route::put('/configuracion/general', [GeneralConfigController::class, 'update'])->name('general.update');
         Route::put('/configuracion/visual', [AparienciaConfigController::class, 'updateColores'])->name('visual.update');
+        Route::post('/configuracion/logo', [AparienciaConfigController::class, 'subirLogo'])->name('subir-logo');
+        Route::post('/configuracion/favicon', [AparienciaConfigController::class, 'subirFavicon'])->name('subir-favicon');
+        Route::delete('/configuracion/logo', [AparienciaConfigController::class, 'eliminarLogo'])->name('eliminar-logo');
+        Route::delete('/configuracion/favicon', [AparienciaConfigController::class, 'eliminarFavicon'])->name('eliminar-favicon');
         Route::put('/configuracion/correo', [EmailConfigController::class, 'update'])->name('correo.update');
         Route::get('/folios/config', [FolioConfigController::class, 'index'])->name('folios.config.index');
         Route::put('/configuracion/tienda', [TiendaConfigController::class, 'update'])->name('tienda.update');
