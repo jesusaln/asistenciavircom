@@ -205,23 +205,23 @@ const helpSections = [
     <AppLayout :title="isEditing ? 'Editar Póliza' : 'Nueva Póliza'">
         <Head :title="isEditing ? 'Editar Póliza' : 'Nueva Póliza'" />
 
-        <div class="py-6 bg-white/50 min-h-screen">
+        <div class="py-6 bg-[#0F172A] min-h-screen text-slate-300">
             <div class="w-full px-4 sm:px-6 lg:px-8">
                 <!-- Header con Botón de Ayuda -->
                 <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
-                        <Link :href="route('polizas-servicio.index')" class="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center gap-2 mb-4 transition-all w-fit">
+                        <Link :href="route('polizas-servicio.index')" class="text-blue-400 hover:text-blue-300 text-sm font-semibold flex items-center gap-2 mb-4 transition-all w-fit">
                             <font-awesome-icon icon="arrow-left" /> Volver al listado
                         </Link>
                         <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                            <div class="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center text-blue-400 shadow-lg shadow-blue-900/40 border border-blue-500/20">
                                  <font-awesome-icon icon="shield-halved" class="text-xl" />
                             </div>
                             <div>
-                                <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">
+                                <h1 class="text-3xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
                                     {{ isEditing ? 'Optimizar Contrato' : 'Nueva Póliza de Servicio' }}
                                 </h1>
-                                <p class="text-gray-500 text-sm mt-0.5 font-medium">Configure los parámetros operativos y comerciales.</p>
+                                <p class="text-slate-400 text-sm mt-0.5 font-medium">Configure los parámetros operativos y comerciales.</p>
                             </div>
                         </div>
                     </div>
@@ -229,10 +229,10 @@ const helpSections = [
                     <button 
                         @click="showHelpModal = true" 
                         type="button"
-                        class="flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-blue-100 text-blue-600 rounded-xl font-bold hover:bg-blue-50 transition-all shadow-sm group"
+                        class="flex items-center gap-2 px-5 py-2.5 bg-slate-800 border border-slate-700 hover:border-blue-500/50 text-blue-400 rounded-xl font-bold hover:bg-slate-700 transition-all shadow-lg group"
                     >
                         <font-awesome-icon icon="circle-info" class="group-hover:scale-110 transition-transform" />
-                        Guía de Llenado Profesional
+                        Guía de Llenado Premium
                     </button>
                 </div>
 
@@ -241,27 +241,30 @@ const helpSections = [
                     <!-- Columna Izquierda: Configuración Base -->
                     <div class="lg:col-span-2 space-y-6">
                         <!-- Sección 1: Datos Base -->
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                            <div class="px-8 py-5 border-b border-gray-100 bg-white/30">
-                                <h2 class="font-bold text-gray-800 flex items-center gap-2">
-                                    <font-awesome-icon icon="briefcase" class="text-gray-400" />
+                        <div class="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-700/50 overflow-hidden">
+                            <div class="px-8 py-5 border-b border-slate-700/50 bg-slate-900/30">
+                                <h2 class="font-bold text-slate-200 flex items-center gap-2">
+                                    <font-awesome-icon icon="briefcase" class="text-blue-500" />
                                     Configuración General
                                 </h2>
                             </div>
-                            <div class="p-8 space-y-5">
-                                <!-- Selector de Plan (Solo si hay planes disponibles) -->
-                                <div v-if="planes && planes.length > 0" class="md:col-span-2 bg-blue-50/50 p-4 rounded-xl border border-blue-100 mb-2">
-                                    <label class="block text-xs font-black text-blue-600 uppercase tracking-widest mb-2 flex items-center gap-2">
+                            <div class="p-8 space-y-6">
+                                <!-- Selector de Plan -->
+                                <div v-if="planes && planes.length > 0" class="md:col-span-2 bg-blue-900/10 p-5 rounded-xl border border-blue-500/20 mb-2">
+                                    <label class="block text-xs font-black text-blue-400 uppercase tracking-widest mb-3 flex items-center gap-2">
                                         <font-awesome-icon icon="wand-magic-sparkles" />
                                         Cargar desde Plantilla (Plan)
                                     </label>
-                                    <select v-model="selectedPlanId" class="w-full border-blue-200 rounded-xl h-11 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold text-gray-700">
-                                        <option value="">-- Seleccionar un Plan para autocompletar --</option>
-                                        <option v-for="plan in planes" :key="plan.id" :value="plan.id">
+                                    <select v-model="selectedPlanId" class="w-full bg-slate-900/80 border-blue-500/30 rounded-xl h-11 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold text-slate-300">
+                                        <option value="" class="bg-slate-900">-- Seleccionar un Plan para autocompletar --</option>
+                                        <option v-for="plan in planes" :key="plan.id" :value="plan.id" class="bg-slate-900">
                                             {{ plan.nombre }} ({{ plan.tipo_label }}) - ${{ plan.precio_mensual }}
+                                            <template v-if="plan.incluye_servicios && plan.incluye_servicios.length">
+                                                [Incluye: {{ plan.incluye_servicios.length }} servicios]
+                                            </template>
                                         </option>
                                     </select>
-                                    <p class="text-[10px] text-blue-500 mt-2 font-medium">
+                                    <p class="text-[11px] text-blue-400/80 mt-2 font-medium">
                                         💡 Al seleccionar un plan, se llenarán automáticamente los costos, límites y condiciones.
                                     </p>
                                 </div>
@@ -280,32 +283,32 @@ const helpSections = [
 
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                                     <div class="md:col-span-1">
-                                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Nombre de la Póliza *</label>
-                                        <input v-model="form.nombre" type="text" placeholder="Ej: Póliza Gold Mantenimiento" required class="w-full border-gray-200 rounded-xl h-12 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold">
-                                        <p v-if="form.errors.nombre" class="text-red-500 text-xs mt-1 font-bold">{{ form.errors.nombre }}</p>
+                                        <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Nombre de la Póliza *</label>
+                                        <input v-model="form.nombre" type="text" placeholder="Ej: Póliza Gold Mantenimiento" required class="w-full bg-slate-900/50 border-slate-700 rounded-xl h-12 text-slate-200 placeholder-slate-600 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-bold">
+                                        <p v-if="form.errors.nombre" class="text-red-400 text-xs mt-1 font-bold">{{ form.errors.nombre }}</p>
                                     </div>
                                     <div class="md:col-span-1">
-                                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Estado de Póliza</label>
-                                        <select v-model="form.estado" class="w-full border-gray-200 rounded-xl h-12 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold">
-                                            <option value="pendiente_pago">Pendiente de Pago 💳</option>
-                                            <option value="activa">Activa ✅</option>
-                                            <option value="inactiva">Inactiva ⏳</option>
-                                            <option value="vencida">Vencida 🛑</option>
-                                            <option value="cancelada">Cancelada ✖️</option>
+                                        <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Estado de Póliza</label>
+                                        <select v-model="form.estado" class="w-full bg-slate-900/50 border-slate-700 rounded-xl h-12 text-slate-200 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-bold">
+                                            <option value="pendiente_pago" class="bg-slate-900">Pendiente de Pago 💳</option>
+                                            <option value="activa" class="bg-slate-900">Activa ✅</option>
+                                            <option value="inactiva" class="bg-slate-900">Inactiva ⏳</option>
+                                            <option value="vencida" class="bg-slate-900">Vencida 🛑</option>
+                                            <option value="cancelada" class="bg-slate-900">Cancelada ✖️</option>
                                         </select>
-                                        <p v-if="form.errors.estado" class="text-red-500 text-xs mt-1 font-bold">{{ form.errors.estado }}</p>
+                                        <p v-if="form.errors.estado" class="text-red-400 text-xs mt-1 font-bold">{{ form.errors.estado }}</p>
                                     </div>
                                     <div class="md:col-span-1">
-                                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">SLA Respuesta (Horas)</label>
-                                        <input v-model="form.sla_horas_respuesta" type="number" placeholder="Ej: 4" class="w-full border-gray-200 rounded-xl h-12 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-mono">
-                                        <p v-if="form.errors.sla_horas_respuesta" class="text-red-500 text-xs mt-1 font-bold">{{ form.errors.sla_horas_respuesta }}</p>
+                                        <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">SLA Respuesta (Horas)</label>
+                                        <input v-model="form.sla_horas_respuesta" type="number" placeholder="Ej: 4" class="w-full bg-slate-900/50 border-slate-700 rounded-xl h-12 text-slate-200 placeholder-slate-600 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-mono">
+                                        <p v-if="form.errors.sla_horas_respuesta" class="text-red-400 text-xs mt-1 font-bold">{{ form.errors.sla_horas_respuesta }}</p>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Alcance y Condiciones del SLA</label>
-                                    <textarea v-model="form.descripcion" rows="4" placeholder="Detalle qué incluye la póliza (ej. mantenimientos preventivos, tiempos de respuesta, etc.)" class="w-full border-gray-200 rounded-xl p-4 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"></textarea>
-                                    <p v-if="form.errors.descripcion" class="text-red-500 text-xs mt-1 font-bold">{{ form.errors.descripcion }}</p>
+                                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Alcance y Condiciones del SLA</label>
+                                    <textarea v-model="form.descripcion" rows="4" placeholder="Detalle qué incluye la póliza (ej. mantenimientos preventivos, tiempos de respuesta, etc.)" class="w-full bg-slate-900/50 border-slate-700 rounded-xl p-4 text-slate-200 placeholder-slate-600 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all"></textarea>
+                                    <p v-if="form.errors.descripcion" class="text-red-400 text-xs mt-1 font-bold">{{ form.errors.descripcion }}</p>
                                 </div>
                             </div>
                         </div>
@@ -313,33 +316,33 @@ const helpSections = [
                         <!-- Sección 2: Servicios y Equipos -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Servicios -->
-                            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                                    <h2 class="font-bold text-gray-800 text-sm">Servicios Cubiertos</h2>
-                                    <font-awesome-icon icon="check-circle" class="text-green-500" />
+                            <div class="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-700/50 overflow-hidden">
+                                <div class="px-6 py-4 border-b border-slate-700/50 flex items-center justify-between">
+                                    <h2 class="font-bold text-slate-200 text-sm">Servicios Cubiertos</h2>
+                                    <font-awesome-icon icon="check-circle" class="text-emerald-500" />
                                 </div>
                                 <div class="p-6 space-y-4">
                                     <div class="flex gap-2">
-                                        <select v-model="servicioSeleccionado" class="flex-1 border-gray-200 rounded-lg text-sm h-10">
-                                            <option value="">Agregar servicio...</option>
-                                            <option v-for="s in servicios" :key="s.id" :value="s.id">{{ s.nombre }}</option>
+                                        <select v-model="servicioSeleccionado" class="flex-1 bg-slate-900/50 border-slate-700 rounded-lg text-sm h-10 text-slate-300">
+                                            <option value="" class="bg-slate-900">Agregar servicio...</option>
+                                            <option v-for="s in servicios" :key="s.id" :value="s.id" class="bg-slate-900">{{ s.nombre }}</option>
                                         </select>
-                                        <button @click="agregarServicio" type="button" class="px-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all">+</button>
+                                        <button @click="agregarServicio" type="button" class="px-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/50">+</button>
                                     </div>
                                     <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                                        <div v-for="(item, index) in form.servicios" :key="item.id" class="p-3 bg-white rounded-xl border border-gray-100 text-xs">
-                                            <div class="flex justify-between font-bold text-gray-700 mb-2">
+                                        <div v-for="(item, index) in form.servicios" :key="item.id" class="p-3 bg-slate-900/50 rounded-xl border border-slate-700/50 text-xs hover:border-blue-500/30 transition-colors">
+                                            <div class="flex justify-between font-bold text-slate-300 mb-2">
                                                 <span>{{ item.nombre }}</span>
-                                                <button @click="eliminarServicio(index)" type="button" class="text-red-400 hover:text-red-600">✕</button>
+                                                <button @click="eliminarServicio(index)" type="button" class="text-red-400 hover:text-red-300">✕</button>
                                             </div>
                                             <div class="flex gap-2">
                                                 <div class="flex-1">
-                                                    <label class="text-[9px] text-gray-400 uppercase font-black block mb-0.5">Cant/Mes</label>
-                                                    <input v-model="item.cantidad" type="number" class="w-full border-gray-200 rounded h-7 p-1 text-center font-bold" />
+                                                    <label class="text-[9px] text-slate-500 uppercase font-black block mb-0.5">Cant/Mes</label>
+                                                    <input v-model="item.cantidad" type="number" class="w-full bg-slate-800 border-slate-700 rounded h-7 p-1 text-center font-bold text-slate-200" />
                                                 </div>
                                                 <div class="flex-1">
-                                                    <label class="text-[9px] text-gray-400 uppercase font-black block mb-0.5">Precio Esp.</label>
-                                                    <input v-model="item.precio_especial" type="number" class="w-full border-gray-200 rounded h-7 p-1 text-right font-bold" />
+                                                    <label class="text-[9px] text-slate-500 uppercase font-black block mb-0.5">Precio Esp.</label>
+                                                    <input v-model="item.precio_especial" type="number" class="w-full bg-slate-800 border-slate-700 rounded h-7 p-1 text-right font-bold text-slate-200" />
                                                 </div>
                                             </div>
                                         </div>
@@ -348,33 +351,33 @@ const helpSections = [
                             </div>
 
                             <!-- Equipos del Cliente -->
-                            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                                    <h2 class="font-bold text-gray-800 text-sm">Equipos Cubiertos</h2>
-                                    <span class="text-[10px] font-bold px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full">
+                            <div class="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-700/50 overflow-hidden">
+                            <div class="px-6 py-4 border-b border-slate-700/50 flex items-center justify-between">
+                                    <h2 class="font-bold text-slate-200 text-sm">Equipos Cubiertos</h2>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 bg-blue-900/30 text-blue-400 border border-blue-500/20 rounded-full">
                                         {{ form.equipos_cliente.length }} equipos
                                     </span>
                                 </div>
                                 <div class="p-6 space-y-4">
                                     <div class="space-y-3">
-                                        <input v-model="nuevoEquipo.nombre" type="text" placeholder="Nombre (ej: PC Recepción)" class="w-full border-gray-200 rounded-lg text-xs h-9" />
+                                        <input v-model="nuevoEquipo.nombre" type="text" placeholder="Nombre (ej: PC Recepción)" class="w-full bg-slate-900/50 border-slate-700 rounded-lg text-xs h-9 text-slate-300 placeholder-slate-600" />
                                         <div class="flex gap-2">
-                                            <input v-model="nuevoEquipo.serie" type="text" placeholder="Serie / ID" class="flex-1 border-gray-200 rounded-lg text-xs h-9 font-mono" />
-                                            <button @click="agregarEquipoCliente" type="button" class="px-4 bg-gray-800 text-white rounded-lg hover:bg-black transition-all text-xs font-bold">+</button>
+                                            <input v-model="nuevoEquipo.serie" type="text" placeholder="Serie / ID" class="flex-1 bg-slate-900/50 border-slate-700 rounded-lg text-xs h-9 text-slate-300 placeholder-slate-600 font-mono" />
+                                            <button @click="agregarEquipoCliente" type="button" class="px-4 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-all text-xs font-bold border border-slate-600 shadow-lg">+</button>
                                         </div>
                                     </div>
 
                                     <div class="space-y-2 max-h-48 overflow-y-auto pt-2">
-                                        <div v-for="(e, index) in form.equipos_cliente" :key="index" class="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100">
+                                        <div v-for="(e, index) in form.equipos_cliente" :key="index" class="flex items-center justify-between p-3 bg-slate-900/50 rounded-xl border border-slate-700/50">
                                             <div>
-                                                <div class="text-[11px] font-bold text-gray-700">{{ e.nombre }}</div>
-                                                <div class="text-[9px] text-gray-400 font-mono italic">S/N: {{ e.serie || 'N/A' }}</div>
+                                                <div class="text-[11px] font-bold text-slate-300">{{ e.nombre }}</div>
+                                                <div class="text-[9px] text-slate-500 font-mono italic">S/N: {{ e.serie || 'N/A' }}</div>
                                             </div>
-                                            <button @click="eliminarEquipoCliente(index)" type="button" class="text-red-400 hover:text-red-600 p-1">
+                                            <button @click="eliminarEquipoCliente(index)" type="button" class="text-red-400 hover:text-red-300 p-1">
                                                 <font-awesome-icon icon="trash-can" />
                                             </button>
                                         </div>
-                                        <div v-if="form.equipos_cliente.length === 0" class="text-center py-6 border-2 border-dashed border-gray-100 rounded-xl text-gray-300 text-xs font-medium">
+                                        <div v-if="form.equipos_cliente.length === 0" class="text-center py-6 border-2 border-dashed border-slate-700/50 rounded-xl text-slate-600 text-xs font-medium">
                                             No hay equipos registrados
                                         </div>
                                     </div>
@@ -392,129 +395,126 @@ const helpSections = [
 
                     <!-- Columna Derecha: Administrativo -->
                     <div class="space-y-6">
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-6">
-                            <div class="px-6 py-4 border-b border-gray-100 bg-white/50">
-                                <h2 class="font-bold text-gray-800 text-sm">Administración y Ciclos</h2>
+                        <div class="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-700/50 overflow-hidden sticky top-6">
+                            <div class="px-6 py-4 border-b border-slate-700/50 bg-slate-900/30">
+                                <h2 class="font-bold text-slate-200 text-sm">Administración y Ciclos</h2>
                             </div>
                             <div class="p-6 space-y-5">
                                 <div>
-                                    <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">Monto Recurring (MXN) *</label>
+                                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">Monto Recurring (MXN) *</label>
                                     <div class="relative">
-                                        <span class="absolute left-4 top-3 text-gray-400 font-bold">$</span>
-                                        <input v-model="form.monto_mensual" type="number" step="0.01" required class="w-full pl-8 h-12 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 font-mono font-bold text-blue-600" />
+                                        <span class="absolute left-4 top-3 text-slate-500 font-bold">$</span>
+                                        <input v-model="form.monto_mensual" type="number" step="0.01" required class="w-full pl-8 h-12 bg-slate-900/50 border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 font-mono font-bold text-emerald-400" />
                                     </div>
                                 </div>
                                 
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">Día de Cobro</label>
-                                        <select v-model="form.dia_cobro" required class="w-full border-gray-200 rounded-xl h-11 text-sm font-bold">
-                                            <option v-for="d in 31" :key="d" :value="d">Día {{ d }}</option>
+                                        <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">Día de Cobro</label>
+                                        <select v-model="form.dia_cobro" required class="w-full bg-slate-900/50 border-slate-700 rounded-xl h-11 text-sm font-bold text-slate-300">
+                                            <option v-for="d in 31" :key="d" :value="d" class="bg-slate-900">Día {{ d }}</option>
                                         </select>
-                                        <p v-if="form.errors.dia_cobro" class="text-red-500 text-[10px] mt-1">{{ form.errors.dia_cobro }}</p>
-                                    </div>
-                                    <div>
-                                        <!-- Espacio reservado o eliminamos si no es necesario -->
+                                        <p v-if="form.errors.dia_cobro" class="text-red-400 text-[10px] mt-1">{{ form.errors.dia_cobro }}</p>
                                     </div>
                                 </div>
 
                                 <!-- Phase 2: Control de Horas -->
-                                <div class="pt-3 border-t border-dashed">
-                                    <div class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-3 flex items-center gap-1">
+                                <div class="pt-3 border-t border-dashed border-slate-700/50">
+                                    <div class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-3 flex items-center gap-1">
                                         <font-awesome-icon icon="clock" />
                                         Control de Servicios
                                     </div>
                                     <div class="grid grid-cols-2 gap-3 mb-3">
                                         <div>
-                                            <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">Soporte Remoto/Mes</label>
-                                            <input v-model="form.limite_mensual_tickets" type="number" placeholder="Sin límite" class="w-full border-gray-200 rounded-lg h-10 text-xs text-center font-bold" />
+                                            <label class="block text-[9px] font-black text-slate-500 uppercase mb-1">Soporte Remoto/Mes</label>
+                                            <input v-model="form.limite_mensual_tickets" type="number" placeholder="Sin límite" class="w-full bg-slate-900/50 border-slate-700 rounded-lg h-10 text-xs text-center font-bold text-slate-300 placeholder-slate-600" />
                                         </div>
                                         <div>
-                                            <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">Visitas Sitio/Mes</label>
-                                            <input v-model="form.visitas_sitio_mensuales" type="number" placeholder="0" class="w-full border-gray-200 rounded-lg h-10 text-xs text-center font-bold" />
+                                            <label class="block text-[9px] font-black text-slate-500 uppercase mb-1">Visitas Sitio/Mes</label>
+                                            <input v-model="form.visitas_sitio_mensuales" type="number" placeholder="0" class="w-full bg-slate-900/50 border-slate-700 rounded-lg h-10 text-xs text-center font-bold text-slate-300 placeholder-slate-600" />
                                         </div>
                                     </div>
                                     <div class="grid grid-cols-2 gap-3 mb-3">
                                         <div>
-                                            <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">Hrs. Incluidas/Mes</label>
-                                            <input v-model="form.horas_incluidas_mensual" type="number" placeholder="Sin límite" class="w-full border-gray-200 rounded-lg h-10 text-xs text-center font-bold" />
+                                            <label class="block text-[9px] font-black text-slate-500 uppercase mb-1">Hrs. Incluidas/Mes</label>
+                                            <input v-model="form.horas_incluidas_mensual" type="number" placeholder="Sin límite" class="w-full bg-slate-900/50 border-slate-700 rounded-lg h-10 text-xs text-center font-bold text-slate-300 placeholder-slate-600" />
                                         </div>
                                         <div>
-                                            <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">Costo Visita Extra</label>
-                                            <input v-model="form.costo_visita_sitio_extra" type="number" step="0.01" placeholder="0.00" class="w-full border-gray-200 rounded-lg h-10 text-xs text-center font-mono" />
+                                            <label class="block text-[9px] font-black text-slate-500 uppercase mb-1">Costo Visita Extra</label>
+                                            <input v-model="form.costo_visita_sitio_extra" type="number" step="0.01" placeholder="0.00" class="w-full bg-slate-900/50 border-slate-700 rounded-lg h-10 text-xs text-center font-mono text-slate-300 placeholder-slate-600" />
                                         </div>
                                     </div>
                                     <div class="grid grid-cols-1 mb-1">
-                                         <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">Costo Hora Excedente</label>
-                                         <input v-model="form.costo_hora_excedente" type="number" step="0.01" placeholder="0.00" class="w-full border-gray-200 rounded-lg h-10 text-xs text-center font-mono" />
+                                         <label class="block text-[9px] font-black text-slate-500 uppercase mb-1">Costo Hora Excedente</label>
+                                         <input v-model="form.costo_hora_excedente" type="number" step="0.01" placeholder="0.00" class="w-full bg-slate-900/50 border-slate-700 rounded-lg h-10 text-xs text-center font-mono text-slate-300 placeholder-slate-600" />
                                     </div>
                                 </div>
 
                                 <!-- Días para alertar vencimiento -->
                                 <div>
-                                    <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">Alertar antes de vencer (días)</label>
-                                    <select v-model="form.dias_alerta_vencimiento" class="w-full border-gray-200 rounded-lg h-10 text-xs font-bold">
-                                        <option :value="7">7 días</option>
-                                        <option :value="15">15 días</option>
-                                        <option :value="30">30 días</option>
-                                        <option :value="45">45 días</option>
-                                        <option :value="60">60 días</option>
+                                    <label class="block text-[9px] font-black text-slate-500 uppercase mb-1">Alertar antes de vencer (días)</label>
+                                    <select v-model="form.dias_alerta_vencimiento" class="w-full bg-slate-900/50 border-slate-700 rounded-lg h-10 text-xs font-bold text-slate-300">
+                                        <option :value="7" class="bg-slate-900">7 días</option>
+                                        <option :value="15" class="bg-slate-900">15 días</option>
+                                        <option :value="30" class="bg-slate-900">30 días</option>
+                                        <option :value="45" class="bg-slate-900">45 días</option>
+                                        <option :value="60" class="bg-slate-900">60 días</option>
                                     </select>
                                 </div>
                                 
                                 <!-- Mantenimiento Preventivo -->
-                                <div class="pt-3 border-t border-dashed">
-                                    <div class="text-[10px] font-black text-green-600 uppercase tracking-widest mb-3 flex items-center gap-1">
+                                <div class="pt-3 border-t border-dashed border-slate-700/50">
+                                    <div class="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-3 flex items-center gap-1">
                                         <font-awesome-icon icon="toolbox" />
                                         Mantenimiento Preventivo
                                     </div>
                                     <div class="grid grid-cols-3 gap-3 mb-3">
                                         <div>
-                                            <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">Frec. (Meses)</label>
-                                            <input v-model="form.mantenimiento_frecuencia_meses" type="number" placeholder="Ej: 6" class="w-full border-gray-200 rounded-lg h-10 text-xs text-center font-bold" />
+                                            <label class="block text-[9px] font-black text-slate-500 uppercase mb-1">Frec. (Meses)</label>
+                                            <input v-model="form.mantenimiento_frecuencia_meses" type="number" placeholder="Ej: 6" class="w-full bg-slate-900/50 border-slate-700 rounded-lg h-10 text-xs text-center font-bold text-slate-300 placeholder-slate-600" />
                                         </div>
                                         <div>
-                                            <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">Antic. (Días)</label>
-                                            <input v-model="form.mantenimiento_dias_anticipacion" type="number" placeholder="7" class="w-full border-gray-200 rounded-lg h-10 text-xs text-center font-bold" />
+                                            <label class="block text-[9px] font-black text-slate-500 uppercase mb-1">Antic. (Días)</label>
+                                            <input v-model="form.mantenimiento_dias_anticipacion" type="number" placeholder="7" class="w-full bg-slate-900/50 border-slate-700 rounded-lg h-10 text-xs text-center font-bold text-slate-300 placeholder-slate-600" />
                                         </div>
                                         <div>
-                                            <label class="block text-[9px] font-black text-gray-400 uppercase mb-1">Próxima Visita</label>
-                                            <input v-model="form.proximo_mantenimiento_at" type="date" class="w-full border-gray-200 rounded-lg h-10 text-xs font-bold" />
+                                            <label class="block text-[9px] font-black text-slate-500 uppercase mb-1">Próxima Visita</label>
+                                            <input v-model="form.proximo_mantenimiento_at" type="date" class="w-full bg-slate-900/50 border-slate-700 rounded-lg h-10 text-xs font-bold text-slate-300 dark-date-input" />
                                         </div>
                                     </div>
                                     
-                                    <div class="flex items-center gap-3 p-3 bg-green-50 rounded-xl border border-green-100 cursor-pointer hover:bg-green-100 transition-all mb-3" @click="form.generar_cita_automatica = !form.generar_cita_automatica">
-                                        <input type="checkbox" v-model="form.generar_cita_automatica" class="rounded text-green-600 cursor-pointer" />
-                                        <span class="text-[10px] font-bold text-green-700 uppercase tracking-wide">Autogenerar Ticket/Cita</span>
+                                    <div class="flex items-center gap-3 p-3 bg-emerald-900/20 rounded-xl border border-emerald-500/20 cursor-pointer hover:bg-emerald-900/30 transition-all mb-3" @click="form.generar_cita_automatica = !form.generar_cita_automatica">
+                                        <input type="checkbox" v-model="form.generar_cita_automatica" class="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-emerald-500 cursor-pointer" />
+                                        <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wide">Autogenerar Ticket/Cita</span>
                                     </div>
                                 </div>
 
                                 <div class="space-y-3 pt-2">
-                                    <div class="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 cursor-pointer hover:bg-blue-50 transition-all" @click="form.notificar_exceso_limite = !form.notificar_exceso_limite">
-                                        <input type="checkbox" v-model="form.notificar_exceso_limite" class="rounded text-blue-600 cursor-pointer" />
-                                        <span class="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Notificar excesos</span>
+                                    <div class="flex items-center gap-3 p-3 bg-slate-800/50 rounded-xl border border-slate-700/50 cursor-pointer hover:bg-blue-900/20 hover:border-blue-500/30 transition-all" @click="form.notificar_exceso_limite = !form.notificar_exceso_limite">
+                                        <input type="checkbox" v-model="form.notificar_exceso_limite" class="rounded bg-slate-900 border-slate-700 text-blue-500 focus:ring-blue-500 cursor-pointer" />
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Notificar excesos</span>
                                     </div>
-                                    <div class="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 cursor-pointer hover:bg-blue-50 transition-all" @click="form.renovacion_automatica = !form.renovacion_automatica">
-                                        <input type="checkbox" v-model="form.renovacion_automatica" class="rounded text-blue-600 cursor-pointer" />
-                                        <span class="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Renovación Auto</span>
+                                    <div class="flex items-center gap-3 p-3 bg-slate-800/50 rounded-xl border border-slate-700/50 cursor-pointer hover:bg-blue-900/20 hover:border-blue-500/30 transition-all" @click="form.renovacion_automatica = !form.renovacion_automatica">
+                                        <input type="checkbox" v-model="form.renovacion_automatica" class="rounded bg-slate-900 border-slate-700 text-blue-500 focus:ring-blue-500 cursor-pointer" />
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Renovación Auto</span>
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 gap-3 pt-2">
                                     <div class="flex flex-col">
-                                        <label class="text-[9px] font-black text-gray-400 uppercase mb-1">Fecha de Inicio</label>
-                                        <input v-model="form.fecha_inicio" type="date" required class="w-full border-gray-200 rounded-xl h-10 text-xs font-bold" />
-                                        <p v-if="form.errors.fecha_inicio" class="text-red-500 text-[9px] mt-1">{{ form.errors.fecha_inicio }}</p>
+                                        <label class="text-[9px] font-black text-slate-500 uppercase mb-1">Fecha de Inicio</label>
+                                        <input v-model="form.fecha_inicio" type="date" required class="w-full bg-slate-900/50 border-slate-700 rounded-xl h-10 text-xs font-bold text-slate-300 dark-date-input" />
+                                        <p v-if="form.errors.fecha_inicio" class="text-red-400 text-[9px] mt-1">{{ form.errors.fecha_inicio }}</p>
                                     </div>
                                     <div class="flex flex-col">
-                                        <label class="text-[9px] font-black text-gray-400 uppercase mb-1">Fecha de Término</label>
-                                        <input v-model="form.fecha_fin" type="date" class="w-full border-gray-200 rounded-xl h-10 text-xs font-bold" />
-                                        <p v-if="form.errors.fecha_fin" class="text-red-500 text-[9px] mt-1">{{ form.errors.fecha_fin }}</p>
+                                        <label class="text-[9px] font-black text-slate-500 uppercase mb-1">Fecha de Término</label>
+                                        <input v-model="form.fecha_fin" type="date" class="w-full bg-slate-900/50 border-slate-700 rounded-xl h-10 text-xs font-bold text-slate-300 dark-date-input" />
+                                        <p v-if="form.errors.fecha_fin" class="text-red-400 text-[9px] mt-1">{{ form.errors.fecha_fin }}</p>
                                     </div>
                                 </div>
 
                                 <div class="pt-4">
-                                    <button type="submit" :disabled="form.processing" class="w-full py-4 bg-blue-600 text-white rounded-xl font-black text-sm hover:bg-blue-700 shadow-xl shadow-blue-100 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                                    <button type="submit" :disabled="form.processing" class="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-black text-sm hover:from-blue-500 hover:to-indigo-500 shadow-xl shadow-blue-900/40 transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:translate-y-[-1px]">
                                         <font-awesome-icon v-if="form.processing" icon="spinner" spin />
                                         {{ isEditing ? 'ACTUALIZAR CONTRATO' : 'LEGALIZAR PÓLIZA' }}
                                     </button>
@@ -582,7 +582,13 @@ const helpSections = [
     background: transparent;
 }
 .overflow-y-auto::-webkit-scrollbar-thumb {
-    background: #e5e7eb;
+    background: #334155;
     border-radius: 10px;
+}
+
+[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.5;
+    cursor: pointer;
 }
 </style>
