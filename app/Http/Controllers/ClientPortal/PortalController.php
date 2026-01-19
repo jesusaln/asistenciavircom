@@ -736,19 +736,109 @@ class PortalController extends Controller
             /** @var \App\Services\PdfGeneratorService $pdfService */
             $pdfService = app(\App\Services\PdfGeneratorService::class);
 
-            $empresa = $this->getEmpresaBranding();
+            $poliza->load(['cliente', 'servicios', 'equipos', 'planPoliza']);
 
-            $pdf = $pdfService->loadView('portal.impresion.beneficios', [
+            $empresaId = EmpresaResolver::resolveId();
+            $empresaConfig = \App\Models\EmpresaConfiguracion::getConfig($empresaId);
+
+            $pdf = $pdfService->loadView('pdf.poliza-beneficios', [
                 'poliza' => $poliza,
                 'cliente' => $poliza->cliente,
-                'empresa' => $empresa
+                'empresa' => $empresaConfig,
+                'fecha_generacion' => now()->format('d/m/Y H:i'),
+                'beneficios' => $this->getBeneficiosList($poliza),
             ]);
 
-            return $pdfService->download($pdf, 'beneficios-poliza-' . $poliza->id . '.pdf');
+            return $pdfService->download($pdf, 'beneficios-poliza-' . $poliza->folio . '.pdf');
         } catch (\Exception $e) {
-            Log::error('Error generando PDF beneficios: ' . $e->getMessage());
+            Log::error('Error generando PDF beneficios (Portal): ' . $e->getMessage());
             return back()->with('error', 'Error generando documento.');
         }
+    }
+
+    /**
+     * Lista de beneficios unificada (Replicada de PolizaServicioPDFController)
+     */
+    protected function getBeneficiosList(PolizaServicio $poliza): array
+    {
+        $beneficios = [];
+
+        if ($poliza->planPoliza && !empty($poliza->planPoliza->beneficios)) {
+            foreach ($poliza->planPoliza->beneficios as $texto) {
+                $beneficios[] = [
+                    'icono' => 'check',
+                    'titulo' => $texto,
+                    'descripcion' => '',
+                ];
+            }
+        }
+
+        if (empty($beneficios)) {
+            $beneficios[] = [
+                'icono' => 'check',
+                'titulo' => 'Cobertura de Servicio Garantizada',
+                'descripcion' => 'Su equipo está protegido bajo nuestra póliza de mantenimiento integral.',
+            ];
+            $beneficios[] = [
+                'icono' => 'star',
+                'titulo' => 'Atención Prioritaria',
+                'descripcion' => 'Sus solicitudes de soporte tienen prioridad sobre clientes sin póliza.',
+            ];
+        }
+
+        if ($poliza->sla_horas_respuesta) {
+            $beneficios[] = [
+                'icono' => 'clock',
+                'titulo' => "SLA Garantizado de {$poliza->sla_horas_respuesta} horas",
+                'descripcion' => 'Tiempo máximo de respuesta garantizado para atender sus solicitudes.',
+            ];
+        }
+
+        if ($poliza->horas_incluidas_mensual) {
+            $beneficios[] = [
+                'icono' => 'hour',
+                'titulo' => "{$poliza->horas_incluidas_mensual} Horas de Servicio Incluidas",
+                'descripcion' => 'Horas mensuales de soporte técnico sin costo adicional.',
+            ];
+        }
+
+        if ($poliza->limite_mensual_tickets) {
+            $beneficios[] = [
+                'icono' => 'ticket',
+                'titulo' => "Hasta {$poliza->limite_mensual_tickets} Tickets Mensuales",
+                'descripcion' => 'Solicitudes de servicio incluidas en su plan mensual.',
+            ];
+        }
+
+        $beneficios[] = [
+            'icono' => 'money',
+            'titulo' => 'Precios Preferenciales',
+            'descripcion' => 'Descuentos exclusivos en refacciones, consumibles y servicios adicionales.',
+        ];
+
+        $hasChart = false;
+        foreach ($beneficios as $b) {
+            if ($b['icono'] == 'chart')
+                $hasChart = true;
+        }
+
+        if (!$hasChart) {
+            $beneficios[] = [
+                'icono' => 'chart',
+                'titulo' => 'Reportes de Consumo',
+                'descripcion' => 'Acceso a reportes detallados de uso de servicios y horas consumidas.',
+            ];
+        }
+
+        if ($poliza->renovacion_automatica) {
+            $beneficios[] = [
+                'icono' => 'sync',
+                'titulo' => 'Renovación Automática',
+                'descripcion' => 'Su póliza se renueva automáticamente para garantizar continuidad del servicio.',
+            ];
+        }
+
+        return $beneficios;
     }
 
     public function descargarContratoPdf(PolizaServicio $poliza)
