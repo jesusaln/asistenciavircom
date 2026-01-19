@@ -367,7 +367,9 @@ class TicketController extends Controller
 
         // Si se cambia el tipo de servicio a "costo" y antes era "garantia" (o nulo)
         // debemos revertir el consumo unitario en la póliza
-        if (isset($validated['tipo_servicio']) && $validated['tipo_servicio'] === 'costo' && $ticket->tipo_servicio !== 'costo') {
+        $esCosto = isset($validated['tipo_servicio']) && $validated['tipo_servicio'] === 'costo';
+
+        if ($esCosto && $ticket->tipo_servicio !== 'costo') {
             $ticket->revertirConsumoUnitarioEnPoliza();
             $ticket->update(['tipo_servicio' => 'costo']);
         } elseif (isset($validated['tipo_servicio'])) {
@@ -387,6 +389,11 @@ class TicketController extends Controller
             }
         } else {
             $ticket->cambiarEstado($validated['estado']);
+        }
+
+        // Si es "con costo", generar venta automáticamente y redirigir
+        if ($esCosto && !$ticket->venta_id && $ticket->cliente_id) {
+            return $this->generarVenta($request, $ticket);
         }
 
         return back()->with('success', 'Ticket actualizado exitosamente');
