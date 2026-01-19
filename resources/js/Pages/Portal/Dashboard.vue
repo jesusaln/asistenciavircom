@@ -575,14 +575,47 @@ const totalPendiente = computed(() => {
                                         </div>
                                     </div>
 
-                                    <div v-if="polizas[0]" class="grid sm:grid-cols-2 gap-8 mb-8 text-center sm:text-left">
-                                        <div class="p-6 bg-white/5 rounded-3xl border border-white/5">
-                                            <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Día del Periodo</p>
-                                            <p class="text-3xl font-black">{{ new Date().getDate() }} <span class="text-xs text-gray-500 capitalize">de {{ new Date().toLocaleDateString('es-MX', { month: 'long' }) }}</span></p>
+                                    <div v-if="polizas[0]" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                                        <!-- Tickets Widget -->
+                                        <div class="p-5 bg-white/5 rounded-2xl border border-white/10">
+                                            <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">🎫 Tickets del Mes</p>
+                                            <div class="flex items-baseline gap-2">
+                                                <span class="text-3xl font-black text-white">{{ polizas[0]?.tickets_mes_actual_count || 0 }}</span>
+                                                <span class="text-sm text-gray-400">de {{ polizas[0]?.limite_mensual_tickets || '∞' }}</span>
+                                            </div>
+                                            <div class="mt-3 w-full bg-white/10 rounded-full h-1.5">
+                                                <div class="bg-blue-400 h-1.5 rounded-full transition-all" 
+                                                     :style="{ width: polizas[0]?.limite_mensual_tickets ? Math.min((polizas[0]?.tickets_mes_actual_count / polizas[0]?.limite_mensual_tickets) * 100, 100) + '%' : '0%' }"></div>
+                                            </div>
+                                            <p class="text-[9px] text-gray-500 mt-2">{{ polizas[0]?.limite_mensual_tickets ? polizas[0].limite_mensual_tickets - (polizas[0]?.tickets_mes_actual_count || 0) : '∞' }} disponibles</p>
                                         </div>
-                                        <div class="p-6 bg-white/5 rounded-3xl border border-white/5">
-                                            <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Tickets del Mes</p>
-                                            <p class="text-3xl font-black">{{ polizas[0]?.tickets_mes_actual_count }} <span class="text-xs text-gray-500">Consumidos</span></p>
+                                        
+                                        <!-- Horas Widget -->
+                                        <div class="p-5 bg-white/5 rounded-2xl border border-white/10">
+                                            <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">⏱️ Horas de Soporte</p>
+                                            <div class="flex items-baseline gap-2">
+                                                <span class="text-3xl font-black text-white">{{ Math.round(polizas[0]?.horas_consumidas_mes || 0) }}</span>
+                                                <span class="text-sm text-gray-400">de {{ polizas[0]?.horas_incluidas_mensual || 0 }} hrs</span>
+                                            </div>
+                                            <div class="mt-3 w-full bg-white/10 rounded-full h-1.5">
+                                                <div class="bg-emerald-400 h-1.5 rounded-full transition-all" 
+                                                     :style="{ width: polizas[0]?.horas_incluidas_mensual ? Math.min((polizas[0]?.horas_consumidas_mes / polizas[0]?.horas_incluidas_mensual) * 100, 100) + '%' : '0%' }"></div>
+                                            </div>
+                                            <p class="text-[9px] text-gray-500 mt-2">{{ polizas[0]?.horas_incluidas_mensual ? (polizas[0].horas_incluidas_mensual - (polizas[0]?.horas_consumidas_mes || 0)).toFixed(1) : 0 }} hrs disponibles</p>
+                                        </div>
+                                        
+                                        <!-- Visitas Widget -->
+                                        <div class="p-5 bg-white/5 rounded-2xl border border-white/10">
+                                            <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">🚗 Visitas en Sitio</p>
+                                            <div class="flex items-baseline gap-2">
+                                                <span class="text-3xl font-black text-white">{{ polizas[0]?.visitas_sitio_consumidas_mes || 0 }}</span>
+                                                <span class="text-sm text-gray-400">de {{ polizas[0]?.visitas_sitio_mensuales || 0 }}</span>
+                                            </div>
+                                            <div class="mt-3 w-full bg-white/10 rounded-full h-1.5">
+                                                <div class="bg-purple-400 h-1.5 rounded-full transition-all" 
+                                                     :style="{ width: polizas[0]?.visitas_sitio_mensuales ? Math.min((polizas[0]?.visitas_sitio_consumidas_mes / polizas[0]?.visitas_sitio_mensuales) * 100, 100) + '%' : '0%' }"></div>
+                                            </div>
+                                            <p class="text-[9px] text-gray-500 mt-2">{{ polizas[0]?.visitas_sitio_mensuales ? polizas[0].visitas_sitio_mensuales - (polizas[0]?.visitas_sitio_consumidas_mes || 0) : 0 }} disponibles</p>
                                         </div>
                                     </div>
 
