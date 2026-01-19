@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, Link } from '@inertiajs/vue3';
 import { Notyf } from 'notyf';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Header from '@/Components/CreateComponents/Header.vue';
@@ -143,6 +143,17 @@ const actualizarVenta = () => {
     onError: () => notyf.error('Error al actualizar venta')
   });
 };
+const eliminarProducto = (item) => {
+  const index = selectedProducts.value.findIndex(p => p.id === item.id && p.tipo === item.tipo);
+  if (index !== -1) {
+    selectedProducts.value.splice(index, 1);
+    const key = `${item.tipo}-${item.id}`;
+    delete quantities.value[key];
+    delete prices.value[key];
+    delete discounts.value[key];
+    delete serials.value[key];
+  }
+};
 </script>
 
 <template>
@@ -230,12 +241,12 @@ const actualizarVenta = () => {
                   />
                 </div>
                 <PySSeleccionados 
-                  :items="selectedProducts"
+                  :selected-products="selectedProducts"
                   :quantities="quantities"
                   :prices="prices"
                   :discounts="discounts"
                   :serials="serials"
-                  @remove="eliminarProducto"
+                  @eliminar-producto="eliminarProducto"
                   @update-quantity="(k, q) => quantities[k] = q"
                   @update-price="(k, p) => prices[k] = p"
                   @update-discount="(k, d) => discounts[k] = d"
