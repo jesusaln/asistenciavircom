@@ -137,6 +137,36 @@ watch(selectedPlanId, (newId) => {
         // Configuración adicional
         form.renovacion_automatica = true;
         form.notificar_exceso_limite = true;
+
+        // Autofill Services (Servicios Cubiertos)
+        if (plan.incluye_servicios && Array.isArray(plan.incluye_servicios)) {
+            const newServices = [];
+            plan.incluye_servicios.forEach(item => {
+                let serviceId, qty, price;
+                
+                // Handle both {id: 1, cantidad: 1} and just ID 1 formats
+                if (typeof item === 'object' && item !== null) {
+                    serviceId = item.id;
+                    qty = item.cantidad || 1;
+                    price = item.precio_especial ?? 0;
+                } else {
+                    serviceId = Number(item);
+                    qty = 1;
+                    price = 0; // Default to 0 (included in plan)
+                }
+
+                const catalogService = props.servicios.find(s => s.id === serviceId);
+                if (catalogService) {
+                    newServices.push({
+                        id: serviceId,
+                        nombre: catalogService.nombre,
+                        cantidad: qty,
+                        precio_especial: price
+                    });
+                }
+            });
+            form.servicios = newServices;
+        }
     }
 });
 
