@@ -16,19 +16,19 @@ Utiliza el repositorio git en `/root/asistenciavircom` y los contenedores Docker
 // turbo
 2. Instalar dependencias de Frontend y Compilar (Vite/Tailwind):
    ```bash
-   ssh root@191.101.233.82 "docker exec asistenciavircom-app-1 npm install && docker exec asistenciavircom-app-1 npm run build"
+   ssh root@191.101.233.82 "docker exec asistenciavircom-app-v3 npm install && docker exec asistenciavircom-app-v3 npm run build"
    ```
 
 // turbo
 3. Ejecutar Migraciones y Limpiar Caché:
    ```bash
-   ssh root@191.101.233.82 "docker exec asistenciavircom-app-1 php artisan migrate --force && docker exec asistenciavircom-app-1 php artisan optimize:clear"
+   ssh root@191.101.233.82 "docker exec asistenciavircom-app-v3 php artisan migrate --force && docker exec asistenciavircom-app-v3 php artisan optimize:clear"
    ```
 
 // turbo
 4. Reiniciar Servicios (Colas):
    ```bash
-   ssh root@191.101.233.82 "docker restart asistenciavircom-queue-1"
+   ssh root@191.101.233.82 "docker restart asistenciavircom-queue-v3"
    ```
 
 ### Verificación
