@@ -183,6 +183,10 @@
                 <div class="label">Plan Contratado</div>
                 <div class="value" style="font-size: 14px; font-weight: 700;">{{ $poliza->nombre }}</div>
                 <div class="value" style="color:#6b7280;">{{ $poliza->descripcion }}</div>
+                <div style="font-size: 8px; color: #9ca3af; margin-top: 4px; font-style: italic;">
+                    * La cobertura operativa se rige estrictamente por los límites detallados en la sección "Alcance del
+                    Servicio".
+                </div>
             </div>
             <div class="col">
                 <div class="label">Vigencia</div>
