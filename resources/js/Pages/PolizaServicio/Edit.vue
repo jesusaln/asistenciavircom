@@ -91,7 +91,7 @@ const agregarServicio = () => {
             id: servicio.id,
             nombre: servicio.nombre,
             cantidad: 1,
-            precio_especial: servicio.precio
+            precio_especial: Number(servicio.precio) || 0
         });
     }
     servicioSeleccionado.value = '';
@@ -168,6 +168,41 @@ watch(selectedPlanId, (newId) => {
             form.servicios = newServices;
         }
     }
+});
+
+// Auto-calcular fecha fin (1 año) al cambiar fecha inicio
+watch(() => form.fecha_inicio, (newDate) => {
+    if (newDate && !form.fecha_fin && !isEditing.value) {
+        const date = new Date(newDate);
+        date.setFullYear(date.getFullYear() + 1);
+        form.fecha_fin = date.toISOString().split('T')[0];
+    }
+});
+
+// Calculadora de Valor Financiero
+const resumenFinanciero = computed(() => {
+    const costoServicios = form.servicios.reduce((acc, s) => acc + (Number(s.precio_especial) * Number(s.cantidad)), 0);
+    // Si el precio especial es 0 (incluido), calculamos cuánto costaría normalmente
+    const valorRealMercado = form.servicios.reduce((acc, s) => {
+        if (s.precio_especial > 0) return acc + (Number(s.precio_especial) * Number(s.cantidad));
+        // Si es 0, buscamos su precio de lista
+        const catService = props.servicios.find(cs => cs.id === s.id);
+        const precioLista = catService ? Number(catService.precio) : 0;
+        return acc + (precioLista * Number(s.cantidad));
+    }, 0);
+    
+    // Sumar costos extras estimados (mantenimientos, visitas)
+    // Esto es subjetivo, mejor solo servicios explícitos.
+    
+    const costoMensualPoliza = Number(form.monto_mensual);
+    const ahorroMensual = Math.max(0, valorRealMercado - costoMensualPoliza);
+    
+    return {
+        valorReal: valorRealMercado,
+        costoPoliza: costoMensualPoliza,
+        ahorro: ahorroMensual,
+        porcentajeAhorro: valorRealMercado > 0 ? Math.round((ahorroMensual / valorRealMercado) * 100) : 0
+    };
 });
 
 const helpSections = [
@@ -405,6 +440,18 @@ const helpSections = [
                                     <div class="relative">
                                         <span class="absolute left-4 top-3 text-slate-500 font-bold">$</span>
                                         <input v-model="form.monto_mensual" type="number" step="0.01" required class="w-full pl-8 h-12 bg-slate-900/50 border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 font-mono font-bold text-emerald-400" />
+                                    </div>
+                                    
+                                    <!-- Widget Ahorro -->
+                                    <div v-if="resumenFinanciero.ahorro > 0" class="mt-3 p-3 bg-emerald-900/10 border border-emerald-500/20 rounded-lg">
+                                        <div class="flex justify-between items-center mb-1">
+                                            <span class="text-[10px] font-bold text-emerald-500 uppercase">Ahorro Cliente</span>
+                                            <span class="text-xs font-black text-emerald-400">-{{ resumenFinanciero.porcentajeAhorro }}%</span>
+                                        </div>
+                                        <div class="flex justify-between items-end">
+                                            <div class="text-[10px] text-slate-500">Valor real: <strike>${{ resumenFinanciero.valorReal.toFixed(2) }}</strike></div>
+                                            <div class="text-xs font-bold text-emerald-400">Ahorra: ${{ resumenFinanciero.ahorro.toFixed(2) }}/mes</div>
+                                        </div>
                                     </div>
                                 </div>
                                 
