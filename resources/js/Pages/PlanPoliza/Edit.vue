@@ -350,8 +350,13 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
 
                     <!-- Servicios Incluidos -->
                     <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h3 class="font-bold text-gray-900 mb-4 border-b pb-2">🛠️ Servicios Incluidos (Autofill)</h3>
-                        <p class="text-xs text-gray-500 mb-4">Selecciona los servicios que se cargarán automáticamente al contratar esta póliza.</p>
+                        <div class="flex items-center justify-between mb-4 border-b pb-2">
+                            <h3 class="font-bold text-gray-900">🛠️ Servicios Incluidos (Autofill)</h3>
+                            <Link :href="route('servicios.index')" class="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 hover:underline">
+                                <font-awesome-icon icon="external-link-alt" /> Gestionar Catálogo
+                            </Link>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-4">Selecciona los servicios que se cargarán automáticamente al contratar esta póliza. Si no ves un servicio, <Link :href="route('servicios.index')" class="text-blue-500 hover:underline">agrégalo al catálogo primero</Link>.</p>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-60 overflow-y-auto p-2 border rounded-lg bg-gray-50">
                             <label 
