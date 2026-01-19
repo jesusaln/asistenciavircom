@@ -450,111 +450,162 @@ const formatDate = (date) => {
             </div>
         </div>
 
-        <!-- Modal de Registro de Horas (Phase 2) -->
+        <!-- Modal Rápido de Cierre/Resolución (Rediseñado) -->
         <Teleport to="body">
-            <div v-if="showHorasModal" class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex items-center justify-center min-h-screen px-4">
-                    <div class="fixed inset-0 bg-black/50 transition-opacity" @click="cancelarConsumoHoras"></div>
-                    
-                    <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 z-10">
-                        <div class="text-center mb-6">
-                            <div class="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                                <span class="text-3xl">⏱️</span>
-                            </div>
-                            <h3 class="text-xl font-bold text-gray-900">Registrar Horas Trabajadas</h3>
-                            <p class="text-gray-500 text-sm mt-2">
-                                Ingresa las horas trabajadas en este ticket para llevar un registro de horas-hombre.
-                                <span v-if="ticket.poliza" class="block mt-1 text-green-600 font-medium">
-                                    Este ticket tiene póliza, las horas se descontarán del consumo mensual.
-                                </span>
-                            </p>
-                        </div>
-
-                        <div class="mb-6 space-y-4">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Inicio Servicio</label>
-                                    <input v-model="servicioInicio" type="datetime-local" class="w-full border-gray-300 rounded-lg focus:ring-blue-500">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Fin Servicio</label>
-                                    <input v-model="servicioFin" type="datetime-local" class="w-full border-gray-300 rounded-lg focus:ring-blue-500">
-                                </div>
-                            </div>
+            <Transition
+                enter-active-class="transition ease-out duration-200"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition ease-in duration-150"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0"
+            >
+                <div v-if="showHorasModal" class="fixed inset-0 z-50 overflow-y-auto">
+                    <div class="flex items-center justify-center min-h-screen px-4 py-6">
+                        <!-- Overlay -->
+                        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" @click="cancelarConsumoHoras"></div>
+                        
+                        <!-- Modal Card -->
+                        <div class="relative bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden z-10 transform transition-all">
                             
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Horas Trabajadas <span class="text-red-500">*</span></label>
-                            <div class="relative">
-                                <input 
-                                    v-model="horasTrabajadas" 
-                                    type="number" 
-                                    step="0.25" 
-                                    min="0.25" 
-                                    placeholder="Ej: 1.5"
-                                    class="w-full text-center text-2xl font-bold py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                                    required
-                                />
-                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">hrs</span>
+                            <!-- Header con gradiente -->
+                            <div :class="[
+                                'px-6 py-5 text-center',
+                                estadoPendiente === 'cerrado' 
+                                    ? 'bg-gradient-to-br from-gray-600 to-gray-800' 
+                                    : 'bg-gradient-to-br from-green-500 to-emerald-600'
+                            ]">
+                                <div class="w-14 h-14 mx-auto bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center mb-3">
+                                    <span class="text-3xl">{{ estadoPendiente === 'cerrado' ? '✅' : '🎉' }}</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-white">
+                                    {{ estadoPendiente === 'cerrado' ? 'Cerrar Ticket' : 'Marcar como Resuelto' }}
+                                </h3>
+                                <p class="text-white/80 text-sm mt-1">{{ ticket.numero }}</p>
                             </div>
-                            <p v-if="ticket.poliza?.horas_incluidas_mensual" class="text-xs text-gray-500 mt-2 text-center">
-                                Consumo póliza: {{ ticket.poliza?.horas_consumidas_mes || 0 }} / {{ ticket.poliza?.horas_incluidas_mensual }} hrs
-                            </p>
-                            <p class="text-xs text-amber-600 mt-2 text-center font-medium">
-                                ⚠️ El tiempo trabajado es obligatorio para el registro de horas-hombre.
-                            </p>
-                        </div>
 
-                        <!-- Tipo de Servicio (Garantía vs Costo) -->
-                        <div v-if="ticket.poliza" class="pt-4 border-t border-gray-100">
-                             <label class="block text-sm font-semibold text-gray-700 mb-2">Cobertura del Servicio</label>
-                             <div class="grid grid-cols-2 gap-2">
+                            <!-- Contenido -->
+                            <div class="p-6 space-y-5">
+                                
+                                <!-- Selector rápido de duración -->
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-3">⏱️ ¿Cuánto tiempo tomó?</label>
+                                    
+                                    <!-- Botones de tiempo rápido -->
+                                    <div class="grid grid-cols-4 gap-2 mb-3">
+                                        <button 
+                                            v-for="t in [0.5, 1, 1.5, 2]" 
+                                            :key="t"
+                                            type="button"
+                                            @click="horasTrabajadas = t"
+                                            :class="[
+                                                'py-3 rounded-xl text-sm font-bold border-2 transition-all',
+                                                parseFloat(horasTrabajadas) === t 
+                                                    ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-md scale-105' 
+                                                    : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-gray-300'
+                                            ]"
+                                        >
+                                            {{ t }}h
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Input personalizado -->
+                                    <div class="relative">
+                                        <input 
+                                            v-model="horasTrabajadas" 
+                                            type="number" 
+                                            step="0.25" 
+                                            min="0.25" 
+                                            placeholder="Otro..."
+                                            class="w-full text-center text-lg font-bold py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition"
+                                        />
+                                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">horas</span>
+                                    </div>
+                                </div>
+
+                                <!-- Tipo de servicio (solo si tiene póliza) -->
+                                <div v-if="ticket.poliza" class="pt-4 border-t">
+                                    <label class="block text-sm font-bold text-gray-700 mb-3">🏷️ Tipo de servicio</label>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <button 
+                                            type="button"
+                                            @click="tipoServicio = 'garantia'"
+                                            :class="[
+                                                'relative p-4 rounded-xl border-2 text-left transition-all',
+                                                tipoServicio === 'garantia' 
+                                                    ? 'bg-green-50 border-green-500 shadow-md' 
+                                                    : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                                            ]"
+                                        >
+                                            <div class="text-2xl mb-1">🛡️</div>
+                                            <div class="text-sm font-bold" :class="tipoServicio === 'garantia' ? 'text-green-700' : 'text-gray-600'">Bajo Póliza</div>
+                                            <div class="text-[10px] text-gray-400">Consume del plan</div>
+                                            <div v-if="tipoServicio === 'garantia'" class="absolute top-2 right-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                                <span class="text-white text-xs">✓</span>
+                                            </div>
+                                        </button>
+                                        <button 
+                                            type="button"
+                                            @click="tipoServicio = 'costo'"
+                                            :class="[
+                                                'relative p-4 rounded-xl border-2 text-left transition-all',
+                                                tipoServicio === 'costo' 
+                                                    ? 'bg-purple-50 border-purple-500 shadow-md' 
+                                                    : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                                            ]"
+                                        >
+                                            <div class="text-2xl mb-1">💰</div>
+                                            <div class="text-sm font-bold" :class="tipoServicio === 'costo' ? 'text-purple-700' : 'text-gray-600'">Con Cargo</div>
+                                            <div class="text-[10px] text-gray-400">Servicio extra</div>
+                                            <div v-if="tipoServicio === 'costo'" class="absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center">
+                                                <span class="text-white text-xs">✓</span>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Info de póliza si aplica -->
+                                <div v-if="ticket.poliza && tipoServicio === 'garantia'" class="bg-green-50 border border-green-200 rounded-xl p-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                            <span class="text-lg">📊</span>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="text-xs text-green-600 font-semibold">Consumo de póliza</div>
+                                            <div class="text-sm font-bold text-green-800">
+                                                {{ ticket.poliza?.horas_consumidas_mes || 0 }} / {{ ticket.poliza?.horas_incluidas_mensual || '∞' }} hrs usadas
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Footer con botones -->
+                            <div class="px-6 pb-6 flex gap-3">
                                 <button 
-                                    type="button"
-                                    @click="tipoServicio = 'garantia'"
-                                    :class="[
-                                        'px-4 py-3 rounded-xl text-xs font-bold border-2 transition-all',
-                                        tipoServicio === 'garantia' ? 'bg-green-50 border-green-500 text-green-700 shadow-sm' : 'bg-gray-50 border-gray-200 text-gray-400 opacity-60'
-                                    ]"
+                                    @click="cancelarConsumoHoras" 
+                                    class="flex-1 px-4 py-3.5 border-2 border-gray-200 text-gray-600 rounded-xl font-semibold hover:bg-gray-50 transition"
                                 >
-                                    🛡️ Bajo Póliza
-                                    <span class="block text-[8px] font-normal mt-1">(Consume ticket/horas)</span>
+                                    Cancelar
                                 </button>
                                 <button 
-                                    type="button"
-                                    @click="tipoServicio = 'costo'"
+                                    @click="confirmarConsumoHoras" 
+                                    :disabled="!horasTrabajadas || parseFloat(horasTrabajadas) <= 0"
                                     :class="[
-                                        'px-4 py-3 rounded-xl text-xs font-bold border-2 transition-all',
-                                        tipoServicio === 'costo' ? 'bg-purple-50 border-purple-500 text-purple-700 shadow-sm' : 'bg-gray-50 border-gray-200 text-gray-400 opacity-60'
+                                        'flex-1 px-4 py-3.5 rounded-xl font-bold transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed',
+                                        estadoPendiente === 'cerrado' 
+                                            ? 'bg-gray-700 hover:bg-gray-800 text-white' 
+                                            : 'bg-green-600 hover:bg-green-700 text-white'
                                     ]"
                                 >
-                                    💰 Extra / Con Costo
-                                    <span class="block text-[8px] font-normal mt-1">(No consume de póliza)</span>
+                                    <span v-if="!horasTrabajadas">Ingresa tiempo</span>
+                                    <span v-else>{{ estadoPendiente === 'resuelto' ? '✓ Resolver' : '✓ Cerrar' }}</span>
                                 </button>
-                             </div>
-                             <p class="text-[10px] text-gray-400 mt-2 text-center italic">
-                                 * Si el servicio es extraordinario (ej: cámaras), seleccione "Extra" para que no resten sus tickets mensuales.
-                             </p>
-                        </div>
-                    </div>
-
-                        <div class="flex gap-3">
-                            <button 
-                                @click="cancelarConsumoHoras" 
-                                class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-white transition"
-                            >
-                                Cancelar
-                            </button>
-                            <button 
-                                @click="confirmarConsumoHoras" 
-                                :disabled="!horasTrabajadas || parseFloat(horasTrabajadas) <= 0"
-                                class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                Registrar y {{ estadoPendiente === 'resuelto' ? 'Resolver' : 'Cerrar' }}
-                            </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </Transition>
         </Teleport>
     </AppLayout>
 </template>
