@@ -9,26 +9,35 @@ class VentaPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('view ventas');
+        return $user->hasRole(['super-admin', 'admin']) || $user->can('view ventas');
     }
 
     public function view(User $user, Venta $venta): bool
     {
-        return $user->can('view ventas');
+        if ($user->hasRole(['super-admin', 'admin'])) {
+            return true;
+        }
+        return $user->can('view ventas') && $user->empresa_id === $venta->empresa_id;
     }
 
     public function create(User $user): bool
     {
-        return $user->can('create ventas');
+        return $user->hasRole(['super-admin', 'admin']) || $user->can('create ventas');
     }
 
     public function update(User $user, Venta $venta): bool
     {
-        return $user->can('edit ventas');
+        if ($user->hasRole(['super-admin', 'admin'])) {
+            return true;
+        }
+        return $user->can('edit ventas') && $user->empresa_id === $venta->empresa_id;
     }
 
     public function delete(User $user, Venta $venta): bool
     {
-        return $user->can('delete ventas');
+        if ($user->hasRole(['super-admin', 'admin'])) {
+            return true;
+        }
+        return $user->can('delete ventas') && $user->empresa_id === $venta->empresa_id;
     }
 }
