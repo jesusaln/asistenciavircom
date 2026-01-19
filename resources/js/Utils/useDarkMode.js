@@ -56,7 +56,18 @@ export function useDarkMode(empresaConfig = null) {
             root.style.setProperty('--empresa-border-color', darkTheme.border)
             root.style.setProperty('--empresa-hover-color', darkTheme.hover)
 
-            // Agregar clases de tema oscuro al body
+            // Compatibilidad con Landing y Portal
+            root.style.setProperty('--color-primary', darkTheme.primary)
+            root.style.setProperty('--color-primary-soft', darkTheme.primary + '25')
+            root.style.setProperty('--color-primary-dark', darkTheme.primary + 'dd')
+            root.style.setProperty('--color-secondary', darkTheme.secondary)
+            root.style.setProperty('--color-secondary-soft', darkTheme.secondary + '25')
+            root.style.setProperty('--color-terciary', darkTheme.secondary) // Usamos secondary como fallback
+            root.style.setProperty('--color-terciary-soft', darkTheme.secondary + '15')
+
+            // UNIFICACIÓN: Agregar clase dark a documentElement y body para máxima compatibilidad
+            root.classList.add('dark')
+            root.classList.remove('light')
             document.body.classList.add('dark')
             document.body.classList.remove('light')
         } else {
@@ -70,9 +81,20 @@ export function useDarkMode(empresaConfig = null) {
             root.style.setProperty('--empresa-border-color', lightTheme.border)
             root.style.setProperty('--empresa-hover-color', lightTheme.hover)
 
-            // Agregar clases de tema claro al body
-            document.body.classList.add('light')
+            // Compatibilidad con Landing y Portal
+            root.style.setProperty('--color-primary', lightTheme.primary)
+            root.style.setProperty('--color-primary-soft', lightTheme.primary + '15')
+            root.style.setProperty('--color-primary-dark', lightTheme.primary + 'dd')
+            root.style.setProperty('--color-secondary', lightTheme.secondary)
+            root.style.setProperty('--color-secondary-soft', lightTheme.secondary + '15')
+            root.style.setProperty('--color-terciary', lightTheme.secondary) // Fallback
+            root.style.setProperty('--color-terciary-soft', lightTheme.secondary + '15')
+
+            // UNIFICACIÓN: Quitar clase dark
+            root.classList.remove('dark')
+            root.classList.add('light')
             document.body.classList.remove('dark')
+            document.body.classList.add('light')
         }
     }
 
@@ -82,7 +104,9 @@ export function useDarkMode(empresaConfig = null) {
     const enableDarkMode = () => {
         isDarkMode.value = true
         isSystemPreference.value = false
-        localStorage.setItem('darkMode', 'true')
+        // Estandarización de llaves de localStorage
+        localStorage.setItem('theme', 'dark')
+        localStorage.setItem('darkMode', 'true') // Retrocompatibilidad
         localStorage.setItem('darkModePreference', 'manual')
         applyThemeColors()
     }
@@ -93,7 +117,9 @@ export function useDarkMode(empresaConfig = null) {
     const enableLightMode = () => {
         isDarkMode.value = false
         isSystemPreference.value = false
-        localStorage.setItem('darkMode', 'false')
+        // Estandarización de llaves de localStorage
+        localStorage.setItem('theme', 'light')
+        localStorage.setItem('darkMode', 'false') // Retrocompatibilidad
         localStorage.setItem('darkModePreference', 'manual')
         applyThemeColors()
     }
@@ -126,17 +152,27 @@ export function useDarkMode(empresaConfig = null) {
      * Inicializar el tema oscuro
      */
     const initializeDarkMode = () => {
-        // Verificar si hay una preferencia guardada
+        // Verificar si hay una preferencia guardada preferida (theme o darkMode)
         const savedPreference = localStorage.getItem('darkModePreference')
+        const savedTheme = localStorage.getItem('theme')
         const savedDarkMode = localStorage.getItem('darkMode')
 
-        if (savedPreference === 'manual' && savedDarkMode === 'true') {
-            enableDarkMode()
-        } else if (savedPreference === 'manual' && savedDarkMode === 'false') {
-            enableLightMode()
+        if (savedPreference === 'manual') {
+            if (savedTheme === 'dark' || savedDarkMode === 'true') {
+                enableDarkMode()
+            } else {
+                enableLightMode()
+            }
         } else {
-            // Usar preferencia del sistema por defecto
-            enableSystemMode()
+            // Si no hay preferencia manual, verificar si hay un theme guardado de antes sin preferencia marcada
+            if (savedTheme === 'dark') {
+                enableDarkMode()
+            } else if (savedTheme === 'light') {
+                enableLightMode()
+            } else {
+                // Usar preferencia del sistema por defecto
+                enableSystemMode()
+            }
         }
 
         // Escuchar cambios en la preferencia del sistema

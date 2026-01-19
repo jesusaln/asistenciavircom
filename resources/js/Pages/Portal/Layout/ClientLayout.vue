@@ -5,6 +5,7 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
 import PublicFooter from '@/Components/PublicFooter.vue';
 import ToastContainer from '@/Components/Toast/ToastContainer.vue';
 import ChatbotWidget from '@/Components/Chatbot/ChatbotWidget.vue';
+import { useDarkMode } from '@/Utils/useDarkMode';
 
 const props = defineProps({
     empresa: Object,
@@ -20,18 +21,12 @@ const empresaData = computed(() => {
     return { ...globalConfig, ...localProp };
 });
 
-const cssVars = computed(() => ({
-    '--color-primary': empresaData.value.color_principal || '#F59E0B',
-    '--color-primary-soft': (empresaData.value.color_principal || '#F59E0B') + '15',
-    '--color-primary-dark': (empresaData.value.color_principal || '#F59E0B') + 'dd',
-    '--color-secondary': empresaData.value.color_secundario || '#D97706',
-    '--color-terciary': empresaData.value.color_terciario || '#B45309',
-    '--color-terciary-soft': (empresaData.value.color_terciario || '#B45309') + '15',
-}));
+// Integrar modo oscuro centralizado
+useDarkMode(empresaData.value);
 </script>
 
 <template>
-    <div class="min-h-screen bg-white dark:bg-gray-900 flex flex-col font-sans transition-colors duration-300" :style="cssVars">
+    <div class="min-h-screen bg-white dark:bg-gray-900 flex flex-col font-sans transition-colors duration-300">
         <!-- Reutilizamos el Navbar Público para consistencia total -->
         <PublicNavbar :empresa="empresaData" activeTab="soporte" />
 

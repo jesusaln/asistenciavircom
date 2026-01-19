@@ -9,6 +9,7 @@ import QuickAppointmentForm from '@/Components/QuickAppointmentForm.vue';
 import BlogPreview from '@/Components/BlogPreview.vue';
 import PublicFooter from '@/Components/PublicFooter.vue';
 import OfertaCountdown from '@/Components/OfertaCountdown.vue';
+import { useDarkMode } from '@/Utils/useDarkMode';
 
 const props = defineProps({
     empresa: Object,
@@ -37,16 +38,8 @@ const empresaData = computed(() => {
 
 const billingCycle = ref('monthly'); // 'monthly' or 'yearly'
 
-// Variables CSS con fallback al naranja corporativo de Climas del Desierto
-const cssVars = computed(() => ({
-    '--color-primary': empresaData.value.color_principal || '#3B82F6',
-    '--color-primary-soft': (empresaData.value.color_principal || '#3B82F6') + '15',
-    '--color-primary-dark': (empresaData.value.color_principal || '#3B82F6') + 'dd',
-    '--color-secondary': empresaData.value.color_secundario || '#D97706',
-    '--color-secondary-soft': (empresaData.value.color_secundario || '#D97706') + '15',
-    '--color-terciary': empresaData.value.color_terciario || '#B45309',
-    '--color-terciary-soft': (empresaData.value.color_terciario || '#B45309') + '15',
-}));
+// Integrar modo oscuro centralizado
+const { isDarkMode } = useDarkMode(empresaData.value);
 
 // Helper para formatear precios de forma segura
 const formatPrice = (precio) => {
@@ -203,7 +196,7 @@ const planesCalculados = computed(() => {
         <meta name="description" :content="`Proveemos Soluciones Integrales en: Redes, Cámaras de Vigilancia (CCTV), Control de Acceso, Alarmas y GPS Vehicular. Expertos en Seguridad y Tecnología en ${empresaData?.ciudad || 'Hermosillo'}.`" />
     </Head>
 
-    <div class="min-h-screen bg-white dark:bg-gray-900 font-sans text-gray-900 dark:text-gray-100 overflow-x-hidden selection:bg-[var(--color-primary-soft)] selection:text-[var(--color-primary)] relative transition-colors duration-300" :style="cssVars">
+    <div class="min-h-screen bg-white dark:bg-gray-900 font-sans text-gray-900 dark:text-gray-100 overflow-x-hidden selection:bg-[var(--color-primary-soft)] selection:text-[var(--color-primary)] relative transition-colors duration-300">
         
         <!-- Progress Bar -->
         <div class="fixed top-0 left-0 h-1 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] z-[100] transition-all duration-150" :style="{ width: scrollProgress + '%' }"></div>

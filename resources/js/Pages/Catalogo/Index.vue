@@ -6,6 +6,7 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
 import PublicFooter from '@/Components/PublicFooter.vue';
 import SocialProofNotification from '@/Components/SocialProofNotification.vue';
 import WhatsAppWidget from '@/Components/WhatsAppWidget.vue';
+import { useDarkMode } from '@/Utils/useDarkMode';
 
 const props = defineProps({
     productos: Object,
@@ -20,21 +21,14 @@ const props = defineProps({
 
 const page = usePage();
 
-// Combinar datos globales con props para asegurar colores corporativos
 const empresaData = computed(() => {
     const globalConfig = page.props.empresa_config || {};
     const localProp = props.empresa || {};
     return { ...globalConfig, ...localProp };
 });
 
-// Variables CSS dinámicas con colores corporativos
-const cssVars = computed(() => ({
-    '--color-primary': empresaData.value.color_principal || '#FF6B35',
-    '--color-primary-soft': (empresaData.value.color_principal || '#FF6B35') + '15',
-    '--color-primary-dark': (empresaData.value.color_principal || '#FF6B35') + 'dd',
-    '--color-secondary': empresaData.value.color_secundario || '#D97706',
-    '--color-terciary': empresaData.value.color_terciario || '#B45309',
-}));
+// Integrar modo oscuro centralizado
+useDarkMode(empresaData.value);
 
 const { items, itemCount, addItem, isInCart } = useCart()
 
@@ -275,7 +269,7 @@ if (typeof window !== 'undefined') {
         <meta name="description" :content="`Explora nuestro extenso catálogo de ${empresaData?.nombre_empresa || 'Asistencia Vircom'}. Encuentra computadoras, cámaras de seguridad, redes y accesorios en ${empresaData?.ciudad || 'Hermosillo'}. Envíos a todo México.`" />
     </Head>
     
-    <div class="min-h-screen bg-white dark:bg-gray-900 font-sans transition-colors duration-300" :style="cssVars">
+    <div class="min-h-screen bg-white dark:bg-gray-900 font-sans transition-colors duration-300">
         <!-- Widget Flotante de WhatsApp -->
         <WhatsAppWidget :whatsapp="empresaData?.whatsapp" :empresaNombre="empresaData?.nombre || empresaData?.nombre_empresa" />
 

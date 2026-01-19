@@ -1,6 +1,7 @@
 <script setup>
 import { Link, usePage, useForm } from '@inertiajs/vue3';
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
+import { useDarkMode } from '@/Utils/useDarkMode';
 import { useCart } from '@/composables/useCart';
 
 const props = defineProps({
@@ -51,29 +52,12 @@ const logout = () => {
 };
 
 // Dark Mode Logic
-const isDarkMode = ref(false);
+const { isDarkMode, toggleDarkMode, updateThemeColors } = useDarkMode(props.empresa);
 
-const toggleDarkMode = () => {
-    isDarkMode.value = !isDarkMode.value;
-    
-    if (isDarkMode.value) {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
-    }
-};
-
-onMounted(() => {
-    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        isDarkMode.value = true;
-        document.documentElement.classList.add('dark');
-    } else {
-        isDarkMode.value = false;
-        document.documentElement.classList.remove('dark');
-    }
-});
+// Sincronizar colores si cambia la config desde props
+watch(() => props.empresa, (newConfig) => {
+    if (newConfig) updateThemeColors(newConfig);
+}, { deep: true });
 
 </script>
 

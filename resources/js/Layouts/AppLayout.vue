@@ -206,7 +206,8 @@ import {
     faCalculator, faHandHoldingUsd, faWallet, faShieldHalved,
     faCircleInfo, faCheckCircle, faMoneyBillWave, faCalendarAlt, faBriefcase,
 } from '@fortawesome/free-solid-svg-icons';
-import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue';
+import { ref, onMounted, onBeforeUnmount, nextTick, computed, watch } from 'vue';
+import { useDarkMode } from '@/Utils/useDarkMode';
 import { router } from '@inertiajs/vue3';
 import axios from 'axios';
 
@@ -228,32 +229,16 @@ const isMobile = ref(false);
 const isLoading = ref(false);
 const showErrorModal = ref(false);
 const errorMessage = ref('');
-const isDarkMode = ref(false);
-
-// Toggle dark mode
-const toggleDarkMode = () => {
-    isDarkMode.value = !isDarkMode.value;
-    if (isDarkMode.value) {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('darkMode', 'true');
-    } else {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('darkMode', 'false');
-    }
-};
-
-// Inicializar dark mode
-const initDarkMode = () => {
-    const savedMode = localStorage.getItem('darkMode');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    isDarkMode.value = savedMode === 'true' || (savedMode === null && prefersDark);
-    if (isDarkMode.value) {
-        document.documentElement.classList.add('dark');
-    }
-};
+// --- Dark Mode Logic ---
+const { isDarkMode, toggleDarkMode, updateThemeColors } = useDarkMode(props.empresa_config);
 
 // Configuración de empresa compartida (Inertia)
 const empresaConfigShared = computed(() => props.empresa_config);
+
+// Sincronizar colores si cambia la config
+watch(() => props.empresa_config, (newConfig) => {
+    if (newConfig) updateThemeColors(newConfig);
+}, { deep: true });
 
 // Cargar configuración de empresa (API para datos extendidos si es admin)
 const empresaConfigExtended = ref({
@@ -337,7 +322,6 @@ const handleClickOutside = (event) => {
 const toastRef = ref(null)
 
 onMounted(() => {
-  initDarkMode();
   document.addEventListener('click', handleClickOutside);
   checkMobile();
   window.addEventListener('resize', checkMobile);
