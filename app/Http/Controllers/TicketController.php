@@ -364,6 +364,7 @@ class TicketController extends Controller
             'servicio_fin_at' => 'nullable|date|after:servicio_inicio_at',
             'tipo_servicio' => 'nullable|in:garantia,costo',
             'confirmar_excedente' => 'nullable|boolean', // Fase 1 - Mejora 1.5
+            'generar_venta' => 'nullable|boolean', // Para clientes sin póliza
         ]);
 
         // Si se cambia el tipo de servicio a "costo" y antes era "garantia" (o nulo)
@@ -435,6 +436,11 @@ class TicketController extends Controller
 
         // Si es "con costo", generar venta automáticamente y redirigir
         if ($esCosto && !$ticket->venta_id && $ticket->cliente_id) {
+            return $this->generarVenta($request, $ticket);
+        }
+
+        // Si el usuario solicitó generar venta (cliente sin póliza)
+        if (($validated['generar_venta'] ?? false) && !$ticket->venta_id && $ticket->cliente_id) {
             return $this->generarVenta($request, $ticket);
         }
 

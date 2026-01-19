@@ -32,6 +32,7 @@ const horasTrabajadas = ref('');
 const servicioInicio = ref('');
 const servicioFin = ref('');
 const tipoServicio = ref(props.ticket.tipo_servicio || 'garantia');
+const generarVentaAlCerrar = ref(!props.ticket.poliza && !props.ticket.venta_id); // Por defecto true si no tiene póliza
 
 import { watch } from 'vue';
 import {  differenceInMinutes, parseISO } from 'date-fns';
@@ -59,7 +60,19 @@ const cambiarEstado = (nuevoEstado) => {
 
 const confirmarConsumoHoras = () => {
     const horas = horasTrabajadas.value ? parseFloat(horasTrabajadas.value) : null;
-    enviarCambioEstado(estadoPendiente.value, horas, servicioInicio.value, servicioFin.value, tipoServicio.value);
+    const debeGenerarVenta = generarVentaAlCerrar.value;
+    
+    // Enviar cambio de estado con flag de generar venta
+    const datos = { 
+        estado: estadoPendiente.value,
+        generar_venta: debeGenerarVenta 
+    };
+    if (horas !== null) datos.horas_trabajadas = horas;
+    if (servicioInicio.value) datos.servicio_inicio_at = servicioInicio.value;
+    if (servicioFin.value) datos.servicio_fin_at = servicioFin.value;
+    if (tipoServicio.value) datos.tipo_servicio = tipoServicio.value;
+    
+    router.post(route('soporte.cambiar-estado', props.ticket.id), datos, { preserveScroll: true });
     
     // Reset y cerrar
     showHorasModal.value = false;
@@ -67,6 +80,7 @@ const confirmarConsumoHoras = () => {
     servicioInicio.value = '';
     servicioFin.value = '';
     estadoPendiente.value = '';
+    generarVentaAlCerrar.value = false;
 };
 
 const cancelarConsumoHoras = () => {
@@ -562,6 +576,29 @@ const formatDate = (date) => {
                                             </div>
                                         </button>
                                     </div>
+                                </div>
+
+                                <!-- Generar Venta (para clientes SIN póliza) -->
+                                <div v-if="!ticket.poliza && !ticket.venta_id" class="pt-4 border-t">
+                                    <label 
+                                        class="flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all"
+                                        :class="generarVentaAlCerrar ? 'bg-purple-50 border-purple-400' : 'bg-gray-50 border-gray-200 hover:border-gray-300'"
+                                    >
+                                        <input 
+                                            type="checkbox" 
+                                            v-model="generarVentaAlCerrar"
+                                            class="w-5 h-5 rounded text-purple-600 border-gray-300 focus:ring-purple-500"
+                                        >
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-xl">💳</span>
+                                                <span class="font-bold text-gray-800">Generar Nota de Venta</span>
+                                            </div>
+                                            <p class="text-xs text-gray-500 mt-1">
+                                                Se creará automáticamente una venta para facturar este servicio
+                                            </p>
+                                        </div>
+                                    </label>
                                 </div>
 
                                 <!-- Info de póliza si aplica -->
