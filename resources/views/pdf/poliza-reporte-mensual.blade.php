@@ -2,285 +2,284 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Reporte Mensual Póliza {{ $poliza->folio }} - {{ $mes_nombre }} {{ $anio }}</title>
     <style>
         @page {
-            margin: 40px;
+            margin: 0;
         }
 
         body {
-            font-family: 'Helvetica', Arial, sans-serif;
-            color: #333;
+            font-family: 'DejaVu Sans', sans-serif;
+            color: #334155;
             line-height: 1.5;
-            font-size: 11px;
+            font-size: 10px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 8px;
+            background: #2563eb;
+        }
+
+        .content {
+            padding: 40px 50px;
         }
 
         .header {
-            border-bottom: 2px solid #2563eb;
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-        }
-
-        .logo {
-            width: 140px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         .company-name {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             color: #1e40af;
         }
 
         .report-title {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 800;
-            color: #111;
+            color: #0f172a;
             text-align: right;
             text-transform: uppercase;
         }
 
-        .meta-grid {
-            width: 100%;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-
         .section-title {
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 800;
-            color: #2563eb;
+            color: #1e40af;
             text-transform: uppercase;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             border-left: 4px solid #2563eb;
             padding-left: 10px;
         }
 
         .stats-grid {
             width: 100%;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
+            border-collapse: separate;
+            border-spacing: 15px 0;
+            margin-left: -15px;
         }
 
         .stat-card {
             background: #f8fafc;
-            border-radius: 8px;
-            padding: 15px;
+            border-radius: 12px;
+            padding: 20px;
             text-align: center;
             border: 1px solid #e2e8f0;
         }
 
         .stat-value {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: bold;
-            color: #1e40af;
+            color: #2563eb;
             display: block;
         }
 
         .stat-label {
-            font-size: 9px;
+            font-size: 8px;
             text-transform: uppercase;
             color: #64748b;
-            font-weight: bold;
-            margin-top: 4px;
-            display: block;
+            font-weight: 800;
+            margin-top: 5px;
+            letter-spacing: 1px;
         }
 
-        table {
+        table.data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
-        th {
-            background-color: #f1f5f9;
+        table.data-table th {
+            background-color: #f8fafc;
             color: #475569;
             text-transform: uppercase;
-            font-size: 9px;
-            padding: 10px;
+            font-size: 8px;
+            padding: 12px 10px;
             text-align: left;
             border-bottom: 2px solid #e2e8f0;
+            font-weight: 800;
         }
 
-        td {
-            padding: 10px;
+        table.data-table td {
+            padding: 12px 10px;
             border-bottom: 1px solid #f1f5f9;
             vertical-align: top;
         }
 
         .badge {
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: 4px 8px;
+            border-radius: 6px;
             font-size: 8px;
             font-weight: bold;
             text-transform: uppercase;
         }
 
-        .badge-success {
-            background: #dcfce7;
-            color: #166534;
-        }
-
         .badge-info {
-            background: #dbeafe;
-            color: #1e40af;
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #dbeafe;
         }
 
         .footer {
             position: fixed;
-            bottom: 0;
-            width: 100%;
+            bottom: 20px;
+            left: 50px;
+            right: 50px;
             text-align: center;
             font-size: 8px;
             color: #94a3b8;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 15px;
         }
 
         .equipment-tag {
             display: inline-block;
             background: #f1f5f9;
-            padding: 4px 8px;
-            border-radius: 4px;
-            margin-right: 5px;
-            margin-bottom: 5px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            margin-right: 8px;
+            margin-bottom: 8px;
             font-size: 9px;
             color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        .folio-box {
+            font-family: 'DejaVu Sans Mono', monospace;
+            font-weight: bold;
+            color: #2563eb;
         }
     </style>
 </head>
 
 <body>
-    <div class="header">
-        <table style="width: 100%; border: none;">
+    <div class="sidebar"></div>
+
+    <div class="content">
+        <div class="header">
+            <table style="width: 100%; border: none;">
+                <tr>
+                    <td style="border: none; padding: 0;">
+                        <span class="company-name">{{ $empresa->nombre_empresa ?? 'Vircom' }}</span><br>
+                        <span style="color: #64748b; font-size: 9px;">{{ $empresa->email ??
+                            'contacto@asistenciavircom.com' }}</span>
+                    </td>
+                    <td style="border: none; padding: 0; text-align: right;">
+                        <div class="report-title">Reporte de Servicio</div>
+                        <div style="font-size: 13px; font-weight: bold; color: #2563eb;">{{ $mes_nombre }} {{ $anio }}
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <table style="width: 100%; border: none;">
+                <tr>
+                    <td style="border: none; width: 65%;">
+                        <div
+                            style="font-size: 8px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 5px;">
+                            Titular del Servicio</div>
+                        <div style="font-size: 16px; font-weight: bold; color: #0f172a;">
+                            {{ $poliza->cliente->nombre_razon_social }}</div>
+                        <div style="font-size: 9px; color: #64748b; margin-top: 2px;">RFC:
+                            {{ $poliza->cliente->rfc ?: 'N/A' }}</div>
+                    </td>
+                    <td style="border: none; text-align: right; vertical-align: top;">
+                        <div
+                            style="font-size: 8px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 5px;">
+                            Identificador Póliza</div>
+                        <div class="folio-box" style="font-size: 14px;">{{ $poliza->folio }}</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <table class="stats-grid">
             <tr>
                 <td style="border: none; padding: 0;">
-                    <span class="company-name">{{ $empresa->nombre_empresa ?? 'Vircom' }}</span><br>
-                    <span style="color: #64748b;">{{ $empresa->email ?? 'contacto@asistenciavircom.com' }}</span>
+                    <div class="stat-card">
+                        <span class="stat-value">{{ $tickets->count() }}</span>
+                        <span class="stat-label">Solicitudes</span>
+                    </div>
                 </td>
-                <td style="border: none; padding: 0; text-align: right;">
-                    <div class="report-title">Resumen de Servicio</div>
-                    <div style="font-size: 14px; font-weight: bold; color: #2563eb;">{{ $mes_nombre }} {{ $anio }}</div>
+                <td style="border: none; padding: 0;">
+                    <div class="stat-card">
+                        <span class="stat-value">{{ number_format($total_horas, 1) }}</span>
+                        <span class="stat-label">Horas Totales</span>
+                    </div>
                 </td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="meta-grid">
-        <table style="width: 100%; border: none;">
-            <tr>
-                <td style="border: none; width: 60%;">
-                    <div
-                        style="font-size: 9px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">
-                        Cliente</div>
-                    <div style="font-size: 16px; font-weight: bold; color: #111;">
-                        {{ $poliza->cliente->nombre_razon_social }}</div>
-                </td>
-                <td style="border: none; text-align: right;">
-                    <div
-                        style="font-size: 9px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">
-                        Póliza Activa</div>
-                    <div style="font-size: 14px; font-weight: bold; color: #1e40af; font-family: monospace;">
-                        {{ $poliza->folio }}</div>
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    <table class="stats-grid">
-        <tr>
-            <td style="width: 33%; border: none; padding: 0 10px 0 0;">
-                <div class="stat-card">
-                    <span class="stat-value">{{ $tickets->count() }}</span>
-                    <span class="stat-label">Solicitudes Atendidas</span>
-                </div>
-            </td>
-            <td style="width: 33%; border: none; padding: 0 10px;">
-                <div class="stat-card">
-                    <span class="stat-value">{{ number_format($total_horas, 2) }}</span>
-                    <span class="stat-label">Horas Trabajadas</span>
-                </div>
-            </td>
-            <td style="width: 33%; border: none; padding: 0 0 0 10px;">
-                <div class="stat-card">
-                    <span class="stat-value">{{ $tickets_resueltos }}</span>
-                    <span class="stat-label">Casos Cerrados</span>
-                </div>
-            </td>
-        </tr>
-    </table>
-
-    <div class="section-title">Actividad de Soporte Mensual</div>
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 15%;">Fecha</th>
-                <th style="width: 10%;">Folio</th>
-                <th style="width: 45%;">Descripción del Servicio</th>
-                <th style="width: 15%;">Categoría</th>
-                <th style="width: 15%;">Horas</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($tickets as $ticket)
-                <tr>
-                    <td>{{ $ticket->created_at->format('d/m/Y') }}</td>
-                    <td style="font-family: monospace; font-weight: bold;">{{ $ticket->folio }}</td>
-                    <td>
-                        <strong>{{ $ticket->titulo }}</strong><br>
-                        <span style="color: #64748b; font-size: 9px;">{{ Str::limit($ticket->description, 100) }}</span>
-                    </td>
-                    <td><span class="badge badge-info">{{ $ticket->categoria->nombre ?? 'Soporte' }}</span></td>
-                    <td style="font-weight: bold;">{{ number_format($ticket->horas_trabajadas, 2) }}</td>
-                </tr>
-            @endforeach
-            @if($tickets->isEmpty())
-                <tr>
-                    <td colspan="5" style="text-align: center; padding: 30px; color: #94a3b8;">No se registraron tickets de
-                        soporte en este periodo.</td>
-                </tr>
-            @endif
-        </tbody>
-    </table>
-
-    <div class="section-title">Inventario Bajo Cobertura</div>
-    <div style="background: #f8fafc; border-radius: 8px; padding: 15px; border: 1px solid #e2e8f0;">
-        @foreach($poliza->equipos as $equipo)
-            <div class="equipment-tag">
-                <strong>{{ $equipo->nombre }}</strong> (S/N: {{ $equipo->numero_serie ?? '---' }})
-            </div>
-        @endforeach
-        @foreach($poliza->condiciones_especiales['equipos_cliente'] ?? [] as $equipo)
-            <div class="equipment-tag">
-                <strong>{{ $equipo['nombre'] }}</strong> (S/N: {{ $equipo['serie'] ?? '---' }})
-            </div>
-        @endforeach
-        @if(empty($poliza->equipos) && empty($poliza->condiciones_especiales['equipos_cliente']))
-            <span style="color: #94a3b8;">No se han detallado equipos específicos para esta póliza.</span>
-        @endif
-    </div>
-
-    <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
-        <table style="width: 100%; border: none;">
-            <tr>
-                <td style="border: none; width: 70%;">
-                    <p style="font-size: 9px; color: #64748b; font-style: italic;">
-                        Este reporte es un resumen del valor entregado a través de su póliza de soporte técnico.
-                        Mantener su infraestructura al día es nuestra prioridad.
-                    </p>
-                </td>
-                <td style="border: none; text-align: right;">
-                    <div style="font-size: 10px; font-weight: bold; color: #111;">{{ $empresa->nombre_empresa }}</div>
-                    <div style="font-size: 8px; color: #64748b;">Generado automáticamente el {{ $fecha_generacion }}
+                <td style="border: none; padding: 0;">
+                    <div class="stat-card">
+                        <span class="stat-value">{{ $tickets_resueltos }}</span>
+                        <span class="stat-label">Completados</span>
                     </div>
                 </td>
             </tr>
         </table>
-    </div>
 
-    <div class="footer">
-        © {{ date('Y') }} {{ $empresa->nombre_empresa }} | Soporte Técnico Especializado | Documento Confidencial para
-        el Cliente
+        <div class="section-title">Detalle de Actividad Mensual</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 12%;">Fecha</th>
+                    <th style="width: 12%;">Ticket</th>
+                    <th style="width: 50%;">Descripción del Servicio</th>
+                    <th style="width: 15%;">Categoría</th>
+                    <th style="width: 11%; text-align: right;">Horas</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($tickets as $ticket)
+                    <tr>
+                        <td>{{ $ticket->created_at->format('d/m/Y') }}</td>
+                        <td class="folio-box">{{ $ticket->folio }}</td>
+                        <td>
+                            <strong style="color: #0f172a;">{{ $ticket->titulo }}</strong><br>
+                            <div style="color: #64748b; font-size: 9px; margin-top: 4px;">
+                                {{ Str::limit($ticket->description, 120) }}</div>
+                        </td>
+                        <td><span class="badge badge-info">{{ $ticket->categoria->nombre ?? 'Soporte' }}</span></td>
+                        <td style="font-weight: bold; text-align: right; color: #0f172a;">
+                            {{ number_format($ticket->horas_trabajadas, 1) }}</td>
+                    </tr>
+                @endforeach
+                @if($tickets->isEmpty())
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #94a3b8;">No se registraron
+                            actividades de soporte en este periodo mensual.</td>
+                    </tr>
+                @endif
+            </tbody>
+        </table>
+
+        @if($poliza->equipos->isNotEmpty())
+            <div class="section-title">Infraestructura Bajo Cobertura</div>
+            <div style="margin-bottom: 30px;">
+                @foreach($poliza->equipos as $equipo)
+                    <div class="equipment-tag">
+                        <strong style="color: #334155;">{{ $equipo->nombre }}</strong>
+                        <span style="color: #94a3b8; font-size: 8px;">| S/N: {{ $equipo->numero_serie ?? 'N/A' }}</span>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
+        <div class="footer">
+            Este reporte es confidencial y para uso exclusivo de {{ $poliza->cliente->nombre_razon_social }}.<br>
+            © {{ date('Y') }} {{ $empresa->nombre_empresa ?? 'Vircom' }} | Soporte Técnico Especializado | Generado el
+            {{ $fecha_generacion }}
+        </div>
     </div>
 </body>
 

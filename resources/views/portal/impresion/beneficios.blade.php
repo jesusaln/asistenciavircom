@@ -1,143 +1,308 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Informe de Beneficios y Ahorro - Póliza #{{ $poliza->id }}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Informe de Beneficios y Ahorro - Póliza #{{ $poliza->folio }}</title>
     <style>
-        body { font-family: sans-serif; color: #1f2937; margin: 0; padding: 20px; font-size: 12px; }
-        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 30px; }
-        .logo { max-height: 40px; }
-        .title-box { text-align: right; }
-        h1 { font-size: 20px; color: #1e3a8a; margin: 0; text-transform: uppercase; }
-        .subtitle { color: #6b7280; font-size: 10px; text-transform: uppercase; font-weight: bold; }
+        @page {
+            margin: 0;
+        }
+        body { 
+            font-family: 'DejaVu Sans', sans-serif; 
+            color: #374151; 
+            margin: 0; 
+            padding: 0; 
+            font-size: 11px; 
+            background-color: #ffffff;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 10px;
+            background: {{ $empresa['color_principal'] ?? '#1e40af' }};
+        }
+        .content {
+            margin-left: 30px;
+            padding: 40px;
+        }
+        .header { 
+            border-bottom: 2px solid #f3f4f6; 
+            padding-bottom: 20px; 
+            margin-bottom: 30px; 
+        }
+        .logo-text { 
+            font-size: 24px; 
+            font-weight: bold; 
+            color: {{ $empresa['color_principal'] ?? '#1e40af' }}; 
+            margin: 0;
+        }
+        .report-type {
+            font-size: 9px;
+            font-weight: bold;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        h1 { 
+            font-size: 24px; 
+            color: #111827; 
+            margin: 5px 0 0 0; 
+            font-weight: 800;
+        }
         
-        .card { background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #e5e7eb; }
-        .card-title { font-size: 14px; font-weight: bold; color: #374151; margin-bottom: 15px; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; text-transform: uppercase; }
+        .client-info {
+            background-color: #f9fafb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid #f3f4f6;
+        }
+        .client-info table {
+            width: 100%;
+        }
+        .info-label {
+            font-size: 9px;
+            color: #6b7280;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .info-value {
+            font-size: 12px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .card { 
+            margin-bottom: 30px; 
+        }
+        .section-title { 
+            font-size: 13px; 
+            font-weight: bold; 
+            color: #111827; 
+            margin-bottom: 15px; 
+            padding-left: 10px;
+            border-left: 4px solid {{ $empresa['color_principal'] ?? '#1e40af' }};
+        }
         
-        .table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-        .table th { text-align: left; padding: 8px; background: #eff6ff; color: #1e3a8a; font-size: 10px; text-transform: uppercase; border-bottom: 1px solid #bfdbfe; }
-        .table td { padding: 8px; border-bottom: 1px solid #f3f4f6; }
+        .table { 
+            width: 100%; 
+            border-collapse: collapse; 
+        }
+        .table th { 
+            text-align: left; 
+            padding: 12px 8px; 
+            background: #f8fafc; 
+            color: #475569; 
+            font-size: 9px; 
+            text-transform: uppercase; 
+            border-bottom: 2px solid #e2e8f0; 
+        }
+        .table td { 
+            padding: 12px 8px; 
+            border-bottom: 1px solid #f1f5f9; 
+        }
         .text-right { text-align: right; }
         .font-bold { font-weight: bold; }
         
-        .summary-box { background: #ecfdf5; border: 1px solid #6ee7b7; border-radius: 12px; padding: 20px; text-align: center; margin-top: 30px; }
-        .saving-title { color: #047857; font-size: 12px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
-        .saving-amount { color: #059669; font-size: 32px; font-weight: 900; margin: 10px 0; }
-        .saving-percent { display: inline-block; background: #059669; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; }
+        .saving-card {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 16px;
+            padding: 30px;
+            color: white;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .saving-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 2px;
+            opacity: 0.9;
+        }
+        .saving-value {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 10px 0;
+        }
+        .saving-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
         
-        .footer { text-align: center; color: #9ca3af; font-size: 10px; margin-top: 50px; border-top: 1px solid #e5e7eb; padding-top: 20px; }
+        .benefit-item {
+            display: inline-block;
+            width: 45%;
+            margin-bottom: 15px;
+            vertical-align: top;
+        }
+        .benefit-icon {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 2px;
+            margin-right: 8px;
+        }
+        
+        .footer { 
+            text-align: center; 
+            color: #9ca3af; 
+            font-size: 9px; 
+            margin-top: 50px; 
+            border-top: 1px solid #f3f4f6; 
+            padding-top: 20px; 
+        }
+        .price-list {
+            color: #9ca3af;
+            font-size: 9px;
+            text-decoration: line-through;
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div>
-            <h2 style="margin:0; color:#111827;">{{ $empresa['nombre_comercial_config'] ?? 'Asistencia Vircom' }}</h2>
-            <div style="font-size:10px; color:#6b7280;">Informe de Valor Financiero</div>
-        </div>
-        <div class="title-box">
-            <div class="subtitle">ANÁLISIS DE COSTOS</div>
-            <h1>Póliza #{{ $poliza->id }}</h1>
-        </div>
-    </div>
-
-    <!-- Resumen Cliente -->
-    <div style="margin-bottom: 30px;">
-        <strong style="font-size: 14px;">{{ $poliza->nombre }}</strong>
-        <div style="color: #6b7280;">Cliente: {{ $cliente->nombre_razon_social }}</div>
-        <div style="color: #6b7280;">Vigencia: {{ \Carbon\Carbon::parse($poliza->fecha_inicio)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($poliza->fecha_fin)->format('d/m/Y') }}</div>
-    </div>
-
-    <!-- Servicios Incluidos -->
-    <div class="card">
-        <div class="card-title">Desglose de Servicios Incluidos</div>
-        <table class="table">
-            <thead>
+    <div class="sidebar"></div>
+    
+    <div class="content">
+        <div class="header">
+            <table style="width: 100%; border: none;">
                 <tr>
-                    <th>Servicio / Cobertura</th>
-                    <th class="text-right">Precio Mercado (Mensual)</th>
-                    <th class="text-right">Cantidad</th>
-                    <th class="text-right">Valor Total Real</th>
+                    <td style="border: none; padding: 0;">
+                        <p class="logo-text">{{ $empresa['nombre_comercial_config'] ?? 'Vircom' }}</p>
+                        <p class="report-type">Análisis de Retorno de Inversión</p>
+                    </td>
+                    <td style="border: none; padding: 0; text-align: right;">
+                        <span class="report-type">Documento Folio</span>
+                        <h1>P{{ str_pad($poliza->id, 5, '0', STR_PAD_LEFT) }}</h1>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                @php $totalValorReal = 0; @endphp
-                
-                @foreach($poliza->servicios as $servicio)
-                    @php 
-                        // Verificamos si tiene precio especial > 0, si no, tomamos el del catalogo
-                        // Pero para el reporte de "Ahorro", queremos mostrar el PRECIO DE LISTA original 
-                        // vs lo que paga en la poliza.
-                        // Si el precio_especial es 0, significa que está INCLUIDO.
-                        // Si tiene precio especial, es un costo extra que paga el cliente, asi que el valor es ese.
-                        // Pero la logica de "Ahorro" es: Valor Mercado - Costo Poliza.
-                        
-                        // Buscamos el servicio original en el catalogo para saber su precio real
-                        $precioLista = $servicio->precio; // Asumimos que el modelo Servicio tiene el precio de lista
-                        $subtotalReal = $precioLista * $servicio->pivot->cantidad;
-                        $totalValorReal += $subtotalReal;
-                    @endphp
-                    <tr>
-                        <td>
-                            <div class="font-bold">{{ $servicio->nombre }}</div>
-                            <div style="font-size:9px; color:#6b7280;">{{ $servicio->descripcion }}</div>
-                        </td>
-                        <td class="text-right">${{ number_format($precioLista, 2) }}</td>
-                        <td class="text-right">{{ $servicio->pivot->cantidad }}</td>
-                        <td class="text-right font-bold">${{ number_format($subtotalReal, 2) }}</td>
-                    </tr>
-                @endforeach
+            </table>
+        </div>
 
-                <!-- Valoracion de Tickets/Visitas si aplica -->
-                @if($poliza->visitas_sitio_mensuales > 0)
-                    @php 
-                        $costoVisitaPromedio = 850; // Costo estimado visita tecnica
-                        $valorVisitas = $poliza->visitas_sitio_mensuales * $costoVisitaPromedio;
-                        $totalValorReal += $valorVisitas;
-                    @endphp
-                    <tr>
-                        <td>
-                            <div class="font-bold">Visitas en Sitio Incluidas</div>
-                            <div style="font-size:9px; color:#6b7280;">Valor estimado por visita técnica</div>
-                        </td>
-                        <td class="text-right">${{ number_format($costoVisitaPromedio, 2) }}</td>
-                        <td class="text-right">{{ $poliza->visitas_sitio_mensuales }}</td>
-                        <td class="text-right font-bold">${{ number_format($valorVisitas, 2) }}</td>
-                    </tr>
-                @endif
-            </tbody>
-            <tfoot>
-                <tr style="background: #f3f4f6; font-weight: bold;">
-                    <td colspan="3" class="text-right">VALOR TOTAL DE MERCADO (MENSUAL)</td>
-                    <td class="text-right" style="color: #1e3a8a; font-size: 14px;">${{ number_format($totalValorReal, 2) }}</td>
+        <div class="client-info">
+            <table>
+                <tr>
+                    <td style="width: 50%;">
+                        <div class="info-label">Suscrito a nombre de:</div>
+                        <div class="info-value">{{ $cliente->nombre_razon_social }}</div>
+                    </td>
+                    <td style="width: 25%;">
+                        <div class="info-label">Plan Activo:</div>
+                        <div class="info-value">{{ $poliza->nombre }}</div>
+                    </td>
+                    <td style="width: 25%; text-align: right;">
+                        <div class="info-label">Vigencia hasta:</div>
+                        <div class="info-value">{{ \Carbon\Carbon::parse($poliza->fecha_fin)->format('d/m/Y') }}</div>
+                    </td>
                 </tr>
-            </tfoot>
-        </table>
-    </div>
-
-    <!-- Comparativa -->
-    <div class="summary-box">
-        <div class="saving-title">AHORRO CONFIRMADO CON SU PÓLIZA</div>
-        @php
-            $costoPoliza = $poliza->monto_mensual;
-            $ahorro = max(0, $totalValorReal - $costoPoliza);
-            $porcentaje = $totalValorReal > 0 ? ($ahorro / $totalValorReal) * 100 : 0;
-        @endphp
-        
-        <div class="saving-amount">${{ number_format($ahorro, 2) }} MXN / MES</div>
-        <div class="saving-percent">AHORRO DEL {{ round($porcentaje) }}%</div>
-        
-        <div style="margin-top: 15px; font-size: 11px; color: #065f46;">
-            Usted paga solo <strong>${{ number_format($costoPoliza, 2) }}</strong> en lugar de ${{ number_format($totalValorReal, 2) }}.
+            </table>
         </div>
-        
-        <div style="margin-top: 20px; border-top: 1px solid #6ee7b7; padding-top: 10px; font-size: 10px; color: #047857;">
-            Además, incluye garantía de respuesta (SLA) de {{ $poliza->sla_horas_respuesta }} horas y portal de autogestión 24/7.
-        </div>
-    </div>
 
-    <div class="footer">
-        Este documento es informativo y refleja el valor estimado de los servicios contratados.<br>
-        Generado automáticamente desde Asistencia Vircom Portal.
+        <div class="card">
+            <div class="section-title">Valor de Mercado vs. Costo de Póliza</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Descripción del Servicio</th>
+                        <th class="text-right">Precio Mercado</th>
+                        <th class="text-right">Cantidad</th>
+                        <th class="text-right">Valor Total Real</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php $totalValorReal = 0; @endphp
+                    @foreach($poliza->servicios as $servicio)
+                        @php 
+                            $precioLista = $servicio->precio;
+                            $subtotalReal = $precioLista * $servicio->pivot->cantidad;
+                            $totalValorReal += $subtotalReal;
+                        @endphp
+                        <tr>
+                            <td>
+                                <div class="font-bold">{{ $servicio->nombre }}</div>
+                                <div style="font-size:9px; color:#6b7280;">{{ $servicio->descripcion }}</div>
+                            </td>
+                            <td class="text-right">${{ number_format($precioLista, 2) }}</td>
+                            <td class="text-right">{{ $servicio->pivot->cantidad }}</td>
+                            <td class="text-right font-bold">${{ number_format($subtotalReal, 2) }}</td>
+                        </tr>
+                    @endforeach
+
+                    @if($poliza->visitas_sitio_mensuales > 0)
+                        @php 
+                            $costoVisitaPromedio = 850;
+                            $valorVisitas = $poliza->visitas_sitio_mensuales * $costoVisitaPromedio;
+                            $totalValorReal += $valorVisitas;
+                        @endphp
+                        <tr>
+                            <td>
+                                <div class="font-bold">Visitas en Sitio Programadas</div>
+                                <div style="font-size:9px; color:#6b7280;">Cobertura física preventiva y correctiva</div>
+                            </td>
+                            <td class="text-right">${{ number_format($costoVisitaPromedio, 2) }}</td>
+                            <td class="text-right">{{ $poliza->visitas_sitio_mensuales }}</td>
+                            <td class="text-right font-bold">${{ number_format($valorVisitas, 2) }}</td>
+                        </tr>
+                    @endif
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-right" style="padding-top: 15px; font-weight: bold; color: #6b7280;">VALOR TOTAL DE SERVICIOS INDIVIDUALES</td>
+                        <td class="text-right" style="padding-top: 15px; font-weight: bold; font-size: 13px;">${{ number_format($totalValorReal, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-right" style="border: none; color: #6b7280;">COSTO PREFERENCIAL POR PÓLIZA</td>
+                        <td class="text-right" style="border: none; font-weight: bold;">- ${{ number_format($poliza->monto_mensual, 2) }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="section-title">Resumen de Beneficios Adicionales</div>
+        <div style="margin-bottom: 30px;">
+            <div class="benefit-item">
+                <div class="benefit-icon"></div>
+                <strong>Respuesta Prioritaria:</strong> SLA de {{ $poliza->sla_horas_respuesta }}h garantizado.
+            </div>
+            <div class="benefit-item">
+                <div class="benefit-icon"></div>
+                <strong>Portal 24/7:</strong> Gestión de tickets y reportes online.
+            </div>
+            <div class="benefit-item">
+                <div class="benefit-icon"></div>
+                <strong>Consultoría:</strong> Asesoría técnica en nuevos proyectos.
+            </div>
+            <div class="benefit-item">
+                <div class="benefit-icon"></div>
+                <strong>Descuentos:</strong> Tarifas especiales en horas extra.
+            </div>
+        </div>
+
+        <div class="saving-card">
+            <div class="saving-label">Ahorro Mensual Garantizado</div>
+            @php
+                $costoPoliza = $poliza->monto_mensual;
+                $ahorro = max(0, $totalValorReal - $costoPoliza);
+                $porcentaje = $totalValorReal > 0 ? ($ahorro / $totalValorReal) * 100 : 0;
+            @endphp
+            <div class="saving-value">${{ number_format($ahorro, 2) }} MXN</div>
+            <div class="saving-badge">EQUIVALE A UN {{ round($porcentaje) }}% DE DESCUENTO</div>
+            
+            <p style="margin-top: 15px; font-size: 11px; opacity: 0.9;">
+                Su inversión eficiente de <strong>${{ number_format($costoPoliza, 2) }}</strong> asegura la continuidad de su negocio.
+            </p>
+        </div>
+
+        <div class="footer">
+            Este análisis financiero es generado por el sistema de gestión de pólizas de {{ $empresa['nombre_empresa'] }}.<br>
+            Los precios de mercado son estimaciones basadas en tarifas promedio de servicios bajo demanda (Out-of-pocket).
+        </div>
     </div>
 </body>
 </html>
