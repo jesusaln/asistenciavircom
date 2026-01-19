@@ -61,21 +61,19 @@ return new class extends Migration {
             $idsServicios[] = $servicio->id;
         }
 
-        // 2. Buscar la Póliza Mini y actualizarla
-        $planMini = PlanPoliza::where('nombre', 'like', '%Mini%')->first();
+        // 3. Buscar la Póliza (Mini o Pyme Estándar) y actualizarla
+        $planTarget = PlanPoliza::where('nombre', 'like', '%Estándar%')
+            ->orWhere('nombre', 'like', '%Estandar%')
+            ->orWhere('nombre', 'like', '%Mini%')
+            ->first();
 
-        if ($planMini) {
-            // Actualizamos incluye_servicios
-            // El formato puede ser array de IDs [1, 2] o array de objetos [{id:1}, {id:2}]
-            // Usaremos array de IDs simple para empezar, ya que mi código Vue lo soporta:
-            // serviceId = Number(item);
+        if ($planTarget) {
+            $planTarget->incluye_servicios = $idsServicios;
+            $planTarget->save();
 
-            $planMini->incluye_servicios = $idsServicios;
-            $planMini->save();
-
-            echo "Plan '{$planMini->nombre}' actualizado con " . count($idsServicios) . " servicios.\n";
+            echo "Plan '{$planTarget->nombre}' actualizado con " . count($idsServicios) . " servicios.\n";
         } else {
-            echo "No se encontró ningún plan con nombre 'Mini'.\n";
+            echo "No se encontró ningún plan con nombre 'Estándar' ni 'Mini'.\n";
         }
     }
 
