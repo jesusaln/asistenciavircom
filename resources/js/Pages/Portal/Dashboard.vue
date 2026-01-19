@@ -577,8 +577,8 @@ const totalPendiente = computed(() => {
 
                                     <div v-if="polizas[0]" class="grid sm:grid-cols-2 gap-8 mb-8 text-center sm:text-left">
                                         <div class="p-6 bg-white/5 rounded-3xl border border-white/5">
-                                            <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Días Restantes</p>
-                                            <p class="text-3xl font-black">{{ polizas[0]?.dias_para_vencer }} <span class="text-xs text-gray-500">Días</span></p>
+                                            <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Día del Periodo</p>
+                                            <p class="text-3xl font-black">{{ new Date().getDate() }} <span class="text-xs text-gray-500 capitalize">de {{ new Date().toLocaleDateString('es-MX', { month: 'long' }) }}</span></p>
                                         </div>
                                         <div class="p-6 bg-white/5 rounded-3xl border border-white/5">
                                             <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Tickets del Mes</p>
@@ -728,8 +728,8 @@ const totalPendiente = computed(() => {
                                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                             Vencimiento: <span class="text-gray-900 ml-1">{{ formatDate(poliza.fecha_fin) }}</span>
                                         </p>
-                                        <p v-if="poliza.dias_para_vencer <= 30" class="text-[10px] font-black text-orange-500 uppercase">
-                                            Vence en {{ poliza.dias_para_vencer }} días
+                                        <p v-if="poliza.dias_para_vencer <= 300" class="text-[10px] font-black uppercase" :class="poliza.renovacion_automatica ? 'text-emerald-500' : 'text-orange-500'">
+                                            {{ poliza.renovacion_automatica ? 'Renovación en ' + poliza.dias_para_vencer + ' días' : 'Vence en ' + poliza.dias_para_vencer + ' días' }}
                                         </p>
                                     </div>
                                 </div>
