@@ -40,7 +40,16 @@ class TicketPolicy
      */
     public function update(User $user, Ticket $ticket): bool
     {
-        return $user->can('edit tickets') && $user->empresa_id === $ticket->empresa_id;
+        // Super-admin y admin pueden editar cualquier ticket
+        if ($user->hasRole(['super-admin', 'admin'])) {
+            return true;
+        }
+
+        // Otros usuarios necesitan el permiso y deben pertenecer a la misma empresa
+        return $user->can('edit tickets') && (
+            !$ticket->empresa_id ||
+            $user->empresa_id === $ticket->empresa_id
+        );
     }
 
     /**
