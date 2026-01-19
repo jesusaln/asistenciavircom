@@ -363,6 +363,7 @@ class TicketController extends Controller
             'servicio_inicio_at' => 'nullable|date',
             'servicio_fin_at' => 'nullable|date|after:servicio_inicio_at',
             'tipo_servicio' => 'nullable|in:garantia,costo',
+            'confirmar_excedente' => 'nullable|boolean', // Fase 1 - Mejora 1.5
         ]);
 
         // Si se cambia el tipo de servicio a "costo" y antes era "garantia" (o nulo)
@@ -376,9 +377,50 @@ class TicketController extends Controller
             $ticket->update(['tipo_servicio' => $validated['tipo_servicio']]);
         }
 
-        // Si se está resolviendo o cerrando y hay horas trabajadas
+        // =====================================================
+        // FASE 1 - Mejora 1.5: Validación de Horas en Póliza
+        // =====================================================
+        $advertenciaHoras = null;
         if (in_array($validated['estado'], ['resuelto', 'cerrado']) && isset($validated['horas_trabajadas'])) {
             $horas = (float) $validated['horas_trabajadas'];
+
+            // Solo validar si el ticket tiene póliza y NO es "con costo"
+            if ($ticket->poliza_id && $ticket->tipo_servicio !== 'costo') {
+                $poliza = $ticket->poliza;
+
+                if ($poliza && $poliza->horas_incluidas_mensual > 0) {
+                    $horasDisponibles = $poliza->horas_incluidas_mensual - ($poliza->horas_consumidas_mes ?? 0);
+
+                    if ($horas > $horasDisponibles) {
+                        $horasExcedente = $horas - max(0, $horasDisponibles);
+                        $costoHoraExtra = $poliza->costo_hora_excedente ?? $poliza->planPoliza?->costo_hora_extra ?? 350;
+                        $costoExcedente = round($horasExcedente * $costoHoraExtra, 2);
+
+                        // Si no se ha confirmado el excedente, regresar con advertencia
+                        if (!($validated['confirmar_excedente'] ?? false)) {
+                            return back()->with([
+                                'warning' => "⚠️ Este ticket consume {$horas} horas, pero la póliza solo tiene {$horasDisponibles} horas disponibles. Se generará un cobro extra de \${$costoExcedente} por {$horasExcedente} horas excedentes.",
+                                'requiere_confirmacion_excedente' => true,
+                                'datos_excedente' => [
+                                    'horas_solicitadas' => $horas,
+                                    'horas_disponibles' => $horasDisponibles,
+                                    'horas_excedente' => $horasExcedente,
+                                    'costo_hora_extra' => $costoHoraExtra,
+                                    'costo_total_excedente' => $costoExcedente,
+                                ],
+                            ])->withInput();
+                        }
+
+                        // Usuario confirmó, generar cobro por excedente
+                        $advertenciaHoras = "Se generó cobro por {$horasExcedente} horas excedentes (\${$costoExcedente}).";
+
+                        // Generar la cuenta por cobrar del excedente
+                        // Usamos el número de horas como "cantidad" para el cobro
+                        $poliza->generarCobroExcedente('horas', (int) ceil($horasExcedente));
+                    }
+                }
+            }
+
             $inicio = $validated['servicio_inicio_at'] ?? null;
             $fin = $validated['servicio_fin_at'] ?? null;
 
@@ -396,7 +438,12 @@ class TicketController extends Controller
             return $this->generarVenta($request, $ticket);
         }
 
-        return back()->with('success', 'Ticket actualizado exitosamente');
+        $mensaje = 'Ticket actualizado exitosamente';
+        if ($advertenciaHoras) {
+            $mensaje .= ". " . $advertenciaHoras;
+        }
+
+        return back()->with('success', $mensaje);
     }
 
     public function asignar(Request $request, Ticket $ticket)

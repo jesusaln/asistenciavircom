@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Ticket;
 use App\Models\TicketCategory;
 use App\Models\PolizaServicio;
+use App\Models\PolizaConsumo;
 use App\Models\Venta;
 use App\Models\Empresa;
 use App\Models\EmpresaConfiguracion;
 use App\Models\LandingFaq;
 use App\Support\EmpresaResolver;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -194,17 +196,55 @@ class PortalController extends Controller
 
         $cliente = Auth::guard('client')->user();
 
+        // =====================================================
+        // FASE 1 - Mejora 1.1: Validación de Póliza Activa
+        // =====================================================
+        $polizaActiva = PolizaServicio::where('cliente_id', $cliente->id)
+            ->whereIn('estado', ['activa', 'vencida_en_gracia'])
+            ->where(function ($q) {
+                $q->whereNull('fecha_fin')
+                    ->orWhere('fecha_fin', '>=', now()->subDays(5)); // Considera periodo de gracia
+            })
+            ->first();
+
+        // Si no tiene póliza activa, verificar si la categoría requiere póliza
+        $categoria = TicketCategory::find($validated['categoria_id']);
+        $requierePoliza = $categoria && $categoria->consume_poliza;
+
+        if ($requierePoliza && !$polizaActiva) {
+            return back()->withErrors([
+                'poliza' => 'No tienes una póliza de servicio activa. Para solicitar soporte técnico, primero contrata un plan o regulariza tu póliza pendiente de pago.'
+            ])->withInput();
+        }
+
+        // Advertir si la póliza está en periodo de gracia
+        $advertenciaGracia = null;
+        if ($polizaActiva && $polizaActiva->estado === 'vencida_en_gracia') {
+            $diasRestantes = $polizaActiva->dias_gracia_restantes ?? 0;
+            $advertenciaGracia = "⚠️ Tu póliza está en periodo de gracia. Tienes {$diasRestantes} días para renovar antes de que se suspenda el servicio.";
+        }
+
+        // Verificar si excede límite de tickets (pero permitir crear con advertencia)
+        $advertenciaLimite = null;
+        if ($polizaActiva && $polizaActiva->limite_mensual_tickets) {
+            $ticketsUsados = $polizaActiva->tickets_soporte_consumidos_mes ?? 0;
+            if ($ticketsUsados >= $polizaActiva->limite_mensual_tickets) {
+                $costoExtra = $polizaActiva->planPoliza?->costo_ticket_extra ?? 150;
+                $advertenciaLimite = "Has alcanzado tu límite de {$polizaActiva->limite_mensual_tickets} tickets mensuales. Este ticket tendrá un costo adicional de \${$costoExtra}.";
+            }
+        }
+
         // Generar número de folio
         $year = date('Y');
         $lastTicket = Ticket::whereYear('created_at', $year)->latest()->first();
         $sequence = $lastTicket ? (int) substr($lastTicket->numero, -5) + 1 : 1;
         $numero = 'TKT-' . $year . '-' . str_pad($sequence, 5, '0', STR_PAD_LEFT);
 
-        // Calcular SLA basado en categoría
-        $categoria = TicketCategory::find($validated['categoria_id']);
+        // Calcular SLA basado en póliza (prioritaria) o categoría
         $fechaLimite = null;
-        if ($categoria && $categoria->sla_horas) {
-            // $fechaLimite = now()->addBusinessHours($categoria->sla_horas); // Requiere paquete extra
+        if ($polizaActiva && $polizaActiva->sla_horas_respuesta) {
+            $fechaLimite = now()->addHours($polizaActiva->sla_horas_respuesta);
+        } elseif ($categoria && $categoria->sla_horas) {
             $fechaLimite = now()->addHours($categoria->sla_horas);
         }
 
@@ -217,6 +257,7 @@ class PortalController extends Controller
             'origen' => 'portal',
             'categoria_id' => $validated['categoria_id'],
             'cliente_id' => $cliente->id,
+            'poliza_id' => $polizaActiva?->id, // Vincular automáticamente a la póliza
             'nombre_contacto' => $cliente->nombre_razon_social,
             'email_contacto' => $cliente->email,
             'telefono_contacto' => $cliente->telefono ?? $cliente->celular,
@@ -224,8 +265,17 @@ class PortalController extends Controller
             'empresa_id' => $cliente->empresa_id,
         ]);
 
+        // Construir mensaje de éxito con advertencias si aplica
+        $mensajeExito = "Ticket {$numero} creado exitosamente.";
+        if ($advertenciaGracia) {
+            $mensajeExito .= " " . $advertenciaGracia;
+        }
+        if ($advertenciaLimite) {
+            $mensajeExito .= " " . $advertenciaLimite;
+        }
+
         return redirect()->route('portal.dashboard')
-            ->with('success', "Ticket {$numero} creado exitosamente.");
+            ->with('success', $mensajeExito);
     }
 
     public function show(Ticket $ticket)
@@ -269,8 +319,18 @@ class PortalController extends Controller
         $polizas = PolizaServicio::where('cliente_id', $cliente->id)
             ->where('estado', '!=', 'cancelada')
             ->with(['equipos'])
+            ->withCount([
+                'tickets as tickets_mes_actual_count' => function ($query) {
+                    $query->where('tipo_servicio', '!=', 'costo')
+                        ->whereMonth('created_at', now()->month)
+                        ->whereYear('created_at', now()->year)
+                        ->whereHas('categoria', function ($q) {
+                            $q->where('consume_poliza', true);
+                        });
+                }
+            ])
             ->orderByDesc('created_at')
-            ->get() // Usamos get para enviar todas, o paginate si son muchas
+            ->get()
             ->each(function ($poliza) {
                 $poliza->append(['dias_para_vencer']);
             });
@@ -304,12 +364,130 @@ class PortalController extends Controller
             'mantenimientos.ejecuciones' => function ($q) {
                 $q->orderByDesc('fecha_programada')->limit(5);
             }
-        ]);
+        ])->loadCount([
+                    'tickets as tickets_mes_actual_count' => function ($query) {
+                        $query->where('tipo_servicio', '!=', 'costo')
+                            ->whereMonth('created_at', now()->month)
+                            ->whereYear('created_at', now()->year)
+                            ->whereHas('categoria', function ($q) {
+                                $q->where('consume_poliza', true);
+                            });
+                    }
+                ]);
+
+        // FASE 4 - Mejora 4.1 y 4.4: Datos para gráfica y tickets del mes
+        $ticketsMesActual = $poliza->tickets()
+            ->where('tipo_servicio', '!=', 'costo')
+            ->whereMonth('tickets.created_at', now()->month)
+            ->whereYear('tickets.created_at', now()->year)
+            ->whereHas('categoria', function ($q) {
+                $q->where('consume_poliza', true);
+            })
+            ->latest()
+            ->get();
+
+        $historicoConsumo = $poliza->consumos()
+            ->selectRaw('YEAR(fecha_consumo) as year, MONTH(fecha_consumo) as month, tipo, SUM(cantidad) as total')
+            ->where('fecha_consumo', '>=', now()->subMonths(6))
+            ->groupBy('year', 'month', 'tipo')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
 
         $poliza->append(['porcentaje_horas', 'porcentaje_tickets', 'dias_para_vencer', 'excede_horas', 'tickets_mes_actual_count']);
 
         return Inertia::render('Portal/Polizas/Show', [
             'poliza' => $poliza,
+            'ticketsMesActual' => $ticketsMesActual,
+            'historicoConsumo' => $historicoConsumo,
+            'empresa' => $this->getEmpresaBranding(),
+        ]);
+    }
+
+    /**
+     * Exportar fechas clave a calendario (.ics)
+     * FASE 4 - Mejora 4.5
+     */
+    public function exportCalendar(PolizaServicio $poliza)
+    {
+        if ($poliza->cliente_id !== Auth::guard('client')->id()) {
+            abort(403);
+        }
+
+        $events = [];
+
+        // Evento 1: Vencimiento de la póliza
+        if ($poliza->fecha_fin) {
+            $fechaFin = Carbon::parse($poliza->fecha_fin);
+            $events[] = [
+                'start' => $fechaFin->format('Ymd'),
+                'end' => $fechaFin->copy()->addDay()->format('Ymd'),
+                'summary' => "Vencimiento Póliza: {$poliza->folio}",
+                'description' => "Tu póliza {$poliza->nombre} vence hoy. Contacta a soporte para renovación.",
+            ];
+        }
+
+        // Evento 2: Próximo cobro
+        $diaCobro = $poliza->dia_cobro ?: 1;
+        $fechaCobro = now()->day($diaCobro);
+        if ($fechaCobro->isPast())
+            $fechaCobro->addMonth();
+
+        $events[] = [
+            'start' => $fechaCobro->format('Ymd'),
+            'end' => $fechaCobro->copy()->addDay()->format('Ymd'),
+            'summary' => "Cobro Póliza: {$poliza->folio}",
+            'description' => "Fecha programada para el cobro mensual de tu póliza de servicio.",
+        ];
+
+        // Generar ICS
+        $ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//AsistenciaVircom//NONSGML v1.0//EN\nCALSCALE:GREGORIAN\n";
+
+        foreach ($events as $event) {
+            $ics .= "BEGIN:VEVENT\n";
+            $ics .= "DTSTART;VALUE=DATE:" . $event['start'] . "\n";
+            $ics .= "DTEND;VALUE=DATE:" . $event['end'] . "\n";
+            $ics .= "SUMMARY:" . $event['summary'] . "\n";
+            $ics .= "DESCRIPTION:" . $event['description'] . "\n";
+            $ics .= "END:VEVENT\n";
+        }
+
+        $ics .= "END:VCALENDAR";
+
+        return response($ics)
+            ->header('Content-Type', 'text/calendar; charset=utf-8')
+            ->header('Content-Disposition', 'attachment; filename="poliza-' . $poliza->folio . '.ics"');
+    }
+
+    public function polizaHistorial(Request $request, PolizaServicio $poliza)
+    {
+        if ($poliza->cliente_id !== Auth::guard('client')->id()) {
+            abort(403);
+        }
+
+        $mes = $request->input('mes', now()->format('Y-m'));
+        $date = Carbon::parse($mes);
+
+        $consumos = PolizaConsumo::where('poliza_id', $poliza->id)
+            ->whereMonth('fecha_consumo', $date->month)
+            ->whereYear('fecha_consumo', $date->year)
+            ->orderByDesc('fecha_consumo')
+            ->get();
+
+        $stats = [
+            'total_ahorro' => $consumos->sum('ahorro'),
+            'total_tickets' => $consumos->where('tipo', 'ticket')->sum('cantidad'),
+            'total_visitas' => $consumos->where('tipo', 'visita')->sum('cantidad'),
+            'total_horas' => $consumos->where('tipo', 'hora')->sum('cantidad'),
+        ];
+
+        return Inertia::render('Portal/Polizas/Historial', [
+            'poliza' => $poliza,
+            'consumos' => $consumos,
+            'stats' => $stats,
+            'filtros' => [
+                'mes' => $mes
+            ],
             'empresa' => $this->getEmpresaBranding(),
         ]);
     }
@@ -442,7 +620,7 @@ class PortalController extends Controller
             // Si tiene Cuenta por Cobrar, marcarla como pagada
             if ($venta->cuentaPorCobrar) {
                 $cxc = $venta->cuentaPorCobrar;
-                $cxc->monto_pendiente = '0.00';
+                $cxc->setAttribute('monto_pendiente', 0);
                 $cxc->estado = 'pagado';
                 $cxc->save();
             }
@@ -604,6 +782,50 @@ class PortalController extends Controller
         } catch (\Exception $e) {
             Log::error('Error generando PDF contrato: ' . $e->getMessage());
             return back()->with('error', 'Error generando contrato.');
+        }
+    }
+
+    public function descargarReporteMensualPdf(Request $request, PolizaServicio $poliza)
+    {
+        if ($poliza->cliente_id !== Auth::guard('client')->id()) {
+            abort(403);
+        }
+
+        $mes = $request->input('mes', now()->subMonth()->month);
+        $anio = $request->input('anio', now()->subMonth()->year);
+
+        try {
+            /** @var \App\Services\PdfGeneratorService $pdfService */
+            $pdfService = app(\App\Services\PdfGeneratorService::class);
+
+            $poliza->load(['cliente', 'equipos']);
+
+            // Tickets del mes solicitado
+            $tickets = $poliza->tickets()
+                ->whereMonth('created_at', $mes)
+                ->whereYear('created_at', $anio)
+                ->with(['categoria', 'asignado'])
+                ->get();
+
+            $empresaId = EmpresaResolver::resolveId();
+            $empresa = EmpresaConfiguracion::getConfig($empresaId);
+            $mesNombre = Carbon::createFromDate($anio, $mes, 1)->locale('es')->monthName;
+
+            $pdf = $pdfService->loadView('pdf.poliza-reporte-mensual', [
+                'poliza' => $poliza,
+                'empresa' => $empresa,
+                'tickets' => $tickets,
+                'mes_nombre' => ucfirst($mesNombre),
+                'anio' => $anio,
+                'fecha_generacion' => now()->format('d/m/Y H:i'),
+                'total_horas' => $tickets->sum('horas_trabajadas'),
+                'tickets_resueltos' => $tickets->whereIn('estado', ['resuelto', 'cerrado'])->count(),
+            ]);
+
+            return $pdfService->download($pdf, "Reporte-{$poliza->folio}-{$mesNombre}-{$anio}.pdf");
+        } catch (\Exception $e) {
+            Log::error('Error generando PDF reporte mensual: ' . $e->getMessage());
+            return back()->with('error', 'Error generando reporte mensual.');
         }
     }
 }

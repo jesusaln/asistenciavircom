@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import ClientLayout from '../Layout/ClientLayout.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import DialogModal from '@/Components/DialogModal.vue';
@@ -12,6 +12,82 @@ import InputError from '@/Components/InputError.vue';
 const props = defineProps({
     poliza: Object,
     empresa: Object,
+    ticketsMesActual: Array,
+    historicoConsumo: Array,
+});
+
+import { Bar } from 'vue-chartjs';
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
+
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+
+const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            position: 'bottom',
+            labels: {
+                font: { weight: 'bold', size: 10 }
+            }
+        }
+    },
+    scales: {
+        y: { beginAtZero: true }
+    }
+};
+
+const chartData = computed(() => {
+    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const labels = [];
+    const tickets = [];
+    const visitas = [];
+
+    // Agrupar por mes
+    const dataByMonth = {};
+    props.historicoConsumo?.forEach(item => {
+        const key = `${item.year}-${item.month}`;
+        if (!dataByMonth[key]) {
+            dataByMonth[key] = { tickets: 0, visitas: 0, label: `${months[item.month - 1]} ${item.year}` };
+        }
+        if (item.tipo === 'ticket') dataByMonth[key].tickets = item.total;
+        if (item.tipo === 'visita') dataByMonth[key].visitas = item.total;
+    });
+
+    Object.values(dataByMonth).forEach(d => {
+        labels.push(d.label);
+        tickets.push(d.tickets);
+        visitas.push(d.visitas);
+    });
+
+    return {
+        labels,
+        datasets: [
+            {
+                label: 'Tickets',
+                backgroundColor: '#3b82f6',
+                data: tickets
+            },
+            {
+                label: 'Visitas',
+                backgroundColor: '#10b981',
+                data: visitas
+            }
+        ]
+    };
+});
+
+const mostrarAlertaLimite = computed(() => {
+    return props.poliza.porcentaje_tickets >= 80 || props.poliza.porcentaje_horas >= 80;
+});
+
+const severityAlerta = computed(() => {
+    if (props.poliza.porcentaje_tickets >= 100 || props.poliza.porcentaje_horas >= 100) return 'critical';
+    return 'warning';
+});
+
+const puedeRenovar = computed(() => {
+    return props.poliza.dias_para_vencer <= 30 && props.poliza.estado !== 'cancelada';
 });
 
 const formatCurrency = (value) => {
@@ -36,20 +112,22 @@ const getEstadoBadge = (estado) => {
     return colores[estado] || 'bg-white text-gray-800';
 };
 
-// Cálculo de ahorro del cliente
-const PRECIO_SERVICIO_NORMAL = 650; // Precio por hora o visita sin póliza
-
+// Cálculo de ahorro del cliente con precios reales (Mejora 2.4)
 const ahorroMensual = () => {
-    const horasUsadas = props.poliza.horas_consumidas_mes || 0;
-    const visitasUsadas = props.poliza.visitas_sitio_consumidas_mes || 0;
-    const ticketsUsados = props.poliza.tickets_soporte_mes_count || props.poliza.tickets_mes_actual_count || 0;
+    // Obtener costos unitarios (de la póliza o defaults)
+    const costoHora = parseFloat(props.poliza.costo_hora_excedente || props.poliza.plan_poliza?.costo_hora_extra || 650);
+    const costoVisita = parseFloat(props.poliza.costo_visita_sitio_extra || props.poliza.plan_poliza?.costo_visita_extra || 650);
+    const costoTicket = parseFloat(props.poliza.plan_poliza?.costo_ticket_extra || 150);
+
+    const horasUsadas = parseFloat(props.poliza.horas_consumidas_mes || 0);
+    const visitasUsadas = parseInt(props.poliza.visitas_sitio_consumidas_mes || 0);
+    const ticketsUsados = parseInt(props.poliza.tickets_mes_actual_count || props.poliza.tickets_soporte_consumidos_mes || 0);
     
-    // Cada hora y visita tiene un valor de $650
-    const valorServiciosUsados = (horasUsadas + visitasUsadas) * PRECIO_SERVICIO_NORMAL;
-    // Cada ticket tiene un valor estimado de $150
-    const valorTickets = ticketsUsados * 150;
+    const ahorroHoras = horasUsadas * costoHora;
+    const ahorroVisitas = visitasUsadas * costoVisita;
+    const ahorroTickets = ticketsUsados * costoTicket;
     
-    return valorServiciosUsados + valorTickets;
+    return ahorroHoras + ahorroVisitas + ahorroTickets;
 };
 
 // Calcular próximo cobro basado en día de cobro
@@ -140,6 +218,25 @@ const enviarSolicitud = () => {
                 <Link :href="route('portal.dashboard')" class="text-xs uppercase tracking-widest font-bold text-gray-400 hover:text-[var(--color-primary)] mb-4 inline-block transition-colors">
                     ← Volver al Panel
                 </Link>
+
+                <!-- Alerta de Límite de Consumo (Mejora 4.2) -->
+                <div v-if="mostrarAlertaLimite" 
+                    :class="[
+                        'mb-6 p-4 rounded-2xl border flex items-center gap-4 animate-pulse',
+                        severityAlerta === 'critical' ? 'bg-red-50 border-red-100 text-red-700' : 'bg-amber-50 border-amber-100 text-amber-700'
+                    ]">
+                    <div :class="['w-10 h-10 rounded-full flex items-center justify-center', severityAlerta === 'critical' ? 'bg-red-100' : 'bg-amber-100']">
+                        <font-awesome-icon :icon="severityAlerta === 'critical' ? 'exclamation-triangle' : 'info-circle'" />
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-black uppercase tracking-tight">
+                            {{ severityAlerta === 'critical' ? '¡Límite alcanzado!' : 'Aviso de consumo' }}
+                        </p>
+                        <p class="text-xs font-medium opacity-80">
+                            {{ severityAlerta === 'critical' ? 'Has utilizado el 100% de tus recursos incluidos. No te preocupes, seguiremos atendiéndote, se aplicarán cargos por excedentes.' : 'Has utilizado más del 80% de tus recursos del mes. Te sugerimos moderar el uso o considerar un upgrade.' }}
+                        </p>
+                    </div>
+                </div>
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100">
                     <div>
                         <div class="flex items-center gap-3 mb-2">
@@ -159,6 +256,15 @@ const enviarSolicitud = () => {
                         <a :href="route('portal.polizas.beneficios.pdf', poliza.id)" target="_blank" class="px-4 py-3 bg-emerald-50 text-emerald-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-100 transition-all border-2 border-emerald-100 flex items-center gap-2">
                             <font-awesome-icon icon="chart-pie" /> 
                             <span>Informe Ahorro</span>
+                        </a>
+                        <!-- Botón de Renovación Anticipada (Mejora 4.3) -->
+                        <Link v-if="puedeRenovar" :href="route('portal.checkout', { plan: poliza.plan_poliza_id, poliza_id: poliza.id })" class="px-4 py-3 bg-amber-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-amber-600 transition-all shadow-lg shadow-amber-200 flex items-center gap-2">
+                            <font-awesome-icon icon="sync" /> 
+                            <span>Renovar Ahora</span>
+                        </Link>
+                        <a :href="route('portal.polizas.export-calendar', poliza.id)" class="px-4 py-3 bg-white text-indigo-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-50 transition-all border-2 border-indigo-100 flex items-center gap-2">
+                            <font-awesome-icon icon="calendar-alt" /> 
+                            <span>Calendario</span>
                         </a>
                         <Link :href="route('portal.tickets.create', { poliza_id: poliza.id })" class="px-6 py-3 bg-blue-600 shadow-lg shadow-blue-200 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center gap-2">
                             <font-awesome-icon icon="life-ring" /> 
@@ -190,12 +296,17 @@ const enviarSolicitud = () => {
 
                     <!-- Consumo Actual -->
                     <div class="bg-white rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 p-8">
-                         <h3 class="font-black text-gray-900 uppercase tracking-tight mb-6 flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm">
-                                <font-awesome-icon icon="chart-pie" />
-                            </div>
-                            Consumo Mensual
-                        </h3>
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-black text-gray-900 uppercase tracking-tight flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm">
+                                    <font-awesome-icon icon="chart-pie" />
+                                </div>
+                                Consumo Mensual
+                            </h3>
+                            <Link :href="route('portal.polizas.historial', poliza.id)" class="text-[10px] font-black text-[var(--color-primary)] uppercase tracking-widest hover:underline">
+                                Ver Historial →
+                            </Link>
+                        </div>
 
                         <div class="grid sm:grid-cols-2 gap-8">
                             <!-- Barra de Horas -->
@@ -271,10 +382,57 @@ const enviarSolicitud = () => {
                                 <div>
                                     <p class="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">💰 Tu Ahorro Este Mes</p>
                                     <p class="text-3xl font-black text-emerald-700">{{ formatCurrency(ahorroMensual()) }}</p>
-                                    <p class="text-xs text-emerald-600/70 mt-1">vs. pagar servicios individuales a $650 c/u</p>
+                                    <p class="text-xs text-emerald-600/70 mt-1">vs. pagar servicios individuales a tarifas estándar</p>
                                 </div>
                                 <div class="text-5xl opacity-30">🎉</div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfica de Consumo Histórico (Mejora 4.1) -->
+                    <div class="bg-white rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 p-8">
+                        <h3 class="font-black text-gray-900 uppercase tracking-tight mb-6 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm">
+                                <font-awesome-icon icon="chart-bar" />
+                            </div>
+                            Tendencia de Consumo (Últimos 6 meses)
+                        </h3>
+                        <div class="h-64">
+                            <Bar v-if="historicoConsumo?.length" :data="chartData" :options="chartOptions" />
+                            <div v-else class="h-full flex flex-col items-center justify-center text-gray-400">
+                                <font-awesome-icon icon="chart-bar" size="2x" class="mb-2 opacity-20" />
+                                <p class="text-xs font-medium">Aún no hay suficiente historial para mostrar la gráfica.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detalle de Tickets Consumidos este mes (Mejora 4.4) -->
+                    <div class="bg-white rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 p-8">
+                        <h3 class="font-black text-gray-900 uppercase tracking-tight mb-6 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm">
+                                <font-awesome-icon icon="ticket-alt" />
+                            </div>
+                            Tickets Aplicados a Póliza (Este Mes)
+                        </h3>
+                        
+                        <div v-if="ticketsMesActual?.length" class="space-y-4">
+                            <div v-for="ticket in ticketsMesActual" :key="ticket.id" class="flex items-center justify-between p-4 border border-gray-50 rounded-2xl bg-gray-50/30">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-blue-500 font-black text-xs shadow-sm border border-gray-100">
+                                        #{{ ticket.folio }}
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-900 text-sm mb-0.5">{{ ticket.titulo }}</p>
+                                        <p class="text-[10px] font-medium text-gray-400 uppercase tracking-widest">{{ formatDate(ticket.created_at) }} • {{ ticket.categoria?.nombre || 'Soporte' }}</p>
+                                    </div>
+                                </div>
+                                <Link :href="route('portal.tickets.show', ticket.id)" class="px-4 py-2 bg-white text-gray-600 border border-gray-100 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all">
+                                    Ver Detalle
+                                </Link>
+                            </div>
+                        </div>
+                        <div v-else class="text-center py-8">
+                            <p class="text-sm font-medium text-gray-400 italic">No se han registrado consumos de tickets en el periodo actual.</p>
                         </div>
                     </div>
 

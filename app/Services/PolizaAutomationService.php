@@ -142,6 +142,7 @@ class PolizaAutomationService
 
     /**
      * Procesar pólizas próximas a vencer y enviar notificaciones.
+     * FASE 1 - Mejora 1.4: Ahora maneja el periodo de gracia antes de marcar como vencida.
      * Se ejecuta diariamente.
      */
     public function processExpiringPolicies()
@@ -151,9 +152,46 @@ class PolizaAutomationService
         // Umbrales de notificación (días antes de vencer)
         $thresholds = [30, 15, 7, 3, 1];
 
-        $polizas = PolizaServicio::activa()
+        // =====================================================
+        // FASE 1 - Mejora 1.4: Procesar periodo de gracia
+        // =====================================================
+
+        // 1. Primero: Marcar como "vencida_en_gracia" las que pasaron su fecha_fin pero están en gracia
+        $polizasParaGracia = PolizaServicio::where('estado', 'activa')
             ->whereNotNull('fecha_fin')
-            ->where('fecha_fin', '>=', Carbon::today()) // Que no estén ya vencidas (o sí? quizas el día 0)
+            ->where('fecha_fin', '<', Carbon::today()) // Ya pasó la fecha de vencimiento
+            ->get();
+
+        foreach ($polizasParaGracia as $poliza) {
+            $poliza->update(['estado' => PolizaServicio::ESTADO_VENCIDA_EN_GRACIA]);
+            Log::info("Póliza {$poliza->folio} entró en periodo de gracia", [
+                'fecha_fin' => $poliza->fecha_fin->format('Y-m-d'),
+                'dias_gracia' => $poliza->dias_gracia ?? 5,
+            ]);
+        }
+
+        // 2. Segundo: Marcar como "vencida" definitivamente las que pasaron el periodo de gracia
+        $polizasVencidas = PolizaServicio::where('estado', PolizaServicio::ESTADO_VENCIDA_EN_GRACIA)
+            ->whereNotNull('fecha_fin')
+            ->get()
+            ->filter(function ($poliza) {
+                // Verificar si ya pasó el periodo de gracia
+                return !$poliza->estaEnPeriodoGracia();
+            });
+
+        foreach ($polizasVencidas as $poliza) {
+            $poliza->update(['estado' => PolizaServicio::ESTADO_VENCIDA]);
+            Log::warning("Póliza {$poliza->folio} marcada como VENCIDA (terminó periodo de gracia)", [
+                'cliente' => $poliza->cliente?->nombre_razon_social,
+            ]);
+        }
+
+        // =====================================================
+        // Proceso original: Enviar alertas de vencimiento próximo
+        // =====================================================
+        $polizas = PolizaServicio::whereIn('estado', ['activa', 'vencida_en_gracia'])
+            ->whereNotNull('fecha_fin')
+            ->where('fecha_fin', '>=', Carbon::today()->subDays(5)) // Incluir las que están en gracia
             ->where('fecha_fin', '<=', Carbon::today()->addDays(31))
             ->with(['cliente', 'empresa'])
             ->get();
@@ -165,10 +203,12 @@ class PolizaAutomationService
 
             // Verificar si cae en uno de los umbrales
             if (in_array($diasRestantes, $thresholds)) {
-                
+
                 // Evitar duplicados el mismo día
-                if ($poliza->ultimo_aviso_vencimiento_at && 
-                    $poliza->ultimo_aviso_vencimiento_at->isSameDay(Carbon::today())) {
+                if (
+                    $poliza->ultimo_aviso_vencimiento_at &&
+                    $poliza->ultimo_aviso_vencimiento_at->isSameDay(Carbon::today())
+                ) {
                     continue;
                 }
 
@@ -177,11 +217,25 @@ class PolizaAutomationService
             }
             // Notificar el día del vencimiento (0 días)
             elseif ($diasRestantes === 0) {
-                 if ($poliza->ultimo_aviso_vencimiento_at && 
-                    $poliza->ultimo_aviso_vencimiento_at->isSameDay(Carbon::today())) {
+                if (
+                    $poliza->ultimo_aviso_vencimiento_at &&
+                    $poliza->ultimo_aviso_vencimiento_at->isSameDay(Carbon::today())
+                ) {
                     continue;
                 }
                 $this->sendVencimientoNotification($poliza, 0);
+                $count++;
+            }
+            // NUEVO: Notificar días de gracia restantes (valores negativos)
+            elseif ($diasRestantes < 0 && $diasRestantes >= -5) {
+                // Está en periodo de gracia, notificar
+                if (
+                    $poliza->ultimo_aviso_vencimiento_at &&
+                    $poliza->ultimo_aviso_vencimiento_at->isSameDay(Carbon::today())
+                ) {
+                    continue;
+                }
+                $this->sendVencimientoNotification($poliza, $diasRestantes);
                 $count++;
             }
         }
@@ -196,7 +250,7 @@ class PolizaAutomationService
     {
         try {
             DB::transaction(function () use ($poliza, $diasRestantes) {
-                
+
                 // 1. Email Notification
                 if ($poliza->cliente && $poliza->cliente->email) {
                     // $poliza->cliente->notify(new \App\Notifications\PolizaVencimientoNotification($poliza));
@@ -206,9 +260,9 @@ class PolizaAutomationService
                 // 2. WhatsApp Notification
                 $empresa = \App\Models\Empresa::find($poliza->empresa_id);
                 if ($empresa && $empresa->whatsapp_enabled && $poliza->cliente && $poliza->cliente->telefono) {
-                    
+
                     $template = 'aviso_vencimiento_poliza'; // Template específico en Meta
-                    
+
                     // Variables para el template: {{1}}=NombreCliente, {{2}}=Folio, {{3}}=FechaVencimiento, {{4}}=DiasRestantes
                     $params = [
                         $poliza->cliente->nombre_razon_social,
@@ -229,7 +283,7 @@ class PolizaAutomationService
                             'dias_restantes' => $diasRestantes
                         ]
                     );
-                    
+
                     Log::info("PolizaAutomationService: WhatsApp expiration warning queued for Poliza #{$poliza->id}");
                 }
 

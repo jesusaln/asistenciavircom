@@ -48,6 +48,7 @@ class PlanPoliza extends Model
         'generar_cita_automatica',
         'visitas_sitio_mensuales',
         'costo_visita_sitio_extra',
+        'costo_ticket_extra',
     ];
 
     protected $casts = [
@@ -56,6 +57,7 @@ class PlanPoliza extends Model
         'precio_instalacion' => 'decimal:2',
         'costo_hora_extra' => 'decimal:2',
         'costo_visita_sitio_extra' => 'decimal:2',
+        'costo_ticket_extra' => 'decimal:2',
         'beneficios' => 'array',
         'incluye_servicios' => 'array',
         'activo' => 'boolean',

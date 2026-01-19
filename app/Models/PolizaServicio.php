@@ -21,6 +21,8 @@ class PolizaServicio extends Model
     const ESTADO_VENCIDA = 'vencida';
     const ESTADO_CANCELADA = 'cancelada';
     const ESTADO_PENDIENTE_PAGO = 'pendiente_pago';
+    const ESTADO_VENCIDA_EN_GRACIA = 'vencida_en_gracia'; // Fase 1 - Mejora 1.4
+    const ESTADO_PAUSADA = 'pausada'; // Fase 2 - Mejora 2.3
 
     protected static function booted()
     {
@@ -30,6 +32,23 @@ class PolizaServicio extends Model
                     $poliza->folio = app(\App\Services\Folio\FolioService::class)->getNextFolio('poliza');
                 } catch (\Exception $e) {
                     \Illuminate\Support\Facades\Log::error('Error generating folio for poliza: ' . $e->getMessage());
+                }
+            }
+        });
+
+        // FASE 3 - Mejora 3.4: Auto-reset mensual proactivo
+        static::retrieved(function (PolizaServicio $poliza) {
+            if ($poliza->estado === self::ESTADO_ACTIVA) {
+                $hoy = now();
+                $ultimoReset = $poliza->ultimo_reset_consumo_at;
+
+                // Si nunca se ha reseteado o si el último reset no fue en este mes/año
+                if (!$ultimoReset || $ultimoReset->format('Y-m') !== $hoy->format('Y-m')) {
+                    // Solo resetear si ya pasamos el dia_cobro del mes actual
+                    if ($hoy->day >= $poliza->dia_cobro) {
+                        $poliza->resetearConsumoMensual();
+                        \Illuminate\Support\Facades\Log::info("Reset proactivo ejecutado para póliza {$poliza->folio}");
+                    }
                 }
             }
         });
@@ -64,6 +83,62 @@ class PolizaServicio extends Model
     {
         $this->estado = self::ESTADO_INACTIVA;
         return $this->save();
+    }
+
+    /**
+     * Pausar la póliza.
+     */
+    public function pausar(string $motivo = null): bool
+    {
+        if ($this->estado !== self::ESTADO_ACTIVA) {
+            return false;
+        }
+
+        $oldEstado = $this->estado;
+        $this->update([
+            'estado' => self::ESTADO_PAUSADA,
+            'pausada_at' => now(),
+            'motivo_pausa' => $motivo,
+        ]);
+
+        // FASE 3 - Mejora 3.5: Auditar
+        PolizaAuditLog::log($this, 'paused', ['estado' => $oldEstado], ['estado' => self::ESTADO_PAUSADA, 'motivo' => $motivo]);
+
+        return true;
+    }
+
+    /**
+     * Reanudar la póliza.
+     */
+    public function reanudar(): bool
+    {
+        if ($this->estado !== self::ESTADO_PAUSADA) {
+            return false;
+        }
+
+        $pausadaAt = $this->pausada_at;
+        $diasPausa = $pausadaAt ? now()->diffInDays($pausadaAt) : 0;
+        $oldFechaFin = $this->fecha_fin;
+
+        // Extender fecha_fin si existe
+        $nuevaFechaFin = $this->fecha_fin ? $this->fecha_fin->addDays($diasPausa) : $this->fecha_fin;
+
+        $this->update([
+            'estado' => self::ESTADO_ACTIVA,
+            'reanudada_at' => now(),
+            'total_dias_pausa' => $this->total_dias_pausa + $diasPausa,
+            'fecha_fin' => $nuevaFechaFin,
+        ]);
+
+        // FASE 3 - Mejora 3.5: Auditar
+        PolizaAuditLog::log(
+            $this,
+            'resumed',
+            ['estado' => self::ESTADO_PAUSADA, 'fecha_fin' => $oldFechaFin],
+            ['estado' => self::ESTADO_ACTIVA, 'fecha_fin' => $nuevaFechaFin, 'dias_pausa' => $diasPausa]
+        );
+
+        return true;
     }
 
 
@@ -104,6 +179,12 @@ class PolizaServicio extends Model
         'visitas_sitio_consumidas_mes',
         'tickets_soporte_consumidos_mes',
         'costo_visita_sitio_extra',
+        'costo_ticket_extra', // Fase 3 - Mejora 3.2
+        'dias_gracia', // Fase 1 - Mejora 1.4
+        'pausada_at', // Fase 2
+        'reanudada_at',
+        'motivo_pausa',
+        'total_dias_pausa',
     ];
 
     protected $casts = [
@@ -116,6 +197,8 @@ class PolizaServicio extends Model
         'alerta_vencimiento_enviada' => 'boolean',
         'horas_consumidas_mes' => 'decimal:2',
         'costo_hora_excedente' => 'decimal:2',
+        'costo_visita_sitio_extra' => 'decimal:2',
+        'costo_ticket_extra' => 'decimal:2',
         'ultimo_cobro_generado_at' => 'datetime',
         'ultimo_aviso_vencimiento_at' => 'datetime',
         'ultima_alerta_exceso_at' => 'datetime',
@@ -124,7 +207,9 @@ class PolizaServicio extends Model
         'generar_cita_automatica' => 'boolean',
         'visitas_sitio_consumidas_mes' => 'integer',
         'tickets_soporte_consumidos_mes' => 'integer',
-        'costo_visita_sitio_extra' => 'decimal:2',
+        'pausada_at' => 'datetime',
+        'reanudada_at' => 'datetime',
+        'total_dias_pausa' => 'integer',
     ];
 
     // NOTA: No usar $appends global para evitar N+1 queries.
@@ -177,6 +262,14 @@ class PolizaServicio extends Model
     }
 
     /**
+     * Relación con el historial de consumos.
+     */
+    public function consumos(): HasMany
+    {
+        return $this->hasMany(PolizaConsumo::class, 'poliza_id');
+    }
+
+    /**
      * Relación con las Citas de servicio vinculadas a esta póliza.
      */
     public function citas(): HasMany
@@ -211,6 +304,10 @@ class PolizaServicio extends Model
         // Si ya se cargó con withCount, usar ese valor
         if (isset($this->attributes['tickets_mes_actual_count'])) {
             return $this->attributes['tickets_mes_actual_count'];
+        }
+
+        if (isset($this->attributes['tickets_count'])) {
+            return $this->attributes['tickets_count'];
         }
 
         // Cache en memoria para evitar múltiples consultas en la misma request
@@ -336,12 +433,21 @@ class PolizaServicio extends Model
      */
     public function resetearConsumoMensual(): void
     {
+        $oldValues = [
+            'horas' => $this->horas_consumidas_mes,
+            'visitas' => $this->visitas_sitio_consumidas_mes,
+            'tickets' => $this->tickets_soporte_consumidos_mes,
+        ];
+
         $this->update([
             'horas_consumidas_mes' => 0,
             'visitas_sitio_consumidas_mes' => 0,
             'tickets_soporte_consumidos_mes' => 0,
             'ultimo_reset_consumo_at' => now(),
         ]);
+
+        // FASE 3 - Mejora 3.5: Auditar
+        PolizaAuditLog::log($this, 'reset', $oldValues, ['horas' => 0, 'visitas' => 0, 'tickets' => 0]);
     }
 
     /**
@@ -378,14 +484,6 @@ class PolizaServicio extends Model
 
         // Verificar alertas de límite
         $this->verificarAlertasLimite('tickets');
-    }
-
-    /**
-     * Relación con el historial de consumos.
-     */
-    public function consumos(): HasMany
-    {
-        return $this->hasMany(PolizaConsumo::class, 'poliza_id');
     }
 
     /**
@@ -479,20 +577,25 @@ class PolizaServicio extends Model
 
     /**
      * Generar cuenta por cobrar por excedentes (Fase 6).
+     * FASE 1 - Mejora 1.3: Ahora cobra por CADA unidad excedente, no solo la primera
+     * @param string $tipo Tipo de excedente: tickets, visitas, horas
+     * @param int $cantidadExtra Número de unidades extra a cobrar (default 1)
      */
-    public function generarCobroExcedente(string $tipo, int $excedente = 1): ?\App\Models\CuentasPorCobrar
+    public function generarCobroExcedente(string $tipo, int $cantidadExtra = 1): ?\App\Models\CuentasPorCobrar
     {
-        if ($excedente <= 0)
+        if ($cantidadExtra <= 0)
             return null;
 
+        // Obtener costos configurables (primero de la póliza, luego del plan, luego defaults)
         $costoUnitario = match ($tipo) {
-            'tickets' => 150,
-            'visitas' => $this->costo_visita_sitio_extra ?? 650,
-            'horas' => $this->costo_hora_excedente ?? 350,
+            'tickets' => $this->planPoliza?->costo_ticket_extra ?? 150,
+            'visitas' => $this->costo_visita_sitio_extra ?? $this->planPoliza?->costo_visita_extra ?? 650,
+            'horas' => $this->costo_hora_excedente ?? $this->planPoliza?->costo_hora_extra ?? 350,
             default => 0,
         };
 
-        $montoTotal = $excedente * $costoUnitario;
+        // Cobrar por CADA unidad extra (no solo 1)
+        $montoTotal = $cantidadExtra * $costoUnitario;
         if ($montoTotal <= 0)
             return null;
 
@@ -509,8 +612,8 @@ class PolizaServicio extends Model
                 'cliente_id' => $this->cliente_id,
                 'cobrable_type' => self::class,
                 'cobrable_id' => $this->id,
-                'folio' => 'EXC-' . $this->folio . '-' . now()->format('Ym'),
-                'concepto' => "Excedente de {$tipoLabel} - Póliza {$this->folio} (" . now()->format('M Y') . ")",
+                'folio' => 'EXC-' . $this->folio . '-' . now()->format('Ym') . '-' . $tipo[0] . $cantidadExtra,
+                'concepto' => "Excedente de {$tipoLabel} ({$cantidadExtra} unidad" . ($cantidadExtra > 1 ? 'es' : '') . ") - Póliza {$this->folio} (" . now()->format('M Y') . ")",
                 'monto_total' => $montoTotal,
                 'monto_pendiente' => $montoTotal,
                 'fecha_emision' => now(),
@@ -521,8 +624,9 @@ class PolizaServicio extends Model
             \Illuminate\Support\Facades\Log::info("Cobro por excedente generado", [
                 'poliza' => $this->folio,
                 'tipo' => $tipo,
-                'excedente' => $excedente,
-                'monto' => $montoTotal,
+                'cantidad_extra' => $cantidadExtra,
+                'costo_unitario' => $costoUnitario,
+                'monto_total' => $montoTotal,
                 'cxc_id' => $cxc->id
             ]);
 
@@ -674,10 +778,73 @@ class PolizaServicio extends Model
 
     /**
      * Verificar si la póliza está activa.
+     * FASE 1 - Mejora 1.4: También considera activa si está en periodo de gracia
      */
     public function isActiva(): bool
     {
-        return $this->estado === 'activa';
+        if ($this->estado === 'activa') {
+            return true;
+        }
+
+        // También permitir servicios si está en periodo de gracia
+        if ($this->estado === self::ESTADO_VENCIDA_EN_GRACIA && $this->estaEnPeriodoGracia()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * FASE 1 - Mejora 1.4: Verificar si la póliza está dentro de su periodo de gracia.
+     * El periodo de gracia permite usar servicios aunque haya pasado la fecha de vencimiento.
+     */
+    public function estaEnPeriodoGracia(): bool
+    {
+        if (!$this->fecha_fin) {
+            return false;
+        }
+
+        $diasGracia = $this->dias_gracia ?? 5;
+        $fechaLimiteGracia = $this->fecha_fin->copy()->addDays($diasGracia);
+
+        return now()->lessThanOrEqualTo($fechaLimiteGracia);
+    }
+
+    /**
+     * FASE 1 - Mejora 1.4: Obtener días restantes de gracia.
+     */
+    public function getDiasGraciaRestantesAttribute(): ?int
+    {
+        if (!$this->fecha_fin || $this->estado !== self::ESTADO_VENCIDA_EN_GRACIA) {
+            return null;
+        }
+
+        $diasGracia = $this->dias_gracia ?? 5;
+        $fechaLimiteGracia = $this->fecha_fin->copy()->addDays($diasGracia);
+
+        if (now()->greaterThan($fechaLimiteGracia)) {
+            return 0;
+        }
+
+        return now()->diffInDays($fechaLimiteGracia);
+    }
+
+    /**
+     * FASE 1 - Mejora 1.4: Verificar si puede usar servicios (activa o en gracia).
+     */
+    public function puedeUsarServicios(): bool
+    {
+        // Activa normal
+        if ($this->estado === 'activa') {
+            return true;
+        }
+
+        // En gracia y dentro del periodo
+        if ($this->estado === self::ESTADO_VENCIDA_EN_GRACIA && $this->estaEnPeriodoGracia()) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

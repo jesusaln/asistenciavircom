@@ -75,6 +75,7 @@ class PlanPolizaController extends Controller
             'generar_cita_automatica' => 'nullable|boolean',
             'visitas_sitio_mensuales' => 'nullable|integer|min:0',
             'costo_visita_sitio_extra' => 'nullable|numeric|min:0',
+            'costo_ticket_extra' => 'nullable|numeric|min:0',
             'clausulas' => 'nullable|string',
             'terminos_pago' => 'nullable|string',
         ]);
@@ -142,6 +143,7 @@ class PlanPolizaController extends Controller
             'generar_cita_automatica' => 'nullable|boolean',
             'visitas_sitio_mensuales' => 'nullable|integer|min:0',
             'costo_visita_sitio_extra' => 'nullable|numeric|min:0',
+            'costo_ticket_extra' => 'nullable|numeric|min:0',
             'clausulas' => 'nullable|string',
             'terminos_pago' => 'nullable|string',
         ]);

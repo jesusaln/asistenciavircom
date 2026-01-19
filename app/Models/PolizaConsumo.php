@@ -105,7 +105,7 @@ class PolizaConsumo extends Model
             default => 0,
         };
 
-        return self::create([
+        $consumo = self::create([
             'poliza_id' => $poliza->id,
             'tipo' => $tipo,
             'consumible_type' => get_class($consumible),
@@ -117,6 +117,17 @@ class PolizaConsumo extends Model
             'registrado_por' => auth()->id(),
             'fecha_consumo' => now(),
         ]);
+
+        // Enviar notificación al cliente
+        try {
+            if ($poliza->cliente) {
+                $poliza->cliente->notify(new \App\Notifications\PolizaConsumoNotification($consumo));
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Error enviando notificación de consumo: " . $e->getMessage());
+        }
+
+        return $consumo;
     }
 
     /**

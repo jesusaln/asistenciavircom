@@ -42,6 +42,7 @@ class Ticket extends Model implements Auditable
         'horas_trabajadas', // Phase 2
         'servicio_inicio_at',
         'servicio_fin_at',
+        'consumo_registrado_at', // Fase 1 - Idempotencia
     ];
 
     protected $casts = [
@@ -53,6 +54,7 @@ class Ticket extends Model implements Auditable
         'servicio_fin_at' => 'datetime',
         'archivos' => 'array',
         'horas_trabajadas' => 'decimal:2',
+        'consumo_registrado_at' => 'datetime', // Fase 1 - Idempotencia
     ];
 
     // Accessors
@@ -351,6 +353,13 @@ class Ticket extends Model implements Auditable
      */
     public function registrarConsumoUnitarioEnPoliza(): void
     {
+        // FASE 1 - Mejora 1.2: Idempotencia
+        // Si ya se registró el consumo, no volver a hacerlo
+        if ($this->consumo_registrado_at) {
+            \Illuminate\Support\Facades\Log::debug("Consumo ya registrado para ticket {$this->id}, omitiendo.");
+            return;
+        }
+
         // Si el ticket es "con costo", no consume folios de la póliza
         if (!$this->poliza_id || !$this->categoria_id || $this->tipo_servicio === 'costo') {
             return;
@@ -360,7 +369,19 @@ class Ticket extends Model implements Auditable
         if ($categoria && $categoria->consume_poliza) {
             $poliza = $this->poliza;
             if ($poliza && $poliza->isActiva()) {
-                $poliza->registrarTicketSoporte($this); // Pasar el ticket para historial
+                // Usar transacción con lock para evitar race conditions
+                \Illuminate\Support\Facades\DB::transaction(function () use ($poliza) {
+                    // Re-verificar dentro de la transacción
+                    $ticketFresh = Ticket::lockForUpdate()->find($this->id);
+                    if ($ticketFresh->consumo_registrado_at) {
+                        return; // Ya se procesó en otra request concurrente
+                    }
+
+                    $poliza->registrarTicketSoporte($this); // Pasar el ticket para historial
+
+                    // Marcar como registrado
+                    $ticketFresh->update(['consumo_registrado_at' => now()]);
+                });
             }
         }
     }

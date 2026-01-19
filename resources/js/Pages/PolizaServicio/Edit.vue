@@ -69,6 +69,7 @@ const form = useForm({
     generar_cita_automatica: props.poliza?.generar_cita_automatica ?? false,
     visitas_sitio_mensuales: props.poliza?.visitas_sitio_mensuales || '',
     costo_visita_sitio_extra: props.poliza?.costo_visita_sitio_extra || '',
+    costo_ticket_extra: props.poliza?.costo_ticket_extra || '',
 });
 
 const nuevoEquipo = ref({ nombre: '', serie: '' });
@@ -133,6 +134,7 @@ watch(selectedPlanId, (newId) => {
         // Visitas
         form.visitas_sitio_mensuales = plan.visitas_sitio_mensuales || '';
         form.costo_visita_sitio_extra = plan.costo_visita_sitio_extra || '';
+        form.costo_ticket_extra = plan.costo_ticket_extra || '';
         
         // Configuración adicional
         form.renovacion_automatica = true;
@@ -473,12 +475,22 @@ const helpSections = [
                                     </div>
                                     <div class="grid grid-cols-2 gap-3 mb-3">
                                         <div>
-                                            <label class="block text-[9px] font-black text-slate-500 uppercase mb-1">Soporte Remoto/Mes</label>
+                                            <label class="block text-[9px] font-black text-slate-500 uppercase mb-1">Tks. Incluidos/Mes</label>
                                             <input v-model="form.limite_mensual_tickets" type="number" placeholder="Sin límite" class="w-full bg-slate-900/50 border-slate-700 rounded-lg h-10 text-xs text-center font-bold text-slate-300 placeholder-slate-600" />
                                         </div>
                                         <div>
+                                            <label class="block text-[9px] font-black text-slate-500 uppercase mb-1">Costo Tk. Extra</label>
+                                            <input v-model="form.costo_ticket_extra" type="number" step="0.01" placeholder="0.00" class="w-full bg-slate-900/50 border-slate-700 rounded-lg h-10 text-xs text-center font-mono text-slate-300 placeholder-slate-600" />
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-3 mb-3">
+                                        <div>
                                             <label class="block text-[9px] font-black text-slate-500 uppercase mb-1">Visitas Sitio/Mes</label>
                                             <input v-model="form.visitas_sitio_mensuales" type="number" placeholder="0" class="w-full bg-slate-900/50 border-slate-700 rounded-lg h-10 text-xs text-center font-bold text-slate-300 placeholder-slate-600" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-[9px] font-black text-slate-500 uppercase mb-1">Costo Visita Extra</label>
+                                            <input v-model="form.costo_visita_sitio_extra" type="number" step="0.01" placeholder="0.00" class="w-full bg-slate-900/50 border-slate-700 rounded-lg h-10 text-xs text-center font-mono text-slate-300 placeholder-slate-600" />
                                         </div>
                                     </div>
                                     <div class="grid grid-cols-2 gap-3 mb-3">

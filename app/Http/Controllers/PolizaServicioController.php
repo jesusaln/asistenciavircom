@@ -7,6 +7,7 @@ use App\Models\Cliente;
 use App\Models\Servicio;
 use App\Models\Equipo;
 use App\Models\PlanPoliza;
+use App\Services\PolizaService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -14,9 +15,12 @@ use Carbon\Carbon;
 
 class PolizaServicioController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    protected $polizaService;
+
+    public function __construct(PolizaService $polizaService)
+    {
+        $this->polizaService = $polizaService;
+    }
     public function index(Request $request)
     {
         $query = PolizaServicio::with('cliente');
@@ -62,7 +66,7 @@ class PolizaServicioController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
             'nombre' => 'required|string|max:255',
             'fecha_inicio' => 'required|date',
@@ -70,7 +74,6 @@ class PolizaServicioController extends Controller
             'dia_cobro' => 'required|integer|min:1|max:31',
             'limite_mensual_tickets' => 'nullable|integer|min:0',
             'sla_horas_respuesta' => 'nullable|integer|min:1|max:168',
-            // Phase 2
             'horas_incluidas_mensual' => 'nullable|integer|min:1',
             'costo_hora_excedente' => 'nullable|numeric|min:0',
             'dias_alerta_vencimiento' => 'nullable|integer|min:1|max:90',
@@ -79,53 +82,13 @@ class PolizaServicioController extends Controller
             'generar_cita_automatica' => 'nullable|boolean',
             'visitas_sitio_mensuales' => 'nullable|integer|min:0',
             'costo_visita_sitio_extra' => 'nullable|numeric|min:0',
+            'costo_ticket_extra' => 'nullable|numeric|min:0',
         ]);
 
-        DB::beginTransaction();
         try {
-            $condiciones = $request->condiciones_especiales ?? [];
-            $condiciones['equipos_cliente'] = $request->equipos_cliente ?? [];
-
-            $poliza = PolizaServicio::create([
-                'empresa_id' => auth()->user()->empresa_id ?? 1,
-                'cliente_id' => $request->cliente_id,
-                'nombre' => $request->nombre,
-                'descripcion' => $request->descripcion,
-                'fecha_inicio' => $request->fecha_inicio,
-                'fecha_fin' => $request->fecha_fin,
-                'monto_mensual' => $request->monto_mensual,
-                'dia_cobro' => $request->dia_cobro,
-                'estado' => 'activa',
-                'limite_mensual_tickets' => $request->limite_mensual_tickets,
-                'notificar_exceso_limite' => $request->notificar_exceso_limite ?? true,
-                'renovacion_automatica' => $request->renovacion_automatica ?? true,
-                'notas' => $request->notas,
-                'sla_horas_respuesta' => $request->sla_horas_respuesta,
-                'condiciones_especiales' => $condiciones,
-                // Phase 2
-                'horas_incluidas_mensual' => $request->horas_incluidas_mensual,
-                'costo_hora_excedente' => $request->costo_hora_excedente,
-                'dias_alerta_vencimiento' => $request->dias_alerta_vencimiento ?? 30,
-                'mantenimiento_frecuencia_meses' => $request->mantenimiento_frecuencia_meses,
-                'proximo_mantenimiento_at' => $request->proximo_mantenimiento_at,
-                'generar_cita_automatica' => $request->generar_cita_automatica ?? false,
-                'visitas_sitio_mensuales' => $request->visitas_sitio_mensuales,
-                'costo_visita_sitio_extra' => $request->costo_visita_sitio_extra,
-            ]);
-
-            if ($request->has('servicios')) {
-                foreach ($request->servicios as $item) {
-                    $poliza->servicios()->attach($item['id'], [
-                        'cantidad' => $item['cantidad'] ?? 1,
-                        'precio_especial' => $item['precio_especial'] ?? null,
-                    ]);
-                }
-            }
-
-            DB::commit();
+            $this->polizaService->createPoliza($request->all());
             return redirect()->route('polizas-servicio.index')->with('success', 'Póliza creada correctamente.');
         } catch (\Exception $e) {
-            DB::rollBack();
             return back()->with('error', 'Error al crear la póliza: ' . $e->getMessage());
         }
     }
@@ -194,73 +157,27 @@ class PolizaServicioController extends Controller
      */
     public function update(Request $request, PolizaServicio $polizas_servicio)
     {
-        $request->validate([
+        $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'monto_mensual' => 'required|numeric|min:0',
             'dia_cobro' => 'required|integer|min:1|max:31',
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'nullable|date',
+            'limite_mensual_tickets' => 'nullable|integer|min:0',
             'sla_horas_respuesta' => 'nullable|integer|min:1|max:168',
-            // Phase 2
             'horas_incluidas_mensual' => 'nullable|integer|min:1',
             'costo_hora_excedente' => 'nullable|numeric|min:0',
             'dias_alerta_vencimiento' => 'nullable|integer|min:1|max:90',
             'mantenimiento_frecuencia_meses' => 'nullable|integer|min:1|max:24',
-            'mantenimiento_dias_anticipacion' => 'nullable|integer|min:1|max:30',
             'proximo_mantenimiento_at' => 'nullable|date',
             'generar_cita_automatica' => 'nullable|boolean',
             'visitas_sitio_mensuales' => 'nullable|integer|min:0',
             'costo_visita_sitio_extra' => 'nullable|numeric|min:0',
+            'costo_ticket_extra' => 'nullable|numeric|min:0',
         ]);
 
-        DB::beginTransaction();
         try {
-            $condiciones = $request->condiciones_especiales ?? [];
-            $condiciones['equipos_cliente'] = $request->equipos_cliente ?? [];
-
-            $polizas_servicio->update(array_merge($request->only([
-                'nombre',
-                'descripcion',
-                'fecha_inicio',
-                'fecha_fin',
-                'monto_mensual',
-                'dia_cobro',
-                'limite_mensual_tickets',
-                'notificar_exceso_limite',
-                'renovacion_automatica',
-                'notas',
-                'sla_horas_respuesta',
-                // Phase 2
-                'horas_incluidas_mensual',
-                'costo_hora_excedente',
-                'dias_alerta_vencimiento',
-                'mantenimiento_frecuencia_meses',
-                'mantenimiento_dias_anticipacion',
-                'proximo_mantenimiento_at',
-                'generar_cita_automatica',
-                'visitas_sitio_mensuales',
-                'costo_visita_sitio_extra',
-            ]), ['condiciones_especiales' => $condiciones]));
-
-            if ($request->has('servicios')) {
-                $syncData = [];
-                foreach ($request->servicios as $item) {
-                    $syncData[$item['id']] = [
-                        'cantidad' => $item['cantidad'] ?? 1,
-                        'precio_especial' => $item['precio_especial'] ?? null,
-                    ];
-                }
-                $polizas_servicio->servicios()->sync($syncData);
-            }
-
-            if ($request->has('equipos')) {
-                $polizas_servicio->equipos()->sync($request->equipos);
-            }
-
-            DB::commit();
+            $this->polizaService->updatePoliza($polizas_servicio, $request->all());
             return redirect()->route('polizas-servicio.index')->with('success', 'Póliza actualizada correctamente.');
         } catch (\Exception $e) {
-            DB::rollBack();
             return back()->with('error', 'Error al actualizar la póliza: ' . $e->getMessage());
         }
     }
@@ -283,75 +200,7 @@ class PolizaServicioController extends Controller
      */
     public function dashboard()
     {
-        // KPIs Financieros Premium
-        $ingresosMensuales = PolizaServicio::activa()->sum('monto_mensual');
-
-        // Cobros pendientes de pólizas (deuda activa)
-        $cobrosPendientes = \App\Models\CuentasPorCobrar::where('cobrable_type', PolizaServicio::class)
-            ->whereIn('estado', ['pendiente', 'vencido'])
-            ->sum('monto_total');
-
-        // Polizas con cobros vencidos (bloquear soporte)
-        $polizasConDeuda = PolizaServicio::activa()
-            ->whereHas('cuentasPorCobrar', function ($q) {
-                $q->where('estado', 'vencido');
-            })
-            ->count();
-
-        // Ingresos potenciales por excedentes de horas
-        $ingresosExcedentes = PolizaServicio::activa()
-            ->whereNotNull('horas_incluidas_mensual')
-            ->whereNotNull('costo_hora_excedente')
-            ->where('horas_consumidas_mes', '>', DB::raw('horas_incluidas_mensual'))
-            ->get()
-            ->sum(function ($p) {
-                $exceso = $p->horas_consumidas_mes - $p->horas_incluidas_mensual;
-                return $exceso * $p->costo_hora_excedente;
-            });
-
-        // Pre-cargar el conteo de tickets del mes actual para evitar N+1
-        $polizasActivas = PolizaServicio::activa()
-            ->withCount([
-                'tickets' => function ($query) {
-                    $query->whereMonth('created_at', now()->month)
-                        ->whereYear('created_at', now()->year);
-                }
-            ])
-            ->get();
-
-        // Estadísticas generales mejoradas
-        $stats = [
-            'total_activas' => $polizasActivas->count(),
-            'total_inactivas' => PolizaServicio::where('estado', '!=', 'activa')->count(),
-            'ingresos_mensuales' => $ingresosMensuales,
-            'ingresos_anuales_proyectados' => $ingresosMensuales * 12,
-            'cobros_pendientes' => $cobrosPendientes,
-            'polizas_con_deuda' => $polizasConDeuda,
-            'ingresos_excedentes' => $ingresosExcedentes,
-            'con_exceso_tickets' => $polizasActivas->whereNotNull('limite_mensual_tickets')
-                ->filter(fn($p) => $p->tickets_count >= $p->limite_mensual_tickets)
-                ->count(),
-            'con_exceso_horas' => $polizasActivas->whereNotNull('horas_incluidas_mensual')
-                ->filter(fn($p) => $p->horas_consumidas_mes >= $p->horas_incluidas_mensual)
-                ->count(),
-            // Tasa de retención (últimos 12 meses)
-            'tasa_retencion' => $this->calcularTasaRetencion(),
-        ];
-
-        // Pólizas próximas a vencer (30 días)
-        $proximasVencer = PolizaServicio::with('cliente')
-            ->proximasAVencer(30)
-            ->orderBy('fecha_fin')
-            ->get()
-            ->map(fn($p) => [
-                'id' => $p->id,
-                'folio' => $p->folio,
-                'nombre' => $p->nombre,
-                'cliente' => $p->cliente->nombre_razon_social ?? 'N/A',
-                'fecha_fin' => $p->fecha_fin ? Carbon::parse($p->fecha_fin)->format('d/m/Y') : 'N/A',
-                'dias_restantes' => $p->dias_para_vencer,
-                'monto_mensual' => $p->monto_mensual,
-            ]);
+        $stats = $this->polizaService->getDashboardStats();
 
         // Pólizas con exceso de tickets
         $excesoTickets = PolizaServicio::with('cliente')
@@ -444,12 +293,29 @@ class PolizaServicioController extends Controller
                 'ahorro' => $c->ahorro,
             ]);
 
+        // Pólizas próximas a vencer (30 días)
+        $proximasVencer = PolizaServicio::with('cliente')
+            ->proximasAVencer(30)
+            ->orderBy('fecha_fin')
+            ->get()
+            ->map(fn($p) => [
+                'id' => $p->id,
+                'folio' => $p->folio,
+                'nombre' => $p->nombre,
+                'cliente' => $p->cliente->nombre_razon_social ?? 'N/A',
+                'fecha_fin' => $p->fecha_fin ? Carbon::parse($p->fecha_fin)->format('d/m/Y') : 'N/A',
+                'dias_restantes' => $p->dias_para_vencer,
+                'monto_mensual' => $p->monto_mensual,
+            ]);
+
         return Inertia::render('PolizaServicio/Dashboard', [
-            'stats' => $stats,
+            'stats' => array_merge($stats, [
+                'tasa_retencion' => $this->calcularTasaRetencion(),
+            ]),
             'statsConsumo' => $statsConsumo,
             'proximasVencer' => $proximasVencer,
-            'excesoTickets' => $excesoTickets,
-            'excesoHoras' => $excesoHoras,
+            'excesoTickets' => $excesoTickets->values(),
+            'excesoHoras' => $excesoHoras->values(),
             'topConsumo' => $topConsumo,
             'ultimosCobros' => $ultimosCobros,
             'ultimosConsumos' => $ultimosConsumos,
