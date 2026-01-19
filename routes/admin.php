@@ -408,6 +408,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     });
 
     Route::get('/polizas-servicio/dashboard', [PolizaServicioController::class, 'dashboard'])->name('polizas-servicio.dashboard');
+    Route::get('/polizas-servicio/rentabilidad', [PolizaServicioController::class, 'reporteRentabilidad'])->name('polizas-servicio.rentabilidad');
     Route::get('/polizas-servicio/{polizaServicio}/historial', [PolizaServicioController::class, 'historialConsumo'])->name('polizas-servicio.historial');
     Route::get('/polizas-servicio/{polizaServicio}/pdf-beneficios', [PolizaServicioPDFController::class, 'beneficios'])->name('polizas-servicio.pdf-beneficios');
     Route::get('/polizas-servicio/{polizaServicio}/pdf-contrato', [PolizaServicioPDFController::class, 'contrato'])->name('polizas-servicio.pdf-contrato');

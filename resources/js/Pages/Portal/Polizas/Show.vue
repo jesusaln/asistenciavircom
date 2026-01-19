@@ -14,12 +14,13 @@ const props = defineProps({
     empresa: Object,
     ticketsMesActual: Array,
     historicoConsumo: Array,
+    consumoPorCategoria: Array // Nuevo prop
 });
 
-import { Bar } from 'vue-chartjs';
-import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
+import { Bar, Doughnut } from 'vue-chartjs';
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement } from 'chart.js';
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement);
 
 const chartOptions = {
     responsive: true,
@@ -36,6 +37,52 @@ const chartOptions = {
         y: { beginAtZero: true }
     }
 };
+
+const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            position: 'right',
+            labels: {
+                usePointStyle: true,
+                pointStyle: 'circle',
+                font: { size: 9 }
+            }
+        }
+    },
+    cutout: '60%' // Dona más delgada
+};
+
+const consumoData = computed(() => {
+    if (!props.consumoPorCategoria || props.consumoPorCategoria.length === 0) {
+        return { labels: [], datasets: [{ data: [], backgroundColor: [] }] };
+    }
+
+    const labels = props.consumoPorCategoria.map(item => item.categoria);
+    const data = props.consumoPorCategoria.map(item => parseFloat(item.total_horas));
+    
+    // Paleta de colores suaves
+    const backgroundColors = [
+        '#3B82F6', // Blue 500
+        '#10B981', // Emerald 500
+        '#8B5CF6', // Violet 500
+        '#F59E0B', // Amber 500
+        '#EF4444', // Red 500
+        '#06B6D4', // Cyan 500
+        '#EC4899', // Pink 500
+    ];
+
+    return {
+        labels: labels,
+        datasets: [{
+            data: data,
+            backgroundColor: backgroundColors.slice(0, data.length),
+            borderWidth: 0,
+            hoverOffset: 4
+        }]
+    };
+});
 
 const chartData = computed(() => {
     const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -244,11 +291,23 @@ const enviarSolicitud = () => {
                             <span :class="['px-3 py-1 text-[10px] font-black rounded-full border uppercase tracking-widest', getEstadoBadge(poliza.estado)]">
                                 {{ poliza.estado?.replace('_', ' ') }}
                             </span>
+                            <!-- Badge de Firma -->
+                            <span v-if="poliza.firmado_at" class="px-3 py-1 text-[10px] font-black rounded-full border uppercase tracking-widest bg-emerald-50 text-emerald-600 border-emerald-200">
+                                ✓ Firmado
+                            </span>
+                            <span v-else class="px-3 py-1 text-[10px] font-black rounded-full border uppercase tracking-widest bg-amber-50 text-amber-600 border-amber-200 animate-pulse">
+                                ⚠️ Sin Firmar
+                            </span>
                         </div>
                         <h1 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">{{ poliza.nombre }}</h1>
                         <p class="text-gray-500 font-medium text-sm mt-1">Vence: <strong class="text-gray-700">{{ formatDate(poliza.fecha_fin) }}</strong></p>
                     </div>
                     <div class="flex gap-2 flex-wrap">
+                        <!-- Botón de Firma Digital (Si no está firmada) -->
+                        <Link v-if="!poliza.firmado_at" :href="route('portal.polizas.firmar', poliza.id)" class="px-4 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:from-purple-600 hover:to-indigo-700 transition-all shadow-lg shadow-purple-200 flex items-center gap-2 animate-pulse">
+                            <font-awesome-icon icon="signature" /> 
+                            <span>Firmar Contrato</span>
+                        </Link>
                         <a :href="route('portal.polizas.contrato.pdf', poliza.id)" target="_blank" class="px-4 py-3 bg-white text-slate-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all border-2 border-slate-100 flex items-center gap-2">
                             <font-awesome-icon icon="file-pdf" /> 
                             <span>Contrato</span>
@@ -308,8 +367,17 @@ const enviarSolicitud = () => {
                             </Link>
                         </div>
 
-                        <div class="grid sm:grid-cols-2 gap-8">
-                            <!-- Barra de Horas -->
+                        <div class="grid lg:grid-cols-2 gap-8">
+                            <!-- Gráfica de Dona -->
+                            <div v-if="consumoData && consumoData.datasets[0].data.length > 0" class="flex flex-col items-center justify-center p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
+                                <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Distribución de Horas</h4>
+                                <div class="w-48 h-48 relative">
+                                    <Doughnut :data="consumoData" :options="doughnutOptions" />
+                                </div>
+                            </div>
+
+                            <!-- Barra de Horas y Detalles -->
+                            <div class="space-y-6">
                             <div v-if="poliza.horas_incluidas_mensual > 0">
                                 <div class="flex justify-between items-end mb-2">
                                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Horas de Soporte</p>
@@ -362,7 +430,8 @@ const enviarSolicitud = () => {
                                     ⚠️ Visitas adicionales: {{ formatCurrency(poliza.costo_visita_sitio_extra || 650) }} c/u
                                 </p>
                             </div>
-                        </div>
+                            </div>
+                        </div> <!-- Cierra el grid de 2 columnas -->
 
                         <!-- Info de Reinicio -->
                         <div class="mt-6 p-4 bg-gray-50 rounded-xl flex items-center justify-between">

@@ -53,6 +53,9 @@ const generarCobro = (polizaId) => {
                         <p class="text-gray-600 mt-1">Control financiero y alertas operativas</p>
                     </div>
                     <div class="flex gap-3">
+                        <Link :href="route('polizas-servicio.rentabilidad')" class="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition font-semibold">
+                            📊 Rentabilidad
+                        </Link>
                         <Link :href="route('polizas-servicio.index')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-semibold">
                             📋 Ver Todas
                         </Link>

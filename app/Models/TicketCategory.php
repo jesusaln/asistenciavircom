@@ -21,6 +21,7 @@ class TicketCategory extends Model
         'orden',
         'activo',
         'consume_poliza',
+        'servicio_id',
     ];
 
     protected $casts = [
@@ -40,6 +41,11 @@ class TicketCategory extends Model
     public function articulos()
     {
         return $this->hasMany(KnowledgeBaseArticle::class, 'categoria_id');
+    }
+
+    public function servicio()
+    {
+        return $this->belongsTo(Servicio::class);
     }
 
     // Scopes

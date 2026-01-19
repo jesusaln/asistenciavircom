@@ -185,21 +185,66 @@
 
         <div class="signatures">
             <div class="sig-block" style="margin-right: 50px;">
+                @if($poliza->firma_empresa)
+                    <img src="{{ $poliza->firma_empresa }}"
+                        style="max-width: 200px; max-height: 80px; margin-bottom: 10px;">
+                @endif
                 <div class="sig-line">
                     POR EL PROVEEDOR<br>
                     {{ $empresa->nombre_empresa ?? 'REPRESENTANTE LEGAL' }}
                 </div>
             </div>
             <div class="sig-block">
+                @if($poliza->firma_cliente)
+                    <img src="{{ $poliza->firma_cliente }}"
+                        style="max-width: 200px; max-height: 80px; margin-bottom: 10px;">
+                    <div style="font-size: 9px; color: #64748b; margin-bottom: 5px;">
+                        Firmado digitalmente el {{ $poliza->firmado_at->format('d/m/Y H:i') }}
+                    </div>
+                @endif
                 <div class="sig-line">
                     POR EL CLIENTE<br>
-                    {{ $poliza->cliente->nombre_razon_social }}
+                    {{ $poliza->firmado_nombre ?? $poliza->cliente->nombre_razon_social }}
                 </div>
             </div>
         </div>
 
+        @if($poliza->firmado_at)
+            <div
+                style="margin-top: 30px; padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 9px;">
+                <div style="font-weight: bold; color: #0f172a; margin-bottom: 5px;">CERTIFICADO DE FIRMA DIGITAL</div>
+                <table style="width: 100%; font-size: 9px;">
+                    <tr>
+                        <td style="width: 120px; color: #64748b;">Firmante:</td>
+                        <td>{{ $poliza->firmado_nombre }}</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #64748b;">Fecha y Hora:</td>
+                        <td>{{ $poliza->firmado_at->format('d/m/Y H:i:s') }} (Hora de Mexico)</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #64748b;">Hash de Verificacion:</td>
+                        <td style="font-family: monospace; font-size: 8px;">{{ $poliza->firma_hash }}</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #64748b;">IP Origen:</td>
+                        <td>{{ $poliza->firmado_ip }}</td>
+                    </tr>
+                </table>
+                <div style="margin-top: 8px; color: #22c55e; font-weight: bold;">
+                    Este documento ha sido firmado electronicamente y tiene validez legal conforme al articulo 89 del Codigo
+                    de Comercio.
+                </div>
+            </div>
+        @else
+            <div
+                style="margin-top: 30px; padding: 15px; background: #fefce8; border: 1px solid #fef08a; border-radius: 8px; font-size: 9px; color: #a16207;">
+                Este documento aun no ha sido firmado por el cliente. La firma puede realizarse desde el Portal de Clientes.
+            </div>
+        @endif
+
         <div class="footer">
-            Documento generado electrónicamente - Folio {{ $poliza->folio }} - Página 1 de 1
+            Documento generado electronicamente - Folio {{ $poliza->folio }} - Pagina 1 de 1
         </div>
     </div>
 </body>

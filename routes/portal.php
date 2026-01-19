@@ -47,6 +47,11 @@ Route::prefix('portal')->group(function () {
         Route::get('/polizas/{poliza}/export-calendar', [PortalController::class, 'exportCalendar'])->name('portal.polizas.export-calendar');
         Route::post('/polizas/mantenimientos', [\App\Http\Controllers\ClientPortal\PortalMantenimientoController::class, 'store'])->name('portal.polizas.mantenimientos.store');
 
+        // Firma Digital de Contratos
+        Route::get('/polizas/{poliza}/firmar', [\App\Http\Controllers\ClientPortal\PortalFirmaController::class, 'show'])->name('portal.polizas.firmar');
+        Route::post('/polizas/{poliza}/firmar', [\App\Http\Controllers\ClientPortal\PortalFirmaController::class, 'store'])->name('portal.polizas.firmar.store');
+        Route::get('/polizas/{poliza}/verificar-firma', [\App\Http\Controllers\ClientPortal\PortalFirmaController::class, 'verificar'])->name('portal.polizas.verificar-firma');
+
         // Citas (Cliente)
         Route::get('/citas', [PortalController::class, 'citasIndex'])->name('portal.citas.index');
 

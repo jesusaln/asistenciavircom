@@ -138,16 +138,53 @@
             border: 1px solid #bfdbfe;
         }
 
-        .footer {
-            position: fixed;
-            bottom: 0;
-            left: 50px;
-            right: 40px;
+        .signatures-section {
+            margin-top: 50px;
+            width: 100%;
+        }
+
+        .signature-box {
+            display: table-cell;
+            width: 50%;
             text-align: center;
-            font-size: 9px;
-            color: #d1d5db;
-            padding-top: 10px;
-            border-top: 1px solid #f3f4f6;
+            padding: 20px;
+        }
+
+        .signature-line {
+            border-top: 1px solid #9ca3af;
+            margin-top: 10px;
+            padding-top: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .signature-img {
+            max-height: 80px;
+            max-width: 200px;
+            margin-bottom: 5px;
+        }
+
+        .no-signature {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed #d1d5db;
+            color: #9ca3af;
+            font-size: 10px;
+            font-style: italic;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            background: #f9fafb;
+        }
+
+        .digital-fingerprint {
+            font-family: monospace;
+            font-size: 7px;
+            color: #9ca3af;
+            word-break: break-all;
+            margin-top: 5px;
         }
 
         @media print {
@@ -362,7 +399,62 @@
         </div>
     </div>
 
-    <div class="footer">
+    <!-- Firmas -->
+    <div class="section signatures-section">
+        <div style="display: table; width: 100%;">
+            <div style="display: table-row;">
+                <!-- Firma Cliente -->
+                <div class="signature-box" style="padding-right: 20px;">
+                    <div class="label" style="text-align: center; margin-bottom: 10px;">POR EL CLIENTE</div>
+
+                    @if($poliza->firma_cliente)
+                        <img src="{{ $poliza->firma_cliente }}" class="signature-img" alt="Firma Cliente">
+                        <div class="signature-line">{{ $poliza->firmado_nombre ?? $cliente->nombre_razon_social }}</div>
+                        <div style="font-size: 8px; color: #6b7280; margin-top: 2px;">
+                            Firmado digitalmente el
+                            {{ \Carbon\Carbon::parse($poliza->firmado_at)->format('d/m/Y H:i') }}<br>
+                            IP: {{ $poliza->firmado_ip ?? 'N/A' }}
+                        </div>
+                        <div class="digital-fingerprint">HASH: {{ substr($poliza->firma_hash, 0, 32) }}</div>
+                    @else
+                        <div class="no-signature" style="line-height: 80px;">
+                            PENDIENTE DE FIRMA DEL CLIENTE
+                        </div>
+                        <div class="signature-line">{{ $cliente->nombre_razon_social }}</div>
+                        <div style="font-size: 8px; color: #ef4444; font-weight: bold; margin-top: 2px;">
+                            * Documento no válido sin firma digital
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Firma Empresa -->
+                <div class="signature-box" style="padding-left: 20px;">
+                    <div class="label" style="text-align: center; margin-bottom: 10px;">POR LA EMPRESA</div>
+
+                    @if($poliza->firma_empresa)
+                        <img src="{{ $poliza->firma_empresa }}" class="signature-img" alt="Firma Empresa">
+                        <div class="signature-line">
+                            {{ $empresa->nombre_empresa ?? $empresa->nombre_comercial ?? 'Dirección General' }}</div>
+                        <div style="font-size: 8px; color: #6b7280; margin-top: 2px;">
+                            Representante Autorizado<br>
+                            Fecha: {{ \Carbon\Carbon::parse($poliza->firma_empresa_at)->format('d/m/Y') }}
+                        </div>
+                    @else
+                        <div class="no-signature"
+                            style="line-height: 80px; border-style: solid; border-color: #f3f4f6; color: #e5e7eb;">
+                            REPRESENTANTE VIRCOM
+                        </div>
+                        <div class="signature-line">{{ $empresa->nombre_comercial ?? 'ASISTENCIA VIRCOM' }}</div>
+                        <div style="font-size: 8px; color: #9ca3af; margin-top: 2px;">
+                            Firma Electrónica Avanzada
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer" style="position: relative; margin-top: 50px; border-top: 1px solid #f3f4f6; padding-top: 10px;">
         Este documento es un contrato de adhesión digital válido bajo los términos de comercio electrónico vigentes.<br>
         Firma Digital de Validación: {{ md5($poliza->id . $poliza->created_at . 'vircom-secure') }}
     </div>

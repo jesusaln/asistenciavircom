@@ -99,7 +99,7 @@ class VircomBotService
         Tu misión es ser el brazo derecho de los clientes para:
         1. Agendar citas de mantenimiento y reparación.
         2. Consultar precios de servicios (minisplits, refrigeración, electricidad).
-        3. Verificar el estado de sus reparaciones.
+        3. Verificar el estado de sus reparaciones y saldo de pólizas de servicio.
 
         CONTEXTO ACTUAL: Hoy es $now.
         
@@ -179,6 +179,20 @@ class VircomBotService
                             'folio' => ['type' => 'string', 'description' => 'Número de folio (ej: TKT-123 o CITA-456)']
                         ],
                         'required' => ['folio']
+                    ]
+                ]
+            ],
+            [
+                'type' => 'function',
+                'function' => [
+                    'name' => 'consultar_saldo_poliza',
+                    'description' => 'Consulta las horas disponibles y vigencia de la póliza de servicio del cliente.',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'telefono' => ['type' => 'string', 'description' => 'Número de teléfono del cliente para buscar su póliza.']
+                        ],
+                        'required' => ['telefono']
                     ]
                 ]
             ]
@@ -275,6 +289,39 @@ class VircomBotService
                 }
 
                 return ['error' => 'No encontré ninguna reparación o cita con ese folio.'];
+
+            case 'consultar_saldo_poliza':
+                $telefono = $args['telefono'];
+                // Limpiar teléfono (quitar +, espacios, etc.)
+                $telefonoLimpio = preg_replace('/[^0-9]/', '', $telefono);
+
+                $cliente = Cliente::where('celular', 'ILIKE', "%$telefonoLimpio%")
+                    ->orWhere('telefono', 'ILIKE', "%$telefonoLimpio%")
+                    ->first();
+
+                if (!$cliente) {
+                    return ['error' => 'No encontré ningún cliente vinculado a este número de teléfono.'];
+                }
+
+                $poliza = \App\Models\PolizaServicio::where('cliente_id', $cliente->id)
+                    ->where('estado', 'activa')
+                    ->latest()
+                    ->first();
+
+                if (!$poliza) {
+                    return ['error' => 'El cliente no tiene una póliza de servicio activa actualmente.'];
+                }
+
+                return [
+                    'cliente' => $cliente->nombre_razon_social,
+                    'poliza_nombre' => $poliza->nombre,
+                    'folio' => $poliza->folio,
+                    'horas_incluidas' => $poliza->horas_incluidas_mensual,
+                    'horas_consumidas' => $poliza->horas_consumidas_mes,
+                    'horas_disponibles' => $poliza->horas_disponibles,
+                    'vigencia' => $poliza->fecha_fin ? $poliza->fecha_fin->format('d/m/Y') : 'Indefinida',
+                    'reinicio' => "El día {$poliza->dia_cobro} de cada mes"
+                ];
 
             default:
                 return ['error' => 'Herramienta no encontrada'];

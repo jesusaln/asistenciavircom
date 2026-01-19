@@ -80,7 +80,7 @@ class PolizaAlertasVencimiento extends Command
                 'cliente' => $cliente->nombre_razon_social,
                 'email' => $cliente->email,
                 'dias_restantes' => $diasRestantes,
-                'fecha_vencimiento' => $poliza->fecha_fin->format('d/m/Y'),
+                'fecha_vencimiento' => \Carbon\Carbon::parse($poliza->fecha_fin)->format('d/m/Y'),
             ]);
         }
 
@@ -92,7 +92,7 @@ class PolizaAlertasVencimiento extends Command
             Log::info("📱 WhatsApp: Alerta de vencimiento", [
                 'poliza' => $poliza->folio,
                 'telefono' => $telefono,
-                'mensaje' => "Su póliza de servicio {$poliza->nombre} vence en {$diasRestantes} días ({$poliza->fecha_fin->format('d/m/Y')}). Contacte con nosotros para renovar.",
+                'mensaje' => "Su póliza de servicio {$poliza->nombre} vence en {$diasRestantes} días (" . \Carbon\Carbon::parse($poliza->fecha_fin)->format('d/m/Y') . "). Contacte con nosotros para renovar.",
             ]);
         }
     }
@@ -131,6 +131,16 @@ class PolizaAlertasVencimiento extends Command
             $horasAntes = $poliza->horas_consumidas_mes;
 
             $poliza->resetearConsumoMensual();
+
+            // Generar cobro de la nueva mensualidad automáticamente
+            try {
+                if ($poliza->estado === 'activa' && $poliza->monto_mensual > 0) {
+                    $poliza->generarCobroMensual();
+                    Log::info("Cobro mensual automático generado para póliza {$poliza->folio}");
+                }
+            } catch (\Exception $e) {
+                Log::error("Error generando cobro mensual para póliza {$poliza->folio}: " . $e->getMessage());
+            }
 
             // También resetear flag de alerta de exceso
             $poliza->update(['ultima_alerta_exceso_at' => null]);

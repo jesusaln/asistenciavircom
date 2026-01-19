@@ -18,11 +18,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Enums\EstadoVenta;
+use App\Models\CuentasPorCobrar;
+use App\Models\Renta;
+use App\Models\Cita;
+use App\Models\Pedido;
 use Inertia\Inertia;
 
 class PortalController extends Controller
 {
-    private function getEmpresaBranding()
+    public function getEmpresaBranding()
     {
         $empresaId = EmpresaResolver::resolveId();
         $empresaModel = Empresa::find($empresaId);
@@ -44,105 +48,19 @@ class PortalController extends Controller
         $cliente = Auth::guard('client')->user();
 
         if (!$cliente->activo) {
-            return redirect()->route('catalogo.index')->with('warning', 'Aún no tienes autorización para acceder al Panel Completo. Nuestro equipo se comunicará contigo en breve para habilitar tu acceso. Mientras tanto, puedes explorar nuestro catálogo.');
+            return redirect()->route('catalogo.index')->with('warning', 'Aún no tienes autorización para acceder al Panel Completo.');
         }
 
-        $tickets = Ticket::where('cliente_id', $cliente->id)
-            ->with(['categoria', 'asignado:id,name'])
-            ->orderByDesc('created_at')
-            ->paginate(10);
-
-        $polizas = PolizaServicio::where('cliente_id', $cliente->id)
-            ->where('estado', '!=', 'cancelada')
-            ->with(['equipos']) // Cargamos los equipos vinculados
-            ->orderByDesc('created_at')
-            ->get()
-            ->each(function ($poliza) {
-                $poliza->append(['porcentaje_horas', 'porcentaje_tickets', 'dias_para_vencer', 'excede_horas', 'tickets_mes_actual_count']);
-            });
-
-        // Ventas pendientes de pago
-        $ventasPendientes = Venta::where('cliente_id', $cliente->id)
-            ->whereIn('estado', ['pendiente', 'vencida'])
-            ->orderBy('fecha')
-            ->get()
-            ->map(function ($venta) {
-                return [
-                    'id' => $venta->id,
-                    'tipo' => 'venta',
-                    'folio' => $venta->folio ?? $venta->numero_venta,
-                    'concepto' => 'Venta ' . ($venta->folio ?? $venta->numero_venta),
-                    'total' => $venta->total,
-                    'fecha' => $venta->fecha,
-                    'fecha_vencimiento' => $venta->fecha_vencimiento ?? $venta->fecha,
-                    'estado' => $venta->estado,
-                    'puede_pagar_credito' => true,
-                ];
-            });
-
-        // Cuentas por cobrar pendientes (pólizas, servicios, etc.)
-        $cxcPendientes = \App\Models\CuentasPorCobrar::where('cliente_id', $cliente->id)
-            ->whereIn('estado', ['pendiente', 'vencido'])
-            ->where('monto_pendiente', '>', 0)
-            ->orderBy('fecha_vencimiento')
-            ->get()
-            ->map(function ($cxc) {
-                $concepto = $cxc->notas ?? 'Cuenta por Cobrar';
-                if ($cxc->cobrable_type && $cxc->cobrable) {
-                    if (str_contains($cxc->cobrable_type, 'PolizaServicio')) {
-                        $concepto = 'Mensualidad Póliza ' . ($cxc->cobrable->folio ?? '');
-                    }
-                }
-                return [
-                    'id' => $cxc->id,
-                    'tipo' => 'cxc',
-                    'folio' => 'CXC-' . str_pad($cxc->id, 5, '0', STR_PAD_LEFT),
-                    'concepto' => $concepto,
-                    'total' => $cxc->monto_pendiente,
-                    'fecha' => $cxc->created_at,
-                    'fecha_vencimiento' => $cxc->fecha_vencimiento,
-                    'estado' => $cxc->estado,
-                    'puede_pagar_credito' => false, // Las CxC no se pagan con crédito desde portal
-                ];
-            });
-
-        // Combinar ambas listas
-        $pagosPendientes = $ventasPendientes->concat($cxcPendientes)
-            ->sortBy('fecha_vencimiento')
-            ->values();
-
-        $rentas = \App\Models\Renta::where('cliente_id', $cliente->id)
-            ->where('estado', 'activo')
-            ->with(['equipos'])
-            ->get();
-
-        $citas = \App\Models\Cita::where('cliente_id', $cliente->id)
-            ->where('fecha_hora', '>=', now())
-            ->orderBy('fecha_hora', 'asc')
-            ->with('tecnico:id,name')
-            ->take(3)
-            ->get();
-
         return Inertia::render('Portal/Dashboard', [
-            'tickets' => $tickets,
-            'polizas' => $polizas,
-            'pagosPendientes' => $pagosPendientes,
-            'rentas' => $rentas,
-            'citas' => $citas,
-            'pedidos' => \App\Models\Pedido::where('cliente_id', $cliente->id)->orderByDesc('created_at')->limit(10)->get(),
-            'ventas' => Venta::where('cliente_id', $cliente->id)->orderByDesc('fecha')->paginate(20)->withQueryString(), // Historial de ventas paginado
-            'credenciales' => $cliente->credenciales()->get()->map(function ($c) {
-                // No enviamos el password real al dashboard inicial, solo metadatos
-                return [
-                    'id' => $c->id,
-                    'nombre' => $c->nombre,
-                    'usuario' => $c->usuario,
-                    'host' => $c->host,
-                    'puerto' => $c->puerto,
-                    'notas' => $c->notas,
-                ];
-            }),
-            'cliente' => $cliente->only(
+            'tickets' => $this->getDashboardTickets($cliente),
+            'polizas' => $this->getDashboardPolizas($cliente),
+            'pagosPendientes' => $this->getDashboardPagosPendientes($cliente),
+            'rentas' => $this->getDashboardRentas($cliente),
+            'citas' => $this->getDashboardCitas($cliente),
+            'pedidos' => Pedido::where('cliente_id', $cliente->id)->orderByDesc('created_at')->limit(10)->get(),
+            'ventas' => Venta::where('cliente_id', $cliente->id)->orderByDesc('fecha')->paginate(20)->withQueryString(),
+            'credenciales' => $this->getDashboardCredenciales($cliente),
+            'cliente' => $cliente->only([
                 'id',
                 'nombre_razon_social',
                 'email',
@@ -166,14 +84,95 @@ class PortalController extends Controller
                 'saldo_pendiente',
                 'credito_disponible',
                 'tipo_persona'
-            ),
+            ]),
             'empresa' => $this->getEmpresaBranding(),
             'faqs' => LandingFaq::where('empresa_id', EmpresaResolver::resolveId())->where('activo', true)->orderBy('orden')->get(),
             'catalogos' => [
                 'regimenes' => \Illuminate\Support\Facades\Cache::remember('sat_regimenes_fiscales', 86400, fn() => \App\Models\SatRegimenFiscal::orderBy('clave')->get()),
                 'usos_cfdi' => \Illuminate\Support\Facades\Cache::remember('sat_usos_cfdi', 86400, fn() => \App\Models\SatUsoCfdi::orderBy('clave')->get()),
-                'estados' => \Illuminate\Support\Facades\Cache::remember('sat_estados_activos', 86400, fn() => \App\Models\SatEstado::where('activo', true)->orderBy('nombre')->get()),
+                'estados' => \Illuminate\Support\Facades\Cache::remember('sat_estados_activos', 10, fn() => \App\Models\SatEstado::where('activo', true)->orderBy('nombre')->get()),
             ]
+        ]);
+    }
+
+    private function getDashboardTickets($cliente)
+    {
+        return Ticket::where('cliente_id', $cliente->id)
+            ->with(['categoria', 'asignado:id,name'])
+            ->orderByDesc('created_at')
+            ->paginate(10);
+    }
+
+    private function getDashboardPolizas($cliente)
+    {
+        return PolizaServicio::where('cliente_id', $cliente->id)
+            ->where('estado', '!=', 'cancelada')
+            ->with(['equipos'])
+            ->orderByDesc('created_at')
+            ->get()
+            ->each(function ($poliza) {
+                $poliza->append(['porcentaje_horas', 'porcentaje_tickets', 'dias_para_vencer', 'excede_horas', 'tickets_mes_actual_count']);
+            });
+    }
+
+    private function getDashboardPagosPendientes($cliente)
+    {
+        $ventas = Venta::where('cliente_id', $cliente->id)
+            ->whereIn('estado', ['pendiente', 'vencida'])
+            ->orderBy('fecha')
+            ->get()
+            ->map(fn($v) => [
+                'id' => $v->id,
+                'tipo' => 'venta',
+                'folio' => $v->folio ?? $v->numero_venta,
+                'total' => $v->total,
+                'fecha_vencimiento' => $v->fecha_vencimiento ?? $v->fecha,
+                'estado' => $v->estado,
+            ]);
+
+        $cxc = CuentasPorCobrar::where('cliente_id', $cliente->id)
+            ->whereIn('estado', ['pendiente', 'vencido'])
+            ->where('monto_pendiente', '>', 0)
+            ->orderBy('fecha_vencimiento')
+            ->get()
+            ->map(fn($c) => [
+                'id' => $c->id,
+                'tipo' => 'cxc',
+                'folio' => 'CXC-' . str_pad($c->id, 5, '0', STR_PAD_LEFT),
+                'total' => $c->monto_pendiente,
+                'fecha_vencimiento' => $c->fecha_vencimiento,
+                'estado' => $c->estado,
+            ]);
+
+        return $ventas->concat($cxc)->sortBy('fecha_vencimiento')->values();
+    }
+
+    private function getDashboardRentas($cliente)
+    {
+        return Renta::where('cliente_id', $cliente->id)
+            ->where('estado', 'activo')
+            ->with(['equipos'])
+            ->get();
+    }
+
+    private function getDashboardCitas($cliente)
+    {
+        return Cita::where('cliente_id', $cliente->id)
+            ->where('fecha_hora', '>=', now())
+            ->orderBy('fecha_hora', 'asc')
+            ->with('tecnico:id,name')
+            ->take(3)
+            ->get();
+    }
+
+    private function getDashboardCredenciales($cliente)
+    {
+        return $cliente->credenciales()->get()->map(fn($c) => [
+            'id' => $c->id,
+            'nombre' => $c->nombre,
+            'usuario' => $c->usuario,
+            'host' => $c->host,
+            'puerto' => $c->puerto,
         ]);
     }
 
@@ -396,8 +395,21 @@ class PortalController extends Controller
 
         $poliza->append(['porcentaje_horas', 'porcentaje_tickets', 'dias_para_vencer', 'excede_horas', 'tickets_mes_actual_count']);
 
+        // Datos para gráfico de dona (Horas por Categoría)
+        $consumoPorCategoria = DB::table('tickets')
+            ->join('ticket_categories', 'tickets.categoria_id', '=', 'ticket_categories.id')
+            ->where('tickets.poliza_id', $poliza->id)
+            ->where('tickets.estado', '!=', 'cancelado') // Asumiendo que tickets cancelados no cuentan
+            ->whereMonth('tickets.created_at', now()->month)
+            ->whereYear('tickets.created_at', now()->year)
+            ->selectRaw('ticket_categories.nombre as categoria, SUM(COALESCE(tickets.horas_trabajadas, 0)) as total_horas')
+            ->groupBy('ticket_categories.nombre')
+            ->havingRaw('SUM(COALESCE(tickets.horas_trabajadas, 0)) > 0')
+            ->get();
+
         return Inertia::render('Portal/Polizas/Show', [
             'poliza' => $poliza,
+            'consumoPorCategoria' => $consumoPorCategoria,
             'ticketsMesActual' => $ticketsMesActual,
             'historicoConsumo' => $historicoConsumo,
             'empresa' => $this->getEmpresaBranding(),
@@ -495,7 +507,7 @@ class PortalController extends Controller
     public function pedidosIndex()
     {
         $cliente = Auth::guard('client')->user();
-        $pedidos = \App\Models\Pedido::where('cliente_id', $cliente->id)
+        $pedidos = Pedido::where('cliente_id', $cliente->id)
             ->orderByDesc('created_at')
             ->get();
 
@@ -507,7 +519,7 @@ class PortalController extends Controller
 
     public function pedidoShow($id)
     {
-        $pedido = \App\Models\Pedido::with(['items.pedible'])->findOrFail($id);
+        $pedido = Pedido::with(['items.pedible'])->findOrFail($id);
 
         if ($pedido->cliente_id !== Auth::guard('client')->id()) {
             abort(403);
@@ -542,7 +554,7 @@ class PortalController extends Controller
     public function citasIndex()
     {
         $cliente = Auth::guard('client')->user();
-        $citas = \App\Models\Cita::where('cliente_id', $cliente->id)
+        $citas = Cita::where('cliente_id', $cliente->id)
             ->with('tecnico:id,name')
             ->orderByDesc('fecha_hora')
             ->paginate(15);
@@ -739,7 +751,7 @@ class PortalController extends Controller
             $poliza->load(['cliente', 'servicios', 'equipos', 'planPoliza']);
 
             $empresaId = EmpresaResolver::resolveId();
-            $empresaConfig = \App\Models\EmpresaConfiguracion::getConfig($empresaId);
+            $empresaConfig = EmpresaConfiguracion::getConfig($empresaId);
 
             $pdf = $pdfService->loadView('pdf.poliza-beneficios', [
                 'poliza' => $poliza,

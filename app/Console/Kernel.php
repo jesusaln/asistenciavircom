@@ -33,6 +33,16 @@ class Kernel extends ConsoleKernel
             ->dailyAt('09:30')
             ->appendOutputTo(storage_path('logs/polizas_verificar_vencimientos.log'));
 
+        // Generar tickets de mantenimiento preventivo para pólizas
+        $schedule->command('polizas:generar-mantenimientos')
+            ->dailyAt('07:00')
+            ->appendOutputTo(storage_path('logs/polizas_mantenimientos.log'));
+
+        // Verificar SLAs de Tickets
+        $schedule->command('tickets:check-sla')
+            ->everyFifteenMinutes()
+            ->appendOutputTo(storage_path('logs/tickets_sla.log'));
+
         // Sincronizar stock de series automáticamente cada madrugada (02:00 AM)
         $schedule->command('productos:sync-series-stock --auto --notify')
             ->dailyAt('02:00')

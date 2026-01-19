@@ -115,8 +115,9 @@ class Ticket extends Model implements Auditable
                 // 1. Intentar obtener SLA de la póliza
                 if ($ticket->poliza_id) {
                     $poliza = PolizaServicio::find($ticket->poliza_id);
-                    if ($poliza && $poliza->sla_horas_respuesta) {
-                        $horasSla = $poliza->sla_horas_respuesta;
+                    if ($poliza) {
+                        // Priorizar resolución sobre respuesta para la fecha límite
+                        $horasSla = $poliza->sla_horas_resolucion ?: $poliza->sla_horas_respuesta;
                     }
                 }
 
@@ -129,7 +130,9 @@ class Ticket extends Model implements Auditable
                 }
 
                 if ($horasSla) {
-                    $ticket->fecha_limite = now()->addHours($horasSla);
+                    // Usar el nuevo SlaService para cálculo preciso en horario laboral
+                    $slaService = app(\App\Services\SlaService::class);
+                    $ticket->fecha_limite = $slaService->calculateDeadline(now(), (int) $horasSla);
                 }
             }
 
@@ -344,7 +347,11 @@ class Ticket extends Model implements Auditable
 
         $poliza = $this->poliza;
         if ($poliza && $poliza->isActiva()) {
-            $poliza->registrarConsumoHoras($horasARegistrar, $this);
+            // Intentamos obtener el servicio_id de la categoría del ticket
+            $servicioId = $this->categoria?->servicio_id;
+
+            // Usar el nuevo método profesional que maneja validaciones, excedentes y cobros extra
+            $poliza->consumirHoras($horasARegistrar, $servicioId, $this);
         }
     }
 

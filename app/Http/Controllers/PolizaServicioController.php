@@ -445,4 +445,20 @@ class PolizaServicioController extends Controller
             return back()->with('error', 'Error al enviar recordatorio: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Reporte de Rentabilidad de Pólizas
+     */
+    public function reporteRentabilidad()
+    {
+        $rentabilidadService = app(\App\Services\PolizaRentabilidadService::class);
+
+        $resumen = $rentabilidadService->getResumenEjecutivo();
+        $polizas = $rentabilidadService->getReporteGeneral();
+
+        return Inertia::render('PolizaServicio/ReporteRentabilidad', [
+            'resumen' => $resumen,
+            'polizas' => $polizas->values(),
+        ]);
+    }
 }

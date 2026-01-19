@@ -121,7 +121,7 @@ class PolizaServicio extends Model
         $oldFechaFin = $this->fecha_fin;
 
         // Extender fecha_fin si existe
-        $nuevaFechaFin = $this->fecha_fin ? $this->fecha_fin->addDays($diasPausa) : $this->fecha_fin;
+        $nuevaFechaFin = $this->fecha_fin ? \Carbon\Carbon::parse($this->fecha_fin)->addDays($diasPausa) : $this->fecha_fin;
 
         $this->update([
             'estado' => self::ESTADO_ACTIVA,
@@ -161,6 +161,8 @@ class PolizaServicio extends Model
         'notas',
         'ultimo_cobro_generado_at',
         'sla_horas_respuesta',
+        'sla_horas_resolucion',
+        'mantenimientos_anuales',
         // Fase 2 - Tracking de Horas
         'horas_incluidas_mensual',
         'horas_consumidas_mes',
@@ -185,6 +187,15 @@ class PolizaServicio extends Model
         'reanudada_at',
         'motivo_pausa',
         'total_dias_pausa',
+        // Firma Digital
+        'firma_cliente',
+        'firmado_at',
+        'firmado_ip',
+        'firma_hash',
+        'firmado_nombre',
+        'firma_empresa',
+        'firma_empresa_at',
+        'firma_empresa_usuario_id',
     ];
 
     protected $casts = [
@@ -210,6 +221,12 @@ class PolizaServicio extends Model
         'pausada_at' => 'datetime',
         'reanudada_at' => 'datetime',
         'total_dias_pausa' => 'integer',
+        'sla_horas_respuesta' => 'integer',
+        'sla_horas_resolucion' => 'integer',
+        'mantenimientos_anuales' => 'integer',
+        // Firma Digital
+        'firmado_at' => 'datetime',
+        'firma_empresa_at' => 'datetime',
     ];
 
     // NOTA: No usar $appends global para evitar N+1 queries.
@@ -449,6 +466,36 @@ class PolizaServicio extends Model
 
         // FASE 3 - Mejora 3.5: Auditar
         PolizaAuditLog::log($this, 'reset', $oldValues, ['horas' => 0, 'visitas' => 0, 'tickets' => 0]);
+    }
+
+    /**
+     * Generar el cobro de la mensualidad (CXC).
+     */
+    public function generarCobroMensual(): \App\Models\CuentasPorCobrar
+    {
+        $monto = $this->monto_mensual;
+        $iva = round($monto * 0.16, 2);
+
+        $concepto = "Mensualidad Póliza {$this->folio} - Periodo: " . now()->isoFormat('MMMM YYYY');
+
+        $cobro = \App\Models\CuentasPorCobrar::create([
+            'empresa_id' => $this->empresa_id,
+            'cliente_id' => $this->cliente_id,
+            'cobrable_type' => self::class,
+            'cobrable_id' => $this->id,
+            'concepto' => $concepto,
+            'monto_subtotal' => $monto,
+            'monto_iva' => $iva,
+            'monto_total' => $monto + $iva,
+            'estado' => 'pendiente',
+            'fecha_emision' => now(),
+            'fecha_vencimiento' => now()->addDays(15),
+            'notas' => "Generado automáticamente al inicio del ciclo.",
+        ]);
+
+        $this->update(['ultimo_cobro_generado_at' => now()]);
+
+        return $cobro;
     }
 
     /**
@@ -806,7 +853,7 @@ class PolizaServicio extends Model
         }
 
         $diasGracia = $this->dias_gracia ?? 5;
-        $fechaLimiteGracia = $this->fecha_fin->copy()->addDays($diasGracia);
+        $fechaLimiteGracia = \Carbon\Carbon::parse($this->fecha_fin)->addDays($diasGracia);
 
         return now()->lessThanOrEqualTo($fechaLimiteGracia);
     }
@@ -821,7 +868,7 @@ class PolizaServicio extends Model
         }
 
         $diasGracia = $this->dias_gracia ?? 5;
-        $fechaLimiteGracia = $this->fecha_fin->copy()->addDays($diasGracia);
+        $fechaLimiteGracia = \Carbon\Carbon::parse($this->fecha_fin)->addDays($diasGracia);
 
         if (now()->greaterThan($fechaLimiteGracia)) {
             return 0;
