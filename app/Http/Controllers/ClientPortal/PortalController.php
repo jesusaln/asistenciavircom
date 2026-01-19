@@ -548,4 +548,62 @@ class PortalController extends Controller
             return back()->with('error', 'No se pudo generar el documento. Intente más tarde.');
         }
     }
+    public function descargarBeneficiosPdf(PolizaServicio $poliza)
+    {
+        if ($poliza->cliente_id !== Auth::guard('client')->id()) {
+            abort(403);
+        }
+
+        try {
+            /** @var \App\Services\PdfGeneratorService $pdfService */
+            $pdfService = app(\App\Services\PdfGeneratorService::class);
+
+            $empresa = $this->getEmpresaBranding();
+
+            $pdf = $pdfService->loadView('portal.impresion.beneficios', [
+                'poliza' => $poliza,
+                'cliente' => $poliza->cliente,
+                'empresa' => $empresa
+            ]);
+
+            return $pdfService->download($pdf, 'beneficios-poliza-' . $poliza->id . '.pdf');
+        } catch (\Exception $e) {
+            Log::error('Error generando PDF beneficios: ' . $e->getMessage());
+            return back()->with('error', 'Error generando documento.');
+        }
+    }
+
+    public function descargarContratoPdf(PolizaServicio $poliza)
+    {
+        if ($poliza->cliente_id !== Auth::guard('client')->id()) {
+            abort(403);
+        }
+
+        try {
+            /** @var \App\Services\PdfGeneratorService $pdfService */
+            $pdfService = app(\App\Services\PdfGeneratorService::class);
+
+            // Usamos un helper para obtener config como objeto, ya que poliza.blade.php usa sintaxis de objeto ($empresa->nombre)
+            // Ojo: getEmpresaBranding devuelve array. poliza.blade.php usa $empresa->nombre_comercial
+            // Debo adaptar o pasar el objeto correcto.
+            $empresaId = EmpresaResolver::resolveId();
+            $empresaConfig = EmpresaConfiguracion::getConfig($empresaId);
+            $empresaModel = Empresa::find($empresaId); // Para datos fiscales
+
+            // Combinamos para que la vista tenga todo
+            // poliza.blade.php usa $logo (url) y $empresa (objeto)
+
+            $pdf = $pdfService->loadView('portal.impresion.poliza', [
+                'poliza' => $poliza,
+                'cliente' => $poliza->cliente,
+                'empresa' => $empresaConfig, // Objeto con propiedades
+                'logo' => $empresaConfig->logo_url
+            ]);
+
+            return $pdfService->download($pdf, 'contrato-poliza-' . $poliza->id . '.pdf');
+        } catch (\Exception $e) {
+            Log::error('Error generando PDF contrato: ' . $e->getMessage());
+            return back()->with('error', 'Error generando contrato.');
+        }
+    }
 }

@@ -40,6 +40,8 @@ Route::prefix('portal')->group(function () {
         Route::get('/polizas', [PortalController::class, 'polizasIndex'])->name('portal.polizas.index');
         Route::get('/polizas/{poliza}', [PortalController::class, 'polizaShow'])->name('portal.polizas.show');
         Route::get('/polizas/{poliza}/imprimir', [PortalController::class, 'imprimirContrato'])->name('portal.polizas.imprimir');
+        Route::get('/polizas/{poliza}/beneficios-pdf', [PortalController::class, 'descargarBeneficiosPdf'])->name('portal.polizas.beneficios.pdf');
+        Route::get('/polizas/{poliza}/contrato-pdf', [PortalController::class, 'descargarContratoPdf'])->name('portal.polizas.contrato.pdf');
         Route::post('/polizas/mantenimientos', [\App\Http\Controllers\ClientPortal\PortalMantenimientoController::class, 'store'])->name('portal.polizas.mantenimientos.store');
 
         // Citas (Cliente)

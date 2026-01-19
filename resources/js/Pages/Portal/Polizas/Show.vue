@@ -151,10 +151,14 @@ const enviarSolicitud = () => {
                         <h1 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">{{ poliza.nombre }}</h1>
                         <p class="text-gray-500 font-medium text-sm mt-1">Vence: <strong class="text-gray-700">{{ formatDate(poliza.fecha_fin) }}</strong></p>
                     </div>
-                    <div class="flex gap-3 flex-wrap">
-                        <a :href="route('portal.polizas.imprimir', poliza.id)" target="_blank" class="px-6 py-3 bg-white text-blue-600 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-50 transition-all border-2 border-blue-100 flex items-center gap-2">
+                    <div class="flex gap-2 flex-wrap">
+                        <a :href="route('portal.polizas.contrato.pdf', poliza.id)" target="_blank" class="px-4 py-3 bg-white text-slate-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all border-2 border-slate-100 flex items-center gap-2">
                             <font-awesome-icon icon="file-pdf" /> 
-                            <span>Beneficios y Contrato</span>
+                            <span>Contrato</span>
+                        </a>
+                        <a :href="route('portal.polizas.beneficios.pdf', poliza.id)" target="_blank" class="px-4 py-3 bg-emerald-50 text-emerald-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-100 transition-all border-2 border-emerald-100 flex items-center gap-2">
+                            <font-awesome-icon icon="chart-pie" /> 
+                            <span>Informe Ahorro</span>
                         </a>
                         <Link :href="route('portal.tickets.create', { poliza_id: poliza.id })" class="px-6 py-3 bg-blue-600 shadow-lg shadow-blue-200 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center gap-2">
                             <font-awesome-icon icon="life-ring" /> 
