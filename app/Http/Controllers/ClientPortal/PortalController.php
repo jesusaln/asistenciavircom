@@ -387,7 +387,7 @@ class PortalController extends Controller
             ->get();
 
         $historicoConsumo = $poliza->consumos()
-            ->selectRaw('YEAR(fecha_consumo) as year, MONTH(fecha_consumo) as month, tipo, SUM(cantidad) as total')
+            ->selectRaw('EXTRACT(YEAR FROM fecha_consumo) as year, EXTRACT(MONTH FROM fecha_consumo) as month, tipo, SUM(cantidad) as total')
             ->where('fecha_consumo', '>=', now()->subMonths(6))
             ->groupBy('year', 'month', 'tipo')
             ->orderBy('year')
