@@ -14,7 +14,7 @@ class PolizaServicioPDFController extends Controller
      */
     public function beneficios(PolizaServicio $polizaServicio)
     {
-        $polizaServicio->load(['cliente', 'servicios', 'equipos']);
+        $polizaServicio->load(['cliente', 'servicios', 'equipos', 'planPoliza']);
 
         $empresaId = EmpresaResolver::resolveId();
         $empresa = \App\Models\EmpresaConfiguracion::getConfig($empresaId);

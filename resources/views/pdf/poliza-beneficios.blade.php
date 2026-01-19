@@ -337,26 +337,63 @@
             @endforeach
         </div>
 
-        <!-- Servicios Incluidos -->
-        @if($poliza->servicios && count($poliza->servicios) > 0)
-            <div class="section-title-small">Servicios Incluidos</div>
-            <table>
-                <thead>
+        <!-- Análisis de Ahorro -->
+        <div class="section-title-small">Análisis de Ahorro y Valor de Mercado</div>
+        <table style="margin-bottom: 20px;">
+            <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th style="text-align: right;">P. Unitario</th>
+                    <th style="text-align: right;">Cant.</th>
+                    <th style="text-align: right;">Total Real</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php $totalValorReal = 0; @endphp
+                @foreach($poliza->servicios as $servicio)
+                    @php 
+                        $precioLista = $servicio->precio ?? 450;
+                        $subtotalReal = $precioLista * ($servicio->pivot->cantidad ?? 1);
+                        $totalValorReal += $subtotalReal;
+                    @endphp
                     <tr>
-                        <th>Servicio</th>
-                        <th style="text-align: right;">Cantidad Incluida</th>
+                        <td>{{ $servicio->nombre }}</td>
+                        <td style="text-align: right;">${{ number_format($precioLista, 2) }}</td>
+                        <td style="text-align: right;">{{ $servicio->pivot->cantidad ?? 1 }}</td>
+                        <td style="text-align: right; font-weight: bold;">${{ number_format($subtotalReal, 2) }}</td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach($poliza->servicios as $servicio)
-                        <tr>
-                            <td style="font-weight: bold;">{{ $servicio->nombre }}</td>
-                            <td style="text-align: right;">{{ $servicio->pivot->cantidad ?? 'Ilimitado' }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        @endif
+                @endforeach
+                @if($poliza->visitas_sitio_mensuales > 0)
+                    @php 
+                        $costoVisita = 850;
+                        $valorVisitas = $poliza->visitas_sitio_mensuales * $costoVisita;
+                        $totalValorReal += $valorVisitas;
+                    @endphp
+                    <tr>
+                        <td>Visitas Técnicas Presenciales</td>
+                        <td style="text-align: right;">${{ number_format($costoVisita, 2) }}</td>
+                        <td style="text-align: right;">{{ $poliza->visitas_sitio_mensuales }}</td>
+                        <td style="text-align: right; font-weight: bold;">${{ number_format($valorVisitas, 2) }}</td>
+                    </tr>
+                @endif
+            </tbody>
+        </table>
+
+        @php
+            $ahorro = max(0, $totalValorReal - $poliza->monto_mensual);
+            $porcentaje = $totalValorReal > 0 ? ($ahorro / $totalValorReal) * 100 : 0;
+        @endphp
+
+        <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; padding: 25px; color: white; text-align: center; margin-bottom: 30px;">
+            <div style="font-size: 10px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; opacity: 0.9;">Ahorro Mensual Estimado</div>
+            <div style="font-size: 32px; font-weight: bold; margin: 10px 0;">${{ number_format($ahorro, 2) }} MXN</div>
+            <div style="display: inline-block; background: rgba(255, 255, 255, 0.2); padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;">
+                EQUIVALE A UN {{ round($porcentaje) }}% DE DESCUENTO
+            </div>
+            <p style="margin-top: 15px; font-size: 11px; opacity: 0.9;">
+                Su inversión eficiente de <strong>${{ number_format($poliza->monto_mensual, 2) }}</strong> asegura la continuidad de su negocio.
+            </p>
+        </div>
 
         <!-- Detalles Técnicos -->
         <div class="section-title-small">Detalles de la Cobertura</div>
