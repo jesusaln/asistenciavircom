@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Modal from '@/Components/Modal.vue';
@@ -12,6 +12,10 @@ const props = defineProps({
     clientes: Array,
     servicios: Array,
     equipos: Array,
+    planes: {
+        type: Array,
+        default: () => []
+    },
 });
 
 const isEditing = computed(() => !!props.poliza);
@@ -105,6 +109,37 @@ const submit = () => {
     }
 };
 
+const selectedPlanId = ref('');
+
+watch(selectedPlanId, (newId) => {
+    if (!newId) return;
+    
+    const plan = props.planes.find(p => p.id === newId);
+    if (plan) {
+        // Autofill form with plan details
+        form.nombre = plan.nombre;
+        form.monto_mensual = plan.precio_mensual;
+        form.descripcion = plan.descripcion || '';
+        form.limite_mensual_tickets = plan.tickets_incluidos || '';
+        form.sla_horas_respuesta = plan.sla_horas_respuesta || '';
+        form.horas_incluidas_mensual = plan.horas_incluidas || '';
+        form.costo_hora_excedente = plan.costo_hora_extra || '';
+        
+        // Mantenimiento
+        form.mantenimiento_frecuencia_meses = plan.mantenimiento_frecuencia_meses || '';
+        form.mantenimiento_dias_anticipacion = plan.mantenimiento_dias_anticipacion || 7;
+        form.generar_cita_automatica = plan.generar_cita_automatica ? true : false;
+        
+        // Visitas
+        form.visitas_sitio_mensuales = plan.visitas_sitio_mensuales || '';
+        form.costo_visita_sitio_extra = plan.costo_visita_sitio_extra || '';
+        
+        // Configuración adicional
+        form.renovacion_automatica = true;
+        form.notificar_exceso_limite = true;
+    }
+});
+
 const helpSections = [
     {
         title: 'Información General',
@@ -184,6 +219,23 @@ const helpSections = [
                                 </h2>
                             </div>
                             <div class="p-8 space-y-5">
+                                <!-- Selector de Plan (Solo si hay planes disponibles) -->
+                                <div v-if="planes && planes.length > 0" class="md:col-span-2 bg-blue-50/50 p-4 rounded-xl border border-blue-100 mb-2">
+                                    <label class="block text-xs font-black text-blue-600 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                        <font-awesome-icon icon="wand-magic-sparkles" />
+                                        Cargar desde Plantilla (Plan)
+                                    </label>
+                                    <select v-model="selectedPlanId" class="w-full border-blue-200 rounded-xl h-11 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold text-gray-700">
+                                        <option value="">-- Seleccionar un Plan para autocompletar --</option>
+                                        <option v-for="plan in planes" :key="plan.id" :value="plan.id">
+                                            {{ plan.nombre }} ({{ plan.tipo_label }}) - ${{ plan.precio_mensual }}
+                                        </option>
+                                    </select>
+                                    <p class="text-[10px] text-blue-500 mt-2 font-medium">
+                                        💡 Al seleccionar un plan, se llenarán automáticamente los costos, límites y condiciones.
+                                    </p>
+                                </div>
+                                
                                 <div class="md:col-span-2">
                                     <BuscarCliente
                                         :clientes="clientes"

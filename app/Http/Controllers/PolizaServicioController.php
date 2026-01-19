@@ -6,6 +6,7 @@ use App\Models\PolizaServicio;
 use App\Models\Cliente;
 use App\Models\Servicio;
 use App\Models\Equipo;
+use App\Models\PlanPoliza;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -51,6 +52,7 @@ class PolizaServicioController extends Controller
         return Inertia::render('PolizaServicio/Edit', [
             'clientes' => Cliente::activos()->get(['id', 'nombre_razon_social', 'email', 'telefono', 'rfc']),
             'servicios' => Servicio::select('id', 'nombre', 'precio')->active()->get(),
+            'planes' => PlanPoliza::activos()->ordenado()->get(),
             'poliza' => null,
         ]);
     }
@@ -181,6 +183,7 @@ class PolizaServicioController extends Controller
         return Inertia::render('PolizaServicio/Edit', [
             'clientes' => $clientesList,
             'servicios' => Servicio::select('id', 'nombre', 'precio')->active()->get(),
+            'planes' => PlanPoliza::activos()->ordenado()->get(),
             'poliza' => $polizas_servicio,
             'clientePoliza' => $polizas_servicio->cliente ? $polizas_servicio->cliente->toArray() : null,
         ]);
@@ -308,10 +311,12 @@ class PolizaServicioController extends Controller
 
         // Pre-cargar el conteo de tickets del mes actual para evitar N+1
         $polizasActivas = PolizaServicio::activa()
-            ->withCount(['tickets' => function ($query) {
-                $query->whereMonth('created_at', now()->month)
-                      ->whereYear('created_at', now()->year);
-            }])
+            ->withCount([
+                'tickets' => function ($query) {
+                    $query->whereMonth('created_at', now()->month)
+                        ->whereYear('created_at', now()->year);
+                }
+            ])
             ->get();
 
         // Estadísticas generales mejoradas
