@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Póliza de Servicio {{ $poliza->folio }} - Beneficios</title>
     <style>
         * {
@@ -12,324 +12,263 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 12px;
-            color: #333;
+            font-family: 'DejaVu Sans', sans-serif;
+            font-size: 11px;
+            color: #334155;
+            line-height: 1.5;
             background: #fff;
         }
 
         .container {
-            padding: 30px;
-            max-width: 800px;
-            margin: 0 auto;
+            padding: 40px;
         }
 
         /* Header */
         .header {
-            border-bottom: 3px solid #3B82F6;
+            border-bottom: 3px solid #3b82f6;
             padding-bottom: 20px;
             margin-bottom: 30px;
         }
 
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
         .company-info h1 {
-            color: #1E40AF;
-            font-size: 24px;
+            color: #1e40af;
+            font-size: 22px;
             margin-bottom: 5px;
+            font-weight: bold;
         }
 
         .company-info p {
-            color: #666;
-            font-size: 11px;
-            line-height: 1.5;
+            color: #64748b;
+            font-size: 10px;
+            line-height: 1.4;
         }
 
         .poliza-info {
             text-align: right;
+            position: absolute;
+            top: 40px;
+            right: 40px;
         }
 
         .poliza-info .titulo {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
-            color: #1E40AF;
-            margin-bottom: 5px;
+            color: #1e40af;
         }
 
         .poliza-info .folio {
-            font-size: 16px;
-            color: #3B82F6;
-            font-family: monospace;
+            font-size: 18px;
+            color: #3b82f6;
+            font-weight: bold;
+            margin: 5px 0;
         }
 
         .poliza-info .fecha {
-            color: #666;
-            font-size: 10px;
-            margin-top: 5px;
+            color: #94a3b8;
+            font-size: 9px;
         }
 
         /* Cliente Info */
         .cliente-section {
-            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
-            border-radius: 10px;
+            background: #f8fafc;
+            border-radius: 12px;
             padding: 20px;
             margin-bottom: 25px;
+            border: 1px solid #e2e8f0;
         }
 
         .cliente-section h3 {
-            color: #1E40AF;
-            font-size: 14px;
-            margin-bottom: 10px;
+            color: #64748b;
+            font-size: 10px;
+            margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 1px;
+            font-weight: bold;
         }
 
         .cliente-nombre {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
-            color: #333;
+            color: #0f172a;
         }
 
         .cliente-detalle {
-            color: #666;
-            font-size: 11px;
-            margin-top: 5px;
+            color: #64748b;
+            font-size: 10px;
+            margin-top: 4px;
         }
 
-        /* Poliza Detalles */
-        .poliza-detalles {
-            background: #FAFAFA;
-            border: 1px solid #E5E7EB;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-
-        .poliza-detalles h3 {
-            color: #333;
-            font-size: 14px;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #E5E7EB;
-        }
-
-        .detalle-grid {
-            display: table;
-            width: 100%;
-        }
-
-        .detalle-row {
-            display: table-row;
-        }
-
-        .detalle-label {
-            display: table-cell;
-            color: #666;
-            padding: 8px 0;
-            width: 180px;
-            font-size: 11px;
-        }
-
-        .detalle-value {
-            display: table-cell;
-            color: #333;
-            font-weight: 600;
-            padding: 8px 0;
-        }
-
-        /* Beneficios Section */
-        .beneficios-section {
+        /* Vigencia */
+        .vigencia-section {
+            background: #1e40af;
+            color: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
             margin-bottom: 30px;
         }
 
+        .vigencia-section h3 {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            opacity: 0.9;
+        }
+
+        .vigencia-fechas {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .vigencia-monto {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .vigencia-monto-label {
+            font-size: 10px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .vigencia-monto-valor {
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        /* Beneficios */
         .beneficios-section h2 {
-            color: #1E40AF;
-            font-size: 18px;
+            color: #0f172a;
+            font-size: 16px;
             margin-bottom: 20px;
             text-align: center;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
+            font-weight: bold;
         }
 
         .beneficio-card {
             background: #fff;
-            border: 1px solid #E5E7EB;
-            border-left: 4px solid #3B82F6;
+            border: 1px solid #e2e8f0;
+            border-left: 5px solid #3b82f6;
             border-radius: 8px;
-            padding: 15px 20px;
+            padding: 16px 20px;
             margin-bottom: 12px;
         }
 
         .beneficio-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
-        .beneficio-icono {
-            font-size: 20px;
-            margin-right: 10px;
+        .beneficio-icono-circle {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: #3b82f6;
+            border-radius: 50%;
+            margin-right: 12px;
         }
 
         .beneficio-titulo {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
-            color: #333;
+            color: #1e293b;
         }
 
         .beneficio-descripcion {
-            color: #666;
-            font-size: 11px;
-            margin-left: 30px;
-            line-height: 1.5;
+            color: #64748b;
+            font-size: 10px;
+            margin-left: 26px;
         }
 
-        /* Equipos Cubiertos */
-        .equipos-section {
-            background: #F0FDF4;
-            border: 1px solid #10B981;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-
-        .equipos-section h3 {
-            color: #047857;
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
-
-        .equipo-item {
-            background: #fff;
-            border-radius: 5px;
-            padding: 10px 15px;
-            margin-bottom: 8px;
-            font-size: 11px;
-        }
-
-        .equipo-nombre {
+        /* Servicios e Info */
+        .section-title-small {
+            color: #0f172a;
+            font-size: 12px;
             font-weight: bold;
-            color: #333;
-        }
-
-        .equipo-serie {
-            color: #666;
-            font-family: monospace;
-        }
-
-        /* Servicios Incluidos */
-        .servicios-section {
-            margin-bottom: 25px;
-        }
-
-        .servicios-section h3 {
-            color: #333;
-            font-size: 14px;
             margin-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 8px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 30px;
         }
 
         th {
-            background: #1E40AF;
-            color: #fff;
-            padding: 10px 12px;
+            background: #f1f5f9;
+            color: #475569;
+            padding: 12px;
             text-align: left;
-            font-size: 10px;
+            font-size: 9px;
             text-transform: uppercase;
+            font-weight: bold;
         }
 
         td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #e0e0e0;
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
             font-size: 11px;
         }
 
-        tr:nth-child(even) {
-            background: #f9f9f9;
+        .detalle-row {
+            padding: 8px 0;
+            border-bottom: 1px solid #f8fafc;
         }
 
-        /* Vigencia */
-        .vigencia-section {
-            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
-            color: #fff;
-            border-radius: 10px;
+        .detalle-label {
+            color: #64748b;
+            font-weight: normal;
+        }
+
+        .detalle-value {
+            color: #1e293b;
+            font-weight: bold;
+            text-align: right;
+            float: right;
+        }
+
+        /* Contacto */
+        .contacto-section {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 12px;
             padding: 20px;
             text-align: center;
-            margin-bottom: 25px;
+            margin-top: 30px;
         }
 
-        .vigencia-section h3 {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-            opacity: 0.8;
-        }
-
-        .vigencia-fechas {
-            font-size: 18px;
+        .contacto-section h3 {
+            color: #9a3412;
+            font-size: 14px;
+            margin-bottom: 8px;
             font-weight: bold;
         }
 
-        .vigencia-monto {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .vigencia-monto-label {
+        .contacto-section p {
+            color: #c2410c;
             font-size: 11px;
-            opacity: 0.8;
+            margin-bottom: 12px;
         }
 
-        .vigencia-monto-valor {
-            font-size: 28px;
+        .contacto-datos {
             font-weight: bold;
+            color: #1e293b;
+            font-size: 12px;
         }
 
         /* Footer */
         .footer {
             margin-top: 40px;
             padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
+            border-top: 1px solid #f1f5f9;
             text-align: center;
-            color: #999;
-            font-size: 10px;
-        }
-
-        /* Contacto */
-        .contacto-section {
-            background: #FEF3C7;
-            border: 1px solid #F59E0B;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .contacto-section h3 {
-            color: #B45309;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-
-        .contacto-section p {
-            color: #92400E;
-            font-size: 12px;
-        }
-
-        .contacto-datos {
-            margin-top: 10px;
-            font-weight: bold;
-            color: #333;
+            color: #94a3b8;
+            font-size: 9px;
         }
     </style>
 </head>
@@ -338,26 +277,24 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="header-top">
-                <div class="company-info">
-                    <h1>{{ $empresa->nombre ?? 'Nuestra Empresa' }}</h1>
-                    <p>
-                        {{ $empresa->direccion ?? '' }}<br>
-                        Tel: {{ $empresa->telefono ?? '' }}<br>
-                        {{ $empresa->email ?? '' }}
-                    </p>
-                </div>
-                <div class="poliza-info">
-                    <div class="titulo">PÓLIZA DE SERVICIO</div>
-                    <div class="folio">{{ $poliza->folio }}</div>
-                    <div class="fecha">Generado: {{ $fecha_generacion }}</div>
-                </div>
+            <div class="company-info">
+                <h1>{{ $empresa->nombre_empresa ?? 'Vircom' }}</h1>
+                <p>
+                    {{ $empresa->direccion_completa ?? '' }}<br>
+                    Tel: {{ $empresa->telefono ?? '' }}<br>
+                    {{ $empresa->email ?? '' }}
+                </p>
+            </div>
+            <div class="poliza-info">
+                <div class="titulo">PÓLIZA DE SERVICIO</div>
+                <div class="folio">{{ $poliza->folio }}</div>
+                <div class="fecha">Generado: {{ $fecha_generacion }}</div>
             </div>
         </div>
 
         <!-- Cliente Info -->
         <div class="cliente-section">
-            <h3>Cliente Beneficiario</h3>
+            <h3>CLIENTE BENEFICIARIO</h3>
             <div class="cliente-nombre">{{ $poliza->cliente->nombre_razon_social ?? 'N/A' }}</div>
             @if($poliza->cliente?->email || $poliza->cliente?->telefono)
                 <div class="cliente-detalle">
@@ -387,12 +324,12 @@
 
         <!-- Beneficios -->
         <div class="beneficios-section">
-            <h2>✨ Beneficios de tu Póliza</h2>
+            <h2>Beneficios de tu Póliza</h2>
 
             @foreach($beneficios as $beneficio)
                 <div class="beneficio-card">
                     <div class="beneficio-header">
-                        <span class="beneficio-icono">{{ $beneficio['icono'] }}</span>
+                        <span class="beneficio-icono-circle"></span>
                         <span class="beneficio-titulo">{{ $beneficio['titulo'] }}</span>
                     </div>
                     <div class="beneficio-descripcion">{{ $beneficio['descripcion'] }}</div>
@@ -400,76 +337,57 @@
             @endforeach
         </div>
 
-        <!-- Equipos Cubiertos -->
-        @if($poliza->equipos && count($poliza->equipos) > 0)
-            <div class="equipos-section">
-                <h3>🔧 Equipos Cubiertos por esta Póliza</h3>
-                @foreach($poliza->equipos as $equipo)
-                    <div class="equipo-item">
-                        <span class="equipo-nombre">{{ $equipo->nombre }}</span>
-                        @if($equipo->serie)
-                            <span class="equipo-serie"> | S/N: {{ $equipo->serie }}</span>
-                        @endif
-                    </div>
-                @endforeach
-            </div>
-        @endif
-
         <!-- Servicios Incluidos -->
         @if($poliza->servicios && count($poliza->servicios) > 0)
-            <div class="servicios-section">
-                <h3>📋 Servicios Incluidos</h3>
-                <table>
-                    <thead>
+            <div class="section-title-small">Servicios Incluidos</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Servicio</th>
+                        <th style="text-align: right;">Cantidad Incluida</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($poliza->servicios as $servicio)
                         <tr>
-                            <th>Servicio</th>
-                            <th>Cantidad Incluida</th>
+                            <td style="font-weight: bold;">{{ $servicio->nombre }}</td>
+                            <td style="text-align: right;">{{ $servicio->pivot->cantidad ?? 'Ilimitado' }}</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($poliza->servicios as $servicio)
-                            <tr>
-                                <td>{{ $servicio->nombre }}</td>
-                                <td>{{ $servicio->pivot->cantidad ?? 'Ilimitado' }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                    @endforeach
+                </tbody>
+            </table>
         @endif
 
         <!-- Detalles Técnicos -->
-        <div class="poliza-detalles">
-            <h3>📊 Detalles de la Cobertura</h3>
-            <div class="detalle-grid">
-                @if($poliza->sla_horas_respuesta)
-                    <div class="detalle-row">
-                        <span class="detalle-label">Tiempo de Respuesta (SLA):</span>
-                        <span class="detalle-value">{{ $poliza->sla_horas_respuesta }} horas</span>
-                    </div>
-                @endif
-                @if($poliza->horas_incluidas_mensual)
-                    <div class="detalle-row">
-                        <span class="detalle-label">Horas Incluidas/Mes:</span>
-                        <span class="detalle-value">{{ $poliza->horas_incluidas_mensual }} horas</span>
-                    </div>
-                @endif
-                @if($poliza->limite_mensual_tickets)
-                    <div class="detalle-row">
-                        <span class="detalle-label">Tickets Incluidos/Mes:</span>
-                        <span class="detalle-value">{{ $poliza->limite_mensual_tickets }} solicitudes</span>
-                    </div>
-                @endif
-                @if($poliza->costo_hora_excedente)
-                    <div class="detalle-row">
-                        <span class="detalle-label">Costo Hora Adicional:</span>
-                        <span class="detalle-value">${{ number_format($poliza->costo_hora_excedente, 2) }} MXN</span>
-                    </div>
-                @endif
+        <div class="section-title-small">Detalles de la Cobertura</div>
+        <div style="margin-bottom: 30px;">
+            @if($poliza->sla_horas_respuesta)
                 <div class="detalle-row">
-                    <span class="detalle-label">Día de Facturación:</span>
-                    <span class="detalle-value">Día {{ $poliza->dia_cobro }} de cada mes</span>
+                    <span class="detalle-label">Tiempo de Respuesta (SLA):</span>
+                    <span class="detalle-value">{{ $poliza->sla_horas_respuesta }} horas</span>
                 </div>
+            @endif
+            @if($poliza->horas_incluidas_mensual)
+                <div class="detalle-row">
+                    <span class="detalle-label">Horas Incluidas/Mes:</span>
+                    <span class="detalle-value">{{ $poliza->horas_incluidas_mensual }} horas</span>
+                </div>
+            @endif
+            @if($poliza->limite_mensual_tickets)
+                <div class="detalle-row">
+                    <span class="detalle-label">Tickets Incluidos/Mes:</span>
+                    <span class="detalle-value">{{ $poliza->limite_mensual_tickets }} solicitudes</span>
+                </div>
+            @endif
+            @if($poliza->costo_hora_excedente)
+                <div class="detalle-row">
+                    <span class="detalle-label">Costo Hora Adicional:</span>
+                    <span class="detalle-value">${{ number_format($poliza->costo_hora_excedente, 2) }} MXN</span>
+                </div>
+            @endif
+            <div class="detalle-row">
+                <span class="detalle-label">Día de Facturación:</span>
+                <span class="detalle-value">Día {{ $poliza->dia_cobro }} de cada mes</span>
             </div>
         </div>
 
@@ -478,14 +396,14 @@
             <h3>¿Necesitas ayuda?</h3>
             <p>Estamos disponibles para atenderte y resolver cualquier duda sobre tu póliza.</p>
             <div class="contacto-datos">
-                📞 {{ $empresa->telefono ?? 'N/A' }} | ✉️ {{ $empresa->email ?? 'N/A' }}
+                Tel: {{ $empresa->telefono ?? 'N/A' }} | Email: {{ $empresa->email ?? 'N/A' }}
             </div>
         </div>
 
         <!-- Footer -->
         <div class="footer">
             <p>Este documento es informativo y forma parte de tu contrato de servicios.</p>
-            <p>{{ $empresa->nombre ?? 'Nuestra Empresa' }} - Documento generado el {{ $fecha_generacion }}</p>
+            <p>{{ $empresa->nombre_empresa ?? 'Vircom' }} - Documento generado el {{ $fecha_generacion }}</p>
         </div>
     </div>
 </body>

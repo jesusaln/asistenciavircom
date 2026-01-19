@@ -96,22 +96,37 @@ class PolizaServicioPDFController extends Controller
      */
     protected function getBeneficiosList(PolizaServicio $poliza): array
     {
-        $beneficios = [
-            [
-                'icono' => '🛡️',
+        $beneficios = [];
+
+        // 1. Priorizar beneficios definidos en el plan (los que ve en el portal)
+        if ($poliza->planPoliza && !empty($poliza->planPoliza->beneficios)) {
+            foreach ($poliza->planPoliza->beneficios as $texto) {
+                $beneficios[] = [
+                    'icono' => 'check',
+                    'titulo' => $texto,
+                    'descripcion' => '', // Opcional, o sacar de una lógica de mapeo
+                ];
+            }
+        }
+
+        // 2. Si no hay beneficios definidos, o para complementar, generar los dinámicos
+        if (empty($beneficios)) {
+            $beneficios[] = [
+                'icono' => 'check',
                 'titulo' => 'Cobertura de Servicio Garantizada',
                 'descripcion' => 'Su equipo está protegido bajo nuestra póliza de mantenimiento integral.',
-            ],
-            [
-                'icono' => '⚡',
+            ];
+            $beneficios[] = [
+                'icono' => 'star',
                 'titulo' => 'Atención Prioritaria',
                 'descripcion' => 'Sus solicitudes de soporte tienen prioridad sobre clientes sin póliza.',
-            ],
-        ];
+            ];
+        }
 
+        // 3. Agregar beneficios específicos por métricas (SLA, Horas, Tickets)
         if ($poliza->sla_horas_respuesta) {
             $beneficios[] = [
-                'icono' => '⏰',
+                'icono' => 'clock',
                 'titulo' => "SLA Garantizado de {$poliza->sla_horas_respuesta} horas",
                 'descripcion' => 'Tiempo máximo de respuesta garantizado para atender sus solicitudes.',
             ];
@@ -119,7 +134,7 @@ class PolizaServicioPDFController extends Controller
 
         if ($poliza->horas_incluidas_mensual) {
             $beneficios[] = [
-                'icono' => '🕐',
+                'icono' => 'hour',
                 'titulo' => "{$poliza->horas_incluidas_mensual} Horas de Servicio Incluidas",
                 'descripcion' => 'Horas mensuales de soporte técnico sin costo adicional.',
             ];
@@ -127,27 +142,35 @@ class PolizaServicioPDFController extends Controller
 
         if ($poliza->limite_mensual_tickets) {
             $beneficios[] = [
-                'icono' => '🎫',
+                'icono' => 'ticket',
                 'titulo' => "Hasta {$poliza->limite_mensual_tickets} Tickets Mensuales",
                 'descripcion' => 'Solicitudes de servicio incluidas en su plan mensual.',
             ];
         }
 
         $beneficios[] = [
-            'icono' => '💰',
+            'icono' => 'money',
             'titulo' => 'Precios Preferenciales',
             'descripcion' => 'Descuentos exclusivos en refacciones, consumibles y servicios adicionales.',
         ];
 
-        $beneficios[] = [
-            'icono' => '📊',
-            'titulo' => 'Reportes de Consumo',
-            'descripcion' => 'Acceso a reportes detallados de uso de servicios y horas consumidas.',
-        ];
+        // Solo agregar si no estaba ya
+        $hasChart = false;
+        foreach ($beneficios as $b) {
+            if ($b['icono'] == 'chart')
+                $hasChart = true;
+        }
+        if (!$hasChart) {
+            $beneficios[] = [
+                'icono' => 'chart',
+                'titulo' => 'Reportes de Consumo',
+                'descripcion' => 'Acceso a reportes detallados de uso de servicios y horas consumidas.',
+            ];
+        }
 
         if ($poliza->renovacion_automatica) {
             $beneficios[] = [
-                'icono' => '🔄',
+                'icono' => 'sync',
                 'titulo' => 'Renovación Automática',
                 'descripcion' => 'Su póliza se renueva automáticamente para garantizar continuidad del servicio.',
             ];

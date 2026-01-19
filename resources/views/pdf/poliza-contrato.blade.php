@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Contrato de Servicio {{ $poliza->folio }}</title>
     <style>
         * {
@@ -12,32 +12,35 @@
         }
 
         body {
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 12px;
-            color: #000;
+            font-family: 'DejaVu Sans', sans-serif;
+            font-size: 11px;
+            color: #1e293b;
             background: #fff;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
         .container {
-            padding: 40px;
-            max-width: 800px;
-            margin: 0 auto;
+            padding: 50px;
         }
 
         h1 {
             text-align: center;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             text-transform: uppercase;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            color: #0f172a;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
         }
 
         h2 {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
-            margin-top: 20px;
-            margin-bottom: 10px;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            color: #0f172a;
         }
 
         p {
@@ -47,65 +50,56 @@
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 1px solid #000;
+            margin-bottom: 40px;
             padding-bottom: 20px;
         }
 
         .info-table {
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             border-collapse: collapse;
         }
 
         .info-table td {
-            padding: 5px;
+            padding: 8px;
             vertical-align: top;
+            border-bottom: 1px solid #f1f5f9;
         }
 
         .info-label {
             font-weight: bold;
-            width: 150px;
-        }
-
-        .clause {
-            margin-bottom: 10px;
-        }
-
-        .clause-title {
-            font-weight: bold;
-            display: block;
+            width: 180px;
+            color: #64748b;
         }
 
         .signatures {
-            margin-top: 60px;
-            display: table;
+            margin-top: 80px;
             width: 100%;
             page-break-inside: avoid;
         }
 
         .sig-block {
-            display: table-cell;
-            width: 50%;
+            display: inline-block;
+            width: 45%;
             text-align: center;
-            padding: 0 20px;
         }
 
         .sig-line {
             border-top: 1px solid #000;
-            margin-top: 40px;
-            padding-top: 5px;
+            margin-top: 50px;
+            padding-top: 8px;
             font-weight: bold;
+            font-size: 10px;
         }
 
         .footer {
             position: fixed;
-            bottom: 20px;
+            bottom: 30px;
             left: 0;
             right: 0;
             text-align: center;
-            font-size: 10px;
-            color: #666;
+            font-size: 9px;
+            color: #94a3b8;
         }
     </style>
 </head>
@@ -113,17 +107,19 @@
 <body>
     <div class="container">
         <div class="header">
-            <b>{{ $empresa->nombre ?? 'LA EMPRESA' }}</b><br>
-            {{ $empresa->direccion ?? '' }}<br>
-            RFC: {{ $empresa->rfc ?? 'N/A' }}
+            <b style="font-size: 16px; color: #0f172a;">{{ $empresa->nombre_empresa ?? 'LA EMPRESA' }}</b><br>
+            <span style="color: #64748b;">
+                {{ $empresa->direccion_completa ?? '' }}<br>
+                RFC: {{ $empresa->rfc ?? 'N/A' }}
+            </span>
         </div>
 
         <h1>CONTRATO DE PRESTACIÓN DE SERVICIOS DE MANTENIMIENTO Y SOPORTE TÉCNICO</h1>
 
         <p>
-            En la ciudad de {{ $empresa->municipio ?? 'Hermosillo' }}, a {{ now()->day }} de
-            {{ now()->locale('es')->monthName }} del {{ now()->year }}, comparecen por una parte
-            <b>{{ $empresa->nombre ?? 'EL PROVEEDOR' }}</b>, y por la otra parte
+            En la ciudad de {{ $empresa->ciudad ?? 'Hermosillo' }}, {{ $empresa->estado ?? 'Sonora' }}, comparecen por
+            una parte
+            <b>{{ $empresa->nombre_empresa ?? 'EL PROVEEDOR' }}</b>, y por la otra parte
             <b>{{ $poliza->cliente->nombre_razon_social }}</b> (en adelante "EL CLIENTE"), quienes acuerdan celebrar el
             presente contrato al tenor de las siguientes cláusulas.
         </p>
@@ -147,7 +143,8 @@
             <tr>
                 <td class="info-label">Vigencia:</td>
                 <td>Del {{ $poliza->fecha_inicio->format('d/m/Y') }} al
-                    {{ $poliza->fecha_fin ? $poliza->fecha_fin->format('d/m/Y') : 'Indefinido' }}</td>
+                    {{ $poliza->fecha_fin ? $poliza->fecha_fin->format('d/m/Y') : 'Indefinido' }}
+                </td>
             </tr>
             <tr>
                 <td class="info-label">SLA Respuesta:</td>
@@ -165,31 +162,32 @@
         <p>
             EL CLIENTE pagará a EL PROVEEDOR la cantidad mensual de <b>${{ number_format($poliza->monto_mensual, 2) }}
                 MXN</b> más IVA. El pago deberá realizarse dentro de los primeros {{ $poliza->dia_cobro }} días de cada
-            mes.
+            mes calendario.
         </p>
 
         @if($poliza->costo_hora_excedente)
             <p>
-                En caso de exceder las horas incluidas, se cobrará una tarifa de
-                ${{ number_format($poliza->costo_hora_excedente, 2) }} MXN más IVA por hora adicional.
+                En caso de requerir servicios adicionales que excedan la cobertura mensual, se aplicará una tarifa
+                preferencial de
+                <b>${{ number_format($poliza->costo_hora_excedente, 2) }} MXN</b> más IVA por hora adicional.
             </p>
         @endif
 
         <h2>4. EQUIPOS CUBIERTOS</h2>
         <p>
-            Este contrato cubre exclusivamente los siguientes equipos registrados:
+            Este contrato cubre exclusivamente los equipos e infraestructura descritos a continuación:
             @if($poliza->equipos->count() > 0)
-                {{ $poliza->equipos->pluck('nombre')->implode(', ') }}.
+                <b>{{ $poliza->equipos->pluck('nombre')->implode(', ') }}</b>.
             @else
-                Los equipos especificados en el anexo técnico.
+                Los equipos especificados en el portal de gestión y anexo técnico.
             @endif
         </p>
 
         <div class="signatures">
-            <div class="sig-block">
+            <div class="sig-block" style="margin-right: 50px;">
                 <div class="sig-line">
                     POR EL PROVEEDOR<br>
-                    {{ $empresa->nombre ?? 'GERENTE GENERAL' }}
+                    {{ $empresa->nombre_empresa ?? 'REPRESENTANTE LEGAL' }}
                 </div>
             </div>
             <div class="sig-block">
@@ -201,7 +199,7 @@
         </div>
 
         <div class="footer">
-            Página 1 de 1 - Contrato Folio {{ $poliza->folio }}
+            Documento generado electrónicamente - Folio {{ $poliza->folio }} - Página 1 de 1
         </div>
     </div>
 </body>
