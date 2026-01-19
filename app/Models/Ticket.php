@@ -329,6 +329,11 @@ class Ticket extends Model implements Auditable
      */
     public function registrarConsumoEnPoliza(?float $horas = null): void
     {
+        // Si el ticket es "con costo", no consume horas de la póliza
+        if ($this->tipo_servicio === 'costo') {
+            return;
+        }
+
         $horasARegistrar = $horas ?? (float) ($this->horas_trabajadas ?? 0);
 
         if ($horasARegistrar <= 0 || !$this->poliza_id) {
@@ -346,7 +351,8 @@ class Ticket extends Model implements Auditable
      */
     public function registrarConsumoUnitarioEnPoliza(): void
     {
-        if (!$this->poliza_id || !$this->categoria_id) {
+        // Si el ticket es "con costo", no consume folios de la póliza
+        if (!$this->poliza_id || !$this->categoria_id || $this->tipo_servicio === 'costo') {
             return;
         }
 
@@ -355,6 +361,32 @@ class Ticket extends Model implements Auditable
             $poliza = $this->poliza;
             if ($poliza && $poliza->isActiva()) {
                 $poliza->registrarTicketSoporte($this); // Pasar el ticket para historial
+            }
+        }
+    }
+
+    /**
+     * Revertir el consumo de folio/unidad en la póliza.
+     * Útil si un ticket se cambia de "Garantía" a "Con Costo" después de creado.
+     */
+    public function revertirConsumoUnitarioEnPoliza(): void
+    {
+        if (!$this->poliza_id) {
+            return;
+        }
+
+        $poliza = $this->poliza;
+        if ($poliza) {
+            // Decrementar el contador de tickets consumidos en el mes
+            // Solo si es mayor a 0
+            if ($poliza->tickets_soporte_consumidos_mes > 0) {
+                $poliza->decrement('tickets_soporte_consumidos_mes');
+
+                // Opcionalmente eliminar del historial de consumos si existe
+                \App\Models\PolizaConsumo::where('poliza_id', $this->poliza_id)
+                    ->where('consumible_type', Ticket::class)
+                    ->where('consumible_id', $this->id)
+                    ->delete();
             }
         }
     }

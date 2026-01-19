@@ -219,6 +219,7 @@ class PolizaServicio extends Model
 
         if (!isset($cache[$cacheKey])) {
             $cache[$cacheKey] = $this->tickets()
+                ->where('tipo_servicio', '!=', 'costo') // Excluir tickets con costo extra
                 ->whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
                 ->count();
@@ -282,6 +283,7 @@ class PolizaServicio extends Model
     {
         // Se consideran tickets de soporte los que pertenecen a una categoría marcada para consumir póliza
         return $this->tickets()
+            ->where('tipo_servicio', '!=', 'costo') // Excluir tickets con costo extra
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->whereHas('categoria', function ($q) {

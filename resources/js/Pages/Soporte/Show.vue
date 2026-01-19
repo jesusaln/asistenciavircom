@@ -31,6 +31,7 @@ const estadoPendiente = ref('');
 const horasTrabajadas = ref('');
 const servicioInicio = ref('');
 const servicioFin = ref('');
+const tipoServicio = ref(props.ticket.tipo_servicio || 'garantia');
 
 import { watch } from 'vue';
 import {  differenceInMinutes, parseISO } from 'date-fns';
@@ -58,7 +59,7 @@ const cambiarEstado = (nuevoEstado) => {
 
 const confirmarConsumoHoras = () => {
     const horas = horasTrabajadas.value ? parseFloat(horasTrabajadas.value) : null;
-    enviarCambioEstado(estadoPendiente.value, horas, servicioInicio.value, servicioFin.value);
+    enviarCambioEstado(estadoPendiente.value, horas, servicioInicio.value, servicioFin.value, tipoServicio.value);
     
     // Reset y cerrar
     showHorasModal.value = false;
@@ -77,11 +78,12 @@ const cancelarConsumoHoras = () => {
     estadoPendiente.value = '';
 };
 
-const enviarCambioEstado = (estado, horas, inicio = null, fin = null) => {
+const enviarCambioEstado = (estado, horas, inicio = null, fin = null, tipo = null) => {
     const datos = { estado };
     if (horas !== null) datos.horas_trabajadas = horas;
     if (inicio) datos.servicio_inicio_at = inicio;
     if (fin) datos.servicio_fin_at = fin;
+    if (tipo) datos.tipo_servicio = tipo;
     
     router.post(route('soporte.cambiar-estado', props.ticket.id), datos, { preserveScroll: true });
 };
@@ -498,8 +500,40 @@ const formatDate = (date) => {
                                 Consumo póliza: {{ ticket.poliza?.horas_consumidas_mes || 0 }} / {{ ticket.poliza?.horas_incluidas_mensual }} hrs
                             </p>
                             <p class="text-xs text-amber-600 mt-2 text-center font-medium">
-                                ⚠️ Este campo es obligatorio para llevar el registro de horas-hombre
+                                ⚠️ El tiempo trabajado es obligatorio para el registro de horas-hombre.
                             </p>
+                        </div>
+
+                        <!-- Tipo de Servicio (Garantía vs Costo) -->
+                        <div v-if="ticket.poliza" class="pt-4 border-t border-gray-100">
+                             <label class="block text-sm font-semibold text-gray-700 mb-2">Cobertura del Servicio</label>
+                             <div class="grid grid-cols-2 gap-2">
+                                <button 
+                                    type="button"
+                                    @click="tipoServicio = 'garantia'"
+                                    :class="[
+                                        'px-4 py-3 rounded-xl text-xs font-bold border-2 transition-all',
+                                        tipoServicio === 'garantia' ? 'bg-green-50 border-green-500 text-green-700 shadow-sm' : 'bg-gray-50 border-gray-200 text-gray-400 opacity-60'
+                                    ]"
+                                >
+                                    🛡️ Bajo Póliza
+                                    <span class="block text-[8px] font-normal mt-1">(Consume ticket/horas)</span>
+                                </button>
+                                <button 
+                                    type="button"
+                                    @click="tipoServicio = 'costo'"
+                                    :class="[
+                                        'px-4 py-3 rounded-xl text-xs font-bold border-2 transition-all',
+                                        tipoServicio === 'costo' ? 'bg-purple-50 border-purple-500 text-purple-700 shadow-sm' : 'bg-gray-50 border-gray-200 text-gray-400 opacity-60'
+                                    ]"
+                                >
+                                    💰 Extra / Con Costo
+                                    <span class="block text-[8px] font-normal mt-1">(No consume de póliza)</span>
+                                </button>
+                             </div>
+                             <p class="text-[10px] text-gray-400 mt-2 text-center italic">
+                                 * Si el servicio es extraordinario (ej: cámaras), seleccione "Extra" para que no resten sus tickets mensuales.
+                             </p>
                         </div>
                     </div>
 

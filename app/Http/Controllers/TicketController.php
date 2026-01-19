@@ -356,13 +356,23 @@ class TicketController extends Controller
     public function cambiarEstado(Request $request, Ticket $ticket)
     {
         $this->authorize('update', $ticket);
-        
+
         $validated = $request->validate([
             'estado' => 'required|in:abierto,en_progreso,pendiente,resuelto,cerrado',
             'horas_trabajadas' => 'nullable|numeric|min:0.25|max:999',
             'servicio_inicio_at' => 'nullable|date',
             'servicio_fin_at' => 'nullable|date|after:servicio_inicio_at',
+            'tipo_servicio' => 'nullable|in:garantia,costo',
         ]);
+
+        // Si se cambia el tipo de servicio a "costo" y antes era "garantia" (o nulo)
+        // debemos revertir el consumo unitario en la póliza
+        if (isset($validated['tipo_servicio']) && $validated['tipo_servicio'] === 'costo' && $ticket->tipo_servicio !== 'costo') {
+            $ticket->revertirConsumoUnitarioEnPoliza();
+            $ticket->update(['tipo_servicio' => 'costo']);
+        } elseif (isset($validated['tipo_servicio'])) {
+            $ticket->update(['tipo_servicio' => $validated['tipo_servicio']]);
+        }
 
         // Si se está resolviendo o cerrando y hay horas trabajadas
         if (in_array($validated['estado'], ['resuelto', 'cerrado']) && isset($validated['horas_trabajadas'])) {
@@ -379,13 +389,13 @@ class TicketController extends Controller
             $ticket->cambiarEstado($validated['estado']);
         }
 
-        return back()->with('success', 'Estado actualizado');
+        return back()->with('success', 'Ticket actualizado exitosamente');
     }
 
     public function asignar(Request $request, Ticket $ticket)
     {
         $this->authorize('update', $ticket);
-        
+
         $validated = $request->validate([
             'asignado_id' => 'required|exists:users,id',
         ]);
