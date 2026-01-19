@@ -106,7 +106,9 @@ class VircomBotService
         REGLAS DE ORO:
         - Sé extremadamente amable y servicial.
         - Usa Emojis para que la conversación sea amena.
-        - Para agendar citas: SIEMPRE pide el nombre, teléfono y descripción del problema. Verifica disponibilidad antes con la herramienta.
+        - HORARIOS DE ATENCIÓN: Lunes a Viernes (9:00 AM - 6:00 PM) y Sábados (9:00 AM - 2:00 PM). Domingos estamos cerrados.
+        - Para agendar citas: SIEMPRE pide el nombre, teléfono y descripción del problema. 
+        - RESTRICCIÓN DE Citas: Solo puedes agendar dentro del horario de atención. Si el cliente pide algo fuera de ese rango, explícale nuestros horarios y ofrece la opción más cercana disponible.
         - Para precios: Busca en el catálogo. Si no encuentras algo, ofrece que un humano los contacte.
         - NO inventes información técnica. Si no estás seguro, di que conectarás con un técnico especialista.";
 
@@ -187,21 +189,59 @@ class VircomBotService
     {
         switch ($name) {
             case 'consultar_disponibilidad':
+                $date = Carbon::parse($args['fecha']);
+
+                // Validar día laboral
+                if ($date->isSunday()) {
+                    return ['disponible' => false, 'mensaje' => 'Lo sentimos, los domingos no laboramos.'];
+                }
+
                 $count = Cita::whereDate('fecha_hora', $args['fecha'])->count();
-                return ['disponible' => $count < 6, 'cupos_ocupados' => $count, 'mensaje' => $count < 6 ? 'Hay disponibilidad' : 'Estamos llenos ese día'];
+                return [
+                    'disponible' => $count < 6,
+                    'cupos_ocupados' => $count,
+                    'mensaje' => $count < 6 ? 'Hay disponibilidad para este día.' : 'Lo sentimos, ya tenemos la agenda llena para ese día.'
+                ];
 
             case 'agendar_cita':
+                $dateTime = Carbon::parse($args['fecha_hora']);
+
+                // 1. Validar Día Laboral
+                if ($dateTime->isSunday()) {
+                    return ['success' => false, 'error' => 'No podemos agendar citas en domingo.'];
+                }
+
+                // 2. Validar Horas Laborales
+                $hora = $dateTime->hour;
+                $esSabado = $dateTime->isSaturday();
+
+                $fueraDeHorario = false;
+                if ($esSabado) {
+                    if ($hora < 9 || $hora >= 14)
+                        $fueraDeHorario = true;
+                } else {
+                    if ($hora < 9 || $hora >= 18)
+                        $fueraDeHorario = true;
+                }
+
+                if ($fueraDeHorario) {
+                    return [
+                        'success' => false,
+                        'error' => 'La hora solicitada está fuera de nuestro horario laboral. Laboramos de L-V 9am-6pm y Sábados 9am-2pm.'
+                    ];
+                }
+
                 $cliente = Cliente::firstOrCreate(['telefono' => $args['telefono']], ['nombre_razon_social' => $args['cliente_nombre']]);
                 $cita = Cita::create([
                     'empresa_id' => 1,
                     'cliente_id' => $cliente->id,
-                    'fecha_hora' => $args['fecha_hora'],
+                    'fecha_hora' => $dateTime,
                     'descripcion' => $args['descripcion_problema'],
                     'marca_equipo' => $args['marca_equipo'] ?? 'No especificada',
                     'estado' => 'pendiente',
                     'origen_tienda' => 'VircomBot'
                 ]);
-                return ['success' => true, 'folio' => $cita->folio];
+                return ['success' => true, 'folio' => $cita->folio, 'mensaje' => '¡Excelente! Tu cita ha sido agendada.'];
 
             case 'consultar_precios':
                 $servs = Servicio::where('nombre', 'ILIKE', '%' . $args['termino'] . '%')->take(3)->get(['nombre', 'precio']);
