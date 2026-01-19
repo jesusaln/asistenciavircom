@@ -10,9 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('cita_items', function (Blueprint $table) {
-            $table->foreignId('empresa_id')->nullable()->constrained('empresas')->after('id');
-        });
+        if (!Schema::hasColumn('cita_items', 'empresa_id')) {
+            Schema::table('cita_items', function (Blueprint $table) {
+                $table->foreignId('empresa_id')->nullable()->constrained('empresas')->after('id');
+            });
+        }
     }
 
     /**

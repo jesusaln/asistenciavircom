@@ -10,16 +10,18 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('ticket_comments', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('ticket_id')->constrained('tickets')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users');
-            $table->text('contenido');
-            $table->boolean('es_interno')->default(false);
-            $table->string('tipo')->default('comentario'); // comentario, estado, asignacion
-            $table->json('metadata')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('ticket_comments')) {
+            Schema::create('ticket_comments', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('ticket_id')->constrained('tickets')->onDelete('cascade');
+                $table->foreignId('user_id')->constrained('users');
+                $table->text('contenido');
+                $table->boolean('es_interno')->default(false);
+                $table->string('tipo')->default('comentario'); // comentario, estado, asignacion
+                $table->json('metadata')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**
