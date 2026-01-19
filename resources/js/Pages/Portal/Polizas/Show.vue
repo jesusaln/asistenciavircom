@@ -361,8 +361,15 @@ const enviarSolicitud = () => {
                         <h3 class="font-black text-gray-900 uppercase tracking-tight mb-4 text-sm">Características</h3>
                         <ul class="space-y-4">
                             <li class="flex justify-between items-center text-sm">
-                                <span class="text-gray-500 font-medium">SLA Respuesta</span>
-                                <span class="font-black text-[var(--color-primary)] bg-blue-50 px-3 py-1 rounded-full text-xs">{{ poliza.sla_horas_respuesta ? poliza.sla_horas_respuesta + ' hrs' : 'Estándar' }}</span>
+                                <div class="flex items-center gap-1 group relative cursor-help">
+                                    <span class="text-gray-500 font-medium border-b border-dashed border-gray-300">Garantía SLA</span>
+                                    <font-awesome-icon icon="circle-info" class="text-gray-300 text-[10px]" />
+                                    <!-- Tooltip simple -->
+                                    <div class="absolute bottom-full left-0 mb-2 w-48 p-2 bg-gray-800 text-white text-[10px] rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                        Tiempo máximo garantizado para iniciar la atención de sus reportes.
+                                    </div>
+                                </div>
+                                <span class="font-black text-[var(--color-primary)] bg-blue-50 px-3 py-1 rounded-full text-xs">{{ poliza.sla_horas_respuesta ? poliza.sla_horas_respuesta + ' horas' : 'Estándar' }}</span>
                             </li>
                              <li class="flex justify-between items-center text-sm">
                                 <span class="text-gray-500 font-medium">Renovación</span>
@@ -373,8 +380,11 @@ const enviarSolicitud = () => {
                                 <span class="font-bold text-gray-900">Mensual</span>
                             </li>
                              <li class="flex justify-between items-center text-sm pt-4 border-t border-gray-50">
-                                <span class="text-gray-500 font-medium">Precio Base</span>
-                                <span class="font-black text-gray-900">{{ formatCurrency(poliza.monto_mensual) }}<span class="text-[10px] font-normal text-gray-400">/mes</span></span>
+                                <span class="text-gray-500 font-medium">Inversión</span>
+                                <div class="text-right">
+                                    <span class="font-black text-gray-900 block">{{ formatCurrency(poliza.monto_mensual) }}</span>
+                                    <span class="text-[10px] font-bold text-slate-500 block">+ IVA / mes</span>
+                                </div>
                             </li>
                         </ul>
                     </div>
