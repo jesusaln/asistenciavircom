@@ -214,6 +214,46 @@ class WhatsAppService
     }
 
     /**
+     * Enviar mensaje de texto libre (Sesión activa)
+     */
+    public function sendTextMessage(string $to, string $message): array
+    {
+        $formattedPhone = self::formatPhoneToE164($to);
+
+        $payload = [
+            'messaging_product' => 'whatsapp',
+            'recipient_type' => 'individual',
+            'to' => $formattedPhone,
+            'type' => 'text',
+            'text' => [
+                'preview_url' => false,
+                'body' => $message,
+            ],
+        ];
+
+        try {
+            Log::info('Enviando mensaje de texto WhatsApp', [
+                'to' => $to,
+                'payload' => $payload,
+            ]);
+
+            $response = $this->httpClient->post("{$this->phoneNumberId}/messages", [
+                'headers' => [
+                    'Authorization' => "Bearer {$this->accessToken}",
+                ],
+                'json' => $payload,
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            $errorResponse = $e->getResponse();
+            $errorBody = $errorResponse ? $errorResponse->getBody()->getContents() : 'No response body';
+            Log::error('Error enviando texto WhatsApp', ['error' => $errorBody]);
+            throw new \Exception('Error al enviar mensaje de texto: ' . $errorBody);
+        }
+    }
+
+    /**
      * Convertir número de teléfono mexicano al formato E.164
      */
     public static function formatPhoneToE164(string $phone): string

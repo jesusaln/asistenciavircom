@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Empresa;
 use App\Models\WhatsAppMessage;
+use App\Services\AI\VircomBotService;
+use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
@@ -183,20 +185,37 @@ class WhatsAppWebhookController extends Controller
      */
     private function processIncomingMessage(array $message): void
     {
-        // Por ahora solo loguear mensajes entrantes
-        // En el futuro podrías implementar:
-        // - Respuestas automáticas
-        // - Creación de tickets
-        // - Procesamiento de comandos
+        $from = $message['from'] ?? null;
+        $text = $message['text']['body'] ?? null;
+        $id = $message['id'] ?? null;
 
-        Log::info('Mensaje entrante recibido', [
-            'message' => $message,
-        ]);
+        if (!$from || !$text) {
+            return;
+        }
 
-        // Aquí podrías implementar lógica para:
-        // 1. Crear un ticket de soporte
-        // 2. Responder automáticamente
-        // 3. Procesar comandos específicos
+        Log::info("Chatbot WhatsApp: Mensaje de $from: $text");
+
+        try {
+            // 1. Obtener respuesta de la IA
+            $bot = app(VircomBotService::class);
+
+            // Usar el número de teléfono como session_id para mantener contexto
+            $response = $bot->getResponse($text, "wa_$from");
+
+            // 2. Enviar respuesta por WhatsApp
+            $empresaId = \App\Support\EmpresaResolver::resolveId() ?? 1;
+            $empresa = Empresa::find($empresaId);
+
+            if ($empresa && $empresa->whatsapp_enabled) {
+                $ws = WhatsAppService::fromEmpresa($empresa);
+                $ws->sendTextMessage($from, $response['message']);
+
+                Log::info("Chatbot WhatsApp: Respuesta enviada a $from");
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Chatbot WhatsApp Error: ' . $e->getMessage());
+        }
     }
 
     /**
