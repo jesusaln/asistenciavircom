@@ -82,7 +82,12 @@ class PlanPolizaController extends Controller
 
         $validated['slug'] = Str::slug($validated['nombre']) . '-' . Str::random(6);
 
-        PlanPoliza::create($validated);
+        $plan = PlanPoliza::create($validated);
+
+        // Sincronizar servicios elegibles si se enviaron
+        if ($request->has('servicios_elegibles')) {
+            $plan->serviciosElegibles()->sync($request->input('servicios_elegibles', []));
+        }
 
         return redirect()->route('planes-poliza.index')
             ->with('success', 'Plan de póliza creado correctamente.');
@@ -105,10 +110,15 @@ class PlanPolizaController extends Controller
     {
         $servicios = Servicio::active()->get(['id', 'nombre', 'precio']);
 
+        // Cargar los servicios elegibles actuales
+        $planesPoliza->load('serviciosElegibles');
+        $serviciosElegiblesIds = $planesPoliza->serviciosElegibles->pluck('id')->toArray();
+
         return Inertia::render('PlanPoliza/Edit', [
             'plan' => $planesPoliza,
             'tipos' => PlanPoliza::tipos(),
             'servicios' => $servicios,
+            'serviciosElegiblesIds' => $serviciosElegiblesIds,
         ]);
     }
 
@@ -149,6 +159,11 @@ class PlanPolizaController extends Controller
         ]);
 
         $planesPoliza->update($validated);
+
+        // Sincronizar servicios elegibles
+        if ($request->has('servicios_elegibles')) {
+            $planesPoliza->serviciosElegibles()->sync($request->input('servicios_elegibles', []));
+        }
 
         return redirect()->route('planes-poliza.index')
             ->with('success', 'Plan de póliza actualizado correctamente.');

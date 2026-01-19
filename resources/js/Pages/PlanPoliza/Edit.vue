@@ -7,6 +7,10 @@ const props = defineProps({
     plan: Object,
     tipos: Object,
     servicios: Array,
+    serviciosElegiblesIds: {
+        type: Array,
+        default: () => []
+    },
 });
 
 const isEditing = computed(() => !!props.plan?.id);
@@ -40,6 +44,7 @@ const form = useForm({
     costo_ticket_extra: props.plan?.costo_ticket_extra || null,
     clausulas: props.plan?.clausulas || '',
     terminos_pago: props.plan?.terminos_pago || '',
+    servicios_elegibles: props.serviciosElegiblesIds || [],
 });
 
 const nuevoBeneficio = ref('');
@@ -362,7 +367,67 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                         </div>
                     </div>
 
-                    <!-- Servicios Incluidos -->
+                    <!-- Servicios Elegibles (Banco de Horas) -->
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm p-6 border-2 border-blue-200">
+                        <div class="flex items-center justify-between mb-4 border-b border-blue-200 pb-2">
+                            <div>
+                                <h3 class="font-bold text-blue-900 flex items-center gap-2">
+                                    <span class="text-xl">⏱️</span> Servicios Elegibles (Banco de Horas)
+                                </h3>
+                                <p class="text-xs text-blue-700 mt-1">
+                                    Estos servicios se pueden usar con las horas incluidas en el plan. 
+                                    <span class="font-bold">Los servicios NO seleccionados se cobrarán extra.</span>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-72 overflow-y-auto p-2 border rounded-lg bg-white">
+                            <label 
+                                v-for="servicio in servicios" 
+                                :key="'elegible-' + servicio.id" 
+                                class="flex items-start gap-3 p-3 bg-white border-2 rounded-lg cursor-pointer hover:border-blue-400 hover:shadow-sm transition-all"
+                                :class="{ 'border-blue-500 ring-2 ring-blue-300 bg-blue-50': form.servicios_elegibles.includes(servicio.id) }"
+                            >
+                                <input 
+                                    type="checkbox" 
+                                    :value="servicio.id" 
+                                    v-model="form.servicios_elegibles"
+                                    class="mt-1 w-5 h-5 rounded text-blue-600 border-gray-300 focus:ring-blue-500"
+                                >
+                                <div class="flex-1">
+                                    <span class="block text-sm font-bold text-gray-800">{{ servicio.nombre }}</span>
+                                    <span class="block text-xs text-green-600 font-semibold" v-if="servicio.precio > 0">
+                                        ${{ servicio.precio }} (costo si no está incluido)
+                                    </span>
+                                </div>
+                            </label>
+                            <div v-if="!servicios.length" class="col-span-full text-center text-gray-400 py-4 italic">
+                                No hay servicios activos en el catálogo.
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3 flex items-center gap-4">
+                            <span class="text-sm font-bold text-blue-800">
+                                {{ form.servicios_elegibles.length }} servicios seleccionados
+                            </span>
+                            <button 
+                                type="button" 
+                                @click="form.servicios_elegibles = servicios.map(s => s.id)"
+                                class="text-xs text-blue-600 hover:underline"
+                            >
+                                Seleccionar todos
+                            </button>
+                            <button 
+                                type="button" 
+                                @click="form.servicios_elegibles = []"
+                                class="text-xs text-red-600 hover:underline"
+                            >
+                                Limpiar selección
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Servicios Incluidos (Autofill) -->
                     <div class="bg-white rounded-xl shadow-sm p-6">
                         <div class="flex items-center justify-between mb-4 border-b pb-2">
                             <h3 class="font-bold text-gray-900">🛠️ Servicios Incluidos (Autofill)</h3>
