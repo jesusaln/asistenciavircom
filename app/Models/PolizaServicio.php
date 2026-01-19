@@ -444,6 +444,7 @@ class PolizaServicio extends Model
             'visitas_sitio_consumidas_mes' => 0,
             'tickets_soporte_consumidos_mes' => 0,
             'ultimo_reset_consumo_at' => now(),
+            'alerta_horas_20_enviada' => false, // Reset de alerta para nuevo periodo
         ]);
 
         // FASE 3 - Mejora 3.5: Auditar
@@ -854,4 +855,188 @@ class PolizaServicio extends Model
     {
         return $this->morphMany(Credencial::class, 'credentialable');
     }
+
+    // ==================== MODELO HÍBRIDO: HORAS + SERVICIOS ELEGIBLES ====================
+
+    /**
+     * Verificar si un servicio específico está cubierto por esta póliza.
+     * Un servicio es elegible si está en la lista de servicios del plan asociado.
+     * Si no hay plan o no hay servicios configurados, se asume que TODOS son elegibles (compatibilidad).
+     */
+    public function servicioEsElegible(int $servicioId): bool
+    {
+        // Si no hay plan asociado, asumir que todo es elegible (modo legacy)
+        if (!$this->plan_poliza_id) {
+            return true;
+        }
+
+        $plan = $this->planPoliza;
+        if (!$plan) {
+            return true;
+        }
+
+        // Si el plan no tiene servicios elegibles configurados, asumir todos elegibles
+        $serviciosElegiblesIds = $plan->servicios_elegibles_ids;
+        if (empty($serviciosElegiblesIds)) {
+            return true;
+        }
+
+        return in_array($servicioId, $serviciosElegiblesIds);
+    }
+
+    /**
+     * Obtener las horas disponibles (banco actual).
+     */
+    public function getHorasDisponiblesAttribute(): float
+    {
+        $incluidas = $this->horas_incluidas_mensual ?? $this->planPoliza?->horas_incluidas ?? 0;
+        $consumidas = $this->horas_consumidas_mes ?? 0;
+
+        return max(0, $incluidas - $consumidas);
+    }
+
+    /**
+     * Obtener el porcentaje de horas restantes.
+     */
+    public function getPorcentajeHorasRestantesAttribute(): ?float
+    {
+        $incluidas = $this->horas_incluidas_mensual ?? $this->planPoliza?->horas_incluidas ?? 0;
+        if ($incluidas <= 0) {
+            return null;
+        }
+
+        $restantes = $this->horas_disponibles;
+        return round(($restantes / $incluidas) * 100, 1);
+    }
+
+    /**
+     * Registrar consumo de horas con validación de servicio elegible.
+     * Retorna un array con el resultado de la operación.
+     * 
+     * @param float $horas Horas a consumir
+     * @param int|null $servicioId ID del servicio utilizado
+     * @param Model|null $origen Ticket o Cita que origina el consumo
+     * @return array ['consumido' => bool, 'mensaje' => string, 'cobro_extra' => CuentasPorCobrar|null]
+     */
+    public function consumirHoras(float $horas, ?int $servicioId = null, $origen = null): array
+    {
+        // 1. Verificar si el servicio es elegible
+        if ($servicioId && !$this->servicioEsElegible($servicioId)) {
+            // Servicio NO elegible: generar cobro extra
+            $servicio = \App\Models\Servicio::find($servicioId);
+            $costoExtra = $servicio?->precio ?? ($horas * ($this->costo_hora_excedente ?? 350));
+
+            $cxc = \App\Models\CuentasPorCobrar::create([
+                'empresa_id' => $this->empresa_id,
+                'cliente_id' => $this->cliente_id,
+                'cobrable_type' => self::class,
+                'cobrable_id' => $this->id,
+                'folio' => 'SERV-' . now()->format('Ymd') . '-' . substr(uniqid(), -4),
+                'concepto' => "Servicio no incluido en póliza: " . ($servicio->nombre ?? 'Servicio extra'),
+                'monto_total' => $costoExtra,
+                'monto_pendiente' => $costoExtra,
+                'fecha_emision' => now(),
+                'fecha_vencimiento' => now()->addDays(15),
+                'estado' => 'pendiente',
+            ]);
+
+            return [
+                'consumido' => false,
+                'mensaje' => "El servicio no está incluido en tu póliza. Se ha generado un cargo de \${$costoExtra}.",
+                'cobro_extra' => $cxc,
+            ];
+        }
+
+        // 2. Verificar si hay horas suficientes
+        $horasDisponibles = $this->horas_disponibles;
+
+        if ($horas > $horasDisponibles) {
+            // Consumir lo que queda y cobrar el excedente
+            $horasExcedentes = $horas - $horasDisponibles;
+            $costoExcedente = $horasExcedentes * ($this->costo_hora_excedente ?? $this->planPoliza?->costo_hora_extra ?? 350);
+
+            // Consumir todas las horas disponibles
+            $this->increment('horas_consumidas_mes', $horasDisponibles);
+
+            // Generar cobro por excedente
+            $cxc = $this->generarCobroExcedente('horas', (int) ceil($horasExcedentes));
+
+            // Registrar en historial
+            if ($origen) {
+                PolizaConsumo::registrar($this, PolizaConsumo::TIPO_HORA, $origen, $horas);
+            }
+
+            return [
+                'consumido' => true,
+                'mensaje' => "Se consumieron {$horasDisponibles} hrs de tu póliza. Las {$horasExcedentes} hrs extra generaron un cargo adicional.",
+                'cobro_extra' => $cxc,
+            ];
+        }
+
+        // 3. Consumo normal: hay suficientes horas
+        $this->increment('horas_consumidas_mes', $horas);
+        $this->refresh();
+
+        // Registrar en historial
+        if ($origen) {
+            PolizaConsumo::registrar($this, PolizaConsumo::TIPO_HORA, $origen, $horas);
+        }
+
+        // 4. Verificar si quedan 20% o menos y enviar alerta
+        $this->verificarAlertaHoras20();
+
+        return [
+            'consumido' => true,
+            'mensaje' => "Consumidas {$horas} hrs. Te quedan {$this->horas_disponibles} hrs este mes.",
+            'cobro_extra' => null,
+        ];
+    }
+
+    /**
+     * Verificar y enviar notificación si el cliente está al 20% o menos de sus horas.
+     */
+    protected function verificarAlertaHoras20(): void
+    {
+        // Evitar spam: solo enviar una vez por periodo
+        if ($this->alerta_horas_20_enviada) {
+            return;
+        }
+
+        $porcentaje = $this->porcentaje_horas_restantes;
+        if ($porcentaje === null) {
+            return;
+        }
+
+        if ($porcentaje <= 20) {
+            try {
+                $cliente = $this->cliente;
+                if ($cliente && $cliente->email) {
+                    $cliente->notify(new \App\Notifications\PolizaHorasProximasAgotarseNotification(
+                        $this,
+                        $this->horas_disponibles,
+                        $porcentaje
+                    ));
+                }
+
+                $this->update(['alerta_horas_20_enviada' => true]);
+
+                \Illuminate\Support\Facades\Log::info("Alerta 20% horas enviada", [
+                    'poliza' => $this->folio,
+                    'horas_restantes' => $this->horas_disponibles,
+                    'porcentaje' => $porcentaje,
+                ]);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Error enviando alerta 20% horas: " . $e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Resetear la bandera de alerta al inicio de cada mes (llamado en resetearConsumoMensual).
+     */
+    public function resetearAlertaHoras(): void
+    {
+        $this->update(['alerta_horas_20_enviada' => false]);
+    }
 }
+

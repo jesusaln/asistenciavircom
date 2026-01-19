@@ -6,6 +6,7 @@ use App\Models\Concerns\BelongsToEmpresa;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 
 class PlanPoliza extends Model
@@ -188,5 +189,39 @@ class PlanPoliza extends Model
     public function getBeneficiosArrayAttribute()
     {
         return is_array($this->beneficios) ? $this->beneficios : [];
+    }
+
+    /**
+     * Relación con los servicios elegibles/incluidos en este plan.
+     * Estos son los servicios que se pueden usar con el banco de horas.
+     */
+    public function serviciosElegibles(): BelongsToMany
+    {
+        return $this->belongsToMany(Servicio::class, 'plan_poliza_servicios', 'plan_poliza_id', 'servicio_id')
+            ->withPivot(['orden', 'notas'])
+            ->withTimestamps()
+            ->orderByPivot('orden');
+    }
+
+    /**
+     * Verificar si un servicio específico está incluido en este plan.
+     */
+    public function incluyeServicio(int $servicioId): bool
+    {
+        return $this->serviciosElegibles()->where('servicios.id', $servicioId)->exists();
+    }
+
+    /**
+     * Obtener IDs de servicios elegibles (cacheado para evitar N+1).
+     */
+    public function getServiciosElegiblesIdsAttribute(): array
+    {
+        static $cache = [];
+
+        if (!isset($cache[$this->id])) {
+            $cache[$this->id] = $this->serviciosElegibles()->pluck('servicios.id')->toArray();
+        }
+
+        return $cache[$this->id];
     }
 }
