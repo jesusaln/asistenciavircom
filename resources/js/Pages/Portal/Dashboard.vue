@@ -726,10 +726,13 @@ const totalPendiente = computed(() => {
                                     
                                     <div class="mt-4 flex items-center justify-between">
                                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                            Vencimiento: <span class="text-gray-900 ml-1">{{ formatDate(poliza.fecha_fin) }}</span>
+                                            Vencimiento: <span class="text-gray-900 ml-1">{{ poliza.fecha_fin ? formatDate(poliza.fecha_fin) : 'Mensual' }}</span>
                                         </p>
-                                        <p v-if="poliza.dias_para_vencer <= 300" class="text-[10px] font-black uppercase" :class="poliza.renovacion_automatica ? 'text-emerald-500' : 'text-orange-500'">
+                                        <p v-if="poliza.fecha_fin && poliza.dias_para_vencer <= 300" class="text-[10px] font-black uppercase" :class="poliza.renovacion_automatica ? 'text-emerald-500' : 'text-orange-500'">
                                             {{ poliza.renovacion_automatica ? 'Renovación en ' + poliza.dias_para_vencer + ' días' : 'Vence en ' + poliza.dias_para_vencer + ' días' }}
+                                        </p>
+                                        <p v-else-if="!poliza.fecha_fin" class="text-[10px] font-black text-emerald-500 uppercase">
+                                            Vigencia Continua
                                         </p>
                                     </div>
                                 </div>
