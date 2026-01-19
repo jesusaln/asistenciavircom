@@ -190,16 +190,20 @@
                                     <template v-if="cuenta.cobrable_type && cuenta.cobrable_type.includes('Venta')">
                                         Venta #{{ cuenta.cobrable?.numero_venta || cuenta.cobrable_data?.numero_venta || '' }}
                                     </template>
-                                    <template v-else-if="cuenta.cobrable_type && cuenta.cobrable_type.includes('Renta')">
-                                        Renta #{{ cuenta.cobrable?.numero_contrato }}
+                                    <template v-else-if="cuenta.cobrable_type && (cuenta.cobrable_type.includes('Renta') || cuenta.cobrable_type === 'renta')">
+                                        Renta #{{ cuenta.cobrable?.numero_contrato || cuenta.cobrable_data?.numero_contrato || '' }}
+                                        <div class="text-xs text-gray-500">{{ cuenta.notas }}</div>
+                                    </template>
+                                    <template v-else-if="cuenta.cobrable_type && (cuenta.cobrable_type.includes('Poliza') || cuenta.cobrable_type === 'poliza_servicio')">
+                                        Póliza #{{ cuenta.cobrable?.folio || cuenta.cobrable_data?.folio || '' }}
                                         <div class="text-xs text-gray-500">{{ cuenta.notas }}</div>
                                     </template>
                                     <template v-else>
-                                        {{ cuenta.venta?.numero_venta || '---' }}
+                                        {{ cuenta.cobrable?.folio || cuenta.cobrable?.numero_venta || cuenta.cobrable_data?.folio || cuenta.cobrable_data?.numero_venta || '---' }}
                                     </template>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    {{ cuenta.cobrable?.cliente?.nombre_razon_social || cuenta.cobrable_data?.cliente?.nombre_razon_social || cuenta.venta?.cliente?.nombre_razon_social || 'Cliente no disponible' }}
+                                    {{ cuenta.cobrable?.cliente?.nombre_razon_social || cuenta.cobrable_data?.cliente?.nombre_razon_social || cuenta.cliente?.nombre_razon_social || 'Sin identificar' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                     {{ formatCurrency(cuenta.monto_total) }}

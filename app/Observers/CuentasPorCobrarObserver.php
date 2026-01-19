@@ -8,6 +8,34 @@ use App\Enums\EstadoVenta;
 class CuentasPorCobrarObserver
 {
     /**
+     * Handle the CuentasPorCobrar "creating" event.
+     */
+    public function creating(CuentasPorCobrar $cuenta): void
+    {
+        // Asegurar que cliente_id y empresa_id estén presentes si el cobrable los tiene
+        if ($cuenta->cobrable_id && $cuenta->cobrable_type) {
+            $cobrable = $cuenta->cobrable;
+
+            // Si la relación no está cargada, intentamos cargarla o buscarla
+            if (!$cobrable) {
+                $class = \Illuminate\Database\Eloquent\Relations\Relation::getMorphedModel($cuenta->cobrable_type) ?? $cuenta->cobrable_type;
+                if (class_exists($class)) {
+                    $cobrable = $class::find($cuenta->cobrable_id);
+                }
+            }
+
+            if ($cobrable) {
+                if (!$cuenta->cliente_id && isset($cobrable->cliente_id)) {
+                    $cuenta->cliente_id = $cobrable->cliente_id;
+                }
+                if (!$cuenta->empresa_id && isset($cobrable->empresa_id)) {
+                    $cuenta->empresa_id = $cobrable->empresa_id;
+                }
+            }
+        }
+    }
+
+    /**
      * Handle the CuentasPorCobrar "saved" event.
      * Se ejecuta después de crear o actualizar.
      */

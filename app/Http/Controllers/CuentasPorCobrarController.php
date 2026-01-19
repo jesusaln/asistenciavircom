@@ -29,7 +29,7 @@ class CuentasPorCobrarController extends Controller
      */
     public function index(Request $request)
     {
-        $query = CuentasPorCobrar::with(['cobrable.cliente']);
+        $query = CuentasPorCobrar::with(['cobrable.cliente', 'cliente']);
 
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
@@ -113,7 +113,8 @@ class CuentasPorCobrarController extends Controller
                 $cuenta->cobrable_data = [
                     'numero_venta' => $cuenta->cobrable->numero_venta ?? null,
                     'numero_contrato' => $cuenta->cobrable->numero_contrato ?? null,
-                    'cliente' => $cuenta->cobrable->cliente ?? null,
+                    'folio' => $cuenta->cobrable->folio ?? null,
+                    'cliente' => $cuenta->cobrable->cliente ?? $cuenta->cliente ?? null,
                 ];
             }
 

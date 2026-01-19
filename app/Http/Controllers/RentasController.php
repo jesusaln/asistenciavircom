@@ -242,6 +242,8 @@ class RentasController extends Controller
             $fechaCobro = $fechaInicio->copy()->addMonthNoOverflow()->day(min($renta->dia_pago, $fechaInicio->copy()->addMonthNoOverflow()->daysInMonth));
         }
         CuentasPorCobrar::create([
+            'empresa_id' => $renta->empresa_id,
+            'cliente_id' => $renta->cliente_id,
             'cobrable_id' => $renta->id,
             'cobrable_type' => Renta::class,
             'fecha_vencimiento' => $fechaCobro,
@@ -255,6 +257,8 @@ class RentasController extends Controller
         // Si hay depósito de garantía, crear cobranza para depósito
         if ($renta->deposito_garantia > 0) {
             CuentasPorCobrar::create([
+                'empresa_id' => $renta->empresa_id,
+                'cliente_id' => $renta->cliente_id,
                 'cobrable_id' => $renta->id,
                 'cobrable_type' => Renta::class,
                 'fecha_vencimiento' => $fechaInicio,
@@ -284,6 +288,8 @@ class RentasController extends Controller
                 ->exists();
             if (!$yaExiste) {
                 CuentasPorCobrar::create([
+                    'empresa_id' => $renta->empresa_id,
+                    'cliente_id' => $renta->cliente_id,
                     'cobrable_id' => $renta->id,
                     'cobrable_type' => Renta::class,
                     'fecha_vencimiento' => $fechaCorte,
@@ -459,6 +465,8 @@ class RentasController extends Controller
                 $montoConIva = round($renta->monto_mensual * (1 + $ivaRate), 2);
 
                 CuentasPorCobrar::create([
+                    'empresa_id' => $renta->empresa_id,
+                    'cliente_id' => $renta->cliente_id,
                     'cobrable_id' => $renta->id,
                     'cobrable_type' => Renta::class,
                     'fecha_vencimiento' => $fechaCorte,

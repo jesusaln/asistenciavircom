@@ -127,7 +127,10 @@ class PedidoVentaController extends Controller
 
             if (!$venta->pagado) {
                 CuentasPorCobrar::create([
-                    'venta_id' => $venta->id,
+                    'empresa_id' => $venta->empresa_id,
+                    'cliente_id' => $venta->cliente_id,
+                    'cobrable_id' => $venta->id,
+                    'cobrable_type' => 'venta',
                     'monto_total' => $venta->total,
                     'monto_pagado' => 0,
                     'monto_pendiente' => $venta->total,
