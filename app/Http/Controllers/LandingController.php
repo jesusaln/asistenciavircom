@@ -175,7 +175,7 @@ class LandingController extends Controller
                         'id' => $post->id,
                         'titulo' => $post->titulo,
                         'extracto' => $post->resumen ?? \Illuminate\Support\Str::limit(strip_tags($post->contenido), 100),
-                        'imagen' => $post->imagen_portada ? (str_starts_with($post->imagen_portada, 'http') ? $post->imagen_portada : Storage::url($post->imagen_portada)) : null,
+                        'imagen' => $post->imagen_portada_url,
                         'categoria' => $post->categoria ?? 'General',
                         'icono' => '📝', // Icono por defecto
                         'fecha' => $post->publicado_at->isoFormat('D MMM YYYY'),

@@ -55,7 +55,7 @@ const formatDate = (date) => {
                         <Link :href="route('public.blog.show', post.slug)" class="block">
                             <!-- Imagen -->
                             <div class="relative h-48 overflow-hidden bg-gray-200">
-                                <img v-if="post.imagen_portada" :src="post.imagen_portada" :alt="post.titulo" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                                <img v-if="post.imagen_portada_url" :src="post.imagen_portada_url" :alt="post.titulo" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                                 <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-400">
                                     <FontAwesomeIcon icon="newspaper" size="3x" />
                                 </div>

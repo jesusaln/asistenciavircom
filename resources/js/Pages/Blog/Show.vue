@@ -41,7 +41,7 @@ const shareToTwitter = () => {
         <meta name="description" :content="post.meta_descripcion || post.resumen">
         <meta property="og:title" :content="post.titulo">
         <meta property="og:description" :content="post.resumen">
-        <meta property="og:image" :content="post.imagen_portada">
+        <meta property="og:image" :content="post.imagen_portada_url">
     </Head>
     
     <div :style="cssVars" class="min-h-screen bg-white flex flex-col font-sans">
@@ -91,8 +91,8 @@ const shareToTwitter = () => {
                 </header>
 
                 <!-- Cover Image -->
-                <div v-if="post.imagen_portada" class="rounded-3xl overflow-hidden shadow-2xl mb-12 aspect-video">
-                    <img :src="post.imagen_portada" :alt="post.titulo" class="w-full h-full object-cover">
+                <div v-if="post.imagen_portada_url" class="rounded-3xl overflow-hidden shadow-2xl mb-12 aspect-video">
+                    <img :src="post.imagen_portada_url" :alt="post.titulo" class="w-full h-full object-cover">
                 </div>
 
                 <!-- Body Content -->
@@ -125,7 +125,7 @@ const shareToTwitter = () => {
                         <article v-for="rel in relacionados" :key="rel.id" class="group">
                             <Link :href="route('public.blog.show', rel.slug)">
                                 <div class="relative h-40 rounded-2xl overflow-hidden bg-gray-200 mb-4">
-                                    <img v-if="rel.imagen_portada" :src="rel.imagen_portada" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                    <img v-if="rel.imagen_portada_url" :src="rel.imagen_portada_url" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                                 </div>
                                 <h4 class="font-bold text-gray-900 group-hover:text-[var(--color-primary)] transition-colors line-clamp-2">
                                     {{ rel.titulo }}

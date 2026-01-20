@@ -27,10 +27,28 @@ class BlogPost extends Model
         'meta_descripcion',
     ];
 
+    protected $appends = ['imagen_portada_url', 'tiempo_lectura'];
+
     protected $casts = [
         'publicado_at' => 'datetime',
         'visitas' => 'integer',
     ];
+
+    /**
+     * Obtener URL completa de la imagen de portada
+     */
+    public function getImagenPortadaUrlAttribute()
+    {
+        if (!$this->imagen_portada) {
+            return null;
+        }
+
+        if (str_starts_with($this->imagen_portada, 'http')) {
+            return $this->imagen_portada;
+        }
+
+        return \Illuminate\Support\Facades\Storage::url($this->imagen_portada);
+    }
 
     /**
      * Boot function from Laravel.

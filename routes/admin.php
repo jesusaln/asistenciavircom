@@ -255,7 +255,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     });
 
     // Gestión de Blog
-    Route::resource('blog', App\Http\Controllers\Admin\BlogPostController::class)->names('admin.blog');
+    Route::resource('gestion-blog', App\Http\Controllers\Admin\BlogPostController::class)->names('admin.blog');
 
     Route::resource('proveedores', ProveedorController::class)->names('proveedores')->middleware('can:view proveedores');
     Route::put('/proveedores/{proveedor}/toggle', [ProveedorController::class, 'toggle'])->name('proveedores.toggle');
