@@ -230,14 +230,14 @@ const exportEquipos = () => {
 
 // Paginación
 const paginationData = computed(() => ({
-  current_page: equiposPaginator.value?.current_page || 1,
-  last_page: equiposPaginator.value?.last_page || 1,
-  per_page: equiposPaginator.value?.per_page || 10,
+  currentPage: equiposPaginator.value?.current_page || 1,
+  lastPage: equiposPaginator.value?.last_page || 1,
+  perPage: equiposPaginator.value?.per_page || 10,
   from: equiposPaginator.value?.from || 0,
   to: equiposPaginator.value?.to || 0,
   total: equiposPaginator.value?.total || 0,
-  prev_page_url: equiposPaginator.value?.prev_page_url,
-  next_page_url: equiposPaginator.value?.next_page_url,
+  prevPageUrl: equiposPaginator.value?.prev_page_url,
+  nextPageUrl: equiposPaginator.value?.next_page_url,
   links: equiposPaginator.value?.links || []
 }))
 
