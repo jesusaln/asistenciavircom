@@ -121,7 +121,7 @@ const getSlaStatusClass = (status) => {
                         <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest transition-colors">Completados Hoy</div>
                     </div>
                     <div 
-                        class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm dark:shadow-none border border-gray-100 dark:border-gray-700 border-l-4 border-l-gray-400 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors" 
+                        class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm dark:shadow-none border border-gray-100 dark:border-gray-700 border-l-4 border-l-gray-400 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors" 
                         @click="filtros.incluir_finalizados = !filtros.incluir_finalizados; aplicarFiltros()"
                     >
                         <div class="text-2xl font-black text-gray-600 dark:text-gray-300 transition-colors">{{ stats.cerrados }}</div>
@@ -199,7 +199,7 @@ const getSlaStatusClass = (status) => {
                                 <tr 
                                     v-for="ticket in tickets.data" 
                                     :key="ticket.id" 
-                                    class="hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer transition-colors" 
+                                    class="hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors" 
                                     @click="router.visit(route('soporte.show', ticket.id))"
                                 >
                                     <td class="px-4 py-4">
