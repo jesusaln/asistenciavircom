@@ -17,7 +17,7 @@ const filtros = ref({
     prioridad: props.filtros?.prioridad || '',
     asignado_id: props.filtros?.asignado_id || '',
     categoria_id: props.filtros?.categoria_id || '',
-    incluir_cerrados: props.filtros?.incluir_cerrados || false,
+    incluir_finalizados: props.filtros?.incluir_finalizados || props.filtros?.incluir_cerrados || false,
 });
 
 const estados = [
@@ -42,7 +42,7 @@ const aplicarFiltros = () => {
 };
 
 const limpiarFiltros = () => {
-    filtros.value = { buscar: '', estado: '', prioridad: '', asignado_id: '', categoria_id: '', incluir_cerrados: false };
+    filtros.value = { buscar: '', estado: '', prioridad: '', asignado_id: '', categoria_id: '', incluir_finalizados: false };
     aplicarFiltros();
 };
 
@@ -120,11 +120,11 @@ const getSlaStatusClass = (status) => {
                         <div class="text-2xl font-bold text-gray-900">{{ stats.completados_hoy }}</div>
                         <div class="text-sm text-gray-500">Completados Hoy</div>
                     </div>
-                    <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-gray-400 cursor-pointer hover:bg-white transition" @click="filtros.incluir_cerrados = !filtros.incluir_cerrados; aplicarFiltros()">
+                    <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-gray-400 cursor-pointer hover:bg-white transition" @click="filtros.incluir_finalizados = !filtros.incluir_finalizados; aplicarFiltros()">
                         <div class="text-2xl font-bold text-gray-600">{{ stats.cerrados }}</div>
                         <div class="text-sm text-gray-500 flex items-center gap-1">
-                            Cerrados
-                            <span v-if="filtros.incluir_cerrados" class="text-xs text-green-600">✓ Mostrando</span>
+                            Finalizados
+                            <span v-if="filtros.incluir_finalizados" class="text-xs text-green-600">✓ Mostrando</span>
                         </div>
                     </div>
                 </div>
@@ -154,15 +154,15 @@ const getSlaStatusClass = (status) => {
                             <option value="">Todas las categorías</option>
                             <option v-for="c in categorias" :key="c.id" :value="c.id">{{ c.nombre }}</option>
                         </select>
-                        <!-- Toggle Cerrados -->
-                        <label class="flex items-center gap-2 px-4 py-2 border rounded-lg cursor-pointer hover:bg-white" :class="filtros.incluir_cerrados ? 'bg-gray-100 border-gray-400' : ''">
+                        <!-- Toggle Finalizados (Cerrados + Resueltos) -->
+                        <label class="flex items-center gap-2 px-4 py-2 border rounded-lg cursor-pointer hover:bg-white" :class="filtros.incluir_finalizados ? 'bg-gray-100 border-gray-400' : ''">
                             <input 
                                 type="checkbox" 
-                                v-model="filtros.incluir_cerrados" 
+                                v-model="filtros.incluir_finalizados" 
                                 @change="aplicarFiltros"
                                 class="rounded text-orange-500 focus:ring-orange-500"
                             />
-                            <span class="text-sm text-gray-600">Incluir cerrados</span>
+                            <span class="text-sm text-gray-600">Incluir cerrados y resueltos</span>
                         </label>
                     </div>
                     <div class="flex justify-end mt-3">

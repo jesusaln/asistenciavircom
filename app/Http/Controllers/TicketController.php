@@ -30,16 +30,16 @@ class TicketController extends Controller
         $query = Ticket::with(['cliente', 'asignado', 'categoria', 'creador']);
         // ->where('empresa_id', $empresaId); // Deshabilitado temporalmente hasta tener multi-tenancy completo
 
-        // Por defecto, excluir cerrados a menos que se solicite explícitamente
-        $incluirCerrados = $request->boolean('incluir_cerrados');
+        // Por defecto, excluir cerrados y resueltos a menos que se solicite explícitamente
+        $incluirFinalizados = $request->boolean('incluir_finalizados') || $request->boolean('incluir_cerrados');
 
         // Filtros
         if ($request->filled('estado')) {
             // Si se filtra por un estado específico, respetar eso
             $query->where('estado', $request->estado);
-        } elseif (!$incluirCerrados) {
-            // Si no hay filtro de estado y no se piden cerrados, excluirlos
-            $query->where('estado', '!=', 'cerrado');
+        } elseif (!$incluirFinalizados) {
+            // Si no hay filtro de estado y no se piden finalizados, excluir cerrados y resueltos
+            $query->whereNotIn('estado', ['cerrado', 'resuelto']);
         }
 
         if ($request->filled('prioridad')) {
