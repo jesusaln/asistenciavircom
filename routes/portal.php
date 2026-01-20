@@ -59,9 +59,19 @@ Route::prefix('portal')->group(function () {
         Route::get('/pedidos', [PortalController::class, 'pedidosIndex'])->name('portal.pedidos.index');
         Route::get('/pedidos/{pedido}', [PortalController::class, 'pedidoShow'])->name('portal.pedidos.show');
 
+        // Rentas (Puntos de Venta)
+        Route::get('/rentas', [\App\Http\Controllers\ClientPortal\PortalRentasController::class, 'index'])->name('portal.rentas.index');
+        Route::get('/rentas/{renta}', [\App\Http\Controllers\ClientPortal\PortalRentasController::class, 'show'])->name('portal.rentas.show');
+        Route::get('/rentas/{renta}/firmar', [\App\Http\Controllers\ClientPortal\PortalRentasController::class, 'firmar'])->name('portal.rentas.firmar');
+        Route::post('/rentas/{renta}/firmar', [\App\Http\Controllers\ClientPortal\PortalRentasController::class, 'storeFirma'])->name('portal.rentas.firmar.store');
+        Route::post('/rentas/{renta}/upload-documento', [\App\Http\Controllers\ClientPortal\PortalRentasController::class, 'uploadDocumento'])->name('portal.rentas.upload');
+        Route::get('/rentas/{renta}/contrato-pdf', [\App\Http\Controllers\ClientPortal\PortalRentasController::class, 'descargarContrato'])->name('portal.rentas.contrato.pdf');
+
         // Crédito (Cliente)
         Route::get('/credito', [\App\Http\Controllers\ClientPortal\PortalCreditoController::class, 'index'])->name('portal.credito.index');
         Route::get('/credito/solicitud/descargar', [\App\Http\Controllers\ClientPortal\PortalCreditoController::class, 'descargarSolicitud'])->name('portal.credito.solicitud.descargar');
+        Route::get('/credito/solicitud/firmar', [\App\Http\Controllers\ClientPortal\PortalCreditoController::class, 'firmarSolicitud'])->name('portal.credito.solicitud.firmar');
+        Route::post('/credito/solicitud/firmar', [\App\Http\Controllers\ClientPortal\PortalCreditoController::class, 'storeFirmaSolicitud'])->name('portal.credito.solicitud.firmar.store');
         Route::post('/credito/documentos', [\App\Http\Controllers\ClientPortal\PortalCreditoController::class, 'storeDocumento'])->name('portal.credito.documentos.store');
         Route::delete('/credito/documentos/{documento}', [\App\Http\Controllers\ClientPortal\PortalCreditoController::class, 'destroyDocumento'])->name('portal.credito.documentos.destroy');
 

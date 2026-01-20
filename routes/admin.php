@@ -48,6 +48,7 @@ use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\PolizaServicioController;
 use App\Http\Controllers\PolizaServicioPDFController;
 use App\Http\Controllers\PlanPolizaController;
+use App\Http\Controllers\PlanRentaController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\OrdenCompraController;
 use App\Http\Controllers\DatabaseBackupController;
@@ -230,6 +231,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::post('ordenescompra/{id}/cancelar', [OrdenCompraController::class, 'cancelar'])->name('ordenescompra.cancelar');
 
     Route::resource('clientes', ClienteController::class)->names('clientes')->middleware('can:view clientes')->where(['cliente' => '[0-9]+']);
+    Route::get('clientes/{cliente}/descargar-solicitud-firmada', [ClienteController::class, 'descargarSolicitudFirmada'])->name('clientes.descargar-solicitud-firmada');
     Route::get('/clientes/{cliente}/hub', [ClienteHubController::class, 'show'])->name('clientes.hub')->middleware('can:view clientes');
     Route::post('clientes/{cliente}/documentos', [ClienteDocumentoController::class, 'store'])->name('clientes.documentos.store');
     Route::delete('clientes/documentos/{documento}', [ClienteDocumentoController::class, 'destroy'])->name('clientes.documentos.destroy');
@@ -417,6 +419,9 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::resource('polizas-servicio', PolizaServicioController::class)->middleware('role:admin|editor|super-admin');
     Route::resource('planes-poliza', PlanPolizaController::class)->middleware('role:admin|editor|super-admin');
     Route::put('/planes-poliza/{planes_poliza}/toggle-destacado', [PlanPolizaController::class, 'toggleDestacado'])->name('planes-poliza.toggle-destacado');
+
+    Route::resource('planes-renta', PlanRentaController::class)->middleware('role:admin|editor|super-admin');
+    Route::put('/planes-renta/{planes_renta}/toggle', [PlanRentaController::class, 'toggle'])->name('planes-renta.toggle');
 
     Route::resource('entregas-dinero', EntregaDineroController::class)->middleware('role:admin|ventas|super-admin');
     Route::post('/entregas-dinero/{id}/marcar-recibido', [EntregaDineroController::class, 'marcarRecibido'])->name('entregas-dinero.marcar-recibido')->middleware('role:admin|super-admin');

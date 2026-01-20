@@ -14,6 +14,8 @@ Route::get('/soporte-tecnico', [SoportePublicoController::class, 'index'])->name
 
 // Tienda (Público)
 use App\Http\Controllers\PlanPolizaController;
+use App\Http\Controllers\PlanRentaController;
+use App\Http\Controllers\ContratacionRentaController;
 use App\Http\Controllers\ContratacionPolizaController;
 use App\Http\Controllers\VentaDocumentoController;
 use App\Http\Controllers\CotizacionDocumentoController;
@@ -74,6 +76,11 @@ Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show']
 // Pólizas (Público)
 Route::get('/polizas', [PlanPolizaController::class, 'catalogo'])->name('catalogo.polizas');
 Route::get('/polizas/plan/{slug}', [PlanPolizaController::class, 'detallePlan'])->name('catalogo.poliza.show');
+
+// Rentas (Público)
+Route::get('/rentas-equipos', [PlanRentaController::class, 'catalogo'])->name('catalogo.rentas');
+Route::get('/contratar-renta/{slug}', [ContratacionRentaController::class, 'show'])->name('contratacion.renta.show');
+Route::post('/contratar-renta/{slug}', [ContratacionRentaController::class, 'procesar'])->name('contratacion.renta.procesar');
 
 // Checkout de Pólizas (Público inicia aquí)
 Route::get('/contratar/{slug}', [ContratacionPolizaController::class, 'show'])->name('contratacion.show');

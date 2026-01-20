@@ -244,11 +244,21 @@ const toggleFaq = (id) => {
     activeFaq.value = activeFaq.value === id ? null : id;
 };
 
+const rentasPendientesFirma = computed(() => {
+   return props.rentas?.filter(r => !r.firma_digital) || [];
+});
+
 // Helper para verificar si una fecha está vencida
 const isOverdue = (dateString) => {
     if (!dateString) return false;
     return new Date(dateString) < new Date();
 };
+
+const totalVencido = computed(() => {
+    return props.pagosPendientes
+        .filter(p => isOverdue(p.fecha_vencimiento))
+        .reduce((acc, p) => acc + parseFloat(p.total), 0);
+});
 
 // Computed para calcular el total pendiente
 const totalPendiente = computed(() => {
@@ -298,6 +308,25 @@ const toggleIncluirFinalizados = () => {
                     Hola, <span class="text-[var(--color-primary)]">{{ cliente.nombre_razon_social?.split(' ')[0] }}</span>
                 </h1>
                 <p class="text-gray-500 dark:text-gray-400 font-medium transition-colors">Gestione sus servicios y soporte técnico desde un solo lugar.</p>
+            </div>
+
+            <!-- Alerta Rentas Pendientes de Firma -->
+            <div v-if="rentasPendientesFirma.length > 0" 
+                 class="mb-6 bg-white dark:bg-gray-800 border border-blue-100 dark:border-blue-900/50 rounded-[2rem] p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl shadow-blue-500/5 dark:shadow-none overflow-hidden relative group transition-colors">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50/50 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform"></div>
+                
+                <div class="flex items-center gap-6 relative z-10">
+                    <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 text-2xl">
+                        ✍️
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-gray-900 dark:text-white transition-colors">Firma Pendiente</h3>
+                        <p class="text-gray-500 dark:text-gray-400 font-medium transition-colors">Tiene {{ rentasPendientesFirma.length }} contrato(s) de renta esperando su firma digital.</p>
+                    </div>
+                </div>
+                <Link :href="route('portal.rentas.index')" class="relative z-10 w-full sm:w-auto px-8 py-4 bg-blue-600 text-white font-black text-sm uppercase tracking-widest rounded-2xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30 transition-all text-center">
+                    Revisar y Firmar
+                </Link>
             </div>
 
             <!-- Alerta Pagos Pendientes Premium -->
@@ -467,6 +496,14 @@ const toggleIncluirFinalizados = () => {
                         <span class="text-sm uppercase tracking-widest">Mi Crédito</span>
                     </Link>
 
+                    <Link 
+                        :href="route('portal.rentas.index')" 
+                        class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white border border-gray-100 dark:border-gray-700"
+                    >
+                        <font-awesome-icon icon="cash-register" /> 
+                        <span class="text-sm uppercase tracking-widest">Mis Rentas</span>
+                    </Link>
+
                      <button 
                         @click="activeTab = 'pagos'" 
                         :class="[
@@ -506,13 +543,13 @@ const toggleIncluirFinalizados = () => {
                         <span class="text-sm uppercase tracking-widest">Mi Perfil</span>
                     </button>
 
-                    <a 
-                        :href="route('catalogo.index')"
+                    <Link 
+                        :href="route('catalogo.rentas')"
                         class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:-translate-y-0.5"
                     >
-                        <font-awesome-icon icon="shopping-bag" /> 
-                        <span class="text-sm uppercase tracking-widest">Ir a la Tienda</span>
-                    </a>
+                        <font-awesome-icon icon="cash-register" /> 
+                        <span class="text-sm uppercase tracking-widest">Renta de Equipos</span>
+                    </Link>
                 </aside>
 
                 <!-- Tab Panels Area -->
@@ -680,14 +717,14 @@ const toggleIncluirFinalizados = () => {
                                 </div>
                              </div>
 
-                             <!-- Acceso Rápido Tienda -->
-                             <div class="bg-[var(--color-primary)] rounded-[2rem] p-8 text-white flex flex-col justify-between shadow-xl shadow-[var(--color-primary)]/30">
+                             <!-- Acceso Rápido Rentas -->
+                             <div class="bg-emerald-600 rounded-[2rem] p-8 text-white flex flex-col justify-between shadow-xl shadow-emerald-500/30">
                                  <div>
-                                     <h3 class="text-xl font-black uppercase tracking-tight mb-2">Comprar Insumos</h3>
-                                     <p class="text-white/80 text-sm font-medium leading-relaxed">¿Necesitas refacciones o equipo nuevo? Visita nuestra tienda online.</p>
+                                     <h3 class="text-xl font-black uppercase tracking-tight mb-2">Hardware en Renta</h3>
+                                     <p class="text-white/80 text-sm font-medium leading-relaxed">¿Necesita equipo para su punto de venta u oficina? Conozca nuestros planes de arrendamiento.</p>
                                  </div>
-                                 <a :href="route('catalogo.index')" class="w-full py-4 bg-white text-[var(--color-primary)] rounded-2xl font-black text-xs uppercase tracking-widest text-center shadow-lg hover:shadow-2xl transition-all">
-                                     Ir a la Tienda 🛍️
+                                 <a :href="route('catalogo.rentas')" class="w-full py-4 bg-white text-emerald-600 rounded-2xl font-black text-xs uppercase tracking-widest text-center shadow-lg hover:shadow-2xl transition-all">
+                                     Ver Planes de Renta 🖥️
                                  </a>
                              </div>
                         </div>

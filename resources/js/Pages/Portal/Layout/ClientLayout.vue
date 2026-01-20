@@ -60,12 +60,23 @@ useDarkMode(empresaData.value);
                         :href="route('portal.credito.index')" 
                         :class="[
                             'text-sm font-bold uppercase tracking-widest pb-5 mt-5 transition-all outline-none',
-                            $page.component === 'Portal/Credito/Index' 
+                            ($page.component === 'Portal/Credito/Index' || $page.component === 'Portal/Credito/FirmarSolicitud')
                                 ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' 
                                 : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
                         ]"
                     >
                         Línea de Crédito
+                    </Link>
+                    <Link 
+                        :href="route('portal.rentas.index')" 
+                        :class="[
+                            'text-sm font-bold uppercase tracking-widest pb-5 mt-5 transition-all outline-none',
+                            ($page.component === 'Portal/Rentas/Index' || $page.component === 'Portal/Rentas/Firmar')
+                                ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' 
+                                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+                        ]"
+                    >
+                        Mis Rentas
                     </Link>
                 </div>
 

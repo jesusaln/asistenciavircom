@@ -67,6 +67,15 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         'limite_credito',
         'dias_credito',
         'dias_gracia',
+
+        // ------ Crédito Firma ------
+        'credito_firma',
+        'credito_firmado_at',
+        'credito_firmado_ip',
+        'credito_firmado_nombre',
+        'credito_firma_hash',
+        'credito_solicitado_monto',
+        'credito_solicitado_dias',
     ];
 
     protected $hidden = [
@@ -84,6 +93,9 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         'limite_credito' => 'decimal:2',
         'dias_credito' => 'integer',
         'dias_gracia' => 'integer',
+        'credito_firmado_at' => 'datetime',
+        'credito_solicitado_monto' => 'decimal:2',
+        'credito_solicitado_dias' => 'integer',
     ];
 
     protected $attributes = [

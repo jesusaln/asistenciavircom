@@ -25,9 +25,16 @@ class UserNotification extends Model
     ];
 
     protected $casts = [
-        'data'    => 'array',
+        'data' => 'array',
         'read_at' => 'datetime',
     ];
+
+    protected $appends = ['read'];
+
+    public function getReadAttribute(): bool
+    {
+        return !is_null($this->read_at);
+    }
 
     protected $attributes = [
         'type' => 'system',
@@ -83,13 +90,13 @@ class UserNotification extends Model
     public static function createForUser(int $userId, string $type, string $title, ?string $message = null, ?array $data = [], ?string $actionUrl = null, ?string $icon = null): static
     {
         return static::create([
-            'user_id'    => $userId,
-            'type'       => $type,
-            'title'      => $title,
-            'message'    => $message,
-            'data'       => $data,
+            'user_id' => $userId,
+            'type' => $type,
+            'title' => $title,
+            'message' => $message,
+            'data' => $data,
             'action_url' => $actionUrl,
-            'icon'       => $icon,
+            'icon' => $icon,
         ]);
     }
 
@@ -111,6 +118,51 @@ class UserNotification extends Model
                 ],
                 "/clientes/{$cliente->id}",
                 'fas fa-user-plus'
+            );
+        }
+    }
+
+    public static function createCreditSignatureNotification($cliente): void
+    {
+        // Notificar a todos los usuarios con rol admin o super-admin
+        $admins = User::role(['admin', 'super-admin'])->get();
+
+        foreach ($admins as $admin) {
+            static::createForUser(
+                $admin->id,
+                'credit_signature',
+                'Solicitud de Crédito Firmada',
+                "El cliente {$cliente->nombre_razon_social} ha firmado digitalmente su solicitud de crédito.",
+                [
+                    'client_id' => $cliente->id,
+                    'client_name' => $cliente->nombre_razon_social,
+                    'limite_solicitado' => $cliente->credito_solicitado_monto,
+                    'dias_solicitados' => $cliente->credito_solicitado_dias,
+                ],
+                "/clientes/{$cliente->id}",
+                'fas fa-signature'
+            );
+        }
+    }
+
+    public static function createRentaSignatureNotification($renta): void
+    {
+        $admins = User::role(['admin', 'super-admin'])->get();
+        $cliente = $renta->cliente;
+
+        foreach ($admins as $admin) {
+            static::createForUser(
+                $admin->id,
+                'renta_firmada',
+                'Contrato de Renta Firmado',
+                "El cliente {$cliente->nombre_razon_social} ha firmado el contrato de renta {$renta->numero_contrato}.",
+                [
+                    'renta_id' => $renta->id,
+                    'cliente_id' => $cliente->id,
+                    'numero_contrato' => $renta->numero_contrato,
+                ],
+                "/rentas/{$renta->id}",
+                'fas fa-file-signature'
             );
         }
     }

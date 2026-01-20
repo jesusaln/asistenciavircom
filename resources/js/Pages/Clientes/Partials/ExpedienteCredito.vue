@@ -106,7 +106,51 @@ const getLabel = (tipo) => {
         </div>
 
         <!-- Lista de documentos -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Firma Digital (Si existe) -->
+            <div v-if="cliente.credito_firma" class="bg-gradient-to-br from-emerald-50 to-white border border-emerald-200 rounded-xl p-4 flex flex-col shadow-sm relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-2">
+                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-full uppercase tracking-tighter">Firma Digital Validada</span>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-emerald-500 shadow-sm">
+                        <font-awesome-icon icon="signature" />
+                    </div>
+                    <div>
+                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Solicitud Firmada por</p>
+                        <p class="text-sm font-bold text-gray-900">{{ cliente.credito_firmado_nombre }}</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-2 border border-emerald-100 mb-3 select-none">
+                    <img :src="cliente.credito_firma" class="max-h-24 mx-auto mix-blend-multiply" alt="Firma Digital">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 mb-3">
+                    <div class="bg-white/50 p-2 rounded-lg border border-emerald-50">
+                        <p class="text-[9px] font-bold text-gray-400 uppercase">Monto Solicitado</p>
+                        <p class="text-xs font-black text-emerald-700">${{ Number(cliente.credito_solicitado_monto).toLocaleString() }}</p>
+                    </div>
+                    <div class="bg-white/50 p-2 rounded-lg border border-emerald-50">
+                        <p class="text-[9px] font-bold text-gray-400 uppercase">Plazo Solicitado</p>
+                        <p class="text-xs font-black text-blue-700">{{ cliente.credito_solicitado_dias }} días</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between text-[9px] text-gray-400 font-mono mt-auto pt-2 border-t border-emerald-50">
+                    <span>IP: {{ cliente.credito_firmado_ip }}</span>
+                    <span>{{ new Date(cliente.credito_firmado_at).toLocaleDateString() }}</span>
+                </div>
+
+                <!-- Action Button Overlay for Signature -->
+                <div class="absolute inset-0 bg-emerald-600/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <a :href="route('clientes.descargar-solicitud-firmada', cliente.id)" target="_blank" class="px-4 py-2 bg-white text-emerald-700 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-transform flex items-center gap-2">
+                        <font-awesome-icon icon="file-pdf" /> Ver Documento Firmado
+                    </a>
+                </div>
+            </div>
+
             <div 
                 v-for="doc in documentos" :key="doc.id"
                 class="bg-white border border-gray-100 rounded-xl p-4 flex items-center justify-between group hover:border-blue-200 transition-all shadow-sm"
@@ -132,7 +176,7 @@ const getLabel = (tipo) => {
             </div>
         </div>
 
-        <div v-if="documentos.length === 0" class="text-center py-10 text-gray-400 italic">
+        <div v-if="documentos.length === 0 && !cliente.credito_firma" class="text-center py-10 text-gray-400 italic">
             No hay documentos cargados en el expediente.
         </div>
     </div>

@@ -64,6 +64,15 @@ class Renta extends Model
         'historial_cambios',
         'forma_pago',
         'referencia_pago',
+        'firma_digital',
+        'firmado_at',
+        'firmado_ip',
+        'firmado_nombre',
+        'firma_hash',
+        'ine_frontal',
+        'ine_trasera',
+        'comprobante_domicilio',
+        'solicitud_renta',
     ];
 
     /**
@@ -84,6 +93,7 @@ class Renta extends Model
         'historial_cambios' => 'json',
         'condiciones_especiales' => 'encrypted', // Opcional: cifrar condiciones sensibles
         'observaciones' => 'encrypted', // Opcional
+        'firmado_at' => 'datetime',
     ];
 
     /**
@@ -116,10 +126,12 @@ class Renta extends Model
     /**
      * Relación con Pagos.
      */
+    /*
     public function pagos(): HasMany
     {
         return $this->hasMany(Pago::class, 'renta_id');
     }
+    */
 
     /**
      * Relación con Cobranzas.

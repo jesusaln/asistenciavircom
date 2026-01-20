@@ -166,11 +166,11 @@
         <div class="grid">
             <div class="col" style="flex: 2;">
                 <span class="label">Domicilio Fiscal</span>
-                <div class="value">{{ $cliente->direccion }}</div>
+                <div class="value">{{ $cliente->direccion ?: $cliente->direccion_completa }}</div>
             </div>
             <div class="col">
                 <span class="label">Teléfono</span>
-                <div class="value">{{ $cliente->telefono }}</div>
+                <div class="value">{{ $cliente->telefono ?: $cliente->celular }}</div>
             </div>
         </div>
         <div class="grid">
@@ -191,15 +191,16 @@
         <div class="grid">
             <div class="col">
                 <span class="label">Monto de Crédito Solicitado</span>
-                <div class="value">${{ number_format($cliente->limite_credito ?? 0, 2) }}</div>
+                <div class="value">
+                    ${{ number_format($cliente->credito_solicitado_monto ?: $cliente->limite_credito ?: 0, 2) }}</div>
             </div>
             <div class="col">
                 <span class="label">Días de Crédito Solicitados</span>
-                <div class="value">{{ $cliente->dias_credito ?? 0 }} días</div>
+                <div class="value">{{ $cliente->credito_solicitado_dias ?: $cliente->dias_credito ?: 0 }} días</div>
             </div>
             <div class="col">
                 <span class="label">Tipo de Persona</span>
-                <div class="value">{{ ucfirst($cliente->tipo_persona ?? 'No especificado') }}</div>
+                <div class="value">{{ ucfirst($cliente->tipo_persona ?: 'No especificado') }}</div>
             </div>
         </div>
     </div>
@@ -214,7 +215,8 @@
             2. El otorgamiento del crédito queda sujeto a la aprobación del Departamento de Crédito y Cobranza tras el
             análisis de la documentación entregada.<br>
             3. El Solicitante se compromete a liquidar sus facturas puntualmente dentro del plazo de
-            {{ $cliente->dias_credito ?? 30 }} días pactado. En caso de mora, se aplicarán los intereses estipulados en
+            {{ $cliente->credito_solicitado_dias ?: $cliente->dias_credito ?: 30 }} días pactado. En caso de mora, se
+            aplicarán los intereses estipulados en
             el contrato maestro.<br>
             4. Se autoriza a compartir información sobre el comportamiento de pago con sociedades de información
             crediticia.<br>
@@ -226,13 +228,23 @@
     <!-- FIRMAS -->
     <div class="signature-grid">
         <div class="signature-box">
-            <div class="signature-line">
-                <strong>{{ $cliente->nombre_razon_social }}</strong><br>
-                Firma del Solicitante / Representante Legal
-            </div>
+            @if($cliente->credito_firma)
+                <img src="{{ $cliente->credito_firma }}" style="max-height: 80px; max-width: 200px;">
+                <div class="signature-line">
+                    <strong>{{ $cliente->credito_firmado_nombre ?: $cliente->nombre_razon_social }}</strong><br>
+                    Firma Digital del Solicitante<br>
+                    <span style="font-size: 8px; color: #6b7280;">HUELLA:
+                        {{ substr($cliente->credito_firma_hash, 0, 16) }}...</span>
+                </div>
+            @else
+                <div class="signature-line" style="margin-top: 80px;">
+                    <strong>{{ $cliente->nombre_razon_social }}</strong><br>
+                    Firma del Solicitante / Representante Legal
+                </div>
+            @endif
         </div>
         <div class="signature-box">
-            <div class="signature-line">
+            <div class="signature-line" style="margin-top: 80px;">
                 <strong>{{ $empresa->nombre_comercial ?? 'La Empresa' }}</strong><br>
                 Autorización (Sello y Firma)
             </div>

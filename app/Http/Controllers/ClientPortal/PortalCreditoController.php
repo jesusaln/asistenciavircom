@@ -9,11 +9,15 @@ use App\Models\EmpresaConfiguracion;
 use App\Support\EmpresaResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use App\Models\Cliente;
+use App\Models\User;
+use App\Models\UserNotification;
+use App\Mail\CreditSignatureMail;
 use App\Models\PolizaServicio;
 
 class PortalCreditoController extends Controller
@@ -50,6 +54,11 @@ class PortalCreditoController extends Controller
             'saldo_pendiente' => $cliente->saldo_pendiente,
             'credito_disponible' => $cliente->credito_disponible,
             'documentos' => $cliente->documentos,
+            'credito_firma' => $cliente->credito_firma,
+            'credito_firmado_at' => $cliente->credito_firmado_at,
+            'credito_solicitado_monto' => $cliente->credito_solicitado_monto,
+            'credito_solicitado_dias' => $cliente->credito_solicitado_dias,
+            'rfc' => $cliente->rfc,
         ];
 
         return Inertia::render('Portal/Credito/Index', [
@@ -130,7 +139,91 @@ class PortalCreditoController extends Controller
             'cliente' => $cliente,
             'empresa' => $empresa,
             'logo' => $logo,
-            'fecha' => now()->format('d/m/Y')
+            'fecha' => $cliente->credito_firmado_at ? $cliente->credito_firmado_at->format('d/m/Y') : now()->format('d/m/Y')
         ]);
+    }
+
+    public function firmarSolicitud()
+    {
+        $cliente = Auth::guard('client')->user();
+
+        // Si ya está autorizado, no permitimos volver a firmar
+        if ($cliente->estado_credito === 'autorizado') {
+            return redirect()->route('portal.credito.index')
+                ->with('info', 'Tu crédito ya ha sido autorizado.');
+        }
+
+        return Inertia::render('Portal/Credito/FirmarSolicitud', [
+            'cliente' => $cliente,
+            'empresa' => $this->getEmpresaBranding(),
+        ]);
+    }
+
+    public function storeFirmaSolicitud(Request $request)
+    {
+        /** @var \App\Models\Cliente $cliente */
+        $cliente = Auth::guard('client')->user();
+
+        if ($cliente->estado_credito === 'autorizado') {
+            return back()->with('error', 'Tu crédito ya ha sido autorizado.');
+        }
+
+        $request->validate([
+            'firma' => 'required|string', // Base64
+            'nombre_firmante' => 'required|string|min:3|max:255',
+            'acepta_terminos' => 'accepted',
+            'limite_solicitado' => 'required|numeric|min:0',
+            'dias_credito_solicitados' => 'required|integer|min:0',
+        ]);
+
+        // Generar hash único
+        $contenidoSolicitud = json_encode([
+            'cliente_id' => $cliente->id,
+            'nombre' => $cliente->nombre_razon_social,
+            'rfc' => $cliente->rfc,
+            'limite' => $request->limite_solicitado,
+            'dias' => $request->dias_credito_solicitados,
+            'firmante' => $request->nombre_firmante,
+            'timestamp' => now()->toIso8601String(),
+        ]);
+
+        $firmaHash = hash('sha256', $contenidoSolicitud . $request->firma);
+
+        // Guardar la firma en el modelo Cliente
+        $cliente->update([
+            'credito_firma' => $request->firma,
+            'credito_firmado_at' => now(),
+            'credito_firmado_ip' => $request->ip(),
+            'credito_firmado_nombre' => $request->nombre_firmante,
+            'credito_firma_hash' => $firmaHash,
+            'credito_solicitado_monto' => $request->limite_solicitado,
+            'credito_solicitado_dias' => $request->dias_credito_solicitados,
+            'estado_credito' => 'en_revision', // Cambiamos estado automáticamente
+        ]);
+
+        Log::info("Solicitud de crédito firmada digitalmente", [
+            'cliente_id' => $cliente->id,
+            'firmante' => $request->nombre_firmante,
+            'ip' => $request->ip(),
+            'hash' => $firmaHash,
+        ]);
+
+        // --- NOTIFICACIONES ---
+        try {
+            // 1. Notificación en la campanita para todos los admins
+            UserNotification::createCreditSignatureNotification($cliente);
+
+            // 2. Correo electrónico a todos los admins
+            $admins = User::role(['admin', 'super-admin'])->get();
+            if ($admins->count() > 0) {
+                Mail::to($admins)->send(new CreditSignatureMail($cliente));
+            }
+        } catch (\Exception $e) {
+            Log::error('Error al enviar notificaciones de firma de crédito: ' . $e->getMessage());
+            // No detenemos el flujo si fallan las notificaciones
+        }
+
+        return redirect()->route('portal.credito.index')
+            ->with('success', '¡Solicitud firmada y enviada correctamente! Estaremos revisándola a la brevedad.');
     }
 }

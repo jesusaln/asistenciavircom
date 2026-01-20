@@ -22,6 +22,7 @@ const { itemCount } = useCart();
 const navLinks = [
     { name: 'Inicio', route: 'landing', id: 'landing' },
     { name: 'Pólizas', route: 'catalogo.polizas', id: 'polizas' },
+    { name: 'Rentas', route: 'catalogo.rentas', id: 'rentas' },
     { name: 'Productos', route: 'catalogo.index', id: 'tienda' },
     { name: 'Contacto', route: 'public.contacto', id: 'contacto' },
     { name: 'Soporte', route: 'portal.dashboard', id: 'soporte' },

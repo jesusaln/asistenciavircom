@@ -45,9 +45,16 @@
           :class="{ 'unread': !notification.read }"
         >
           <div class="notification-content" @click="markAsRead(notification.id)">
-            <div class="notification-title">{{ notification.title }}</div>
-            <div class="notification-message">{{ notification.message }}</div>
-            <div class="notification-time">{{ formatTime(notification.created_at) }}</div>
+            <div class="flex items-start gap-3">
+              <div v-if="notification.icon" class="notification-icon mt-1">
+                <i :class="notification.icon" class="text-gray-400"></i>
+              </div>
+              <div class="flex-1">
+                <div class="notification-title">{{ notification.title }}</div>
+                <div class="notification-message">{{ notification.message }}</div>
+                <div class="notification-time">{{ formatTime(notification.created_at) }}</div>
+              </div>
+            </div>
           </div>
           <button
             @click.stop="removeNotification(notification.id)"
@@ -543,6 +550,23 @@ export default {
   padding: 15px 20px;
   cursor: pointer;
 }
+
+.notification-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f2f5;
+  border-radius: 50%;
+  font-size: 14px;
+}
+
+.flex { display: flex; }
+.items-start { align-items: flex-start; }
+.gap-3 { gap: 0.75rem; }
+.flex-1 { flex: 1 1 0%; }
+.mt-1 { margin-top: 0.25rem; }
 
 .notification-title {
   font-weight: 600;

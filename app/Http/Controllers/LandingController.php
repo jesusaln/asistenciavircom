@@ -108,6 +108,9 @@ class LandingController extends Controller
         // Mostrar SOLO los planes destacados en la landing (Limitado a 3 como pidió el usuario)
         $planes = PlanPoliza::activos()->destacados()->ordenado()->take(3)->get();
 
+        // Obtener planes de renta destacados
+        $rentas = \App\Models\PlanRenta::publicos()->destacados()->ordenado()->take(3)->get();
+
         // Obtener la oferta activa y vigente (solo la primera)
         $ofertaActiva = LandingOferta::activo()->vigente()->ordenado()->first();
 
@@ -150,6 +153,7 @@ class LandingController extends Controller
             'marcas' => $marcas,
             'procesos' => $procesos,
             'planes' => $planes,
+            'rentas' => $rentas,
             'oferta' => $ofertaActiva ? [
                 'id' => $ofertaActiva->id,
                 'titulo' => $ofertaActiva->titulo,

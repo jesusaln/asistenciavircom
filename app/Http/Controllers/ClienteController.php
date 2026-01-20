@@ -1056,5 +1056,20 @@ class ClienteController extends Controller
         }
     }
 
+    public function descargarSolicitudFirmada(Cliente $cliente)
+    {
+        $empresaId = $cliente->empresa_id ?? \App\Support\EmpresaResolver::resolveId();
+        $empresa = \App\Models\EmpresaConfiguracion::getConfig($empresaId);
+
+        $logo = $empresa->logo_url ?? asset('images/logo.png');
+
+        return view('portal.impresion.solicitud_credito', [
+            'cliente' => $cliente,
+            'empresa' => $empresa,
+            'logo' => $logo,
+            'fecha' => $cliente->credito_firmado_at ? $cliente->credito_firmado_at->format('d/m/Y') : now()->format('d/m/Y')
+        ]);
+    }
+
     // Servicios extraidos: ClienteRelationsService
 }

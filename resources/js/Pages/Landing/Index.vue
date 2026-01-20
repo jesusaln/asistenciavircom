@@ -21,6 +21,7 @@ const props = defineProps({
     marcas: Array,
     procesos: Array,
     planes: Array,
+    rentas: Array,
     oferta: Object,
     laravelVersion: String,
     phpVersion: String,
@@ -163,6 +164,11 @@ const getFaIcon = (plan) => {
         garantia: 'shield-halved',
         premium: 'crown',
         personalizado: 'building-shield',
+        // Rentas
+        pdv: 'cash-register',
+        oficina: 'laptop',
+        gaming: 'gamepad',
+        laptop: 'mobile-alt',
     };
     return iconos[plan.tipo] || 'shield-halved';
 };
@@ -259,10 +265,11 @@ const planesCalculados = computed(() => {
                                 {{ empresaData?.hero_cta_primario || 'Nuestras Pólizas' }}
                             </Link>
                             <Link 
-                                :href="route('catalogo.index')"
-                                class="px-8 py-5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-gray-100 dark:border-gray-700 rounded-2xl font-black text-sm uppercase tracking-widest hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] dark:hover:border-[var(--color-primary)] dark:hover:text-[var(--color-primary)] transition-all flex items-center justify-center gap-3"
+                                :href="route('catalogo.rentas')"
+                                class="px-8 py-5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-gray-100 dark:border-gray-700 rounded-2xl font-black text-sm uppercase tracking-widest hover:border-emerald-500 hover:text-emerald-500 transition-all flex items-center justify-center gap-3 group"
                             >
-                                {{ empresaData?.hero_cta_secundario || 'Nuestros Productos' }}
+                                <span class="text-xl group-hover:scale-125 transition-transform duration-300">🖥️</span>
+                                Renta de Equipos
                             </Link>
                         </div>
                         
@@ -463,6 +470,65 @@ const planesCalculados = computed(() => {
 
         <!-- POS SIMULATOR -->
         <PosSimulator :empresa="empresaData" />
+
+        <!-- SECCIÓN DE RENTAS (NUEVO) -->
+        <section v-if="rentas?.length" class="py-32 bg-slate-50 dark:bg-gray-900/50 relative overflow-hidden transition-colors duration-300">
+            <div class="absolute -top-24 -left-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] animate-pulse"></div>
+            <div class="w-full px-4 relative z-10">
+                <div class="text-center mb-20">
+                    <h2 class="text-xs font-black uppercase tracking-[0.3em] text-emerald-600 mb-6">Equipamiento sin Inversión</h2>
+                    <h3 class="text-5xl lg:text-7xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight mb-8">
+                        Renta de <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">Tecnología PDV</span>
+                    </h3>
+                    <p class="text-xl text-gray-600 dark:text-gray-400 font-medium max-w-3xl mx-auto leading-relaxed">
+                        Obtén el hardware que tu negocio necesita hoy mismo. Sin descapitalizarte, con mantenimiento y soporte técnico incluido.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                    <article v-for="plan in rentas" :key="plan.id" class="group bg-white dark:bg-gray-800 p-10 rounded-[3rem] border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-4 transition-all duration-700 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 -mr-16 -mt-16 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+                        
+                        <div class="mb-10 relative">
+                            <div class="text-5xl mb-6 transition-transform group-hover:scale-110 duration-500">{{ plan.icono || '🖥️' }}</div>
+                            <h4 class="text-3xl font-black text-gray-900 dark:text-white mb-2 tracking-tight transition-colors">{{ plan.nombre }}</h4>
+                            <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{{ plan.tipo_label }}</span>
+                        </div>
+
+                        <div class="mb-10 text-center py-6 border-y border-gray-50 dark:border-gray-700 transition-colors">
+                            <div class="flex items-baseline justify-center gap-1">
+                                <span class="text-gray-400 text-xl font-bold">$</span>
+                                <span class="text-6xl font-black text-gray-900 dark:text-white tracking-tighter transition-colors">
+                                    {{ formatPrice(plan.precio_mensual).split('.')[0] }}
+                                </span>
+                                <span class="text-gray-400 font-bold">/mes</span>
+                            </div>
+                        </div>
+
+                        <ul class="space-y-4 mb-12 flex-grow">
+                            <li v-for="equipo in plan.equipamiento_incluido.slice(0, 4)" :key="equipo" class="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 font-medium transition-colors">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                {{ equipo }}
+                            </li>
+                        </ul>
+
+                        <Link 
+                            :href="route('catalogo.rentas')"
+                            class="w-full py-5 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest text-center shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 hover:shadow-emerald-500/40 transition-all flex items-center justify-center gap-3"
+                        >
+                            Contratar Ahora
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </Link>
+                    </article>
+                </div>
+                
+                <div class="mt-16 text-center">
+                    <Link :href="route('catalogo.rentas')" class="text-emerald-600 font-black uppercase tracking-widest text-xs hover:underline cursor-pointer">
+                        Ver todos los planes de arrendamiento →
+                    </Link>
+                </div>
+            </div>
+        </section>
 
         <!-- POLIZAS DE MANTENIMIENTO (CYBER DARK & LIGHT) -->
         <section class="py-32 bg-white dark:bg-gray-900 relative overflow-hidden transition-colors duration-300">
