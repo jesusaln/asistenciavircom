@@ -169,8 +169,8 @@
                                         </span>
                                     </button>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comprobantes</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Comprobantes</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                     <button class="flex items-center gap-1" @click="toggleSort('usuario')">
                                         Usuario
                                         <span v-if="filters.sort_by === 'usuario'">
@@ -178,44 +178,47 @@
                                         </span>
                                     </button>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             <tr v-for="movimiento in movimientos.data" :key="movimiento.id">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                     {{ formatDate(movimiento.fecha) }}
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        {{ new Date(movimiento.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) }}
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                                     <div class="font-semibold">{{ movimiento.concepto }}</div>
-                                    <div v-if="movimiento.nota" class="text-xs text-gray-500 mt-1 whitespace-normal max-w-xs">
+                                    <div v-if="movimiento.nota" class="text-xs text-gray-500 dark:text-gray-400 mt-1 whitespace-normal max-w-xs">
                                         {{ movimiento.nota }}
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                                     {{ movimiento.categoria || '—' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                                        :class="movimiento.tipo === 'ingreso' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                                        :class="movimiento.tipo === 'ingreso' ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300'">
                                         {{ movimiento.tipo }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"
-                                    :class="movimiento.tipo === 'ingreso' ? 'text-green-600' : 'text-red-600'">
+                                    :class="movimiento.tipo === 'ingreso' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
                                     ${{ formatMoney(movimiento.monto) }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                     <button
                                         v-if="(movimiento.adjuntos && movimiento.adjuntos.length) || movimiento.comprobante_url"
                                         @click="verComprobante(movimiento)"
-                                        class="text-blue-600 hover:text-blue-900 font-semibold"
+                                        class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 font-semibold"
                                     >
                                         Ver ({{ movimiento.adjuntos?.length || (movimiento.comprobante_url ? 1 : 0) }})
                                     </button>
-                                    <span v-else class="text-gray-400">-</span>
+                                    <span v-else class="text-gray-400 dark:text-gray-500">-</span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                     {{ movimiento.user?.name || 'Desconocido' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

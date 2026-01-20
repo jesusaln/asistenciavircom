@@ -31,6 +31,7 @@ class EmpresaConfiguracion extends Model
         'numero_exterior',
         'numero_interior',
         'telefono',
+        'whatsapp',
         'email',
         'sitio_web',
         'codigo_postal',
