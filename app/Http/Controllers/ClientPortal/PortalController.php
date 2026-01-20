@@ -185,9 +185,28 @@ class PortalController extends Controller
 
     public function create()
     {
+        $cliente = Auth::guard('client')->user();
+
+        // Buscar póliza activa con sus costos y estado
+        $poliza = PolizaServicio::where('cliente_id', $cliente->id)
+            ->whereIn('estado', ['activa', 'vencida_en_gracia'])
+            ->with('planPoliza')
+            ->latest()
+            ->first();
+
+        if ($poliza) {
+            $poliza->append(['excede_horas', 'excede_limite', 'excede_limite_visitas']);
+
+            // Adjuntar costos de excedentes para el frontend
+            $poliza->costo_hora_extra_aplicable = $poliza->costo_hora_excedente ?? $poliza->planPoliza?->costo_hora_extra ?? 0;
+            $poliza->costo_ticket_extra_aplicable = $poliza->costo_ticket_extra ?? $poliza->planPoliza?->costo_ticket_extra ?? 0;
+            $poliza->costo_visita_extra_aplicable = $poliza->costo_visita_sitio_extra ?? $poliza->planPoliza?->costo_visita_extra ?? 0;
+        }
+
         return Inertia::render('Portal/CreateTicket', [
             'categorias' => TicketCategory::activas()->ordenadas()->get(),
             'empresa' => $this->getEmpresaBranding(),
+            'poliza' => $poliza,
         ]);
     }
 

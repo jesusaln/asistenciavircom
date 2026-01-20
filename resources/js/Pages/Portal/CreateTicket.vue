@@ -1,10 +1,11 @@
 <script setup>
 import { Link, useForm, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import ClientLayout from './Layout/ClientLayout.vue';
 
 const props = defineProps({
   categorias: Array,
+  poliza: Object, // Póliza activa del cliente
 });
 
 const page = usePage();
@@ -26,17 +27,66 @@ const form = useForm({
 });
 
 const submit = () => {
-  form.post(route('portal.tickets.store'));
+    // Si hay advertencia pendiente y no ha sido aceptada, mostrar modal de nuevo o prevenir envío si es crítico
+    if (cobroPendienteConfirmacion.value) {
+        showCostoExtraModal.value = true;
+        return;
+    }
+    form.post(route('portal.tickets.store'));
 };
 
 // Modal de advertencia para prioridad Urgente
-import { ref, watch } from 'vue';
-
 const showUrgenciaModal = ref(false);
+
+// Modal de Costo Extra (Póliza Agotada)
+const showCostoExtraModal = ref(false);
+const costoExtraData = ref({
+    tipo: '', // 'horas' o 'tickets'
+    costo: 0,
+    mensaje: ''
+});
+const cobroPendienteConfirmacion = ref(false);
 
 watch(() => form.prioridad, (newVal) => {
     if (newVal === 'urgente') {
         showUrgenciaModal.value = true;
+    }
+});
+
+// Watcher para detectar si la categoría consume póliza y si esta está agotada
+watch(() => form.categoria_id, (newVal) => {
+    if (!newVal || !props.poliza) return;
+
+    const cat = props.categorias.find(c => c.id === newVal);
+    if (!cat) return;
+
+    // Reiniciar estado
+    cobroPendienteConfirmacion.value = false;
+
+    // Verificar si la categoría consume póliza
+    if (cat.consume_poliza) {
+        // Verificar Exceso de Horas (Prioridad 1)
+        if (props.poliza.excede_horas) {
+            costoExtraData.value = {
+                tipo: 'horas',
+                costo: props.poliza.costo_hora_extra_aplicable,
+                mensaje: `Hola, notamos que has utilizado todas las horas incluidas en tu póliza mensual. Podemos atenderte con gusto bajo una tarifa preferencial de`
+            };
+            showCostoExtraModal.value = true;
+            cobroPendienteConfirmacion.value = true;
+            return;
+        }
+
+        // Verificar Exceso de Tickets (Prioridad 2, si no es por horas)
+        if (props.poliza.excede_limite) {
+            costoExtraData.value = {
+                tipo: 'tickets',
+                costo: props.poliza.costo_ticket_extra_aplicable,
+                mensaje: `Has alcanzado el límite de tickets incluidos en tu plan mensual. Este servicio generará un costo adicional de`
+            };
+            showCostoExtraModal.value = true;
+            cobroPendienteConfirmacion.value = true;
+        }
     }
 });
 
@@ -46,8 +96,27 @@ const confirmarUrgencia = () => {
 };
 
 const cambiarPrioridad = () => {
-    form.prioridad = 'alta'; // O media, según preferencia. Alta es un buen fallback.
+    form.prioridad = 'alta'; 
     showUrgenciaModal.value = false;
+};
+
+const aceptarCostoExtra = () => {
+    showCostoExtraModal.value = false;
+    cobroPendienteConfirmacion.value = false; // Usuario aceptó
+};
+
+const cancelarPorCosto = () => {
+    showCostoExtraModal.value = false;
+    form.categoria_id = ''; // Resetear categoría
+    cobroPendienteConfirmacion.value = false;
+};
+
+// Formatear moneda
+const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('es-MX', {
+        style: 'currency',
+        currency: 'MXN'
+    }).format(amount);
 };
 </script>
 
@@ -161,13 +230,13 @@ const cambiarPrioridad = () => {
     </div>
   </ClientLayout>
 
+  <!-- Modales -->
   <Teleport to="body">
+    <!-- Modal Urgencia -->
     <div v-if="showUrgenciaModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-white0 bg-opacity-75 transition-opacity" aria-hidden="true" @click="cambiarPrioridad"></div>
-
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="cambiarPrioridad"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="sm:flex sm:items-start">
@@ -211,6 +280,62 @@ const cambiarPrioridad = () => {
                         @click="cambiarPrioridad"
                     >
                         Cambiar Prioridad
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Costo Extra (Póliza Agotada) -->
+    <div v-if="showCostoExtraModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="cancelarPorCosto"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <!-- Header Amable -->
+                <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-4 sm:px-6">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-white/20 p-2 rounded-lg text-white">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">
+                            ¡Queremos ayudarte!
+                        </h3>
+                    </div>
+                </div>
+
+                <div class="px-6 py-6 space-y-4">
+                    <p class="text-gray-600 text-base leading-relaxed">
+                        {{ costoExtraData.mensaje }} 
+                        <span class="font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">{{ formatCurrency(costoExtraData.costo) }}</span>
+                        {{ costoExtraData.tipo === 'horas' ? '/ hora extra' : '/ ticket extra' }}.
+                    </p>
+                    
+                    <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3">
+                        <span class="text-2xl">💡</span>
+                        <div class="text-sm text-blue-800">
+                            <strong>¿Sabías que?</strong> 
+                            Continuar con el servicio asegura que tu reporte sea atendido de inmediato por nuestros expertos. El cargo se añadirá a tu próximo estado de cuenta.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 px-6 py-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                    <button 
+                        type="button" 
+                        class="w-full sm:w-auto px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                        @click="cancelarPorCosto"
+                    >
+                        Cancelar
+                    </button>
+                    <button 
+                        type="button" 
+                        class="w-full sm:w-auto px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all transform hover:scale-105"
+                        @click="aceptarCostoExtra"
+                    >
+                        Entendido, continuar con el servicio
                     </button>
                 </div>
             </div>
