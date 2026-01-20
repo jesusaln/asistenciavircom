@@ -106,6 +106,14 @@ class Factura extends Model
     }
 
     /**
+     * Relación con CFDI
+     */
+    public function cfdi()
+    {
+        return $this->morphOne(Cfdi::class, 'cfdiable');
+    }
+
+    /**
      * Scopes
      */
     public function scopeEstado($query, $estado)

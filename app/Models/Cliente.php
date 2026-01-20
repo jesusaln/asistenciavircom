@@ -24,6 +24,7 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         'codigo',
         'empresa_id',
         'nombre_razon_social',
+        'razon_social',        // Razón social para facturación (puede ser diferente al nombre comercial)
         'tipo_persona',
         'tipo_identificacion',
         'identificacion',
@@ -33,6 +34,12 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         'uso_cfdi',        // clave SAT c_UsoCFDI
         'forma_pago_default', // clave SAT c_FormaPago (forma de pago preferida)
         'domicilio_fiscal_cp', // Código postal del domicilio fiscal (CFDI 4.0)
+        'domicilio_fiscal_calle',
+        'domicilio_fiscal_numero',
+        'domicilio_fiscal_colonia',
+        'domicilio_fiscal_municipio',
+        'domicilio_fiscal_estado',
+        'misma_direccion_fiscal', // Si el domicilio fiscal es igual al de servicio
         'residencia_fiscal',   // c_Pais para extranjeros (CFDI 4.0)
         'num_reg_id_trib',     // Número de registro fiscal extranjero (CFDI 4.0)
         'email',

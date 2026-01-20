@@ -81,27 +81,35 @@ class CheckClientDebt
         ]);
 
         // Verificar ventas pendientes antiguas (sin registro en CxC o contado pendiente)
-        $queryVentas = Venta::where('cliente_id', $cliente->id)
+        $countVentas = Venta::where('cliente_id', $cliente->id)
             ->whereIn('estado', ['pendiente', 'vencida'])
             ->where('pagado', false)
-            ->where('fecha', '<', $corteLimitDate);
-
-        $hasOverdueVentas = $queryVentas->exists();
-
-        if ($hasOverdueVentas) {
-            Log::info('CheckClientDebt: Bloqueado por Ventas', ['count' => $queryVentas->count()]);
-            return true;
-        }
+            ->where('fecha', '<', $corteLimitDate)
+            ->count();
 
         // Verificar CxC vencidas
-        $hasOverdueCxC = CuentasPorCobrar::where('cliente_id', $cliente->id)
+        $countCxC = CuentasPorCobrar::where('cliente_id', $cliente->id)
             ->whereIn('estado', ['pendiente', 'vencido'])
             ->where('monto_pendiente', '>', 0)
             ->where('fecha_vencimiento', '<', $corteLimitDate)
-            ->exists();
+            ->count();
 
-        Log::info('CheckClientDebt: Bloqueado por CxC?', ['result' => $hasOverdueCxC]);
+        $totalVencidos = $countVentas + $countCxC;
 
-        return $hasOverdueCxC;
+        Log::info('CheckClientDebt: Estado Deuda', [
+            'ventas_vencidas' => $countVentas,
+            'cxc_vencidas' => $countCxC,
+            'total' => $totalVencidos
+        ]);
+
+        // REGLA DE NEGOCIO (20-01-2026):
+        // Solo bloquear si hay 2 o más documentos vencidos (ej. 2 meses de renta).
+        // Se permite 1 mes de atraso sin bloquear el portal.
+        if ($totalVencidos >= 2) {
+            Log::info('CheckClientDebt: Usuario BLOQUEADO por acumulación de deuda.', ['total_docs' => $totalVencidos]);
+            return true;
+        }
+
+        return false;
     }
 }

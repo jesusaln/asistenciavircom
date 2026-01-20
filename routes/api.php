@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Api\ClienteController;
 use App\Http\Controllers\Api\CategoriaController;
 use App\Http\Controllers\Api\MarcaController;
@@ -132,6 +133,28 @@ Route::get('/cp/{cp}', function (string $cp) {
 
     return response()->json(['error' => 'Código postal no encontrado'], 404);
 })->name('api.cp');
+
+// Subida de documentos temporales para contratación
+Route::post('/upload-temp', function (Request $request) {
+    $request->validate([
+        'documento' => 'required|file|max:10240|mimes:jpg,jpeg,png,pdf,webp',
+        'tipo' => 'required|string|in:ine_frontal,ine_trasera,comprobante_domicilio,solicitud_renta',
+    ]);
+
+    $file = $request->file('documento');
+    $tipo = $request->input('tipo');
+
+    // Generar nombre único
+    $filename = $tipo . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+    // Guardar en carpeta temporal (se moverá cuando se complete el proceso)
+    $path = $file->storeAs('temp/contratos', $filename, 'public');
+
+    return response()->json([
+        'path' => $path,
+        'url' => Storage::disk('public')->url($path),
+    ]);
+})->name('api.upload-temp');
 
 // =====================================================
 // RECURSOS API (Con nombres únicos para evitar conflictos)

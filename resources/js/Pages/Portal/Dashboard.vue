@@ -51,8 +51,8 @@ watch(activeTab, (newTab) => {
 });
 
 onMounted(() => {
-    // Si hay pagos pendientes, mostrar modal inmediatamente
-    if (props.pagosPendientes && props.pagosPendientes.length > 0) {
+    // Si hay pagos pendientes Y está bloqueado por reglas de negocio (>= 2 meses), mostrar modal
+    if (isBlocked.value && props.pagosPendientes && props.pagosPendientes.length > 0) {
         showDeudaModal.value = true;
     }
 });

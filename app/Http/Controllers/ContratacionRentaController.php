@@ -72,6 +72,7 @@ class ContratacionRentaController extends Controller
     public function procesar(Request $request, string $slug)
     {
         $requiereFactura = $request->boolean('requiere_factura');
+        $mismaDireccionFiscal = $request->boolean('misma_direccion_fiscal', true);
 
         $validated = $request->validate([
             'requiere_factura' => 'boolean',
@@ -81,7 +82,15 @@ class ContratacionRentaController extends Controller
             'rfc' => $requiereFactura ? ['required', 'string', 'regex:/^([A-ZÑ&]{3,4})[0-9]{6}[A-Z0-9]{3}$/i'] : 'nullable|string',
             'regimen_fiscal' => $requiereFactura ? 'required|exists:sat_regimenes_fiscales,clave' : 'nullable',
             'uso_cfdi' => $requiereFactura ? 'required|exists:sat_usos_cfdi,clave' : 'nullable',
-            'domicilio_fiscal_cp' => $requiereFactura ? 'required|digits:5' : 'nullable',
+
+            // Dirección fiscal (si es diferente)
+            'misma_direccion_fiscal' => 'boolean',
+            'domicilio_fiscal_cp' => ($requiereFactura && !$mismaDireccionFiscal) ? 'required|digits:5' : 'nullable',
+            'domicilio_fiscal_calle' => ($requiereFactura && !$mismaDireccionFiscal) ? 'required|string|max:255' : 'nullable|string|max:255',
+            'domicilio_fiscal_colonia' => ($requiereFactura && !$mismaDireccionFiscal) ? 'required|string|max:255' : 'nullable|string|max:255',
+            'domicilio_fiscal_municipio' => ($requiereFactura && !$mismaDireccionFiscal) ? 'required|string|max:255' : 'nullable|string|max:255',
+            'domicilio_fiscal_estado' => ($requiereFactura && !$mismaDireccionFiscal) ? 'required|string' : 'nullable|string',
+
             'email' => 'required|email|max:255',
             'telefono' => 'required|string|max:20',
             'codigo_postal' => 'required|digits:5',
@@ -92,6 +101,17 @@ class ContratacionRentaController extends Controller
             'municipio' => 'required|string|max:255',
             'estado' => 'required|string|size:3',
             'pais' => 'required|string|max:10',
+
+            // Documentos
+            'ine_frontal' => 'required|string',
+            'ine_trasera' => 'required|string',
+            'comprobante_domicilio' => 'required|string',
+
+            // Firma digital
+            'firma' => 'required|string',
+            'nombre_firmante' => 'required|string|max:255',
+            'acepta_firma' => 'accepted',
+
             'metodo_pago' => 'required|in:paypal,mercadopago,tarjeta,credito',
             'password' => auth('client')->check() ? 'nullable|confirmed' : 'required|string|min:8|confirmed',
             'aceptar_terminos' => 'accepted',
@@ -110,9 +130,11 @@ class ContratacionRentaController extends Controller
                 'rfc' => strtoupper($requiereFactura ? $validated['rfc'] : 'XAXX010101000'),
                 'regimen_fiscal' => $requiereFactura ? $validated['regimen_fiscal'] : '616',
                 'uso_cfdi' => $requiereFactura ? $validated['uso_cfdi'] : 'S01',
-                'domicilio_fiscal_cp' => $validated['domicilio_fiscal_cp'] ?? $validated['codigo_postal'],
+                'requiere_factura' => $requiereFactura,
+                'misma_direccion_fiscal' => $mismaDireccionFiscal,
                 'email' => $validated['email'],
                 'telefono' => $validated['telefono'],
+                // Dirección de servicio/instalación
                 'codigo_postal' => $validated['codigo_postal'],
                 'calle' => $validated['calle'],
                 'numero_exterior' => $validated['numero_exterior'],
@@ -121,10 +143,27 @@ class ContratacionRentaController extends Controller
                 'municipio' => $validated['municipio'],
                 'estado' => $validated['estado'],
                 'pais' => $validated['pais'],
-                'direccion' => "{$validated['calle']} #{$validated['numero_exterior']}, {$validated['colonia']}, {$validated['municipio']}, {$validated['estado']}",
                 'empresa_id' => $empresaId,
-                'tipo' => 'cliente',
             ];
+
+            // Domicilio fiscal - usar el de instalación o el proporcionado
+            if ($requiereFactura) {
+                if ($mismaDireccionFiscal) {
+                    // Usar misma dirección
+                    $clienteData['domicilio_fiscal_cp'] = $validated['codigo_postal'];
+                    $clienteData['domicilio_fiscal_calle'] = $validated['calle'] . ' #' . $validated['numero_exterior'];
+                    $clienteData['domicilio_fiscal_colonia'] = $validated['colonia'];
+                    $clienteData['domicilio_fiscal_municipio'] = $validated['municipio'];
+                    $clienteData['domicilio_fiscal_estado'] = $validated['estado'];
+                } else {
+                    // Usar dirección fiscal diferente
+                    $clienteData['domicilio_fiscal_cp'] = $validated['domicilio_fiscal_cp'];
+                    $clienteData['domicilio_fiscal_calle'] = $validated['domicilio_fiscal_calle'] ?? null;
+                    $clienteData['domicilio_fiscal_colonia'] = $validated['domicilio_fiscal_colonia'] ?? null;
+                    $clienteData['domicilio_fiscal_municipio'] = $validated['domicilio_fiscal_municipio'] ?? null;
+                    $clienteData['domicilio_fiscal_estado'] = $validated['domicilio_fiscal_estado'] ?? null;
+                }
+            }
 
             if ($request->filled('password')) {
                 $clienteData['password'] = Hash::make($validated['password']);
@@ -132,7 +171,16 @@ class ContratacionRentaController extends Controller
 
             $cliente = Cliente::updateOrCreate(['email' => $validated['email']], $clienteData);
 
-            // 2. Crear Renta
+            // 2. Guardar firma digital como imagen
+            $firmaPath = null;
+            if (!empty($validated['firma']) && str_starts_with($validated['firma'], 'data:image')) {
+                $firmaData = substr($validated['firma'], strpos($validated['firma'], ',') + 1);
+                $firmaDecoded = base64_decode($firmaData);
+                $firmaPath = 'contratos/firmas/' . $cliente->id . '_' . time() . '.png';
+                \Illuminate\Support\Facades\Storage::disk('public')->put($firmaPath, $firmaDecoded);
+            }
+
+            // 3. Crear Renta
             $fechaInicio = Carbon::now();
             $fechaFin = $fechaInicio->copy()->addMonths($plan->meses_minimos ?? 1);
 
@@ -148,6 +196,14 @@ class ContratacionRentaController extends Controller
                 'renovacion_automatica' => true,
                 'meses_duracion' => $plan->meses_minimos,
                 'condiciones_especiales' => "Plan Rentado: {$plan->nombre}. Meses mínimos: {$plan->meses_minimos}",
+                // Documentos y firma
+                'ine_frontal' => $validated['ine_frontal'] ?? null,
+                'ine_trasera' => $validated['ine_trasera'] ?? null,
+                'comprobante_domicilio' => $validated['comprobante_domicilio'] ?? null,
+                'firma_digital' => $firmaPath,
+                'firmado_nombre' => $validated['nombre_firmante'],
+                'firmado_at' => now(),
+                'firmado_ip' => $request->ip(),
             ]);
 
             // 3. Crear Venta (Primer mes + Deposito)

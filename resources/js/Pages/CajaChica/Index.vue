@@ -225,7 +225,7 @@
                                     <div class="flex justify-end gap-2">
                                         <!-- Editar -->
                                         <button @click="editModal(movimiento)" 
-                                            class="inline-flex items-center justify-center w-8 h-8 bg-amber-100 text-amber-600 rounded-lg hover:bg-amber-200 transition-colors"
+                                            class="inline-flex items-center justify-center w-8 h-8 bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-200 dark:hover:bg-amber-900/60 transition-colors"
                                             title="Editar">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -233,7 +233,7 @@
                                         </button>
                                         <!-- Eliminar -->
                                         <button @click="deleteMovimiento(movimiento)" 
-                                            class="inline-flex items-center justify-center w-8 h-8 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                                            class="inline-flex items-center justify-center w-8 h-8 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/60 transition-colors"
                                             title="Eliminar">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -243,25 +243,25 @@
                                 </td>
                             </tr>
                             <tr v-if="movimientos.data.length === 0">
-                                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                <td colspan="7" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                                     No hay movimientos registrados.
                                 </td>
                             </tr>
                         </tbody>
                         <tfoot v-if="movimientos.data.length">
-                            <tr class="bg-white">
-                                <td colspan="4" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase">Totales página</td>
-                                <td class="px-6 py-3 text-sm font-bold text-right">
+                            <tr class="bg-gray-50 dark:bg-gray-700/50">
+                                <td colspan="4" class="px-6 py-3 text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Totales página</td>
+                                <td class="px-6 py-3 text-sm font-bold text-right text-gray-900 dark:text-gray-100">
                                     ${{ formatMoney(totalPagina.monto) }}
                                 </td>
                                 <td colspan="3"></td>
                             </tr>
-                            <tr class="bg-white">
-                                <td colspan="4" class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase">Ingresos / Egresos página</td>
+                            <tr class="bg-gray-50 dark:bg-gray-700/50">
+                                <td colspan="4" class="px-6 py-3 text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Ingresos / Egresos página</td>
                                 <td class="px-6 py-3 text-sm font-bold text-right">
-                                    <span class="text-green-600">+${{ formatMoney(totalPagina.ingresos) }}</span>
+                                    <span class="text-green-600 dark:text-green-400">+${{ formatMoney(totalPagina.ingresos) }}</span>
                                     /
-                                    <span class="text-red-600">-${{ formatMoney(totalPagina.egresos) }}</span>
+                                    <span class="text-red-600 dark:text-red-400">-${{ formatMoney(totalPagina.egresos) }}</span>
                                 </td>
                                 <td colspan="3"></td>
                             </tr>
@@ -269,11 +269,11 @@
                     </table>
                     
                     <!-- Pagination -->
-                    <div class="px-6 py-4 border-t border-gray-200" v-if="movimientos.links.length > 3">
+                    <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800" v-if="movimientos.links.length > 3">
                         <div class="flex justify-between">
                             <template v-for="(link, key) in movimientos.links" :key="key">
-                                <div v-if="link.url === null" class="mr-1 mb-1 px-4 py-3 text-sm leading-4 text-gray-400 border rounded" v-html="link.label" />
-                                <Link v-else class="mr-1 mb-1 px-4 py-3 text-sm leading-4 border rounded hover:bg-white focus:border-amber-500 focus:text-amber-500" :class="{ 'bg-blue-700 text-white': link.active }" :href="link.url" v-html="link.label" />
+                                <div v-if="link.url === null" class="mr-1 mb-1 px-4 py-3 text-sm leading-4 text-gray-400 dark:text-gray-500 border border-gray-300 dark:border-gray-600 rounded" v-html="link.label" />
+                                <Link v-else class="mr-1 mb-1 px-4 py-3 text-sm leading-4 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 focus:border-amber-500 focus:text-amber-500 dark:focus:border-amber-400 dark:focus:text-amber-400" :class="{ 'bg-blue-700 text-white': link.active, 'dark:bg-blue-600 dark:text-white dark:border-blue-600': link.active }" :href="link.url" v-html="link.label" />
                             </template>
                         </div>
                     </div>
@@ -283,29 +283,29 @@
 
         <!-- Modal formulario -->
         <Modal :show="showModal" @close="closeModal">
-            <div class="p-6">
-                <h2 class="text-lg font-medium text-gray-900 mb-4">
+            <div class="p-6 bg-white dark:bg-gray-800 rounded-lg">
+                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
                     {{ form.id ? 'Editar Transaccion' : 'Nueva Transaccion' }}
                 </h2>
                 
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="concepto">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="concepto">
                         Concepto
                     </label>
-                    <input v-model="form.concepto" id="concepto" type="text" autofocus class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <input v-model="form.concepto" id="concepto" type="text" autofocus class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:border-gray-600 dark:bg-gray-700">
                     <div v-if="form.errors.concepto" class="text-red-500 text-xs italic">{{ form.errors.concepto }}</div>
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="categoria">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="categoria">
                         Categoría
                     </label>
-                    <input v-model="form.categoria" id="categoria" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Ej. Combustible">
+                    <input v-model="form.categoria" id="categoria" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:border-gray-600 dark:bg-gray-700" placeholder="Ej. Combustible">
                     <div v-if="form.errors.categoria" class="text-red-500 text-xs italic">{{ form.errors.categoria }}</div>
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="monto">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="monto">
                         Monto
                     </label>
                     <input
@@ -316,17 +316,17 @@
                         min="0.01"
                         inputmode="decimal"
                         @blur="normalizarMonto"
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:border-gray-600 dark:bg-gray-700"
                     >
-                    <p class="text-xs text-gray-500 mt-1">Ingresa el monto en positivo; el signo lo define el tipo.</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Ingresa el monto en positivo; el signo lo define el tipo.</p>
                     <div v-if="form.errors.monto" class="text-red-500 text-xs italic">{{ form.errors.monto }}</div>
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="tipo">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="tipo">
                         Tipo
                     </label>
-                    <select v-model="form.tipo" id="tipo" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <select v-model="form.tipo" id="tipo" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:border-gray-600 dark:bg-gray-700">
                         <option value="ingreso">Ingreso</option>
                         <option value="egreso">Egreso</option>
                     </select>
@@ -334,48 +334,48 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="fecha">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="fecha">
                         Fecha
                     </label>
-                    <input v-model="form.fecha" id="fecha" type="date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <input v-model="form.fecha" id="fecha" type="date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:border-gray-600 dark:bg-gray-700">
                     <div v-if="form.errors.fecha" class="text-red-500 text-xs italic">{{ form.errors.fecha }}</div>
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="comprobante">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="comprobante">
                         Comprobante (opcional)
                     </label>
                     <div v-if="form.id && adjuntosEnEdicion.length" class="mb-2 space-y-1">
-                        <div class="flex items-center gap-2 text-sm text-gray-700 font-semibold">Comprobantes actuales:</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200 font-semibold">Comprobantes actuales:</div>
                         <div class="space-y-1">
                             <div v-for="adj in adjuntosEnEdicion" :key="adj.id" class="flex items-center gap-2 text-sm">
-                                <input type="checkbox" :value="adj.id" v-model="form.eliminar_adjuntos">
-                                <button type="button" @click="verAdjuntoDirecto(adj)" class="text-blue-600 hover:text-blue-800 underline">Ver</button>
-                                <span class="text-gray-600 truncate">{{ adj.path?.split('/').pop() || 'archivo' }}</span>
+                                <input type="checkbox" :value="adj.id" v-model="form.eliminar_adjuntos" class="dark:bg-gray-700 dark:border-gray-600">
+                                <button type="button" @click="verAdjuntoDirecto(adj)" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline">Ver</button>
+                                <span class="text-gray-600 dark:text-gray-300 truncate">{{ adj.path?.split('/').pop() || 'archivo' }}</span>
                             </div>
                         </div>
-                        <p v-if="form.eliminar_adjuntos.length" class="text-xs text-red-600">Se eliminarán los seleccionados.</p>
+                        <p v-if="form.eliminar_adjuntos.length" class="text-xs text-red-600 dark:text-red-400">Se eliminarán los seleccionados.</p>
                     </div>
                     <div v-if="form.id && comprobanteSeleccionado?.comprobante_url && !form.eliminar_comprobante && !adjuntosEnEdicion.length" class="mb-2 flex items-center gap-3">
-                        <button @click="verComprobante(comprobanteSeleccionado)" type="button" class="text-blue-600 hover:text-blue-800 underline text-sm">Ver comprobante actual</button>
-                        <button @click="form.eliminar_comprobante = true" type="button" class="text-red-600 hover:text-red-800 text-sm font-semibold">Quitar comprobante</button>
+                        <button @click="verComprobante(comprobanteSeleccionado)" type="button" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline text-sm">Ver comprobante actual</button>
+                        <button @click="form.eliminar_comprobante = true" type="button" class="text-red-600 dark:text-red-400 hover:text-red-800 text-sm font-semibold">Quitar comprobante</button>
                     </div>
-                    <p v-if="form.eliminar_comprobante" class="text-xs text-red-600 mb-2">Se eliminará el comprobante actual.</p>
-                    <input @change="handleFilesChange" id="comprobante" type="file" multiple class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <p v-if="form.eliminar_comprobante" class="text-xs text-red-600 dark:text-red-400 mb-2">Se eliminará el comprobante actual.</p>
+                    <input @change="handleFilesChange" id="comprobante" type="file" multiple class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:border-gray-600 dark:bg-gray-700">
                     <div v-if="form.errors.comprobante" class="text-red-500 text-xs italic">{{ form.errors.comprobante }}</div>
                     <div v-if="form.errors['comprobantes.0']" class="text-red-500 text-xs italic">{{ form.errors['comprobantes.0'] }}</div>
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="nota">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="nota">
                         Nota
                     </label>
-                    <textarea v-model="form.nota" id="nota" rows="3" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Detalles adicionales"></textarea>
+                    <textarea v-model="form.nota" id="nota" rows="3" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:border-gray-600 dark:bg-gray-700" placeholder="Detalles adicionales"></textarea>
                     <div v-if="form.errors.nota" class="text-red-500 text-xs italic">{{ form.errors.nota }}</div>
                 </div>
 
                 <div class="flex justify-end mt-6">
-                    <button @click="closeModal" class="bg-white0 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2" :disabled="form.processing">
+                    <button @click="closeModal" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 font-bold py-2 px-4 rounded mr-2" :disabled="form.processing">
                         Cancelar
                     </button>
                     <button @click="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-75" :disabled="form.processing">
@@ -388,36 +388,36 @@
 
         <!-- Modal comprobante -->
         <Modal :show="showComprobanteModal" @close="cerrarComprobante">
-            <div class="p-6">
-                <h2 class="text-lg font-medium text-gray-900 mb-4">
+            <div class="p-6 bg-white dark:bg-gray-800 rounded-lg">
+                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
                     Comprobantes
                 </h2>
                 <div v-if="comprobanteSeleccionado && ((comprobanteSeleccionado.adjuntos && comprobanteSeleccionado.adjuntos.length) || comprobanteSeleccionado.comprobante_url)">
                     <div class="space-y-4">
                         <div v-for="adj in (comprobanteSeleccionado.adjuntos || [])" :key="adj.id">
-                            <div v-if="esImagen(adj.url)" class="rounded-lg overflow-hidden border border-gray-200">
+                            <div v-if="esImagen(adj.url)" class="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
                                 <img :src="adj.url" alt="Comprobante" class="w-full h-auto max-h-[70vh] object-contain">
                             </div>
-                            <div v-else class="text-gray-700 text-sm mb-1">
-                                Archivo: <a :href="adj.url" target="_blank" class="text-blue-600 hover:text-blue-800 underline">{{ adj.path?.split('/').pop() }}</a>
+                            <div v-else class="text-gray-700 dark:text-gray-200 text-sm mb-1">
+                                Archivo: <a :href="adj.url" target="_blank" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline">{{ adj.path?.split('/').pop() }}</a>
                             </div>
                         </div>
                         <div v-if="(!comprobanteSeleccionado.adjuntos || comprobanteSeleccionado.adjuntos.length === 0) && comprobanteSeleccionado.comprobante_url">
-                            <div v-if="esImagen(comprobanteSeleccionado.comprobante_url)" class="rounded-lg overflow-hidden border border-gray-200">
+                            <div v-if="esImagen(comprobanteSeleccionado.comprobante_url)" class="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
                                 <img :src="comprobanteSeleccionado.comprobante_url" alt="Comprobante" class="w-full h-auto max-h-[70vh] object-contain">
                             </div>
-                            <div v-else class="text-gray-700 text-sm mb-1">
-                                Archivo: <a :href="comprobanteSeleccionado.comprobante_url" target="_blank" class="text-blue-600 hover:text-blue-800 underline">Abrir</a>
+                            <div v-else class="text-gray-700 dark:text-gray-200 text-sm mb-1">
+                                Archivo: <a :href="comprobanteSeleccionado.comprobante_url" target="_blank" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline">Abrir</a>
                             </div>
                         </div>
                     </div>
                     <div class="mt-4 flex justify-end gap-2">
-                        <button @click="cerrarComprobante" class="bg-white0 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                        <button @click="cerrarComprobante" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 font-bold py-2 px-4 rounded">
                             Cerrar
                         </button>
                     </div>
                 </div>
-                <div v-else class="text-gray-500">
+                <div v-else class="text-gray-500 dark:text-gray-400">
                     Sin comprobante disponible.
                 </div>
             </div>

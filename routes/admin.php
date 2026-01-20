@@ -292,6 +292,18 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::get('/ventas/{id}/pdf', [VentaDocumentoController::class, 'generarPDF'])->name('ventas.pdf');
     Route::get('/ventas/{id}/ticket', [VentaDocumentoController::class, 'generarTicket'])->name('ventas.ticket');
 
+    // Módulo de Facturación CFDI
+    Route::prefix('facturas')->name('facturas.')->middleware('can:view ventas')->group(function () {
+        Route::get('/', [\App\Http\Controllers\FacturaController::class, 'index'])->name('index');
+        Route::get('/crear', [\App\Http\Controllers\FacturaController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\FacturaController::class, 'store'])->name('store');
+        Route::get('/{factura}', [\App\Http\Controllers\FacturaController::class, 'show'])->name('show');
+        Route::post('/{factura}/timbrar', [\App\Http\Controllers\FacturaController::class, 'timbrar'])->name('timbrar');
+        Route::post('/{factura}/cancelar', [\App\Http\Controllers\FacturaController::class, 'cancelar'])->name('cancelar');
+        Route::get('/{id}/pdf', [\App\Http\Controllers\FacturaController::class, 'generarPDF'])->name('pdf');
+        Route::get('/{id}/preview', [\App\Http\Controllers\FacturaController::class, 'preview'])->name('preview');
+    });
+
     Route::resource('garantias', GarantiaController::class)->names('garantias')->middleware('can:view garantias');
 
     Route::prefix('kits')->name('kits.')->middleware('can:view kits')->group(function () {

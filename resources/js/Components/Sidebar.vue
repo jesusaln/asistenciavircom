@@ -102,6 +102,11 @@
               <NavLink v-if="$can('view ventas')" href="/ventas" icon="dollar-sign" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Ventas Realizadas' : null">
                 Ventas Realizadas
               </NavLink>
+              <NavLink v-if="$can('view ventas')" href="/facturas" icon="file-invoice-dollar" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Facturación' : null">
+                Facturación
+              </NavLink>
+
+
               <NavLink v-if="$can('view garantias')" href="/garantias" icon="shield-alt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Garantías' : null">
                 Garantías
               </NavLink>
@@ -574,7 +579,7 @@ const getCurrentSection = () => {
   const path = window.location.pathname;
 
   // CRM y Ventas
-  if (path.includes('/clientes') || path.includes('/citas') || path.includes('/cotizaciones') || path.includes('/pedidos') || path.includes('/ventas') || path.includes('/garantias') || path.includes('/crm') || path.includes('/mi-agenda') || path.includes('/pedidos-online')) {
+  if (path.includes('/clientes') || path.includes('/citas') || path.includes('/cotizaciones') || path.includes('/pedidos') || path.includes('/ventas') || path.includes('/facturas') || path.includes('/garantias') || path.includes('/crm') || path.includes('/mi-agenda') || path.includes('/pedidos-online')) {
     return 'ventas';
   }
   

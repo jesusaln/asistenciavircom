@@ -1,9 +1,9 @@
 <template>
   <Head title="Gestión de Vacaciones" />
-  <div class="vacaciones-index min-h-screen bg-white">
+  <div class="vacaciones-index min-h-screen bg-gray-50 dark:bg-gray-900">
     <div class="w-full px-6 py-8">
       <!-- Flash success -->
-      <div v-if="$page.props.flash && $page.props.flash.success" class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-800">
+      <div v-if="$page.props.flash && $page.props.flash.success" class="mb-4 rounded-lg border border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/40 px-4 py-3 text-green-800 dark:text-green-300">
         {{$page.props.flash.success}}
       </div>
 
@@ -11,8 +11,8 @@
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">Gestión de Vacaciones</h1>
-            <p class="text-gray-600 mt-1">Administra las solicitudes de vacaciones de los empleados</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Gestión de Vacaciones</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">Administra las solicitudes de vacaciones de los empleados</p>
           </div>
           <div class="flex gap-3">
             <Link
@@ -47,60 +47,59 @@
         </div>
       </div>
 
-      <!-- Estadísticas -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <div class="flex items-center">
-            <div class="p-2 bg-blue-100 rounded-lg">
-              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+              <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600">Total Solicitudes</p>
-              <p class="text-2xl font-semibold text-gray-900">{{ stats.total }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Solicitudes</p>
+              <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ stats.total }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <div class="flex items-center">
-            <div class="p-2 bg-yellow-100 rounded-lg">
-              <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="p-2 bg-yellow-100 dark:bg-yellow-900/40 rounded-lg">
+              <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600">Pendientes</p>
-              <p class="text-2xl font-semibold text-gray-900">{{ stats.pendientes }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Pendientes</p>
+              <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ stats.pendientes }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <div class="flex items-center">
-            <div class="p-2 bg-green-100 rounded-lg">
-              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="p-2 bg-green-100 dark:bg-green-900/40 rounded-lg">
+              <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600">Aprobadas</p>
-              <p class="text-2xl font-semibold text-gray-900">{{ stats.aprobadas }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Aprobadas</p>
+              <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ stats.aprobadas }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <div class="flex items-center">
-            <div class="p-2 bg-red-100 rounded-lg">
-              <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg">
+              <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600">Rechazadas</p>
-              <p class="text-2xl font-semibold text-gray-900">{{ stats.rechazadas }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Rechazadas</p>
+              <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ stats.rechazadas }}</p>
             </div>
           </div>
         </div>
@@ -108,10 +107,10 @@
 
       <!-- Modal para crear vacaciones para empleado específico -->
       <div v-if="showCrearParaEmpleado" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showCrearParaEmpleado = false">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
-          <div class="flex items-center justify-between p-6 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Crear Vacaciones para Empleado</h3>
-            <button @click="showCrearParaEmpleado = false" class="text-gray-400 hover:text-gray-600">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+          <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Crear Vacaciones para Empleado</h3>
+            <button @click="showCrearParaEmpleado = false" class="text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>
@@ -120,10 +119,10 @@
 
           <div class="p-6">
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">Seleccionar Empleado</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Seleccionar Empleado</label>
               <select
                 v-model="empleadoSeleccionado"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">Elegir empleado...</option>
                 <option v-for="empleado in empleados" :key="empleado.id" :value="empleado.id">
@@ -135,7 +134,7 @@
             <div class="flex justify-end gap-3">
               <button
                 @click="showCrearParaEmpleado = false"
-                class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-white"
+                class="px-4 py-2 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-white dark:hover:bg-gray-700"
               >
                 Cancelar
               </button>
@@ -152,14 +151,14 @@
       </div>
 
       <!-- Filtros -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Empleado</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Empleado</label>
             <select
               v-model="filters.empleado"
               @change="applyFilters"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Todos los empleados</option>
               <option v-for="empleado in empleados" :key="empleado.id" :value="empleado.id">
@@ -169,11 +168,11 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado</label>
             <select
               v-model="filters.estado"
               @change="applyFilters"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Todos los estados</option>
               <option value="pendiente">Pendiente</option>
@@ -183,22 +182,22 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Desde</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha Desde</label>
             <input
               v-model="filters.fecha_desde"
               type="date"
               @change="applyFilters"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Hasta</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha Hasta</label>
             <input
               v-model="filters.fecha_hasta"
               type="date"
               @change="applyFilters"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -564,11 +563,11 @@ const formatDate = (date) => {
 
 const getEstadoClasses = (estado) => {
   const classes = {
-    'pendiente': 'bg-yellow-100 text-yellow-700',
-    'aprobada': 'bg-green-100 text-green-700',
-    'rechazada': 'bg-red-100 text-red-700',
+    'pendiente': 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300',
+    'aprobada': 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300',
+    'rechazada': 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300',
   }
-  return classes[estado] || 'bg-gray-100 text-gray-700'
+  return classes[estado] || 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
 }
 
 const getEstadoLabel = (estado) => {

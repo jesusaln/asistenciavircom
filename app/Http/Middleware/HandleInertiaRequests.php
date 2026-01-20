@@ -99,19 +99,25 @@ class HandleInertiaRequests extends Middleware
         $diasGracia = $cliente->dias_gracia ?? $config->dias_gracia_corte ?? 15;
         $corteLimitDate = now()->subDays($diasGracia);
 
-        $hasOverdueVentas = Venta::where('cliente_id', $cliente->id)
+        // Contar ventas vencidas
+        $countVentas = Venta::where('cliente_id', $cliente->id)
             ->whereIn('estado', ['pendiente', 'vencida'])
             ->where('pagado', false)
             ->where('fecha', '<', $corteLimitDate)
-            ->exists();
+            ->count();
 
-        if ($hasOverdueVentas)
-            return true;
-
-        return CuentasPorCobrar::where('cliente_id', $cliente->id)
+        // Contar CxC vencidas
+        $countCxC = CuentasPorCobrar::where('cliente_id', $cliente->id)
             ->whereIn('estado', ['pendiente', 'vencido'])
             ->where('monto_pendiente', '>', 0)
             ->where('fecha_vencimiento', '<', $corteLimitDate)
-            ->exists();
+            ->count();
+
+        $totalVencidos = $countVentas + $countCxC;
+
+        // REGLA DE NEGOCIO (20-01-2026):
+        // Solo bloquear si hay 2 o más documentos vencidos (ej. 2 meses de renta).
+        // Se permite 1 mes de atraso sin bloquear el portal.
+        return $totalVencidos >= 2;
     }
 }

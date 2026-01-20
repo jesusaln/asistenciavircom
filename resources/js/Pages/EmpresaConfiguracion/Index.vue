@@ -320,19 +320,19 @@ watch(activeTab, (newTab) => {
 <template>
   <Head title="Configuración de Empresa" />
 
-  <div class="min-h-screen bg-white pb-20">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
     <div class="w-full px-4 sm:px-6 lg:px-8 py-8">
       
       <!-- Header con Botón de Guardado Sticky -->
       <div class="sticky top-4 z-30 mb-6 transition-all duration-300">
-          <div class="bg-white/90 backdrop-blur-md border border-gray-200 rounded-xl shadow-lg p-4 flex items-center justify-between">
+          <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="p-2 bg-blue-100 rounded-lg text-blue-600">
                     <FontAwesomeIcon icon="building" size="lg" />
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold text-gray-900">Configuración</h1>
-                    <p class="text-sm text-gray-500 hidden md:block">Personaliza tu sistema</p>
+                    <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">Configuración</h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 hidden md:block">Personaliza tu sistema</p>
                 </div>
             </div>
             
@@ -351,7 +351,7 @@ watch(activeTab, (newTab) => {
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <!-- Sidebar de Navegación -->
         <div class="lg:col-span-3">
-          <nav class="bg-white rounded-xl shadow-sm border border-gray-100 p-2 sticky top-24 max-h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar overscroll-contain scroll-smooth flex flex-col pb-10">
+          <nav class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-2 sticky top-24 max-h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar overscroll-contain scroll-smooth flex flex-col pb-10">
               <button
                 v-for="tab in tabs"
                 :key="tab.id"
@@ -359,12 +359,12 @@ watch(activeTab, (newTab) => {
                 :class="[
                   'w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-medium rounded-lg transition-all duration-200 mb-1',
                   activeTab === tab.id
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-white hover:text-gray-900'
+                    ? 'bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100'
                 ]"
               >
                   <div class="w-6 text-center">
-                     <FontAwesomeIcon :icon="tab.icono" :class="activeTab === tab.id ? 'text-blue-600' : 'text-gray-400'" />
+                     <FontAwesomeIcon :icon="tab.icono" :class="activeTab === tab.id ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'" />
                   </div>
                   {{ tab.nombre }}
                   
@@ -379,7 +379,7 @@ watch(activeTab, (newTab) => {
 
         <!-- Contenido Principal -->
         <div class="lg:col-span-9">
-             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 min-h-[600px] transition-all duration-300">
+             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 min-h-[600px] transition-all duration-300">
                 <component :is="currentTabComponent" :form="form" :cuentas_bancarias="cuentas_bancarias" />
              </div>
         </div>
