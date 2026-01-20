@@ -35,13 +35,13 @@ const showCitaDetails = ref(false);
 
 // Colores de estado
 const estadoColores = {
-    pendiente: { bg: 'bg-yellow-100', border: 'border-yellow-400', text: 'text-yellow-800' },
-    pendiente_asignacion: { bg: 'bg-orange-100', border: 'border-orange-400', text: 'text-orange-800' },
-    programado: { bg: 'bg-blue-100', border: 'border-blue-400', text: 'text-blue-800' },
-    en_proceso: { bg: 'bg-indigo-100', border: 'border-indigo-400', text: 'text-indigo-800' },
-    completado: { bg: 'bg-green-100', border: 'border-green-400', text: 'text-green-800' },
-    cancelado: { bg: 'bg-red-100', border: 'border-red-400', text: 'text-red-800' },
-    reprogramado: { bg: 'bg-purple-100', border: 'border-purple-400', text: 'text-purple-800' },
+    pendiente: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', border: 'border-yellow-400 dark:border-yellow-600', text: 'text-yellow-800 dark:text-yellow-400' },
+    pendiente_asignacion: { bg: 'bg-orange-100 dark:bg-orange-900/30', border: 'border-orange-400 dark:border-orange-600', text: 'text-orange-800 dark:text-orange-400' },
+    programado: { bg: 'bg-blue-100 dark:bg-blue-900/30', border: 'border-blue-400 dark:border-blue-600', text: 'text-blue-800 dark:text-blue-400' },
+    en_proceso: { bg: 'bg-indigo-100 dark:bg-indigo-900/30', border: 'border-indigo-400 dark:border-indigo-600', text: 'text-indigo-800 dark:text-indigo-400' },
+    completado: { bg: 'bg-green-100 dark:bg-green-900/30', border: 'border-green-400 dark:border-green-600', text: 'text-green-800 dark:text-green-400' },
+    cancelado: { bg: 'bg-red-100 dark:bg-red-900/30', border: 'border-red-400 dark:border-red-600', text: 'text-red-800 dark:text-red-400' },
+    reprogramado: { bg: 'bg-purple-100 dark:bg-purple-900/30', border: 'border-purple-400 dark:border-purple-600', text: 'text-purple-800 dark:text-purple-400' },
 };
 
 const estadoLabels = {
@@ -220,8 +220,8 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                 <!-- Header -->
                 <div class="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900">Calendario de Citas</h1>
-                        <p class="text-gray-500 text-sm mt-1">
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Calendario de Citas</h1>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1 transition-colors">
                             Gestiona las citas de los técnicos y asigna nuevas solicitudes
                         </p>
                     </div>
@@ -229,10 +229,10 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                     <div class="flex items-center gap-3">
                         <!-- Filtro por técnico -->
                         <div class="flex items-center gap-2">
-                            <label class="text-sm text-gray-600">Técnico:</label>
+                            <label class="text-sm text-gray-600 dark:text-gray-400 transition-colors">Técnico:</label>
                             <select 
                                 v-model="filtroTecnico"
-                                class="text-sm border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                                class="text-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                             >
                                 <option value="all">Todos</option>
                                 <option v-for="tec in tecnicos" :key="tec.id" :value="tec.id">
@@ -244,7 +244,7 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                         <!-- Botón Hoy -->
                         <button
                             @click="goToToday"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-white transition-colors"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                         >
                             Hoy
                         </button>
@@ -255,7 +255,7 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                     
                     <!-- Sidebar: Citas Pendientes de Asignación -->
                     <div class="xl:col-span-1">
-                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden sticky top-6">
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-none border border-gray-100 dark:border-gray-700 overflow-hidden sticky top-6 transition-colors">
                             <div class="bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-3">
                                 <h2 class="text-white font-semibold flex items-center gap-2">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -271,27 +271,27 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                             <div class="max-h-[calc(100vh-300px)] overflow-y-auto">
                                 <div v-if="citasPendientes.length === 0" class="p-6 text-center">
                                     <div class="text-5xl mb-3">🎉</div>
-                                    <p class="text-gray-500 text-sm">¡Sin citas pendientes!</p>
+                                    <p class="text-gray-500 dark:text-gray-400 text-sm transition-colors">¡Sin citas pendientes!</p>
                                 </div>
                                 
                                 <div 
                                     v-else
                                     v-for="cita in citasPendientes" 
                                     :key="cita.id"
-                                    class="p-4 border-b border-gray-100 hover:bg-white transition-colors cursor-pointer"
+                                    class="p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
                                     @click="openAsignarModal(cita)"
                                 >
                                     <div class="flex items-start justify-between">
                                         <div class="flex-1 min-w-0">
-                                            <p class="font-medium text-gray-900 truncate">
+                                            <p class="font-medium text-gray-900 dark:text-white truncate transition-colors">
                                                 {{ cita.cliente?.nombre_razon_social || 'Cliente' }}
                                             </p>
                                             <div class="mt-1 space-y-1">
-                                                <p class="text-xs text-gray-500 flex items-center gap-1">
+                                                <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 transition-colors">
                                                     <span>📱</span>
                                                     {{ cita.cliente?.telefono }}
                                                 </p>
-                                                <p v-if="cita.origen_tienda" class="text-xs text-gray-500 flex items-center gap-1">
+                                                <p v-if="cita.origen_tienda" class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 transition-colors">
                                                     <span>🏪</span>
                                                     {{ tiendas[cita.origen_tienda] }}
                                                 </p>
@@ -302,18 +302,18 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                                                 <span 
                                                     v-for="dia in cita.dias_preferidos.slice(0, 2)" 
                                                     :key="dia"
-                                                    class="text-xs px-2 py-0.5 bg-orange-100 text-orange-700 rounded"
+                                                    class="text-xs px-2 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded transition-colors"
                                                 >
                                                     {{ new Date(dia + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric' }) }}
                                                 </span>
-                                                <span v-if="cita.dias_preferidos.length > 2" class="text-xs text-gray-400">
+                                                <span v-if="cita.dias_preferidos.length > 2" class="text-xs text-gray-400 dark:text-gray-500 transition-colors">
                                                     +{{ cita.dias_preferidos.length - 2 }}
                                                 </span>
                                             </div>
                                             
                                             <!-- Horario preferido -->
                                             <div v-if="cita.horario_preferido && horarios[cita.horario_preferido]" class="mt-1">
-                                                <span class="text-xs text-gray-500">
+                                                <span class="text-xs text-gray-500 dark:text-gray-400 transition-colors">
                                                     {{ horarios[cita.horario_preferido].emoji }} 
                                                     {{ horarios[cita.horario_preferido].nombre }}
                                                 </span>
@@ -331,7 +331,7 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                     
                     <!-- Calendario Principal -->
                     <div class="xl:col-span-3">
-                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-none border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
                             
                             <!-- Header del Calendario -->
                             <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 flex items-center justify-between">
@@ -359,8 +359,8 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                             </div>
                             
                             <!-- Leyenda de técnicos -->
-                            <div class="px-6 py-3 bg-white border-b flex flex-wrap items-center gap-3">
-                                <span class="text-sm text-gray-500">Técnicos:</span>
+                            <div class="px-6 py-3 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-700 flex flex-wrap items-center gap-3 transition-colors">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 transition-colors">Técnicos:</span>
                                 <div 
                                     v-for="tec in tecnicos" 
                                     :key="tec.id"
@@ -370,16 +370,16 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                                         class="w-3 h-3 rounded-full"
                                         :style="{ backgroundColor: tec.color }"
                                     ></span>
-                                    <span class="text-sm text-gray-700">{{ tec.name }}</span>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300 transition-colors">{{ tec.name }}</span>
                                 </div>
                             </div>
                             
                             <!-- Días de la semana -->
-                            <div class="grid grid-cols-7 border-b">
+                            <div class="grid grid-cols-7 border-b border-gray-100 dark:border-gray-700">
                                 <div 
                                     v-for="day in ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']" 
                                     :key="day"
-                                    class="px-2 py-3 text-center text-sm font-medium text-gray-500 bg-white"
+                                    class="px-2 py-3 text-center text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/30 transition-colors"
                                 >
                                     {{ day }}
                                 </div>
@@ -391,19 +391,19 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                                     v-for="(dayObj, index) in daysInMonth"
                                     :key="index"
                                     :class="[
-                                        'min-h-[120px] p-2 border-b border-r transition-colors',
-                                        !dayObj.isCurrentMonth ? 'bg-white' : '',
-                                        dayObj.isToday ? 'bg-indigo-50 ring-2 ring-inset ring-indigo-500' : '',
-                                        dayObj.isPast && dayObj.isCurrentMonth ? 'bg-gray-100/50' : '',
+                                        'min-h-[120px] p-2 border-b border-r border-gray-100 dark:border-gray-700 transition-colors',
+                                        !dayObj.isCurrentMonth ? 'bg-gray-50 dark:bg-gray-900/30' : 'bg-white dark:bg-gray-800',
+                                        dayObj.isToday ? 'bg-indigo-50 dark:bg-indigo-900/20 ring-2 ring-inset ring-indigo-500' : '',
+                                        dayObj.isPast && dayObj.isCurrentMonth ? 'bg-gray-50/50 dark:bg-gray-900/20' : '',
                                     ]"
                                 >
                                     <!-- Número del día -->
                                     <div class="flex items-center justify-between mb-1">
                                         <span 
                                             :class="[
-                                                'text-sm font-medium',
-                                                !dayObj.isCurrentMonth ? 'text-gray-400' :
-                                                dayObj.isToday ? 'text-indigo-600 font-bold' : 'text-gray-700'
+                                                'text-sm font-medium transition-colors',
+                                                !dayObj.isCurrentMonth ? 'text-gray-400 dark:text-gray-600' :
+                                                dayObj.isToday ? 'text-indigo-600 dark:text-indigo-400 font-bold' : 'text-gray-700 dark:text-gray-300'
                                             ]"
                                         >
                                             {{ dayObj.day }}
@@ -412,7 +412,7 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                                         <!-- Contador de citas -->
                                         <span 
                                             v-if="getCitasForDay(dayObj.date).length > 0"
-                                            class="text-xs px-1.5 py-0.5 bg-indigo-100 text-indigo-600 rounded-full"
+                                            class="text-xs px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full transition-colors"
                                         >
                                             {{ getCitasForDay(dayObj.date).length }}
                                         </span>
@@ -426,8 +426,8 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                                             @click.stop="openCitaDetails(cita)"
                                             :class="[
                                                 'text-xs px-2 py-1 rounded cursor-pointer truncate border-l-2 transition-all hover:shadow-md',
-                                                estadoColores[cita.estado]?.bg || 'bg-gray-100',
-                                                estadoColores[cita.estado]?.text || 'text-gray-700',
+                                                estadoColores[cita.estado]?.bg || 'bg-gray-100 dark:bg-gray-700',
+                                                estadoColores[cita.estado]?.text || 'text-gray-700 dark:text-gray-300',
                                             ]"
                                             :style="{ borderLeftColor: getTecnicoColor(cita.tecnico_id) }"
                                             :title="`${cita.cliente?.nombre_razon_social} - ${formatTime(cita.fecha_hora)}`"
@@ -438,7 +438,7 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                                         
                                         <div 
                                             v-if="getCitasForDay(dayObj.date).length > 3"
-                                            class="text-xs text-gray-500 pl-2"
+                                            class="text-xs text-gray-500 dark:text-gray-400 pl-2 transition-colors"
                                         >
                                             +{{ getCitasForDay(dayObj.date).length - 3 }} más
                                         </div>
@@ -471,7 +471,7 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                 <div class="flex min-h-full items-center justify-center p-4">
                     <div class="fixed inset-0 bg-black/30 backdrop-blur-sm" @click="closeCitaDetails"></div>
                     
-                    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
+                    <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
                         <!-- Header -->
                         <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 rounded-t-2xl">
                             <div class="flex items-center justify-between">
@@ -497,81 +497,81 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                                 >
                                     {{ estadoLabels[selectedCita.estado] }}
                                 </span>
-                                <span class="text-gray-500 text-sm">
+                                <span class="text-gray-500 dark:text-gray-400 text-sm transition-colors">
                                     Folio: {{ selectedCita.folio || '-' }}
                                 </span>
                             </div>
                             
                             <!-- Cliente -->
-                            <div class="bg-white rounded-xl p-4">
-                                <p class="text-sm text-gray-500 mb-1">Cliente</p>
-                                <p class="font-semibold text-gray-900">
+                            <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 transition-colors">
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1 transition-colors">Cliente</p>
+                                <p class="font-semibold text-gray-900 dark:text-white transition-colors">
                                     {{ selectedCita.cliente?.nombre_razon_social }}
                                 </p>
-                                <p class="text-sm text-gray-600">
+                                <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors">
                                     📱 {{ selectedCita.cliente?.telefono }}
                                 </p>
                             </div>
                             
                             <!-- Fecha y Hora -->
-                            <div class="bg-white rounded-xl p-4">
-                                <p class="text-sm text-gray-500 mb-1">Fecha y Hora</p>
-                                <p class="font-semibold text-gray-900 capitalize">
+                            <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 transition-colors">
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1 transition-colors">Fecha y Hora</p>
+                                <p class="font-semibold text-gray-900 dark:text-white capitalize transition-colors">
                                     {{ formatDate(selectedCita.fecha_confirmada || selectedCita.fecha_hora?.split('T')[0]) }}
                                 </p>
-                                <p class="text-sm text-gray-600">
+                                <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors">
                                     ⏰ {{ selectedCita.hora_confirmada || formatTime(selectedCita.fecha_hora) }}
                                 </p>
                             </div>
                             
                             <!-- Técnico -->
-                            <div v-if="selectedCita.tecnico" class="bg-white rounded-xl p-4">
-                                <p class="text-sm text-gray-500 mb-1">Técnico asignado</p>
+                            <div v-if="selectedCita.tecnico" class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 transition-colors">
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1 transition-colors">Técnico asignado</p>
                                 <div class="flex items-center gap-2">
                                     <span 
                                         class="w-3 h-3 rounded-full"
                                         :style="{ backgroundColor: getTecnicoColor(selectedCita.tecnico_id) }"
                                     ></span>
-                                    <span class="font-semibold text-gray-900">{{ selectedCita.tecnico.name }}</span>
+                                    <span class="font-semibold text-gray-900 dark:text-white transition-colors">{{ selectedCita.tecnico.name }}</span>
                                 </div>
                             </div>
                             
                             <!-- Dirección -->
-                            <div v-if="selectedCita.direccion_calle" class="bg-white rounded-xl p-4">
-                                <p class="text-sm text-gray-500 mb-1">Dirección</p>
-                                <p class="text-gray-900">{{ selectedCita.direccion_calle }}</p>
-                                <p class="text-sm text-gray-600">
+                            <div v-if="selectedCita.direccion_calle" class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 transition-colors">
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1 transition-colors">Dirección</p>
+                                <p class="text-gray-900 dark:text-white transition-colors">{{ selectedCita.direccion_calle }}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors">
                                     {{ selectedCita.direccion_colonia }}
                                     {{ selectedCita.direccion_cp ? `, C.P. ${selectedCita.direccion_cp}` : '' }}
                                 </p>
-                                <p v-if="selectedCita.direccion_referencias" class="text-xs text-gray-500 mt-1 italic">
+                                <p v-if="selectedCita.direccion_referencias" class="text-xs text-gray-500 dark:text-gray-500 mt-1 italic transition-colors">
                                     "{{ selectedCita.direccion_referencias }}"
                                 </p>
                             </div>
                             
                             <!-- Descripción -->
-                            <div v-if="selectedCita.descripcion" class="bg-white rounded-xl p-4">
-                                <p class="text-sm text-gray-500 mb-1">Descripción inicial</p>
-                                <p class="text-gray-700 text-sm">{{ selectedCita.descripcion }}</p>
+                            <div v-if="selectedCita.descripcion" class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 transition-colors">
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1 transition-colors">Descripción inicial</p>
+                                <p class="text-gray-700 dark:text-gray-300 text-sm transition-colors">{{ selectedCita.descripcion }}</p>
                             </div>
 
                             <!-- Reporte de Cierre -->
                             <div v-if="selectedCita.trabajo_realizado || selectedCita.fotos_finales" class="space-y-4">
                                 <div class="flex items-center gap-2 mt-2">
-                                    <div class="h-px bg-gray-200 flex-1"></div>
-                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Reporte de Cierre</span>
-                                    <div class="h-px bg-gray-200 flex-1"></div>
+                                    <div class="h-px bg-gray-200 dark:bg-gray-700 flex-1"></div>
+                                    <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest transition-colors">Reporte de Cierre</span>
+                                    <div class="h-px bg-gray-200 dark:bg-gray-700 flex-1"></div>
                                 </div>
 
-                                <div v-if="selectedCita.trabajo_realizado" class="bg-green-50 rounded-xl p-4 border border-green-100">
-                                    <p class="text-xs font-bold text-green-700 mb-1 uppercase">Trabajo Realizado</p>
-                                    <p class="text-gray-800 text-sm italic">"{{ selectedCita.trabajo_realizado }}"</p>
+                                <div v-if="selectedCita.trabajo_realizado" class="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 border border-green-100 dark:border-green-800 transition-colors">
+                                    <p class="text-xs font-bold text-green-700 dark:text-green-400 mb-1 uppercase transition-colors">Trabajo Realizado</p>
+                                    <p class="text-gray-800 dark:text-gray-300 text-sm italic transition-colors">"{{ selectedCita.trabajo_realizado }}"</p>
                                 </div>
 
                                 <div v-if="selectedCita.fotos_finales?.length > 0">
-                                    <p class="text-xs font-bold text-gray-500 mb-2 uppercase">Evidencias ({{ selectedCita.fotos_finales.length }})</p>
+                                    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase transition-colors">Evidencias ({{ selectedCita.fotos_finales.length }})</p>
                                     <div class="grid grid-cols-3 gap-2">
-                                        <div v-for="(foto, idx) in selectedCita.fotos_finales" :key="idx" class="aspect-square rounded-lg overflow-hidden border border-gray-200 shadow-sm transition-transform hover:scale-105">
+                                        <div v-for="(foto, idx) in selectedCita.fotos_finales" :key="idx" class="aspect-square rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm transition-transform hover:scale-105">
                                             <a :href="'/storage/' + foto" target="_blank">
                                                 <img :src="'/storage/' + foto" class="w-full h-full object-cover">
                                             </a>
@@ -582,10 +582,10 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                         </div>
                         
                         <!-- Footer -->
-                        <div class="px-6 py-4 border-t bg-white rounded-b-2xl flex items-center justify-between">
+                        <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 rounded-b-2xl flex items-center justify-between transition-colors">
                             <button
                                 @click="closeCitaDetails"
-                                class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
+                                class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium transition-colors"
                             >
                                 Cerrar
                             </button>
