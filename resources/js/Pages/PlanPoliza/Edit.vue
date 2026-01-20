@@ -467,24 +467,24 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                             </label>
                                         </td>
                                         <td class="px-4 py-3">
-                                            <span class="font-semibold text-gray-800">{{ servicio.nombre }}</span>
+                                            <span class="font-semibold text-gray-800 dark:text-gray-200">{{ servicio.nombre }}</span>
                                         </td>
                                         <td class="px-4 py-3 text-right">
-                                            <span v-if="servicio.precio > 0" class="text-sm font-mono text-green-600 font-bold">
-                                                ${{ servicio.precio.toFixed(2) }}
+                                            <span v-if="Number(servicio.precio) > 0" class="text-sm font-mono text-green-600 dark:text-green-400 font-bold">
+                                                ${{ Number(servicio.precio).toFixed(2) }}
                                             </span>
-                                            <span v-else class="text-xs text-gray-400">—</span>
+                                            <span v-else class="text-xs text-gray-400 dark:text-gray-500">—</span>
                                         </td>
                                         <td class="px-4 py-3 text-center">
                                             <span 
                                                 v-if="form.servicios_elegibles.includes(servicio.id)"
-                                                class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold"
+                                                class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full text-xs font-bold"
                                             >
                                                 ⏱️ Usa Banco
                                             </span>
                                             <span 
                                                 v-else
-                                                class="inline-flex items-center gap-1 px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold"
+                                                class="inline-flex items-center gap-1 px-2 py-1 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded-full text-xs font-bold"
                                             >
                                                 💵 Cobro Extra
                                             </span>
@@ -506,7 +506,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                         </div>
                         
                         <!-- Resumen -->
-                        <div class="mt-4 flex flex-wrap items-center justify-between gap-4 p-3 bg-white/80 rounded-lg border border-blue-100">
+                        <div class="mt-4 flex flex-wrap items-center justify-between gap-4 p-3 bg-white/80 dark:bg-gray-800/80 rounded-lg border border-blue-100 dark:border-blue-800">
                             <div class="flex gap-4 text-sm">
                                 <span class="text-blue-700 font-bold flex items-center gap-1">
                                     ⏱️ {{ form.servicios_elegibles.length }} usan banco de horas

@@ -72,16 +72,22 @@ class PolizaAlertasVencimiento extends Command
 
         // Envío por Email si hay correo configurado
         if ($cliente && $cliente->email) {
-            // Crear Mailable dedicado para esto
-            // Mail::to($cliente->email)->send(new PolizaProximaVencer($poliza));
+            try {
+                Mail::to($cliente->email)->send(new \App\Mail\PolizaProximaVencerMail($poliza));
 
-            Log::info("📧 Alerta de vencimiento", [
-                'poliza' => $poliza->folio,
-                'cliente' => $cliente->nombre_razon_social,
-                'email' => $cliente->email,
-                'dias_restantes' => $diasRestantes,
-                'fecha_vencimiento' => \Carbon\Carbon::parse($poliza->fecha_fin)->format('d/m/Y'),
-            ]);
+                Log::info("📧 Alerta de vencimiento enviada", [
+                    'poliza' => $poliza->folio,
+                    'cliente' => $cliente->nombre_razon_social,
+                    'email' => $cliente->email,
+                    'dias_restantes' => $diasRestantes,
+                    'fecha_vencimiento' => \Carbon\Carbon::parse($poliza->fecha_fin)->format('d/m/Y'),
+                ]);
+            } catch (\Exception $e) {
+                Log::error("Error enviando email de alerta de vencimiento: " . $e->getMessage(), [
+                    'poliza' => $poliza->folio,
+                    'email' => $cliente->email,
+                ]);
+            }
         }
 
         // Envío por WhatsApp si hay celular configurado
