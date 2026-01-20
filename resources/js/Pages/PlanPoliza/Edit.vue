@@ -48,6 +48,7 @@ const form = useForm({
 });
 
 const nuevoBeneficio = ref('');
+const busquedaServicio = ref('');
 
 const agregarBeneficio = () => {
     if (nuevoBeneficio.value.trim() && !form.beneficios.includes(nuevoBeneficio.value.trim())) {
@@ -59,6 +60,27 @@ const agregarBeneficio = () => {
 const eliminarBeneficio = (index) => {
     form.beneficios.splice(index, 1);
 };
+
+// Toggle servicio elegible al hacer clic en la fila
+const toggleServicioElegible = (servicioId) => {
+    const index = form.servicios_elegibles.indexOf(servicioId);
+    if (index === -1) {
+        form.servicios_elegibles.push(servicioId);
+    } else {
+        form.servicios_elegibles.splice(index, 1);
+    }
+};
+
+// Servicios filtrados por búsqueda
+const serviciosFiltrados = computed(() => {
+    if (!busquedaServicio.value.trim()) {
+        return props.servicios;
+    }
+    const termino = busquedaServicio.value.toLowerCase();
+    return props.servicios.filter(s => 
+        s.nombre.toLowerCase().includes(termino)
+    );
+});
 
 const submit = () => {
     if (isEditing.value) {
@@ -367,96 +389,141 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                         </div>
                     </div>
 
-                    <!-- Servicios Elegibles (Banco de Horas) -->
+                    <!-- Servicios Elegibles para Banco de Horas -->
                     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm p-6 border-2 border-blue-200">
-                        <div class="flex items-center justify-between mb-4 border-b border-blue-200 pb-2">
+                        <div class="flex items-center justify-between mb-4 border-b border-blue-200 pb-3">
                             <div>
-                                <h3 class="font-bold text-blue-900 flex items-center gap-2">
+                                <h3 class="font-bold text-blue-900 flex items-center gap-2 text-lg">
                                     <span class="text-xl">⏱️</span> Servicios Elegibles (Banco de Horas)
                                 </h3>
                                 <p class="text-xs text-blue-700 mt-1">
-                                    Estos servicios se pueden usar con las horas incluidas en el plan. 
-                                    <span class="font-bold">Los servicios NO seleccionados se cobrarán extra.</span>
+                                    Selecciona qué servicios pueden consumir las <strong>horas incluidas</strong> en el plan.
+                                    <span class="text-amber-700 font-semibold">Los NO seleccionados se cobrarán tarifa completa.</span>
                                 </p>
                             </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-72 overflow-y-auto p-2 border rounded-lg bg-white">
-                            <label 
-                                v-for="servicio in servicios" 
-                                :key="'elegible-' + servicio.id" 
-                                class="flex items-start gap-3 p-3 bg-white border-2 rounded-lg cursor-pointer hover:border-blue-400 hover:shadow-sm transition-all"
-                                :class="{ 'border-blue-500 ring-2 ring-blue-300 bg-blue-50': form.servicios_elegibles.includes(servicio.id) }"
-                            >
-                                <input 
-                                    type="checkbox" 
-                                    :value="servicio.id" 
-                                    v-model="form.servicios_elegibles"
-                                    class="mt-1 w-5 h-5 rounded text-blue-600 border-gray-300 focus:ring-blue-500"
-                                >
-                                <div class="flex-1">
-                                    <span class="block text-sm font-bold text-gray-800">{{ servicio.nombre }}</span>
-                                    <span class="block text-xs text-green-600 font-semibold" v-if="servicio.precio > 0">
-                                        ${{ servicio.precio }} (costo si no está incluido)
-                                    </span>
-                                </div>
-                            </label>
-                            <div v-if="!servicios.length" class="col-span-full text-center text-gray-400 py-4 italic">
-                                No hay servicios activos en el catálogo.
-                            </div>
-                        </div>
-                        
-                        <div class="mt-3 flex items-center gap-4">
-                            <span class="text-sm font-bold text-blue-800">
-                                {{ form.servicios_elegibles.length }} servicios seleccionados
-                            </span>
-                            <button 
-                                type="button" 
-                                @click="form.servicios_elegibles = servicios.map(s => s.id)"
-                                class="text-xs text-blue-600 hover:underline"
-                            >
-                                Seleccionar todos
-                            </button>
-                            <button 
-                                type="button" 
-                                @click="form.servicios_elegibles = []"
-                                class="text-xs text-red-600 hover:underline"
-                            >
-                                Limpiar selección
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Servicios Incluidos (Autofill) -->
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <div class="flex items-center justify-between mb-4 border-b pb-2">
-                            <h3 class="font-bold text-gray-900">🛠️ Servicios Incluidos (Autofill)</h3>
-                            <Link :href="route('servicios.index')" class="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 hover:underline">
+                            <Link :href="route('servicios.index')" class="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 hover:underline bg-white px-3 py-1.5 rounded-lg shadow-sm">
                                 <font-awesome-icon icon="external-link-alt" /> Gestionar Catálogo
                             </Link>
                         </div>
-                        <p class="text-xs text-gray-500 mb-4">Selecciona los servicios que se cargarán automáticamente al contratar esta póliza. Si no ves un servicio, <Link :href="route('servicios.index')" class="text-blue-500 hover:underline">agrégalo al catálogo primero</Link>.</p>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-60 overflow-y-auto p-2 border rounded-lg bg-gray-50">
-                            <label 
-                                v-for="servicio in servicios" 
-                                :key="servicio.id" 
-                                class="flex items-start gap-3 p-3 bg-white border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 hover:shadow-sm transition-all shadow-sm"
-                                :class="{ 'border-blue-500 ring-1 ring-blue-500 bg-blue-50': form.incluye_servicios.includes(servicio.id) }"
-                            >
+
+                        <!-- Buscador -->
+                        <div class="mb-4">
+                            <div class="relative">
                                 <input 
-                                    type="checkbox" 
-                                    :value="servicio.id" 
-                                    v-model="form.incluye_servicios"
-                                    class="mt-1 w-4 h-4 rounded text-blue-600 border-gray-300 focus:ring-blue-500"
+                                    v-model="busquedaServicio"
+                                    type="text"
+                                    placeholder="🔍 Buscar servicio..."
+                                    class="w-full md:w-80 px-4 py-2 pl-10 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm bg-white"
                                 >
-                                <div>
-                                    <span class="block text-sm font-bold text-gray-800">{{ servicio.nombre }}</span>
-                                    <span class="block text-xs text-gray-500 font-mono" v-if="servicio.precio > 0">${{ servicio.precio }}</span>
-                                </div>
-                            </label>
-                            <div v-if="!servicios.length" class="col-span-full text-center text-gray-400 py-4 italic">
-                                No hay servicios activos en el catálogo.
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                </span>
+                                <button 
+                                    v-if="busquedaServicio" 
+                                    @click="busquedaServicio = ''"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Tabla de Servicios -->
+                        <div class="overflow-hidden rounded-xl border border-blue-200 bg-white max-h-96 overflow-y-auto">
+                            <table class="w-full">
+                                <thead class="sticky top-0 bg-blue-100/90 backdrop-blur-sm">
+                                    <tr class="text-left">
+                                        <th class="px-4 py-3 text-xs font-bold text-blue-900 uppercase tracking-wider w-12 text-center">
+                                            <input 
+                                                type="checkbox"
+                                                :checked="form.servicios_elegibles.length === servicios.length && servicios.length > 0"
+                                                @change="form.servicios_elegibles = $event.target.checked ? servicios.map(s => s.id) : []"
+                                                class="w-5 h-5 rounded text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
+                                                title="Seleccionar/deseleccionar todos"
+                                            >
+                                        </th>
+                                        <th class="px-4 py-3 text-xs font-bold text-blue-900 uppercase tracking-wider">Servicio</th>
+                                        <th class="px-4 py-3 text-xs font-bold text-blue-900 uppercase tracking-wider text-right">Precio (si extra)</th>
+                                        <th class="px-4 py-3 text-xs font-bold text-blue-900 uppercase tracking-wider text-center">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr 
+                                        v-for="servicio in serviciosFiltrados" 
+                                        :key="servicio.id"
+                                        class="hover:bg-blue-50/50 transition-colors cursor-pointer"
+                                        :class="{ 'bg-blue-50/50': form.servicios_elegibles.includes(servicio.id) }"
+                                        @click="toggleServicioElegible(servicio.id)"
+                                    >
+                                        <td class="px-4 py-3 text-center" @click.stop>
+                                            <label class="flex items-center justify-center cursor-pointer">
+                                                <input 
+                                                    type="checkbox" 
+                                                    :value="servicio.id" 
+                                                    v-model="form.servicios_elegibles"
+                                                    class="w-5 h-5 rounded text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
+                                                >
+                                            </label>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="font-semibold text-gray-800">{{ servicio.nombre }}</span>
+                                        </td>
+                                        <td class="px-4 py-3 text-right">
+                                            <span v-if="servicio.precio > 0" class="text-sm font-mono text-green-600 font-bold">
+                                                ${{ servicio.precio.toFixed(2) }}
+                                            </span>
+                                            <span v-else class="text-xs text-gray-400">—</span>
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                            <span 
+                                                v-if="form.servicios_elegibles.includes(servicio.id)"
+                                                class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold"
+                                            >
+                                                ⏱️ Usa Banco
+                                            </span>
+                                            <span 
+                                                v-else
+                                                class="inline-flex items-center gap-1 px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold"
+                                            >
+                                                💵 Cobro Extra
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="!servicios.length">
+                                        <td colspan="4" class="px-4 py-8 text-center text-gray-400 italic">
+                                            No hay servicios activos en el catálogo. 
+                                            <Link :href="route('servicios.index')" class="text-blue-500 hover:underline">Agregar servicios</Link>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Resumen -->
+                        <div class="mt-4 flex flex-wrap items-center justify-between gap-4 p-3 bg-white/80 rounded-lg border border-blue-100">
+                            <div class="flex gap-4 text-sm">
+                                <span class="text-blue-700 font-bold flex items-center gap-1">
+                                    ⏱️ {{ form.servicios_elegibles.length }} usan banco de horas
+                                </span>
+                                <span class="text-amber-700 font-bold flex items-center gap-1">
+                                    💵 {{ servicios.length - form.servicios_elegibles.length }} cobro extra
+                                </span>
+                            </div>
+                            <div class="flex gap-3">
+                                <button 
+                                    type="button" 
+                                    @click="form.servicios_elegibles = servicios.map(s => s.id)"
+                                    class="text-xs px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition font-semibold"
+                                >
+                                    Todos usan banco
+                                </button>
+                                <button 
+                                    type="button" 
+                                    @click="form.servicios_elegibles = []"
+                                    class="text-xs px-3 py-1.5 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition font-semibold"
+                                >
+                                    Ninguno (todos extra)
+                                </button>
                             </div>
                         </div>
                     </div>
