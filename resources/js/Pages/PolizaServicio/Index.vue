@@ -39,6 +39,13 @@ const formatCurrency = (value) => {
     return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value);
 };
 
+const formatDate = (date) => {
+    if (!date) return '-';
+    return new Date(date).toLocaleDateString('es-MX', { 
+        day: '2-digit', month: 'short', year: 'numeric' 
+    });
+};
+
 const showModal = ref(false);
 const selectedPoliza = ref(null);
 const loading = ref(false);
@@ -178,7 +185,10 @@ const cerrarModal = () => {
                                     <td class="px-6 py-4">
                                         <div class="flex items-center gap-2 text-sm text-slate-400">
                                             <svg class="w-4 h-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                            {{ poliza.fecha_inicio }}
+                                            <div class="flex flex-col">
+                                                <span class="text-slate-300 font-bold whitespace-nowrap">{{ formatDate(poliza.fecha_inicio) }}</span>
+                                                <span class="text-[10px] text-slate-500 uppercase tracking-tighter">al {{ formatDate(poliza.fecha_fin) }}</span>
+                                            </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 text-right">

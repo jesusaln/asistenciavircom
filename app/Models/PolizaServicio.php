@@ -199,8 +199,8 @@ class PolizaServicio extends Model
     ];
 
     protected $casts = [
-        'fecha_inicio' => 'date',
-        'fecha_fin' => 'date',
+        'fecha_inicio' => 'date:Y-m-d',
+        'fecha_fin' => 'date:Y-m-d',
         'monto_mensual' => 'decimal:2',
         'notificar_exceso_limite' => 'boolean',
         'renovacion_automatica' => 'boolean',
@@ -214,7 +214,7 @@ class PolizaServicio extends Model
         'ultimo_aviso_vencimiento_at' => 'datetime',
         'ultima_alerta_exceso_at' => 'datetime',
         'ultimo_reset_consumo_at' => 'datetime',
-        'proximo_mantenimiento_at' => 'date',
+        'proximo_mantenimiento_at' => 'date:Y-m-d',
         'generar_cita_automatica' => 'boolean',
         'visitas_sitio_consumidas_mes' => 'integer',
         'tickets_soporte_consumidos_mes' => 'integer',
