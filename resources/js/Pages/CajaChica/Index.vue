@@ -2,7 +2,7 @@
     <AppLayout title="Caja Chica">
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
                     Caja Chica
                 </h2>
                 <div class="flex flex-wrap gap-2">
@@ -16,28 +16,28 @@
             </div>
         </template>
 
-        <div class="py-12">
+        <div class="py-12 bg-gray-50 dark:bg-gray-900">
             <div class="w-full mx-auto sm:px-6 lg:px-8">
                 <!-- Barra de acciones -->
                 <div class="flex flex-wrap justify-between items-center mb-4 gap-3">
                     <div class="flex items-center gap-3">
-                        <div class="px-4 py-2 bg-white shadow-sm rounded-lg">
-                            <div class="text-xs text-gray-500 uppercase">Exportar</div>
-                            <a :href="route('caja-chica.export', filters)" class="text-blue-600 hover:text-blue-800 text-sm font-semibold">CSV</a>
+                        <div class="px-4 py-2 bg-white dark:bg-gray-800 shadow-sm rounded-lg">
+                            <div class="text-xs text-gray-500 dark:text-gray-400 uppercase">Exportar</div>
+                            <a :href="route('caja-chica.export', filters)" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-semibold">CSV</a>
                         </div>
                     </div>
-                    <div class="flex items-center gap-4 bg-white shadow-sm rounded-lg px-4 py-2">
+                    <div class="flex items-center gap-4 bg-white dark:bg-gray-800 shadow-sm rounded-lg px-4 py-2">
                         <div>
-                            <div class="text-xs text-gray-500 uppercase">Balance</div>
-                            <div class="text-lg font-bold" :class="balance >= 0 ? 'text-green-600' : 'text-red-600'">${{ formatMoney(balance) }}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 uppercase">Balance</div>
+                            <div class="text-lg font-bold" :class="balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">${{ formatMoney(balance) }}</div>
                         </div>
                         <div>
-                            <div class="text-xs text-gray-500 uppercase">Ingreso</div>
-                            <div class="text-lg font-bold text-blue-600">${{ formatMoney(totalIngresos) }}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 uppercase">Ingreso</div>
+                            <div class="text-lg font-bold text-blue-600 dark:text-blue-400">${{ formatMoney(totalIngresos) }}</div>
                         </div>
                         <div>
-                            <div class="text-xs text-gray-500 uppercase">Egreso</div>
-                            <div class="text-lg font-bold text-red-600">${{ formatMoney(totalEgresos) }}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 uppercase">Egreso</div>
+                            <div class="text-lg font-bold text-red-600 dark:text-red-400">${{ formatMoney(totalEgresos) }}</div>
                         </div>
                         <div class="w-32 h-12">
                             <Sparkline :data="trend" />
@@ -46,58 +46,58 @@
                 </div>
 
                 <!-- Filtros -->
-                <div class="bg-white shadow-sm sm:rounded-lg p-4 mb-6">
+                <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-4 mb-6">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                         <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-1" for="search">
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-1" for="search">
                                 Buscar concepto
                             </label>
                             <input v-model="filters.q" id="search" type="text" placeholder="Ej. gasolina" @keyup.enter="applyFilters"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:border-gray-600 dark:bg-gray-700">
                         </div>
                         <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-1" for="tipoFiltro">
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-1" for="tipoFiltro">
                                 Tipo
                             </label>
-                            <select v-model="filters.tipo" id="tipoFiltro" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            <select v-model="filters.tipo" id="tipoFiltro" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:border-gray-600">
                                 <option value="">Todos</option>
                                 <option value="ingreso">Ingreso</option>
                                 <option value="egreso">Egreso</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-1" for="categoriaFiltro">
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-1" for="categoriaFiltro">
                                 Categoría
                             </label>
                             <input v-model="filters.categoria" id="categoriaFiltro" type="text" placeholder="Ej. Combustible"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:border-gray-600">
                         </div>
                         <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-1" for="desde">
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-1" for="desde">
                                 Desde
                             </label>
                             <input v-model="filters.desde" id="desde" type="date"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:border-gray-600">
                         </div>
                         <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-1" for="hasta">
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-1" for="hasta">
                                 Hasta
                             </label>
                             <input v-model="filters.hasta" id="hasta" type="date"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:border-gray-600">
                         </div>
                     </div>
                     <div class="flex flex-wrap justify-between items-center gap-3 mt-4">
                         <div class="flex flex-wrap gap-2">
-                            <span class="text-sm text-gray-600">Rangos rápidos:</span>
-                            <button @click="quickDate('hoy')" class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded">Hoy</button>
-                            <button @click="quickDate('semana')" class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded">Esta semana</button>
-                            <button @click="quickDate('mes')" class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded">Este mes</button>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">Rangos rápidos:</span>
+                            <button @click="quickDate('hoy')" class="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 rounded">Hoy</button>
+                            <button @click="quickDate('semana')" class="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 rounded">Esta semana</button>
+                            <button @click="quickDate('mes')" class="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 rounded">Este mes</button>
                         </div>
                         <div class="flex items-center gap-3">
                             <div>
-                                <label class="block text-gray-700 text-xs font-bold mb-1" for="perPage">Por página</label>
-                                <select v-model.number="filters.per_page" id="perPage" class="shadow appearance-none border rounded py-1.5 px-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                <label class="block text-gray-700 dark:text-gray-300 text-xs font-bold mb-1" for="perPage">Por página</label>
+                                <select v-model.number="filters.per_page" id="perPage" class="shadow appearance-none border rounded py-1.5 px-2 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:border-gray-600 dark:bg-gray-700">
                                     <option :value="10">10</option>
                                     <option :value="25">25</option>
                                     <option :value="50">50</option>
@@ -105,7 +105,7 @@
                                 </select>
                             </div>
                             <div class="flex gap-2">
-                                <button @click="clearFilters" class="bg-white0 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded">
+                                <button @click="clearFilters" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded">
                                     Limpiar
                                 </button>
                                 <button @click="applyFilters" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
@@ -118,32 +118,32 @@
 
                 <!-- Summary Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                        <div class="text-gray-500 text-sm font-medium uppercase">Balance Actual</div>
-                        <div class="text-3xl font-bold" :class="balance >= 0 ? 'text-green-600' : 'text-red-600'">
+                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
+                        <div class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase">Balance Actual</div>
+                        <div class="text-3xl font-bold" :class="balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
                             ${{ formatMoney(balance) }}
                         </div>
                     </div>
-                    <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                        <div class="text-gray-500 text-sm font-medium uppercase">Total Ingresos</div>
-                        <div class="text-3xl font-bold text-blue-600">
+                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
+                        <div class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase">Total Ingresos</div>
+                        <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">
                             ${{ formatMoney(totalIngresos) }}
                         </div>
                     </div>
-                    <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                        <div class="text-gray-500 text-sm font-medium uppercase">Total Egresos</div>
-                        <div class="text-3xl font-bold text-red-600">
+                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
+                        <div class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase">Total Egresos</div>
+                        <div class="text-3xl font-bold text-red-600 dark:text-red-400">
                             ${{ formatMoney(totalEgresos) }}
                         </div>
                     </div>
                 </div>
 
                 <!-- Transactions Table -->
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-white">
+                        <thead class="bg-gray-50 dark:bg-gray-700/50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                     <button class="flex items-center gap-1" @click="toggleSort('fecha')">
                                         Fecha
                                         <span v-if="filters.sort_by === 'fecha'">
@@ -151,8 +151,8 @@
                                         </span>
                                     </button>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Concepto</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Concepto</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                     <button class="flex items-center gap-1" @click="toggleSort('categoria')">
                                         Categoría
                                         <span v-if="filters.sort_by === 'categoria'">
@@ -160,8 +160,8 @@
                                         </span>
                                     </button>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tipo</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                     <button class="flex items-center gap-1" @click="toggleSort('monto')">
                                         Monto
                                         <span v-if="filters.sort_by === 'monto'">

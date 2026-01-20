@@ -42,7 +42,7 @@ const whatsappLink = computed(() => {
                         <span class="text-xl font-bold text-white">{{ empresaData?.nombre_empresa || empresaData?.nombre || 'Empresa' }}</span>
                     </div>
                     <p class="text-gray-400 text-sm leading-relaxed mb-6">
-                        Proveemos Soluciones Integrales y Profesionales en: Redes, Cámaras de Vigilancia, Control de Acceso, Alarmas, GPS Vehicular
+                        {{ empresaData?.hero_descripcion || empresaData?.descripcion_empresa || 'Soluciones integrales para tu negocio' }}
                     </p>
                     <!-- Redes Sociales Dinámicas -->
                     <div class="flex items-center gap-3 flex-wrap">
