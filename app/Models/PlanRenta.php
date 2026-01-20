@@ -71,6 +71,14 @@ class PlanRenta extends Model
     }
 
     /**
+     * Scope para planes destacados.
+     */
+    public function scopeDestacados($query)
+    {
+        return $query->where('destacado', true);
+    }
+
+    /**
      * Scope para ordenar.
      */
     public function scopeOrdenado($query)
