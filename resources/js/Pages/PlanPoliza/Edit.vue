@@ -73,11 +73,12 @@ const toggleServicioElegible = (servicioId) => {
 
 // Servicios filtrados por búsqueda
 const serviciosFiltrados = computed(() => {
+    const servicios = props.servicios || [];
     if (!busquedaServicio.value.trim()) {
-        return props.servicios;
+        return servicios;
     }
     const termino = busquedaServicio.value.toLowerCase();
-    return props.servicios.filter(s => 
+    return servicios.filter(s => 
         s.nombre.toLowerCase().includes(termino)
     );
 });
@@ -489,10 +490,15 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                             </span>
                                         </td>
                                     </tr>
-                                    <tr v-if="!servicios.length">
+                                    <tr v-if="!serviciosFiltrados.length">
                                         <td colspan="4" class="px-4 py-8 text-center text-gray-400 italic">
-                                            No hay servicios activos en el catálogo. 
-                                            <Link :href="route('servicios.index')" class="text-blue-500 hover:underline">Agregar servicios</Link>
+                                            <template v-if="busquedaServicio">
+                                                No se encontraron servicios para "{{ busquedaServicio }}".
+                                            </template>
+                                            <template v-else>
+                                                No hay servicios activos en el catálogo. 
+                                                <Link :href="route('servicios.index')" class="text-blue-500 hover:underline">Agregar servicios</Link>
+                                            </template>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -506,13 +512,13 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     ⏱️ {{ form.servicios_elegibles.length }} usan banco de horas
                                 </span>
                                 <span class="text-amber-700 font-bold flex items-center gap-1">
-                                    💵 {{ servicios.length - form.servicios_elegibles.length }} cobro extra
+                                    💵 {{ (servicios?.length || 0) - form.servicios_elegibles.length }} cobro extra
                                 </span>
                             </div>
                             <div class="flex gap-3">
                                 <button 
                                     type="button" 
-                                    @click="form.servicios_elegibles = servicios.map(s => s.id)"
+                                    @click="form.servicios_elegibles = (servicios || []).map(s => s.id)"
                                     class="text-xs px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition font-semibold"
                                 >
                                     Todos usan banco

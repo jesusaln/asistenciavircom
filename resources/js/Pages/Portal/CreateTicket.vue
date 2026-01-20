@@ -57,7 +57,8 @@ watch(() => form.prioridad, (newVal) => {
 watch(() => form.categoria_id, (newVal) => {
     if (!newVal || !props.poliza) return;
 
-    const cat = props.categorias.find(c => c.id === newVal);
+    // Comparar como números para evitar problemas de tipo string vs int
+    const cat = props.categorias.find(c => Number(c.id) === Number(newVal));
     if (!cat) return;
 
     // Reiniciar estado
