@@ -124,8 +124,15 @@ class PortalController extends Controller
 
     private function getDashboardPagosPendientes($cliente)
     {
-        $ventas = Venta::where('cliente_id', $cliente->id)
+        $hoy = now()->startOfDay();
+
+        // Ventas vencidas solamente
+        $ventasVencidas = Venta::where('cliente_id', $cliente->id)
             ->whereIn('estado', ['pendiente', 'vencida'])
+            ->where(function ($q) use ($hoy) {
+                $q->where('fecha', '<', $hoy)
+                    ->orWhere('fecha_vencimiento', '<', $hoy);
+            })
             ->orderBy('fecha')
             ->get()
             ->map(fn($v) => [
@@ -137,9 +144,11 @@ class PortalController extends Controller
                 'estado' => $v->estado,
             ]);
 
-        $cxc = CuentasPorCobrar::where('cliente_id', $cliente->id)
+        // CxC vencidas (fecha_vencimiento < hoy)
+        $cxcVencidas = CuentasPorCobrar::where('cliente_id', $cliente->id)
             ->whereIn('estado', ['pendiente', 'vencido'])
             ->where('monto_pendiente', '>', 0)
+            ->where('fecha_vencimiento', '<', $hoy)
             ->orderBy('fecha_vencimiento')
             ->get()
             ->map(fn($c) => [
@@ -151,7 +160,29 @@ class PortalController extends Controller
                 'estado' => $c->estado,
             ]);
 
-        return $ventas->concat($cxc)->sortBy('fecha_vencimiento')->values();
+        // Próxima CxC a vencer (solo la más próxima, no todas las futuras)
+        $proximaCxc = CuentasPorCobrar::where('cliente_id', $cliente->id)
+            ->whereIn('estado', ['pendiente'])
+            ->where('monto_pendiente', '>', 0)
+            ->where('fecha_vencimiento', '>=', $hoy)
+            ->orderBy('fecha_vencimiento')
+            ->first();
+
+        $proximoPago = collect();
+        if ($proximaCxc) {
+            $proximoPago = collect([
+                [
+                    'id' => $proximaCxc->id,
+                    'tipo' => 'cxc',
+                    'folio' => 'CXC-' . str_pad($proximaCxc->id, 5, '0', STR_PAD_LEFT),
+                    'total' => $proximaCxc->monto_pendiente,
+                    'fecha_vencimiento' => $proximaCxc->fecha_vencimiento,
+                    'estado' => 'proximo', // Marcar como próximo para diferenciarlo en el frontend
+                ]
+            ]);
+        }
+
+        return $ventasVencidas->concat($cxcVencidas)->concat($proximoPago)->sortBy('fecha_vencimiento')->values();
     }
 
     private function getDashboardRentas($cliente)
