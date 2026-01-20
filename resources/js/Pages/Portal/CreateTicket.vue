@@ -78,12 +78,24 @@ watch(() => form.categoria_id, (newVal) => {
             return;
         }
 
-        // Verificar Exceso de Tickets (Prioridad 2, si no es por horas)
+        // Verificar Exceso de Tickets (Prioridad 2)
         if (props.poliza.excede_limite) {
             costoExtraData.value = {
                 tipo: 'tickets',
                 costo: props.poliza.costo_ticket_extra_aplicable,
                 mensaje: `Has alcanzado el límite de tickets incluidos en tu plan mensual. Este servicio generará un costo adicional de`
+            };
+            showCostoExtraModal.value = true;
+            cobroPendienteConfirmacion.value = true;
+            return;
+        }
+
+        // Verificar Exceso de Visitas (Prioridad 3)
+        if (props.poliza.excede_limite_visitas) {
+            costoExtraData.value = {
+                tipo: 'visitas',
+                costo: props.poliza.costo_visita_extra_aplicable,
+                mensaje: `Has utilizado todas las visitas en sitio incluidas en tu plan mensual. Este servicio generará un costo adicional de`
             };
             showCostoExtraModal.value = true;
             cobroPendienteConfirmacion.value = true;

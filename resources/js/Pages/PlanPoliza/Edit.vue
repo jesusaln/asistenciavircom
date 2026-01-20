@@ -102,40 +102,40 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
             <div class="w-full px-4 sm:px-6 lg:px-8">
                 <!-- Header -->
                 <div class="mb-6">
-                    <Link :href="route('planes-poliza.index')" class="text-blue-600 hover:text-blue-800 text-sm mb-2 inline-block">
+                    <Link :href="route('planes-poliza.index')" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm mb-2 inline-block font-semibold">
                         ← Volver al listado
                     </Link>
-                    <h1 class="text-2xl font-bold text-gray-900">
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
                         {{ isEditing ? `Editar: ${plan.nombre}` : 'Crear Nuevo Plan de Póliza' }}
                     </h1>
                 </div>
 
                 <form @submit.prevent="submit" class="space-y-6">
                     <!-- Información Básica -->
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h3 class="font-bold text-gray-900 mb-4 border-b pb-2">Información Básica</h3>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2">Información Básica</h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre del Plan *</label>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Nombre del Plan *</label>
                                 <input 
                                     v-model="form.nombre" 
                                     type="text" 
-                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                                     placeholder="Ej: Plan Básico, Plan Premium..."
                                 />
                                 <p v-if="form.errors.nombre" class="text-red-500 text-sm mt-1">{{ form.errors.nombre }}</p>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Tipo *</label>
-                                <select v-model="form.tipo" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Tipo *</label>
+                                <select v-model="form.tipo" class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
                                     <option v-for="(nombre, key) in tipos" :key="key" :value="key">{{ nombre }}</option>
                                 </select>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Icono</label>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Icono</label>
                                 <div class="flex flex-wrap gap-2">
                                     <button 
                                         type="button"
@@ -153,22 +153,22 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                             </div>
 
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Descripción Corta</label>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Descripción Corta</label>
                                 <input 
                                     v-model="form.descripcion_corta" 
                                     type="text" 
                                     maxlength="500"
-                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                                     placeholder="Descripción breve para mostrar en las tarjetas"
                                 />
                             </div>
 
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Descripción Completa</label>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Descripción Completa</label>
                                 <textarea 
                                     v-model="form.descripcion" 
                                     rows="3"
-                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                                     placeholder="Descripción detallada del plan..."
                                 ></textarea>
                             </div>
@@ -176,8 +176,8 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                     </div>
 
                     <!-- Precios -->
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h3 class="font-bold text-gray-900 mb-4 border-b pb-2">💰 Precios</h3>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2">💰 Precios</h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
@@ -225,8 +225,8 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                     </div>
 
                     <!-- Características del Servicio -->
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h3 class="font-bold text-gray-900 mb-4 border-b pb-2">⚙️ Configuración del Servicio</h3>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2">⚙️ Configuración del Servicio</h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div>
@@ -312,8 +312,8 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                     </div>
 
                     <!-- Mantenimiento Automático -->
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h3 class="font-bold text-gray-900 mb-4 border-b pb-2">🛠️ Mantenimiento Automático</h3>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2">🛠️ Mantenimiento Automático</h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
@@ -355,8 +355,8 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                     </div>
 
                     <!-- Beneficios -->
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h3 class="font-bold text-gray-900 mb-4 border-b pb-2">✅ Beneficios del Plan</h3>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2">✅ Beneficios del Plan</h3>
                         
                         <div class="flex gap-2 mb-4">
                             <input 
@@ -391,7 +391,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                     </div>
 
                     <!-- Servicios Elegibles para Banco de Horas -->
-                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm p-6 border-2 border-blue-200">
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-xl shadow-lg shadow-blue-200/30 dark:shadow-none p-6 border-2 border-blue-200 dark:border-blue-700">
                         <div class="flex items-center justify-between mb-4 border-b border-blue-200 pb-3">
                             <div>
                                 <h3 class="font-bold text-blue-900 flex items-center gap-2 text-lg">
@@ -535,23 +535,23 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                     </div>
 
                     <!-- Cláusulas y Términos de Pago -->
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h3 class="font-bold text-gray-900 mb-4 border-b pb-2">⚖️ Cláusulas y Condiciones Legales</h3>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2">⚖️ Cláusulas y Condiciones Legales</h3>
                         
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Cláusulas del Contrato</label>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Cláusulas del Contrato</label>
                                 <textarea 
                                     v-model="form.clausulas" 
                                     rows="8"
                                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm font-mono"
                                     placeholder="Escribe las cláusulas legales separadas por párrafos..."
                                 ></textarea>
-                                <p class="text-[10px] text-gray-400 mt-1">Estas cláusulas aparecerán en la impresión del contrato para el cliente.</p>
+                                <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Estas cláusulas aparecerán en la impresión del contrato para el cliente.</p>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Términos y Condiciones de Pago</label>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Términos y Condiciones de Pago</label>
                                 <textarea 
                                     v-model="form.terminos_pago" 
                                     rows="3"
@@ -563,56 +563,56 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                     </div>
 
                     <!-- Configuración de Visualización -->
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h3 class="font-bold text-gray-900 mb-4 border-b pb-2">👁️ Configuración de Visualización</h3>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2">👁️ Configuración de Visualización</h3>
                         
                         <div class="space-y-4">
-                            <label class="flex items-center gap-3 cursor-pointer">
-                                <input type="checkbox" v-model="form.activo" class="w-5 h-5 rounded text-blue-600">
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                <input type="checkbox" v-model="form.activo" class="w-5 h-5 rounded text-blue-600 dark:bg-gray-600 dark:border-gray-500">
                                 <div>
-                                    <span class="font-semibold">Plan Activo</span>
-                                    <p class="text-sm text-gray-500">Si está activo, el plan estará disponible para contratar</p>
+                                    <span class="font-semibold text-gray-900 dark:text-white">Plan Activo</span>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Si está activo, el plan estará disponible para contratar</p>
                                 </div>
                             </label>
 
-                            <label class="flex items-center gap-3 cursor-pointer">
-                                <input type="checkbox" v-model="form.visible_catalogo" class="w-5 h-5 rounded text-blue-600">
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                <input type="checkbox" v-model="form.visible_catalogo" class="w-5 h-5 rounded text-blue-600 dark:bg-gray-600 dark:border-gray-500">
                                 <div>
-                                    <span class="font-semibold">Visible en Catálogo</span>
-                                    <p class="text-sm text-gray-500">Mostrar este plan en la página pública de planes</p>
+                                    <span class="font-semibold text-gray-900 dark:text-white">Visible en Catálogo</span>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Mostrar este plan en la página pública de planes</p>
                                 </div>
                             </label>
 
-                            <label class="flex items-center gap-3 cursor-pointer">
-                                <input type="checkbox" v-model="form.destacado" class="w-5 h-5 rounded text-yellow-500">
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors">
+                                <input type="checkbox" v-model="form.destacado" class="w-5 h-5 rounded text-yellow-500 dark:bg-gray-600 dark:border-gray-500">
                                 <div>
-                                    <span class="font-semibold">⭐ Plan Destacado</span>
-                                    <p class="text-sm text-gray-500">Resaltar este plan como recomendado</p>
+                                    <span class="font-semibold text-gray-900 dark:text-white">⭐ Plan Destacado</span>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Resaltar este plan como recomendado</p>
                                 </div>
                             </label>
 
-                            <div class="pt-4 border-t">
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Orden de visualización</label>
+                            <div class="pt-4 border-t border-gray-200 dark:border-gray-600">
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Orden de visualización</label>
                                 <input 
                                     v-model.number="form.orden" 
                                     type="number" 
                                     min="0"
-                                    class="w-24 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    class="w-24 px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                                 />
-                                <p class="text-xs text-gray-500 mt-1">Menor número = aparece primero</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Menor número = aparece primero</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Botones -->
-                    <div class="flex justify-end gap-3">
-                        <Link :href="route('planes-poliza.index')" class="px-6 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-white transition">
+                    <div class="flex justify-end gap-3 pt-4">
+                        <Link :href="route('planes-poliza.index')" class="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg font-semibold text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 transition">
                             Cancelar
                         </Link>
                         <button 
                             type="submit" 
                             :disabled="form.processing"
-                            class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow-lg disabled:opacity-50"
+                            class="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition shadow-lg shadow-blue-500/30 disabled:opacity-50"
                         >
                             {{ form.processing ? 'Guardando...' : (isEditing ? 'Guardar Cambios' : 'Crear Plan') }}
                         </button>
