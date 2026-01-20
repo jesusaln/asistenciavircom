@@ -189,7 +189,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                         type="number" 
                                         step="0.01"
                                         min="0"
-                                        class="w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                                     />
                                 </div>
                             </div>
@@ -202,7 +202,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                         type="number" 
                                         step="0.01"
                                         min="0"
-                                        class="w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                                         placeholder="Opcional"
                                     />
                                 </div>
@@ -217,7 +217,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                         type="number" 
                                         step="0.01"
                                         min="0"
-                                        class="w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                                     />
                                 </div>
                             </div>
@@ -235,7 +235,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     v-model.number="form.horas_incluidas" 
                                     type="number" 
                                     min="0"
-                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                                     placeholder="Ej: 8"
                                 />
                             </div>
@@ -245,7 +245,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     v-model.number="form.tickets_incluidos" 
                                     type="number" 
                                     min="0"
-                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                                     placeholder="Ej: 5"
                                 />
                             </div>
@@ -255,7 +255,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     v-model.number="form.sla_horas_respuesta" 
                                     type="number" 
                                     min="1"
-                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                                     placeholder="Ej: 4"
                                 />
                             </div>
@@ -268,7 +268,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                         type="number" 
                                         step="0.01"
                                         min="0"
-                                        class="w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                                     />
                                 </div>
                             </div>
@@ -278,7 +278,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     v-model.number="form.visitas_sitio_mensuales" 
                                     type="number" 
                                     min="0"
-                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                                     placeholder="Ej: 1"
                                 />
                             </div>
@@ -291,7 +291,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                         type="number" 
                                         step="0.01"
                                         min="0"
-                                        class="w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                                     />
                                 </div>
                             </div>
@@ -304,7 +304,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                         type="number" 
                                         step="0.01"
                                         min="0"
-                                        class="w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                                     />
                                 </div>
                             </div>
@@ -323,7 +323,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     type="number" 
                                     min="1"
                                     max="24"
-                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                                     placeholder="Ej: 6"
                                 />
                                 <p class="text-xs text-gray-500 mt-1">Frecuencia recomendada</p>
@@ -336,18 +336,18 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     type="number" 
                                     min="1"
                                     max="60"
-                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                                     placeholder="Ej: 7"
                                 />
                                 <p class="text-xs text-gray-500 mt-1">Días antes para generar ticket</p>
                             </div>
 
                             <div class="flex items-center">
-                                <label class="flex items-center gap-3 cursor-pointer p-3 bg-white rounded-xl border border-gray-100 hover:bg-blue-50 transition-all w-full">
-                                    <input type="checkbox" v-model="form.generar_cita_automatica" class="w-5 h-5 rounded text-blue-600">
+                                <label class="flex items-center gap-3 cursor-pointer p-3 bg-white dark:bg-gray-700/50 rounded-xl border border-gray-100 dark:border-gray-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all w-full">
+                                    <input type="checkbox" v-model="form.generar_cita_automatica" class="w-5 h-5 rounded text-blue-600 dark:bg-gray-600 dark:border-gray-500">
                                     <div>
-                                        <span class="font-semibold text-sm">Autogenerar Citas</span>
-                                        <p class="text-[11px] text-gray-500">Sugerir generación automática de tickets/citas</p>
+                                        <span class="font-semibold text-sm text-gray-900 dark:text-white">Autogenerar Citas</span>
+                                        <p class="text-[11px] text-gray-500 dark:text-gray-400">Sugerir generación automática de tickets/citas</p>
                                     </div>
                                 </label>
                             </div>
@@ -362,14 +362,14 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                             <input 
                                 v-model="nuevoBeneficio" 
                                 type="text" 
-                                class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                class="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                                 placeholder="Escribe un beneficio y presiona Enter o el botón"
                                 @keyup.enter="agregarBeneficio"
                             />
                             <button 
                                 type="button"
                                 @click="agregarBeneficio"
-                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold"
                             >
                                 + Agregar
                             </button>
@@ -379,12 +379,12 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                             <span 
                                 v-for="(beneficio, index) in form.beneficios" 
                                 :key="index"
-                                class="inline-flex items-center gap-2 px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-sm font-bold"
+                                class="inline-flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 rounded-full text-sm font-bold"
                             >
                                 ✓ {{ beneficio }}
-                                <button type="button" @click="eliminarBeneficio(index)" class="text-green-600 hover:text-red-600">×</button>
+                                <button type="button" @click="eliminarBeneficio(index)" class="text-green-600 dark:text-green-400 hover:text-red-600 dark:hover:text-red-400">×</button>
                             </span>
-                            <span v-if="!form.beneficios.length" class="text-gray-400 text-sm">
+                            <span v-if="!form.beneficios.length" class="text-gray-400 dark:text-gray-500 text-sm">
                                 Agrega los beneficios que se mostrarán en el catálogo
                             </span>
                         </div>
@@ -392,17 +392,17 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
 
                     <!-- Servicios Elegibles para Banco de Horas -->
                     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-xl shadow-lg shadow-blue-200/30 dark:shadow-none p-6 border-2 border-blue-200 dark:border-blue-700">
-                        <div class="flex items-center justify-between mb-4 border-b border-blue-200 pb-3">
+                        <div class="flex items-center justify-between mb-4 border-b border-blue-200 dark:border-blue-700 pb-3">
                             <div>
-                                <h3 class="font-bold text-blue-900 flex items-center gap-2 text-lg">
+                                <h3 class="font-bold text-blue-900 dark:text-blue-200 flex items-center gap-2 text-lg">
                                     <span class="text-xl">⏱️</span> Servicios Elegibles (Banco de Horas)
                                 </h3>
-                                <p class="text-xs text-blue-700 mt-1">
+                                <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">
                                     Selecciona qué servicios pueden consumir las <strong>horas incluidas</strong> en el plan.
-                                    <span class="text-amber-700 font-semibold">Los NO seleccionados se cobrarán tarifa completa.</span>
+                                    <span class="text-amber-700 dark:text-amber-400 font-semibold">Los NO seleccionados se cobrarán tarifa completa.</span>
                                 </p>
                             </div>
-                            <Link :href="route('servicios.index')" class="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 hover:underline bg-white px-3 py-1.5 rounded-lg shadow-sm">
+                            <Link :href="route('servicios.index')" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 hover:underline bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
                                 <font-awesome-icon icon="external-link-alt" /> Gestionar Catálogo
                             </Link>
                         </div>
@@ -414,15 +414,15 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     v-model="busquedaServicio"
                                     type="text"
                                     placeholder="🔍 Buscar servicio..."
-                                    class="w-full md:w-80 px-4 py-2 pl-10 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm bg-white"
+                                    class="w-full md:w-80 px-4 py-2 pl-10 border border-blue-200 dark:border-blue-700 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                                 >
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                                 </span>
                                 <button 
                                     v-if="busquedaServicio" 
                                     @click="busquedaServicio = ''"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                                 >
                                     ✕
                                 </button>
@@ -430,30 +430,30 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                         </div>
                         
                         <!-- Tabla de Servicios -->
-                        <div class="overflow-hidden rounded-xl border border-blue-200 bg-white max-h-96 overflow-y-auto">
+                        <div class="overflow-hidden rounded-xl border border-blue-200 dark:border-blue-700 bg-white dark:bg-gray-800 max-h-96 overflow-y-auto">
                             <table class="w-full">
-                                <thead class="sticky top-0 bg-blue-100/90 backdrop-blur-sm">
+                                <thead class="sticky top-0 bg-blue-100/90 dark:bg-blue-900/50 backdrop-blur-sm">
                                     <tr class="text-left">
-                                        <th class="px-4 py-3 text-xs font-bold text-blue-900 uppercase tracking-wider w-12 text-center">
+                                        <th class="px-4 py-3 text-xs font-bold text-blue-900 dark:text-blue-200 uppercase tracking-wider w-12 text-center">
                                             <input 
                                                 type="checkbox"
                                                 :checked="form.servicios_elegibles.length === servicios.length && servicios.length > 0"
                                                 @change="form.servicios_elegibles = $event.target.checked ? servicios.map(s => s.id) : []"
-                                                class="w-5 h-5 rounded text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
+                                                class="w-5 h-5 rounded text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 cursor-pointer dark:bg-gray-700"
                                                 title="Seleccionar/deseleccionar todos"
                                             >
                                         </th>
-                                        <th class="px-4 py-3 text-xs font-bold text-blue-900 uppercase tracking-wider">Servicio</th>
-                                        <th class="px-4 py-3 text-xs font-bold text-blue-900 uppercase tracking-wider text-right">Precio (si extra)</th>
-                                        <th class="px-4 py-3 text-xs font-bold text-blue-900 uppercase tracking-wider text-center">Estado</th>
+                                        <th class="px-4 py-3 text-xs font-bold text-blue-900 dark:text-blue-200 uppercase tracking-wider">Servicio</th>
+                                        <th class="px-4 py-3 text-xs font-bold text-blue-900 dark:text-blue-200 uppercase tracking-wider text-right">Precio (si extra)</th>
+                                        <th class="px-4 py-3 text-xs font-bold text-blue-900 dark:text-blue-200 uppercase tracking-wider text-center">Estado</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-100">
+                                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                                     <tr 
                                         v-for="servicio in serviciosFiltrados" 
                                         :key="servicio.id"
-                                        class="hover:bg-blue-50/50 transition-colors cursor-pointer"
-                                        :class="{ 'bg-blue-50/50': form.servicios_elegibles.includes(servicio.id) }"
+                                        class="hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors cursor-pointer"
+                                        :class="{ 'bg-blue-50/50 dark:bg-blue-900/30': form.servicios_elegibles.includes(servicio.id) }"
                                         @click="toggleServicioElegible(servicio.id)"
                                     >
                                         <td class="px-4 py-3 text-center" @click.stop>
@@ -491,13 +491,13 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                         </td>
                                     </tr>
                                     <tr v-if="!serviciosFiltrados.length">
-                                        <td colspan="4" class="px-4 py-8 text-center text-gray-400 italic">
+                                        <td colspan="4" class="px-4 py-8 text-center text-gray-400 dark:text-gray-500 italic">
                                             <template v-if="busquedaServicio">
                                                 No se encontraron servicios para "{{ busquedaServicio }}".
                                             </template>
                                             <template v-else>
                                                 No hay servicios activos en el catálogo. 
-                                                <Link :href="route('servicios.index')" class="text-blue-500 hover:underline">Agregar servicios</Link>
+                                                <Link :href="route('servicios.index')" class="text-blue-500 dark:text-blue-400 hover:underline">Agregar servicios</Link>
                                             </template>
                                         </td>
                                     </tr>
@@ -508,10 +508,10 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                         <!-- Resumen -->
                         <div class="mt-4 flex flex-wrap items-center justify-between gap-4 p-3 bg-white/80 dark:bg-gray-800/80 rounded-lg border border-blue-100 dark:border-blue-800">
                             <div class="flex gap-4 text-sm">
-                                <span class="text-blue-700 font-bold flex items-center gap-1">
+                                <span class="text-blue-700 dark:text-blue-300 font-bold flex items-center gap-1">
                                     ⏱️ {{ form.servicios_elegibles.length }} usan banco de horas
                                 </span>
-                                <span class="text-amber-700 font-bold flex items-center gap-1">
+                                <span class="text-amber-700 dark:text-amber-300 font-bold flex items-center gap-1">
                                     💵 {{ (servicios?.length || 0) - form.servicios_elegibles.length }} cobro extra
                                 </span>
                             </div>
@@ -519,14 +519,14 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                 <button 
                                     type="button" 
                                     @click="form.servicios_elegibles = (servicios || []).map(s => s.id)"
-                                    class="text-xs px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition font-semibold"
+                                    class="text-xs px-3 py-1.5 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800 transition font-semibold"
                                 >
                                     Todos usan banco
                                 </button>
                                 <button 
                                     type="button" 
                                     @click="form.servicios_elegibles = []"
-                                    class="text-xs px-3 py-1.5 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition font-semibold"
+                                    class="text-xs px-3 py-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded-lg hover:bg-amber-200 dark:hover:bg-amber-800 transition font-semibold"
                                 >
                                     Ninguno (todos extra)
                                 </button>
@@ -544,7 +544,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                 <textarea 
                                     v-model="form.clausulas" 
                                     rows="8"
-                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm font-mono"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm font-mono bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                                     placeholder="Escribe las cláusulas legales separadas por párrafos..."
                                 ></textarea>
                                 <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Estas cláusulas aparecerán en la impresión del contrato para el cliente.</p>
@@ -555,7 +555,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                 <textarea 
                                     v-model="form.terminos_pago" 
                                     rows="3"
-                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                                     placeholder="Ej: El pago debe realizarse los primeros 5 días del mes..."
                                 ></textarea>
                             </div>

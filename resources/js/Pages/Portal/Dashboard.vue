@@ -570,23 +570,40 @@ const toggleIncluirFinalizados = () => {
 
                         <!-- Fila Inferior: Póliza Destacada & Equipos -->
                         <div class="grid lg:grid-cols-3 gap-6">
-                             <!-- Póliza Widget -->
+                             <!-- Póliza Widget - Mejorado -->
                              <div class="lg:col-span-2 bg-gradient-to-br from-gray-900 to-gray-800 rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden group">
                                 <div class="absolute right-0 bottom-0 opacity-10 group-hover:scale-110 transition-transform duration-500">
                                     <font-awesome-icon icon="shield-alt" class="text-[12rem]" />
                                 </div>
-                                <div class="relative z-10">
-                                    <div class="flex justify-between items-start mb-10">
+                                
+                                <!-- SI TIENE PÓLIZA ACTIVA -->
+                                <div v-if="polizas[0]" class="relative z-10">
+                                    <!-- Header con estado y alerta de vencimiento -->
+                                    <div class="flex justify-between items-start mb-6">
                                         <div>
                                             <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2 font-mono">Contrato Vigente</p>
-                                            <h3 class="text-2xl font-black">{{ polizas[0]?.nombre || 'Sin Póliza Activa' }}</h3>
+                                            <h3 class="text-2xl font-black">{{ polizas[0]?.nombre || 'Póliza Activa' }}</h3>
+                                            <p class="text-xs text-gray-400 mt-1 font-mono">Folio: {{ polizas[0]?.folio }}</p>
                                         </div>
-                                        <div class="px-4 py-2 bg-white/10 backdrop-blur-md rounded-xl text-[10px] font-bold uppercase tracking-widest">
-                                            {{ polizas[0]?.estado || 'N/A' }}
+                                        <div class="flex flex-col items-end gap-2">
+                                            <div class="px-4 py-2 bg-emerald-500/30 backdrop-blur-md rounded-xl text-[10px] font-bold uppercase tracking-widest text-emerald-300">
+                                                ✓ {{ polizas[0]?.estado || 'Activa' }}
+                                            </div>
+                                            <!-- Alerta de vencimiento próximo -->
+                                            <div v-if="polizas[0]?.dias_para_vencer && polizas[0].dias_para_vencer <= 30" 
+                                                 :class="[
+                                                     'px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider animate-pulse',
+                                                     polizas[0].dias_para_vencer <= 7 
+                                                         ? 'bg-red-500/30 text-red-300' 
+                                                         : 'bg-amber-500/30 text-amber-300'
+                                                 ]">
+                                                ⚠️ Vence en {{ polizas[0].dias_para_vencer }} días
+                                            </div>
                                         </div>
                                     </div>
 
-                                     <div v-if="polizas[0]" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                                    <!-- Mini widgets de consumo -->
+                                    <div class="grid sm:grid-cols-3 gap-4 mb-6">
                                         <!-- Tickets Widget -->
                                         <div class="p-5 bg-white/5 dark:bg-gray-700/20 rounded-2xl border border-white/10 dark:border-gray-700/50 transition-colors">
                                             <p class="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">🎫 Tickets del Mes</p>
@@ -630,10 +647,36 @@ const toggleIncluirFinalizados = () => {
                                         </div>
                                     </div>
 
-                                    <button @click="activeTab = 'polizas'" class="flex items-center gap-2 group/btn font-black text-[10px] uppercase tracking-widest text-[var(--color-primary)]">
-                                        Ver todas mis pólizas
-                                        <font-awesome-icon icon="arrow-right" class="group-hover/btn:translate-x-1 transition-transform" />
-                                    </button>
+                                    <!-- Acciones -->
+                                    <div class="flex flex-wrap items-center justify-between gap-4">
+                                        <button @click="activeTab = 'polizas'" class="flex items-center gap-2 group/btn font-black text-[10px] uppercase tracking-widest text-[var(--color-primary)]">
+                                            Ver detalles completos
+                                            <font-awesome-icon icon="arrow-right" class="group-hover/btn:translate-x-1 transition-transform" />
+                                        </button>
+                                        
+                                        <!-- Botón de Renovación si está próximo a vencer -->
+                                        <Link v-if="polizas[0]?.dias_para_vencer && polizas[0].dias_para_vencer <= 30"
+                                              :href="route('portal.polizas.show', polizas[0].id)"
+                                              class="px-5 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:shadow-amber-500/30 transition-all active:scale-95">
+                                            🔄 Renovar Ahora
+                                        </Link>
+                                    </div>
+                                </div>
+                                
+                                <!-- SI NO TIENE PÓLIZA -->
+                                <div v-else class="relative z-10 text-center py-6">
+                                    <div class="w-20 h-20 bg-white/10 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-6">
+                                        🛡️
+                                    </div>
+                                    <h3 class="text-2xl font-black mb-3">Sin Póliza Activa</h3>
+                                    <p class="text-gray-400 text-sm font-medium max-w-md mx-auto mb-8">
+                                        Protege tu equipo con soporte prioritario, horas de servicio incluidas y precios preferenciales.
+                                    </p>
+                                    <a :href="route('catalogo.polizas')" 
+                                       class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:shadow-[var(--color-primary)]/40 transition-all active:scale-95">
+                                        <font-awesome-icon icon="shield-alt" />
+                                        Ver Planes de Servicio
+                                    </a>
                                 </div>
                              </div>
 
