@@ -1,5 +1,5 @@
 <script setup>
-import { Link, Head, useForm, usePage } from '@inertiajs/vue3';
+import { Link, Head, useForm, usePage, router } from '@inertiajs/vue3';
 import ClientLayout from './Layout/ClientLayout.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { ref, onMounted, computed, watch } from 'vue';
@@ -20,6 +20,7 @@ const props = defineProps({
     rentas: Array,
     faqs: Array,
     catalogos: Object,
+    incluirFinalizados: Boolean,
 });
 
 const activeTab = ref('resumen');
@@ -254,6 +255,16 @@ const totalPendiente = computed(() => {
     if (!props.pagosPendientes || props.pagosPendientes.length === 0) return 0;
     return props.pagosPendientes.reduce((acc, pago) => acc + parseFloat(pago.total || 0), 0);
 });
+
+// Toggle para incluir tickets cerrados y resueltos
+const toggleIncluirFinalizados = () => {
+    router.get(route('portal.dashboard'), {
+        incluir_finalizados: !props.incluirFinalizados ? 1 : 0
+    }, {
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
 </script>
 
 <template>
@@ -641,15 +652,30 @@ const totalPendiente = computed(() => {
 
                     <!-- Tab: Tickets -->
                     <div v-show="activeTab === 'tickets'" class="animate-fade-in space-y-6">
-                        <div class="flex justify-between items-center px-2">
-                            <h2 class="text-xl font-black text-gray-900 uppercase tracking-tight">Historial de Soporte</h2>
-                            <Link
-                                :href="route('portal.tickets.create')"
-                                class="px-6 py-3 bg-[var(--color-terciary)] text-white rounded-xl font-black text-xs uppercase tracking-widest hover:shadow-lg transition-all"
-                            >
-                                + Nuevo Ticket
-                            </Link>
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 px-2">
+                            <h2 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight transition-colors">Historial de Soporte</h2>
+                            <div class="flex items-center gap-4">
+                                <!-- Toggle Incluir Finalizados -->
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input 
+                                        type="checkbox" 
+                                        :checked="incluirFinalizados"
+                                        @change="toggleIncluirFinalizados"
+                                        class="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-[var(--color-primary)] focus:ring-[var(--color-primary)] focus:ring-offset-0 cursor-pointer"
+                                    >
+                                    <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+                                        Incluir Cerrados y Resueltos
+                                    </span>
+                                </label>
+                                <Link
+                                    :href="route('portal.tickets.create')"
+                                    class="px-6 py-3 bg-[var(--color-terciary)] text-white rounded-xl font-black text-xs uppercase tracking-widest hover:shadow-lg transition-all"
+                                >
+                                    + Nuevo Ticket
+                                </Link>
+                            </div>
                         </div>
+
 
                         <div class="bg-white dark:bg-gray-800 rounded-[2rem] shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
                             <div class="divide-y divide-gray-50 dark:divide-gray-700">

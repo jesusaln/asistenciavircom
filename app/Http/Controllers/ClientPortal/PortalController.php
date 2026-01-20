@@ -52,7 +52,8 @@ class PortalController extends Controller
         }
 
         return Inertia::render('Portal/Dashboard', [
-            'tickets' => $this->getDashboardTickets($cliente),
+            'tickets' => $this->getDashboardTickets($cliente, $request),
+            'incluirFinalizados' => $request->boolean('incluir_finalizados', false),
             'polizas' => $this->getDashboardPolizas($cliente),
             'pagosPendientes' => $this->getDashboardPagosPendientes($cliente),
             'rentas' => $this->getDashboardRentas($cliente),
@@ -95,12 +96,18 @@ class PortalController extends Controller
         ]);
     }
 
-    private function getDashboardTickets($cliente)
+    private function getDashboardTickets($cliente, Request $request)
     {
-        return Ticket::where('cliente_id', $cliente->id)
-            ->with(['categoria', 'asignado:id,name'])
-            ->orderByDesc('created_at')
-            ->paginate(10);
+        $query = Ticket::where('cliente_id', $cliente->id)
+            ->with(['categoria', 'asignado:id,name']);
+
+        // Por defecto, ocultar tickets cerrados y resueltos
+        // Solo mostrarlos si se pide explícitamente
+        if (!$request->boolean('incluir_finalizados', false)) {
+            $query->whereNotIn('estado', ['cerrado', 'resuelto']);
+        }
+
+        return $query->orderByDesc('created_at')->paginate(10)->withQueryString();
     }
 
     private function getDashboardPolizas($cliente)
