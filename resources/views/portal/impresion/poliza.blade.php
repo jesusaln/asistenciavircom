@@ -31,8 +31,6 @@
             background-color: #f8fafc;
             border-bottom: 1px solid #e2e8f0;
             padding: 0.5cm 2cm;
-            display: flex;
-            align-items: center;
         }
 
         footer {
@@ -47,6 +45,14 @@
             font-size: 8px;
             color: #94a3b8;
             text-align: center;
+        }
+
+        .pagenum:before {
+            content: counter(page);
+        }
+
+        .pagecount:before {
+            content: counter(pages);
         }
 
         .logo-text {
@@ -94,6 +100,15 @@
             text-align: justify;
         }
 
+        ul {
+            margin: 8px 0 10px 18px;
+            padding: 0;
+        }
+
+        li {
+            margin: 3px 0;
+        }
+
         .clause-title {
             font-weight: bold;
             color: #0f172a;
@@ -105,6 +120,16 @@
             border-collapse: collapse;
             font-size: 9px;
             border: 1px solid #e2e8f0;
+        }
+
+        table {
+            page-break-inside: avoid;
+        }
+
+        tr,
+        td,
+        th {
+            page-break-inside: avoid;
         }
 
         .info-table th {
@@ -181,12 +206,17 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 100px;
-            color: rgba(203, 213, 225, 0.15);
-            z-index: -1000;
+            font-size: 90px;
+            color: rgba(203, 213, 225, 0.18);
+            z-index: 0;
             white-space: nowrap;
             font-weight: bold;
             pointer-events: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
         }
     </style>
 </head>
@@ -218,7 +248,7 @@
         <table style="width: 100%;">
             <tr>
                 <td style="text-align: left; width: 33%;">
-                    Página <span class="page-number"></span>
+                    Página <span class="pagenum"></span> de <span class="pagecount"></span>
                 </td>
                 <td style="text-align: center; width: 34%;">
                     {{ $empresa->sitio_web ?? 'www.vircom.mx' }}
@@ -293,7 +323,7 @@
             o refacciones) será facturado por separado previa autorización de "EL CLIENTE", conforme a las siguientes
             tarifas preferenciales (más IVA):</p>
 
-        <ul style="list-style-type: square; margin-left: 20px; font-size: 9px;">
+        <ul>
             <li>Hora de soporte/ingeniería adicional:
                 ${{ number_format($poliza->costo_hora_excedente ?? $poliza->planPoliza?->costo_hora_extra ?? 0, 2) }}
                 MXN</li>
@@ -310,11 +340,11 @@
             personales de las partes y sus empleados se sujetará estrictamente a la Ley Federal de Protección de Datos
             Personales en Posesión de los Particulares y al Aviso de Privacidad de "EL PRESTADOR".</p>
 
-        <p><span class="clause-title">SÉPTIMA. CONSENTIMIENTO Y EVIDENCIA DIGITAL (CÓDIGO DE COMERCIO Y NOM-151).</span>
+        <p><span class="clause-title">SÉPTIMA. CONSENTIMIENTO Y EVIDENCIA DIGITAL (CÓDIGO DE COMERCIO).</span>
             De conformidad con los artículos 89 al 114 del Código de Comercio Federal, las partes reconocen la validez
-            de los mensajes de datos y las firmas electrónicas aquí plasmadas. "EL PRESTADOR" conserva la evidencia
-            técnica conforme a la NOM-151-SCFI-2016, por lo que el presente archivo digital e impreso constituye prueba
-            plena e histórica de la voluntad de las partes.</p>
+            de los mensajes de datos y las firmas electrónicas aquí plasmadas. El Prestador conserva evidencia técnica
+            de integridad y trazabilidad del documento y, cuando sea requerido, podrá complementarse con constancia de
+            conservación conforme a la NOM-151-SCFI-2016 emitida por un Proveedor de Servicios de Certificación.</p>
 
         <p><span class="clause-title">OCTAVA. LIMITACIÓN DE RESPONSABILIDAD.</span> "EL PRESTADOR" no será responsable
             por daños indirectos, lucro cesante o pérdida de datos derivados de fallas de terceros (hardware, software o
@@ -327,8 +357,9 @@
             Administrativas.</p>
 
         <p><span class="clause-title">DÉCIMA. JURISDICCIÓN Y COMPETENCIA.</span> Para todo lo relativo a la
-            interpretación, cumplimiento y ejecución del presente contrato, las partes se someten a la competencia de la
-            Procuraduría Federal del Consumidor (PROFECO) en el ámbito administrativo, y para la vía judicial, a las
+            interpretación, cumplimiento y ejecución del presente contrato, las partes podrán acudir a la competencia de
+            la
+            Procuraduría Federal del Consumidor (PROFECO) en el ámbito administrativo; y para la vía judicial, a las
             leyes y Tribunales Competentes de la ciudad de <b>Hermosillo, Sonora</b>, renunciando expresamente a
             cualquier otro fuero que pudiera corresponderles por sus domicilios presentes o futuros.</p>
 
@@ -424,7 +455,7 @@
         @if($poliza->firmado_at)
             <div class="digital-certificate">
                 <div style="margin-bottom: 5px; font-weight: bold; border-bottom: 1px dashed #cbd5e1; padding-bottom: 2px;">
-                    CONSTANCIA DE CONSERVACIÓN DE MENSAJES DE DATOS (NOM-151)
+                    CONSTANCIA DE CONSERVACIÓN DE MENSAJES DE DATOS
                 </div>
                 <table style="width: 100%; border: none;">
                     <tr>
@@ -440,11 +471,11 @@
                         <td style="border: none;">{{ $poliza->firmado_ip }}</td>
                     </tr>
                     <tr>
-                        <td style="border: none; color: #64748b;">Cadena Digital:</td>
+                        <td style="border: none; color: #64748b;">Hash del Documento:</td>
                         <td style="border: none;" class="hash-code">{{ $poliza->firma_hash ?? 'N/A' }}</td>
                     </tr>
                     <tr>
-                        <td style="border: none; color: #64748b;">UUID Documento:</td>
+                        <td style="border: none; color: #64748b;">Identificador del Documento:</td>
                         <td style="border: none;">
                             {{ $poliza->folio }}-{{ md5($poliza->id . $poliza->created_at->timestamp) }}
                         </td>
