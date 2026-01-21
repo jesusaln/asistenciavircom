@@ -129,10 +129,7 @@ class PortalController extends Controller
         // Ventas vencidas solamente
         $ventasVencidas = Venta::where('cliente_id', $cliente->id)
             ->whereIn('estado', ['pendiente', 'vencida'])
-            ->where(function ($q) use ($hoy) {
-                $q->where('fecha', '<', $hoy)
-                    ->orWhere('fecha_vencimiento', '<', $hoy);
-            })
+            ->where('fecha', '<', $hoy)
             ->orderBy('fecha')
             ->get()
             ->map(fn($v) => [
@@ -140,7 +137,7 @@ class PortalController extends Controller
                 'tipo' => 'venta',
                 'folio' => $v->folio ?? $v->numero_venta,
                 'total' => $v->total,
-                'fecha_vencimiento' => $v->fecha_vencimiento ?? $v->fecha,
+                'fecha_vencimiento' => $v->fecha,
                 'estado' => $v->estado,
             ]);
 
