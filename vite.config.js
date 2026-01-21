@@ -32,7 +32,7 @@ export default defineConfig({
     }
   },
   build: {
-    manifest: 'manifest.json',
+    manifest: true,
     outDir: 'public/build',
     chunkSizeWarningLimit: 1600,
     rollupOptions: {
