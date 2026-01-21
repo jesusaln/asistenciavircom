@@ -153,7 +153,7 @@ const handleCheckout = async () => {
                                  :alt="item.nombre"
                                  class="w-full h-full object-cover" />
                             <div v-else class="w-full h-full flex items-center justify-center">
-                                <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-8 h-8 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                             </div>
@@ -166,13 +166,13 @@ const handleCheckout = async () => {
                                 <p class="text-sm font-black text-[var(--color-primary)] mt-1 tracking-wide">
                                     {{ formatCurrency(item.precio) }}
                                 </p>
-                                <span v-if="String(item.producto_id).startsWith('CVA-')" class="text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase mt-1 inline-block">
+                                <span v-if="String(item.producto_id).startsWith('CVA-')" class="text-[9px] font-bold text-blue-600 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded uppercase mt-1 inline-block">
                                     Bajo Pedido
                                 </span>
                             </div>
                             
                             <button @click="removeItem(item.producto_id)"
-                                    class="text-xs font-bold text-red-500 hover:text-red-700 transition-colors flex items-center gap-1 self-start mt-2 uppercase tracking-wide">
+                                    class="text-xs font-bold text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors flex items-center gap-1 self-start mt-2 uppercase tracking-wide">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                 Eliminar
                             </button>
@@ -229,7 +229,7 @@ const handleCheckout = async () => {
                                 🚚 Envío a domicilio: {{ formatCurrency(116) }} (incl. IVA)
                             </div>
 
-                            <div v-if="items.some(i => String(i.producto_id).startsWith('CVA-'))" class="p-3 bg-blue-50 rounded-xl border border-blue-100 text-[10px] font-bold text-blue-700 flex items-center gap-2">
+                            <div v-if="items.some(i => String(i.producto_id).startsWith('CVA-'))" class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-700 text-[10px] font-bold text-blue-700 dark:text-blue-300 flex items-center gap-2">
                                 📦 Productos bajo pedido (Entrega 2-4 días hábiles)
                             </div>
                             <div class="h-px bg-gray-100 dark:bg-gray-700 my-2 transition-colors"></div>
@@ -256,14 +256,14 @@ const handleCheckout = async () => {
                         </button>
                         
                         <div class="mt-4 text-center">
-                             <Link :href="route('catalogo.index')" class="text-xs font-bold text-gray-400 hover:text-[var(--color-primary)] uppercase tracking-widest transition-colors">
+                             <Link :href="route('catalogo.index')" class="text-xs font-bold text-gray-400 dark:text-gray-500 hover:text-[var(--color-primary)] uppercase tracking-widest transition-colors">
                                 Seguir comprando
                             </Link>
                         </div>
                     </div>
                     
                     <!-- Seguridad -->
-                    <div class="mt-6 flex items-center justify-center gap-2 text-[10px] uppercase font-black tracking-widest text-gray-300">
+                    <div class="mt-6 flex items-center justify-center gap-2 text-[10px] uppercase font-black tracking-widest text-gray-300 dark:text-gray-600">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                         Pago 100% Seguro
                     </div>
@@ -277,19 +277,19 @@ const handleCheckout = async () => {
                     <Link v-for="rel in recomendados" :key="rel.id"
                           :href="route('catalogo.show', rel.id)"
                           class="group bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:border-white dark:hover:border-gray-600 transition-all duration-500">
-                        <div class="aspect-square bg-white overflow-hidden relative">
+                        <div class="aspect-square bg-white dark:bg-gray-900 overflow-hidden relative">
                             <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none z-10"></div>
                             <img v-if="getImageUrl(rel.imagen)" 
                                  :src="getImageUrl(rel.imagen)" 
                                  :alt="rel.nombre"
                                  class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 p-4" />
                             <div v-else class="w-full h-full flex items-center justify-center">
-                                <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-12 h-12 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                             </div>
                             <div v-if="rel.stock <= 0" class="absolute top-2 right-2 z-20">
-                                <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase">Preguntar</span>
+                                <span class="bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase">Preguntar</span>
                             </div>
                         </div>
                         <div class="p-5">

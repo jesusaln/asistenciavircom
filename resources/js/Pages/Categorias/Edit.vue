@@ -71,18 +71,18 @@ const cancel = () => {
 <template>
   <Head title="Editar Categoría" />
 
-  <div class="min-h-screen bg-white">
+  <div class="min-h-screen bg-white dark:bg-gray-900">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">Editar Categoría</h1>
-            <p class="text-gray-600 mt-1">Modifica la información de la categoría</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Editar Categoría</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-1">Modifica la información de la categoría</p>
           </div>
           <button
             @click="cancel"
-            class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+            class="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
           >
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -93,11 +93,11 @@ const cancel = () => {
       </div>
 
       <!-- Formulario -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
         <form @submit.prevent="submit" class="space-y-6">
           <!-- Nombre -->
           <div>
-            <label for="nombre" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Nombre de la Categoría *
             </label>
             <input
@@ -105,66 +105,66 @@ const cancel = () => {
               v-model="form.nombre"
               type="text"
               required
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
               placeholder="Ingresa el nombre de la categoría"
             />
           </div>
 
           <!-- Descripción -->
           <div>
-            <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="descripcion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Descripción
             </label>
             <textarea
               id="descripcion"
               v-model="form.descripcion"
               rows="4"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
               placeholder="Ingresa una descripción opcional para la categoría"
             ></textarea>
           </div>
 
           <!-- Estado -->
           <div>
-            <label for="estado" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="estado" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Estado *
             </label>
             <select
               id="estado"
               v-model="form.estado"
               required
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
             >
               <option value="activo">Activo</option>
               <option value="inactivo">Inactivo</option>
             </select>
-            <p class="mt-1 text-sm text-gray-500">
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Las categorías activas estarán disponibles para ser usadas en productos
             </p>
           </div>
 
           <!-- Información adicional -->
-          <div class="bg-white rounded-lg p-4">
-            <h3 class="text-sm font-medium text-gray-900 mb-2">Información adicional</h3>
+          <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
+            <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Información adicional</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
-                <span class="text-gray-500">Fecha de creación:</span>
-                <span class="ml-2 text-gray-900">{{ new Date(props.categoria.created_at).toLocaleDateString('es-MX') }}</span>
+                <span class="text-gray-500 dark:text-gray-400">Fecha de creación:</span>
+                <span class="ml-2 text-gray-900 dark:text-gray-100">{{ new Date(props.categoria.created_at).toLocaleDateString('es-MX') }}</span>
               </div>
               <div>
-                <span class="text-gray-500">Última actualización:</span>
-                <span class="ml-2 text-gray-900">{{ new Date(props.categoria.updated_at).toLocaleDateString('es-MX') }}</span>
+                <span class="text-gray-500 dark:text-gray-400">Última actualización:</span>
+                <span class="ml-2 text-gray-900 dark:text-gray-100">{{ new Date(props.categoria.updated_at).toLocaleDateString('es-MX') }}</span>
               </div>
             </div>
           </div>
 
           <!-- Botones de acción -->
-          <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
+          <div class="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
             <button
               type="button"
               @click="cancel"
               :disabled="loading"
-              class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 focus:ring-4 focus:ring-gray-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancelar
             </button>

@@ -1,15 +1,15 @@
 <template>
     <div class="space-y-8">
         <!-- Alerta solo para admins -->
-        <div v-if="!isAdmin" class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+        <div v-if="!isAdmin" class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 dark:border-yellow-600 p-4">
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <svg class="h-5 w-5 text-yellow-400 dark:text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
                     </svg>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm text-yellow-700">
+                    <p class="text-sm text-yellow-700 dark:text-yellow-300">
                         Solo los administradores pueden gestionar los certificados del SAT.
                     </p>
                 </div>
@@ -19,7 +19,7 @@
         <!-- Contenido para admins -->
         <div v-if="isAdmin" class="space-y-8">
             <!-- FIEL (e.firma) -->
-            <div class="bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
                 <div class="bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-4 rounded-t-lg">
                     <h3 class="text-lg font-semibold text-white flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -27,12 +27,12 @@
                         </svg>
                         FIEL (e.firma) - Firma Electrónica Avanzada
                     </h3>
-                    <p class="text-blue-100 text-sm mt-1">Para firmar contratos, documentos legales y trámites ante el SAT</p>
+                    <p class="text-blue-100 dark:text-blue-200 text-sm mt-1">Para firmar contratos, documentos legales y trámites ante el SAT</p>
                 </div>
 
                 <div class="p-6">
                     <!-- Estado actual -->
-                    <div v-if="fielInfo.configurado" class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div v-if="fielInfo.configurado" class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
                         <div class="flex items-center gap-3 mb-3">
                             <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
                                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -40,31 +40,31 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="font-semibold text-green-800">FIEL Configurada</p>
-                                <p class="text-sm text-green-600">RFC: {{ fielInfo.rfc }}</p>
+                                <p class="font-semibold text-green-800 dark:text-green-300">FIEL Configurada</p>
+                                <p class="text-sm text-green-600 dark:text-green-400">RFC: {{ fielInfo.rfc }}</p>
                             </div>
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div>
-                                <span class="text-gray-500">No. Serie:</span>
-                                <p class="font-mono text-xs">{{ fielInfo.serial?.substring(0, 20) }}...</p>
+                                <span class="text-gray-500 dark:text-gray-400">No. Serie:</span>
+                                <p class="font-mono text-xs text-gray-900 dark:text-gray-100">{{ fielInfo.serial?.substring(0, 20) }}...</p>
                             </div>
                             <div>
-                                <span class="text-gray-500">Válido desde:</span>
-                                <p>{{ fielInfo.valid_from }}</p>
+                                <span class="text-gray-500 dark:text-gray-400">Válido desde:</span>
+                                <p class="text-gray-900 dark:text-gray-100">{{ fielInfo.valid_from }}</p>
                             </div>
                             <div>
-                                <span class="text-gray-500">Válido hasta:</span>
-                                <p :class="fielInfo.vigente ? 'text-green-600' : 'text-red-600'">
+                                <span class="text-gray-500 dark:text-gray-400">Válido hasta:</span>
+                                <p :class="fielInfo.vigente ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
                                     {{ fielInfo.valid_to }}
                                 </p>
                             </div>
                             <div>
-                                <span class="text-gray-500">Estado:</span>
-                                <span v-if="fielInfo.vigente" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <span class="text-gray-500 dark:text-gray-400">Estado:</span>
+                                <span v-if="fielInfo.vigente" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300">
                                     ✓ Vigente
                                 </span>
-                                <span v-else class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                <span v-else class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300">
                                     ✗ Vencido
                                 </span>
                             </div>
@@ -72,7 +72,7 @@
                         <button 
                             @click="eliminarFiel" 
                             :disabled="loadingFiel"
-                            class="mt-4 text-red-600 hover:text-red-800 text-sm font-medium"
+                            class="mt-4 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-medium"
                         >
                             🗑️ Eliminar FIEL
                         </button>
@@ -82,41 +82,41 @@
                     <form @submit.prevent="subirFiel" class="space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Archivo .cer
                                 </label>
                                 <input 
                                     type="file" 
                                     @change="e => fielForm.fiel_cer = e.target.files[0]"
                                     accept=".cer"
-                                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                    class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-900/40 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/60"
                                 />
-                                <p v-if="errors.fiel_cer" class="mt-1 text-sm text-red-600">{{ errors.fiel_cer }}</p>
+                                <p v-if="errors.fiel_cer" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.fiel_cer }}</p>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Archivo .key
                                 </label>
                                 <input 
                                     type="file" 
                                     @change="e => fielForm.fiel_key = e.target.files[0]"
                                     accept=".key"
-                                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                    class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-900/40 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/60"
                                 />
-                                <p v-if="errors.fiel_key" class="mt-1 text-sm text-red-600">{{ errors.fiel_key }}</p>
+                                <p v-if="errors.fiel_key" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.fiel_key }}</p>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Contraseña de la llave privada
                             </label>
                             <input 
                                 type="password" 
                                 v-model="fielForm.fiel_password"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
                                 placeholder="••••••••"
                             />
-                            <p v-if="errors.fiel_password" class="mt-1 text-sm text-red-600">{{ errors.fiel_password }}</p>
+                            <p v-if="errors.fiel_password" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.fiel_password }}</p>
                         </div>
                         <button 
                             type="submit" 
@@ -134,7 +134,7 @@
             </div>
 
             <!-- CSD (Certificado de Sello Digital) -->
-            <div class="bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
                 <div class="bg-gradient-to-r from-purple-600 to-purple-800 px-6 py-4 rounded-t-lg">
                     <h3 class="text-lg font-semibold text-white flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,12 +142,12 @@
                         </svg>
                         CSD - Certificado de Sello Digital
                     </h3>
-                    <p class="text-purple-100 text-sm mt-1">Para sellar facturas electrónicas (CFDI)</p>
+                    <p class="text-purple-100 dark:text-purple-200 text-sm mt-1">Para sellar facturas electrónicas (CFDI)</p>
                 </div>
 
                 <div class="p-6">
                     <!-- Estado actual -->
-                    <div v-if="csdInfo.configurado" class="mb-6 bg-purple-50 border border-purple-200 rounded-lg p-4">
+                    <div v-if="csdInfo.configurado" class="mb-6 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-4">
                         <div class="flex items-center gap-3 mb-3">
                             <div class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
                                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,31 +155,31 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="font-semibold text-purple-800">CSD Configurado</p>
-                                <p class="text-sm text-purple-600">RFC: {{ csdInfo.rfc }}</p>
+                                <p class="font-semibold text-purple-800 dark:text-purple-300">CSD Configurado</p>
+                                <p class="text-sm text-purple-600 dark:text-purple-400">RFC: {{ csdInfo.rfc }}</p>
                             </div>
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div>
-                                <span class="text-gray-500">No. Serie:</span>
-                                <p class="font-mono text-xs">{{ csdInfo.serial?.substring(0, 20) }}...</p>
+                                <span class="text-gray-500 dark:text-gray-400">No. Serie:</span>
+                                <p class="font-mono text-xs text-gray-900 dark:text-gray-100">{{ csdInfo.serial?.substring(0, 20) }}...</p>
                             </div>
                             <div>
-                                <span class="text-gray-500">Válido desde:</span>
-                                <p>{{ csdInfo.valid_from }}</p>
+                                <span class="text-gray-500 dark:text-gray-400">Válido desde:</span>
+                                <p class="text-gray-900 dark:text-gray-100">{{ csdInfo.valid_from }}</p>
                             </div>
                             <div>
-                                <span class="text-gray-500">Válido hasta:</span>
-                                <p :class="csdInfo.vigente ? 'text-green-600' : 'text-red-600'">
+                                <span class="text-gray-500 dark:text-gray-400">Válido hasta:</span>
+                                <p :class="csdInfo.vigente ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
                                     {{ csdInfo.valid_to }}
                                 </p>
                             </div>
                             <div>
-                                <span class="text-gray-500">Estado:</span>
-                                <span v-if="csdInfo.vigente" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <span class="text-gray-500 dark:text-gray-400">Estado:</span>
+                                <span v-if="csdInfo.vigente" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300">
                                     ✓ Vigente
                                 </span>
-                                <span v-else class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                <span v-else class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300">
                                     ✗ Vencido
                                 </span>
                             </div>
@@ -187,7 +187,7 @@
                         <button 
                             @click="eliminarCsd" 
                             :disabled="loadingCsd"
-                            class="mt-4 text-red-600 hover:text-red-800 text-sm font-medium"
+                            class="mt-4 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-medium"
                         >
                             🗑️ Eliminar CSD
                         </button>
@@ -197,41 +197,41 @@
                     <form @submit.prevent="subirCsd" class="space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Archivo .cer
                                 </label>
                                 <input 
                                     type="file" 
                                     @change="e => csdForm.csd_cer = e.target.files[0]"
                                     accept=".cer"
-                                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                                    class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 dark:file:bg-purple-900/40 file:text-purple-700 dark:file:text-purple-300 hover:file:bg-purple-100 dark:hover:file:bg-purple-900/60"
                                 />
-                                <p v-if="errors.csd_cer" class="mt-1 text-sm text-red-600">{{ errors.csd_cer }}</p>
+                                <p v-if="errors.csd_cer" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.csd_cer }}</p>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Archivo .key
                                 </label>
                                 <input 
                                     type="file" 
                                     @change="e => csdForm.csd_key = e.target.files[0]"
                                     accept=".key"
-                                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                                    class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 dark:file:bg-purple-900/40 file:text-purple-700 dark:file:text-purple-300 hover:file:bg-purple-100 dark:hover:file:bg-purple-900/60"
                                 />
-                                <p v-if="errors.csd_key" class="mt-1 text-sm text-red-600">{{ errors.csd_key }}</p>
+                                <p v-if="errors.csd_key" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.csd_key }}</p>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Contraseña de la llave privada
                             </label>
                             <input 
                                 type="password" 
                                 v-model="csdForm.csd_password"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
+                                class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
                                 placeholder="••••••••"
                             />
-                            <p v-if="errors.csd_password" class="mt-1 text-sm text-red-600">{{ errors.csd_password }}</p>
+                            <p v-if="errors.csd_password" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.csd_password }}</p>
                         </div>
                         <button 
                             type="submit" 
@@ -381,9 +381,9 @@
             </div>
 
             <!-- Información de seguridad -->
-            <div class="bg-white border border-gray-200 rounded-lg p-4">
-                <h4 class="font-medium text-gray-900 mb-2">🔒 Información de Seguridad</h4>
-                <ul class="text-sm text-gray-600 space-y-1">
+            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <h4 class="font-medium text-gray-900 dark:text-gray-100 mb-2">🔒 Información de Seguridad</h4>
+                <ul class="text-sm text-gray-600 dark:text-gray-300 space-y-1">
                     <li>• Los archivos .key y las contraseñas se almacenan <strong>encriptados</strong> en el servidor.</li>
                     <li>• Los certificados se guardan en un directorio privado no accesible desde internet.</li>
                     <li>• Solo los administradores pueden ver y modificar esta configuración.</li>

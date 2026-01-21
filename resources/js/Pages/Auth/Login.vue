@@ -68,7 +68,7 @@ const submit = () => {
                  <!-- Decoración -->
                 <div class="absolute -top-12 -right-12 w-32 h-32 bg-[var(--color-primary-soft)] rounded-full group-hover:scale-110 transition-transform duration-500"></div>
 
-                <div v-if="status" class="mb-6 p-4 rounded-2xl bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-widest border border-emerald-100 flex items-center gap-2">
+                <div v-if="status" class="mb-6 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-widest border border-emerald-100 dark:border-emerald-700 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     {{ status }}
                 </div>

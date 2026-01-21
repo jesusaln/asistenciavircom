@@ -1,6 +1,6 @@
 <template>
   <Head title="Crear cotización" />
-  <div class="cotizaciones-create min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
+  <div class="cotizaciones-create min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-6">
     <div class="w-full">
       <!-- Header -->
       <Header
@@ -15,7 +15,7 @@
 
       <form @submit.prevent="crearCotizacion" class="space-y-8">
         <!-- Información General -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -27,9 +27,9 @@
           <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Número de Cotización -->
             <div>
-              <label for="numero_cotizacion" class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+              <label for="numero_cotizacion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
                 Número de Cotización *
-                <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
@@ -41,27 +41,27 @@
                   id="numero_cotizacion"
                   v-model="numeroCotizacionActual"
                   type="text"
-                  class="w-full bg-white text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  class="w-full bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   :placeholder="numeroCotizacionActual"
                   readonly
                   required
                 />
                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                 </div>
               </div>
-              <p class="mt-1 text-xs text-gray-500">
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Este número se genera automáticamente
               </p>
             </div>
 
             <!-- Fecha de Cotización -->
             <div>
-              <label for="fecha_cotizacion" class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+              <label for="fecha_cotizacion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
                 Fecha de Cotización *
-                <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
@@ -73,17 +73,17 @@
                   id="fecha_cotizacion"
                   v-model="form.fecha_cotizacion"
                   type="date"
-                  class="w-full bg-white text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  class="w-full bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   readonly
                   required
                 />
                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
-              <p class="mt-1 text-xs text-gray-500">
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Esta fecha se establece automáticamente con la fecha de creación
               </p>
             </div>
@@ -91,7 +91,7 @@
         </div>
 
         <!-- Cliente -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,9 +111,9 @@
 
             <!-- Lista de Precios -->
             <div v-if="clienteSeleccionado">
-              <label for="price_list_id" class="block text-sm font-medium text-gray-700 mb-2">
+              <label for="price_list_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Lista de Precios
-                <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full ml-2">
+                <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full ml-2">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
                   </svg>
@@ -124,7 +124,7 @@
                 id="price_list_id"
                 v-model="priceListSeleccionada"
                 @change="onPriceListChange"
-                class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
               >
                 <option value="">Seleccionar lista de precios...</option>
                 <option
@@ -135,7 +135,7 @@
                   {{ lista.nombre }}
                 </option>
               </select>
-              <p class="mt-1 text-xs text-gray-500">
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Se usará la lista de precios del cliente por defecto. Cambia aquí si necesitas usar otra lista.
               </p>
             </div>
@@ -143,7 +143,7 @@
         </div>
 
         <!-- Productos y Servicios -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -176,7 +176,7 @@
         </div>
 
          <!-- Notas -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,7 +189,7 @@
             <textarea
               v-model="form.notas"
               rows="3"
-              class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-vertical"
+              class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-vertical bg-white dark:bg-gray-700"
               placeholder="Añade notas adicionales para esta cotización..."
             ></textarea>
           </div>
@@ -225,7 +225,7 @@
       <!-- Atajos de teclado -->
       <button
         @click="mostrarAtajos = !mostrarAtajos"
-        class="fixed bottom-4 left-4 bg-gray-600 text-white p-3 rounded-full shadow-lg hover:bg-gray-700 transition-colors duration-200"
+        class="fixed bottom-4 left-4 bg-gray-600 dark:bg-gray-700 text-white p-3 rounded-full shadow-lg hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors duration-200"
         title="Mostrar atajos de teclado"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

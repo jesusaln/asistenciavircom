@@ -202,18 +202,18 @@ const watchAlmacen = () => {
 <template>
   <Head title="Crear Ajuste de Inventario" />
 
-  <div class="min-h-screen bg-white">
+  <div class="min-h-screen bg-white dark:bg-gray-900">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">Crear Ajuste de Inventario</h1>
-            <p class="text-gray-600 mt-1">Realiza ajustes manuales al stock de productos</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Crear Ajuste de Inventario</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-1">Realiza ajustes manuales al stock de productos</p>
           </div>
           <button
             @click="cancel"
-            class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+            class="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
           >
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -224,19 +224,19 @@ const watchAlmacen = () => {
       </div>
 
       <!-- Formulario -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
         <form @submit.prevent="submit" class="space-y-6">
           <!-- Producto y Almacén -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label for="producto_id" class="block text-sm font-medium text-gray-700 mb-2">
+              <label for="producto_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Producto *
               </label>
               <select
                 id="producto_id"
                 v-model="form.producto_id"
                 required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
                 @change="watchProducto"
               >
                 <option value="">Seleccionar producto</option>
@@ -247,14 +247,14 @@ const watchAlmacen = () => {
             </div>
 
             <div>
-              <label for="almacen_id" class="block text-sm font-medium text-gray-700 mb-2">
+              <label for="almacen_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Almacén *
               </label>
               <select
                 id="almacen_id"
                 v-model="form.almacen_id"
                 required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
                 @change="watchAlmacen"
               >
                 <option value="">Seleccionar almacén</option>
@@ -266,22 +266,22 @@ const watchAlmacen = () => {
           </div>
 
           <!-- Información de Stock Actual -->
-          <div v-if="form.producto_id && form.almacen_id" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div v-if="form.producto_id && form.almacen_id" class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
             <div class="flex items-center justify-between">
               <div>
-                <h3 class="text-sm font-medium text-blue-800">Stock Actual</h3>
+                <h3 class="text-sm font-medium text-blue-800 dark:text-blue-300">Stock Actual</h3>
                 <div v-if="loadingStock" class="flex items-center mt-1">
-                  <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                  <span class="ml-2 text-sm text-blue-600">Cargando...</span>
+                  <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 dark:border-blue-400"></div>
+                  <span class="ml-2 text-sm text-blue-600 dark:text-blue-400">Cargando...</span>
                 </div>
-                <p v-else class="text-lg font-bold text-blue-900 mt-1">{{ stockActual }} unidades</p>
+                <p v-else class="text-lg font-bold text-blue-900 dark:text-blue-100 mt-1">{{ stockActual }} unidades</p>
               </div>
             </div>
           </div>
 
           <!-- Tipo de Ajuste -->
           <div>
-            <label for="tipo" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="tipo" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Tipo de Ajuste *
             </label>
             <div class="space-y-3">
@@ -291,10 +291,10 @@ const watchAlmacen = () => {
                   v-model="form.tipo"
                   type="radio"
                   value="incremento"
-                  class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300"
+                  class="h-4 w-4 text-green-600 dark:text-green-400 focus:ring-green-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"
                 />
-                <label for="incremento" class="ml-3 block text-sm font-medium text-gray-700">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <label for="incremento" class="ml-3 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300">
                     Incremento
                   </span>
                   <span class="ml-2">Aumentar el stock disponible</span>
@@ -306,10 +306,10 @@ const watchAlmacen = () => {
                   v-model="form.tipo"
                   type="radio"
                   value="decremento"
-                  class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300"
+                  class="h-4 w-4 text-red-600 dark:text-red-400 focus:ring-red-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"
                 />
-                <label for="decremento" class="ml-3 block text-sm font-medium text-gray-700">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                <label for="decremento" class="ml-3 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300">
                     Decremento
                   </span>
                   <span class="ml-2">Reducir el stock disponible</span>
@@ -320,7 +320,7 @@ const watchAlmacen = () => {
 
           <!-- Cantidad de Ajuste -->
           <div>
-            <label for="cantidad_ajuste" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="cantidad_ajuste" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Cantidad a Ajustar *
             </label>
             <input
@@ -329,31 +329,31 @@ const watchAlmacen = () => {
               type="number"
               min="1"
               required
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
               placeholder="Ingresa la cantidad"
             />
           </div>
 
           <!-- Series (solo si el producto requiere serie) -->
-          <div v-if="requiereSerie" class="bg-amber-50 border border-amber-200 rounded-lg p-4">
-            <h3 class="text-sm font-medium text-amber-800 mb-2">Captura de series</h3>
-            <p class="text-xs text-amber-700 mb-3">
+          <div v-if="requiereSerie" class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4">
+            <h3 class="text-sm font-medium text-amber-800 dark:text-amber-300 mb-2">Captura de series</h3>
+            <p class="text-xs text-amber-700 dark:text-amber-200 mb-3">
               Este producto requiere capturar un número de serie por unidad.
               Ingresa exactamente {{ requiredSerials }} {{ requiredSerials === 1 ? 'serie' : 'series' }}.
             </p>
             <div v-if="loadingSerials" class="flex items-center justify-center py-4">
-              <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-amber-600"></div>
-              <span class="ml-2 text-sm text-amber-600">Cargando series disponibles...</span>
+              <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-amber-600 dark:border-amber-400"></div>
+              <span class="ml-2 text-sm text-amber-600 dark:text-amber-400">Cargando series disponibles...</span>
             </div>
             <div v-else-if="requiredSerials > 0" class="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div v-for="(val, idx) in requiredSerials" :key="idx" class="flex items-center gap-2">
-                <span class="text-xs text-gray-500 w-6 text-right">#{{ idx + 1 }}</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400 w-6 text-right">#{{ idx + 1 }}</span>
                 
                 <!-- Incremento: Input manual -->
                 <input
                   v-if="form.tipo === 'incremento'"
                   type="text"
-                  class="flex-1 px-3 py-2 border border-amber-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm"
+                  class="flex-1 px-3 py-2 border border-amber-300 dark:border-amber-600 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
                   v-model.trim="seriales[idx]"
                   placeholder="Nuevo número de serie"
                 />
@@ -361,7 +361,7 @@ const watchAlmacen = () => {
                 <!-- Decremento: Selección -->
                 <select
                   v-else
-                  class="flex-1 px-3 py-2 border border-amber-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm"
+                  class="flex-1 px-3 py-2 border border-amber-300 dark:border-amber-600 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
                   v-model="seriales[idx]"
                 >
                   <option value="">Seleccionar serie</option>
@@ -376,42 +376,42 @@ const watchAlmacen = () => {
                 </select>
               </div>
             </div>
-            <div v-else class="text-xs text-amber-700">Indica primero la cantidad a ajustar.</div>
+            <div v-else class="text-xs text-amber-700 dark:text-amber-200">Indica primero la cantidad a ajustar.</div>
           </div>
 
           <!-- Vista Previa del Resultado -->
-          <div v-if="form.producto_id && form.almacen_id && form.cantidad_ajuste" class="bg-white border border-gray-200 rounded-lg p-4">
-            <h3 class="text-sm font-medium text-gray-800 mb-3">Vista Previa del Ajuste</h3>
+          <div v-if="form.producto_id && form.almacen_id && form.cantidad_ajuste" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+            <h3 class="text-sm font-medium text-gray-800 dark:text-gray-100 mb-3">Vista Previa del Ajuste</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div>
-                <span class="text-gray-600">Stock Actual:</span>
+                <span class="text-gray-600 dark:text-gray-300">Stock Actual:</span>
                 <span class="ml-2 font-medium">{{ stockActual }}</span>
               </div>
               <div>
-                <span class="text-gray-600">Ajuste:</span>
-                <span :class="form.tipo === 'incremento' ? 'text-green-600' : 'text-red-600'" class="ml-2 font-medium">
+                <span class="text-gray-600 dark:text-gray-300">Ajuste:</span>
+                <span :class="form.tipo === 'incremento' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'" class="ml-2 font-medium">
                   {{ form.tipo === 'incremento' ? '+' : '-' }}{{ form.cantidad_ajuste }}
                 </span>
               </div>
               <div>
-                <span class="text-gray-600">Stock Final:</span>
-                <span :class="cantidadNueva < 0 ? 'text-red-600' : 'text-blue-600'" class="ml-2 font-bold">
+                <span class="text-gray-600 dark:text-gray-300">Stock Final:</span>
+                <span :class="cantidadNueva < 0 ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'" class="ml-2 font-bold">
                   {{ cantidadNueva }}
                 </span>
               </div>
             </div>
-            <div v-if="form.tipo === 'decremento' && cantidadNueva < 0" class="mt-3 p-3 bg-red-50 border border-red-200 rounded-md">
+            <div v-if="form.tipo === 'decremento' && cantidadNueva < 0" class="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-md">
               <div class="flex">
                 <div class="flex-shrink-0">
-                  <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                  <svg class="h-5 w-5 text-red-400 dark:text-red-300" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                   </svg>
                 </div>
                 <div class="ml-3">
-                  <h3 class="text-sm font-medium text-red-800">
+                  <h3 class="text-sm font-medium text-red-800 dark:text-red-300">
                     Stock insuficiente
                   </h3>
-                  <div class="mt-2 text-sm text-red-700">
+                  <div class="mt-2 text-sm text-red-700 dark:text-red-200">
                     <p>Este ajuste resultaría en stock negativo. El stock actual es de {{ stockActual }} unidades.</p>
                   </div>
                 </div>
@@ -421,14 +421,14 @@ const watchAlmacen = () => {
 
           <!-- Motivo -->
           <div>
-            <label for="motivo" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="motivo" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Motivo del Ajuste *
             </label>
             <select
               id="motivo"
               v-model="form.motivo"
               required
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
             >
               <option value="">Seleccionar motivo</option>
               <option value="Conteo físico">Conteo físico</option>
@@ -444,31 +444,31 @@ const watchAlmacen = () => {
 
           <!-- Observaciones -->
           <div>
-            <label for="observaciones" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="observaciones" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Observaciones
             </label>
             <textarea
               id="observaciones"
               v-model="form.observaciones"
               rows="3"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
               placeholder="Observaciones adicionales (opcional)"
             ></textarea>
           </div>
 
           <!-- Información de ayuda -->
-          <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+          <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg p-4">
             <div class="flex">
               <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="h-5 w-5 text-orange-400 dark:text-orange-300" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
                 </svg>
               </div>
               <div class="ml-3">
-                <h3 class="text-sm font-medium text-orange-800">
+                <h3 class="text-sm font-medium text-orange-800 dark:text-orange-300">
                   Información importante
                 </h3>
-                <div class="mt-2 text-sm text-orange-700">
+                <div class="mt-2 text-sm text-orange-700 dark:text-orange-200">
                   <ul class="list-disc pl-5 space-y-1">
                     <li>Los ajustes afectan directamente el stock disponible</li>
                     <li>Se registra automáticamente en el historial de movimientos</li>
@@ -481,12 +481,12 @@ const watchAlmacen = () => {
           </div>
 
           <!-- Botones de acción -->
-          <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
+          <div class="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
             <button
               type="button"
               @click="cancel"
               :disabled="loading"
-              class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 focus:ring-4 focus:ring-gray-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancelar
             </button>

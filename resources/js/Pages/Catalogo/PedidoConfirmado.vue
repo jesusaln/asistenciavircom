@@ -86,21 +86,21 @@ const handleWhatsAppClick = () => {
 <template>
     <Head title="Pedido Confirmado" />
 
-    <div class="min-h-screen bg-white flex flex-col font-sans" :style="cssVars">
+    <div class="min-h-screen bg-white dark:bg-gray-900 flex flex-col font-sans" :style="cssVars">
         <PublicNavbar :empresa="empresaData" activeTab="tienda" />
 
         <main class="flex-grow w-full px-4 sm:px-6 lg:px-8 py-12 w-full">
             
             <!-- Encabezado de Éxito -->
             <div class="text-center mb-12">
-                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 text-green-600 mb-6 animate-bounce">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 mb-6 animate-bounce">
                     <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                     </svg>
                 </div>
-                <h1 class="text-4xl font-black text-gray-900 mb-2 uppercase tracking-tight">¡Pedido Recibido!</h1>
-                <p class="text-xl text-gray-500 font-medium">Gracias por tu compra, <span class="text-gray-900 font-bold">{{ pedido.nombre }}</span></p>
-                <div class="mt-4 inline-block bg-white px-6 py-2 rounded-2xl border border-gray-100 shadow-sm font-black text-[var(--color-primary)] text-lg">
+                <h1 class="text-4xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight">¡Pedido Recibido!</h1>
+                <p class="text-xl text-gray-500 dark:text-gray-400 font-medium">Gracias por tu compra, <span class="text-gray-900 dark:text-white font-bold">{{ pedido.nombre }}</span></p>
+                <div class="mt-4 inline-block bg-white dark:bg-gray-800 px-6 py-2 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm font-black text-[var(--color-primary)] text-lg">
                     PEDIDO #{{ pedido.numero_pedido }}
                 </div>
             </div>
@@ -109,24 +109,24 @@ const handleWhatsAppClick = () => {
                 
                 <!-- Columna: Pasos a seguir -->
                 <div class="space-y-6">
-                    <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100 relative overflow-hidden">
+                    <div class="bg-white dark:bg-gray-800 rounded-[2rem] p-8 shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden">
                         <div class="absolute top-0 right-0 p-4 opacity-5">
                             <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
                         </div>
 
-                        <h2 class="text-xl font-black text-gray-900 mb-8 uppercase">Pasos a seguir</h2>
+                        <h2 class="text-xl font-black text-gray-900 dark:text-white mb-8 uppercase">Pasos a seguir</h2>
                         
                         <div class="space-y-8 relative">
                             <!-- Línea conectora -->
-                            <div class="absolute left-6 top-2 bottom-2 w-0.5 bg-gray-100"></div>
+                            <div class="absolute left-6 top-2 bottom-2 w-0.5 bg-gray-100 dark:bg-gray-700"></div>
 
                             <div v-for="(step, index) in steps" :key="index" class="flex gap-6 relative">
-                                <div class="w-12 h-12 rounded-2xl bg-white border-2 border-gray-100 flex items-center justify-center flex-shrink-0 z-10 group-hover:border-[var(--color-primary)] transition-colors shadow-sm">
+                                <div class="w-12 h-12 rounded-2xl bg-white dark:bg-gray-700 border-2 border-gray-100 dark:border-gray-600 flex items-center justify-center flex-shrink-0 z-10 group-hover:border-[var(--color-primary)] transition-colors shadow-sm">
                                     <span class="text-sm font-black text-[var(--color-primary)]">{{ index + 1 }}</span>
                                 </div>
                                 <div class="pt-1">
-                                    <h3 class="font-black text-gray-900 text-sm uppercase mb-1">{{ step.title }}</h3>
-                                    <p class="text-xs text-gray-500 font-medium leading-relaxed">{{ step.desc }}</p>
+                                    <h3 class="font-black text-gray-900 dark:text-white text-sm uppercase mb-1">{{ step.title }}</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 font-medium leading-relaxed">{{ step.desc }}</p>
                                 </div>
                             </div>
                         </div>
@@ -141,73 +141,73 @@ const handleWhatsAppClick = () => {
 
                 <!-- Columna: Detalles del Pago -->
                 <div class="space-y-6">
-                    <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100">
-                        <h2 class="text-xl font-black text-gray-900 mb-6 uppercase">Detalles del Pedido</h2>
+                    <div class="bg-white dark:bg-gray-800 rounded-[2rem] p-8 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <h2 class="text-xl font-black text-gray-900 dark:text-white mb-6 uppercase">Detalles del Pedido</h2>
                         
                         <div class="space-y-4">
-                            <div class="flex justify-between items-center py-2 border-b border-gray-50">
-                                <span class="text-xs font-bold text-gray-400 uppercase">Método de Pago</span>
-                                <span class="text-xs font-black text-gray-900 uppercase bg-gray-100 px-3 py-1 rounded-full">{{ metodoPagoLabel }}</span>
+                            <div class="flex justify-between items-center py-2 border-b border-gray-50 dark:border-gray-700">
+                                <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Método de Pago</span>
+                                <span class="text-xs font-black text-gray-900 dark:text-white uppercase bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">{{ metodoPagoLabel }}</span>
                             </div>
-                            <div class="flex justify-between items-center py-2 border-b border-gray-50">
-                                <span class="text-xs font-bold text-gray-400 uppercase">Costo Envío</span>
-                                <span class="text-xs font-black text-gray-900">{{ formatCurrency(pedido.costo_envio) }}</span>
+                            <div class="flex justify-between items-center py-2 border-b border-gray-50 dark:border-gray-700">
+                                <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Costo Envío</span>
+                                <span class="text-xs font-black text-gray-900 dark:text-white">{{ formatCurrency(pedido.costo_envio) }}</span>
                             </div>
                             <div class="flex justify-between items-center py-4">
-                                <span class="text-sm font-black text-gray-900 uppercase">Total Final</span>
+                                <span class="text-sm font-black text-gray-900 dark:text-white uppercase">Total Final</span>
                                 <span class="text-xl font-black text-[var(--color-primary)]">{{ formatCurrency(pedido.total) }}</span>
                             </div>
                         </div>
 
                         <!-- Datos Bancarios (Si aplica) -->
-                        <div v-if="pedido.metodo_pago === 'transferencia'" class="mt-8 pt-8 border-t border-gray-100">
-                            <h3 class="text-sm font-black text-gray-900 uppercase mb-4 flex items-center gap-2">
-                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                        <div v-if="pedido.metodo_pago === 'transferencia'" class="mt-8 pt-8 border-t border-gray-100 dark:border-gray-700">
+                            <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase mb-4 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                                 Datos para Transferencia
                             </h3>
-                            <div class="bg-white rounded-2xl p-6 space-y-4">
+                            <div class="bg-white dark:bg-gray-700 rounded-2xl p-6 space-y-4">
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="space-y-1">
-                                        <p class="text-[9px] font-bold text-gray-400 uppercase">Banco</p>
-                                        <p class="text-xs font-black text-gray-900">{{ empresaData.banco }}</p>
+                                        <p class="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase">Banco</p>
+                                        <p class="text-xs font-black text-gray-900 dark:text-gray-100">{{ empresaData.banco }}</p>
                                     </div>
                                     <div class="space-y-1">
-                                        <p class="text-[9px] font-bold text-gray-400 uppercase">Sucursal</p>
-                                        <p class="text-xs font-black text-gray-900">{{ empresaData.sucursal }}</p>
+                                        <p class="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase">Sucursal</p>
+                                        <p class="text-xs font-black text-gray-900 dark:text-gray-100">{{ empresaData.sucursal }}</p>
                                     </div>
                                     <div class="space-y-1 col-span-2">
-                                        <p class="text-[9px] font-bold text-gray-400 uppercase">Titular</p>
-                                        <p class="text-xs font-black text-gray-900">{{ empresaData.titular || empresaData.razon_social }}</p>
+                                        <p class="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase">Titular</p>
+                                        <p class="text-xs font-black text-gray-900 dark:text-gray-100">{{ empresaData.titular || empresaData.razon_social }}</p>
                                     </div>
                                     <div class="space-y-1 col-span-2">
-                                        <p class="text-[9px] font-bold text-gray-400 uppercase">CLABE Interbancaria</p>
+                                        <p class="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase">CLABE Interbancaria</p>
                                         <p class="text-sm font-black text-[var(--color-primary)] tracking-wider">{{ empresaData.clabe }}</p>
                                     </div>
                                     <div class="space-y-1">
-                                        <p class="text-[9px] font-bold text-gray-400 uppercase">Cuenta</p>
-                                        <p class="text-xs font-black text-gray-800">{{ empresaData.cuenta }}</p>
+                                        <p class="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase">Cuenta</p>
+                                        <p class="text-xs font-black text-gray-800 dark:text-gray-200">{{ empresaData.cuenta }}</p>
                                     </div>
                                     <div class="space-y-1">
-                                        <p class="text-[9px] font-bold text-gray-400 uppercase">Referencia</p>
-                                        <p class="text-xs font-black text-blue-600">PK{{ pedido.numero_pedido }}</p>
+                                        <p class="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase">Referencia</p>
+                                        <p class="text-xs font-black text-blue-600 dark:text-blue-400">PK{{ pedido.numero_pedido }}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                          <!-- Información de Efectivo (Solo si es en sucursal) -->
-                         <div v-if="pedido.metodo_pago === 'efectivo' && pedido.direccion_envio?.tipo === 'recoger_en_tienda'" class="mt-8 pt-8 border-t border-gray-100">
-                            <h3 class="text-sm font-black text-gray-900 uppercase mb-4 flex items-center gap-2">
-                                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                         <div v-if="pedido.metodo_pago === 'efectivo' && pedido.direccion_envio?.tipo === 'recoger_en_tienda'" class="mt-8 pt-8 border-t border-gray-100 dark:border-gray-700">
+                            <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase mb-4 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                 Ubicación de Sucursal
                             </h3>
-                            <div class="bg-white rounded-2xl p-6">
-                                <p class="text-xs font-bold text-gray-600 leading-relaxed mb-4">
+                            <div class="bg-white dark:bg-gray-700 rounded-2xl p-6">
+                                <p class="text-xs font-bold text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
                                     {{ empresaData.direccion_completa || 'Calle Principal #123, Col. Centro, Hermosillo, Sonora.' }}
                                 </p>
                                 <div class="flex gap-4">
-                                    <div class="h-2 w-2 rounded-full bg-green-500 mt-1"></div>
-                                    <p class="text-[10px] font-medium text-gray-500 uppercase tracking-wide">Abierto Lunes a Viernes de 9am a 7pm</p>
+                                    <div class="h-2 w-2 rounded-full bg-green-500 dark:bg-green-400 mt-1"></div>
+                                    <p class="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Abierto Lunes a Viernes de 9am a 7pm</p>
                                 </div>
                             </div>
                         </div>
@@ -220,25 +220,25 @@ const handleWhatsAppClick = () => {
             </div>
 
             <!-- Resumen de Dirección -->
-            <div class="mt-8 bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100">
+            <div class="mt-8 bg-white dark:bg-gray-800 rounded-[2rem] p-8 shadow-sm border border-gray-100 dark:border-gray-700">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div class="flex items-start gap-4">
-                        <div class="p-3 bg-white rounded-xl">
-                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <div class="p-3 bg-white dark:bg-gray-700 rounded-xl">
+                            <svg class="w-6 h-6 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         </div>
                         <div>
-                            <h4 class="text-xs font-black text-gray-900 uppercase">Información de Envío</h4>
-                            <p v-if="pedido.direccion_envio.tipo === 'recoger_en_tienda'" class="text-xs font-bold text-gray-500 italic">Pasa a recoger en nuestra sucursal física.</p>
-                            <p v-else class="text-xs font-medium text-gray-500 max-w-sm mt-1">
+                            <h4 class="text-xs font-black text-gray-900 dark:text-white uppercase">Información de Envío</h4>
+                            <p v-if="pedido.direccion_envio.tipo === 'recoger_en_tienda'" class="text-xs font-bold text-gray-500 dark:text-gray-400 italic">Pasa a recoger en nuestra sucursal física.</p>
+                            <p v-else class="text-xs font-medium text-gray-500 dark:text-gray-400 max-w-sm mt-1">
                                 {{ pedido.direccion_envio.calle }}, {{ pedido.direccion_envio.colonia }}. CP {{ pedido.direccion_envio.cp }}. {{ pedido.direccion_envio.ciudad }}, {{ pedido.direccion_envio.estado }}.
                             </p>
                         </div>
                     </div>
                     <div class="flex -space-x-2">
-                        <div v-for="(item, idx) in pedido.items.slice(0, 5)" :key="idx" class="w-10 h-10 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-[10px] font-black text-gray-400">
+                        <div v-for="(item, idx) in pedido.items.slice(0, 5)" :key="idx" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 border-2 border-white dark:border-gray-800 flex items-center justify-center text-[10px] font-black text-gray-400 dark:text-gray-500">
                             {{ item.nombre.charAt(0) }}
                         </div>
-                        <div v-if="pedido.items.length > 5" class="w-10 h-10 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[10px] font-black text-gray-600">
+                        <div v-if="pedido.items.length > 5" class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-600 border-2 border-white dark:border-gray-800 flex items-center justify-center text-[10px] font-black text-gray-600 dark:text-gray-300">
                             +{{ pedido.items.length - 5 }}
                         </div>
                     </div>

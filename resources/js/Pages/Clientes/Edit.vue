@@ -2,7 +2,7 @@
   <Head title="Editar Cliente" />
   <div class="w-full p-4" :style="cssVars">
     <!-- Card principal con glassmorphism -->
-    <div class="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl p-8 border border-gray-100">
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-xl dark:shadow-none rounded-2xl p-8 border border-gray-100 dark:border-gray-700">
       <!-- Header moderno -->
       <div class="flex items-center justify-between mb-8">
         <div class="flex items-center gap-4">
@@ -12,22 +12,22 @@
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-bold text-gray-800">Editar Cliente</h1>
-            <p class="text-sm text-gray-500 mt-0.5">Modifique los datos del cliente seleccionado</p>
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Editar Cliente</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Modifique los datos del cliente seleccionado</p>
           </div>
         </div>
-        <div class="text-sm text-gray-500 flex items-center gap-1">
+        <div class="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
           <span class="w-2 h-2 rounded-full bg-red-500"></span>
           Campos obligatorios marcados con <span class="text-red-500 ml-1">*</span>
         </div>
       </div>
 
       <!-- Resumen de errores -->
-      <div v-if="hasGlobalErrors" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+      <div v-if="hasGlobalErrors" class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-md">
         <div class="flex">
           <div class="ml-3">
-            <h3 class="text-sm font-medium text-red-800">Error en el formulario</h3>
-            <div class="mt-2 text-sm text-red-700">
+            <h3 class="text-sm font-medium text-red-800 dark:text-red-300">Error en el formulario</h3>
+            <div class="mt-2 text-sm text-red-700 dark:text-red-200">
               <ul class="list-disc list-inside space-y-1">
                 <li v-for="(error, key) in form.errors" :key="key">
                   {{ Array.isArray(error) ? error[0] : error }}
@@ -41,27 +41,27 @@
       <!-- Mensaje de éxito -->
       <div
         v-if="showSuccessMessage"
-        class="mb-6 p-4 bg-green-50 border border-green-200 rounded-md"
+        class="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-md"
         aria-live="polite"
       >
-        <p class="text-sm font-medium text-green-800">Cliente actualizado exitosamente</p>
+        <p class="text-sm font-medium text-green-800 dark:text-green-300">Cliente actualizado exitosamente</p>
       </div>
 
       <!-- Mensaje de autocompletado -->
       <div
         v-if="showAutoCompleteMessage"
-        class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md"
+        class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-md"
         aria-live="polite"
       >
         <div class="flex">
            <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+            <svg class="h-5 w-5 text-blue-400 dark:text-blue-300" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
             </svg>
           </div>
           <div class="ml-3">
-            <p class="text-sm font-medium text-blue-800">Dirección autocompletada</p>
-            <p class="text-sm text-blue-700">Los campos de estado y municipio se han completado automáticamente.</p>
+            <p class="text-sm font-medium text-blue-800 dark:text-blue-300">Dirección autocompletada</p>
+            <p class="text-sm text-blue-700 dark:text-blue-200">Los campos de estado y municipio se han completado automáticamente.</p>
           </div>
         </div>
       </div>
@@ -79,15 +79,15 @@
         />
 
         <!-- Sección de Expediente de Crédito (Solo en Edit) -->
-        <div class="mt-12 pt-12 border-t border-gray-200">
+        <div class="mt-12 pt-12 border-t border-gray-200 dark:border-gray-700">
              <ExpedienteCredito :cliente="cliente" :documentos="cliente.documentos" />
         </div>
 
-        <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+        <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
             <button
               type="button"
               @click="resetForm"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-white dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               Restaurar
             </button>

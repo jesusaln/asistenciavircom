@@ -354,7 +354,7 @@ const obtenerLabelEstado = (estado) => {
 
 <template>
   <Head title="Bitácora de Actividades" />
-  <div class="bitacora-index min-h-screen bg-white">
+  <div class="bitacora-index min-h-screen bg-white dark:bg-gray-900">
     <div class="w-full px-6 py-8">
       <!-- Header específico de bitácora -->
       <BitacoraHeader
@@ -378,91 +378,163 @@ const obtenerLabelEstado = (estado) => {
         @limpiar-filtros="handleLimpiarFiltros"
       />
 
-      <!-- Tabla -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
-              <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Título</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Cliente</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Usuario</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="actividad in actividadesDocumentos" :key="actividad.id" class="hover:bg-white transition-colors duration-150">
-                <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">{{ formatearFecha(actividad.fecha) }}</div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-gray-900">{{ actividad.titulo }}</div>
-                  <div class="text-sm text-gray-500 max-w-xs truncate">{{ actividad.subtitulo }}</div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm text-gray-700">{{ actividad.raw.cliente?.nombre_razon_social || 'N/A' }}</div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm text-gray-700">{{ actividad.raw.usuario?.name || 'N/A' }}</div>
-                </td>
-                <td class="px-6 py-4">
-                  <span :class="obtenerClasesEstado(actividad.estado)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-                    {{ obtenerLabelEstado(actividad.estado) }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-right">
-                  <div class="flex items-center justify-end space-x-1">
-                    <button @click="verDetalles(actividad)" class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors duration-150" title="Ver detalles">
-                      <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    </button>
-                    <button @click="editarActividad(actividad.id)" class="w-8 h-8 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors duration-150" title="Editar">
-                      <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
-                    <button @click="confirmarEliminacion(actividad.id)" class="w-8 h-8 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors duration-150" title="Eliminar">
-                      <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr v-if="actividadesDocumentos.length === 0">
-                <td colspan="6" class="px-6 py-16 text-center">
-                  <div class="flex flex-col items-center space-y-4">
-                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                      <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                    <div class="space-y-1">
-                      <p class="text-gray-700 font-medium">No hay actividades</p>
-                      <p class="text-sm text-gray-500">Las actividades aparecerán aquí cuando se creen</p>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+            <!-- Tabla -->
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+
+              <div class="overflow-x-auto">
+
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+
+                  <thead class="bg-white dark:bg-gray-700/50">
+
+                    <tr>
+
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
+
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Título</th>
+
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Cliente</th>
+
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Usuario</th>
+
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Estado</th>
+
+                      <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+
+                    </tr>
+
+                  </thead>
+
+                  <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+
+                    <tr v-for="actividad in actividadesDocumentos" :key="actividad.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">
+
+                      <td class="px-6 py-4">
+
+                        <div class="text-sm text-gray-900 dark:text-gray-100">{{ formatearFecha(actividad.fecha) }}</div>
+
+                      </td>
+
+                      <td class="px-6 py-4">
+
+                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ actividad.titulo }}</div>
+
+                        <div class="text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">{{ actividad.subtitulo }}</div>
+
+                      </td>
+
+                      <td class="px-6 py-4">
+
+                        <div class="text-sm text-gray-700 dark:text-gray-200">{{ actividad.raw.cliente?.nombre_razon_social || 'N/A' }}</div>
+
+                      </td>
+
+                      <td class="px-6 py-4">
+
+                        <div class="text-sm text-gray-700 dark:text-gray-200">{{ actividad.raw.usuario?.name || 'N/A' }}</div>
+
+                      </td>
+
+                      <td class="px-6 py-4">
+
+                        <span :class="obtenerClasesEstado(actividad.estado).replace('bg-yellow-100', 'bg-yellow-100 dark:bg-yellow-900/40').replace('text-yellow-700', 'text-yellow-700 dark:text-yellow-300').replace('bg-blue-100', 'bg-blue-100 dark:bg-blue-900/40').replace('text-blue-700', 'text-blue-700 dark:text-blue-300').replace('bg-green-100', 'bg-green-100 dark:bg-green-900/40').replace('text-green-700', 'text-green-700 dark:text-green-300').replace('bg-red-100', 'bg-red-100 dark:bg-red-900/40').replace('text-red-700', 'text-red-700 dark:text-red-300').replace('bg-gray-100', 'bg-gray-100 dark:bg-gray-700').replace('text-gray-700', 'text-gray-700 dark:text-gray-300')" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+
+                          {{ obtenerLabelEstado(actividad.estado) }}
+
+                        </span>
+
+                      </td>
+
+                      <td class="px-6 py-4 text-right">
+
+                        <div class="flex items-center justify-end space-x-1">
+
+                          <button @click="verDetalles(actividad)" class="w-8 h-8 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors duration-150" title="Ver detalles">
+
+                            <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+
+                            </svg>
+
+                          </button>
+
+                          <button @click="editarActividad(actividad.id)" class="w-8 h-8 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors duration-150" title="Editar">
+
+                            <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+
+                            </svg>
+
+                          </button>
+
+                          <button @click="confirmarEliminacion(actividad.id)" class="w-8 h-8 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors duration-150" title="Eliminar">
+
+                            <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+
+                            </svg>
+
+                          </button>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                    <tr v-if="actividadesDocumentos.length === 0">
+
+                      <td colspan="6" class="px-6 py-16 text-center">
+
+                        <div class="flex flex-col items-center space-y-4">
+
+                          <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+
+                            <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+
+                            </svg>
+
+                          </div>
+
+                          <div class="space-y-1">
+
+                            <p class="text-gray-700 dark:text-gray-300 font-medium">No hay actividades</p>
+
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Las actividades aparecerán aquí cuando se creen</p>
+
+                          </div>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  </tbody>
+
+                </table>
+
+              </div>
 
         <!-- Paginación -->
-        <div v-if="paginationData.lastPage > 1" class="bg-white border-t border-gray-200 px-4 py-3 sm:px-6">
+        <div v-if="paginationData.lastPage > 1" class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3 sm:px-6">
           <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-              <p class="text-sm text-gray-700">
+              <p class="text-sm text-gray-700 dark:text-gray-300">
                 Mostrando {{ paginationData.from }} - {{ paginationData.to }} de {{ paginationData.total }} resultados
               </p>
               <select
                 :value="paginationData.perPage"
                 @change="handlePerPageChange(parseInt($event.target.value))"
-                class="border border-gray-300 rounded-md text-sm py-1 px-2 bg-white"
+                class="border border-gray-300 dark:border-gray-600 rounded-md text-sm py-1 px-2 bg-white dark:bg-gray-700 dark:text-gray-200"
               >
                 <option value="10">10</option>
                 <option value="15">15</option>
@@ -475,14 +547,14 @@ const obtenerLabelEstado = (estado) => {
               <button
                 v-if="paginationData.prevPageUrl"
                 @click="handlePageChange(paginationData.currentPage - 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
               </button>
 
-              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400">
+              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-sm font-medium text-gray-400 dark:text-gray-500">
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
@@ -492,7 +564,7 @@ const obtenerLabelEstado = (estado) => {
                 v-for="page in [paginationData.currentPage - 1, paginationData.currentPage, paginationData.currentPage + 1].filter(p => p > 0 && p <= paginationData.lastPage)"
                 :key="page"
                 @click="handlePageChange(page)"
-                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'"
+                :class="page === paginationData.currentPage ? 'bg-blue-50 dark:bg-blue-900/40 border-blue-500 dark:border-blue-700 text-blue-600 dark:text-blue-300' : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               >
                 {{ page }}
@@ -501,14 +573,14 @@ const obtenerLabelEstado = (estado) => {
               <button
                 v-if="paginationData.nextPageUrl"
                 @click="handlePageChange(paginationData.currentPage + 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                 </svg>
               </button>
 
-              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400">
+              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-sm font-medium text-gray-400 dark:text-gray-500">
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                 </svg>
@@ -520,13 +592,13 @@ const obtenerLabelEstado = (estado) => {
 
       <!-- Modal -->
       <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showModal = false">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <!-- Header del modal -->
-          <div class="flex items-center justify-between p-6 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">
+          <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
               {{ modalMode === 'details' ? 'Detalles de la Actividad' : 'Confirmar Eliminación' }}
             </h3>
-            <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <button @click="showModal = false" class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -539,66 +611,66 @@ const obtenerLabelEstado = (estado) => {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div class="space-y-3">
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Título</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedActividad.titulo }}</p>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Título</label>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 px-3 py-2 rounded-md">{{ selectedActividad.titulo }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Tipo</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedActividad.tipo }}</p>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo</label>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 px-3 py-2 rounded-md">{{ selectedActividad.tipo }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Fecha</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedActividad.fecha) }}</p>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Fecha</label>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 px-3 py-2 rounded-md">{{ formatearFecha(selectedActividad.fecha) }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Estado</label>
-                      <span :class="obtenerClasesEstado(selectedActividad.estado)" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium mt-1">
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Estado</label>
+                      <span :class="obtenerClasesEstado(selectedActividad.estado).replace('bg-yellow-100', 'bg-yellow-100 dark:bg-yellow-900/40').replace('text-yellow-700', 'text-yellow-700 dark:text-yellow-300').replace('bg-blue-100', 'bg-blue-100 dark:bg-blue-900/40').replace('text-blue-700', 'text-blue-700 dark:text-blue-300').replace('bg-green-100', 'bg-green-100 dark:bg-green-900/40').replace('text-green-700', 'text-green-700 dark:text-green-300').replace('bg-red-100', 'bg-red-100 dark:bg-red-900/40').replace('text-red-700', 'text-red-700 dark:text-red-300').replace('bg-gray-100', 'bg-gray-100 dark:bg-gray-700').replace('text-gray-700', 'text-gray-700 dark:text-gray-300')" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium mt-1">
                         {{ obtenerLabelEstado(selectedActividad.estado) }}
                       </span>
                     </div>
                   </div>
                   <div class="space-y-3">
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Cliente</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedActividad.cliente?.nombre_razon_social || 'N/A' }}</p>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Cliente</label>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 px-3 py-2 rounded-md">{{ selectedActividad.cliente?.nombre_razon_social || 'N/A' }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Usuario</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedActividad.usuario?.name || 'N/A' }}</p>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Usuario</label>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 px-3 py-2 rounded-md">{{ selectedActividad.usuario?.name || 'N/A' }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Ubicación</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedActividad.ubicacion || 'N/A' }}</p>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Ubicación</label>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 px-3 py-2 rounded-md">{{ selectedActividad.ubicacion || 'N/A' }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Costo</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(selectedActividad.costo_mxn || 0) }}</p>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Costo</label>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 px-3 py-2 rounded-md">${{ formatNumber(selectedActividad.costo_mxn || 0) }}</p>
                     </div>
                   </div>
                 </div>
                 <div v-if="selectedActividad.descripcion">
-                  <label class="block text-sm font-medium text-gray-700">Descripción</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedActividad.descripcion }}</p>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Descripción</label>
+                  <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedActividad.descripcion }}</p>
                 </div>
               </div>
             </div>
 
             <div v-if="modalMode === 'confirm'">
               <div class="text-center">
-                <div class="w-12 h-12 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
-                  <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-12 h-12 mx-auto bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-4">
+                  <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
                   </svg>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">¿Eliminar Actividad?</h3>
-                <p class="text-sm text-gray-500 mb-4">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">¿Eliminar Actividad?</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
                   ¿Estás seguro de que deseas eliminar la actividad <strong>{{ selectedActividad?.titulo }}</strong>?
                   Esta acción no se puede deshacer.
                 </p>
               </div>
 
               <div class="flex justify-end space-x-3">
-                <button @click="showModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+                <button @click="showModal = false" class="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors">
                   Cancelar
                 </button>
                 <button @click="eliminarActividad" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">

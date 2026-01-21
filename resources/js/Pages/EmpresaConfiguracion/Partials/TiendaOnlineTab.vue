@@ -1,8 +1,8 @@
 <template>
     <div class="space-y-8">
         <div>
-            <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                <FontAwesomeIcon icon="shopping-cart" class="text-blue-600" />
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
+                <FontAwesomeIcon icon="shopping-cart" class="text-blue-600 dark:text-blue-400" />
                 Tienda en Línea
             </h2>
         </div>
@@ -47,7 +47,7 @@
                         </svg>
                         <div>
                             <h5 class="font-bold text-gray-900 dark:text-white">Google OAuth</h5>
-                            <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="text-xs text-blue-500 hover:underline">
+                            <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="text-xs text-blue-500 dark:text-blue-400 hover:underline">
                                 Obtener credenciales →
                             </a>
                         </div>
@@ -82,7 +82,7 @@
                         </svg>
                         <div>
                             <h5 class="font-bold text-gray-900 dark:text-white">Microsoft / Outlook</h5>
-                            <a href="https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" target="_blank" class="text-xs text-blue-500 hover:underline">
+                            <a href="https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" target="_blank" class="text-xs text-blue-500 dark:text-blue-400 hover:underline">
                                 Obtener credenciales →
                             </a>
                         </div>
@@ -130,13 +130,13 @@
                             </div>
                             <div>
                                 <h5 class="font-bold text-gray-900 dark:text-white">MercadoPago</h5>
-                                <a href="https://www.mercadopago.com.mx/developers/panel/app" target="_blank" class="text-xs text-blue-500 hover:underline">
+                                <a href="https://www.mercadopago.com.mx/developers/panel/app" target="_blank" class="text-xs text-blue-500 dark:text-blue-400 hover:underline">
                                     Obtener credenciales →
                                 </a>
                             </div>
                         </div>
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <span class="text-sm text-gray-500">Sandbox</span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Sandbox</span>
                             <input type="checkbox" v-model="form.mercadopago_sandbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                         </label>
                     </div>
@@ -181,13 +181,13 @@
                             </div>
                             <div>
                                 <h5 class="font-bold text-gray-900 dark:text-white">PayPal</h5>
-                                <a href="https://developer.paypal.com/dashboard/applications/sandbox" target="_blank" class="text-xs text-blue-500 hover:underline">
+                                <a href="https://developer.paypal.com/dashboard/applications/sandbox" target="_blank" class="text-xs text-blue-500 dark:text-blue-400 hover:underline">
                                     Obtener credenciales →
                                 </a>
                             </div>
                         </div>
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <span class="text-sm text-gray-500">Sandbox</span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Sandbox</span>
                             <input type="checkbox" v-model="form.paypal_sandbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                         </label>
                     </div>
@@ -230,13 +230,13 @@
                             </div>
                             <div>
                                 <h5 class="font-bold text-gray-900 dark:text-white">Stripe</h5>
-                                <a href="https://dashboard.stripe.com/test/apikeys" target="_blank" class="text-xs text-purple-500 hover:underline">
+                                <a href="https://dashboard.stripe.com/test/apikeys" target="_blank" class="text-xs text-purple-500 dark:text-purple-400 hover:underline">
                                     Obtener credenciales →
                                 </a>
                             </div>
                         </div>
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <span class="text-sm text-gray-500">Sandbox</span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Sandbox</span>
                             <input type="checkbox" v-model="form.stripe_sandbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
                         </label>
                     </div>
@@ -359,7 +359,7 @@
                                 📊 Márgenes de Utilidad por Rango de Precio
                             </label>
                             <button type="button" @click="resetToDefaultTiers" 
-                                    class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                                    class="text-xs px-3 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/60 transition-colors">
                                 Usar Recomendados
                             </button>
                         </div>

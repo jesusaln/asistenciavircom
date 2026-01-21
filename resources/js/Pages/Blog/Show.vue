@@ -44,32 +44,32 @@ const shareToTwitter = () => {
         <meta property="og:image" :content="post.imagen_portada_url">
     </Head>
     
-    <div :style="cssVars" class="min-h-screen bg-white flex flex-col font-sans">
+    <div :style="cssVars" class="min-h-screen bg-white dark:bg-gray-900 flex flex-col font-sans">
         <PublicNavbar :empresa="empresa" />
 
         <main class="flex-grow">
             <!-- Article Content -->
             <article class="w-full px-4 py-12 md:py-20">
                 <!-- Breadcrumbs -->
-                <nav class="flex items-center gap-2 text-sm text-gray-400 mb-8">
+                <nav class="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500 mb-8">
                     <Link :href="route('landing')" class="hover:text-[var(--color-primary)] transition-colors">Inicio</Link>
                     <FontAwesomeIcon icon="chevron-right" class="text-[10px]" />
                     <Link :href="route('public.blog.index')" class="hover:text-[var(--color-primary)] transition-colors">Blog</Link>
                     <FontAwesomeIcon icon="chevron-right" class="text-[10px]" />
-                    <span class="text-gray-600 truncate max-w-[200px]">{{ post.titulo }}</span>
+                    <span class="text-gray-600 dark:text-gray-300 truncate max-w-[200px]">{{ post.titulo }}</span>
                 </nav>
 
                 <!-- Post Header -->
                 <header class="mb-10">
                     <div class="mb-4">
-                        <span class="bg-[var(--color-primary-soft)] text-[var(--color-primary)] text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full">
+                        <span class="bg-[var(--color-primary-soft)] text-[var(--color-primary)] text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
                             {{ post.categoria || 'Tecnología' }}
                         </span>
                     </div>
-                    <h1 class="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">
+                    <h1 class="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-gray-100 mb-6 leading-tight">
                         {{ post.titulo }}
                     </h1>
-                    <div class="flex flex-wrap items-center gap-6 text-sm text-gray-500 border-y border-gray-100 py-4 font-medium">
+                    <div class="flex flex-wrap items-center gap-6 text-sm text-gray-500 dark:text-gray-400 border-y border-gray-100 dark:border-gray-700 py-4 font-medium">
                         <div class="flex items-center gap-2">
                             <FontAwesomeIcon icon="calendar-alt" class="text-[var(--color-primary)]" />
                             {{ formatDate(post.publicado_at) }}
@@ -79,11 +79,11 @@ const shareToTwitter = () => {
                             {{ post.visitas }} vistas
                         </div>
                         <div class="flex items-center gap-4 ml-auto">
-                            <span class="text-xs uppercase tracking-widest text-gray-400">Compartir:</span>
-                            <button @click="shareToFacebook" class="text-gray-400 hover:text-blue-600 transition-colors">
+                            <span class="text-xs uppercase tracking-widest text-gray-400 dark:text-gray-500">Compartir:</span>
+                            <button @click="shareToFacebook" class="text-gray-400 dark:text-gray-500 hover:text-blue-600 transition-colors">
                                 <FontAwesomeIcon :icon="['fab', 'facebook']" size="lg" />
                             </button>
-                            <button @click="shareToTwitter" class="text-gray-400 hover:text-black transition-colors">
+                            <button @click="shareToTwitter" class="text-gray-400 dark:text-gray-500 hover:text-black transition-colors">
                                 <FontAwesomeIcon :icon="['fab', 'twitter']" size="lg" />
                             </button>
                         </div>
@@ -91,23 +91,23 @@ const shareToTwitter = () => {
                 </header>
 
                 <!-- Cover Image -->
-                <div v-if="post.imagen_portada_url" class="rounded-3xl overflow-hidden shadow-2xl mb-12 aspect-video">
+                <div v-if="post.imagen_portada_url" class="rounded-3xl overflow-hidden shadow-2xl dark:shadow-gray-900/50 mb-12 aspect-video">
                     <img :src="post.imagen_portada_url" :alt="post.titulo" class="w-full h-full object-cover">
                 </div>
 
                 <!-- Body Content -->
-                <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed rich-text-content" v-html="post.contenido">
+                <div class="prose prose-lg max-w-none text-gray-700 dark:text-gray-200 leading-relaxed rich-text-content" v-html="post.contenido">
                 </div>
 
                 <!-- Social Footer -->
-                <footer class="mt-16 pt-12 border-t border-gray-100">
+                <footer class="mt-16 pt-12 border-t border-gray-100 dark:border-gray-700">
                     <div class="bg-[var(--color-primary)] rounded-3xl p-8 md:p-12 text-white overflow-hidden relative group">
                         <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                             <div class="text-center md:text-left">
                                 <h3 class="text-2xl font-bold mb-2">¿Necesitas asesoría técnica?</h3>
                                 <p class="text-blue-100 opacity-90">Contáctanos hoy mismo y uno de nuestros expertos te ayudará.</p>
                             </div>
-                            <a :href="`https://wa.me/${empresa.whatsapp}`" class="bg-white text-[var(--color-primary)] px-8 py-4 rounded-2xl font-bold hover:bg-blue-50 transition-all flex items-center gap-3 shadow-xl transform active:scale-95">
+                            <a :href="`https://wa.me/${empresa.whatsapp}`" class="bg-white dark:bg-gray-700 text-[var(--color-primary)] px-8 py-4 rounded-2xl font-bold hover:bg-blue-50 dark:hover:bg-gray-600 transition-all flex items-center gap-3 shadow-xl transform active:scale-95">
                                 <FontAwesomeIcon :icon="['fab', 'whatsapp']" size="lg" />
                                 Hablar con un Experto
                             </a>
@@ -120,14 +120,14 @@ const shareToTwitter = () => {
 
                 <!-- Related Posts -->
                 <section v-if="relacionados.length > 0" class="mt-24">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-8 border-l-4 border-[var(--color-primary)] pl-4">También te puede interesar</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-8 border-l-4 border-[var(--color-primary)] pl-4">También te puede interesar</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <article v-for="rel in relacionados" :key="rel.id" class="group">
                             <Link :href="route('public.blog.show', rel.slug)">
-                                <div class="relative h-40 rounded-2xl overflow-hidden bg-gray-200 mb-4">
+                                <div class="relative h-40 rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-700 mb-4">
                                     <img v-if="rel.imagen_portada_url" :src="rel.imagen_portada_url" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                                 </div>
-                                <h4 class="font-bold text-gray-900 group-hover:text-[var(--color-primary)] transition-colors line-clamp-2">
+                                <h4 class="font-bold text-gray-900 dark:text-gray-100 group-hover:text-[var(--color-primary)] transition-colors line-clamp-2">
                                     {{ rel.titulo }}
                                 </h4>
                             </Link>
@@ -142,7 +142,7 @@ const shareToTwitter = () => {
     </div>
 </template>
 
-<style>
+<style scoped>
 .rich-text-content h2 {
     font-size: 1.875rem;
     font-weight: 800;
@@ -150,12 +150,18 @@ const shareToTwitter = () => {
     margin-top: 2rem;
     margin-bottom: 1rem;
 }
+.dark .rich-text-content h2 {
+    color: #f3f4f6;
+}
 .rich-text-content h3 {
     font-size: 1.5rem;
     font-weight: 700;
     color: #111827;
     margin-top: 1.5rem;
     margin-bottom: 0.75rem;
+}
+.dark .rich-text-content h3 {
+    color: #f3f4f6;
 }
 .rich-text-content p {
     margin-bottom: 1.5rem;

@@ -296,6 +296,9 @@
             <NavLink v-if="$can('view rentas')" href="/rentas" icon="file-contract" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Rentas PDV' : null">
               Rentas PDV
             </NavLink>
+            <NavLink v-if="$can('view rentas')" href="/planes-renta" icon="tags" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Planes de Renta' : null">
+              Planes de Renta
+            </NavLink>
             <NavLink v-if="$can('view equipos')" href="/equipos" icon="laptop" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Equipos' : null">
               Equipos
             </NavLink>

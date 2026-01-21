@@ -135,7 +135,7 @@ const planesCalculados = computed(() => {
                         @click="periodoSeleccionado = 'mensual'"
                         :class="[
                             'px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all',
-                            periodoSeleccionado === 'mensual' ? 'bg-[var(--color-primary)] text-white shadow-lg' : 'text-gray-400 hover:text-gray-600'
+                            periodoSeleccionado === 'mensual' ? 'bg-[var(--color-primary)] text-white shadow-lg' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
                         ]"
                     >
                         Mensual
@@ -144,11 +144,11 @@ const planesCalculados = computed(() => {
                         @click="periodoSeleccionado = 'anual'"
                         :class="[
                             'px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all gap-3 flex items-center',
-                            periodoSeleccionado === 'anual' ? 'bg-[var(--color-primary)] text-white shadow-lg' : 'text-gray-400 hover:text-gray-600'
+                            periodoSeleccionado === 'anual' ? 'bg-[var(--color-primary)] text-white shadow-lg' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
                         ]"
                     >
                         Anual
-                        <span v-if="periodoSeleccionado !== 'anual'" class="px-2 py-0.5 bg-green-100 text-green-600 rounded-full text-[8px]">-15%</span>
+                        <span v-if="periodoSeleccionado !== 'anual'" class="px-2 py-0.5 bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-300 rounded-full text-[8px]">-15%</span>
                         <span v-else class="px-2 py-0.5 bg-white/20 text-white rounded-full text-[8px]">Ahorro</span>
                     </button>
                 </div>
@@ -190,25 +190,25 @@ const planesCalculados = computed(() => {
                     <div class="mb-10 text-center pt-8 border-t border-gray-50 dark:border-gray-700 transition-colors">
                         <template v-if="getPrecio(plan) > 0">
                             <div class="flex items-baseline justify-center gap-1">
-                                <span class="text-gray-400 text-2xl font-bold">$</span>
+                                <span class="text-gray-400 dark:text-gray-500 text-2xl font-bold">$</span>
                                 <Transition mode="out-in">
                                     <span :key="periodoSeleccionado" class="text-6xl font-black text-gray-900 dark:text-white tracking-tighter transition-colors">
                                         {{ formatCurrency(getPrecio(plan)).replace('$', '').replace('.00', '') }}
                                     </span>
                                 </Transition>
                             </div>
-                            <p class="text-xs font-black text-gray-400 uppercase tracking-widest mt-2">Pesos por mes</p>
+                            <p class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-2">Pesos por mes</p>
                         </template>
                         <template v-else>
                             <div class="py-2">
                                 <span class="text-4xl font-black text-gray-900 dark:text-white tracking-tighter uppercase transition-colors">Plan Empresa</span>
                             </div>
-                            <p class="text-xs font-black text-orange-600 uppercase tracking-widest mt-2">Soluciones a Medida</p>
+                            <p class="text-xs font-black text-orange-600 dark:text-orange-400 uppercase tracking-widest mt-2">Soluciones a Medida</p>
                         </template>
                         
                         <!-- Ahorro Anual -->
-                        <div v-if="periodoSeleccionado === 'anual' && getPrecio(plan) > 0" class="mt-4 inline-block px-4 py-2 bg-green-50 rounded-2xl border border-green-100 animate-fade-in shadow-sm">
-                            <p class="text-[10px] font-black text-green-600 uppercase">Ahorras {{ formatCurrency(plan.ahorro_anual) }} al año</p>
+                        <div v-if="periodoSeleccionado === 'anual' && getPrecio(plan) > 0" class="mt-4 inline-block px-4 py-2 bg-green-50 dark:bg-green-900/20 rounded-2xl border border-green-100 dark:border-green-700 animate-fade-in shadow-sm">
+                            <p class="text-[10px] font-black text-green-600 dark:text-green-300 uppercase">Ahorras {{ formatCurrency(plan.ahorro_anual) }} al año</p>
                         </div>
                         <div v-else class="h-[42px]"></div>
                     </div>
@@ -228,7 +228,7 @@ const planesCalculados = computed(() => {
                         v-if="getPrecio(plan) > 0"
                         :href="route('contratacion.show', plan.slug)"
                         class="w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-xl"
-                        :class="plan.destacado ? 'bg-gray-900 text-white hover:bg-black shadow-gray-200' : 'bg-white text-gray-900 hover:bg-gray-100 shadow-gray-100'"
+                        :class="plan.destacado ? 'bg-gray-900 text-white hover:bg-black shadow-gray-200' : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 shadow-gray-100 dark:shadow-none'"
                     >
                         Contratar Plan
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
@@ -247,7 +247,7 @@ const planesCalculados = computed(() => {
 
             <!-- Empty State -->
             <div v-else class="py-24 text-center">
-                <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-8 text-4xl">🏷️</div>
+                <div class="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-8 text-4xl">🏷️</div>
                 <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-2 transition-colors">Próximamente estaremos listos</h3>
                 <p class="text-gray-500 dark:text-gray-400 font-medium transition-colors">Estamos preparando nuestros nuevos planes para ti.</p>
             </div>

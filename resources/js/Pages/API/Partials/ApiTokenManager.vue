@@ -147,19 +147,19 @@ const deleteApiToken = () => {
                                 </div>
 
                                 <div class="flex items-center ms-2">
-                                    <div v-if="token.last_used_ago" class="text-sm text-gray-400">
+                                    <div v-if="token.last_used_ago" class="text-sm text-gray-400 dark:text-gray-500">
                                         Last used {{ token.last_used_ago }}
                                     </div>
 
                                     <button
                                         v-if="availablePermissions.length > 0"
-                                        class="cursor-pointer ms-6 text-sm text-gray-400 underline"
+                                        class="cursor-pointer ms-6 text-sm text-gray-400 dark:text-gray-500 underline"
                                         @click="manageApiTokenPermissions(token)"
                                     >
                                         Permissions
                                     </button>
 
-                                    <button class="cursor-pointer ms-6 text-sm text-red-500" @click="confirmApiTokenDeletion(token)">
+                                    <button class="cursor-pointer ms-6 text-sm text-red-500 dark:text-red-400" @click="confirmApiTokenDeletion(token)">
                                         Delete
                                     </button>
                                 </div>

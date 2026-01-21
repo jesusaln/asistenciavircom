@@ -304,7 +304,7 @@ if (typeof window !== 'undefined') {
                         searchFocused ? 'shadow-xl ring-2 rounded-b-none border-b-0' : 'shadow-md'
                     ]" :style="searchFocused ? { '--tw-ring-color': 'var(--color-primary)' } : {}">
                         <div class="flex items-center">
-                            <svg class="w-5 h-5 ml-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 ml-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                             <input 
@@ -318,7 +318,7 @@ if (typeof window !== 'undefined') {
                             />
                             <button v-if="search" 
                                     @click="clearFilters"
-                                    class="mr-3 p-1.5 text-gray-400 hover:text-gray-600 transition-colors">
+                                    class="mr-3 p-1.5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
@@ -329,48 +329,48 @@ if (typeof window !== 'undefined') {
                     <!-- Autocomplete Dropdown (Premium Version) -->
                     <div v-show="searchFocused && suggestions.length > 0" 
                          class="absolute w-full bg-white dark:bg-gray-800 rounded-b-2xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden z-[100] transition-all max-h-[450px] overflow-y-auto ring-1 ring-black/5">
-                        <div class="p-2.5 border-b border-gray-50 flex justify-between items-center bg-white/50 sticky top-0 z-10">
-                            <span class="text-[10px] font-black tracking-widest text-gray-400 uppercase ml-2">Sugerencias de productos</span>
-                            <button @click="searchFocused = false" class="text-[10px] font-bold text-gray-400 hover:text-gray-600 px-2 uppercase">Cerrar</button>
+                        <div class="p-2.5 border-b border-gray-50 dark:border-gray-700 flex justify-between items-center bg-white/50 dark:bg-gray-800/50 sticky top-0 z-10">
+                            <span class="text-[10px] font-black tracking-widest text-gray-400 dark:text-gray-500 uppercase ml-2">Sugerencias de productos</span>
+                            <button @click="searchFocused = false" class="text-[10px] font-bold text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 px-2 uppercase">Cerrar</button>
                         </div>
-                        <ul class="divide-y divide-gray-50">
+                        <ul class="divide-y divide-gray-50 dark:divide-gray-700">
                             <li v-for="sug in suggestions" :key="sug.id">
                                 <Link :href="route('catalogo.show', sug.id)" 
-                                      class="group flex items-center gap-4 px-4 py-3 hover:bg-white transition-all relative">
-                                    <div class="w-14 h-14 rounded-xl bg-white border border-gray-100 flex-shrink-0 flex items-center justify-center overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-300">
+                                      class="group flex items-center gap-4 px-4 py-3 hover:bg-white dark:hover:bg-gray-700 transition-all relative">
+                                    <div class="w-14 h-14 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 flex-shrink-0 flex items-center justify-center overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-300">
                                         <img :src="getImageUrl({ imagen: sug.image })" alt="" class="w-full h-full object-contain p-1" @error="(e) => (e.target.src = '/img/placeholder-product.png')">
                                     </div>
                                     <div class="flex-1 min-w-0 text-left">
                                         <div class="flex items-center gap-2 mb-0.5">
-                                            <span v-if="sug.origen === 'CVA'" class="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[9px] font-black uppercase tracking-tighter">CVA</span>
-                                            <p class="text-sm font-bold text-gray-900 truncate leading-tight group-hover:text-[var(--color-primary)] transition-colors">
+                                            <span v-if="sug.origen === 'CVA'" class="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded text-[9px] font-black uppercase tracking-tighter">CVA</span>
+                                            <p class="text-sm font-bold text-gray-900 dark:text-white truncate leading-tight group-hover:text-[var(--color-primary)] transition-colors">
                                                 {{ sug.label }}
                                             </p>
                                         </div>
                                         <div class="flex items-center gap-3">
-                                            <p class="text-[11px] text-gray-500 font-medium">{{ sug.category }}</p>
+                                            <p class="text-[11px] text-gray-500 dark:text-gray-400 font-medium">{{ sug.category }}</p>
                                             <div class="flex items-center gap-1.5">
                                                 <span v-if="sug.origen === 'CVA'" 
                                                       :class="[
                                                           'h-2 w-2 rounded-full',
                                                           sug.stock > 0 ? 'bg-green-500 animate-pulse' : 'bg-amber-400'
                                                       ]"></span>
-                                                <span class="text-[11px] font-black uppercase tracking-tight" :class="sug.stock > 0 ? 'text-green-600' : 'text-amber-600'">
+                                                <span class="text-[11px] font-black uppercase tracking-tight" :class="sug.stock > 0 ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'">
                                                     {{ sug.stock > 0 ? `Entrega Inmediata (${sug.stock})` : 'Bajo pedido' }}
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="text-right">
-                                        <p class="text-[14px] font-black text-gray-900 leading-none">
+                                        <p class="text-[14px] font-black text-gray-900 dark:text-white leading-none">
                                             {{ formatCurrency(sug.price) }}
                                         </p>
-                                        <p class="text-[9px] text-gray-400 font-bold uppercase mt-1">IVA Incl.</p>
+                                        <p class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase mt-1">IVA Incl.</p>
                                     </div>
                                 </Link>
                             </li>
                             <li>
-                                <button @click="applyFilters" class="w-full py-3 text-center bg-white hover:bg-gray-100 text-xs font-bold text-gray-500 transition-colors uppercase tracking-widest">
+                                <button @click="applyFilters" class="w-full py-3 text-center bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-xs font-bold text-gray-500 dark:text-gray-300 transition-colors uppercase tracking-widest">
                                     Ver todos los resultados para "{{ search }}"
                                 </button>
                             </li>
@@ -386,7 +386,7 @@ if (typeof window !== 'undefined') {
                             'px-4 py-2 rounded-full text-sm font-medium transition-all',
                             !selectedCategoria 
                                 ? 'text-white' 
-                                : 'bg-white text-gray-600 hover:bg-gray-100'
+                                : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
                         ]"
                         :style="!selectedCategoria ? { backgroundColor: 'var(--color-primary)' } : {}">
                         Todos
@@ -399,7 +399,7 @@ if (typeof window !== 'undefined') {
                             'px-4 py-2 rounded-full text-sm font-medium transition-all',
                             selectedCategoria == cat.id 
                                 ? 'text-white' 
-                                : 'bg-white text-gray-600 hover:bg-gray-100'
+                                : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
                         ]"
                         :style="selectedCategoria == cat.id ? { backgroundColor: 'var(--color-primary)' } : {}">
                         {{ cat.nombre }}
@@ -408,11 +408,11 @@ if (typeof window !== 'undefined') {
 
                 <!-- Smart Tags / Sugerencias de búsqueda -->
                 <div v-if="smartFilters.length > 0" class="flex flex-wrap justify-center gap-2 mt-4 animate-fade-in-up">
-                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider py-1">Quizás buscas:</span>
+                    <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider py-1">Quizás buscas:</span>
                     <button v-for="tag in smartFilters" 
                             :key="tag"
                             @click="handleSmartFilter(tag)"
-                            class="px-3 py-1 rounded-md text-xs font-bold text-blue-600 bg-blue-50 border border-blue-100 hover:bg-blue-100 transition-colors">
+                            class="px-3 py-1 rounded-md text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors">
                         + {{ tag }}
                     </button>
                 </div>
@@ -443,10 +443,10 @@ if (typeof window !== 'undefined') {
                         <div class="bg-white dark:bg-gray-800 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
                             <h3 class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.2em] mb-6 flex items-center justify-between transition-colors">
                                 Presupuesto
-                                <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                <span class="w-2 h-2 rounded-full bg-green-500 dark:bg-green-400"></span>
                             </h3>
                             <div class="space-y-6">
-                                <div class="flex justify-between text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                <div class="flex justify-between text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
                                     <span>Desde {{ formatCurrency(precioMin) }}</span>
                                 </div>
                                 <input type="range" 
@@ -455,8 +455,8 @@ if (typeof window !== 'undefined') {
                                        :max="priceRange?.max" 
                                        step="100"
                                        @change="applyFilters"
-                                       class="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)]">
-                                <div class="flex justify-between text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                       class="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)]">
+                                <div class="flex justify-between text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
                                     <span>Hasta {{ formatCurrency(precioMax) }}</span>
                                 </div>
                                 <input type="range" 
@@ -465,7 +465,7 @@ if (typeof window !== 'undefined') {
                                        :max="priceRange?.max" 
                                        step="100"
                                        @change="applyFilters"
-                                       class="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)]">
+                                       class="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)]">
                             </div>
                         </div>
 
@@ -479,10 +479,10 @@ if (typeof window !== 'undefined') {
                                             'w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-between group',
                                             selectedCategoria == cat.id 
                                                 ? 'bg-gray-900 text-white shadow-lg' 
-                                                : 'text-gray-500 hover:bg-white'
+                                                : 'bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-600'
                                         ]">
                                     <span class="truncate">{{ cat.nombre }}</span>
-                                    <span :class="selectedCategoria == cat.id ? 'text-gray-400' : 'text-gray-300'" class="text-[10px] font-black">{{ cat.productos_count }}</span>
+                                    <span :class="selectedCategoria == cat.id ? 'text-gray-400 dark:text-gray-500' : 'text-gray-300 dark:text-gray-600'" class="text-[10px] font-black">{{ cat.productos_count }}</span>
                                 </button>
                             </div>
                         </div>
@@ -497,7 +497,7 @@ if (typeof window !== 'undefined') {
                                             'px-2 py-2.5 rounded-xl text-[9px] font-black uppercase text-center border-2 transition-all truncate',
                                             selectedMarca == marca.id 
                                                 ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-md' 
-                                                : 'bg-white border-gray-50 text-gray-400 hover:border-gray-200'
+                                                : 'bg-white dark:bg-gray-700 border-gray-50 dark:border-gray-600 text-gray-400 dark:text-gray-300 hover:border-gray-200 dark:hover:border-gray-500'
                                         ]">
                                     {{ marca.nombre }}
                                 </button>
@@ -507,7 +507,7 @@ if (typeof window !== 'undefined') {
                         <!-- Botón Limpiar -->
                         <button v-if="selectedCategoria || selectedMarca || search || precioMin > priceRange?.min"
                                 @click="clearFilters"
-                                class="w-full py-4 text-[10px] font-black text-red-500 uppercase tracking-widest hover:bg-red-50 rounded-2xl transition-all border border-dashed border-red-100">
+                                class="w-full py-4 text-[10px] font-black text-red-500 dark:text-red-400 uppercase tracking-widest hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl transition-all border border-dashed border-red-100 dark:border-red-700">
                             Limpiar todos los filtros
                         </button>
                     </div>
@@ -532,17 +532,17 @@ if (typeof window !== 'undefined') {
                                 <button @click="soloLocal = !soloLocal; applyFilters()"
                                         :class="[
                                             'px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2',
-                                            soloLocal ? 'bg-green-500 text-white shadow-lg shadow-green-500/20' : 'bg-white text-gray-400 hover:bg-gray-100'
+                                            soloLocal ? 'bg-green-500 text-white shadow-lg shadow-green-500/20' : 'bg-white dark:bg-gray-700 text-gray-400 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
                                         ]">
-                                    <div class="w-1.5 h-1.5 rounded-full" :class="soloLocal ? 'bg-white animate-pulse' : 'bg-gray-300'"></div>
+                                    <div class="w-1.5 h-1.5 rounded-full" :class="soloLocal ? 'bg-white animate-pulse' : 'bg-gray-300 dark:bg-gray-500'"></div>
                                     Entrega Inmediata
                                 </button>
                                 <button @click="soloExistencia = !soloExistencia; applyFilters()"
                                         :class="[
                                             'px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2',
-                                            soloExistencia ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-400 hover:bg-gray-100'
+                                            soloExistencia ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-white dark:bg-gray-700 text-gray-400 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
                                         ]">
-                                    <div class="w-1.5 h-1.5 rounded-full" :class="soloExistencia ? 'bg-white' : 'bg-gray-300'"></div>
+                                    <div class="w-1.5 h-1.5 rounded-full" :class="soloExistencia ? 'bg-white' : 'bg-gray-300 dark:bg-gray-500'"></div>
                                     Con Stock
                                 </button>
                             </div>
@@ -578,7 +578,7 @@ if (typeof window !== 'undefined') {
                                      :alt="producto.nombre"
                                      class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700 p-8" />
                                 <div v-else class="w-full h-full flex items-center justify-center">
-                                    <svg class="w-12 h-12 text-gray-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                    <svg class="w-12 h-12 text-gray-100 dark:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                                 </div>
                             </Link>
 
@@ -586,13 +586,13 @@ if (typeof window !== 'undefined') {
                             <div class="px-6 py-5 flex-1 flex flex-col">
                                 <div class="mb-4">
                                     <div class="flex items-center gap-1.5 mb-1">
-                                        <span v-if="producto.stock_local > 0" class="text-[9px] font-black text-green-600 bg-green-50 px-2 py-0.5 rounded-md uppercase tracking-tighter">
+                                        <span v-if="producto.stock_local > 0" class="text-[9px] font-black text-green-600 dark:text-green-300 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-md uppercase tracking-tighter">
                                             Entrega Inmediata ({{ producto.stock_local }})
                                         </span>
-                                        <span v-else-if="producto.stock_cedis > 0" class="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md uppercase tracking-tighter">
+                                        <span v-else-if="producto.stock_cedis > 0" class="text-[9px] font-black text-blue-600 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-md uppercase tracking-tighter">
                                             Bajo Pedido ({{ producto.stock_cedis }})
                                         </span>
-                                        <span v-else class="text-[9px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md uppercase tracking-tighter">
+                                        <span v-else class="text-[9px] font-black text-amber-600 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded-md uppercase tracking-tighter">
                                             Bajo Pedido
                                         </span>
                                     </div>
@@ -621,14 +621,14 @@ if (typeof window !== 'undefined') {
                                                 'w-11 h-11 rounded-2xl transition-all duration-500 flex items-center justify-center shadow-lg',
                                                 addedToCart === producto.id 
                                                     ? 'bg-green-500 text-white shadow-green-500/30' 
-                                                    : 'bg-gray-900 text-white hover:bg-[var(--color-primary)] hover:shadow-[var(--color-primary)]/40 hover:-translate-y-1'
+                                                    : 'bg-gray-900 dark:bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary)] dark:hover:bg-[var(--color-primary-soft)] hover:shadow-[var(--color-primary)]/40 hover:-translate-y-1'
                                             ]">
                                         <svg v-if="addedToCart === producto.id" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
                                         <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                                     </button>
                                     <button v-else 
                                             @click="handleAskProduct(producto)"
-                                            class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-all flex items-center justify-center group/wa shadow-sm">
+                                            class="w-11 h-11 rounded-2xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all flex items-center justify-center group/wa shadow-sm">
                                         <svg class="w-6 h-6 group-hover/wa:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
                                     </button>
                                 </div>
@@ -638,14 +638,14 @@ if (typeof window !== 'undefined') {
 
                     <!-- Estado Vacío -->
                     <div v-else class="text-center py-24 bg-white dark:bg-gray-800 rounded-[4rem] border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center transition-colors">
-                        <div class="w-32 h-32 mb-8 bg-white rounded-full flex items-center justify-center relative">
-                            <svg class="w-16 h-16 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                            <div class="absolute inset-0 border-2 border-dashed border-gray-100 rounded-full animate-spin-slow"></div>
+                        <div class="w-32 h-32 mb-8 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center relative">
+                            <svg class="w-16 h-16 text-gray-200 dark:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                            <div class="absolute inset-0 border-2 border-dashed border-gray-100 dark:border-gray-700 rounded-full animate-spin-slow"></div>
                         </div>
                         <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-2 transition-colors">Búsqueda sin resultados</h3>
                         <p class="text-gray-400 dark:text-gray-500 mb-10 w-full font-medium transition-colors">Lamentamos no encontrar lo que buscas. Intenta con una marca general o ajustando el presupuesto.</p>
                         <button @click="clearFilters" 
-                                class="px-10 py-4 bg-gray-900 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] hover:-translate-y-2 transition-all shadow-xl shadow-gray-200">
+                                class="px-10 py-4 bg-gray-900 dark:bg-[var(--color-primary)] text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] hover:-translate-y-2 transition-all shadow-xl shadow-gray-200 dark:shadow-[var(--color-primary)]/40">
                             Reiniciar Búsqueda
                         </button>
                     </div>
@@ -659,17 +659,17 @@ if (typeof window !== 'undefined') {
                                       :class="[
                                           'w-12 h-12 rounded-2xl text-[10px] font-black transition-all flex items-center justify-center shadow-sm',
                                           link.active 
-                                            ? 'bg-gray-900 text-white shadow-xl shadow-gray-900/20' 
-                                            : 'bg-white text-gray-400 hover:bg-white border border-gray-100'
+                                            ? 'bg-gray-900 dark:bg-[var(--color-primary)] text-white shadow-xl shadow-gray-900/20 dark:shadow-[var(--color-primary)]/40' 
+                                            : 'bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-500 hover:bg-white dark:hover:bg-gray-700 border border-gray-100 dark:border-gray-700'
                                       ]"
                                       v-html="link.label.replace('Previous', '←').replace('Next', '→')" />
                                 <span v-else 
-                                      class="w-12 h-12 rounded-2xl text-[10px] font-black bg-white text-gray-200 flex items-center justify-center border border-gray-100"
+                                      class="w-12 h-12 rounded-2xl text-[10px] font-black bg-white dark:bg-gray-800 text-gray-200 dark:text-gray-600 flex items-center justify-center border border-gray-100 dark:border-gray-700"
                                       v-html="link.label.replace('Previous', '←').replace('Next', '→')" />
                             </template>
                         </div>
-                        <div class="px-6 py-2 bg-gray-100 rounded-full">
-                            <p class="text-[9px] font-black text-gray-400 uppercase tracking-[0.4em]">
+                        <div class="px-6 py-2 bg-gray-100 dark:bg-gray-700 rounded-full">
+                            <p class="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.4em]">
                                 Página {{ productos.current_page }} de {{ productos.last_page }}
                             </p>
                         </div>

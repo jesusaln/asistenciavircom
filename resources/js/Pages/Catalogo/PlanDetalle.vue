@@ -35,13 +35,13 @@ const getColorPlan = computed(() => {
 <template>
     <Head :title="`${plan.nombre} - ${empresa?.nombre}`" />
 
-    <div class="min-h-screen bg-slate-50" :style="cssVars">
+    <div class="min-h-screen bg-slate-50 dark:bg-gray-900" :style="cssVars">
         <!-- Navbar -->
         <PublicNavbar :empresa="empresa" activeTab="polizas" />
 
         <main class="py-12">
             <div class="w-full px-4">
-                <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+                <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl dark:shadow-none overflow-hidden border border-gray-100 dark:border-gray-700">
                     <div class="grid grid-cols-1 lg:grid-cols-2">
                         
                         <!-- Columna Izquierda: Visual -->
@@ -76,12 +76,12 @@ const getColorPlan = computed(() => {
                         <!-- Columna Derecha: Detalles y Precio -->
                         <div class="p-8 lg:p-12">
                             <div class="mb-8">
-                                <h2 class="text-2xl font-bold text-gray-900 mb-6 underline decoration-[var(--color-primary)] decoration-4 underline-offset-8">
+                                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 underline decoration-[var(--color-primary)] decoration-4 underline-offset-8">
                                     Incluido en este Plan
                                 </h2>
                                 <ul class="grid grid-cols-1 gap-4">
-                                    <li v-for="(beneficio, index) in plan.beneficios" :key="index" class="flex items-start gap-3 text-gray-700">
-                                        <svg class="w-6 h-6 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <li v-for="(beneficio, index) in plan.beneficios" :key="index" class="flex items-start gap-3 text-gray-700 dark:text-gray-200">
+                                        <svg class="w-6 h-6 text-green-500 dark:text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
                                         <span class="font-medium">{{ beneficio }}</span>
@@ -89,23 +89,23 @@ const getColorPlan = computed(() => {
                                 </ul>
                             </div>
 
-                            <div v-if="plan.descripcion" class="mb-8 text-gray-600 leading-relaxed">
+                            <div v-if="plan.descripcion" class="mb-8 text-gray-600 dark:text-gray-300 leading-relaxed">
                                 <p>{{ plan.descripcion }}</p>
                             </div>
 
                             <!-- Card de Precio -->
-                            <div class="bg-slate-50 rounded-2xl p-6 border-2 border-dashed border-gray-200">
+                            <div class="bg-slate-50 dark:bg-gray-700 rounded-2xl p-6 border-2 border-dashed border-gray-200 dark:border-gray-600">
                                 <div class="flex justify-between items-end mb-4">
                                     <div>
-                                        <div class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Inversión Mensual</div>
-                                        <div class="text-4xl font-extrabold text-gray-900">{{ formatCurrency(plan.precio_mensual) }}</div>
+                                        <div class="text-gray-500 dark:text-gray-400 text-sm font-semibold uppercase tracking-wider">Inversión Mensual</div>
+                                        <div class="text-4xl font-extrabold text-gray-900 dark:text-white">{{ formatCurrency(plan.precio_mensual) }}</div>
                                     </div>
                                     <div v-if="plan.ahorro_anual > 0" class="text-right">
-                                        <div class="text-green-600 font-bold text-sm bg-green-100 px-3 py-1 rounded-full">-{{ plan.porcentaje_descuento_anual }}% Anual</div>
+                                        <div class="text-green-600 dark:text-green-400 font-bold text-sm bg-green-100 dark:bg-green-900/20 px-3 py-1 rounded-full">-{{ plan.porcentaje_descuento_anual }}% Anual</div>
                                     </div>
                                 </div>
 
-                                <div v-if="plan.precio_instalacion > 0" class="text-sm text-gray-500 mb-6 italic">
+                                <div v-if="plan.precio_instalacion > 0" class="text-sm text-gray-500 dark:text-gray-400 mb-6 italic">
                                     * Costo único de activación: {{ formatCurrency(plan.precio_instalacion) }}
                                 </div>
 
@@ -116,7 +116,7 @@ const getColorPlan = computed(() => {
                                     Contratar Plan Ahora
                                 </Link>
                                 
-                                <p class="text-center text-xs text-gray-400 mt-4">
+                                <p class="text-center text-xs text-gray-400 dark:text-gray-500 mt-4">
                                     Sujeto a términos y condiciones establecidos en el contrato de servicio.
                                 </p>
                             </div>

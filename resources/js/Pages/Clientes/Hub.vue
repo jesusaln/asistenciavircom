@@ -57,10 +57,10 @@ const getIconForTab = (tabName) => {
     <AppLayout title="Hub del Cliente">
         <template #header>
             <div class="flex items-center justify-between">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                     Hub del Cliente
                 </h2>
-                <Link :href="route('clientes.index')" class="text-sm text-gray-600 hover:text-gray-900">
+                <Link :href="route('clientes.index')" class="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100">
                     &larr; Volver a Clientes
                 </Link>
             </div>
@@ -68,29 +68,29 @@ const getIconForTab = (tabName) => {
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl dark:shadow-none sm:rounded-lg">
                     <!-- Header con información clave -->
-                    <div class="p-6 sm:px-20 bg-white border-b border-gray-200">
+                    <div class="p-6 sm:px-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                         <div class="flex items-start justify-between">
                             <div>
-                                <h3 class="text-2xl font-bold text-gray-900">{{ cliente.nombre_razon_social }}</h3>
-                                <p class="text-sm text-gray-500 mt-1">
+                                <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ cliente.nombre_razon_social }}</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                     <span class="font-mono">{{ cliente.rfc }}</span> | <span>{{ cliente.email }}</span> | <span>{{ cliente.telefono }}</span>
                                 </p>
                             </div>
                              <div class="text-right">
-                                <p class="text-sm text-gray-500">Saldo Pendiente</p>
-                                <p class="text-2xl font-bold text-red-600">{{ new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(saldo_pendiente) }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Saldo Pendiente</p>
+                                <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(saldo_pendiente) }}</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Pestañas -->
-                    <div class="bg-white px-6">
-                        <div class="border-b border-gray-200">
+                    <div class="bg-white dark:bg-gray-800 px-6">
+                        <div class="border-b border-gray-200 dark:border-gray-700">
                             <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
                                 <li v-for="tab in ['resumen', 'polizas', 'tickets', 'citas']" :key="tab" class="mr-2" role="presentation">
-                                    <button @click="setActiveTab(tab)" :class="['inline-flex items-center gap-2 p-4 border-b-2 rounded-t-lg', activeTab === tab ? 'border-indigo-500 text-indigo-600' : 'border-transparent hover:text-gray-600 hover:border-gray-300']" role="tab">
+                                    <button @click="setActiveTab(tab)" :class="['inline-flex items-center gap-2 p-4 border-b-2 rounded-t-lg', activeTab === tab ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600']" role="tab">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getIconForTab(tab)"></path></svg>
                                         <span class="capitalize">{{ tab }}</span>
                                     </button>
@@ -100,119 +100,119 @@ const getIconForTab = (tabName) => {
                     </div>
 
                     <!-- Contenido de las Pestañas -->
-                    <div class="p-6 bg-gray-50">
+                    <div class="p-6 bg-gray-50 dark:bg-gray-900">
                         <!-- Resumen -->
                         <div v-if="activeTab === 'resumen'" role="tabpanel">
                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                               <div class="p-6 bg-white rounded-lg shadow-sm">
-                                   <h4 class="font-bold text-gray-800">Póliza Activa</h4>
+                               <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                                   <h4 class="font-bold text-gray-800 dark:text-gray-100">Póliza Activa</h4>
                                     <div v-if="poliza_activa" class="mt-2">
-                                        <p class="text-indigo-600 font-semibold">{{ poliza_activa.nombre }}</p>
-                                        <p class="text-sm text-gray-500">Vence: {{ formatDate(poliza_activa.fecha_fin) }}</p>
-                                        <Link :href="route('polizas-servicio.show', poliza_activa.id)" class="text-sm text-indigo-500 hover:underline mt-2 inline-block">Ver Póliza &rarr;</Link>
+                                        <p class="text-indigo-600 dark:text-indigo-400 font-semibold">{{ poliza_activa.nombre }}</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Vence: {{ formatDate(poliza_activa.fecha_fin) }}</p>
+                                        <Link :href="route('polizas-servicio.show', poliza_activa.id)" class="text-sm text-indigo-500 dark:text-indigo-400 hover:underline mt-2 inline-block">Ver Póliza &rarr;</Link>
                                     </div>
-                                   <div v-else><p class="text-gray-500 mt-2">No hay póliza activa.</p></div>
+                                   <div v-else><p class="text-gray-500 dark:text-gray-400 mt-2">No hay póliza activa.</p></div>
                                </div>
-                               <div class="p-6 bg-white rounded-lg shadow-sm">
-                                   <h4 class="font-bold text-gray-800">Próxima Cita</h4>
+                               <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                                   <h4 class="font-bold text-gray-800 dark:text-gray-100">Próxima Cita</h4>
                                    <div v-if="cliente.citas && cliente.citas.length > 0" class="mt-2">
-                                       <p class="font-semibold">{{ formatDate(cliente.citas[0].fecha_hora) }}</p>
-                                       <p class="text-sm text-gray-600 truncate">{{ cliente.citas[0].descripcion }}</p>
-                                       <p class="text-sm text-gray-500">Técnico: {{ cliente.citas[0].tecnico?.name || 'No asignado' }}</p>
+                                       <p class="font-semibold text-gray-800 dark:text-gray-100">{{ formatDate(cliente.citas[0].fecha_hora) }}</p>
+                                       <p class="text-sm text-gray-600 dark:text-gray-300 truncate">{{ cliente.citas[0].descripcion }}</p>
+                                       <p class="text-sm text-gray-500 dark:text-gray-400">Técnico: {{ cliente.citas[0].tecnico?.name || 'No asignado' }}</p>
                                    </div>
-                                   <div v-else><p class="text-gray-500 mt-2">No hay citas próximas.</p></div>
+                                   <div v-else><p class="text-gray-500 dark:text-gray-400 mt-2">No hay citas próximas.</p></div>
                                </div>
-                               <div class="p-6 bg-white rounded-lg shadow-sm">
-                                   <h4 class="font-bold text-gray-800">Último Ticket</h4>
+                               <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                                   <h4 class="font-bold text-gray-800 dark:text-gray-100">Último Ticket</h4>
                                    <div v-if="cliente.tickets && cliente.tickets.length > 0" class="mt-2">
-                                        <p class="font-semibold text-gray-800 truncate">{{ cliente.tickets[0].titulo }}</p>
-                                        <p class="text-sm text-gray-600">Estado: <span :class="['font-semibold px-2 py-0.5 rounded-full text-xs', getStatusClass(cliente.tickets[0].estado)]">{{ cliente.tickets[0].estado }}</span></p>
-                                        <Link :href="route('soporte.show', cliente.tickets[0].id)" class="text-sm text-indigo-500 hover:underline mt-2 inline-block">Ver Ticket &rarr;</Link>
+                                        <p class="font-semibold text-gray-800 dark:text-gray-100 truncate">{{ cliente.tickets[0].titulo }}</p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300">Estado: <span :class="['font-semibold px-2 py-0.5 rounded-full text-xs', getStatusClass(cliente.tickets[0].estado)]">{{ cliente.tickets[0].estado }}</span></p>
+                                        <Link :href="route('soporte.show', cliente.tickets[0].id)" class="text-sm text-indigo-500 dark:text-indigo-400 hover:underline mt-2 inline-block">Ver Ticket &rarr;</Link>
                                    </div>
-                                   <div v-else><p class="text-gray-500 mt-2">No hay tickets recientes.</p></div>
+                                   <div v-else><p class="text-gray-500 dark:text-gray-400 mt-2">No hay tickets recientes.</p></div>
                                </div>
                            </div>
                         </div>
 
                         <!-- Pólizas -->
                         <div v-if="activeTab === 'polizas'" role="tabpanel">
-                            <h3 class="text-lg font-semibold mb-4 text-gray-800">Póliza de Servicio Activa</h3>
-                            <div v-if="poliza_activa" class="p-6 bg-white border rounded-lg shadow-sm space-y-4">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Póliza de Servicio Activa</h3>
+                            <div v-if="poliza_activa" class="p-6 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg shadow-sm space-y-4">
                                <div class="flex justify-between items-start">
                                     <div>
-                                        <p class="text-xl font-bold text-indigo-700">{{ poliza_activa.nombre }}</p>
-                                        <p class="font-mono text-sm text-gray-500">{{ poliza_activa.folio }}</p>
+                                        <p class="text-xl font-bold text-indigo-700 dark:text-indigo-400">{{ poliza_activa.nombre }}</p>
+                                        <p class="font-mono text-sm text-gray-500 dark:text-gray-400">{{ poliza_activa.folio }}</p>
                                     </div>
                                     <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full capitalize" :class="getStatusClass('programado')">{{ poliza_activa.estado }}</span>
                                </div>
                                <div class="grid grid-cols-2 gap-4 text-sm">
-                                   <p><strong>Inicio:</strong> {{ formatDate(poliza_activa.fecha_inicio) }}</p>
-                                   <p><strong>Fin:</strong> {{ formatDate(poliza_activa.fecha_fin) }}</p>
+                                   <p><strong class="text-gray-800 dark:text-gray-100">Inicio:</strong> <span class="text-gray-600 dark:text-gray-300">{{ formatDate(poliza_activa.fecha_inicio) }}</span></p>
+                                   <p><strong class="text-gray-800 dark:text-gray-100">Fin:</strong> <span class="text-gray-600 dark:text-gray-300">{{ formatDate(poliza_activa.fecha_fin) }}</span></p>
                                </div>
                                <!-- Barras de Consumo -->
                                <div class="space-y-3 pt-4">
                                    <div v-if="poliza_activa.limite_mensual_tickets">
                                        <div class="flex justify-between text-sm mb-1">
-                                           <span class="font-medium">Tickets de Soporte</span>
-                                           <span>{{ poliza_activa.tickets_soporte_consumidos_mes || 0 }} / {{ poliza_activa.limite_mensual_tickets }}</span>
+                                           <span class="font-medium text-gray-700 dark:text-gray-200">Tickets de Soporte</span>
+                                           <span class="text-gray-600 dark:text-gray-300">{{ poliza_activa.tickets_soporte_consumidos_mes || 0 }} / {{ poliza_activa.limite_mensual_tickets }}</span>
                                        </div>
-                                       <div class="w-full bg-gray-200 rounded-full h-2.5"><div :class="getProgressBarClass((poliza_activa.tickets_soporte_consumidos_mes/poliza_activa.limite_mensual_tickets)*100)" class="h-2.5 rounded-full" :style="{width: `${(poliza_activa.tickets_soporte_consumidos_mes/poliza_activa.limite_mensual_tickets)*100}%`}"></div></div>
+                                       <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5"><div :class="getProgressBarClass((poliza_activa.tickets_soporte_consumidos_mes/poliza_activa.limite_mensual_tickets)*100)" class="h-2.5 rounded-full" :style="{width: `${(poliza_activa.tickets_soporte_consumidos_mes/poliza_activa.limite_mensual_tickets)*100}%`}"></div></div>
                                    </div>
                                    <div v-if="poliza_activa.horas_incluidas_mensual">
                                        <div class="flex justify-between text-sm mb-1">
-                                           <span class="font-medium">Horas de Servicio</span>
-                                           <span>{{ poliza_activa.horas_consumidas_mes || 0 }} / {{ poliza_activa.horas_incluidas_mensual }}</span>
+                                           <span class="font-medium text-gray-700 dark:text-gray-200">Horas de Servicio</span>
+                                           <span class="text-gray-600 dark:text-gray-300">{{ poliza_activa.horas_consumidas_mes || 0 }} / {{ poliza_activa.horas_incluidas_mensual }}</span>
                                        </div>
-                                       <div class="w-full bg-gray-200 rounded-full h-2.5"><div :class="getProgressBarClass((poliza_activa.horas_consumidas_mes/poliza_activa.horas_incluidas_mensual)*100)" class="h-2.5 rounded-full" :style="{width: `${(poliza_activa.horas_consumidas_mes/poliza_activa.horas_incluidas_mensual)*100}%`}"></div></div>
+                                       <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5"><div :class="getProgressBarClass((poliza_activa.horas_consumidas_mes/poliza_activa.horas_incluidas_mensual)*100)" class="h-2.5 rounded-full" :style="{width: `${(poliza_activa.horas_consumidas_mes/poliza_activa.horas_incluidas_mensual)*100}%`}"></div></div>
                                    </div>
                                     <div v-if="poliza_activa.visitas_sitio_mensuales">
                                        <div class="flex justify-between text-sm mb-1">
-                                           <span class="font-medium">Visitas en Sitio</span>
-                                           <span>{{ poliza_activa.visitas_sitio_consumidas_mes || 0 }} / {{ poliza_activa.visitas_sitio_mensuales }}</span>
+                                           <span class="font-medium text-gray-700 dark:text-gray-200">Visitas en Sitio</span>
+                                           <span class="text-gray-600 dark:text-gray-300">{{ poliza_activa.visitas_sitio_consumidas_mes || 0 }} / {{ poliza_activa.visitas_sitio_mensuales }}</span>
                                        </div>
-                                       <div class="w-full bg-gray-200 rounded-full h-2.5"><div :class="getProgressBarClass((poliza_activa.visitas_sitio_consumidas_mes/poliza_activa.visitas_sitio_mensuales)*100)" class="h-2.5 rounded-full" :style="{width: `${(poliza_activa.visitas_sitio_consumidas_mes/poliza_activa.visitas_sitio_mensuales)*100}%`}"></div></div>
+                                       <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5"><div :class="getProgressBarClass((poliza_activa.visitas_sitio_consumidas_mes/poliza_activa.visitas_sitio_mensuales)*100)" class="h-2.5 rounded-full" :style="{width: `${(poliza_activa.visitas_sitio_consumidas_mes/poliza_activa.visitas_sitio_mensuales)*100}%`}"></div></div>
                                    </div>
                                </div>
                             </div>
                              <div v-else>
-                                <p class="text-gray-500 text-center py-10">El cliente no tiene una póliza de servicio activa.</p>
+                                <p class="text-gray-500 dark:text-gray-400 text-center py-10">El cliente no tiene una póliza de servicio activa.</p>
                             </div>
                         </div>
 
                         <!-- Tickets -->
                         <div v-if="activeTab === 'tickets'" role="tabpanel" class="space-y-4">
-                             <div v-for="ticket in cliente.tickets" :key="ticket.id" class="p-4 bg-white rounded-lg shadow-sm border">
+                             <div v-for="ticket in cliente.tickets" :key="ticket.id" class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700">
                                 <div class="flex justify-between items-start">
-                                    <Link :href="route('soporte.show', ticket.id)" class="font-semibold text-indigo-600 hover:underline">
+                                    <Link :href="route('soporte.show', ticket.id)" class="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
                                         {{ ticket.titulo }}
                                     </Link>
                                     <span :class="['px-2 py-1 text-xs font-medium rounded-full capitalize', getStatusClass(ticket.estado)]">{{ ticket.estado }}</span>
                                 </div>
-                               <div class="text-sm text-gray-500 mt-1">
+                               <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                    <span>#{{ ticket.folio }}</span> &bull;
                                    <span>Creado: {{ formatDate(ticket.created_at) }}</span> &bull;
                                    <span>Agente: {{ ticket.asignado?.name || 'N/A' }}</span>
                                </div>
                             </div>
-                             <div v-if="!cliente.tickets || cliente.tickets.length === 0"><p class="text-gray-500 text-center py-10">No hay tickets registrados para este cliente.</p></div>
+                             <div v-if="!cliente.tickets || cliente.tickets.length === 0"><p class="text-gray-500 dark:text-gray-400 text-center py-10">No hay tickets registrados para este cliente.</p></div>
                         </div>
                         
                         <!-- Citas -->
                         <div v-if="activeTab === 'citas'" role="tabpanel" class="space-y-4">
-                             <div v-for="cita in cliente.citas" :key="cita.id" class="p-4 bg-white rounded-lg shadow-sm border">
+                             <div v-for="cita in cliente.citas" :key="cita.id" class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700">
                                 <div class="flex justify-between items-start">
-                                   <Link :href="route('citas.show', cita.id)" class="font-semibold text-indigo-600 hover:underline">
+                                   <Link :href="route('citas.show', cita.id)" class="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
                                         {{ cita.descripcion || 'Cita de servicio' }}
                                    </Link>
                                     <span :class="['px-2 py-1 text-xs font-medium rounded-full capitalize', getStatusClass(cita.estado)]">{{ cita.estado }}</span>
                                 </div>
-                                <div class="text-sm text-gray-500 mt-1">
+                                <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                    <span>#{{ cita.folio }}</span> &bull;
                                    <span>Fecha: {{ formatDate(cita.fecha_hora) }}</span> &bull;
                                    <span>Técnico: {{ cita.tecnico?.name || 'N/A' }}</span>
                                </div>
                             </div>
-                              <div v-if="!cliente.citas || cliente.citas.length === 0"><p class="text-gray-500 text-center py-10">No hay citas registradas para este cliente.</p></div>
+                              <div v-if="!cliente.citas || cliente.citas.length === 0"><p class="text-gray-500 dark:text-gray-400 text-center py-10">No hay citas registradas para este cliente.</p></div>
                         </div>
                     </div>
                 </div>
