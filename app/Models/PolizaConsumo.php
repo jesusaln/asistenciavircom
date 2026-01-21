@@ -114,7 +114,7 @@ class PolizaConsumo extends Model
             'valor_unitario' => $valorUnitario,
             'ahorro' => $valorUnitario * $cantidad,
             'descripcion' => $descripcion ?? self::generarDescripcion($tipo, $consumible),
-            'registrado_por' => auth()->id(),
+            'registrado_por' => auth()->guard('client')->check() ? null : auth()->id(),
             'fecha_consumo' => now(),
         ]);
 
