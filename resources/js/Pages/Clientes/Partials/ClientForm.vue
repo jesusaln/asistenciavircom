@@ -199,6 +199,7 @@
           Marque esta opción si desea agregar la dirección del cliente
         </div>
       </div>
+    </div>
 
     <!-- Estado del Cliente -->
     <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
