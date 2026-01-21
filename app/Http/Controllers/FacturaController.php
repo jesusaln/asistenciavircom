@@ -321,7 +321,12 @@ class FacturaController extends Controller
 
         Log::info("CONTPAQi: Creando factura agrupada", ['payload' => $payload]);
 
-        Log::info("CONTPAQi: Creando factura agrupada", ['payload' => $payload]);
+        Log::info("CONTPAQi: Creando factura agrupada - INICIO", ['payload' => $payload]);
+
+        // LOG ESPECÍFICO PARA PUBLICO EN GENERAL
+        if ($payload['codigoCliente'] === 'PG' || $payload['codigoCliente'] === 'XAXX010101000') {
+            Log::info("[[TIMBRADO PUBLICO GENERAL]] Payload enviado: ", $payload);
+        }
 
         $response = \Illuminate\Support\Facades\Http::timeout(120)
             ->post(config('services.contpaqi.url') . "/api/Documentos/factura", $payload);
@@ -364,6 +369,8 @@ class FacturaController extends Controller
         $passCSD = config('services.contpaqi.csd_pass') ?: env('CONTPAQI_CSD_PASS');
         $timbradoExitoso = false;
 
+        $timbradoErrorMsg = null;
+
         if (!empty($passCSD)) {
             try {
                 Log::info("CONTPAQi: Intentando timbrar folio $folio con serie $serie");
@@ -375,15 +382,28 @@ class FacturaController extends Controller
                     "passCSD" => $passCSD
                 ];
 
+                // LOG ESPECÍFICO
+                if ($payload['codigoCliente'] === 'PG' || $payload['codigoCliente'] === 'XAXX010101000') {
+                    Log::info("[[TIMBRADO PUBLICO GENERAL]] Intentando timbrar: ", $timbrarPayload);
+                }
+
                 $timbrarResponse = \Illuminate\Support\Facades\Http::timeout(120)
                     ->post(config('services.contpaqi.url') . "/api/Documentos/timbrar", $timbrarPayload);
 
                 if ($timbrarResponse->successful() && ($timbrarResponse->json()['success'] ?? false)) {
                     $timbradoExitoso = true;
+                    if ($payload['codigoCliente'] === 'PG' || $payload['codigoCliente'] === 'XAXX010101000') {
+                        Log::info("[[TIMBRADO PUBLICO GENERAL]] EXITO.");
+                    }
                 } else {
-                    Log::warning("Error timbrando factura Folio {$folio}: " . $timbrarResponse->body());
+                    $timbradoErrorMsg = $timbrarResponse->body();
+                    Log::warning("Error timbrando factura Folio {$folio}: " . $timbradoErrorMsg);
+                    if ($payload['codigoCliente'] === 'PG' || $payload['codigoCliente'] === 'XAXX010101000') {
+                        Log::error("[[TIMBRADO PUBLICO GENERAL]] ERROR: " . $timbradoErrorMsg);
+                    }
                 }
             } catch (\Exception $e) {
+                $timbradoErrorMsg = $e->getMessage();
                 Log::error("Excepción timbrando: " . $e->getMessage());
             }
         }
@@ -392,7 +412,8 @@ class FacturaController extends Controller
             'success' => true,
             'folio' => $folio,
             'serie' => $serie,
-            'timbrado' => $timbradoExitoso
+            'timbrado' => $timbradoExitoso,
+            'timbrado_error' => $timbradoErrorMsg
         ];
     }
 
@@ -454,8 +475,24 @@ class FacturaController extends Controller
                     $folio = $resultado['folio'];
                     $serie = $resultado['serie'];
                     $timbradoExitoso = $resultado['timbrado'];
+
+                    // IMPORTANTE: Guardar el folio generado AUNQUE falle el timbrado,
+                    // para evitar duplicar documentos en Contpaqi al reintentar.
+                    if ($folio) {
+                        $factura->update([
+                            'numero_factura' => ($serie ?? '') . $folio
+                        ]);
+                    }
+
+                    if (!$timbradoExitoso && !empty($resultado['timbrado_error'])) {
+                        // Retornar error específico para el Modal
+                        return redirect()->route('facturas.show', $factura)
+                            ->with('stamping_error', $resultado['timbrado_error']);
+                    }
+
                 } else {
-                    return back()->with('error', 'No se pudo crear el documento en CONTPAQi.');
+                    return redirect()->route('facturas.show', $factura)
+                        ->with('error', 'No se pudo crear el documento en CONTPAQi.');
                 }
             }
 
@@ -493,11 +530,11 @@ class FacturaController extends Controller
                 }
             }
 
-            return back()->with('error', 'No se pudo completar el proceso de timbrado.');
+            return redirect()->route('facturas.show', $factura)->with('error', 'No se pudo completar el proceso de timbrado.');
 
         } catch (\Exception $e) {
             Log::error("Error crítico en timbrar factura {$factura->id}: " . $e->getMessage());
-            return back()->with('error', 'Error al procesar: ' . $e->getMessage());
+            return redirect()->route('facturas.show', $factura)->with('error', 'Error al procesar: ' . $e->getMessage());
         }
     }
 

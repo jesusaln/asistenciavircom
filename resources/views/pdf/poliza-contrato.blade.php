@@ -3,249 +3,430 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Contrato de Servicio {{ $poliza->folio }}</title>
+    <title>Contrato de Adhesión {{ $poliza->folio }}</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        @page {
+            margin: 0cm 0cm;
         }
 
         body {
             font-family: 'DejaVu Sans', sans-serif;
-            font-size: 11px;
-            color: #1e293b;
+            font-size: 10px;
+            color: #334155;
+            line-height: 1.5;
+            margin-top: 3cm;
+            margin-bottom: 2cm;
+            margin-left: 2cm;
+            margin-right: 2cm;
             background: #fff;
-            line-height: 1.6;
         }
 
-        .container {
-            padding: 50px;
+        header {
+            position: fixed;
+            top: 0cm;
+            left: 0cm;
+            right: 0cm;
+            height: 2.5cm;
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0.5cm 2cm;
+            display: flex;
+            align-items: center;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0cm;
+            left: 0cm;
+            right: 0cm;
+            height: 1.5cm;
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            padding: 0.3cm 2cm;
+            font-size: 8px;
+            color: #94a3b8;
+            text-align: center;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0f172a;
+            text-transform: uppercase;
+        }
+
+        .company-details {
+            font-size: 9px;
+            color: #64748b;
         }
 
         h1 {
-            text-align: center;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: bold;
+            text-align: center;
             text-transform: uppercase;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             color: #0f172a;
-            border-bottom: 2px solid #000;
-            padding-bottom: 10px;
         }
 
         h2 {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
-            margin-top: 25px;
-            margin-bottom: 12px;
+            margin-top: 15px;
+            margin-bottom: 8px;
             text-transform: uppercase;
-            color: #0f172a;
+            color: #1e293b;
+            border-bottom: 1px solid #cbd5e1;
+            padding-bottom: 3px;
+        }
+
+        h3 {
+            font-size: 10px;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            color: #334155;
         }
 
         p {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             text-align: justify;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
+        .clause-title {
+            font-weight: bold;
+            color: #0f172a;
         }
 
         .info-table {
             width: 100%;
-            margin-bottom: 25px;
+            margin: 15px 0;
             border-collapse: collapse;
+            font-size: 9px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .info-table th {
+            background-color: #f1f5f9;
+            text-align: left;
+            padding: 6px 10px;
+            font-weight: bold;
+            color: #475569;
+            border-bottom: 1px solid #e2e8f0;
         }
 
         .info-table td {
-            padding: 8px;
-            vertical-align: top;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .info-label {
-            font-weight: bold;
-            width: 180px;
-            color: #64748b;
+            padding: 6px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
         }
 
         .signatures {
-            margin-top: 80px;
+            margin-top: 40px;
             width: 100%;
             page-break-inside: avoid;
         }
 
         .sig-block {
             display: inline-block;
-            width: 45%;
+            vertical-align: top;
+            width: 48%;
             text-align: center;
+        }
+
+        .sig-image-container {
+            height: 90px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            margin-bottom: 5px;
         }
 
         .sig-line {
-            border-top: 1px solid #000;
-            margin-top: 50px;
-            padding-top: 8px;
+            border-top: 1px solid #64748b;
+            margin: 0 20px;
+            padding-top: 5px;
             font-weight: bold;
-            font-size: 10px;
+            font-size: 9px;
+            color: #0f172a;
         }
 
-        .footer {
+        .sig-role {
+            font-size: 8px;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .digital-certificate {
+            margin-top: 30px;
+            padding: 10px;
+            background-color: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            font-family: 'Courier New', monospace;
+            font-size: 8px;
+            color: #475569;
+            page-break-inside: avoid;
+        }
+
+        .hash-code {
+            word-break: break-all;
+            color: #0f172a;
+            font-weight: bold;
+        }
+
+        .watermark {
             position: fixed;
-            bottom: 30px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 9px;
-            color: #94a3b8;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 100px;
+            color: rgba(203, 213, 225, 0.15);
+            z-index: -1000;
+            white-space: nowrap;
+            font-weight: bold;
+            pointer-events: none;
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <div class="header">
-            <b style="font-size: 16px; color: #0f172a;">{{ $empresa->nombre_empresa ?? 'LA EMPRESA' }}</b><br>
-            <span style="color: #64748b;">
-                {{ $empresa->direccion_completa ?? '' }}<br>
-                RFC: {{ $empresa->rfc ?? 'N/A' }}
-            </span>
-        </div>
+    <header>
+        <table style="width: 100%;">
+            <tr>
+                <td style="width: 60%;">
+                    <div class="logo-text">{{ $empresa->nombre_empresa ?? 'VIRCOM' }}</div>
+                    <div class="company-details">
+                        {{ $empresa->direccion_completa ?? '' }}<br>
+                        RFC: {{ $empresa->rfc ?? '' }} | Tel: {{ $empresa->telefono ?? '' }}
+                    </div>
+                </td>
+                <td style="width: 40%; text-align: right;">
+                    <div style="font-size: 10px; font-weight: bold;">CONTRATO DE SERVICIOS</div>
+                    <div style="font-size: 12px; color: #dc2626;">FOLIO: {{ $poliza->folio }}</div>
+                </td>
+            </tr>
+        </table>
+    </header>
 
-        <h1>CONTRATO DE PRESTACIÓN DE SERVICIOS DE MANTENIMIENTO Y SOPORTE TÉCNICO</h1>
+    <footer>
+        <table style="width: 100%;">
+            <tr>
+                <td style="text-align: left; width: 33%;">
+                    Página <span class="page-number"></span>
+                </td>
+                <td style="text-align: center; width: 34%;">
+                    {{ $empresa->website ?? 'www.vircom.mx' }}
+                </td>
+                <td style="text-align: right; width: 33%;">
+                    NOM-151-SCFI-2016 Compliant
+                </td>
+            </tr>
+        </table>
+    </footer>
+
+    <!-- Watermark for draft/unsigned -->
+    @if(!$poliza->firmado_at)
+        <div class="watermark">BORRADOR</div>
+    @endif
+
+    <div class="content">
+        <h1>CONTRATO DE PRESTACIÓN DE SERVICIOS DE SOPORTE TÉCNICO Y MANTENIMIENTO</h1>
 
         <p>
-            En la ciudad de {{ $empresa->ciudad ?? 'Hermosillo' }}, {{ $empresa->estado ?? 'Sonora' }}, comparecen por
-            una parte
-            <b>{{ $empresa->nombre_empresa ?? 'EL PROVEEDOR' }}</b>, y por la otra parte
-            <b>{{ $poliza->cliente->nombre_razon_social }}</b> (en adelante "EL CLIENTE"), quienes acuerdan celebrar el
-            presente contrato al tenor de las siguientes cláusulas.
+            CONTRATO DE PRESTACIÓN DE SERVICIOS QUE CELEBRAN POR UNA PARTE,
+            <b>{{ $empresa->nombre_empresa ?? 'EL PROVEEDOR' }}</b>
+            (EN ADELANTE "EL PRESTADOR"), Y POR LA OTRA PARTE, <b>{{ $poliza->cliente->nombre_razon_social }}</b> (EN
+            ADELANTE "EL CLIENTE"),
+            AL TENOR DE LAS SIGUIENTES DECLARACIONES Y CLÁUSULAS:
         </p>
 
-        <h2>1. OBJETO DEL CONTRATO</h2>
+        <h2>DECLARACIONES</h2>
+
+        <p><span class="clause-title">I. DECLARA "EL PRESTADOR":</span></p>
         <p>
-            EL PROVEEDOR se obliga a prestar a EL CLIENTE los servicios de mantenimiento y soporte técnico bajo la
-            modalidad de PÓLIZA DE SERVICIO, identificada con el folio <b>{{ $poliza->folio }}</b>.
+            a) Ser una entidad legalmente constituida conforme a las leyes mexicanas, con la capacidad técnica, humana y
+            material para prestar los servicios objeto de este contrato.<br>
+            b) Que su Registro Federal de Contribuyentes es <b>{{ $empresa->rfc }}</b> y tiene su domicilio fiscal en
+            {{ $empresa->direccion_completa ?? 'el indicado en el encabezado' }}.
         </p>
 
-        <h2>2. ALCANCE DEL SERVICIO</h2>
+        <p><span class="clause-title">II. DECLARA "EL CLIENTE":</span></p>
+        <p>
+            a) Ser una persona @if($poliza->cliente->tipo_persona == 'moral') moral @else física @endif con plena
+            capacidad legal para obligarse en los términos del presente contrato.<br>
+            b) Que su Registro Federal de Contribuyentes es <b>{{ $poliza->cliente->rfc }}</b>.<br>
+            c) Que requiere los servicios de soporte técnico profesional descritos en la Póliza de Servicio con folio
+            <b>{{ $poliza->folio }}</b> para sus equipos e infraestructura TI.
+        </p>
+
+        <h2>CLÁUSULAS</h2>
+
+        <p><span class="clause-title">PRIMERA. OBJETO.</span> "EL PRESTADOR" se obliga a suministrar a "EL CLIENTE" los
+            servicios de soporte técnico, preventivo y correctivo para la infraestructura tecnológica detallada en el
+            "ANEXO A" de este contrato, conforme a los niveles de servicio (SLA) estipulados.</p>
+
+        <p><span class="clause-title">SEGUNDA. VIGENCIA.</span> El presente contrato tendrá una vigencia del
+            <b>{{ $poliza->fecha_inicio->format('d/m/Y') }}</b> al
+            <b>{{ $poliza->fecha_fin ? $poliza->fecha_fin->format('d/m/Y') : 'INDEFINIDO' }}</b>.
+            {{ $poliza->renovacion_automatica ? 'Este contrato se renovará automáticamente por periodos de igual duración salvo notificación en contrario.' : '' }}
+        </p>
+
+        <p><span class="clause-title">TERCERA. CONTRAPRESTACIÓN Y PAGO.</span> "EL CLIENTE" pagará la cantidad mensual
+            de <b>${{ number_format($poliza->monto_mensual, 2) }} MXN</b> más IVA. El pago deberá realizarse dentro de
+            los primeros <b>{{ $poliza->dia_cobro }}</b> días naturales de cada mes. En caso de falta de pago, "EL
+            PRESTADOR" podrá suspender el servicio previa notificación.</p>
+
+        <p><span class="clause-title">CUARTA. NIVELES DE SERVICIO (SLA).</span> "EL PRESTADOR" garantiza un tiempo
+            máximo de primera respuesta de <b>{{ $poliza->sla_horas_respuesta ?? 24 }} horas laborables</b> para
+            incidentes reportados a través del Portal de Clientes o canales oficiales.</p>
+
+        <p><span class="clause-title">QUINTA. SERVICIOS INCLUIDOS Y EXCEDENTES.</span> El plan contratado incluye los
+            recursos descritos en el "ANEXO A". Cualquier servicio adicional (horas extra, visitas físicas no incluidas,
+            o refacciones) será facturado por separado previa autorización de "EL CLIENTE", conforme a las tarifas
+            vigentes.</p>
+
+        <p> Tarifas por excedentes autorizados en este contrato (más IVA):</p>
+        <ul style="list-style-type: square; margin-left: 20px; font-size: 9px;">
+            <li>Hora de soporte adicional: ${{ number_format($poliza->costo_hora_excedente ?? 0, 2) }} MXN</li>
+            <li>Visita en sitio adicional: ${{ number_format($poliza->costo_visita_sitio_extra ?? 0, 2) }} MXN</li>
+        </ul>
+
+        <p><span class="clause-title">SEXTA. CONFIDENCIALIDAD.</span> Ambas partes acuerdan mantener estricta
+            confidencialidad sobre la información técnica, comercial o financiera a la que tengan acceso con motivo de
+            este contrato, obligación que subsistirá aun después de terminado el mismo.</p>
+
+        <p><span class="clause-title">SÉPTIMA. CONSENTIMIENTO Y MEDIOS ELECTRÓNICOS.</span> Las partes acuerdan que el
+            presente contrato puede ser celebrado mediante firma electrónica o autógrafa digitalizada. De conformidad
+            con el Código de Comercio y la NOM-151-SCFI-2016, "EL CLIENTE" acepta que la firma digital plasmada en este
+            documento produce los mismos efectos jurídicos que la firma autógrafa, reconociendo como prueba plena el
+            registro electrónico generado por el sistema de "EL PRESTADOR".</p>
+
+        <p><span class="clause-title">OCTAVA. JURISDICCIÓN.</span> Para la interpretación y cumplimiento de este
+            contrato, las partes se someten a las leyes y tribunales competentes de la ciudad de
+            {{ $empresa->ciudad ?? 'Hermosillo, Sonora' }}, renunciando a cualquier otro fuero que pudiera
+            corresponderles por razón de sus domicilios presentes o futuros.</p>
+
+        <h2>ANEXO A: RESUMEN DE LA PÓLIZA</h2>
+
         <table class="info-table">
             <tr>
-                <td class="info-label">Plan Contratado:</td>
-                <td>{{ $poliza->nombre }}</td>
+                <th colspan="2">DETALLES DEL PLAN CONTRATADO</th>
             </tr>
             <tr>
-                <td class="info-label">Descripción:</td>
-                <td>{{ $poliza->descripcion }}</td>
+                <td width="30%"><b>Plan:</b></td>
+                <td>{{ $poliza->nombre }} ({{ $poliza->planPoliza->nombre ?? 'Plan Personalizado' }})</td>
             </tr>
             <tr>
-                <td class="info-label">Vigencia:</td>
-                <td>Del {{ $poliza->fecha_inicio->format('d/m/Y') }} al
-                    {{ $poliza->fecha_fin ? $poliza->fecha_fin->format('d/m/Y') : 'Indefinido' }}
+                <td><b>Horas Incluidas:</b></td>
+                <td>{{ $poliza->horas_incluidas_mensual > 0 ? $poliza->horas_incluidas_mensual . ' Hrs/Mes' : 'Ilimitadas / Según requerimiento' }}
                 </td>
             </tr>
             <tr>
-                <td class="info-label">SLA Respuesta:</td>
-                <td>{{ $poliza->sla_horas_respuesta ?? 'N/A' }} horas laborables</td>
+                <td><b>Tickets Incluidos:</b></td>
+                <td>{{ $poliza->limite_mensual_tickets > 0 ? $poliza->limite_mensual_tickets . ' Tickets/Mes' : 'Ilimitados' }}
+                </td>
             </tr>
-            @if($poliza->horas_incluidas_mensual)
-                <tr>
-                    <td class="info-label">Horas Incluidas:</td>
-                    <td>{{ $poliza->horas_incluidas_mensual }} horas mensuales</td>
-                </tr>
-            @endif
+            <tr>
+                <td><b>Visitas en Sitio:</b></td>
+                <td>{{ $poliza->visitas_sitio_mensuales > 0 ? $poliza->visitas_sitio_mensuales . ' Visitas/Mes' : 'Bajo cotización previa' }}
+                </td>
+            </tr>
         </table>
 
-        <h2>3. CONTRAPRESTACIÓN</h2>
-        <p>
-            EL CLIENTE pagará a EL PROVEEDOR la cantidad mensual de <b>${{ number_format($poliza->monto_mensual, 2) }}
-                MXN</b> más IVA. El pago deberá realizarse dentro de los primeros {{ $poliza->dia_cobro }} días de cada
-            mes calendario.
-        </p>
-
-        @if($poliza->costo_hora_excedente)
-            <p>
-                En caso de requerir servicios adicionales que excedan la cobertura mensual, se aplicará una tarifa
-                preferencial de
-                <b>${{ number_format($poliza->costo_hora_excedente, 2) }} MXN</b> más IVA por hora adicional.
-            </p>
+        @if($poliza->equipos->count() > 0)
+            <h3>EQUIPOS PROTEGIDOS</h3>
+            <table class="info-table">
+                <thead>
+                    <tr>
+                        <th>Equipo</th>
+                        <th>Serie / ID</th>
+                        <th>Ubicación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($poliza->equipos as $equipo)
+                        <tr>
+                            <td>{{ $equipo->nombre }}</td>
+                            <td>{{ $equipo->serie ?? 'N/A' }}</td>
+                            <td>{{ $equipo->ubicacion ?? 'Oficina Principal' }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @else
+            <p style="font-size: 9px; font-style: italic;">* Los equipos cubiertos se detallan en el inventario inicial
+                anexo o en el Portal de Clientes.</p>
         @endif
 
-        <h2>4. EQUIPOS CUBIERTOS</h2>
-        <p>
-            Este contrato cubre exclusivamente los equipos e infraestructura descritos a continuación:
-            @if($poliza->equipos->count() > 0)
-                <b>{{ $poliza->equipos->pluck('nombre')->implode(', ') }}</b>.
-            @else
-                Los equipos especificados en el portal de gestión y anexo técnico.
-            @endif
-        </p>
-
         <div class="signatures">
-            <div class="sig-block" style="margin-right: 50px;">
-                @if($poliza->firma_empresa)
-                    <img src="{{ $poliza->firma_empresa }}"
-                        style="max-width: 200px; max-height: 80px; margin-bottom: 10px;">
-                @endif
+            <div class="sig-block">
+                <div class="sig-image-container">
+                    @if($poliza->firma_empresa)
+                        <img src="{{ $poliza->firma_empresa }}" style="max-width: 150px; max-height: 80px;">
+                    @else
+                        <div style="height: 60px;"></div>
+                    @endif
+                </div>
                 <div class="sig-line">
-                    POR EL PROVEEDOR<br>
-                    {{ $empresa->nombre_empresa ?? 'REPRESENTANTE LEGAL' }}
+                    {{ $empresa->nombre_empresa ?? 'EL PRESTADOR' }}<br>
+                    <span class="sig-role">REPRESENTANTE LEGAL</span>
                 </div>
             </div>
+
             <div class="sig-block">
-                @if($poliza->firma_cliente)
-                    <img src="{{ $poliza->firma_cliente }}"
-                        style="max-width: 200px; max-height: 80px; margin-bottom: 10px;">
-                    <div style="font-size: 9px; color: #64748b; margin-bottom: 5px;">
-                        Firmado digitalmente el {{ $poliza->firmado_at->format('d/m/Y H:i') }}
-                    </div>
-                @endif
+                <div class="sig-image-container">
+                    @if($poliza->firma_cliente)
+                        <img src="{{ $poliza->firma_cliente }}" style="max-width: 150px; max-height: 80px;">
+                    @else
+                        <div
+                            style="height: 60px; color: #cbd5e1; display: flex; align-items: flex-end; justify-content: center; font-size: 10px;">
+                            (Espacio para Firma)</div>
+                    @endif
+                </div>
                 <div class="sig-line">
-                    POR EL CLIENTE<br>
-                    {{ $poliza->firmado_nombre ?? $poliza->cliente->nombre_razon_social }}
+                    {{ $poliza->firmado_nombre ?? $poliza->cliente->nombre_razon_social }}<br>
+                    <span class="sig-role">EL CLIENTE</span>
                 </div>
             </div>
         </div>
 
         @if($poliza->firmado_at)
-            <div
-                style="margin-top: 30px; padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 9px;">
-                <div style="font-weight: bold; color: #0f172a; margin-bottom: 5px;">CERTIFICADO DE FIRMA DIGITAL</div>
-                <table style="width: 100%; font-size: 9px;">
+            <div class="digital-certificate">
+                <div style="margin-bottom: 5px; font-weight: bold; border-bottom: 1px dashed #cbd5e1; padding-bottom: 2px;">
+                    CONSTANCIA DE CONSERVACIÓN DE MENSAJES DE DATOS (NOM-151)
+                </div>
+                <table style="width: 100%; border: none;">
                     <tr>
-                        <td style="width: 120px; color: #64748b;">Firmante:</td>
-                        <td>{{ $poliza->firmado_nombre }}</td>
+                        <td width="20%" style="border: none; color: #64748b;">Algoritmo:</td>
+                        <td style="border: none;">SHA-256</td>
                     </tr>
                     <tr>
-                        <td style="color: #64748b;">Fecha y Hora:</td>
-                        <td>{{ $poliza->firmado_at->format('d/m/Y H:i:s') }} (Hora de Mexico)</td>
+                        <td style="border: none; color: #64748b;">Fecha/Hora Firma:</td>
+                        <td style="border: none;">{{ $poliza->firmado_at->format('Y-m-d H:i:s') }}</td>
                     </tr>
                     <tr>
-                        <td style="color: #64748b;">Hash de Verificacion:</td>
-                        <td style="font-family: monospace; font-size: 8px;">{{ $poliza->firma_hash }}</td>
+                        <td style="border: none; color: #64748b;">IP Origen:</td>
+                        <td style="border: none;">{{ $poliza->firmado_ip }}</td>
                     </tr>
                     <tr>
-                        <td style="color: #64748b;">IP Origen:</td>
-                        <td>{{ $poliza->firmado_ip }}</td>
+                        <td style="border: none; color: #64748b;">Cadena Digital:</td>
+                        <td style="border: none;" class="hash-code">{{ $poliza->firma_hash ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: none; color: #64748b;">UUID Documento:</td>
+                        <td style="border: none;">{{ $poliza->folio }}-{{ md5($poliza->id . $poliza->created_at) }}</td>
                     </tr>
                 </table>
-                <div style="margin-top: 8px; color: #22c55e; font-weight: bold;">
-                    Este documento ha sido firmado electronicamente y tiene validez legal conforme al articulo 89 del Codigo
-                    de Comercio.
+                <div style="margin-top: 5px; font-size: 7px; color: #94a3b8; text-align: justify;">
+                    El presente documento electrónico ha sido firmado mediante el uso de medios electrónicos, ópticos o de
+                    cualquier otra tecnología, de conformidad con lo dispuesto en el artículo 89 del Código de Comercio. La
+                    integridad y autoría del presente mensaje de datos puede ser verificada en el Portal de Clientes de
+                    {{ $empresa->nombre_empresa ?? 'VIRCOM' }}.
                 </div>
-            </div>
-        @else
-            <div
-                style="margin-top: 30px; padding: 15px; background: #fefce8; border: 1px solid #fef08a; border-radius: 8px; font-size: 9px; color: #a16207;">
-                Este documento aun no ha sido firmado por el cliente. La firma puede realizarse desde el Portal de Clientes.
             </div>
         @endif
 
-        <div class="footer">
-            Documento generado electronicamente - Folio {{ $poliza->folio }} - Pagina 1 de 1
-        </div>
     </div>
 </body>
 

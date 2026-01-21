@@ -48,6 +48,39 @@ class Empresa extends Model
     ];
 
     /**
+     * Alias para nombre_razon_social o nombre comercial
+     */
+    public function getNombreEmpresaAttribute(): string
+    {
+        return $this->nombre_razon_social ?? 'Empresa';
+    }
+
+    /**
+     * Dirección formateada
+     */
+    public function getDireccionCompletaAttribute(): string
+    {
+        $partes = array_filter([
+            $this->calle,
+            trim($this->numero_exterior . ($this->numero_interior ? " Int. {$this->numero_interior}" : '')),
+            $this->colonia,
+            $this->codigo_postal,
+            $this->municipio,
+            $this->estado
+        ]);
+
+        return implode(', ', $partes);
+    }
+
+    /**
+     * Ciudad y Estado
+     */
+    public function getCiudadAttribute(): string
+    {
+        return trim(($this->municipio ?? '') . ', ' . ($this->estado ?? ''));
+    }
+
+    /**
      * Boot method para limpiar caché de configuración cuando se actualiza empresa
      */
     protected static function boot()

@@ -292,8 +292,14 @@ class ContpaqiService
             "pais" => $this->sanitizeForContpaqi($cliente->pais ?: 'MEXICO', 30),
             "regimenFiscal" => $cliente->regimen_fiscal ?? '601',
             "usoCFDI" => $cliente->uso_cfdi ?? 'G03',
-            "formaPago" => $cliente->forma_pago_default ?? '99'
+            "formaPago" => $cliente->forma_pago_default ?? '99',
+            "listaPreciosCliente" => $cliente->lista_precios_id > 0 ? (int) $cliente->lista_precios_id : 1, // Default a 1 si no hay lista asignada
         ];
+
+        // LOG ESPECÍFICO PARA PUBLICO EN GENERAL
+        if ($payload['codigo'] === 'PG' || $payload['rfc'] === 'XAXX010101000') {
+            // El Bridge forza RFC, Regimen y Uso para PG, pero enviamos lo correcto desde aquí por consistencia.
+        }
 
         Log::info("CONTPAQi: Sincronizando cliente", ['payload' => $payload]);
         $response = Http::timeout(30)->post("{$this->baseUrl}/api/Clientes", $payload);
@@ -368,7 +374,7 @@ class ContpaqiService
             "metodoPago" => $venta->metodo_pago_sat ?? 'PUE',
         ];
 
-        Log::info("CONTPAQi: Creando factura", ['payload' => $payload]);
+        Log::info("CONTPAQi: Creando factura. CodigoCliente: '{$codigoCliente}'", ['payload' => $payload]);
 
         $response = Http::timeout(30)->post("{$this->baseUrl}/api/Documentos/factura", $payload);
 

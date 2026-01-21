@@ -47,6 +47,7 @@ class HandleInertiaRequests extends Middleware
                 'status' => fn() => $request->session()->get('status'),
                 'created_poliza_id' => fn() => $request->session()->get('created_poliza_id'),
                 'metodo_pago' => fn() => $request->session()->get('metodo_pago'),
+                'stamping_error' => fn() => $request->session()->get('stamping_error'),
             ],
             'empresa_config' => fn() => EmpresaConfiguracionService::getConfiguracion(),
             'app_version' => fn() => \App\Support\VersionHelper::getVersion(),
