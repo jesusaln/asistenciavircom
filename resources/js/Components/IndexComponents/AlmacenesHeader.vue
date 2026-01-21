@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-none border border-gray-100 dark:border-gray-700 overflow-hidden">
     <!-- Header con estadísticas -->
     <div class="px-6 py-6 border-b border-gray-200/60">
       <div class="flex items-center justify-between mb-6">

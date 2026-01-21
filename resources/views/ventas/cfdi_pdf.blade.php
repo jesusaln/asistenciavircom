@@ -181,12 +181,13 @@
 
         .timbrado-table {
             margin-top: 15px;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            background-color: #f9fafb;
-            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background-color: #ffffff;
+            padding: 15px;
             page-break-inside: avoid;
             width: 100%;
+            border-left: 5px solid {{ $color_principal ?? '#2563eb' }};
         }
 
         .sello-title {
@@ -231,37 +232,61 @@
             padding: 10px 0;
             border-top: 1px solid #f3f4f6;
         }
+
+        .amount-words {
+            margin-top: 10px;
+            padding: 8px;
+            background-color: #f8fafc;
+            border-left: 3px solid {{ $color_principal ?? '#2563eb' }};
+            font-size: 9px;
+            font-style: italic;
+            color: #4b5563;
+        }
     </style>
 </head>
 
 <body>
     @if(in_array(($cfdi->estatus ?? ''), ['cancelado', 'cancelado_con_acuse'], true))
-        <div
-            style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-35deg); font-size: 90px; font-weight: bold; color: rgba(220, 38, 38, 0.20); z-index: 1000; pointer-events: none; letter-spacing: 10px; white-space: nowrap;">
+        <div style="position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 100px; font-weight: bold; color: rgba(239, 68, 68, 0.15); z-index: -1; pointer-events: none; letter-spacing: 15px; white-space: nowrap;">
             CANCELADO
         </div>
-        <div
-            style="background-color: #fef2f2; border: 2px solid #dc2626; border-radius: 8px; padding: 12px; margin-bottom: 15px;">
-            <div style="font-weight: bold; color: #dc2626; font-size: 12px; margin-bottom: 5px;">[!] DOCUMENTO CANCELADO
+        <div style="background-color: #fff1f2; border: 2px solid #e11d48; border-radius: 12px; padding: 20px; margin-bottom: 25px; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 0; left: 0; width: 6px; height: 100%; background-color: #e11d48;"></div>
+            <div style="font-weight: 800; color: #9f1239; font-size: 14px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">
+                DOCUMENTO CANCELADO
             </div>
             @php
                 $motivos = [
-                    '01' => '01 - Comprobantes emitidos con errores con relación',
-                    '02' => '02 - Comprobantes emitidos con errores sin relación',
+                    '01' => '01 - Comprobante emitido con errores con relación',
+                    '02' => '02 - Comprobante emitido con errores sin relación',
                     '03' => '03 - No se llevó a cabo la operación',
-                    '04' => '04 - Operación nominativa relacionada en factura global'
+                    '04' => '04 - Operación nominativa relacionada en una factura global'
                 ];
                 $motivoClave = $cfdi->motivo_cancelacion ?? '';
-                $motivoDescripcion = $motivos[$motivoClave] ?? $motivoClave;
+                $motivoDescripcion = $motivos[$motivoClave] ?? $motivoClave ?: 'No especificado';
             @endphp
-            <div style="font-size: 10px; color: #991b1b;">
-                <strong>Motivo:</strong> {{ $motivoDescripcion }}<br>
-                <strong>Fecha de Cancelación:</strong>
-                {{ $cfdi->fecha_cancelacion ? \Carbon\Carbon::parse($cfdi->fecha_cancelacion)->format('d/m/Y H:i') : 'N/A' }}
+            <table style="width: 100%; border: none; margin: 0;">
+                <tr>
+                    <td style="padding: 0; width: 50%; border: none;">
+                        <div style="font-size: 10px; color: #4b5563; margin-bottom: 2px;">MOTIVO DE CANCELACIÓN:</div>
+                        <div style="font-size: 11px; font-weight: 700; color: #1f2937;">{{ mb_strtoupper($motivoDescripcion, 'UTF-8') }}</div>
+                    </td>
+                    <td style="padding: 0; width: 50%; border: none;">
+                        <div style="font-size: 10px; color: #4b5563; margin-bottom: 2px;">FECHA DE CANCELACIÓN:</div>
+                        <div style="font-size: 11px; font-weight: 700; color: #1f2937;">
+                            {{ $cfdi->fecha_cancelacion ? \Carbon\Carbon::parse($cfdi->fecha_cancelacion)->format('d/m/Y H:i:s') : 'NO DISPONIBLE' }}
+                        </div>
+                    </td>
+                </tr>
                 @if($cfdi->folio_sustitucion)
-                    <br><strong>Sustituido por:</strong> {{ $cfdi->folio_sustitucion }}
+                <tr>
+                    <td colspan="2" style="padding-top: 10px; border: none;">
+                        <div style="font-size: 10px; color: #4b5563; margin-bottom: 2px;">FOLIO FISCAL DE SUSTITUCIÓN (UUID):</div>
+                        <div style="font-size: 11px; font-weight: 700; color: #111827; font-family: monospace; background: #fff; padding: 4px; border-radius: 4px; display: inline-block;">{{ $cfdi->folio_sustitucion }}</div>
+                    </td>
+                </tr>
                 @endif
-            </div>
+            </table>
         </div>
     @endif
     <table class="header-table">
@@ -278,7 +303,7 @@
                     <strong>Lugar de Expedición:</strong> {{ $comprobante['LugarExpedicion'] }} (C.P.)
                 </div>
             </td>
-            <td style="width: 35%; vertical-align: bottom; text-align: right; padding-bottom: 10px;">
+            <td style="width: 35%; vertical-align: bottom; text-align: right; padding-bottom: 10px; position: relative;">
                 <div class="invoice-box">
                     <h2>FACTURA (CFDI 4.0)</h2>
                     <div class="folio-text">{{ $cfdi->serie }}-{{ $cfdi->folio }}</div>
@@ -352,7 +377,10 @@
                         <div class="bank-title">DATOS PARA DEPÓSITO O TRANSFERENCIA</div>
                         <table style="font-size: 9px;">
                             <tr>
-                                <td><strong>Titular:</strong> {{ $configuracion->nombre_titular }}</td>
+                                <td colspan="2"><strong>TITULAR DE CUENTA BANAMEX PARA TRANSFERIR O DEPOSITAR:</strong> {{ strtoupper($configuracion->titular ?? 'JESUS ALBERTO LOPEZ NORIEGA') }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Banco:</strong> {{ $configuracion->banco }}</td>
                                 <td><strong>CLABE:</strong> {{ $configuracion->clabe }}</td>
                             </tr>
                         </table>
@@ -424,9 +452,13 @@
         </tr>
     </table>
 
+    <div class="amount-words">
+        <strong>IMPORTE CON LETRA:</strong> {{ \App\Services\EmpresaConfiguracionService::convertirALetras($comprobante['Total'] ?? 0, $moneda) }}
+    </div>
+
     <div class="warranty-section">
-        <strong>PÓLIZA DE GARANTÍA:</strong> Equipos: 365 días | Partes eléctricas: 3 meses.
-        Soporte técnico: <strong>662-460-6840</strong> o <strong>climasdeldesierto.com/soporte</strong>.
+        <strong>GARANTÍA AL COMPRAR:</strong> Equipos: 365 días | Partes eléctricas: 3 meses.
+        Soporte técnico: <strong>662-460-6840</strong> o <strong>www.asistenciavircom.com</strong>.
         Para hacer válida la garantía es indispensable presentar este comprobante y cumplir con los requisitos de uso
         adecuado.
     </div>
@@ -479,7 +511,7 @@
 
     <div class="footer">
         Este documento es una representación impresa de un CFDI (Versión 4.0).<br>
-        <strong>Gracias por su preferencia - Climas del Desierto</strong>
+        <strong>Gracias por su preferencia - Asistencia Vircom</strong>
     </div>
 </body>
 

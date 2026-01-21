@@ -17,10 +17,10 @@
             @blur="ocultarListaConRetraso"
             @keydown="manejarTeclas"
             :placeholder="placeholderBusqueda"
-            class="w-full pl-11 pr-11 py-3 bg-white dark:bg-gray-800 border rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-sm transition-all duration-300 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+            class="w-full pl-11 pr-11 py-3 bg-white dark:bg-slate-900 border rounded-2xl shadow-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 text-sm transition-all duration-300 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
             :class="{
               'border-red-300 dark:border-red-900/50 ring-red-50 dark:ring-red-900/10': errorBusqueda || (requerido && validacionError),
-              'border-gray-200 dark:border-gray-700': !errorBusqueda && !(requerido && validacionError)
+              'border-gray-200 dark:border-slate-800': !errorBusqueda && !(requerido && validacionError)
             }"
             autocomplete="new-password"
             :disabled="deshabilitado"
@@ -65,8 +65,8 @@
             @click="aplicarFiltroRapido(filtro)"
             class="inline-flex items-center px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-200 shadow-sm border"
             :class="filtroActivo === filtro.value
-              ? 'bg-blue-600 text-white border-blue-600 shadow-blue-200 dark:shadow-none'
-              : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'"
+              ? 'bg-indigo-600 text-white border-indigo-600 shadow-indigo-500/20'
+              : 'bg-white dark:bg-slate-900/50 text-gray-600 dark:text-slate-400 border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800'"
           >
             <component :is="filtro.icon" class="w-3 h-3 mr-1.5" v-if="filtro.icon"/>
             {{ filtro.label }}
@@ -76,7 +76,7 @@
     </div>
 
     <!-- Información del cliente seleccionado -->
-    <div v-if="clienteSeleccionado" class="mt-2 group p-6 bg-white dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-xl transition-all hover:shadow-2xl">
+    <div v-if="clienteSeleccionado" class="mt-2 group p-6 bg-white dark:bg-slate-900/50 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-xl transition-all hover:shadow-2xl">
       <div class="flex items-start justify-between mb-6">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm">
@@ -226,29 +226,34 @@
       <div
         ref="listaClientesRef"
         v-if="mostrarListaClientes && clientesFiltrados.length > 0"
-        class="z-[100] mt-2 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl max-h-[60vh] overflow-hidden flex flex-col transition-all animate-in fade-in zoom-in-95"
+        class="z-[100] mt-1 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-2xl shadow-black/50 max-h-[50vh] overflow-hidden flex flex-col transition-all animate-in fade-in zoom-in-95"
         :style="{
-          position: 'absolute',
+          position: 'fixed',
           width: inputWidth + 'px',
-          top: inputPosition.top + inputPosition.height + 'px',
+          top: (inputPosition.top + inputPosition.height + 4) + 'px',
           left: inputPosition.left + 'px'
         }"
       >
-        <div class="px-4 py-3 border-b border-gray-50 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 flex items-center justify-between">
-            <span class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{{ clientesFiltrados.length }} Resultados encontrados</span>
-            <span v-if="tiempoRespuesta" class="text-[9px] font-bold text-gray-300 dark:text-gray-600">{{ tiempoRespuesta }}ms</span>
+        <div class="px-4 py-2.5 border-b border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/50 flex items-center justify-between">
+            <span class="text-[9px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">
+                {{ clientesFiltrados.length }} {{ clientesFiltrados.length === 15 ? 'Primeros resultados' : 'Resultados encontrados' }}
+            </span>
+            <span v-if="tiempoRespuesta" class="text-[9px] font-bold text-gray-300 dark:text-slate-600">{{ tiempoRespuesta }}ms</span>
         </div>
         
         <div class="overflow-y-auto custom-scrollbar flex-1">
           <div
             v-for="(cliente, index) in clientesFiltrados"
             :key="cliente.id"
-            @click="seleccionarCliente(cliente)"
+            @mousedown.prevent="seleccionarCliente(cliente)"
             @mouseenter="clienteSeleccionadoIndex = index"
             class="px-4 py-3.5 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer border-b border-gray-50 dark:border-gray-700 last:border-b-0 transition-all flex items-center gap-3"
             :class="{ 'bg-blue-50 dark:bg-blue-900/20 ring-inset ring-2 ring-blue-500/10': clienteSeleccionadoIndex === index }"
           >
-            <div class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 text-xs font-bold transition-colors" :class="{'bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400': clienteSeleccionadoIndex === index}">
+            <div
+              class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-slate-800 flex items-center justify-center text-gray-400 text-xs font-bold transition-all border border-transparent"
+              :class="{'bg-indigo-600/20 text-indigo-400 border-indigo-500/30 scale-110': clienteSeleccionadoIndex === index}"
+            >
               {{ cliente.nombre_razon_social.substring(0, 2).toUpperCase() }}
             </div>
             <div class="flex-1 min-w-0">
@@ -353,7 +358,8 @@ const clientesFiltrados = computed(() => {
   }).sort((a, b) => b._score - a._score);
 
   tiempoRespuesta.value = Math.round(performance.now() - tiempoInicio);
-  return resultadosConScore;
+  // Limitar a los primeros 15 resultados para mantener el rendimiento premium
+  return resultadosConScore.slice(0, 15);
 });
 
 const alertasCliente = computed(() => {
@@ -450,7 +456,7 @@ const actualizarPosicionLista = () => {
   if (!inputBusqueda.value) return;
   const rect = inputBusqueda.value.getBoundingClientRect();
   inputWidth.value = rect.width;
-  inputPosition.value = { top: rect.top + window.scrollY, left: rect.left + window.scrollX, height: rect.height };
+  inputPosition.value = { top: rect.top, left: rect.left, height: rect.height };
 };
 
 watch(() => props.clienteSeleccionado, (nuevo) => {

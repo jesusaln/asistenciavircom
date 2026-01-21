@@ -4,12 +4,12 @@
       'w-64': !props.isSidebarCollapsed,
       'w-20': props.isSidebarCollapsed
     }"
-    class="bg-gradient-to-b from-gray-800 to-gray-900 text-white fixed left-0 top-0 bottom-0 z-20 transition-all duration-300 ease-in-out overflow-y-auto shadow-2xl border-r border-gray-700 flex flex-col"
+    class="bg-slate-950 text-white fixed left-0 top-0 bottom-0 z-20 transition-all duration-300 ease-in-out overflow-y-auto shadow-2xl border-r border-slate-800 flex flex-col"
     role="navigation"
     aria-label="Barra lateral"
   >
     <!-- Header -->
-    <div class="flex items-center justify-between p-4 border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm flex-shrink-0">
+    <div class="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm flex-shrink-0">
       <Link
         href="/panel"
         class="flex items-center group overflow-hidden"

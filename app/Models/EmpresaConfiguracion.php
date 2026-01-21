@@ -298,11 +298,11 @@ class EmpresaConfiguracion extends Model
         // Default config to return when database is unavailable
         $defaultConfig = new self;
         $defaultConfig->forceFill([
-            'nombre_empresa' => 'CLIMAS DEL DESIERTO',
+            'nombre_empresa' => 'ASISTENCIA VIRCOM',
             'rfc' => 'LONJ880321KMA',
             'razon_social' => 'JESUS ALBERTO LOPEZ NORIEGA',
-            'color_principal' => '#FF6B35',
-            'color_secundario' => '#E55A2B',
+            'color_principal' => '#3B82F6',
+            'color_secundario' => '#1E40AF',
             'iva_porcentaje' => 16.00,
             'moneda' => 'MXN',
             'backup_automatico' => true,

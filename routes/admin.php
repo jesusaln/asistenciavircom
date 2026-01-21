@@ -300,8 +300,10 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::get('/{factura}', [\App\Http\Controllers\FacturaController::class, 'show'])->name('show');
         Route::post('/{factura}/timbrar', [\App\Http\Controllers\FacturaController::class, 'timbrar'])->name('timbrar');
         Route::post('/{factura}/cancelar', [\App\Http\Controllers\FacturaController::class, 'cancelar'])->name('cancelar');
+        Route::get('/{factura}/xml', [\App\Http\Controllers\FacturaController::class, 'descargarXML'])->name('xml');
         Route::get('/{id}/pdf', [\App\Http\Controllers\FacturaController::class, 'generarPDF'])->name('pdf');
         Route::get('/{id}/preview', [\App\Http\Controllers\FacturaController::class, 'preview'])->name('preview');
+        Route::delete('/{factura}', [\App\Http\Controllers\FacturaController::class, 'destroy'])->name('destroy');
     });
 
     Route::resource('garantias', GarantiaController::class)->names('garantias')->middleware('can:view garantias');

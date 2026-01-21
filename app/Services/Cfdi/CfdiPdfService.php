@@ -56,17 +56,22 @@ class CfdiPdfService
 
             // Extraer Timbre Fiscal
             $tfd = $xml->xpath('//tfd:TimbreFiscalDigital');
-            $timbre = count($tfd) > 0 ? json_decode(json_encode($tfd[0]), true) : [];
+            $timbreAttributes = [];
+            if (count($tfd) > 0) {
+                foreach ($tfd[0]->attributes() as $name => $value) {
+                    $timbreAttributes[$name] = (string) $value;
+                }
+            }
 
-            $uuid = $timbre['@attributes']['UUID'] ?? $cfdiRecord->uuid;
+            $uuid = $timbreAttributes['UUID'] ?? $cfdiRecord->uuid;
 
             $data = [
                 'uuid' => $uuid,
-                'fechaTimbrado' => $timbre['@attributes']['FechaTimbrado'] ?? '',
-                'selloCFDI' => $timbre['@attributes']['SelloCFD'] ?? '',
-                'selloSAT' => $timbre['@attributes']['SelloSAT'] ?? '',
-                'noCertificadoSAT' => $timbre['@attributes']['NoCertificadoSAT'] ?? '',
-                'cadenaOriginal' => '||' . $uuid . '||'
+                'fechaTimbrado' => $timbreAttributes['FechaTimbrado'] ?? $cfdiRecord->fecha_timbrado?->format('Y-m-d\TH:i:s') ?? '',
+                'selloCFDI' => $timbreAttributes['SelloCFD'] ?? $cfdiRecord->sello_cfdi ?? '',
+                'selloSAT' => $timbreAttributes['SelloSAT'] ?? $cfdiRecord->sello_sat ?? '',
+                'noCertificadoSAT' => $timbreAttributes['NoCertificadoSAT'] ?? $cfdiRecord->no_certificado_sat ?? '',
+                'cadenaOriginal' => $cfdiRecord->cadena_original ?: "||$uuid||"
             ];
 
             // Extraer emisor y receptor

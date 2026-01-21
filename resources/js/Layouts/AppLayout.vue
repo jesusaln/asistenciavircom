@@ -1,7 +1,7 @@
 <template>
-    <div class="flex flex-col h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
+    <div class="flex flex-col h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
         <!-- Navigation Bar -->
-        <nav class="bg-gradient-to-r from-gray-900 to-gray-800 shadow-lg border-b border-gray-700">
+        <nav class="bg-slate-900 border-b border-slate-800 shadow-2xl relative z-50">
             <div class="px-4 py-3">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-3">
@@ -90,20 +90,20 @@
                                     role="menu"
                                     aria-orientation="vertical"
                                     aria-labelledby="profile-button"
-                                    class="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden"
+                                    class="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden backdrop-blur-xl"
                                 >
-                                    <div class="px-4 py-3 border-b border-gray-100 bg-gray-50">
-                                        <p class="text-sm font-medium text-gray-900">{{ usuario?.name || 'Usuario' }}</p>
-                                        <p class="text-xs text-gray-500">{{ usuario?.email || '' }}</p>
+                                    <div class="px-6 py-4 border-b border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-950/50">
+                                        <p class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight">{{ usuario?.name || 'Usuario' }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-slate-500 font-medium truncate">{{ usuario?.email || '' }}</p>
                                     </div>
 
                                     <div class="py-1">
                                         <Link
                                             :href="route('perfil')"
-                                            class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors duration-150"
+                                            class="flex items-center px-4 py-3 text-sm text-gray-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-slate-800 hover:text-amber-700 dark:hover:text-white transition-all duration-200"
                                             role="menuitem"
                                         >
-                                            <svg class="mr-3 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg class="mr-3 h-4 w-4 text-gray-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                             </svg>
                                             Mi Perfil
@@ -135,7 +135,7 @@
                                     <div class="border-t border-gray-100">
                                         <button
                                             @click="logout"
-                                            class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150"
+                                            class="flex items-center w-full px-4 py-3 text-sm text-red-600 dark:text-rose-400 hover:bg-red-50 dark:hover:bg-rose-500/10 transition-all duration-200"
                                             role="menuitem"
                                         >
                                             <svg class="mr-3 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -158,7 +158,7 @@
             <main
                 :class="[
                     {'ml-64': !isSidebarCollapsed, 'ml-20': isSidebarCollapsed},
-                    'flex-1 overflow-y-auto transition-all duration-300 ease-in-out bg-white dark:bg-gray-900'
+                    'flex-1 overflow-y-auto transition-all duration-300 ease-in-out bg-slate-50 dark:bg-slate-950'
                 ]"
             >
                 <div v-if="$slots.header" class="p-6 pb-0">

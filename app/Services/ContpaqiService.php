@@ -27,7 +27,7 @@ class ContpaqiService
         $this->conceptCode = config('services.contpaqi.concept_code', '4');
         $this->conceptCodePago = config('services.contpaqi.concept_code_pago', '100');
         $this->conceptCodeAnticipo = config('services.contpaqi.concept_code_anticipo', '4');
-        $this->passCSD = config('services.contpaqi.csd_pass');
+        $this->passCSD = config('services.contpaqi.pass_csd');
     }
 
     /**
@@ -254,6 +254,26 @@ class ContpaqiService
     }
 
     /**
+     * Sanitiza strings para el SDK de CONTPAQi (elimina/reemplaza caracteres problemáticos)
+     */
+    private function sanitizeForContpaqi(?string $value, int $maxLength = 60): string
+    {
+        if (empty($value)) {
+            return '.';
+        }
+
+        // CFDI 4.0 requiere el nombre EXACTO, incluyendo acentos.
+        // Solo eliminamos saltos de línea y tabuladores.
+        $value = str_replace(["\r", "\n", "\t"], ' ', $value);
+
+        // Limpieza básica de espacios múltiples
+        $value = preg_replace('/\s+/', ' ', $value);
+
+        // Limitar longitud
+        return substr(trim($value), 0, $maxLength) ?: '.';
+    }
+
+    /**
      * Envia o actualiza el cliente en CONTPAQi
      */
     public function syncCliente(Cliente $cliente)
@@ -261,22 +281,22 @@ class ContpaqiService
         $payload = [
             "rutaEmpresa" => $this->rutaEmpresa,
             "codigo" => $this->getClienteCodigo($cliente),
-            "razonSocial" => $cliente->nombre_razon_social,
-            "rfc" => $cliente->rfc,
+            "razonSocial" => $this->sanitizeForContpaqi($cliente->nombre_razon_social, 120),
+            "rfc" => $cliente->rfc ?? 'XAXX010101000',
             "email" => $cliente->email ?? 'sin_correo@ejemplo.com',
-            "calle" => $cliente->calle ?? '.',
-            "colonia" => $cliente->colonia ?? '.',
-            "codigoPostal" => $cliente->codigo_postal ?? '00000',
-            "ciudad" => $cliente->municipio ?? '.',
-            "estado" => $cliente->estado ?? '.',
-            "pais" => $cliente->pais ?? 'MEXICO',
+            "calle" => $this->sanitizeForContpaqi($cliente->calle, 60),
+            "colonia" => $this->sanitizeForContpaqi($cliente->colonia, 60),
+            "codigoPostal" => $cliente->domicilio_fiscal_cp ?? $cliente->codigo_postal ?? '00000',
+            "ciudad" => $this->sanitizeForContpaqi($cliente->municipio ?: $cliente->ciudad, 60),
+            "estado" => $this->sanitizeForContpaqi($cliente->estado, 30),
+            "pais" => $this->sanitizeForContpaqi($cliente->pais ?: 'MEXICO', 30),
             "regimenFiscal" => $cliente->regimen_fiscal ?? '601',
             "usoCFDI" => $cliente->uso_cfdi ?? 'G03',
             "formaPago" => $cliente->forma_pago_default ?? '99'
         ];
 
         Log::info("CONTPAQi: Sincronizando cliente", ['payload' => $payload]);
-        $response = Http::timeout(15)->post("{$this->baseUrl}/api/Clientes", $payload);
+        $response = Http::timeout(30)->post("{$this->baseUrl}/api/Clientes", $payload);
 
         if ($response->failed()) {
             throw new Exception("Error sincronizando cliente (HTTP {$response->status()}): " . $response->body());
@@ -409,20 +429,26 @@ class ContpaqiService
     }
 
     /**
-     * Obtiene el código del cliente para CONTPAQi, generando uno si no tiene.
+     * Obtiene el código del cliente para CONTPAQi.
+     * Usa el RFC como código para garantizar unicidad y coincidir con clientes existentes.
      */
     private function getClienteCodigo(Cliente $cliente)
     {
-        if (!empty($cliente->codigo)) {
-            return $cliente->codigo;
-        }
-
         // Caso especial: Público en General
         if (strtoupper($cliente->nombre_razon_social) === 'PÚBLICO EN GENERAL' || $cliente->rfc === 'XAXX010101000') {
             return 'PG';
         }
 
-        // Generar código basado en ID: CTE_00010
+        // Usar el RFC como código (es único y ya existe en CONTPAQi)
+        if (!empty($cliente->rfc)) {
+            return strtoupper($cliente->rfc);
+        }
+
+        // Fallback: código personalizado o ID
+        if (!empty($cliente->codigo)) {
+            return $cliente->codigo;
+        }
+
         return 'CTE_' . str_pad($cliente->id, 5, '0', STR_PAD_LEFT);
     }
 
@@ -432,13 +458,17 @@ class ContpaqiService
     /**
      * Procesa el contenido XML de una factura emitida y crea el registro CFDI
      */
-    private function procesarXmlEmitido(string $xmlContent, Venta $venta, \App\Models\Factura $factura = null)
+    public function procesarXmlEmitido(string $xmlContent, Venta $venta = null, \App\Models\Factura $factura = null)
     {
         $data = $this->xmlParser->parseCfdiXml($xmlContent);
 
         if (empty($data['uuid'])) {
             throw new Exception("El XML obtenido no tiene UUID.");
         }
+
+        // Determinar entidad relacionada
+        $clienteId = $factura ? $factura->cliente_id : ($venta ? $venta->cliente_id : null);
+        $empresaId = $factura ? $factura->empresa_id : ($venta ? $venta->empresa_id : null);
 
         // Guardar archivo XML
         $date = !empty($data['fecha']) ? \Carbon\Carbon::parse($data['fecha']) : now();
@@ -452,40 +482,49 @@ class ContpaqiService
         \Illuminate\Support\Facades\Storage::disk('public')->put($xmlPath, $xmlContent);
 
         // Crear registro CFDI
+        $cfdiData = [
+            'venta_id' => $venta?->id,
+            'factura_id' => $factura?->id,
+            'cliente_id' => $clienteId,
+            'empresa_id' => $empresaId,
+            'cfdiable_id' => $factura ? $factura->id : ($venta ? $venta->id : null),
+            'cfdiable_type' => $factura ? \App\Models\Factura::class : ($venta ? \App\Models\Venta::class : null),
+            'direccion' => \App\Models\Cfdi::DIRECCION_EMITIDO,
+            'tipo_comprobante' => $data['tipo_comprobante'] ?? 'I',
+            'serie' => $data['serie'] ?? null,
+            'folio' => $data['folio'] ?? null,
+            'rfc_emisor' => $data['emisor']['rfc'] ?? null,
+            'nombre_emisor' => $data['emisor']['nombre'] ?? null,
+            'regimen_fiscal_emisor' => $data['emisor']['regimen_fiscal'] ?? null,
+            'rfc_receptor' => $data['receptor']['rfc'] ?? null,
+            'nombre_receptor' => $data['receptor']['nombre'] ?? null,
+            'fecha_emision' => $date,
+            'fecha_timbrado' => !empty($data['timbre']['fecha_timbrado']) ? \Carbon\Carbon::parse($data['timbre']['fecha_timbrado']) : null,
+            'no_certificado_sat' => $data['timbre']['no_certificado_sat'] ?? null,
+            'sello_sat' => $data['timbre']['sello_sat'] ?? null,
+            'sello_cfdi' => $data['timbre']['sello_cfd'] ?? null,
+            'subtotal' => $data['subtotal'] ?? 0,
+            'descuento' => $data['descuento'] ?? 0,
+            'total' => $data['total'] ?? 0,
+            'total_impuestos_trasladados' => $data['impuestos']['total_impuestos_trasladados'] ?? 0,
+            'total_impuestos_retenidos' => $data['impuestos']['total_impuestos_retenidos'] ?? 0,
+            'moneda' => $data['moneda'] ?? 'MXN',
+            'tipo_cambio' => $data['tipo_cambio'] ?? 1,
+            'forma_pago' => $data['forma_pago'] ?? null,
+            'metodo_pago' => $data['metodo_pago'] ?? null,
+            'uso_cfdi' => $data['receptor']['uso_cfdi'] ?? null,
+            'xml_url' => $xmlPath,
+            'estatus' => \App\Models\Cfdi::ESTATUS_VIGENTE,
+            'datos_adicionales' => [
+                'comprobante' => $data,
+                'is_contpaqi' => true
+            ]
+        ];
+
+        // Crear o actualizar CFDI
         $cfdi = \App\Models\Cfdi::updateOrCreate(
             ['uuid' => $data['uuid']],
-            [
-                'venta_id' => $venta->id,
-                'cliente_id' => $venta->cliente_id,
-                'empresa_id' => $venta->empresa_id,
-                'direccion' => \App\Models\Cfdi::DIRECCION_EMITIDO,
-                'tipo_comprobante' => $data['tipo_comprobante'] ?? 'I',
-                'serie' => $data['serie'] ?? null,
-                'folio' => $data['folio'] ?? null,
-                'rfc_emisor' => $data['emisor']['rfc'] ?? null,
-                'nombre_emisor' => $data['emisor']['nombre'] ?? null,
-                'regimen_fiscal_emisor' => $data['emisor']['regimen_fiscal'] ?? null,
-                'rfc_receptor' => $data['receptor']['rfc'] ?? null,
-                'nombre_receptor' => $data['receptor']['nombre'] ?? null,
-                'fecha_emision' => $date,
-                'fecha_timbrado' => !empty($data['timbre']['fecha_timbrado']) ? \Carbon\Carbon::parse($data['timbre']['fecha_timbrado']) : null,
-                'subtotal' => $data['subtotal'] ?? 0,
-                'descuento' => $data['descuento'] ?? 0,
-                'total' => $data['total'] ?? 0,
-                'total_impuestos_trasladados' => $data['impuestos']['total_impuestos_trasladados'] ?? 0,
-                'total_impuestos_retenidos' => $data['impuestos']['total_impuestos_retenidos'] ?? 0,
-                'moneda' => $data['moneda'] ?? 'MXN',
-                'tipo_cambio' => $data['tipo_cambio'] ?? 1,
-                'forma_pago' => $data['forma_pago'] ?? null,
-                'metodo_pago' => $data['metodo_pago'] ?? null,
-                'uso_cfdi' => $data['receptor']['uso_cfdi'] ?? null,
-                'xml_url' => $xmlPath,
-                'estatus' => \App\Models\Cfdi::ESTATUS_VIGENTE,
-                'datos_adicionales' => [
-                    'comprobante' => $data,
-                    'is_contpaqi' => true
-                ]
-            ]
+            $cfdiData
         );
 
         // Guardar conceptos si no existen
@@ -512,25 +551,25 @@ class ContpaqiService
     /**
      * Cancela una factura en CONTPAQi
      * 
-     * @param string $uuid UUID de la factura a cancelar
+     * @param float $folio Folio de la factura a cancelar
+     * @param string $serie Serie de la factura
      * @param string $motivoCancelacion Motivo SAT: 01, 02, 03, 04
-     * @param string|null $folioSustitucion UUID de la factura de sustitucion (solo para motivo 01)
+     * @param string|null $uuidSustitucion UUID de la factura de sustitucion (solo para motivo 01)
      * @return array
      */
-    public function cancelarFactura(string $uuid, string $motivoCancelacion = '02', ?string $folioSustitucion = null)
+    public function cancelarFactura($folio, string $serie = '', string $motivoCancelacion = '02', ?string $uuidSustitucion = null)
     {
         $payload = [
             "rutaEmpresa" => $this->rutaEmpresa,
-            "uuid" => strtoupper($uuid),
+            "codigoConcepto" => $this->conceptCode,
+            "serie" => $serie,
+            "folio" => (double) $folio,
             "motivoCancelacion" => $motivoCancelacion,
             "passCSD" => $this->passCSD,
+            "uuidSustitucion" => $uuidSustitucion,
         ];
 
-        if ($motivoCancelacion === '01' && $folioSustitucion) {
-            $payload['folioSustitucion'] = strtoupper($folioSustitucion);
-        }
-
-        Log::info("CONTPAQi: Solicitando cancelacion", ['uuid' => $uuid, 'motivo' => $motivoCancelacion]);
+        Log::info("CONTPAQi: Solicitando cancelacion", ['folio' => $folio, 'serie' => $serie, 'motivo' => $motivoCancelacion]);
 
         $response = Http::timeout(60)->post("{$this->baseUrl}/api/Documentos/cancelar", $payload);
 

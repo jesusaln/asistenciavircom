@@ -13,16 +13,44 @@ const props = defineProps({
   clientes: Array,
   clienteSeleccionado: Object,
   ventasPendientes: Array,
-  catalogos: Object
+  catalogos: Object,
+  ventaPreseleccionada: [String, Number],
+  datosPrellenado: Object
 })
 
 const form = useForm({
   cliente_id: props.clienteSeleccionado?.id || '',
-  ventas_ids: [],
-  uso_cfdi: props.clienteSeleccionado?.uso_cfdi || 'G03',
-  forma_pago: '99', // Por definir default
-  metodo_pago: 'PPD', // Pago en parcialidades default
+  ventas_ids: props.ventasPendientes?.filter(v => v.selected).map(v => v.id) || [],
+  regimen_fiscal: props.clienteSeleccionado?.regimen_fiscal || '',
+  ventas_ids: props.ventasPendientes?.filter(v => v.selected).map(v => v.id) || [],
+  regimen_fiscal: props.clienteSeleccionado?.regimen_fiscal || '',
+  codigo_postal: props.clienteSeleccionado?.domicilio_fiscal_cp || props.clienteSeleccionado?.codigo_postal || '',
+  uso_cfdi: props.datosPrellenado?.uso_cfdi || props.clienteSeleccionado?.uso_cfdi || 'G03',
+  forma_pago: props.datosPrellenado?.forma_pago || props.clienteSeleccionado?.forma_pago_default || '99',
+  metodo_pago: props.datosPrellenado?.metodo_pago || 'PPD',
   observaciones: ''
+})
+
+// Lógica Automática SAT (Bidireccional)
+watch(() => form.forma_pago, (nuevaForma) => {
+  if (nuevaForma === '99') {
+    // Si la forma es "Por definir", el método DEBE ser PPD
+    if (form.metodo_pago !== 'PPD') form.metodo_pago = 'PPD'
+  } else {
+    // Si la forma es real (Efectivo, Tarjeta, etc), el método suele ser PUE.
+    // Si estaba en PPD, lo cambiamos a PUE porque PPD exige 99.
+    if (form.metodo_pago === 'PPD') form.metodo_pago = 'PUE'
+  }
+})
+
+watch(() => form.metodo_pago, (nuevoMetodo) => {
+  if (nuevoMetodo === 'PPD') {
+    // Si el método es PPD, la forma DEBE ser 99
+    if (form.forma_pago !== '99') form.forma_pago = '99'
+  } else { // PUE
+    // Si el método es PUE, la forma NO puede ser 99
+    if (form.forma_pago === '99') form.forma_pago = '01' // Default a Efectivo
+  }
 })
 
 // Totales calculados
@@ -48,7 +76,10 @@ const onClienteSelectedFromSearch = (cliente) => {
       onSuccess: () => {
         form.ventas_ids = []
         if (props.clienteSeleccionado) {
+          form.regimen_fiscal = props.clienteSeleccionado.regimen_fiscal || ''
+          form.codigo_postal = props.clienteSeleccionado.domicilio_fiscal_cp || props.clienteSeleccionado.codigo_postal || ''
           form.uso_cfdi = props.clienteSeleccionado.uso_cfdi || 'G03'
+          form.forma_pago = props.clienteSeleccionado.forma_pago_default || '99'
         }
       }
     })
@@ -62,9 +93,32 @@ const onClienteSelectedFromSearch = (cliente) => {
 const toggleVenta = (id) => {
   const index = form.ventas_ids.indexOf(id)
   if (index === -1) {
+    // Validar mezcla de estados PUE/PPD
+    if (form.ventas_ids.length > 0) {
+       const ventaNueva = props.ventasPendientes.find(v => v.id === id)
+       const ventaExistente = props.ventasPendientes.find(v => v.id === form.ventas_ids[0])
+       
+       if (ventaNueva && ventaExistente && ventaNueva.pagado !== ventaExistente.pagado) {
+          if(!confirm('Estás mezclando ventas Pagadas (PUE) con ventas Pendientes (PPD). Esto puede causar conflictos fiscales. ¿Deseas continuar?')) return
+       }
+    }
     form.ventas_ids.push(id)
   } else {
     form.ventas_ids.splice(index, 1)
+  }
+
+  // Auto-ajustar método y forma según la última venta seleccionada (o la única)
+  if (form.ventas_ids.length > 0) {
+      // Tomamos la última seleccionada como referencia principal
+      const referenciaId = form.ventas_ids[form.ventas_ids.length - 1]
+      const venta = props.ventasPendientes.find(v => v.id === referenciaId)
+      
+      if (venta) {
+          form.metodo_pago = venta.metodo_pago_sugerido
+          // El watcher bidireccional se encargará de ajustar la forma si hay conflicto, 
+          // pero intentamos setear la sugerida primero.
+          form.forma_pago = venta.forma_pago_sugerida
+      }
   }
 }
 
@@ -153,6 +207,7 @@ const formatearMoneda = (monto) => {
                         >
                       </th>
                       <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Folio</th>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Estado Pago</th>
                       <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Concepto</th>
                       <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase tracking-wider">Total</th>
                     </tr>
@@ -164,12 +219,20 @@ const formatearMoneda = (monto) => {
                         :class="{'bg-indigo-900/10': form.ventas_ids.includes(venta.id)}"
                     >
                       <td class="px-6 py-4 whitespace-nowrap">
-                        <input type="checkbox" :value="venta.id" v-model="form.ventas_ids" @click.stop
+                        <input type="checkbox" 
+                          :checked="form.ventas_ids.includes(venta.id)"
+                          @change="toggleVenta(venta.id)"
+                          @click.stop
                           class="rounded border-slate-600 bg-slate-800 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-slate-900">
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-white">#{{ venta.folio }}</div>
                         <div class="text-xs text-slate-500">{{ venta.fecha }}</div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium" :class="venta.pagado ? 'bg-emerald-400/10 text-emerald-400' : 'bg-amber-400/10 text-amber-400'">
+                            {{ venta.etiqueta_pago }}
+                        </span>
                       </td>
                       <td class="px-6 py-4">
                         <div class="text-sm text-slate-300">{{ venta.descripcion }}</div>
@@ -197,6 +260,23 @@ const formatearMoneda = (monto) => {
               </h3>
               
               <div class="space-y-5">
+                <div>
+                  <label class="block text-sm font-medium text-slate-400 mb-1">Régimen Fiscal</label>
+                  <select v-model="form.regimen_fiscal" class="block w-full pl-3 pr-10 py-2.5 text-base bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-xl">
+                    <option value="" disabled>Seleccione un régimen...</option>
+                    <option v-for="regimen in catalogos.regimenes" :key="regimen.clave" :value="regimen.clave">
+                      {{ regimen.clave }} - {{ regimen.descripcion }}
+                    </option>
+                  </select>
+                  <p v-if="!form.regimen_fiscal" class="mt-1 text-xs text-rose-400">El régimen fiscal es obligatorio.</p>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-slate-400 mb-1">C.P. Domicilio Fiscal</label>
+                  <input type="text" v-model="form.codigo_postal" maxlength="5" class="block w-full py-2.5 px-3 text-base bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-xl" placeholder="Ej. 85000">
+                  <p v-if="!form.codigo_postal" class="mt-1 text-xs text-rose-400">El C.P. es obligatorio para CFDI 4.0.</p>
+                </div>
+
                 <div>
                   <label class="block text-sm font-medium text-slate-400 mb-1">Uso de CFDI</label>
                   <select v-model="form.uso_cfdi" class="block w-full pl-3 pr-10 py-2.5 text-base bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-xl">

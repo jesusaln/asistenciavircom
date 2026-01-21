@@ -50,10 +50,13 @@
     /* ===================
        FONDOS Y SUPERFICIES
        =================== */
-    --color-app-bg-page: #F9FAFB;
+    --color-app-bg-page: #f8fafc;
+    /* Slate 50 */
     --color-app-bg-card: #FFFFFF;
-    --color-app-bg-nav: #1F2937;
-    --color-app-bg-sidebar: #111827;
+    --color-app-bg-nav: #0f172a;
+    /* Slate 900 */
+    --color-app-bg-sidebar: #020617;
+    /* Slate 950 */
 
     /* ===================
        TEXTO
@@ -69,6 +72,44 @@
     --color-app-border-light: #E5E7EB;
     --color-app-border-medium: #D1D5DB;
     --color-app-border-dark: #9CA3AF;
+}
+
+/* ===================
+   VARIABLES MODO OSCURO (Slate Premium)
+   =================== */
+.dark {
+    /* Fondos profundos Slate */
+    --color-app-bg-page: #020617;
+    /* Slate 950 */
+    --color-app-bg-card: #0f172a;
+    /* Slate 900 */
+    --color-app-bg-nav: #0f172a;
+    /* Slate 900 */
+    --color-app-bg-sidebar: #020617;
+    /* Slate 950 */
+
+    /* Textos claros */
+    --color-app-text-primary: #f8fafc;
+    /* Slate 50 */
+    --color-app-text-secondary: #cbd5e1;
+    /* Slate 300 */
+    --color-app-text-muted: #64748b;
+    /* Slate 500 */
+
+    /* Bordes sutiles */
+    --color-app-border-light: #1e293b;
+    /* Slate 800 */
+    --color-app-border-medium: #334155;
+    /* Slate 700 */
+    --color-app-border-dark: #475569;
+    /* Slate 600 */
+}
+
+/* Forzar fondo global dark */
+.dark body,
+.dark #app {
+    background-color: var(--color-app-bg-page);
+    color: var(--color-app-text-primary);
 }
 
 [x-cloak] {
@@ -226,8 +267,8 @@
 }
 
 .dark ::-webkit-scrollbar-thumb {
-    background-color: #374151;
-    /* gray-700 */
+    background-color: #334155;
+    /* slate-700 */
     border: 3px solid transparent;
     /* Padding efecto */
     background-clip: content-box;
@@ -236,8 +277,8 @@
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-    background-color: #4b5563;
-    /* gray-600 */
+    background-color: #475569;
+    /* slate-600 */
     border: 3px solid transparent;
     background-clip: content-box;
 }
@@ -581,7 +622,8 @@
 }
 
 .dark .glass-card {
-    background: rgba(17, 24, 39, 0.7);
+    background: rgba(15, 23, 42, 0.7);
+    /* slate-900 */
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 

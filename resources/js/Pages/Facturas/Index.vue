@@ -15,8 +15,8 @@ const props = defineProps({
   filtros: Object
 })
 
-const search = ref(props.filtros.buscar || '')
-const estado = ref(props.filtros.estado || '')
+const search = ref(props.filtros?.buscar || '')
+const estado = ref(props.filtros?.estado || '')
 
 // Debounce search
 let timeout = null

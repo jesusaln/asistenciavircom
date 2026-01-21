@@ -59,14 +59,14 @@ class ConfigurarWhatsApp extends Command
 
                     // Crear empresa básica
                     $empresa = Empresa::create([
-                        'nombre_razon_social' => 'Climas del Desierto S.A. de C.V.',
+                        'nombre_razon_social' => 'Asistencia Vircom',
                         'tipo_persona' => 'moral',
                         'tipo_identificacion' => 'rfc',
-                        'identificacion' => 'CDD123456789',
-                        'rfc' => 'CDD123456789',
-                        'regimen_fiscal' => '601', // General de Ley Personas Morales
+                        'identificacion' => 'LONJ880321KMA',
+                        'rfc' => 'LONJ880321KMA',
+                        'regimen_fiscal' => '626', // Régimen simplificado de confianza
                         'uso_cfdi' => 'G03', // Gastos en general
-                        'email' => 'contacto@climasdeldesierto.com',
+                        'email' => 'contacto@asistenciavircom.com',
                         'telefono' => '+526621234567',
                         'calle' => 'Avenida Principal',
                         'numero_exterior' => '123',
@@ -92,7 +92,7 @@ class ConfigurarWhatsApp extends Command
                 'whatsapp_sender_phone' => $phone,
                 'whatsapp_access_token' => $accessToken,
                 'whatsapp_app_secret' => $appSecret,
-                'whatsapp_webhook_verify_token' => 'cdd_whatsapp_' . time() . '_' . str()->random(10),
+                'whatsapp_webhook_verify_token' => 'vircom_whatsapp_' . time() . '_' . str()->random(10),
                 'whatsapp_default_language' => 'es_MX',
                 'whatsapp_template_payment_reminder' => 'payment_reminder',
             ]);

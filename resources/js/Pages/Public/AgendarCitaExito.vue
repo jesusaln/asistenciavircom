@@ -179,8 +179,8 @@ const copiarLink = () => {
                 
                 <!-- Company Info -->
                 <div class="text-center mt-6 text-gray-500 text-sm">
-                    <p class="font-medium text-gray-700">{{ empresa?.nombre || 'Climas del Desierto' }}</p>
-                    <p>Gracias por tu confianza 💙</p>
+                    <p class="font-medium text-gray-700">{{ empresa?.nombre || 'Asistencia Vircom' }}</p>
+                    <p>Gracias por tu confianza 🛠️</p>
                 </div>
             </div>
         </main>

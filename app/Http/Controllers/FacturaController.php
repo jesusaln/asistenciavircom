@@ -18,6 +18,7 @@ class FacturaController extends Controller
 
     public function __construct(
         private readonly \App\Services\PdfGeneratorService $pdfService,
+        private readonly \App\Services\Cfdi\CfdiPdfService $cfdiPdfService,
         protected ContpaqiService $contpaqiService
     ) {
     }
@@ -58,12 +59,13 @@ class FacturaController extends Controller
             'total' => Factura::count(),
             'pendientes' => Factura::where('estado', 'enviada')->count(),
             'pagadas' => Factura::where('estado', 'pagada')->count(),
+            'canceladas' => Factura::where('estado', 'cancelada')->count(),
             'monto_pendiente' => Factura::where('estado', 'enviada')->sum('total'),
         ];
 
         return Inertia::render('Facturas/Index', [
             'facturas' => $facturas,
-            'filters' => $request->only(['buscar', 'estado', 'desde', 'hasta']),
+            'filtros' => $request->only(['buscar', 'estado', 'desde', 'hasta']),
             'stats' => $stats,
         ]);
     }
@@ -75,7 +77,7 @@ class FacturaController extends Controller
     {
         // Obtener clientes (todos, para el buscador)
         $clientes = Cliente::where('activo', true)
-            ->select('id', 'nombre_razon_social', 'rfc', 'regimen_fiscal', 'uso_cfdi')
+            ->select('id', 'nombre_razon_social', 'rfc', 'regimen_fiscal', 'uso_cfdi', 'forma_pago_default')
             ->orderBy('nombre_razon_social')
             ->limit(1000)
             ->get();
@@ -83,6 +85,22 @@ class FacturaController extends Controller
         // Si se selecciona un cliente, obtener sus ventas pendientes
         $ventasPendientes = collect();
         $clienteSeleccionado = null;
+        $datosPrellenado = [];
+
+        // Pre-carga por Venta ID (desde botón "Facturar" en Ventas/Index)
+        if ($request->filled('venta_id')) {
+            $venta = Venta::find($request->venta_id);
+            if ($venta && !$request->filled('cliente_id')) {
+                $request->merge(['cliente_id' => $venta->cliente_id]);
+            }
+            if ($venta) {
+                $datosPrellenado = [
+                    'forma_pago' => $venta->forma_pago_sat ?? ($venta->metodo_pago === 'efectivo' ? '01' : '99'),
+                    'metodo_pago' => $venta->metodo_pago_sat ?? ($venta->pagado ? 'PUE' : 'PPD'),
+                    'uso_cfdi' => $venta->uso_cfdi // Si la venta lo tuviera guardado
+                ];
+            }
+        }
 
         if ($request->filled('cliente_id')) {
             $clienteSeleccionado = Cliente::with(['regimen', 'uso'])->find($request->cliente_id);
@@ -104,6 +122,11 @@ class FacturaController extends Controller
                     'descripcion' => $v->items->isNotEmpty()
                         ? ($v->items->first()->ventable?->nombre ?? 'Sin descripción')
                         : 'Sin productos',
+                    'pagado' => (bool) $v->pagado,
+                    'metodo_pago_sugerido' => $v->pagado ? 'PUE' : 'PPD',
+                    'forma_pago_sugerida' => $v->forma_pago_sat ?? ($v->metodo_pago === 'efectivo' ? '01' : ($v->pagado ? '03' : '99')), // Default simple
+                    'etiqueta_pago' => $v->pagado ? 'Pagado (' . ($v->metodo_pago ?? 'N/A') . ')' : 'Pendiente de Pago',
+                    'selected' => $request->venta_id == $v->id
                 ]);
         }
 
@@ -129,6 +152,8 @@ class FacturaController extends Controller
             'clienteSeleccionado' => $clienteSeleccionado,
             'ventasPendientes' => $ventasPendientes,
             'catalogos' => $catalogos,
+            'ventaPreseleccionada' => $request->venta_id,
+            'datosPrellenado' => $datosPrellenado,
         ]);
     }
 
@@ -144,13 +169,30 @@ class FacturaController extends Controller
             'uso_cfdi' => 'required|string',
             'forma_pago' => 'required|string',
             'metodo_pago' => 'required|string|in:PUE,PPD',
+            'regimen_fiscal' => 'required|string', // Validar régimen
+            'codigo_postal' => 'required|string', // Validar CP (CFDI 4.0)
             'observaciones' => 'nullable|string|max:1000',
         ]);
 
+        $cliente = Cliente::findOrFail($validated['cliente_id']);
+
+        // Actualizar datos del cliente (Régimen y CP) inmediatamente, 
+        // para que persistan aunque falle el timbrado posterior.
+        $datosUpdate = [];
+        if ($cliente->regimen_fiscal !== $validated['regimen_fiscal']) {
+            $datosUpdate['regimen_fiscal'] = $validated['regimen_fiscal'];
+        }
+        if ($cliente->domicilio_fiscal_cp !== $validated['codigo_postal']) {
+            $datosUpdate['domicilio_fiscal_cp'] = $validated['codigo_postal'];
+            $datosUpdate['codigo_postal'] = $validated['codigo_postal'];
+        }
+
+        if (!empty($datosUpdate)) {
+            $cliente->update($datosUpdate);
+        }
+
         DB::beginTransaction();
         try {
-            $cliente = Cliente::findOrFail($validated['cliente_id']);
-
             // Validación Estricta: Pertenencia y Estado
             $ventas = Venta::whereIn('id', $validated['ventas_ids'])
                 ->lockForUpdate() // Bloquear filas para evitar condiciones de carrera
@@ -183,30 +225,16 @@ class FacturaController extends Controller
             $iva = $ventas->sum('iva');
             $total = $ventas->sum('total');
 
-            // Crear factura local primero
+            // Crear factura local primero (solo columnas que existen en la tabla)
             $factura = Factura::create([
                 'empresa_id' => $cliente->empresa_id ?? auth()->user()->empresa_id,
                 'cliente_id' => $cliente->id,
                 'fecha_emision' => now(),
-                'fecha_vencimiento' => now()->addDays($cliente->dias_credito ?? 0),
                 'subtotal' => $subtotal,
                 'iva' => $iva,
                 'total' => $total,
-                'estado' => 'borrador', // Inicia en borrador
-                'metodo_pago' => $validated['metodo_pago'],
-                'forma_pago' => $validated['forma_pago'],
-                'uso_cfdi' => $validated['uso_cfdi'],
-                'observaciones' => $validated['observaciones'],
-                'moneda' => 'MXN',
-                'datos_fiscales' => [
-                    'rfc' => $cliente->rfc,
-                    'razon_social' => $cliente->razon_social ?? $cliente->nombre_razon_social,
-                    'regimen_fiscal' => $cliente->regimen_fiscal,
-                    'uso_cfdi' => $validated['uso_cfdi'],
-                    'forma_pago' => $validated['forma_pago'],
-                    'metodo_pago' => $validated['metodo_pago'],
-                    'domicilio_fiscal_cp' => $cliente->domicilio_fiscal_cp ?? $cliente->codigo_postal,
-                ],
+                'estado' => 'borrador',
+                'notas' => $validated['observaciones'] ?? null,
             ]);
 
             // Vincular ventas a la factura
@@ -269,9 +297,15 @@ class FacturaController extends Controller
         }
 
         $cliente = $factura->cliente;
-        $codigoCliente = !empty($cliente->codigo) ? $cliente->codigo : ('CTE_' . str_pad($cliente->id, 5, '0', STR_PAD_LEFT));
+        // Usar el RFC como código de cliente (consistente con ContpaqiService)
         if (strtoupper($cliente->nombre_razon_social) === 'PÚBLICO EN GENERAL' || $cliente->rfc === 'XAXX010101000') {
             $codigoCliente = 'PG';
+        } elseif (!empty($cliente->rfc)) {
+            $codigoCliente = strtoupper($cliente->rfc);
+        } elseif (!empty($cliente->codigo)) {
+            $codigoCliente = $cliente->codigo;
+        } else {
+            $codigoCliente = 'CTE_' . str_pad($cliente->id, 5, '0', STR_PAD_LEFT);
         }
 
         $payload = [
@@ -287,7 +321,9 @@ class FacturaController extends Controller
 
         Log::info("CONTPAQi: Creando factura agrupada", ['payload' => $payload]);
 
-        $response = \Illuminate\Support\Facades\Http::timeout(60)
+        Log::info("CONTPAQi: Creando factura agrupada", ['payload' => $payload]);
+
+        $response = \Illuminate\Support\Facades\Http::timeout(120)
             ->post(config('services.contpaqi.url') . "/api/Documentos/factura", $payload);
 
         if ($response->failed()) {
@@ -295,35 +331,51 @@ class FacturaController extends Controller
         }
 
         $resJson = $response->json();
+        Log::info("CONTPAQi: Respuesta completa del Bridge", ['json' => $resJson]);
 
-        $folio = $resJson['folio'] ?? null;
+        $folio = null;
         $serie = $resJson['serie'] ?? null;
 
-        if (!$folio && isset($resJson['message'])) {
-            if (preg_match('/Folio: (\d+)/', $resJson['message'], $matches)) {
+        // Extraer Serie y Folio del mensaje de texto si es necesario
+        if (isset($resJson['message'])) {
+            // Buscar Serie: CDD
+            if (preg_match('/Serie:\s*([A-Z0-9]+)/i', $resJson['message'], $matches)) {
+                $serie = $matches[1];
+                Log::debug("CONTPAQi: Serie extraída del mensaje: $serie");
+            }
+            // Buscar Folio: 313
+            if (preg_match('/Folio:\s*(\d+(\.\d+)?)/i', $resJson['message'], $matches)) {
                 $folio = $matches[1];
+                Log::debug("CONTPAQi: Folio extraído del mensaje: $folio");
             }
         }
 
+        // Fallbacks si no se encontraron en el mensaje
+        $folio = $folio ?? $resJson['folio'] ?? $resJson['idDocumento'] ?? null;
+        $serie = $serie ?? 'CDD';
+
+        Log::info("CONTPAQi: DATOS FINALES PARA TIMBRAR", ['serie' => $serie, 'folio' => $folio]);
+
         if (!$folio) {
-            throw new \Exception("No se obtuvo folio de la factura creada.");
+            throw new \Exception("No se obtuvo folio de la factura creada de CONTPAQi.");
         }
 
         // Timbrar
-        $passCSD = config('services.contpaqi.csd_pass');
+        $passCSD = config('services.contpaqi.csd_pass') ?: env('CONTPAQI_CSD_PASS');
         $timbradoExitoso = false;
 
         if (!empty($passCSD)) {
             try {
+                Log::info("CONTPAQi: Intentando timbrar folio $folio con serie $serie");
                 $timbrarPayload = [
                     "rutaEmpresa" => config('services.contpaqi.ruta_empresa'),
                     "codigoConcepto" => config('services.contpaqi.concept_code', '4'),
                     "serie" => $serie ?? '',
-                    "folio" => (int) $folio,
+                    "folio" => (double) $folio,
                     "passCSD" => $passCSD
                 ];
 
-                $timbrarResponse = \Illuminate\Support\Facades\Http::timeout(90)
+                $timbrarResponse = \Illuminate\Support\Facades\Http::timeout(120)
                     ->post(config('services.contpaqi.url') . "/api/Documentos/timbrar", $timbrarPayload);
 
                 if ($timbrarResponse->successful() && ($timbrarResponse->json()['success'] ?? false)) {
@@ -362,70 +414,89 @@ class FacturaController extends Controller
      */
     public function timbrar(Factura $factura)
     {
-        if ($factura->estado === 'timbrado' || $factura->estado === 'pagada') {
+        if ($factura->estado === 'enviada' && $factura->cfdi()->exists()) {
             return redirect()->route('facturas.show', $factura)->with('info', 'La factura ya está timbrada.');
         }
 
         try {
-            $ventas = $factura->ventas()->with('items.ventable')->get();
+            $folio = null;
+            $serie = null;
+            $timbradoExitoso = false;
 
-            $resultado = $this->crearFacturaAgrupada($factura, $ventas);
+            // 1. Detectar si ya tiene un folio de CONTPAQi (no es el dummy FAC-...)
+            $tieneFolioReal = !empty($factura->numero_factura) && !str_starts_with($factura->numero_factura, 'FAC-');
 
-            if ($resultado['success']) {
-                $uuid = null;
+            if ($tieneFolioReal) {
+                // Extraer serie y folio (asumiendo que los últimos dígitos son el folio si no hay separador claro)
+                // O guardando serie y folio en datos_fiscales en el futuro.
+                // Por ahora, intentaremos timbrar el numero_factura completo si es numérico
+                $folio = preg_replace('/[^0-9]/', '', $factura->numero_factura);
+                $serie = preg_replace('/[0-9]/', '', $factura->numero_factura);
 
-                if ($resultado['timbrado']) {
-                    try {
-                        $xmlRes = $this->contpaqiService->getDocumentoXml($resultado['folio'], $resultado['serie']);
+                Log::info("Reintentando timbrado para folio existente: {$serie}{$folio}");
 
-                        if (!empty($xmlRes['xml'])) {
-                            $parser = app(\App\Services\CfdiXmlParserService::class);
-                            $data = $parser->parseCfdiXml($xmlRes['xml']);
-
-                            if (!empty($data['uuid'])) {
-                                $uuid = $data['uuid'];
-
-                                // Resetear relación anterior si existe (caso re-timbrado? no debería existir)
-                                $factura->cfdi()->delete();
-
-                                $factura->cfdi()->create([
-                                    'empresa_id' => $factura->empresa_id,
-                                    'cliente_id' => $factura->cliente_id,
-                                    'uuid' => $uuid,
-                                    'fecha_timbrado' => now(),
-                                    'xml_url' => 'PENDIENTE',
-                                    'estatus' => 'vigente',
-                                    'metodo_pago' => $factura->metodo_pago,
-                                    'forma_pago' => $factura->datos_fiscales['forma_pago'],
-                                    'uso_cfdi' => $factura->datos_fiscales['uso_cfdi'],
-                                    'total' => $factura->total,
-                                    'subtotal' => $factura->subtotal,
-                                ]);
-
-                                $factura->update([
-                                    'numero_factura' => ($resultado['serie'] ?? '') . $resultado['folio'],
-                                    'estado' => 'enviada',
-                                ]);
-                            }
-                        }
-                    } catch (\Exception $e) {
-                        Log::error("Error procesando XML post-timbrado: " . $e->getMessage());
+                try {
+                    $resTimbrado = $this->contpaqiService->timbrarFactura($folio, $serie);
+                    if ($resTimbrado['success'] ?? false) {
+                        $timbradoExitoso = true;
                     }
-                } else {
-                    $factura->update([
-                        'numero_factura' => ($resultado['serie'] ?? '') . $resultado['folio'],
-                        'estado' => 'borrador',
-                    ]);
-                    return redirect()->route('facturas.show', $factura)->with('warning', 'Factura creada en CONTPAQi pero NO timbrada. Revise la conexión con PAC.');
+                } catch (\Exception $e) {
+                    Log::warning("Fallo timbrado de folio existente, intentando recrear o verificar: " . $e->getMessage());
                 }
-
-                return redirect()->route('facturas.show', $factura)->with('success', 'Factura creada y timbrada exitosamente.');
             }
 
-            return back()->with('error', 'No se pudo crear la factura en CONTPAQi.');
+            // 2. Si no tiene folio o falló el timbrado previo, intentar crear
+            if (!$timbradoExitoso && !$tieneFolioReal) {
+                $ventas = $factura->ventas()->with('items.ventable')->get();
+                $resultado = $this->crearFacturaAgrupada($factura, $ventas);
+
+                if ($resultado['success']) {
+                    $folio = $resultado['folio'];
+                    $serie = $resultado['serie'];
+                    $timbradoExitoso = $resultado['timbrado'];
+                } else {
+                    return back()->with('error', 'No se pudo crear el documento en CONTPAQi.');
+                }
+            }
+
+            // 3. Procesar éxito
+            if ($timbradoExitoso || $tieneFolioReal) {
+                try {
+                    // Si llegamos aquí y no tenemos serie/folio, intentamos sacarlos de numero_factura
+                    $folio = $folio ?: preg_replace('/[^0-9]/', '', $factura->numero_factura);
+                    $serie = $serie ?: preg_replace('/[0-9]/', '', $factura->numero_factura);
+
+                    $xmlRes = $this->contpaqiService->getDocumentoXml($folio, $serie);
+
+                    if (!empty($xmlRes['xml'])) {
+                        // Usar el nuevo método mejorado de ContpaqiService
+                        $cfdi = $this->contpaqiService->procesarXmlEmitido($xmlRes['xml'], null, $factura);
+
+                        if ($cfdi) {
+                            $factura->update([
+                                'numero_factura' => ($serie ?? '') . $folio,
+                                'estado' => 'enviada',
+                            ]);
+                            return redirect()->route('facturas.show', $factura)->with('success', 'Factura timbrada exitosamente.');
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::error("Error obteniendo/procesando XML: " . $e->getMessage());
+
+                    // Si falló el XML pero sabemos que se timbró (timbradoExitoso=true), actualizamos folio al menos
+                    $factura->update([
+                        'numero_factura' => ($serie ?? '') . $folio,
+                        'estado' => 'borrador', // Queda en borrador para reintentar obtener XML
+                    ]);
+
+                    return redirect()->route('facturas.show', $factura)->with('warning', 'La factura se timbró pero hubo un error al obtener el XML: ' . $e->getMessage());
+                }
+            }
+
+            return back()->with('error', 'No se pudo completar el proceso de timbrado.');
 
         } catch (\Exception $e) {
-            Log::error("Error timbrando factura {$factura->id}: " . $e->getMessage());
+            Log::error("Error crítico en timbrar factura {$factura->id}: " . $e->getMessage());
             return back()->with('error', 'Error al procesar: ' . $e->getMessage());
         }
     }
@@ -445,7 +516,8 @@ class FacturaController extends Controller
 
             if ($cfdi && config('services.contpaqi.enabled')) {
                 $resultado = $this->contpaqiService->cancelarFactura(
-                    $cfdi->uuid,
+                    $cfdi->folio,
+                    $cfdi->serie ?? '',
                     $validated['motivo'],
                     $validated['uuid_sustitucion'] ?? null
                 );
@@ -459,7 +531,12 @@ class FacturaController extends Controller
             Venta::where('factura_id', $factura->id)->update(['factura_id' => null]);
 
             if ($cfdi) {
-                $cfdi->update(['estatus' => 'cancelado']);
+                $cfdi->update([
+                    'estatus' => 'cancelado',
+                    'motivo_cancelacion' => $validated['motivo'],
+                    'fecha_cancelacion' => now(),
+                    'folio_sustitucion' => $validated['uuid_sustitucion'] ?? null,
+                ]);
             }
 
             return back()->with('success', 'Factura cancelada exitosamente.');
@@ -471,17 +548,50 @@ class FacturaController extends Controller
     }
 
     /**
+     * Descargar el archivo XML de la factura
+     */
+    public function descargarXML(Factura $factura)
+    {
+        $cfdi = $factura->cfdi;
+        if (!$cfdi || !$cfdi->xml_url || $cfdi->xml_url === 'PENDIENTE') {
+            return back()->with('error', 'El archivo XML no está disponible.');
+        }
+
+        $path = \Illuminate\Support\Facades\Storage::disk('public')->path($cfdi->xml_url);
+
+        if (!file_exists($path)) {
+            return back()->with('error', 'El archivo físico XML no se encuentra en el servidor.');
+        }
+
+        return response()->file($path, [
+            'Content-Type' => 'application/xml',
+            'Content-Disposition' => 'inline; filename="factura-' . $factura->numero_factura . '.xml"'
+        ]);
+    }
+
+    /**
      * Generar PDF de factura
      */
     public function generarPDF($id)
     {
-        $factura = Factura::with(['cliente', 'ventas.items.ventable'])->findOrFail($id);
+        $factura = Factura::with(['cliente', 'ventas.items.ventable', 'cfdi'])->findOrFail($id);
 
+        // Si ya está timbrada y tiene un registro CFDI, usar el servicio profesional de PDF
+        if ($factura->cfdi) {
+            $pdfContent = $this->cfdiPdfService->generatePdfContent($factura->cfdi);
+            if ($pdfContent) {
+                return response($pdfContent)
+                    ->header('Content-Type', 'application/pdf')
+                    ->header('Content-Disposition', "inline; filename=\"factura-{$factura->numero_factura}.pdf\"");
+            }
+        }
+
+        // Si no está timbrada o falló el servicio profesional, usar el PDF básico
         $pdf = $this->pdfService->loadView('factura', [
             'factura' => $factura
         ]);
 
-        return $this->pdfService->download($pdf, "factura-{$factura->numero_factura}.pdf");
+        return $pdf->stream("factura-{$factura->numero_factura}.pdf");
     }
 
     /**
@@ -489,7 +599,50 @@ class FacturaController extends Controller
      */
     public function preview($id)
     {
-        $factura = Factura::with(['cliente', 'ventas.items.ventable'])->findOrFail($id);
+        $factura = Factura::with(['cliente', 'ventas.items.ventable', 'cfdi'])->findOrFail($id);
+
+        if ($factura->cfdi) {
+            $pdfContent = $this->cfdiPdfService->generatePdfContent($factura->cfdi);
+            if ($pdfContent) {
+                return response($pdfContent)
+                    ->header('Content-Type', 'application/pdf')
+                    ->header('Content-Disposition', "inline; filename=\"factura-{$factura->numero_factura}.pdf\"");
+            }
+        }
+
         return view('factura', compact('factura'));
+    }
+
+    /**
+     * Eliminar una factura en borrador y liberar sus ventas
+     */
+    public function destroy(Factura $factura)
+    {
+        if ($factura->estado !== 'borrador') {
+            return back()->with('error', 'Solo se pueden eliminar facturas en borrador.');
+        }
+
+        try {
+            DB::transaction(function () use ($factura) {
+                // Liberar ventas
+                Venta::where('factura_id', $factura->id)->update([
+                    'factura_id' => null
+                ]);
+
+                // Eliminar CFDI asociado si existe (local)
+                if ($factura->cfdi) {
+                    $factura->cfdi->delete();
+                }
+
+                $factura->delete();
+            });
+
+            return redirect()->route('facturas.index')
+                ->with('success', 'Borrador eliminado correctamente. Las ventas ahora están disponibles para facturar de nuevo.');
+
+        } catch (\Exception $e) {
+            Log::error("Error eliminando factura borrador {$factura->id}: " . $e->getMessage());
+            return back()->with('error', 'Error al eliminar el borrador: ' . $e->getMessage());
+        }
     }
 }

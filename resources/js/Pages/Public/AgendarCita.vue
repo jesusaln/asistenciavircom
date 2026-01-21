@@ -206,7 +206,7 @@ const stepLabels = [
                             {{ empresa?.nombre?.charAt(0) || 'C' }}
                         </div>
                         <div>
-                            <h1 class="font-bold text-gray-900">{{ empresa?.nombre || 'Climas del Desierto' }}</h1>
+                            <h1 class="font-bold text-gray-900">{{ empresa?.nombre || 'Asistencia Vircom' }}</h1>
                             <p class="text-xs text-gray-500">Agenda tu servicio</p>
                         </div>
                     </div>
@@ -760,7 +760,7 @@ const stepLabels = [
 
         <!-- Footer -->
         <footer class="text-center py-6 text-gray-400 text-sm">
-            <p>{{ empresa?.nombre || 'Climas del Desierto' }} © {{ new Date().getFullYear() }}</p>
+            <p>{{ empresa?.nombre || 'Asistencia Vircom' }} © {{ new Date().getFullYear() }}</p>
             <p class="mt-1">
                 <a :href="`tel:${empresa?.telefono}`" class="hover:text-[var(--color-primary)]">{{ empresa?.telefono }}</a>
             </p>

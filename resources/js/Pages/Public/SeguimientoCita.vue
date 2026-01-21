@@ -51,7 +51,7 @@ const diasFormateados = computed(() => {
                         {{ empresa?.nombre?.charAt(0) || 'C' }}
                     </div>
                     <div>
-                        <h1 class="font-bold text-gray-900">{{ empresa?.nombre || 'Climas del Desierto' }}</h1>
+                        <h1 class="font-bold text-gray-900">{{ empresa?.nombre || 'Asistencia Vircom' }}</h1>
                         <p class="text-xs text-gray-500">Seguimiento de tu cita</p>
                     </div>
                 </div>
@@ -261,7 +261,7 @@ const diasFormateados = computed(() => {
 
             <!-- Footer -->
             <div class="text-center text-gray-400 text-sm py-4">
-                <p>{{ empresa?.nombre || 'Climas del Desierto' }}</p>
+                <p>{{ empresa?.nombre || 'Asistencia Vircom' }}</p>
                 <p class="text-xs mt-1">Solicitud recibida: {{ cita?.created_at }}</p>
             </div>
         </main>

@@ -53,8 +53,18 @@ const cancelarFactura = () => {
 }
 
 // Timbrar (retry)
+const processingTimbrar = ref(false)
 const timbrarFactura = () => {
-    router.post(route('facturas.timbrar', props.factura.id))
+    processingTimbrar.value = true
+    router.post(route('facturas.timbrar', props.factura.id), {}, {
+        onFinish: () => processingTimbrar.value = false
+    })
+}
+
+const eliminarBorrador = () => {
+  if (!confirm('¿Eliminar este borrador? La venta será liberada para volver a facturarla.')) return
+  
+  router.delete(route('facturas.destroy', props.factura.id))
 }
 </script>
 
@@ -101,18 +111,43 @@ const timbrarFactura = () => {
                     target="_blank"
                     class="inline-flex items-center px-4 py-2 border border-slate-700 rounded-xl shadow-sm text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white transition-all">
                         <svg class="-ml-1 mr-2 h-5 w-5 text-slate-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
-                        Descargar PDF
+                        Visualizar PDF
+                    </a>
+
+                    <a v-if="cfdi && cfdi.xml_url" 
+                    :href="route('facturas.xml', factura.id)" 
+                    target="_blank"
+                    class="inline-flex items-center px-4 py-2 border border-slate-700 rounded-xl shadow-sm text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white transition-all">
+                        <svg class="-ml-1 mr-2 h-5 w-5 text-slate-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                        </svg>
+                        Ver XML
                     </a>
 
                     <button v-if="factura.estado === 'borrador'" 
-                        @click="timbrarFactura"
-                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 transition-all transform hover:scale-105">
+                        @click="eliminarBorrador"
+                        class="inline-flex items-center px-4 py-2 border border-slate-600 rounded-xl shadow-sm text-sm font-medium text-rose-400 bg-transparent hover:bg-rose-900/20 hover:text-rose-300 transition-all mr-2">
                         <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Eliminar Borrador
+                    </button>
+
+                    <button v-if="factura.estado === 'borrador'" 
+                        @click="timbrarFactura"
+                        :disabled="processingTimbrar"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg v-if="processingTimbrar" class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <svg v-else class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
-                        Timbrar Ahora
+                        {{ processingTimbrar ? 'Procesando...' : 'Timbrar Ahora' }}
                     </button>
 
                     <button v-if="factura.estado === 'enviada' || factura.estado === 'pagada'" 
@@ -214,25 +249,33 @@ const timbrarFactura = () => {
                     </div>
                 </div>
 
-                <!-- Client Info Card -->
                 <div class="bg-slate-800 shadow-xl border border-slate-700/50 rounded-2xl p-6">
                     <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-700 pb-2">Cliente</h3>
                     <div class="space-y-4">
                         <div>
                              <div class="text-xs text-slate-500 uppercase">Razón Social</div>
-                             <div class="text-white font-medium">{{ factura.cliente.nombre_razon_social }}</div>
+                             <div class="text-white font-medium">{{ cfdi?.nombre_receptor || factura.cliente.nombre_razon_social }}</div>
                         </div>
-                        <div>
-                             <div class="text-xs text-slate-500 uppercase">RFC</div>
-                             <div class="text-white font-mono">{{ factura.cliente.rfc }}</div>
-                        </div>
-                        <div>
-                             <div class="text-xs text-slate-500 uppercase">Régimen Fiscal</div>
-                             <div class="text-slate-300">{{ factura.datos_fiscales?.regimen_fiscal || factura.cliente.regimen_fiscal }}</div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <div class="text-xs text-slate-500 uppercase">RFC</div>
+                                <div class="text-white font-mono">{{ cfdi?.rfc_receptor || factura.cliente.rfc }}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-500 uppercase">Régimen Fiscal</div>
+                                <div class="text-slate-300">{{ cfdi?.datos_adicionales?.comprobante?.receptor?.regimen_fiscal || factura.cliente.regimen_fiscal || '601' }}</div>
+                            </div>
                         </div>
                         <div>
                              <div class="text-xs text-slate-500 uppercase">Uso CFDI</div>
-                             <div class="text-slate-300">{{ factura.datos_fiscales?.uso_cfdi || '-' }}</div>
+                             <div class="text-slate-300">
+                                {{ cfdi?.uso_cfdi || factura.datos_fiscales?.uso_cfdi || 'G03' }}
+                                <span class="text-slate-500 text-xs ml-1" v-if="cfdi?.uso_cfdi === 'G03' || factura.datos_fiscales?.uso_cfdi === 'G03'"> - Gastos en general</span>
+                                <span class="text-slate-500 text-xs ml-1" v-else-if="cfdi?.uso_cfdi === 'G01' || factura.datos_fiscales?.uso_cfdi === 'G01'"> - Adquisición de mercancías</span>
+                                <span class="text-slate-500 text-xs ml-1" v-else-if="cfdi?.uso_cfdi === 'P01' || factura.datos_fiscales?.uso_cfdi === 'P01'"> - Por definir</span>
+                                <span class="text-slate-500 text-xs ml-1" v-else-if="cfdi?.uso_cfdi === 'CP01'"> - Pagos</span>
+                                <span class="text-slate-500 text-xs ml-1" v-else-if="cfdi?.uso_cfdi === 'S01'"> - Sin efectos fiscales</span>
+                             </div>
                         </div>
                     </div>
                 </div>

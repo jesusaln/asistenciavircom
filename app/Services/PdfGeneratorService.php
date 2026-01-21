@@ -20,22 +20,20 @@ class PdfGeneratorService
     public function loadView(string $view, array $data = [], string|array $paperSize = 'letter', string $orientation = 'portrait')
     {
         // 1. Standardize Company Data Loading
-        $configuracion = EmpresaConfiguracion::getConfig();
+        $config = EmpresaConfiguracion::getConfig();
         $empresa = EmpresaConfiguracion::getInfoEmpresa();
         $colores = EmpresaConfiguracion::getColores();
-
-        // Merge colors into empresa array if not already present or if overrides needed
-        // Controllers were doing this manually: $empresa['color_principal'] = ...
-        $empresa['color_principal'] = $colores['principal'] ?? '#FF6B35';
-        $empresa['color_secundario'] = $colores['secundario'] ?? '#1E40AF';
+        $financiera = EmpresaConfiguracion::getConfiguracionFinanciera();
 
         // 2. Prepare View Data
-        // Merge passed data with standard system data
         $viewData = array_merge([
-            'configuracion' => $configuracion,
-            'empresa' => $empresa, // Detailed info array
-            // 'colores' => $colores, // Optional, usually inside empresa
-            // 'piePagina' could be passed in $data specific to the document type
+            'configuracion' => [
+                'colores' => $colores,
+                'empresa' => $empresa,
+                'financiera' => $financiera,
+                'pie_pagina_facturas' => EmpresaConfiguracion::getPiePagina('facturas'),
+            ],
+            'empresa' => $empresa,
         ], $data);
 
         // 3. Load PDF

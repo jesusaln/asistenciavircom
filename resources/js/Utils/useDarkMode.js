@@ -22,16 +22,16 @@ export function useDarkMode(empresaConfig = null) {
         hover: '#F3F4F6',
     }
 
-    // Colores del tema oscuro
+    // Colores del tema oscuro (Alineados a Dark Premium Slate)
     const darkTheme = {
-        primary: empresaConfig?.dark_mode_primary_color || '#1E40AF',
-        secondary: empresaConfig?.dark_mode_secondary_color || '#3B82F6',
-        background: empresaConfig?.dark_mode_background_color || '#0F172A',
-        surface: empresaConfig?.dark_mode_surface_color || '#1E293B',
-        text: '#F9FAFB',
-        textSecondary: '#D1D5DB',
-        border: '#374151',
-        hover: '#374151',
+        primary: empresaConfig?.dark_mode_primary_color || '#4f46e5', // Indigo-600
+        secondary: empresaConfig?.dark_mode_secondary_color || '#0ea5e9', // Sky-500
+        background: empresaConfig?.dark_mode_background_color || '#020617', // Slate-950
+        surface: empresaConfig?.dark_mode_surface_color || '#0f172a', // Slate-900
+        text: '#f8fafc', // Slate-50
+        textSecondary: '#cbd5e1', // Slate-300
+        border: '#1e293b', // Slate-800
+        hover: '#1e293b', // Slate-800
     }
 
     // Tema actual basado en el modo

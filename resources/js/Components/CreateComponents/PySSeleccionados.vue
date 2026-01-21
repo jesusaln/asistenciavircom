@@ -1,12 +1,12 @@
 <template>
   <div class="productos-seleccionados">
     <div v-if="selectedProducts.length > 0" class="mt-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-        <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+        <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
         Productos y Servicios Seleccionados
-        <span class="ml-2 bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+        <span class="ml-2 bg-indigo-500/10 text-indigo-400 text-xs font-medium px-2.5 py-0.5 rounded-full border border-indigo-500/20">
           {{ selectedProducts.length }}
         </span>
       </h3>
@@ -15,43 +15,43 @@
         <div
           v-for="entry in selectedProducts"
           :key="`${entry.tipo}-${entry.id}`"
-          class="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-all duration-200"
+          class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 hover:bg-slate-900/60 transition-all duration-200 group"
         >
           <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div class="flex-1 min-w-0">
               <div class="flex items-start justify-between">
                 <div class="flex-1">
                   <div class="flex items-center mb-2">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mr-3"
-                          :class="entry.tipo === 'producto' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider mr-3"
+                          :class="entry.tipo === 'producto' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'">
                       {{ entry.tipo === 'producto' ? 'Producto' : 'Servicio' }}
                     </span>
                   </div>
+ 
+                  <h4 class="text-lg font-semibold text-white mb-1 leading-tight">{{ getItemInfo(entry).nombre }}</h4>
+                  <p v-if="getItemInfo(entry).descripcion" class="text-sm text-slate-400 mb-2 line-clamp-1">{{ getItemInfo(entry).descripcion }}</p>
 
-                  <h4 class="text-lg font-semibold text-gray-900 mb-1">{{ getItemInfo(entry).nombre }}</h4>
-                  <p v-if="getItemInfo(entry).descripcion" class="text-sm text-gray-600 mb-2">{{ getItemInfo(entry).descripcion }}</p>
-
-                  <div v-if="getItemInfo(entry).tipo_producto === 'kit' && getItemInfo(entry).kit_items && getItemInfo(entry).kit_items.length > 0" class="mt-2 mb-3 bg-blue-50 border border-blue-100 rounded-lg p-3">
-                    <p class="text-xs font-semibold text-blue-800 mb-2 flex items-center">
-                      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div v-if="getItemInfo(entry).tipo_producto === 'kit' && getItemInfo(entry).kit_items && getItemInfo(entry).kit_items.length > 0" class="mt-4 mb-4 bg-slate-950 border border-indigo-500/20 rounded-2xl p-4 shadow-inner">
+                    <p class="text-[10px] font-black text-indigo-400 mb-3 flex items-center uppercase tracking-widest">
+                      <svg class="w-3.5 h-3.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                       </svg>
-                      Contenido del Kit:
+                      Contenido del Bundle
                     </p>
-                    <ul class="space-y-1">
-                      <li v-for="kItem in getItemInfo(entry).kit_items" :key="kItem.id" class="text-xs text-blue-700 flex justify-between items-center border-b border-blue-100 last:border-0 pb-1 last:pb-0">
-                        <span class="flex-1">{{ kItem.item ? kItem.item.nombre : 'Producto no disponible' }}</span>
-                        <span class="font-medium bg-blue-100 px-2 py-0.5 rounded-full text-[10px] ml-2">x{{ kItem.cantidad }}</span>
+                    <ul class="space-y-2">
+                      <li v-for="kItem in getItemInfo(entry).kit_items" :key="kItem.id" class="text-xs text-slate-300 flex justify-between items-center group/kitem">
+                        <span class="flex-1 font-medium group-hover/kitem:text-white transition-colors">{{ kItem.item ? kItem.item.nombre : 'Producto no disponible' }}</span>
+                        <span class="font-black bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-lg text-[9px] ml-3 border border-indigo-500/10 uppercase tracking-tighter">x{{ kItem.cantidad }} UNID</span>
                       </li>
                     </ul>
                   </div>
 
                   <div class="space-y-1">
-                    <div class="flex items-center text-sm text-gray-500">
-                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex items-center text-xs text-slate-500">
+                      <svg class="w-4 h-4 mr-1 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
                       </svg>
-                      Precio unitario: ${{ getItemInfo(entry).precio.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                      P. Unitario: <span class="text-slate-300 ml-1 font-medium font-mono">${{ getItemInfo(entry).precio.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
                     </div>
                   </div>
                 </div>
@@ -59,7 +59,7 @@
                 <button
                   type="button"
                   @click="eliminarItem(entry)"
-                  class="text-red-500 hover:text-red-700 hover:bg-red-100 p-2 rounded-full transition-colors duration-200 flex-shrink-0"
+                  class="text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 p-2.5 rounded-xl transition-all duration-200 flex-shrink-0 border border-transparent hover:border-rose-500/20"
                   title="Eliminar producto"
                 >
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,34 +71,34 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 lg:w-96">
               <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">Cantidad</label>
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Cant</label>
                 <input type="number"
                        :value="quantities[`${entry.tipo}-${entry.id}`] || 1"
                        min="1" step="1"
                        @input="e => updateQuantity(entry, e.target.value)"
-                       class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"/>
+                       class="w-full bg-slate-950 px-3 py-2 text-sm border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white transition-all"/>
               </div>
-
+ 
               <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">Descuento %</label>
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Desc %</label>
                 <input type="number"
                        :value="discounts[`${entry.tipo}-${entry.id}`] || 0"
                        min="0" max="100" step="0.01"
                        @input="e => updateDiscount(entry, e.target.value)"
-                       class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"/>
+                       class="w-full bg-slate-950 px-3 py-2 text-sm border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white transition-all"/>
               </div>
-
+ 
               <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">Precio Unit.</label>
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Precio</label>
                 <input type="text"
                        :value="'$' + (prices[`${entry.tipo}-${entry.id}`] || 0).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })"
                        readonly
-                       class="w-full px-3 py-2 text-sm bg-gray-100 border border-gray-300 rounded-lg text-gray-600 cursor-not-allowed"/>
+                       class="w-full bg-slate-800/50 px-3 py-2 text-sm border border-slate-800 rounded-xl text-slate-500 font-mono cursor-not-allowed"/>
               </div>
-
+ 
               <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">Subtotal</label>
-                <div class="px-3 py-2 text-sm font-semibold text-green-600 bg-green-50 border border-green-200 rounded-lg">
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Subtotal</label>
+                <div class="px-3 py-2 text-sm font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl font-mono text-center">
                   ${{ calcularSubtotalItem(entry).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                 </div>
               </div>
@@ -179,12 +179,17 @@ const emit = defineEmits(['eliminar-producto','update-quantity','update-discount
 
 const getItemInfo = (entry) => {
   const items = entry.tipo === 'producto' ? props.productos : props.servicios;
-  const item = items.find(i => i.id === entry.id);
+  const itemFound = items.find(i => i.id === entry.id);
+  
+  // Usar el item encontrado en props o el entry mismo si ya trae la info
+  const item = itemFound || entry;
+
   if (!item) return { nombre: 'Item no encontrado', descripcion: '', precio: 0, precio_compra: 0, requiere_serie: false };
+
   return {
-    nombre: item.nombre,
+    nombre: item.nombre || item.descripcion || 'Item sin nombre',
     descripcion: item.descripcion || '',
-    precio: entry.tipo === 'producto' ? (item.precio_venta || 0) : (item.precio || 0),
+    precio: entry.tipo === 'producto' ? (item.precio_venta || item.precio || 0) : (item.precio || 0),
     precio_compra: item.precio_compra || 0,
     requiere_serie: !!item.requiere_serie,
     tipo_producto: item.tipo_producto,

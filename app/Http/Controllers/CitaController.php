@@ -1178,7 +1178,7 @@ class CitaController extends Controller
                 $mensaje .= "Puedes ver el estado de tu cita aquí:\n{$urlSeguimiento}\n\n";
             }
 
-            $mensaje .= "- Climas del Desierto";
+            $mensaje .= "- Asistencia Vircom";
 
             // Actualizar estado de envío
             $cita->update([
@@ -1429,7 +1429,7 @@ class CitaController extends Controller
         $fecha = Carbon::parse($cita->fecha_confirmada ?? $cita->fecha_hora)->locale('es')->isoFormat('dddd D [de] MMMM');
         $telefono = preg_replace('/\D/', '', $cita->cliente->telefono);
 
-        $mensaje = "Hola *{$cita->cliente->nombre_razon_social}*, te saludamos de *Climas del Desierto*. ❄️\n\nNotamos que tenías una cita programada para el día *{$fecha}* que no se pudo concretar. \n\n¿Te gustaría que la reprogramemos? Quedamos a tus órdenes para confirmar un nuevo horario. 😊";
+        $mensaje = "Hola *{$cita->cliente->nombre_razon_social}*, te saludamos de *Asistencia Vircom*. 🛠️\n\nNotamos que tenías una cita programada para el día *{$fecha}* que no se pudo concretar. \n\n¿Te gustaría que la reprogramemos? Quedamos a tus órdenes para confirmar un nuevo horario. 😊";
 
         $url = "https://wa.me/52{$telefono}?text=" . urlencode($mensaje);
 

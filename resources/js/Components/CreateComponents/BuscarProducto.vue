@@ -2,10 +2,10 @@
   <div class="buscar-producto">
     <!-- Campo de búsqueda -->
     <div class="mb-6">
-      <label class="block text-sm font-medium text-gray-700 mb-2">
+      <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2 uppercase tracking-wide">
         {{ label }}
       </label>
-      <div class="relative">
+      <div class="relative group">
         <input
           ref="inputBusqueda"
           type="text"
@@ -13,24 +13,25 @@
           @input="filtrarItems"
           @focus="mostrarLista = true"
           :placeholder="placeholder"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+          class="w-full px-4 py-3 bg-white dark:bg-slate-950 border-2 border-gray-200 dark:border-slate-800 rounded-xl focus:ring-0 focus:border-indigo-500 dark:focus:border-indigo-500 text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-600 transition-all shadow-sm"
         />
-        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500 text-gray-400 dark:text-slate-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
         </div>
       </div>
+      
       <!-- Filtros rápidos -->
       <div class="flex flex-wrap gap-2 mt-3">
         <button
           type="button"
           @click="filtroActivo = 'todos'"
           :class="[
-            'px-3 py-1 text-xs font-medium rounded-full transition-colors duration-200',
+            'px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all border',
             filtroActivo === 'todos'
-              ? 'bg-green-100 text-green-800 border-green-300'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-gray-300'
+              ? 'bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 border-slate-800 dark:border-slate-100 shadow-md transform scale-105'
+              : 'bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-500 border-gray-200 dark:border-slate-800 hover:border-gray-300 dark:hover:border-slate-600'
           ]"
         >
           {{ textoTodos }} ({{ itemsFiltrados.length }})
@@ -39,10 +40,10 @@
           type="button"
           @click="filtroActivo = 'productos'"
           :class="[
-            'px-3 py-1 text-xs font-medium rounded-full transition-colors duration-200',
+            'px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all border',
             filtroActivo === 'productos'
-              ? 'bg-blue-100 text-blue-800 border-blue-300'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-gray-300'
+              ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20 transform scale-105'
+              : 'bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-500 border-gray-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-900 hover:text-blue-500'
           ]"
         >
           {{ textoProductos }} ({{ productosCount }})
@@ -52,10 +53,10 @@
           type="button"
           @click="filtroActivo = 'servicios'"
           :class="[
-            'px-3 py-1 text-xs font-medium rounded-full transition-colors duration-200',
+            'px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all border',
             filtroActivo === 'servicios'
-              ? 'bg-purple-100 text-purple-800 border-purple-300'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-gray-300'
+              ? 'bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-500/20 transform scale-105'
+              : 'bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-500 border-gray-200 dark:border-slate-800 hover:border-purple-300 dark:hover:border-purple-900 hover:text-purple-500'
           ]"
         >
           {{ textoServicios }} ({{ serviciosCount }})
@@ -63,74 +64,11 @@
       </div>
     </div>
 
-    <!-- Productos agregados recientemente -->
-    <div v-if="productosRecientes.length > 0" class="mt-6">
-      <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
-        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        Agregados recientemente
-      </h3>
-      <div class="flex flex-wrap gap-2">
-        <span
-          v-for="item in productosRecientes"
-          :key="`reciente-${item.tipo}-${item.id}`"
-          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
-        >
-          {{ item.nombre }}
-          <svg class="w-3 h-3 ml-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-          </svg>
-        </span>
-      </div>
-    </div>
-
-    <!-- Sugerencias rápidas -->
-    <div v-if="!busqueda && sugerenciasRapidas.length > 0" class="mt-6">
-      <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
-        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-        </svg>
-        Sugerencias rápidas
-      </h3>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        <div
-          v-for="item in sugerenciasRapidas"
-          :key="`sugerencia-${item.tipo}-${item.id}`"
-          @click="agregarItem(item)"
-          class="p-3 border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 cursor-pointer transition-all duration-200"
-        >
-          <div class="flex items-center justify-between">
-            <div class="flex-1">
-              <div class="flex items-center">
-                <span :class="[
-                  'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mr-2',
-                  item.tipo === 'producto' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
-                ]">
-                  {{ item.tipo === 'producto' ? 'P' : 'S' }}
-                </span>
-                <span class="text-sm font-medium text-gray-900">{{ item.nombre }}</span>
-              </div>
-              <div class="text-xs text-gray-500 mt-1">{{ typeof item.categoria === 'string' ? item.categoria : (item.categoria?.nombre || 'Sin categoría') }}</div>
-            </div>
-            <div class="text-right">
-              <div class="text-sm font-semibold text-green-600">
-                ${{ formatearPrecio(getPrecioMostrar(item)) }}
-              </div>
-              <div v-if="item.tipo === 'producto'" class="text-xs text-gray-500">
-                Stock: {{ item.stock_total || item.stock || 0 }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Usar Teleport para renderizar fuera del componente -->
     <Teleport to="#app">
       <div
         v-if="mostrarLista && itemsFiltrados.length > 0"
-        class="z-50 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-80 overflow-y-auto"
+        class="z-[100] mt-2 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-2xl max-h-96 overflow-y-auto ring-1 ring-black/5 dark:ring-white/10"
         :style="{
           position: 'absolute',
           width: inputWidth + 'px',
@@ -139,98 +77,104 @@
         }"
       >
         <!-- Encabezados -->
-        <div class="sticky top-0 bg-gray-50 border-b border-gray-200 px-4 py-2">
-          <div class="grid grid-cols-12 gap-2 text-xs font-medium text-gray-600">
-            <div class="col-span-1">Tipo</div>
-            <div class="col-span-3">Nombre</div>
+        <div class="sticky top-0 bg-gray-50/95 dark:bg-slate-950/95 backdrop-blur-sm border-b border-gray-100 dark:border-slate-800 px-4 py-3 z-10">
+          <div class="grid grid-cols-12 gap-3 text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-slate-500">
+            <div class="col-span-1 text-center">Tipo</div>
+            <div class="col-span-3">Descripción</div>
             <div class="col-span-2">Código</div>
             <div class="col-span-2">Categoría</div>
-            <div class="col-span-2">Precio</div>
-            <div class="col-span-1">Stock</div>
-            <div class="col-span-1">Acción</div>
+            <div class="col-span-2 text-right">Precio</div>
+            <div class="col-span-1 text-center">Stock</div>
+            <div class="col-span-1 text-center">Acción</div>
           </div>
         </div>
+        
         <!-- Items -->
         <div
           v-for="item in itemsFiltrados"
           :key="`${item.tipo}-${item.id}`"
-          class="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+          @mousedown.prevent="agregarItem(item)"
+          class="group px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-800/50 border-b border-gray-100 dark:border-slate-800/50 last:border-b-0 transition-colors cursor-pointer"
         >
-          <div class="grid grid-cols-12 gap-2 items-center">
-            <!-- Tipo -->
-            <div class="col-span-1">
+          <div class="grid grid-cols-12 gap-3 items-center">
+            <!-- Tipo Badge -->
+            <div class="col-span-1 flex justify-center">
               <span :class="[
-                'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium',
+                'w-6 h-6 flex items-center justify-center rounded-lg text-[10px] font-black shadow-sm',
                 item.tipo === 'producto'
-                  ? 'bg-blue-100 text-blue-800'
-                  : 'bg-purple-100 text-purple-800'
+                  ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                  : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400'
               ]">
-                <svg v-if="item.tipo === 'producto'" class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4-8-4m16 0v10l-8 4-8-4V7"/>
-                </svg>
-                <svg v-else class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
                 {{ item.tipo === 'producto' ? 'P' : 'S' }}
               </span>
             </div>
-            <!-- Nombre -->
+            
+            <!-- Nombre y Desc -->
             <div class="col-span-3">
-              <div class="font-medium text-gray-900 text-sm">{{ item.nombre }}</div>
-              <div v-if="item.descripcion" class="text-xs text-gray-500 truncate">{{ item.descripcion }}</div>
+              <div class="font-bold text-gray-900 dark:text-white text-xs leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                  {{ item.nombre }}
+              </div>
+              <div v-if="item.descripcion" class="text-[10px] text-gray-400 dark:text-slate-500 truncate mt-0.5">
+                  {{ item.descripcion }}
+              </div>
             </div>
+            
             <!-- Código -->
             <div class="col-span-2">
-              <span class="text-sm text-gray-600 font-mono">{{ item.codigo || 'N/A' }}</span>
+              <span class="text-xs font-mono text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                  {{ item.codigo || '---' }}
+              </span>
             </div>
+            
             <!-- Categoría -->
             <div class="col-span-2">
-              <span class="text-sm text-gray-600">{{ typeof item.categoria === 'string' ? item.categoria : (item.categoria?.nombre || 'Sin categoría') }}</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">
+                  {{ typeof item.categoria === 'string' ? item.categoria : (item.categoria?.nombre || 'General') }}
+              </span>
             </div>
+            
             <!-- Precio -->
-            <div class="col-span-2">
-              <span class="text-sm font-semibold text-green-600">
+            <div class="col-span-2 text-right">
+              <span class="text-sm font-black text-emerald-600 dark:text-emerald-400">
                 ${{ formatearPrecio(getPrecioMostrar(item)) }}
               </span>
             </div>
+            
             <!-- Stock -->
-            <div class="col-span-1">
+            <div class="col-span-1 flex justify-center">
               <div v-if="item.tipo === 'producto'">
-                <span v-if="item.tipo_producto === 'kit'" class="text-xs px-2 py-1 rounded-full font-medium bg-blue-100 text-blue-800">
+                <span v-if="item.tipo_producto === 'kit'" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 uppercase">
                   Kit
                 </span>
                 <template v-else>
                   <span :class="[
-                    'text-xs px-2 py-1 rounded-full font-medium',
-                    getStock(item) > 10 ? 'bg-green-100 text-green-800' :
-                    getStock(item) > 0 ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
+                    'text-[10px] px-2 py-0.5 rounded-full font-bold',
+                    getStock(item) > 10 ? 'bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' :
+                    getStock(item) > 0 ? 'bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400' :
+                    'bg-rose-100 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400'
                   ]">
                     {{ getStock(item) }}
                   </span>
-                  <div v-if="getStock(item) <= 0 && getAvailabilityInfo(item)" class="text-[10px] text-blue-600 mt-1 leading-tight">
-                    {{ getAvailabilityInfo(item) }}
-                  </div>
                 </template>
               </div>
-              <span v-else class="text-xs text-gray-400">∞</span>
+              <span v-else class="text-xs text-gray-300 dark:text-slate-600">∞</span>
             </div>
+            
             <!-- Botón agregar -->
-            <div class="col-span-1">
+            <div class="col-span-1 flex justify-center">
               <button
                 type="button"
-                @click="agregarItem(item)"
+                @mousedown.prevent="agregarItem(item)"
                 :disabled="props.validarStock && item.tipo === 'producto' && item.tipo_producto !== 'kit' && getStock(item) <= 0"
                 :class="[
-                  'w-full px-2 py-1 text-xs font-medium rounded-md transition-colors duration-200',
+                  'w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-200 transform active:scale-95 shadow-sm',
                   props.validarStock && item.tipo === 'producto' && item.tipo_producto !== 'kit' && getStock(item) <= 0
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-green-500 text-white hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1'
+                    ? 'bg-gray-100 dark:bg-slate-800 text-gray-300 dark:text-slate-600 cursor-not-allowed'
+                    : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/30 hover:shadow-indigo-500/50'
                 ]"
               >
-                <svg class="w-3 h-3 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
               </button>
             </div>
@@ -239,17 +183,19 @@
       </div>
 
       <!-- Sin resultados -->
-      <div v-if="busqueda && itemsFiltrados.length === 0" class="px-4 py-8 text-center text-gray-500 z-50 bg-white border border-gray-300 rounded-lg shadow-lg" :style="{
+      <div v-if="busqueda && itemsFiltrados.length === 0" class="z-50 px-4 py-12 text-center bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-xl" :style="{
           position: 'absolute',
           width: inputWidth + 'px',
           top: inputPosition.top + inputPosition.height + 'px',
           left: inputPosition.left + 'px'
         }">
-        <svg class="w-12 h-12 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
-        <p class="text-sm font-medium">No se encontraron resultados</p>
-        <p class="text-xs text-gray-400 mt-1">Intenta con otros términos de búsqueda</p>
+        <div class="w-16 h-16 mx-auto bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3">
+             <svg class="w-8 h-8 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+             </svg>
+        </div>
+        <p class="text-sm font-bold text-gray-900 dark:text-white">No encontramos coincidencias</p>
+        <p class="text-xs text-gray-400 dark:text-slate-500 mt-1">Intenta buscar con otro nombre o código</p>
       </div>
     </Teleport>
   </div>
@@ -371,21 +317,8 @@ const productosCount = computed(() => {
 });
 
 const serviciosCount = computed(() => {
+  // Contar servicios disponibles
   return todosLosItems.value.filter(item => item.tipo === 'servicio').length;
-});
-
-// Sugerencias rápidas (productos más vendidos o servicios populares)
-const sugerenciasRapidas = computed(() => {
-  return todosLosItems.value
-    .filter(item => item.tipo === 'producto' ? (item.stock_total || item.stock) > 0 : true)
-    .sort((a, b) => {
-      // Ordenar por stock para productos y por precio para servicios
-      if (a.tipo === 'producto' && b.tipo === 'producto') {
-        return (b.stock_total || b.stock) - (a.stock_total || a.stock);
-      }
-      return 0;
-    })
-    .slice(0, 6);
 });
 
 // Funciones
@@ -446,8 +379,6 @@ const cerrarLista = (event) => {
 
 onMounted(() => {
   document.addEventListener('click', cerrarLista);
-  //console.log('Productos:', props.productos);
-  //console.log('Servicios:', props.servicios);
 });
 
 onUnmounted(() => {
@@ -477,7 +408,6 @@ const getAvailabilityInfo = (item) => {
     return `Disponible en: ${nombres}`;
   }
   
-  
   return null;
 };
 
@@ -489,3 +419,6 @@ const getPrecioMostrar = (item) => {
 };
 </script>
 
+<style>
+/* Estilos adicionales si es necesario */
+</style>

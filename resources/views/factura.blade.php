@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,97 +12,130 @@
             color: #333;
             line-height: 1.4;
         }
+
         .header {
             display: flex;
             justify-content: space-between;
             align-items: start;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 2px solid {{ $configuracion['colores']['principal'] }};
+            border-bottom: 2px solid
+                {{ $configuracion['colores']['principal'] }}
+            ;
         }
+
         .empresa-info {
             flex: 1;
         }
+
         .empresa-logo {
             max-width: 150px;
             max-height: 80px;
             object-fit: contain;
         }
+
         .empresa-nombre {
             font-size: 18px;
             font-weight: bold;
-            color: {{ $configuracion['colores']['principal'] }};
+            color:
+                {{ $configuracion['colores']['principal'] }}
+            ;
             margin-bottom: 5px;
         }
+
         .empresa-detalles {
             font-size: 10px;
             color: #666;
         }
+
         .factura-info {
             text-align: right;
-            color: {{ $configuracion['colores']['secundario'] }};
+            color:
+                {{ $configuracion['colores']['secundario'] }}
+            ;
         }
+
         .factura-titulo {
             font-size: 20px;
             font-weight: bold;
             margin-bottom: 5px;
         }
+
         .factura-numero {
             font-size: 16px;
             margin-bottom: 10px;
         }
+
         .info-section {
             display: flex;
             justify-content: space-between;
             margin-bottom: 30px;
         }
+
         .info-block {
             flex: 1;
             padding: 15px;
             background-color: #f9f9f9;
             border-radius: 5px;
         }
+
         .info-titulo {
             font-weight: bold;
-            color: {{ $configuracion['colores']['principal'] }};
+            color:
+                {{ $configuracion['colores']['principal'] }}
+            ;
             margin-bottom: 8px;
             font-size: 11px;
         }
+
         .info-contenido {
             font-size: 10px;
             line-height: 1.3;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
         }
-        th, td {
+
+        th,
+        td {
             padding: 8px 12px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
+
         th {
-            background-color: {{ $configuracion['colores']['principal'] }};
+            background-color:
+                {{ $configuracion['colores']['principal'] }}
+            ;
             color: white;
             font-weight: bold;
             font-size: 10px;
         }
+
         .text-right {
             text-align: right;
         }
+
         .text-center {
             text-align: center;
         }
+
         .total-row {
             background-color: #f0f8ff;
             font-weight: bold;
         }
+
         .total-final {
-            background-color: {{ $configuracion['colores']['principal'] }};
+            background-color:
+                {{ $configuracion['colores']['principal'] }}
+            ;
             color: white;
             font-size: 14px;
         }
+
         .pie-pagina {
             margin-top: 40px;
             padding-top: 20px;
@@ -111,16 +145,26 @@
             text-align: center;
             line-height: 1.3;
         }
+
         .pie-empresa {
-            color: {{ $configuracion['colores']['principal'] }};
+            color:
+                {{ $configuracion['colores']['principal'] }}
+            ;
             font-weight: bold;
         }
+
         @media print {
-            body { margin: 0; }
-            .no-print { display: none; }
+            body {
+                margin: 0;
+            }
+
+            .no-print {
+                display: none;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <div class="empresa-info">
@@ -141,9 +185,11 @@
         <div class="factura-info">
             <div class="factura-titulo">FACTURA</div>
             <div class="factura-numero">#{{ $factura->numero_venta ?? $factura->id }}</div>
-            <div><strong>Fecha:</strong> {{ \App\Services\EmpresaConfiguracionService::formatearFecha($factura->fecha ?? now()) }}</div>
+            <div><strong>Fecha:</strong>
+                {{ \App\Services\EmpresaConfiguracionService::formatearFecha($factura->fecha ?? now()) }}</div>
             @if($factura->fecha_vencimiento ?? false)
-                <div><strong>Vencimiento:</strong> {{ \App\Services\EmpresaConfiguracionService::formatearFecha($factura->fecha_vencimiento) }}</div>
+                <div><strong>Vencimiento:</strong>
+                    {{ \App\Services\EmpresaConfiguracionService::formatearFecha($factura->fecha_vencimiento) }}</div>
             @endif
         </div>
     </div>
@@ -200,8 +246,12 @@
                 <tr>
                     <td class="text-center">{{ $producto->pivot->cantidad ?? 1 }}</td>
                     <td>{{ $producto->nombre ?? 'Producto' }}</td>
-                    <td class="text-right">{{ \App\Services\EmpresaConfiguracionService::formatearMoneda($producto->pivot->precio ?? 0) }}</td>
-                    <td class="text-right">{{ \App\Services\EmpresaConfiguracionService::formatearMoneda(($producto->pivot->precio ?? 0) * ($producto->pivot->cantidad ?? 1)) }}</td>
+                    <td class="text-right">
+                        {{ \App\Services\EmpresaConfiguracionService::formatearMoneda($producto->pivot->precio ?? 0) }}
+                    </td>
+                    <td class="text-right">
+                        {{ \App\Services\EmpresaConfiguracionService::formatearMoneda(($producto->pivot->precio ?? 0) * ($producto->pivot->cantidad ?? 1)) }}
+                    </td>
                 </tr>
             @endforeach
 
@@ -209,45 +259,66 @@
                 <tr>
                     <td class="text-center">{{ $servicio->pivot->cantidad ?? 1 }}</td>
                     <td>{{ $servicio->nombre ?? 'Servicio' }}</td>
-                    <td class="text-right">{{ \App\Services\EmpresaConfiguracionService::formatearMoneda($servicio->pivot->precio ?? 0) }}</td>
-                    <td class="text-right">{{ \App\Services\EmpresaConfiguracionService::formatearMoneda(($servicio->pivot->precio ?? 0) * ($servicio->pivot->cantidad ?? 1)) }}</td>
+                    <td class="text-right">
+                        {{ \App\Services\EmpresaConfiguracionService::formatearMoneda($servicio->pivot->precio ?? 0) }}
+                    </td>
+                    <td class="text-right">
+                        {{ \App\Services\EmpresaConfiguracionService::formatearMoneda(($servicio->pivot->precio ?? 0) * ($servicio->pivot->cantidad ?? 1)) }}
+                    </td>
                 </tr>
             @endforeach
 
             <!-- Subtotal -->
             <tr>
                 <td colspan="3" class="text-right">Subtotal:</td>
-                <td class="text-right">{{ \App\Services\EmpresaConfiguracionService::formatearMoneda($factura->subtotal ?? 0) }}</td>
+                <td class="text-right">
+                    {{ \App\Services\EmpresaConfiguracionService::formatearMoneda($factura->subtotal ?? 0) }}
+                </td>
             </tr>
 
             <!-- Descuento -->
             @if(($factura->descuento_general ?? 0) > 0)
                 <tr>
                     <td colspan="3" class="text-right">Descuento:</td>
-                    <td class="text-right">{{ \App\Services\EmpresaConfiguracionService::formatearMoneda($factura->descuento_general) }}</td>
+                    <td class="text-right">
+                        {{ \App\Services\EmpresaConfiguracionService::formatearMoneda($factura->descuento_general) }}
+                    </td>
                 </tr>
             @endif
 
             <!-- IVA -->
             <tr>
                 <td colspan="3" class="text-right">IVA ({{ $configuracion['financiera']['iva_porcentaje'] }}%):</td>
-                <td class="text-right">{{ \App\Services\EmpresaConfiguracionService::formatearMoneda($factura->iva ?? 0) }}</td>
+                <td class="text-right">
+                    {{ \App\Services\EmpresaConfiguracionService::formatearMoneda($factura->iva ?? 0) }}
+                </td>
             </tr>
 
             <!-- Total -->
             <tr class="total-final">
                 <td colspan="3" class="text-right">TOTAL:</td>
-                <td class="text-right">{{ \App\Services\EmpresaConfiguracionService::formatearMoneda($factura->total ?? 0) }}</td>
+                <td class="text-right">
+                    {{ \App\Services\EmpresaConfiguracionService::formatearMoneda($factura->total ?? 0) }}
+                </td>
             </tr>
         </tbody>
     </table>
 
-    @if($factura->notas ?? false)
-        <div style="margin: 20px 0; padding: 15px; background-color: #f0f8ff; border-radius: 5px;">
-            <strong>Notas:</strong><br>
-            {{ $factura->notas }}
-        </div>
-    @endif
+    <div
+        style="margin: 20px 0; padding: 15px; border: 1px solid #d1d5db; border-radius: 5px; background-color: #f8fafc;">
+        <strong style="color: {{ $configuracion['colores']['principal'] }};">DATOS BANCARIOS PARA DEPÓSITO O
+            TRANSFERENCIA:</strong><br>
+        <strong>TITULAR DE CUENTA BANAMEX:</strong> JESUS ALBERTO LOPEZ NORIEGA<br>
+        <strong>BANCO:</strong> BANAMEX | <strong>CLABE:</strong> 002760700859520625
+    </div>
+
+    <div style="margin: 20px 0; padding: 15px; background-color: #f3f4f6; border-radius: 5px; font-size: 10px;">
+        <strong>GARANTÍA AL COMPRAR:</strong><br>
+        Equipos: 365 días | Partes eléctricas: 3 meses.<br>
+        Soporte técnico: <strong>662-460-6840</strong> o <strong>www.asistenciavircom.com</strong>.<br>
+        Para hacer válida la garantía es indispensable presentar este comprobante y cumplir con los requisitos de uso
+        adecuado.
+    </div>
 
     @if($configuracion['pie_pagina_facturas'] ?? false)
         <div class="pie-pagina">
@@ -263,4 +334,5 @@
         </div>
     @endif
 </body>
+
 </html>

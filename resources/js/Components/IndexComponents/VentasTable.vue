@@ -88,11 +88,12 @@
             </td>
 
             <!-- Acciones -->
+            <!-- Acciones -->
             <td class="px-6 py-5 text-right">
-              <div class="flex items-center justify-end space-x-2">
+              <div class="flex items-center justify-end gap-2 flex-nowrap">
                 <button
                   @click="onVerDetalles(documento)"
-                  class="p-2.5 bg-white dark:bg-slate-800 border-2 border-gray-100 dark:border-slate-700/50 rounded-xl text-gray-400 dark:text-slate-500 hover:text-emerald-500 dark:hover:text-emerald-400 hover:border-emerald-500 dark:hover:border-emerald-400 transition-all transform hover:scale-110"
+                  class="p-2 bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400 rounded-lg hover:bg-sky-100 dark:hover:bg-sky-900/40 transition-all shadow-sm hover:shadow-md hover:scale-105 active:scale-95"
                   title="Ver Detalles"
                 >
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
@@ -101,7 +102,7 @@
                 <button
                   v-if="!esCancelada(documento)"
                   @click="onEditar(documento.id)"
-                  class="p-2.5 bg-white dark:bg-slate-800 border-2 border-gray-100 dark:border-slate-700/50 rounded-xl text-gray-400 dark:text-slate-500 hover:text-blue-500 hover:border-blue-500 transition-all transform hover:scale-110"
+                  class="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-all shadow-sm hover:shadow-md hover:scale-105 active:scale-95"
                   title="Editar"
                 >
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
@@ -109,31 +110,40 @@
 
                 <button
                   @click="onImprimir(documento)"
-                  class="p-2.5 bg-white dark:bg-slate-800 border-2 border-gray-100 dark:border-slate-700/50 rounded-xl text-gray-400 dark:text-slate-500 hover:text-rose-500 hover:border-rose-500 transition-all transform hover:scale-110"
+                  class="p-2 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-all shadow-sm hover:shadow-md hover:scale-105 active:scale-95"
                   title="PDF"
                 >
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                 </button>
 
-                <div class="relative inline-block text-left">
-                   <button
-                    @click="onMarcarPagado(documento)"
-                    v-if="!documento.pagado && !esCancelada(documento)"
-                    class="p-2.5 bg-white dark:bg-slate-800 border-2 border-gray-100 dark:border-slate-700/50 rounded-xl text-gray-400 dark:text-slate-500 hover:text-emerald-600 hover:border-emerald-600 transition-all transform hover:scale-110"
-                    title="Registrar Pago"
-                  >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  </button>
+                <button
+                  v-if="!esCancelada(documento) && !documento.factura_uuid"
+                  @click="emit('facturar', documento)"
+                  class="p-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-all shadow-sm hover:shadow-md hover:scale-105 active:scale-95"
+                  title="Facturar Venta"
+                >
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </button>
 
-                  <button
-                    v-if="!esCancelada(documento)"
-                    @click="onCancelar(documento.id)"
-                    class="p-2.5 bg-white dark:bg-slate-800 border-2 border-gray-100 dark:border-slate-700/50 rounded-xl text-gray-400 dark:text-slate-500 hover:text-red-500 hover:border-red-500 transition-all transform hover:scale-110"
-                    title="Cancelar"
-                  >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                  </button>
-                </div>
+                <button
+                   @click="onMarcarPagado(documento)"
+                   v-if="!documento.pagado && !esCancelada(documento)"
+                   class="p-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-all shadow-sm hover:shadow-md hover:scale-105 active:scale-95"
+                   title="Registrar Pago"
+                 >
+                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </button>
+
+                <button
+                  v-if="!esCancelada(documento)"
+                  @click="onCancelar(documento.id)"
+                  class="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-all shadow-sm hover:shadow-md hover:scale-105 active:scale-95"
+                  title="Cancelar"
+                >
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
               </div>
             </td>
           </tr>
@@ -163,7 +173,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
-  'ver-detalles', 'editar', 'eliminar', 'imprimir', 'sort', 'marcar-pagado', 'cancelar', 'enviar-email'
+  'ver-detalles', 'editar', 'eliminar', 'imprimir', 'sort', 'marcar-pagado', 'cancelar', 'enviar-email', 'facturar'
 ])
 
 // Configuración de estados

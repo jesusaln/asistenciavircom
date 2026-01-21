@@ -188,7 +188,7 @@ const opcionesIdioma = [
 const opcionesPlantilla = [
   { value: 'recordarorio_de_instalacion', label: 'Recordatorio de Instalación' },
   { value: 'saludo', label: 'Mensaje de Bienvenida (Saludo)' },
-  { value: 'mensaje_de_bienvenida_climas_del_desierto', label: 'Bienvenida Climas del Desierto' },
+  { value: 'mensaje_de_bienvenida_asistencia_vircom', label: 'Bienvenida Asistencia Vircom' },
   { value: 'hello_world', label: 'Hello World (Prueba)' },
   { value: 'payment_reminder', label: 'Recordatorio de Pago (Nueva)' },
 ]

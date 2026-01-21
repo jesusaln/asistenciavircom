@@ -269,6 +269,27 @@ class EmpresaConfiguracionService
     }
 
     /**
+     * Convertir un número a su representación escrita en español (Ideal para facturas)
+     */
+    public static function convertirALetras($numero, $moneda = 'MXN')
+    {
+        $numero = number_format($numero, 2, '.', '');
+        $partes = explode('.', $numero);
+        $entero = (int) $partes[0];
+        $decimal = $partes[1];
+
+        $fmt = new \NumberFormatter('es', \NumberFormatter::SPELLOUT);
+        $textoEntero = strtoupper($fmt->format($entero));
+
+        $sufijo = ($moneda === 'MXN') ? 'PESOS' : 'DÓLARES';
+        if ($entero == 1) {
+            $sufijo = ($moneda === 'MXN') ? 'PESO' : 'DÓLAR';
+        }
+
+        return "({$textoEntero} {$sufijo} {$decimal}/100 " . ($moneda === 'MXN' ? 'M.N.' : 'USD') . ")";
+    }
+
+    /**
      * Formatear fecha según configuración
      */
     public static function formatearFecha($fecha, $formato = null)

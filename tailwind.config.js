@@ -17,8 +17,37 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Nunito', ...defaultTheme.fontFamily.sans],
+                mono: ['Fira Code', 'Roboto Mono', ...defaultTheme.fontFamily.mono], // Añadido para tickets/cifras
             },
             colors: {
+                // REEMPLAZO MASIVO: Gray ahora es Slate (Dark Premium)
+                gray: {
+                    50: '#f8fafc',
+                    100: '#f1f5f9',
+                    200: '#e2e8f0',
+                    300: '#cbd5e1',
+                    400: '#94a3b8',
+                    500: '#64748b',
+                    600: '#475569',
+                    700: '#334155',
+                    800: '#1e293b',
+                    900: '#0f172a',
+                    950: '#020617', // Clave para fondos profundos
+                },
+                // Definimos 'slate' explícitamente también por si acaso se usa directamente
+                slate: {
+                    50: '#f8fafc',
+                    100: '#f1f5f9',
+                    200: '#e2e8f0',
+                    300: '#cbd5e1',
+                    400: '#94a3b8',
+                    500: '#64748b',
+                    600: '#475569',
+                    700: '#334155',
+                    800: '#1e293b',
+                    900: '#0f172a',
+                    950: '#020617',
+                },
                 brand: {
                     50: '#FFFBEB',
                     100: '#FEF3C7',
