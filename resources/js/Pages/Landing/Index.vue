@@ -213,7 +213,12 @@ const planesCalculados = computed(() => {
         </div>
 
         <!-- Notificación de Prueba Social (FOMO) - productos destacados -->
-        <SocialProofNotification :productos="destacados" />
+        <SocialProofNotification 
+            :productos="destacados" 
+            :colorCorporativo="empresaData?.color_primario || empresaData?.color_principal || '#3b82f6'"
+            :initialDelay="10000"
+            :interval="600000"
+        />
 
         <!-- Widget Flotante de WhatsApp -->
         <WhatsAppWidget :whatsapp="empresaData?.whatsapp" :empresaNombre="empresaData?.nombre_empresa || empresaData?.nombre" />
