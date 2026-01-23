@@ -64,9 +64,9 @@ const estadoClasses = computed(() => {
         'vencido': 'bg-red-100 text-red-800 border-red-200',
         'moroso': 'bg-red-200 text-red-900 border-red-300',
         'suspendido': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-        'finalizado': 'bg-gray-100 text-gray-600 border-gray-200',
+        'finalizado': 'bg-gray-100 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-800',
     };
-    return classes[props.renta.estado] || 'bg-gray-100 text-gray-600';
+    return classes[props.renta.estado] || 'bg-gray-100 text-gray-600 dark:text-gray-300';
 });
 
 const estadoLabels = {
@@ -141,7 +141,7 @@ const getCuentaStatus = (cuenta) => {
     if (diffDays <= 7) {
         return { icon: '⌛', color: 'bg-orange-400', label: 'Próximo', textColor: 'text-white' };
     }
-    return { icon: '○', color: 'bg-gray-300', label: 'Pendiente', textColor: 'text-gray-600' };
+    return { icon: '○', color: 'bg-gray-300', label: 'Pendiente', textColor: 'text-gray-600 dark:text-gray-300' };
 };
 
 // Abrir modal de pago
@@ -200,17 +200,17 @@ const confirmarPago = async () => {
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
                         <div class="flex items-center gap-3 mb-2">
-                            <Link :href="route('rentas.index')" class="text-gray-500 hover:text-gray-700">
+                            <Link :href="route('rentas.index')" class="text-gray-500 dark:text-gray-400 hover:text-gray-700">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                                 </svg>
                             </Link>
-                            <h1 class="text-2xl font-bold text-gray-900">{{ renta.numero_contrato }}</h1>
+                            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ renta.numero_contrato }}</h1>
                             <span :class="estadoClasses" class="px-3 py-1 rounded-full text-sm font-medium border">
                                 {{ estadoLabels[renta.estado] || renta.estado }}
                             </span>
                         </div>
-                        <p class="text-gray-600">
+                        <p class="text-gray-600 dark:text-gray-300">
                             <span class="font-medium">{{ renta.cliente?.nombre_razon_social }}</span>
                             · Contrato de {{ renta.meses_duracion }} meses
                         </p>
@@ -240,7 +240,7 @@ const confirmarPago = async () => {
                 <div class="lg:col-span-1 space-y-6">
                     
                     <!-- Información del Contrato -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-3">
                             <h2 class="text-white font-semibold flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -251,35 +251,35 @@ const confirmarPago = async () => {
                         </div>
                         <div class="p-4 space-y-3">
                             <div class="flex justify-between">
-                                <span class="text-gray-500 text-sm">Fecha Inicio</span>
+                                <span class="text-gray-500 dark:text-gray-400 text-sm">Fecha Inicio</span>
                                 <span class="font-medium">{{ formatDate(renta.fecha_inicio) }}</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-500 text-sm">Fecha Fin</span>
+                                <span class="text-gray-500 dark:text-gray-400 text-sm">Fecha Fin</span>
                                 <span class="font-medium">{{ formatDate(renta.fecha_fin) }}</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-500 text-sm">Día de Pago</span>
+                                <span class="text-gray-500 dark:text-gray-400 text-sm">Día de Pago</span>
                                 <span class="font-medium">Día {{ renta.dia_pago }}</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-500 text-sm">Forma de Pago</span>
+                                <span class="text-gray-500 dark:text-gray-400 text-sm">Forma de Pago</span>
                                 <span class="font-medium capitalize">{{ renta.forma_pago }}</span>
                             </div>
                             <hr class="my-2">
                             <div class="flex justify-between">
-                                <span class="text-gray-500 text-sm">Mensualidad</span>
+                                <span class="text-gray-500 dark:text-gray-400 text-sm">Mensualidad</span>
                                 <span class="font-bold text-lg text-orange-600">{{ formatCurrency(renta.monto_mensual) }}</span>
                             </div>
                             <div v-if="renta.deposito_garantia > 0" class="flex justify-between">
-                                <span class="text-gray-500 text-sm">Depósito</span>
+                                <span class="text-gray-500 dark:text-gray-400 text-sm">Depósito</span>
                                 <span class="font-medium">{{ formatCurrency(renta.deposito_garantia) }}</span>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Equipos Rentados -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-3">
                             <h2 class="text-white font-semibold flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -289,25 +289,25 @@ const confirmarPago = async () => {
                             </h2>
                         </div>
                         <div class="divide-y divide-gray-100">
-                            <div v-for="equipo in renta.equipos" :key="equipo.id" class="p-4 hover:bg-white">
+                            <div v-for="equipo in renta.equipos" :key="equipo.id" class="p-4 hover:bg-white dark:bg-slate-900">
                                 <div class="flex items-start justify-between">
                                     <div>
-                                        <p class="font-medium text-gray-900">{{ equipo.nombre }}</p>
-                                        <p class="text-sm text-gray-500">{{ equipo.codigo }} · {{ equipo.marca }} {{ equipo.modelo }}</p>
+                                        <p class="font-medium text-gray-900 dark:text-white">{{ equipo.nombre }}</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ equipo.codigo }} · {{ equipo.marca }} {{ equipo.modelo }}</p>
                                     </div>
                                     <span class="text-sm font-semibold text-blue-600">
                                         {{ formatCurrency(equipo.pivot?.precio_mensual || equipo.precio_renta_mensual) }}/mes
                                     </span>
                                 </div>
                             </div>
-                            <div v-if="!renta.equipos?.length" class="p-4 text-center text-gray-500">
+                            <div v-if="!renta.equipos?.length" class="p-4 text-center text-gray-500 dark:text-gray-400">
                                 No hay equipos asociados
                             </div>
                         </div>
                     </div>
 
                     <!-- Expediente Digital (NUEVO) -->
-                    <div v-if="renta.firmado_at" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div v-if="renta.firmado_at" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-3">
                             <h2 class="text-white font-semibold flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -318,29 +318,29 @@ const confirmarPago = async () => {
                         </div>
                         <div class="p-4 space-y-4">
                             <!-- Firma -->
-                            <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <div class="p-3 bg-gray-50 dark:bg-slate-950 rounded-lg border border-gray-200 dark:border-slate-800">
                                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Firma Digital</p>
-                                <img :src="renta.firma_digital" class="h-20 object-contain mx-auto bg-white border rounded p-1" alt="Firma">
-                                <p class="text-[10px] text-center text-gray-500 mt-2">Firmado por: {{ renta.firmado_nombre }}<br>{{ formatDate(renta.firmado_at) }} IP: {{ renta.firmado_ip }}</p>
+                                <img :src="renta.firma_digital" class="h-20 object-contain mx-auto bg-white dark:bg-slate-900 border rounded p-1" alt="Firma">
+                                <p class="text-[10px] text-center text-gray-500 dark:text-gray-400 mt-2">Firmado por: {{ renta.firmado_nombre }}<br>{{ formatDate(renta.firmado_at) }} IP: {{ renta.firmado_ip }}</p>
                             </div>
 
                             <!-- Documentos -->
                             <div class="grid grid-cols-2 gap-3">
                                 <a v-if="renta.ine_frontal" :href="'/storage/' + renta.ine_frontal" target="_blank" class="flex flex-col items-center p-3 border rounded-xl hover:bg-emerald-50 transition-all group">
                                     <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mb-2">🪪</div>
-                                    <span class="text-[10px] font-bold text-gray-600 group-hover:text-emerald-700">INE Frontal</span>
+                                    <span class="text-[10px] font-bold text-gray-600 dark:text-gray-300 group-hover:text-emerald-700">INE Frontal</span>
                                 </a>
                                 <a v-if="renta.ine_trasera" :href="'/storage/' + renta.ine_trasera" target="_blank" class="flex flex-col items-center p-3 border rounded-xl hover:bg-emerald-50 transition-all group">
                                     <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mb-2">🪪</div>
-                                    <span class="text-[10px] font-bold text-gray-600 group-hover:text-emerald-700">INE Trasera</span>
+                                    <span class="text-[10px] font-bold text-gray-600 dark:text-gray-300 group-hover:text-emerald-700">INE Trasera</span>
                                 </a>
                                 <a v-if="renta.comprobante_domicilio" :href="'/storage/' + renta.comprobante_domicilio" target="_blank" class="flex flex-col items-center p-3 border rounded-xl hover:bg-emerald-50 transition-all group">
                                     <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mb-2">🏠</div>
-                                    <span class="text-[10px] font-bold text-gray-600 group-hover:text-emerald-700 text-center">Comprobante</span>
+                                    <span class="text-[10px] font-bold text-gray-600 dark:text-gray-300 group-hover:text-emerald-700 text-center">Comprobante</span>
                                 </a>
                                 <a v-if="renta.solicitud_renta" :href="'/storage/' + renta.solicitud_renta" target="_blank" class="flex flex-col items-center p-3 border rounded-xl hover:bg-emerald-50 transition-all group">
                                     <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mb-2">📄</div>
-                                    <span class="text-[10px] font-bold text-gray-600 group-hover:text-emerald-700">Solicitud</span>
+                                    <span class="text-[10px] font-bold text-gray-600 dark:text-gray-300 group-hover:text-emerald-700">Solicitud</span>
                                 </a>
                             </div>
                         </div>
@@ -351,7 +351,7 @@ const confirmarPago = async () => {
                 <div class="lg:col-span-2 space-y-6">
                     
                     <!-- Resumen de Cobranza -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-3">
                             <h2 class="text-white font-semibold flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -368,9 +368,9 @@ const confirmarPago = async () => {
                                     <div class="text-2xl font-bold text-green-600">{{ cobranzaStats.pagadas }}</div>
                                     <div class="text-xs text-green-700">Pagadas</div>
                                 </div>
-                                <div class="text-center p-3 bg-white rounded-lg">
-                                    <div class="text-2xl font-bold text-gray-600">{{ cobranzaStats.pendientes }}</div>
-                                    <div class="text-xs text-gray-600">Pendientes</div>
+                                <div class="text-center p-3 bg-white dark:bg-slate-900 rounded-lg">
+                                    <div class="text-2xl font-bold text-gray-600 dark:text-gray-300">{{ cobranzaStats.pendientes }}</div>
+                                    <div class="text-xs text-gray-600 dark:text-gray-300">Pendientes</div>
                                 </div>
                                 <div class="text-center p-3 bg-red-50 rounded-lg">
                                     <div class="text-2xl font-bold text-red-600">{{ cobranzaStats.vencidas }}</div>
@@ -384,7 +384,7 @@ const confirmarPago = async () => {
                             
                             <!-- Barra de progreso -->
                             <div class="mb-4">
-                                <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                <div class="flex justify-between text-sm text-gray-600 dark:text-gray-300 mb-1">
                                     <span>Progreso del Contrato</span>
                                     <span>{{ cobranzaStats.porcentajePagado }}% ({{ cobranzaStats.pagadas }}/{{ cobranzaStats.total }})</span>
                                 </div>
@@ -407,7 +407,7 @@ const confirmarPago = async () => {
                     </div>
                     
                     <!-- Timeline de Cobranzas -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-4 py-3">
                             <h2 class="text-white font-semibold flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -431,7 +431,7 @@ const confirmarPago = async () => {
                                                 ? 'bg-red-50 border-red-300 cursor-pointer hover:border-red-500'
                                                 : getCuentaStatus(cuenta).label === 'Próximo'
                                                     ? 'bg-orange-50 border-orange-300 cursor-pointer hover:border-orange-500'
-                                                    : 'bg-white border-gray-200 cursor-pointer hover:border-gray-400'
+                                                    : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 cursor-pointer hover:border-gray-400'
                                     ]"
                                 >
                                     <!-- Indicador de estado -->
@@ -441,10 +441,10 @@ const confirmarPago = async () => {
                                     
                                     <!-- Mes y año -->
                                     <div class="text-xs font-semibold text-gray-700">{{ getMonthName(cuenta.fecha_vencimiento) }}</div>
-                                    <div class="text-[10px] text-gray-500">{{ getYear(cuenta.fecha_vencimiento) }}</div>
+                                    <div class="text-[10px] text-gray-500 dark:text-gray-400">{{ getYear(cuenta.fecha_vencimiento) }}</div>
                                     
                                     <!-- Monto -->
-                                    <div :class="['text-xs font-medium mt-1', cuenta.estado === 'pagado' ? 'text-green-600' : 'text-gray-600']">
+                                    <div :class="['text-xs font-medium mt-1', cuenta.estado === 'pagado' ? 'text-green-600' : 'text-gray-600 dark:text-gray-300']">
                                         {{ formatCurrency(cuenta.monto_total).replace('MX$', '$') }}
                                     </div>
                                     
@@ -459,26 +459,26 @@ const confirmarPago = async () => {
                             <div class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-4 text-xs">
                                 <div class="flex items-center gap-1">
                                     <div class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center text-white text-[10px]">✓</div>
-                                    <span class="text-gray-600">Pagado</span>
+                                    <span class="text-gray-600 dark:text-gray-300">Pagado</span>
                                 </div>
                                 <div class="flex items-center gap-1">
                                     <div class="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-[10px]">!</div>
-                                    <span class="text-gray-600">Vencido</span>
+                                    <span class="text-gray-600 dark:text-gray-300">Vencido</span>
                                 </div>
                                 <div class="flex items-center gap-1">
                                     <div class="w-4 h-4 bg-orange-400 rounded-full flex items-center justify-center text-white text-[10px]">⌛</div>
-                                    <span class="text-gray-600">Próximo (7 días)</span>
+                                    <span class="text-gray-600 dark:text-gray-300">Próximo (7 días)</span>
                                 </div>
                                 <div class="flex items-center gap-1">
-                                    <div class="w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 text-[10px]">○</div>
-                                    <span class="text-gray-600">Pendiente</span>
+                                    <div class="w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 text-[10px]">○</div>
+                                    <span class="text-gray-600 dark:text-gray-300">Pendiente</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Observaciones -->
-                    <div v-if="renta.observaciones" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div v-if="renta.observaciones" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="bg-gradient-to-r from-gray-500 to-gray-600 px-4 py-3">
                             <h2 class="text-white font-semibold">Observaciones</h2>
                         </div>
@@ -493,23 +493,23 @@ const confirmarPago = async () => {
     
     <!-- Modal de Pago -->
     <div v-if="showPagoModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showPagoModal = false">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-md overflow-hidden">
             <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4">
                 <h3 class="text-lg font-semibold text-white">Registrar Pago</h3>
             </div>
             
             <div class="p-6 space-y-4">
-                <div class="bg-white rounded-lg p-4">
+                <div class="bg-white dark:bg-slate-900 rounded-lg p-4">
                     <div class="flex justify-between mb-2">
-                        <span class="text-sm text-gray-600">Vencimiento:</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-300">Vencimiento:</span>
                         <span class="font-medium">{{ formatDate(cuentaSeleccionada?.fecha_vencimiento) }}</span>
                     </div>
                     <div class="flex justify-between mb-2">
-                        <span class="text-sm text-gray-600">Concepto:</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-300">Concepto:</span>
                         <span class="font-medium">{{ cuentaSeleccionada?.notas }}</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-sm text-gray-600">Monto Pendiente:</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-300">Monto Pendiente:</span>
                         <span class="font-bold text-lg text-orange-600">{{ formatCurrency(cuentaSeleccionada?.monto_pendiente) }}</span>
                     </div>
                 </div>
@@ -559,7 +559,7 @@ const confirmarPago = async () => {
                 </div>
             </div>
             
-            <div class="flex justify-end gap-3 px-6 py-4 bg-white border-t">
+            <div class="flex justify-end gap-3 px-6 py-4 bg-white dark:bg-slate-900 border-t">
                 <button @click="showPagoModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
                     Cancelar
                 </button>

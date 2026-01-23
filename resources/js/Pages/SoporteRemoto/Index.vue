@@ -1,7 +1,7 @@
 <template>
   <AppLayout title="Soporte Remoto">
     <template #header>
-      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+      <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
         Soporte Remoto (RustDesk)
       </h2>
     </template>
@@ -37,10 +37,10 @@
         </div>
 
         <!-- IFrame del Panel RustDesk -->
-        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg h-[800px] border border-gray-200 relative">
-            <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-white z-10">
+        <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-xl sm:rounded-lg h-[800px] border border-gray-200 dark:border-slate-800 relative">
+            <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-white dark:bg-slate-900 z-10">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-                <span class="ml-3 text-gray-600">Cargando panel remoto...</span>
+                <span class="ml-3 text-gray-600 dark:text-gray-300">Cargando panel remoto...</span>
             </div>
             <iframe 
                 :src="remoteUrl" 

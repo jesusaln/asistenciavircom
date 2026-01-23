@@ -124,9 +124,9 @@ const handleStripe = async () => {
         <div class="w-full space-y-6">
             
             <!-- Header -->
-            <div class="bg-white rounded-lg shadow p-6">
-                <h1 class="text-2xl font-bold text-gray-800">🛠️ Test de Pasarelas de Pago</h1>
-                <p class="text-gray-600 mt-2">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow p-6">
+                <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">🛠️ Test de Pasarelas de Pago</h1>
+                <p class="text-gray-600 dark:text-gray-300 mt-2">
                     Herramienta para desarrolladores. Simula pagos para pólizas en entornos Sandbox.
                 </p>
                 <div v-if="!poliza" class="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700">
@@ -136,25 +136,25 @@ const handleStripe = async () => {
             </div>
 
             <!-- Detalles de la Póliza -->
-            <div v-if="poliza" class="bg-white rounded-lg shadow overflow-hidden">
-                <div class="bg-white px-6 py-4 border-b">
-                    <h3 class="text-lg font-medium text-gray-900">Póliza Pendiente #{{ poliza.id }}</h3>
+            <div v-if="poliza" class="bg-white dark:bg-slate-900 rounded-lg shadow overflow-hidden">
+                <div class="bg-white dark:bg-slate-900 px-6 py-4 border-b">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Póliza Pendiente #{{ poliza.id }}</h3>
                 </div>
                 <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <span class="block text-sm text-gray-500">Cliente</span>
+                        <span class="block text-sm text-gray-500 dark:text-gray-400">Cliente</span>
                         <span class="font-medium">{{ poliza.cliente?.nombre_comercial || 'N/A' }}</span>
                     </div>
                     <div>
-                        <span class="block text-sm text-gray-500">Plan</span>
+                        <span class="block text-sm text-gray-500 dark:text-gray-400">Plan</span>
                         <span class="font-medium">{{ poliza.nombre }}</span>
                     </div>
                     <div>
-                        <span class="block text-sm text-gray-500">Monto Mensual/Anual</span>
+                        <span class="block text-sm text-gray-500 dark:text-gray-400">Monto Mensual/Anual</span>
                         <span class="font-medium">${{ poliza.monto_mensual }}</span>
                     </div>
                     <div>
-                        <span class="block text-sm text-gray-500">Estado</span>
+                        <span class="block text-sm text-gray-500 dark:text-gray-400">Estado</span>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                             {{ poliza.estado }}
                         </span>
@@ -166,11 +166,11 @@ const handleStripe = async () => {
             <div v-if="poliza" class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 
                 <!-- PayPal -->
-                <div class="bg-white rounded-lg shadow p-6 border-t-4 border-blue-500">
+                <div class="bg-white dark:bg-slate-900 rounded-lg shadow p-6 border-t-4 border-blue-500">
                     <h3 class="font-bold text-lg mb-4 flex items-center">
                         <span class="text-2xl mr-2">🅿️</span> PayPal
                     </h3>
-                    <p class="text-sm text-gray-500 mb-4 h-12">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4 h-12">
                         Crea una orden y redirige a sandbox.paypal.com
                     </p>
                     <button 
@@ -185,11 +185,11 @@ const handleStripe = async () => {
                 </div>
 
                 <!-- MercadoPago -->
-                <div class="bg-white rounded-lg shadow p-6 border-t-4 border-blue-400">
+                <div class="bg-white dark:bg-slate-900 rounded-lg shadow p-6 border-t-4 border-blue-400">
                     <h3 class="font-bold text-lg mb-4 flex items-center">
                         <span class="text-2xl mr-2">🤝</span> MercadoPago
                     </h3>
-                    <p class="text-sm text-gray-500 mb-4 h-12">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4 h-12">
                         Crea preferencia y abre Checkout Pro (Sandbox).
                     </p>
                     <button 
@@ -204,11 +204,11 @@ const handleStripe = async () => {
                 </div>
 
                 <!-- Stripe -->
-                <div class="bg-white rounded-lg shadow p-6 border-t-4 border-purple-500">
+                <div class="bg-white dark:bg-slate-900 rounded-lg shadow p-6 border-t-4 border-purple-500">
                     <h3 class="font-bold text-lg mb-4 flex items-center">
                         <span class="text-2xl mr-2">💳</span> Stripe
                     </h3>
-                    <p class="text-sm text-gray-500 mb-4 h-12">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4 h-12">
                         Crea Checkout Session y redirige a formulario alojado.
                     </p>
                     <button 
@@ -229,11 +229,11 @@ const handleStripe = async () => {
                     <span>> Consola de depuración</span>
                     <button @click="logs = []" class="hover:text-white">Limpiar</button>
                 </div>
-                <div v-if="logs.length === 0" class="text-gray-600 italic">
+                <div v-if="logs.length === 0" class="text-gray-600 dark:text-gray-300 italic">
                     Esperando acciones...
                 </div>
                 <div v-for="log in logs" :key="log.id" class="mb-1">
-                    <span class="text-gray-500">[{{ log.time }}]</span>
+                    <span class="text-gray-500 dark:text-gray-400">[{{ log.time }}]</span>
                     <span :class="{
                         'text-green-400': log.type === 'success',
                         'text-red-400': log.type === 'error',

@@ -57,6 +57,7 @@ class AppServiceProvider extends ServiceProvider
             'poliza_servicio' => \App\Models\PolizaServicio::class,
             'ticket' => \App\Models\Ticket::class,
             'factura' => \App\Models\Factura::class,
+            'cita' => \App\Models\Cita::class,
             // Nota: Para modelos de terceros como User/Tecnico usados por spatie/permission,
             // no definimos alias cortos para no romper pivotes existentes
 
@@ -76,7 +77,9 @@ class AppServiceProvider extends ServiceProvider
             'App\\Models\\CuentasPorPagar' => \App\Models\CuentasPorPagar::class,
             'App\\Models\\EntregaDinero' => \App\Models\EntregaDinero::class,
             'App\\Models\\PolizaServicio' => \App\Models\PolizaServicio::class,
+            'App\\Models\\Ticket' => \App\Models\Ticket::class,
             'App\\Models\\Factura' => \App\Models\Factura::class,
+            'App\\Models\\Cita' => \App\Models\Cita::class,
         ]);
 
 

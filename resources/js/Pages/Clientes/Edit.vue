@@ -2,7 +2,7 @@
   <Head title="Editar Cliente" />
   <div class="w-full p-4" :style="cssVars">
     <!-- Card principal con glassmorphism -->
-    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-xl dark:shadow-none rounded-2xl p-8 border border-gray-100 dark:border-gray-700">
+    <div class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-xl dark:shadow-none rounded-2xl p-8 border border-gray-100 dark:border-gray-700">
       <!-- Header moderno -->
       <div class="flex items-center justify-between mb-8">
         <div class="flex items-center gap-4">
@@ -12,11 +12,11 @@
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Editar Cliente</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Modifique los datos del cliente seleccionado</p>
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 dark:text-gray-100">Editar Cliente</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-0.5">Modifique los datos del cliente seleccionado</p>
           </div>
         </div>
-        <div class="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+        <div class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 flex items-center gap-1">
           <span class="w-2 h-2 rounded-full bg-red-500"></span>
           Campos obligatorios marcados con <span class="text-red-500 ml-1">*</span>
         </div>
@@ -79,15 +79,15 @@
         />
 
         <!-- Sección de Expediente de Crédito (Solo en Edit) -->
-        <div class="mt-12 pt-12 border-t border-gray-200 dark:border-gray-700">
+        <div class="mt-12 pt-12 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700">
              <ExpedienteCredito :cliente="cliente" :documentos="cliente.documentos" />
         </div>
 
-        <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700">
             <button
               type="button"
               @click="resetForm"
-              class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-white dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               Restaurar
             </button>

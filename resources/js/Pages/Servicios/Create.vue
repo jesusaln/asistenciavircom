@@ -1,15 +1,15 @@
 <template>
     <Head title="Crear Servicio" />
     <div class="w-full">
-        <div class="bg-white shadow-sm rounded-lg">
+        <div class="bg-white dark:bg-slate-900 shadow-sm rounded-lg">
             <!-- Header -->
-            <div class="border-b border-gray-200 px-6 py-4">
-                <h1 class="text-2xl font-semibold text-gray-900">Crear Servicio</h1>
-                <p class="text-sm text-gray-600 mt-1">Complete la información del servicio</p>
+            <div class="border-b border-gray-200 dark:border-slate-800 px-6 py-4">
+                <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Crear Servicio</h1>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Complete la información del servicio</p>
             </div>
 
             <!-- Navigation Tabs -->
-            <div class="border-b border-gray-200">
+            <div class="border-b border-gray-200 dark:border-slate-800">
                 <nav class="flex space-x-8 px-6" aria-label="Tabs">
                     <button
                         @click="activeTab = 'general'"
@@ -17,7 +17,7 @@
                             'py-4 px-1 border-b-2 font-medium text-sm',
                             activeTab === 'general'
                                 ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:border-gray-300'
                         ]"
                         type="button"
                     >
@@ -29,7 +29,7 @@
                             'py-4 px-1 border-b-2 font-medium text-sm',
                             activeTab === 'pricing'
                                 ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:border-gray-300'
                         ]"
                         type="button"
                     >
@@ -41,7 +41,7 @@
                             'py-4 px-1 border-b-2 font-medium text-sm',
                             activeTab === 'additional'
                                 ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:border-gray-300'
                         ]"
                         type="button"
                     >
@@ -53,7 +53,7 @@
                             'py-4 px-1 border-b-2 font-medium text-sm',
                             activeTab === 'sat'
                                 ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:border-gray-300'
                         ]"
                         type="button"
                     >
@@ -183,7 +183,7 @@
                                     min="0"
                                 />
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Monto fijo que recibe el vendedor por cada prestación de este servicio
                             </p>
                             <div v-if="form.errors.comision_vendedor" class="error-message">{{ form.errors.comision_vendedor }}</div>
@@ -191,18 +191,18 @@
                     </div>
 
                     <!-- Vista Previa de Costos -->
-                    <div v-if="form.precio && form.duracion" class="bg-white p-4 rounded-lg">
+                    <div v-if="form.precio && form.duracion" class="bg-white dark:bg-slate-900 p-4 rounded-lg">
                         <h4 class="text-sm font-medium text-gray-700 mb-2">Resumen del Servicio</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                             <div>
-                                <span class="text-gray-600">Precio por minuto:</span>
+                                <span class="text-gray-600 dark:text-gray-300">Precio por minuto:</span>
                                 <span class="font-medium text-blue-600 ml-2">
                                     ${{ (parseFloat(form.precio) / parseInt(form.duracion)).toFixed(2) }}/min
                                 </span>
                             </div>
                             <div>
-                                <span class="text-gray-600">Duración estimada:</span>
-                                <span class="font-medium text-gray-900 ml-2">
+                                <span class="text-gray-600 dark:text-gray-300">Duración estimada:</span>
+                                <span class="font-medium text-gray-900 dark:text-white ml-2">
                                     {{ form.duracion }} minutos
                                 </span>
                             </div>
@@ -252,7 +252,7 @@
                                     <span class="ml-2 text-sm text-gray-700">No</span>
                                 </label>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Si es instalación, se aplicará comisión adicional al técnico
                             </p>
                             <div v-if="form.errors.es_instalacion" class="error-message">{{ form.errors.es_instalacion }}</div>
@@ -310,11 +310,11 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
+                <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-slate-800">
                     <button
                         type="button"
                         @click="$inertia.visit(route('servicios.index'))"
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 border border-gray-300 rounded-md hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                     >
                         Cancelar
                     </button>
@@ -332,7 +332,7 @@
 
         <!-- Modal para crear categoría rápida -->
         <div v-if="showCategoriaModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-            <div class="bg-white rounded-lg shadow p-6 w-full max-w-md">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow p-6 w-full max-w-md">
                 <h3 class="text-lg font-semibold mb-4">Nueva categoría</h3>
                 <input v-model="quickCategoria.nombre" type="text" placeholder="Nombre" class="input-field mb-2" />
                 <textarea v-model="quickCategoria.descripcion" placeholder="Descripción (opcional)" class="input-field mb-4"></textarea>
@@ -539,7 +539,7 @@ const crearCategoriaRapida = async () => {
     border-color: #D1D5DB; /* gray-300 */
     border-radius: 0.375rem; /* rounded-md */
     box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); /* shadow-sm */
-    color: #111827; /* text-gray-900 */
+    color: #111827; /* text-gray-900 dark:text-white */
 }
 
 .input-field::placeholder {
@@ -553,8 +553,8 @@ const crearCategoriaRapida = async () => {
 }
 
 .input-field option {
-    color: #111827; /* text-gray-900 */
-    background-color: #ffffff; /* bg-white */
+    color: #111827; /* text-gray-900 dark:text-white */
+    background-color: #ffffff; /* bg-white dark:bg-slate-900 */
 }
 
 .error-message {

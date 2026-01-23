@@ -73,11 +73,11 @@
                     </PrimaryButton>
                 </div>
 
-                <div class="flex items-start justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                <div class="flex items-start justify-between p-3 bg-gray-50 border border-gray-200 dark:border-slate-800 rounded-lg">
                     <div class="text-sm text-gray-700">
                         <span class="font-semibold">Predeterminada:</span>
                         {{ defaultUnidadName }}
-                        <span class="text-gray-500"> - Siempre disponible y no se puede eliminar.</span>
+                        <span class="text-gray-500 dark:text-gray-400"> - Siempre disponible y no se puede eliminar.</span>
                     </div>
                     <span class="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">Valor base</span>
                 </div>
@@ -92,15 +92,15 @@
                     <div
                         v-for="unidad in filteredUnidades"
                         :key="unidad.id"
-                        class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+                        class="flex items-center justify-between p-3 border border-gray-200 dark:border-slate-800 rounded-lg hover:bg-gray-50"
                     >
                         <div class="flex-1">
-                            <div class="font-medium text-gray-900 flex items-center gap-2">
+                            <div class="font-medium text-gray-900 dark:text-white flex items-center gap-2">
                                 {{ unidad.nombre }}
                                 <span v-if="unidad.nombre === defaultUnidadName" class="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
                                     Predeterminada
                                 </span>
-                                <span v-if="unidad.abreviatura" class="text-sm text-gray-500 ml-1">
+                                <span v-if="unidad.abreviatura" class="text-sm text-gray-500 dark:text-gray-400 ml-1">
                                     ({{ unidad.abreviatura }})
                                 </span>
                             </div>
@@ -118,7 +118,7 @@
                                 >
                                     {{ unidad.estado }}
                                 </span>
-                                <span v-if="unidad.productos_count > 0" class="text-xs text-gray-500">
+                                <span v-if="unidad.productos_count > 0" class="text-xs text-gray-500 dark:text-gray-400">
                                     Usada en {{ unidad.productos_count }} productos
                                 </span>
                             </div>
@@ -157,7 +157,7 @@
                 </div>
 
                 <!-- Empty state -->
-                <div v-else class="text-center py-8 text-gray-500">
+                <div v-else class="text-center py-8 text-gray-500 dark:text-gray-400">
                     No se encontraron unidades de medida
                 </div>
             </div>

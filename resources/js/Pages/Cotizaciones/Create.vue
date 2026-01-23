@@ -15,7 +15,7 @@
 
       <form @submit.prevent="crearCotizacion" class="space-y-8">
         <!-- Información General -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,7 +41,7 @@
                   id="numero_cotizacion"
                   v-model="numeroCotizacionActual"
                   type="text"
-                  class="w-full bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  class="w-full bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-500 dark:text-gray-400 dark:text-gray-400 cursor-not-allowed border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   :placeholder="numeroCotizacionActual"
                   readonly
                   required
@@ -52,7 +52,7 @@
                   </svg>
                 </div>
               </div>
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
                 Este número se genera automáticamente
               </p>
             </div>
@@ -73,7 +73,7 @@
                   id="fecha_cotizacion"
                   v-model="form.fecha_cotizacion"
                   type="date"
-                  class="w-full bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  class="w-full bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-500 dark:text-gray-400 dark:text-gray-400 cursor-not-allowed border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   readonly
                   required
                 />
@@ -83,7 +83,7 @@
                   </svg>
                 </div>
               </div>
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
                 Esta fecha se establece automáticamente con la fecha de creación
               </p>
             </div>
@@ -91,7 +91,7 @@
         </div>
 
         <!-- Cliente -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,7 +124,7 @@
                 id="price_list_id"
                 v-model="priceListSeleccionada"
                 @change="onPriceListChange"
-                class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               >
                 <option value="">Seleccionar lista de precios...</option>
                 <option
@@ -135,7 +135,7 @@
                   {{ lista.nombre }}
                 </option>
               </select>
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
                 Se usará la lista de precios del cliente por defecto. Cambia aquí si necesitas usar otra lista.
               </p>
             </div>
@@ -143,7 +143,7 @@
         </div>
 
         <!-- Productos y Servicios -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -176,7 +176,7 @@
         </div>
 
          <!-- Notas -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,7 +189,7 @@
             <textarea
               v-model="form.notas"
               rows="3"
-              class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-vertical bg-white dark:bg-gray-700"
+              class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-vertical bg-white dark:bg-slate-900 dark:bg-gray-700"
               placeholder="Añade notas adicionales para esta cotización..."
             ></textarea>
           </div>

@@ -66,12 +66,12 @@ const getFaIcon = (tipo) => {
                     <span class="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">Equipamiento en Arrendamiento</span>
                 </div>
                 
-                <h1 class="text-5xl md:text-7xl font-black text-gray-900 dark:text-white mb-8 tracking-tighter leading-[1.1]">
+                <h1 class="text-5xl md:text-7xl font-black text-gray-900 dark:text-white dark:text-white mb-8 tracking-tighter leading-[1.1]">
                     Renta de Equipos <br/>
                     <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-blue-600">Todo Incluido</span>
                 </h1>
                 
-                <p class="text-xl text-gray-500 dark:text-gray-400 font-medium mb-8 max-w-3xl mx-auto leading-relaxed">
+                <p class="text-xl text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium mb-8 max-w-3xl mx-auto leading-relaxed">
                     Olvídese de la inversión inicial. Obtenga equipos de última generación para su negocio con soporte técnico y mantenimiento preventivo garantizado.
                 </p>
             </div>
@@ -84,7 +84,7 @@ const getFaIcon = (tipo) => {
                     v-for="plan in planes" 
                     :key="plan.id"
                     :class="[
-                        'relative bg-white dark:bg-gray-800 p-8 rounded-[2.5rem] border shadow-2xl transition-all duration-500 flex flex-col group',
+                        'relative bg-white dark:bg-slate-900 dark:bg-gray-800 p-8 rounded-[2.5rem] border shadow-2xl transition-all duration-500 flex flex-col group',
                         plan.destacado ? 'border-emerald-500 ring-4 ring-emerald-500/10 lg:-translate-y-4 shadow-emerald-200/50' : 'border-gray-50 dark:border-gray-700 shadow-gray-100/50 dark:shadow-none hover:-translate-y-2'
                     ]"
                 >
@@ -101,25 +101,25 @@ const getFaIcon = (tipo) => {
                         >
                             {{ plan.icono || '🖥️' }}
                         </div>
-                        <h2 class="text-2xl font-black text-gray-900 dark:text-white mb-1 leading-tight">{{ plan.nombre }}</h2>
-                        <span class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">{{ plan.tipo_label }}</span>
+                        <h2 class="text-2xl font-black text-gray-900 dark:text-white dark:text-white mb-1 leading-tight">{{ plan.nombre }}</h2>
+                        <span class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-[0.2em]">{{ plan.tipo_label }}</span>
                     </div>
 
                     <!-- Precio -->
                     <div class="mb-8 pt-6 border-t border-gray-50 dark:border-gray-700 transition-colors">
                         <div class="flex items-baseline gap-1">
-                            <span class="text-gray-400 dark:text-gray-500 text-xl font-bold">$</span>
-                            <span class="text-5xl font-black text-gray-900 dark:text-white tracking-tighter">
+                            <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400 text-xl font-bold">$</span>
+                            <span class="text-5xl font-black text-gray-900 dark:text-white dark:text-white tracking-tighter">
                                 {{ formatCurrency(plan.precio_mensual).replace('$', '').replace('.00', '') }}
                             </span>
-                            <span class="text-gray-400 dark:text-gray-500 font-bold">/mes</span>
+                            <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400 font-bold">/mes</span>
                         </div>
-                            <p class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-2">+ {{ formatCurrency(plan.deposito_garantia) }} de depósito</p>
+                            <p class="text-xs font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-2">+ {{ formatCurrency(plan.deposito_garantia) }} de depósito</p>
                     </div>
 
                     <!-- Equipamiento -->
                     <div class="mb-6">
-                        <h4 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">Equipamiento:</h4>
+                        <h4 class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">Equipamiento:</h4>
                         <ul class="space-y-3">
                             <li v-for="equipo in plan.equipamiento_incluido" :key="equipo" class="flex items-center gap-3">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0"></span>
@@ -130,11 +130,11 @@ const getFaIcon = (tipo) => {
 
                     <!-- Beneficios -->
                     <div class="mb-10 flex-grow pt-6 border-t border-gray-50 dark:border-gray-700">
-                        <h4 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">Incluye:</h4>
+                        <h4 class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">Incluye:</h4>
                         <ul class="space-y-3">
                             <li v-for="beneficio in plan.beneficios" :key="beneficio" class="flex items-start gap-3">
                                 <svg class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
-                                <span class="text-sm font-medium text-gray-600 dark:text-gray-400 leading-tight">{{ beneficio }}</span>
+                                <span class="text-sm font-medium text-gray-600 dark:text-gray-300 dark:text-gray-400 leading-tight">{{ beneficio }}</span>
                             </li>
                         </ul>
                     </div>
@@ -153,8 +153,8 @@ const getFaIcon = (tipo) => {
             <!-- Empty State -->
             <div v-else class="py-24 text-center">
                 <div class="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-8 text-4xl">📦</div>
-                <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-2">Planes en preparación</h3>
-                <p class="text-gray-500 dark:text-gray-400 font-medium">Estamos configurando los mejores paquetes para tu negocio.</p>
+                <h3 class="text-2xl font-black text-gray-900 dark:text-white dark:text-white mb-2">Planes en preparación</h3>
+                <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium">Estamos configurando los mejores paquetes para tu negocio.</p>
             </div>
         </main>
 

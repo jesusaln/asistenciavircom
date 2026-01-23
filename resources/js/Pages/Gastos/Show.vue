@@ -24,7 +24,7 @@ const getEstadoBadge = (estado) => {
         'procesada': 'bg-green-100 text-green-800',
         'cancelada': 'bg-red-100 text-red-800',
     };
-    return badges[estado] || 'bg-gray-100 text-gray-800';
+    return badges[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100';
 };
 
 const cancelGasto = () => {
@@ -46,11 +46,11 @@ const deleteGasto = () => {
 
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
                     Gasto {{ gasto.numero_compra }}
                 </h2>
                 <Link :href="route('gastos.index')"
-                    class="text-gray-600 hover:text-gray-900 flex items-center">
+                    class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:text-white flex items-center">
                     <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
@@ -61,12 +61,12 @@ const deleteGasto = () => {
 
         <div class="py-6">
             <div class="w-full sm:px-6 lg:px-8">
-                <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="bg-white dark:bg-slate-900 shadow rounded-lg overflow-hidden">
                     <!-- Header -->
-                    <div class="px-6 py-4 bg-white border-b border-gray-200 flex justify-between items-center">
+                    <div class="px-6 py-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 flex justify-between items-center">
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900">{{ gasto.numero_compra }}</h3>
-                            <p class="text-sm text-gray-500">{{ formatDate(gasto.fecha_compra) }}</p>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ gasto.numero_compra }}</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ formatDate(gasto.fecha_compra) }}</p>
                         </div>
                         <span :class="getEstadoBadge(gasto.estado)"
                             class="px-3 py-1 text-sm font-semibold rounded-full">
@@ -78,26 +78,26 @@ const deleteGasto = () => {
                     <div class="p-6">
                         <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Categoría</dt>
-                                <dd class="mt-1 text-sm text-gray-900">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Categoría</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">
                                     {{ gasto.categoria_gasto?.nombre || '-' }}
                                 </dd>
                             </div>
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Proveedor</dt>
-                                <dd class="mt-1 text-sm text-gray-900">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Proveedor</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">
                                     {{ gasto.proveedor?.nombre || 'Sin proveedor' }}
                                 </dd>
                             </div>
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Método de Pago</dt>
-                                <dd class="mt-1 text-sm text-gray-900 capitalize">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Método de Pago</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white capitalize">
                                     {{ gasto.metodo_pago || '-' }}
                                 </dd>
                             </div>
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Estado CxP</dt>
-                                <dd class="mt-1 text-sm text-gray-900">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Estado CxP</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">
                                     <span v-if="gasto.cuentas_por_pagar" 
                                         :class="gasto.cuentas_por_pagar.estado === 'pagada' ? 'text-green-600' : 'text-yellow-600'">
                                         {{ gasto.cuentas_por_pagar.estado }}
@@ -106,28 +106,28 @@ const deleteGasto = () => {
                                 </dd>
                             </div>
                             <div class="md:col-span-2">
-                                <dt class="text-sm font-medium text-gray-500">Descripción</dt>
-                                <dd class="mt-1 text-sm text-gray-900 whitespace-pre-line">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Descripción</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white whitespace-pre-line">
                                     {{ gasto.notas || '-' }}
                                 </dd>
                             </div>
                         </dl>
 
                         <!-- Totales -->
-                        <div class="mt-6 pt-6 border-t border-gray-200">
+                        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-slate-800">
                             <div class="flex justify-end">
                                 <div class="w-64">
                                     <div class="flex justify-between py-2">
-                                        <span class="text-gray-600">Subtotal:</span>
-                                        <span class="text-gray-900">{{ formatCurrency(gasto.subtotal) }}</span>
+                                        <span class="text-gray-600 dark:text-gray-300">Subtotal:</span>
+                                        <span class="text-gray-900 dark:text-white">{{ formatCurrency(gasto.subtotal) }}</span>
                                     </div>
                                     <div class="flex justify-between py-2">
-                                        <span class="text-gray-600">IVA:</span>
-                                        <span class="text-gray-900">{{ formatCurrency(gasto.iva) }}</span>
+                                        <span class="text-gray-600 dark:text-gray-300">IVA:</span>
+                                        <span class="text-gray-900 dark:text-white">{{ formatCurrency(gasto.iva) }}</span>
                                     </div>
-                                    <div class="flex justify-between py-3 border-t border-gray-200 font-bold">
-                                        <span class="text-gray-900">Total:</span>
-                                        <span class="text-xl text-gray-900">{{ formatCurrency(gasto.total) }}</span>
+                                    <div class="flex justify-between py-3 border-t border-gray-200 dark:border-slate-800 font-bold">
+                                        <span class="text-gray-900 dark:text-white">Total:</span>
+                                        <span class="text-xl text-gray-900 dark:text-white">{{ formatCurrency(gasto.total) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -135,7 +135,7 @@ const deleteGasto = () => {
                     </div>
 
                     <!-- Acciones -->
-                    <div class="px-6 py-4 bg-white border-t border-gray-200 flex justify-end gap-3">
+                    <div class="px-6 py-4 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 flex justify-end gap-3">
                         <button v-if="gasto.estado === 'procesada'" @click="cancelGasto"
                             class="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200 transition">
                             Cancelar Gasto

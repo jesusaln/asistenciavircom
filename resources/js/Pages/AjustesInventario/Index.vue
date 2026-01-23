@@ -8,8 +8,8 @@
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Ajustes de Inventario</h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-1">Historial completo de ajustes manuales de stock</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white dark:text-gray-100">Ajustes de Inventario</h1>
+            <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300 mt-1">Historial completo de ajustes manuales de stock</p>
           </div>
           <Link
             :href="route('ajustes-inventario.create')"
@@ -25,7 +25,7 @@
 
       <!-- Estadísticas -->
       <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm p-6">
           <div class="flex items-center">
             <div class="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
               <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,13 +33,13 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Ajustes</p>
-              <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ stats.total }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300 dark:text-gray-300">Total Ajustes</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white dark:text-gray-100">{{ stats.total }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm p-6">
           <div class="flex items-center">
             <div class="p-3 bg-green-100 dark:bg-green-900/40 rounded-lg">
               <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,13 +47,13 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Incrementos</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300 dark:text-gray-300">Incrementos</p>
               <p class="text-2xl font-bold text-green-700 dark:text-green-400">{{ stats.incrementos }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm p-6">
           <div class="flex items-center">
             <div class="p-3 bg-red-100 dark:bg-red-900/40 rounded-lg">
               <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,13 +61,13 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Decrementos</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300 dark:text-gray-300">Decrementos</p>
               <p class="text-2xl font-bold text-red-700 dark:text-red-400">{{ stats.decrementos }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm p-6">
           <div class="flex items-center">
             <div class="p-3 bg-purple-100 dark:bg-purple-900/40 rounded-lg">
               <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,13 +75,13 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Productos Ajustados</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300 dark:text-gray-300">Productos Ajustados</p>
               <p class="text-2xl font-bold text-purple-700 dark:text-purple-400">{{ stats.productos_ajustados }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm p-6">
           <div class="flex items-center">
             <div class="p-3 bg-orange-100 dark:bg-orange-900/40 rounded-lg">
               <svg class="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,7 +89,7 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Almacenes Afectados</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300 dark:text-gray-300">Almacenes Afectados</p>
               <p class="text-2xl font-bold text-orange-700 dark:text-orange-400">{{ stats.almacenes_afectados }}</p>
             </div>
           </div>
@@ -97,7 +97,7 @@
       </div>
 
       <!-- Filtros -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 mb-6">
+      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <!-- Búsqueda -->
           <div>
@@ -107,7 +107,7 @@
               v-model="filters.search"
               type="text"
               placeholder="ID, producto, almacén..."
-              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               @input="handleSearch"
             />
           </div>
@@ -118,7 +118,7 @@
             <select
               id="producto_id"
               v-model="filters.producto_id"
-              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               @change="handleFilter"
             >
               <option value="">Todos los productos</option>
@@ -134,7 +134,7 @@
             <select
               id="almacen_id"
               v-model="filters.almacen_id"
-              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               @change="handleFilter"
             >
               <option value="">Todos los almacenes</option>
@@ -150,7 +150,7 @@
             <select
               id="tipo"
               v-model="filters.tipo"
-              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               @change="handleFilter"
             >
               <option value="">Todos los tipos</option>
@@ -162,36 +162,36 @@
       </div>
 
       <!-- Tabla -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-white dark:bg-gray-700/50">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+            <thead class="bg-white dark:bg-slate-900 dark:bg-gray-700/50">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Producto</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Almacén</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tipo</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cantidades</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Motivo</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Usuario</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">ID</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Producto</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Almacén</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Tipo</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Cantidades</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Motivo</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Usuario</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
               </tr>
             </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              <tr v-for="ajuste in ajustes.data" :key="ajuste.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+            <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+              <tr v-for="ajuste in ajustes.data" :key="ajuste.id" class="hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700/50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">
                   #{{ ajuste.id }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">
                     {{ ajuste.producto?.nombre || 'Producto no encontrado' }}
                   </div>
-                  <div class="text-sm text-gray-500 dark:text-gray-400">
+                  <div class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
                     {{ ajuste.producto?.codigo || '' }}
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900 dark:text-gray-100">
+                  <div class="text-sm text-gray-900 dark:text-white dark:text-gray-100">
                     {{ ajuste.almacen?.nombre || 'Almacén no encontrado' }}
                   </div>
                 </td>
@@ -203,10 +203,10 @@
                     {{ ajuste.tipo === 'incremento' ? 'Incremento' : 'Decremento' }}
                   </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white dark:text-gray-100">
                   <div class="space-y-1">
                     <div class="flex items-center gap-2">
-                      <span class="text-gray-500 dark:text-gray-400">Antes:</span>
+                      <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400">Antes:</span>
                       <span class="font-medium">{{ ajuste.cantidad_anterior }}</span>
                     </div>
                     <div class="flex items-center gap-2">
@@ -215,23 +215,23 @@
                       </span>
                     </div>
                     <div class="flex items-center gap-2">
-                      <span class="text-gray-500 dark:text-gray-400">Después:</span>
+                      <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400">Después:</span>
                       <span class="font-medium text-blue-600 dark:text-blue-400">{{ ajuste.cantidad_nueva }}</span>
                     </div>
                   </div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900 dark:text-gray-100 max-w-xs truncate" :title="ajuste.motivo">
+                  <div class="text-sm text-gray-900 dark:text-white dark:text-gray-100 max-w-xs truncate" :title="ajuste.motivo">
                     {{ ajuste.motivo }}
                   </div>
-                  <div v-if="ajuste.observaciones" class="text-xs text-gray-500 dark:text-gray-400 max-w-xs truncate" :title="ajuste.observaciones">
+                  <div v-if="ajuste.observaciones" class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 max-w-xs truncate" :title="ajuste.observaciones">
                     {{ ajuste.observaciones }}
                   </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white dark:text-gray-100">
                   {{ ajuste.usuario?.name || 'Usuario no encontrado' }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
                   {{ formatDate(ajuste.created_at) }}
                 </td>
               </tr>
@@ -240,7 +240,7 @@
         </div>
 
         <!-- Paginación -->
-        <div class="bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700 sm:px-6">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700 sm:px-6">
           <div class="flex items-center justify-between">
             <div class="text-sm text-gray-700 dark:text-gray-300">
               Mostrando {{ pagination.from }} a {{ pagination.to }} de {{ pagination.total }} resultados
@@ -249,14 +249,14 @@
               <Link
                 v-if="ajustes.prev_page_url"
                 :href="ajustes.prev_page_url"
-                class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+                class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700"
               >
                 Anterior
               </Link>
               <Link
                 v-if="ajustes.next_page_url"
                 :href="ajustes.next_page_url"
-                class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+                class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700"
               >
                 Siguiente
               </Link>

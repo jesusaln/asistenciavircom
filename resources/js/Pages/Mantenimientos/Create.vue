@@ -1,14 +1,14 @@
 <template>
     <Head title="Crear Mantenimiento" />
     <div class="w-full">
-        <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg p-6">
             <div class="flex items-center mb-6">
                 <div class="bg-blue-500 p-3 rounded-lg mr-4">
                     <i class="fas fa-wrench text-white text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-800">Crear Mantenimiento</h1>
-                    <p class="text-gray-600">Registra un nuevo servicio de mantenimiento para tu vehículo</p>
+                    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Crear Mantenimiento</h1>
+                    <p class="text-gray-600 dark:text-gray-300">Registra un nuevo servicio de mantenimiento para tu vehículo</p>
                     <p class="text-sm text-blue-600 mt-1">
                         <i class="fas fa-info-circle mr-1"></i>
                         Fecha de hoy: {{ todayFormatted }}
@@ -19,7 +19,7 @@
             <form @submit.prevent="submit" class="space-y-6">
                 <!-- COMPONENTE: VehicleSelect -->
                 <!-- Selección de Carro -->
-                <div class="bg-white p-4 rounded-lg">
+                <div class="bg-white dark:bg-slate-900 p-4 rounded-lg">
                     <label for="carro-select" class="block text-gray-700 text-sm font-semibold mb-3">
                         <i class="fas fa-car mr-2"></i>Seleccionar Vehículo
                     </label>
@@ -111,7 +111,7 @@
                             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                             required
                         >
-                        <p class="text-sm text-gray-500 mt-2 flex items-center">
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 flex items-center">
                             <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
                             Debe ser mayor o igual al kilometraje actual del vehículo
                         </p>
@@ -192,7 +192,7 @@
                                 💰 Sugerido
                             </button>
                         </div>
-                        <p v-if="form.tipo && getCostoSugerido() > 0" class="text-xs text-gray-500 mt-1">
+                        <p v-if="form.tipo && getCostoSugerido() > 0" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                             Costo sugerido para {{ form.tipo }}: {{ formatMoney(getCostoSugerido()) }}
                         </p>
                     </div>
@@ -235,7 +235,7 @@
                                 <option value="alta">🟠 Alta</option>
                                 <option value="critica">🔴 Crítica</option>
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 {{ getDescripcionPrioridad(form.prioridad) }}
                             </p>
                         </div>
@@ -254,7 +254,7 @@
                                 class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                                 required
                             >
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Días antes para enviar alerta
                             </p>
                         </div>
@@ -271,13 +271,13 @@
                                         type="checkbox"
                                         class="sr-only peer"
                                     >
-                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:bg-slate-900 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                     <span class="ml-3 text-sm font-medium text-gray-700">
                                         {{ form.requiere_aprobacion ? 'Sí' : 'No' }}
                                     </span>
                                 </label>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Si necesita aprobación especial
                             </p>
                         </div>
@@ -295,7 +295,7 @@
                             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-y"
                             maxlength="500"
                         ></textarea>
-                        <div class="flex justify-end text-sm text-gray-500 mt-1">
+                        <div class="flex justify-end text-sm text-gray-500 dark:text-gray-400 mt-1">
                             <span>{{ form.observaciones_alerta.length }}/500 caracteres</span>
                         </div>
                     </div>
@@ -357,18 +357,18 @@
                         placeholder="Describe detalles del servicio, piezas cambiadas, observaciones, etc..."
                         class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-y"
                     ></textarea>
-                    <div class="flex justify-between text-sm text-gray-500 mt-1">
+                    <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400 mt-1">
                         <span>Opcional</span>
                         <span>{{ form.notas.length }}/500 caracteres</span>
                     </div>
                 </div>
 
                 <!-- Botones de Acción -->
-                <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-slate-800">
                     <button
                         type="button"
                         @click="resetForm"
-                        class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-white transition-all duration-200 flex items-center"
+                        class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-white dark:bg-slate-900 transition-all duration-200 flex items-center"
                     >
                         <i class="fas fa-undo mr-2"></i>
                         Limpiar Formulario
@@ -378,7 +378,7 @@
                         <button
                             type="button"
                             @click="router.visit(route('mantenimientos.index'))"
-                            class="px-6 py-3 bg-white0 text-white rounded-lg hover:bg-gray-600 transition-all duration-200 flex items-center"
+                            class="px-6 py-3 bg-white dark:bg-slate-9000 text-white rounded-lg hover:bg-gray-600 transition-all duration-200 flex items-center"
                         >
                             <i class="fas fa-times mr-2"></i>
                             Cancelar
@@ -1001,7 +1001,7 @@ const getClasesPrioridad = (prioridad) => {
         'alta': 'bg-orange-100 text-orange-700 border-orange-200',
         'critica': 'bg-red-100 text-red-700 border-red-200'
     };
-    return clases[prioridad] || 'bg-gray-100 text-gray-700 border-gray-200';
+    return clases[prioridad] || 'bg-gray-100 text-gray-700 border-gray-200 dark:border-slate-800';
 };
 
 const getLabelPrioridad = (prioridad) => {

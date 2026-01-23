@@ -67,11 +67,11 @@ const handlePageChange = (page) => {
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
                     <FontAwesomeIcon icon="exchange-alt" class="h-8 w-8 text-indigo-600 mr-3" />
                     Traspasos entre Cuentas
                 </h1>
-                <p class="text-gray-600 mt-1">Historial de transferencias realizadas entre tus cuentas bancarias</p>
+                <p class="text-gray-600 dark:text-gray-300 mt-1">Historial de transferencias realizadas entre tus cuentas bancarias</p>
             </div>
             <Link
                 :href="route('traspasos-bancarios.create')"
@@ -88,11 +88,11 @@ const handlePageChange = (page) => {
         </div>
 
         <!-- Table Card -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-gray-100">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-white text-gray-400 text-xs uppercase tracking-wider">
+                        <tr class="bg-white dark:bg-slate-900 text-gray-400 text-xs uppercase tracking-wider">
                             <th class="px-6 py-4 font-semibold">Fecha</th>
                             <th class="px-6 py-4 font-semibold">Origen</th>
                             <th class="px-6 py-4 font-semibold">Destino</th>
@@ -103,28 +103,28 @@ const handlePageChange = (page) => {
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
-                        <tr v-for="traspaso in traspasos.data" :key="traspaso.id" class="hover:bg-white/50 transition-colors group">
+                        <tr v-for="traspaso in traspasos.data" :key="traspaso.id" class="hover:bg-white dark:bg-slate-900/50 transition-colors group">
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="text-sm font-medium text-gray-900">{{ formatDate(traspaso.fecha) }}</span>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDate(traspaso.fecha) }}</span>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex flex-col">
-                                    <span class="text-sm font-semibold text-gray-800">{{ traspaso.origen?.nombre }}</span>
-                                    <span class="text-xs text-gray-500">{{ traspaso.origen?.banco }}</span>
+                                    <span class="text-sm font-semibold text-gray-800 dark:text-gray-100">{{ traspaso.origen?.nombre }}</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ traspaso.origen?.banco }}</span>
                                 </div>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex flex-col">
-                                    <span class="text-sm font-semibold text-gray-800">{{ traspaso.destino?.nombre }}</span>
-                                    <span class="text-xs text-gray-500">{{ traspaso.destino?.banco }}</span>
+                                    <span class="text-sm font-semibold text-gray-800 dark:text-gray-100">{{ traspaso.destino?.nombre }}</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ traspaso.destino?.banco }}</span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 text-right whitespace-nowrap">
-                                <span class="text-sm font-bold text-gray-900">${{ formatMonto(traspaso.monto) }}</span>
+                                <span class="text-sm font-bold text-gray-900 dark:text-white">${{ formatMonto(traspaso.monto) }}</span>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="max-w-xs truncate" :title="traspaso.referencia || traspaso.notas">
-                                    <span class="text-sm text-gray-600">{{ traspaso.referencia || 'Sin ref.' }}</span>
+                                    <span class="text-sm text-gray-600 dark:text-gray-300">{{ traspaso.referencia || 'Sin ref.' }}</span>
                                     <p v-if="traspaso.notas" class="text-xs text-gray-400 truncate">{{ traspaso.notas }}</p>
                                 </div>
                             </td>
@@ -158,7 +158,7 @@ const handlePageChange = (page) => {
                         <tr v-if="traspasos.data.length === 0">
                             <td colspan="7" class="px-6 py-12 text-center">
                                 <FontAwesomeIcon icon="exchange-alt" class="h-12 w-12 text-gray-200 mb-4" />
-                                <p class="text-gray-500 font-medium">No se han registrado traspasos bancarios aún.</p>
+                                <p class="text-gray-500 dark:text-gray-400 font-medium">No se han registrado traspasos bancarios aún.</p>
                                 <Link :href="route('traspasos-bancarios.create')" class="text-indigo-600 hover:text-indigo-800 text-sm font-bold mt-2 inline-block">
                                     Realizar el primer traspaso &rarr;
                                 </Link>
@@ -169,7 +169,7 @@ const handlePageChange = (page) => {
             </div>
             
             <!-- Pagination -->
-            <div v-if="traspasos.links.length > 3" class="px-6 py-4 bg-white border-t border-gray-100">
+            <div v-if="traspasos.links.length > 3" class="px-6 py-4 bg-white dark:bg-slate-900 border-t border-gray-100">
                 <Pagination :pagination-data="traspasos" @page-change="handlePageChange" />
             </div>
         </div>

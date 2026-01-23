@@ -3,7 +3,7 @@
     <div class="pedidos-show min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
       <h1 class="text-2xl font-bold mb-6" :style="{ color: colors.principal }">Detalles del Pedido</h1>
 
-      <div v-if="pedido" class="bg-white rounded-lg shadow-md p-6">
+      <div v-if="pedido" class="bg-white dark:bg-slate-900 rounded-lg shadow-md p-6">
         <div class="mb-4">
           <h2 class="text-lg font-medium text-gray-700">Cliente</h2>
           <p>{{ pedido.cliente.nombre_razon_social }}</p>
@@ -18,14 +18,14 @@
         </div>
           <div class="space-y-2 border-t pt-4 mt-4">
             <div class="flex justify-between">
-              <span class="text-gray-600">Subtotal:</span>
+              <span class="text-gray-600 dark:text-gray-300">Subtotal:</span>
               <span class="font-medium">${{ Number(pedido.subtotal).toFixed(2) }}</span>
             </div>
             <div v-if="parseFloat(pedido.descuento_general) > 0" class="flex justify-between text-green-600">
               <span>Descuento:</span>
               <span>-${{ Number(pedido.descuento_general).toFixed(2) }}</span>
             </div>
-            <div class="flex justify-between text-gray-600">
+            <div class="flex justify-between text-gray-600 dark:text-gray-300">
               <span>IVA:</span>
               <span>${{ Number(pedido.iva).toFixed(2) }}</span>
             </div>
@@ -37,7 +37,7 @@
               <span>Retención ISR:</span>
               <span>-${{ Number(pedido.retencion_isr).toFixed(2) }}</span>
             </div>
-             <div v-if="parseFloat(pedido.isr) > 0" class="flex justify-between text-gray-600">
+             <div v-if="parseFloat(pedido.isr) > 0" class="flex justify-between text-gray-600 dark:text-gray-300">
               <span>ISR:</span>
               <span>-${{ Number(pedido.isr).toFixed(2) }}</span>
             </div>

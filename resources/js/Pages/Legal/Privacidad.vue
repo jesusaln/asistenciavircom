@@ -24,7 +24,7 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
 <template>
     <Head title="Política de Privacidad" />
     
-    <div class="min-h-screen bg-white" :style="cssVars">
+    <div class="min-h-screen bg-white dark:bg-slate-900" :style="cssVars">
         <!-- Navbar -->
         <PublicNavbar :empresa="empresa" activeTab="" />
 
@@ -32,16 +32,16 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
         <main class="w-full px-4 sm:px-6 py-12">
             <!-- Header de la página -->
             <div class="mb-12 text-center">
-                <div class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-600 mb-4">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-600 dark:text-gray-300 mb-4">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                     Documento Legal
                 </div>
-                <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+                <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                     Política de Privacidad
                 </h1>
-                <p class="text-gray-500">
+                <p class="text-gray-500 dark:text-gray-400">
                     Última actualización: {{ lastUpdated }}
                 </p>
             </div>
@@ -49,11 +49,11 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
             <!-- Contenido del documento -->
             <div class="prose prose-gray max-w-none">
                 <section class="mb-10">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                         <span class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-sm font-bold" style="color: var(--color-primary);">1</span>
                         Identidad del Responsable
                     </h2>
-                    <div class="bg-white rounded-xl p-6 border border-gray-100">
+                    <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-gray-100">
                         <p class="text-gray-700 leading-relaxed">
                             <strong>{{ empresa?.nombre }}</strong> (en adelante "la Empresa"), con domicilio en 
                             <span v-if="empresa?.direccion">{{ empresa.direccion }}, </span>
@@ -63,13 +63,13 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                             México, es el responsable del tratamiento de los datos personales que nos proporcione.
                         </p>
                         <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                            <div v-if="empresa?.email" class="flex items-center gap-2 text-gray-600">
+                            <div v-if="empresa?.email" class="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
                                 {{ empresa.email }}
                             </div>
-                            <div v-if="empresa?.telefono" class="flex items-center gap-2 text-gray-600">
+                            <div v-if="empresa?.telefono" class="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                 </svg>
@@ -80,7 +80,7 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                 </section>
 
                 <section class="mb-10">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                         <span class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-sm font-bold" style="color: var(--color-primary);">2</span>
                         Datos Personales que Recopilamos
                     </h2>
@@ -108,7 +108,7 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                 </section>
 
                 <section class="mb-10">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                         <span class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-sm font-bold" style="color: var(--color-primary);">3</span>
                         Finalidades del Tratamiento
                     </h2>
@@ -116,9 +116,9 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                         Los datos personales que recabamos serán utilizados para las siguientes finalidades primarias:
                     </p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-white rounded-xl p-4 border border-gray-100">
-                            <h3 class="font-semibold text-gray-900 mb-2">Finalidades Primarias</h3>
-                            <ul class="text-sm text-gray-600 space-y-1">
+                        <div class="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-100">
+                            <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Finalidades Primarias</h3>
+                            <ul class="text-sm text-gray-600 dark:text-gray-300 space-y-1">
                                 <li>• Proveer los productos y servicios solicitados</li>
                                 <li>• Generar facturas y comprobantes fiscales</li>
                                 <li>• Dar seguimiento a cotizaciones y pedidos</li>
@@ -126,9 +126,9 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                                 <li>• Cumplir con obligaciones contractuales</li>
                             </ul>
                         </div>
-                        <div class="bg-white rounded-xl p-4 border border-gray-100">
-                            <h3 class="font-semibold text-gray-900 mb-2">Finalidades Secundarias</h3>
-                            <ul class="text-sm text-gray-600 space-y-1">
+                        <div class="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-100">
+                            <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Finalidades Secundarias</h3>
+                            <ul class="text-sm text-gray-600 dark:text-gray-300 space-y-1">
                                 <li>• Enviar promociones y ofertas especiales</li>
                                 <li>• Realizar encuestas de satisfacción</li>
                                 <li>• Informar sobre nuevos productos o servicios</li>
@@ -139,7 +139,7 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                 </section>
 
                 <section class="mb-10">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                         <span class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-sm font-bold" style="color: var(--color-primary);">4</span>
                         Derechos ARCO
                     </h2>
@@ -156,7 +156,7 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                 </section>
 
                 <section class="mb-10">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                         <span class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-sm font-bold" style="color: var(--color-primary);">5</span>
                         Uso de Cookies y Tecnologías de Rastreo
                     </h2>
@@ -166,7 +166,7 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                 </section>
 
                 <section class="mb-10">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                         <span class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-sm font-bold" style="color: var(--color-primary);">6</span>
                         Transferencia de Datos
                     </h2>
@@ -176,7 +176,7 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
                 </section>
 
                 <section class="mb-10">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                         <span class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-sm font-bold" style="color: var(--color-primary);">7</span>
                         Cambios al Aviso de Privacidad
                     </h2>
@@ -189,7 +189,7 @@ const lastUpdated = new Date().toLocaleDateString('es-MX', {
             <!-- Footer del documento -->
             <div class="mt-12 pt-8 border-t border-gray-100">
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <p class="text-sm text-gray-500">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
                         © {{ currentYear }} {{ empresa?.nombre_comercial }}. Todos los derechos reservados.
                     </p>
                     <div class="flex items-center gap-4">

@@ -1,5 +1,6 @@
 <template>
   <aside
+    ref="sidebarRef"
     :class="{
       'w-64': !props.isSidebarCollapsed,
       'w-20': props.isSidebarCollapsed
@@ -482,13 +483,45 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import NavLink from '@/Components/NavLink.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faFolderOpen } from '@fortawesome/free-solid-svg-icons';
 
 const page = usePage();
+const sidebarRef = ref(null);
+
+// Scroll Persistence
+const saveScrollPosition = () => {
+  if (sidebarRef.value) {
+    sessionStorage.setItem('sidebar_scroll_pos', sidebarRef.value.scrollTop);
+  }
+};
+
+const restoreScrollPosition = () => {
+  const savedPos = sessionStorage.getItem('sidebar_scroll_pos');
+  if (!savedPos || !sidebarRef.value) return;
+
+  const targetPos = parseInt(savedPos);
+
+  // Intentar restaurar inmediatamente
+  sidebarRef.value.scrollTop = targetPos;
+
+  // Reintentar varias veces para compensar la animación del acordeón
+  const attemptRestore = () => {
+    if (sidebarRef.value && Math.abs(sidebarRef.value.scrollTop - targetPos) > 5) {
+      sidebarRef.value.scrollTop = targetPos;
+    }
+  };
+
+  // Tiempos ajustados para cubrir la transición CSS
+  [50, 150, 300, 550].forEach(delay => setTimeout(attemptRestore, delay));
+};
+
+onBeforeUnmount(() => {
+  saveScrollPosition();
+});
 const empresaConfig = computed(() => page.props.empresa_config);
 
 // Función local $can que usa usePage() reactivo (NO el $can global estático)
@@ -548,17 +581,110 @@ const isAdmin = computed(() => {
 // Emits
 const emit = defineEmits(['toggleSidebar']);
 
-// Estado del acordeón (reorganizado)
-const accordionStates = ref({
-  ventas: false,
-  soporte: false,
-  inventario: false,
-  finanzas: false,
-  operaciones: false,
-  rrhh: false,
-  configuracion: false,
-  reportes: false,
-});
+// Función para obtener el estado inicial de los acordeones (se ejecuta inmediatamente)
+const getInitialAccordionState = () => {
+  const defaultState = {
+    ventas: false,
+    soporte: false,
+    inventario: false,
+    finanzas: false,
+    operaciones: false,
+    rrhh: false,
+    configuracion: false,
+    reportes: false,
+  };
+  
+  // Intentar restaurar estado desde sessionStorage
+  try {
+    const saved = sessionStorage.getItem('sidebar_accordion_states');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      Object.keys(parsed).forEach(key => {
+        if (key in defaultState) {
+          defaultState[key] = parsed[key];
+        }
+      });
+    }
+  } catch (e) {
+    // Silently fail
+  }
+  
+  // Determinar la sección actual basada en la URL
+  const path = typeof window !== 'undefined' ? window.location.pathname : '';
+  let currentSection = null;
+  
+  // CRM y Ventas
+  if (path.startsWith('/clientes') || path.startsWith('/citas') || path.startsWith('/citas-calendario') ||
+      path.startsWith('/cotizaciones') || path.startsWith('/pedidos') || path.startsWith('/ventas') || 
+      path.startsWith('/facturas') || path.startsWith('/garantias') || path.startsWith('/crm') || 
+      path.startsWith('/mi-agenda') || path.startsWith('/pedidos-online')) {
+    currentSection = 'ventas';
+  }
+  // Soporte y Contratos
+  else if (path.startsWith('/soporte') || path.startsWith('/polizas-servicio') || path.startsWith('/planes-poliza') || 
+           path.startsWith('/credenciales') || path.startsWith('/soporte-remoto') || path.startsWith('/tecnico/')) {
+    currentSection = 'soporte';
+  }
+  // Finanzas
+  else if (path.startsWith('/cuentas-bancarias') || path.startsWith('/conciliacion-bancaria') || 
+           path.startsWith('/caja-chica') || path.startsWith('/cuentas-por-pagar') || 
+           path.startsWith('/cuentas-por-cobrar') || path.startsWith('/entregas-dinero') || 
+           path.startsWith('/gastos') || path.startsWith('/traspasos-bancarios') || 
+           path.startsWith('/comisiones') || path.startsWith('/prestamos') || path.startsWith('/pagos')) {
+    currentSection = 'finanzas';
+  }
+  // Inventario
+  else if (path.startsWith('/productos') || path.startsWith('/kits') || path.startsWith('/cva') ||
+           (path.startsWith('/traspasos') && !path.startsWith('/traspasos-bancarios')) || 
+           path.startsWith('/movimientos-inventario') || path.startsWith('/ajustes-inventario') || 
+           path.startsWith('/almacenes') || path.startsWith('/compras') || 
+           path.startsWith('/ordenescompra') || path.startsWith('/proveedores')) {
+    currentSection = 'inventario';
+  }
+  // Operaciones
+  else if (path.startsWith('/rentas') || path.startsWith('/planes-renta') || path.startsWith('/equipos') || 
+           path.startsWith('/carros') || path.startsWith('/mantenimientos') || path.startsWith('/herramientas')) {
+    currentSection = 'operaciones';
+  }
+  // RRHH
+  else if (path.startsWith('/empleados') || path.startsWith('/nominas') || path.startsWith('/vacaciones') || 
+           path.startsWith('/mis-vacaciones') || path.startsWith('/registro-vacaciones')) {
+    currentSection = 'rrhh';
+  }
+  // Configuración
+  else if (path.startsWith('/usuarios') || path.startsWith('/roles') || path.startsWith('/bitacora') || 
+           path.startsWith('/categorias') || path.startsWith('/marcas') || path.startsWith('/servicios') || 
+           path.startsWith('/backup') || path.startsWith('/empresa/configuracion') || 
+           path.startsWith('/empresa/landing-content') || path.startsWith('/admin/blog') || 
+           path.startsWith('/gestion-blog')) {
+    currentSection = 'configuracion';
+  }
+  // Reportes
+  else if (path.startsWith('/reportes') || path.startsWith('/cfdi') || path === '/finanzas') {
+    currentSection = 'reportes';
+  }
+  
+  // Asegurar que la sección actual esté abierta
+  if (currentSection) {
+    defaultState[currentSection] = true;
+  }
+  
+  return defaultState;
+};
+
+// Estado del acordeón - inicializado con el estado correcto desde el principio
+const accordionStates = ref(getInitialAccordionState());
+
+// Guardar estado de acordeones en sessionStorage
+const saveAccordionState = () => {
+  try {
+    sessionStorage.setItem('sidebar_accordion_states', JSON.stringify(accordionStates.value));
+  } catch (e) {
+    // Silently fail if sessionStorage is not available
+  }
+};
+
+
 
 // Función para alternar acordeón
 const toggleAccordion = (section) => {
@@ -575,62 +701,12 @@ const toggleAccordion = (section) => {
     // Si queremos cerrar una sección abierta (y no está colapsado)
     accordionStates.value[section] = false;
   }
-};
-
-// Función para determinar la sección actual basada en la URL
-const getCurrentSection = () => {
-  const path = window.location.pathname;
-
-  // CRM y Ventas
-  if (path.includes('/clientes') || path.includes('/citas') || path.includes('/cotizaciones') || path.includes('/pedidos') || path.includes('/ventas') || path.includes('/facturas') || path.includes('/garantias') || path.includes('/crm') || path.includes('/mi-agenda') || path.includes('/pedidos-online')) {
-    return 'ventas';
-  }
   
-  // Soporte y Contratos
-  if (path.includes('/soporte') || path.includes('/polizas-servicio') || path.includes('/planes-poliza') || path.includes('/credenciales')) {
-    return 'soporte';
-  }
-
-  // Finanzas (incluye préstamos)
-  if (path.includes('/cuentas-bancarias') || path.includes('/conciliacion-bancaria') || path.includes('/caja-chica') || path.includes('/cuentas-por-pagar') || path.includes('/cuentas-por-cobrar') || path.includes('/entregas-dinero') || path.includes('/gastos') || path.includes('/traspasos-bancarios') || path.includes('/comisiones') || path.includes('/prestamos') || path.includes('/pagos')) {
-    return 'finanzas';
-  }
-
-  // Compras e Inventario
-  if (path.includes('/productos') || path.includes('/kits') || (path.includes('/traspasos') && !path.includes('/traspasos-bancarios')) || path.includes('/movimientos-inventario') || path.includes('/ajustes-inventario') || path.includes('/almacenes') || path.includes('/compras') || path.includes('/ordenescompra') || path.includes('/proveedores')) {
-    return 'inventario';
-  }
-  
-  // Operaciones
-  if (path.includes('/rentas') || path.includes('/equipos') || path.includes('/carros') || path.includes('/mantenimientos') || path.includes('/herramientas')) {
-    return 'operaciones';
-  }
-
-  // RRHH
-  if (path.includes('/empleados') || path.includes('/nominas') || path.includes('/vacaciones') || path.includes('/mis-vacaciones')) {
-    return 'rrhh';
-  }
-
-  // Configuración
-  if (path.includes('/usuarios') || path.includes('/roles') || path.includes('/bitacora') || path.includes('/categorias') || path.includes('/marcas') || path.includes('/servicios') || path.includes('/backup') || path.includes('/empresa/configuracion') || path.includes('/empresa/landing-content') || path.includes('/admin/blog')) {
-    return 'configuracion';
-  }
-
-  // Reportes
-  if (path.includes('/reportes') || path.includes('/cfdi') || path === '/finanzas') {
-    return 'reportes';
-  }
-
-  return null;
+  // Guardar estado en sessionStorage
+  saveAccordionState();
 };
 
-// Auto-expandir la sección actual cuando se carga la página
-const autoExpandCurrentSection = () => {
-  const currentSection = getCurrentSection();
-  if (currentSection) {
-    accordionStates.value[currentSection] = true;
-  }
-};
+
 
 // Helper para tolerar ausencia de Ziggy route()
 const routeOr = (fallback) => {
@@ -653,7 +729,10 @@ const toggleSidebar = () => {
 
 // On mount
 onMounted(() => {
-  autoExpandCurrentSection();
+  // Guardar el estado actual en sessionStorage para futuras navegaciones
+  saveAccordionState();
+  // Restore scroll with our robust multi-attempt function
+  restoreScrollPosition();
 });
 </script>
 

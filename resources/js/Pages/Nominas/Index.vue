@@ -72,14 +72,14 @@ const goToPage = (p) => {
 <template>
   <Head title="Nóminas" />
 
-  <div class="min-h-screen bg-white">
+  <div class="min-h-screen bg-white dark:bg-slate-900">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">Nóminas</h1>
-            <p class="mt-1 text-sm text-gray-500">Gestión de pagos de nómina a empleados</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Nóminas</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Gestión de pagos de nómina a empleados</p>
           </div>
           <button @click="crearNomina" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold rounded-lg shadow-sm hover:from-emerald-700 hover:to-teal-700 transition-all">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,7 +92,7 @@ const goToPage = (p) => {
 
       <!-- Estadísticas -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 p-5">
           <div class="flex items-center">
             <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
               <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,13 +100,13 @@ const goToPage = (p) => {
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">Total Nóminas</p>
-              <p class="text-2xl font-bold text-gray-900">{{ estadisticas.total }}</p>
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Nóminas</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ estadisticas.total }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 p-5">
           <div class="flex items-center">
             <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
               <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,13 +114,13 @@ const goToPage = (p) => {
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">Pendientes</p>
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pendientes</p>
               <p class="text-2xl font-bold text-amber-600">{{ estadisticas.procesadas }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 p-5">
           <div class="flex items-center">
             <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
               <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -128,13 +128,13 @@ const goToPage = (p) => {
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">Pagadas</p>
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pagadas</p>
               <p class="text-2xl font-bold text-green-600">{{ estadisticas.pagadas }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 p-5">
           <div class="flex items-center">
             <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
               <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,7 +142,7 @@ const goToPage = (p) => {
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">Total Pagado</p>
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Pagado</p>
               <p class="text-xl font-bold text-emerald-600">{{ formatearMoneda(estadisticas.monto_total_pagado) }}</p>
             </div>
           </div>
@@ -150,7 +150,7 @@ const goToPage = (p) => {
       </div>
 
       <!-- Filtros -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
           <select v-model="filtroEmpleado" @change="aplicarFiltros" class="border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-emerald-500">
             <option value="">Todos los empleados</option>
@@ -169,7 +169,7 @@ const goToPage = (p) => {
             <option v-for="anio in aniosDisponibles" :key="anio" :value="anio">{{ anio }}</option>
           </select>
 
-          <button @click="limpiarFiltros" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+          <button @click="limpiarFiltros" class="px-4 py-2 text-gray-600 dark:text-gray-300 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
             Limpiar filtros
           </button>
 
@@ -180,48 +180,48 @@ const goToPage = (p) => {
       </div>
 
       <!-- Tabla -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 px-6 py-4 border-b border-gray-200/60">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 px-6 py-4 border-b border-gray-200 dark:border-slate-800/60">
           <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-gray-900">Lista de Nóminas</h2>
-            <div class="text-sm text-gray-600 bg-white/70 px-3 py-1 rounded-full border border-gray-200/50">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Lista de Nóminas</h2>
+            <div class="text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-slate-900/70 px-3 py-1 rounded-full border border-gray-200 dark:border-slate-800/50">
               {{ paginationData.from }} - {{ paginationData.to }} de {{ paginationData.total }}
             </div>
           </div>
         </div>
 
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200/60">
-            <thead class="bg-white/60">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800/60">
+            <thead class="bg-white dark:bg-slate-900/60">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Empleado</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Período</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Tipo</th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase">Percepciones</th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase">Deducciones</th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase">Neto</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Estado</th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase">Acciones</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Empleado</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Período</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Tipo</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Percepciones</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Deducciones</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Neto</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Estado</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Acciones</th>
               </tr>
             </thead>
 
-            <tbody class="bg-white divide-y divide-gray-200/40">
-              <tr v-for="nomina in nominas.data" :key="nomina.id" class="group hover:bg-white/60 transition-all">
+            <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800/40">
+              <tr v-for="nomina in nominas.data" :key="nomina.id" class="group hover:bg-white dark:bg-slate-900/60 transition-all">
                 <td class="px-6 py-4">
                   <div class="flex items-center">
                     <div class="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
                       {{ nomina.empleado?.user?.name?.charAt(0) || '?' }}
                     </div>
                     <div class="ml-3">
-                      <div class="text-sm font-medium text-gray-900">{{ nomina.empleado?.user?.name || 'Sin nombre' }}</div>
-                      <div class="text-xs text-gray-500">{{ nomina.empleado?.numero_empleado }}</div>
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">{{ nomina.empleado?.user?.name || 'Sin nombre' }}</div>
+                      <div class="text-xs text-gray-500 dark:text-gray-400">{{ nomina.empleado?.numero_empleado }}</div>
                     </div>
                   </div>
                 </td>
 
                 <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-gray-900">{{ nomina.periodo_formateado }}</div>
-                  <div class="text-xs text-gray-500">Período #{{ nomina.numero_periodo }}</div>
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{ nomina.periodo_formateado }}</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Período #{{ nomina.numero_periodo }}</div>
                 </td>
 
                 <td class="px-6 py-4">
@@ -237,7 +237,7 @@ const goToPage = (p) => {
                 </td>
 
                 <td class="px-6 py-4 text-right">
-                  <span class="text-sm font-bold text-gray-900">{{ formatearMoneda(nomina.total_neto) }}</span>
+                  <span class="text-sm font-bold text-gray-900 dark:text-white">{{ formatearMoneda(nomina.total_neto) }}</span>
                 </td>
 
                 <td class="px-6 py-4">
@@ -275,7 +275,7 @@ const goToPage = (p) => {
                     </div>
                     <div>
                       <p class="text-gray-700 font-medium">No hay nóminas</p>
-                      <p class="text-sm text-gray-500">Genera tu primera nómina para comenzar</p>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Genera tu primera nómina para comenzar</p>
                     </div>
                     <button @click="crearNomina" class="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">
                       Crear Nómina
@@ -288,13 +288,13 @@ const goToPage = (p) => {
         </div>
 
         <!-- Paginación -->
-        <div v-if="paginationData.last_page > 1" class="px-6 py-4 border-t border-gray-200 flex justify-center">
+        <div v-if="paginationData.last_page > 1" class="px-6 py-4 border-t border-gray-200 dark:border-slate-800 flex justify-center">
           <div class="flex space-x-1">
             <button
               v-for="p in [paginationData.current_page - 1, paginationData.current_page, paginationData.current_page + 1].filter(x => x > 0 && x <= paginationData.last_page)"
               :key="p"
               @click="goToPage(p)"
-              :class="['px-3 py-2 text-sm font-medium border rounded-md', p === paginationData.current_page ? 'bg-emerald-500 text-white border-emerald-500' : 'text-gray-700 bg-white hover:bg-white border-gray-300']"
+              :class="['px-3 py-2 text-sm font-medium border rounded-md', p === paginationData.current_page ? 'bg-emerald-500 text-white border-emerald-500' : 'text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 border-gray-300']"
             >
               {{ p }}
             </button>

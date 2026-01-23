@@ -5,8 +5,8 @@
     <div class="mb-8">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">Editar Técnico</h1>
-          <p class="text-gray-600 mt-2">Modifica la información del técnico</p>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Editar Técnico</h1>
+          <p class="text-gray-600 dark:text-gray-300 mt-2">Modifica la información del técnico</p>
         </div>
         <Link
           :href="route('tecnicos.index')"
@@ -19,12 +19,12 @@
     </div>
 
     <!-- Formulario -->
-    <div class="bg-white rounded-xl shadow-lg border border-gray-200">
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-gray-200 dark:border-slate-800">
       <div class="p-6">
         <form @submit.prevent="submit" class="space-y-6">
           <!-- Información Personal -->
-          <div class="border-b border-gray-200 pb-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+          <div class="border-b border-gray-200 dark:border-slate-800 pb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
               <font-awesome-icon :icon="['fas', 'user']" class="w-5 h-5 mr-2 text-blue-600" />
               Información Personal
             </h2>
@@ -75,8 +75,8 @@
           </div>
 
           <!-- Información de Contacto -->
-          <div class="border-b border-gray-200 pb-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+          <div class="border-b border-gray-200 dark:border-slate-800 pb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
               <font-awesome-icon :icon="['fas', 'phone']" class="w-5 h-5 mr-2 text-green-600" />
               Información de Contacto
             </h2>
@@ -131,7 +131,7 @@
                   <font-awesome-icon :icon="['fas', 'circle-exclamation']" class="w-4 h-4 mr-1" />
                   {{ form.errors.telefono }}
                 </p>
-                <p v-else class="text-gray-500 text-sm mt-2">
+                <p v-else class="text-gray-500 dark:text-gray-400 text-sm mt-2">
                   Formato: 10 dígitos sin espacios ni guiones
                 </p>
               </div>
@@ -139,8 +139,8 @@
           </div>
 
           <!-- Dirección -->
-          <div class="border-b border-gray-200 pb-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+          <div class="border-b border-gray-200 dark:border-slate-800 pb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
               <font-awesome-icon :icon="['fas', 'map-marker-alt']" class="w-5 h-5 mr-2 text-purple-600" />
               Dirección
             </h2>
@@ -171,8 +171,8 @@
           </div>
 
           <!-- Usuario Asignado -->
-          <div class="border-b border-gray-200 pb-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+          <div class="border-b border-gray-200 dark:border-slate-800 pb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
               <font-awesome-icon :icon="['fas', 'user']" class="w-5 h-5 mr-2 text-orange-600" />
               Usuario Asignado
             </h2>
@@ -201,7 +201,7 @@
                   <font-awesome-icon :icon="['fas', 'circle-exclamation']" class="w-4 h-4 mr-1" />
                   {{ form.errors.user_id }}
               </p>
-              <p class="text-gray-500 text-sm mt-2">
+              <p class="text-gray-500 dark:text-gray-400 text-sm mt-2">
                 Opcional: Asigna un usuario del sistema a este técnico para permitir ventas
               </p>
             </div>
@@ -209,7 +209,7 @@
 
           <!-- Márgenes y Comisiones -->
           <div class="pb-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
               <font-awesome-icon :icon="['fas', 'dollar-sign']" class="w-5 h-5 mr-2 text-green-600" />
               Márgenes y Comisiones
             </h2>
@@ -298,10 +298,10 @@
           </div>
 
           <!-- Botones de Acción -->
-          <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+          <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-slate-800">
             <Link
               :href="route('tecnicos.index')"
-              class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-white transition-colors"
+              class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-white dark:bg-slate-900 transition-colors"
             >
               Cancelar
             </Link>

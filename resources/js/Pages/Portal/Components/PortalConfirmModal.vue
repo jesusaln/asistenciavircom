@@ -42,7 +42,7 @@ defineExpose({ show });
                 
                 <!-- Modal Card -->
                 <Transition name="scale">
-                    <div class="relative bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden border border-gray-100">
+                    <div class="relative bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden border border-gray-100">
                         <!-- Upper Detail -->
                         <div class="h-2 w-full" :class="{
                             'bg-[var(--color-primary)]': type === 'primary',
@@ -64,13 +64,13 @@ defineExpose({ show });
                                 <font-awesome-icon v-if="type === 'danger'" icon="trash" />
                             </div>
 
-                            <h3 class="text-2xl font-black text-gray-900 mb-4 leading-tight">{{ title }}</h3>
-                            <p class="text-gray-500 font-medium leading-relaxed">{{ message }}</p>
+                            <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-4 leading-tight">{{ title }}</h3>
+                            <p class="text-gray-500 dark:text-gray-400 font-medium leading-relaxed">{{ message }}</p>
 
                             <div class="mt-10 flex flex-col sm:flex-row gap-3">
                                 <button 
                                     @click="handleCancel" 
-                                    class="flex-1 px-8 py-4 bg-white text-gray-400 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 transition-all"
+                                    class="flex-1 px-8 py-4 bg-white dark:bg-slate-900 text-gray-400 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 transition-all"
                                 >
                                     {{ cancelLabel }}
                                 </button>

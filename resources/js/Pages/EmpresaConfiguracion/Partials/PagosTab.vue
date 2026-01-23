@@ -1,15 +1,15 @@
 <template>
     <div class="space-y-8">
         <div>
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white dark:text-gray-100 mb-6 flex items-center gap-2">
                 <FontAwesomeIcon icon="money-bill-wave" class="text-gray-700 dark:text-gray-400" />
                 Configuración de Cuentas por Pagar
             </h2>
 
             <!-- Reporte de Pagos por Email -->
-            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 mb-6">
-                <h3 class="text-md font-medium text-gray-900 dark:text-gray-100 mb-4">Reporte de Pagos a Proveedores por Email</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 mb-6">
+                <h3 class="text-md font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Reporte de Pagos a Proveedores por Email</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300 mb-4">
                     Configura un correo electrónico para recibir un reporte diario con las cuentas por pagar pendientes,
                     incluyendo proveedor, monto y días de atraso.
                 </p>
@@ -17,8 +17,8 @@
                 <div class="flex items-center gap-4 mb-4">
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" v-model="form.pagos_reporte_automatico" class="sr-only peer">
-                        <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
-                        <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-100">Enviar reporte automáticamente</span>
+                        <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:bg-slate-900 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
+                        <span class="ml-3 text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">Enviar reporte automáticamente</span>
                     </label>
                 </div>
 
@@ -31,10 +31,10 @@
                         <input 
                             type="email" 
                             v-model="form.email_pagos" 
-                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200" 
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200" 
                             placeholder="pagos@empresa.com"
                         >
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">El reporte incluirá: proveedor, monto adeudado y días de vencimiento</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">El reporte incluirá: proveedor, monto adeudado y días de vencimiento</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -44,9 +44,9 @@
                         <input 
                             type="time" 
                             v-model="form.pagos_hora_reporte" 
-                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                         >
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Hora a la que se enviará el reporte diario</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">Hora a la que se enviará el reporte diario</p>
                     </div>
                 </div>
 
@@ -62,11 +62,11 @@
                             v-model.number="form.pagos_dias_anticipacion" 
                             min="0"
                             max="30"
-                            class="w-24 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="w-24 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                         >
-                        <span class="text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">días antes del vencimiento</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300 whitespace-nowrap">días antes del vencimiento</span>
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">
                         <strong>0</strong> = solo pagos vencidos | 
                         <strong>1-30</strong> = incluir pagos próximos a vencer
                     </p>
@@ -94,7 +94,7 @@
                             <span>{{ enviandoReporte === 'real' ? 'Enviando...' : 'Enviar Reporte Real' }}</span>
                         </button>
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
                         <strong>Prueba:</strong> envía datos de ejemplo | 
                         <strong>Real:</strong> envía pagos reales con {{ form.pagos_dias_anticipacion || 0 }} días de anticipación
                     </p>

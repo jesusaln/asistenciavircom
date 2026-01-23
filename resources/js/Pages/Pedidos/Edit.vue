@@ -483,13 +483,13 @@ const actualizarPedido = () => {
     <div class="w-full">
       <!-- Loading overlay -->
       <div v-if="isLoading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
+        <div class="bg-white dark:bg-slate-900 rounded-lg p-6 flex items-center space-x-3">
           <div class="animate-spin rounded-full h-6 w-6 border-b-2" :style="{ borderBottomColor: colors.principal }"></div>
           <span class="text-gray-700">Procesando...</span>
         </div>
       </div>
 
-      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
         <Header
           title="Editar Pedido"
           description="Modifica los detalles del pedido"
@@ -503,7 +503,7 @@ const actualizarPedido = () => {
 
       <form @submit.prevent="actualizarPedido" class="space-y-8 mt-6">
         <!-- Cliente -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
         <div class="px-6 py-4" :style="headerGradientStyle">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -547,7 +547,7 @@ const actualizarPedido = () => {
                   {{ priceList.nombre }}
                 </option>
               </select>
-              <p class="mt-1 text-xs text-gray-500">
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Los precios se actualizarán automáticamente al cambiar la lista
               </p>
             </div>
@@ -555,7 +555,7 @@ const actualizarPedido = () => {
         </div>
 
         <!-- Productos y Servicios -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
         <div class="px-6 py-4" :style="headerGradientStyle">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -585,7 +585,7 @@ const actualizarPedido = () => {
         </div>
 
         <!-- Notas -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
         <div class="px-6 py-4" :style="headerGradientStyle">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

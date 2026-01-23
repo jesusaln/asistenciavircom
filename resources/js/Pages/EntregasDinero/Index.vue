@@ -78,7 +78,7 @@ const obtenerClasesEstado = (estado) => {
   const clases = {
     'pendiente': 'bg-yellow-100 text-yellow-700',
     'recibido': 'bg-green-100 text-green-700',
-    'cancelado': 'bg-gray-100 text-gray-600'
+    'cancelado': 'bg-gray-100 text-gray-600 dark:text-gray-300'
   }
   return clases[estado] || 'bg-gray-100 text-gray-700'
 }
@@ -341,11 +341,11 @@ const getMetodoPagoClass = (registro) => {
       'transferencia': 'bg-blue-100 text-blue-800',
       'cheque': 'bg-purple-100 text-purple-800',
       'tarjeta': 'bg-orange-100 text-orange-800',
-      'otros': 'bg-gray-100 text-gray-800'
+      'otros': 'bg-gray-100 text-gray-800 dark:text-gray-100'
     }
-    return clases[metodoPago] || 'bg-gray-100 text-gray-800'
+    return clases[metodoPago] || 'bg-gray-100 text-gray-800 dark:text-gray-100'
   }
-  return 'bg-gray-100 text-gray-800'
+  return 'bg-gray-100 text-gray-800 dark:text-gray-100'
 }
 
 const tieneSaldoPendiente = (registro) => {
@@ -442,7 +442,7 @@ const handlePageChange = (newPage) => {
 
 <template>
   <Head title="Entregas de Dinero" />
-  <div class="entregas-dinero-index min-h-screen bg-white">
+  <div class="entregas-dinero-index min-h-screen bg-white dark:bg-slate-900">
     <div class="w-full px-6 py-8">
       <!-- Header espec�fico de entregas de dinero -->
       <EntregasDineroHeader
@@ -465,43 +465,43 @@ const handlePageChange = (newPage) => {
       />
 
       <!-- Tabla -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+            <thead class="bg-white dark:bg-slate-900">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Entregado por</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Recibido por</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha Entrega</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Folio Venta</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Total</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado Entrega</th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Entregado por</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Recibido por</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Fecha Entrega</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Folio Venta</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Total</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Estado</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Estado Entrega</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="entrega in entregas.data" :key="entrega.id" class="hover:bg-white transition-colors duration-150">
+            <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+              <tr v-for="entrega in entregas.data" :key="entrega.id" class="hover:bg-white dark:bg-slate-900 transition-colors duration-150">
                 <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-gray-900">{{ entrega.usuario?.name || 'Usuario' }}</div>
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{ entrega.usuario?.name || 'Usuario' }}</div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">{{ entrega.recibidoPor?.name || (entrega.estado === 'recibido' ? $page.props.auth?.user?.name : '-') }}</div>
+                  <div class="text-sm text-gray-900 dark:text-white">{{ entrega.recibidoPor?.name || (entrega.estado === 'recibido' ? $page.props.auth?.user?.name : '-') }}</div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">{{ formatearFecha(entrega.fecha_entrega) }}</div>
+                  <div class="text-sm text-gray-900 dark:text-white">{{ formatearFecha(entrega.fecha_entrega) }}</div>
                 </td>
                 <td class="px-6 py-4">
                   <div class="text-sm font-medium text-blue-600">
                     {{ entrega.venta_numero || '-' }}
                   </div>
-                  <div v-if="entrega.venta_cliente" class="text-xs text-gray-500">
+                  <div v-if="entrega.venta_cliente" class="text-xs text-gray-500 dark:text-gray-400">
                     {{ entrega.venta_cliente }}
                   </div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm font-semibold text-gray-900">${{ formatNumber(entrega.total) }}</div>
-                  <div class="text-xs text-gray-500">
+                  <div class="text-sm font-semibold text-gray-900 dark:text-white">${{ formatNumber(entrega.total) }}</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">
                     E: ${{ formatNumber(entrega.monto_efectivo) }} |
                     C: ${{ formatNumber(entrega.monto_cheques) }} |
                     T: ${{ formatNumber(entrega.monto_tarjetas) }}
@@ -565,7 +565,7 @@ const handlePageChange = (newPage) => {
                     </div>
                     <div class="space-y-1">
                       <p class="text-gray-700 font-medium">No hay entregas registradas</p>
-                      <p class="text-sm text-gray-500">Las entregas aparecer�n aqu� cuando se registren</p>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Las entregas aparecer�n aqu� cuando se registren</p>
                     </div>
                   </div>
                 </td>
@@ -575,7 +575,7 @@ const handlePageChange = (newPage) => {
         </div>
 
         <!-- Paginaci�n -->
-        <div v-if="paginationData.lastPage > 1" class="bg-white border-t border-gray-200 px-4 py-3 sm:px-6">
+        <div v-if="paginationData.lastPage > 1" class="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 px-4 py-3 sm:px-6">
           <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-4">
               <p class="text-sm text-gray-700">
@@ -584,7 +584,7 @@ const handlePageChange = (newPage) => {
               <select
                 :value="paginationData.perPage"
                 @change="handlePerPageChange(parseInt($event.target.value))"
-                class="border border-gray-300 rounded-md text-sm py-1 px-2 bg-white"
+                class="border border-gray-300 rounded-md text-sm py-1 px-2 bg-white dark:bg-slate-900"
               >
                 <option value="10">10</option>
                 <option value="15">15</option>
@@ -597,7 +597,7 @@ const handlePageChange = (newPage) => {
               <button
                 v-if="paginationData.prevPageUrl"
                 @click="handlePageChange(paginationData.currentPage - 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white dark:bg-slate-900 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -614,7 +614,7 @@ const handlePageChange = (newPage) => {
                 v-for="page in [paginationData.currentPage - 1, paginationData.currentPage, paginationData.currentPage + 1].filter(p => p > 0 && p <= paginationData.lastPage)"
                 :key="page"
                 @click="handlePageChange(page)"
-                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'"
+                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white dark:bg-slate-900 border-gray-300 text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900'"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               >
                 {{ page }}
@@ -623,7 +623,7 @@ const handlePageChange = (newPage) => {
               <button
                 v-if="paginationData.nextPageUrl"
                 @click="handlePageChange(paginationData.currentPage + 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white dark:bg-slate-900 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -641,28 +641,28 @@ const handlePageChange = (newPage) => {
       </div>
 
       <!-- Registros Autom�ticos (Cobranzas y Ventas) -->
-      <div v-if="registrosAutomaticos.length > 0" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-6">
+      <div v-if="registrosAutomaticos.length > 0" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-6">
         <div class="bg-blue-50 px-6 py-4 border-b border-blue-200">
           <h3 class="text-lg font-semibold text-blue-900">Cobranzas y Ventas por Entregar</h3>
           <p class="text-sm text-blue-700">Registros que has cobrado/vendido y puedes marcar como entregados</p>
         </div>
 
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+            <thead class="bg-white dark:bg-slate-900">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Tipo</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Usuario</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Concepto</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Cliente</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Monto</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado Entrega</th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Acci�n</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Tipo</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Usuario</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Concepto</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Cliente</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Monto</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Estado Entrega</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Acci�n</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="registro in registrosAutomaticos" :key="registro.id" class="hover:bg-white transition-colors duration-150">
+            <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+              <tr v-for="registro in registrosAutomaticos" :key="registro.id" class="hover:bg-white dark:bg-slate-900 transition-colors duration-150">
                 <td class="px-6 py-4">
                   <span :class="registro.tipo === 'cobranza' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'"
                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
@@ -670,19 +670,19 @@ const handlePageChange = (newPage) => {
                   </span>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">{{ registro.usuario?.name || 'Usuario' }}</div>
+                  <div class="text-sm text-gray-900 dark:text-white">{{ registro.usuario?.name || 'Usuario' }}</div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">{{ formatearFecha(registro.fecha_entrega) }}</div>
+                  <div class="text-sm text-gray-900 dark:text-white">{{ formatearFecha(registro.fecha_entrega) }}</div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-gray-900">{{ registro.concepto }}</div>
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{ registro.concepto }}</div>
                 </td>
                 <td class="px-6 py-4">
                   <div class="text-sm text-gray-700">{{ registro.cliente }}</div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm font-semibold text-gray-900">${{ formatNumber(registro.saldo_pendiente || registro.total) }}</div>
+                  <div class="text-sm font-semibold text-gray-900 dark:text-white">${{ formatNumber(registro.saldo_pendiente || registro.total) }}</div>
                   <div v-if="tieneSaldoPendiente(registro) && registro.ya_entregado > 0" class="text-xs text-blue-600">
                     Ya entregado: ${{ formatNumber(registro.ya_entregado) }}
                   </div>
@@ -706,7 +706,7 @@ const handlePageChange = (newPage) => {
                     </svg>
                     Entregar
                   </button>
-                  <span v-else class="text-xs text-gray-500">Sin saldo pendiente</span>
+                  <span v-else class="text-xs text-gray-500 dark:text-gray-400">Sin saldo pendiente</span>
                 </td>
               </tr>
             </tbody>
@@ -716,13 +716,13 @@ const handlePageChange = (newPage) => {
 
       <!-- Modal de detalles / confirmaci�n -->
       <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showModal = false">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <!-- Header del modal -->
-          <div class="flex items-center justify-between p-6 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">
+          <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">
               {{ modalMode === 'details' ? 'Detalles de la Entrega' : 'Confirmar Eliminaci�n' }}
             </h3>
-            <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 transition-colors">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -736,11 +736,11 @@ const handlePageChange = (newPage) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Usuario</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEntrega.usuario?.name || 'Usuario' }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ selectedEntrega.usuario?.name || 'Usuario' }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Fecha de Entrega</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedEntrega.fecha_entrega) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ formatearFecha(selectedEntrega.fecha_entrega) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Estado</label>
@@ -752,37 +752,37 @@ const handlePageChange = (newPage) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Monto Efectivo</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.monto_efectivo) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.monto_efectivo) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Monto Cheques</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.monto_cheques) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.monto_cheques) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Monto Tarjetas</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.monto_tarjetas) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.monto_tarjetas) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Total</label>
-                      <p class="mt-1 text-sm font-bold text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.total) }}</p>
+                      <p class="mt-1 text-sm font-bold text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.total) }}</p>
                     </div>
                   </div>
                 </div>
                 <div v-if="selectedEntrega.notas">
                   <label class="block text-sm font-medium text-gray-700">Notas</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEntrega.notas }}</p>
+                  <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ selectedEntrega.notas }}</p>
                 </div>
                 <div v-if="selectedEntrega.fecha_recibido">
                   <label class="block text-sm font-medium text-gray-700">Fecha de Recepci�n</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedEntrega.fecha_recibido) }}</p>
+                  <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ formatearFecha(selectedEntrega.fecha_recibido) }}</p>
                 </div>
                 <div v-if="selectedEntrega.recibido_por">
                   <label class="block text-sm font-medium text-gray-700">Recibido Por</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEntrega.recibido_por_usuario?.name || 'Desconocido' }}</p>
+                  <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ selectedEntrega.recibido_por_usuario?.name || 'Desconocido' }}</p>
                 </div>
                 <div v-if="selectedEntrega.notas_recibido">
                   <label class="block text-sm font-medium text-gray-700">Notas de Recepci�n</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEntrega.notas_recibido }}</p>
+                  <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ selectedEntrega.notas_recibido }}</p>
                 </div>
               </div>
             </div>
@@ -794,8 +794,8 @@ const handlePageChange = (newPage) => {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
                   </svg>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">�Eliminar Entrega?</h3>
-                <p class="text-sm text-gray-500 mb-4">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">�Eliminar Entrega?</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
                   �Est�s seguro de que deseas eliminar esta entrega?
                   Esta acci�n no se puede deshacer.
                 </p>
@@ -804,7 +804,7 @@ const handlePageChange = (newPage) => {
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
             <button @click="showModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
               {{ modalMode === 'details' ? 'Cerrar' : 'Cancelar' }}
             </button>
@@ -829,13 +829,13 @@ const handlePageChange = (newPage) => {
 
   <!-- Modal para marcar como recibida (entregas manuales) -->
   <div v-if="showRecibirModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="cerrarRecibirModal">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+    <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800">
         <div>
-          <h3 class="text-lg font-medium text-gray-900">Confirmar recepcion</h3>
-          <p class="text-sm text-gray-500">Registra como se recibio la entrega y deja una nota.</p>
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white">Confirmar recepcion</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Registra como se recibio la entrega y deja una nota.</p>
         </div>
-        <button @click="cerrarRecibirModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+        <button @click="cerrarRecibirModal" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 transition-colors">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -845,31 +845,31 @@ const handlePageChange = (newPage) => {
       <div class="p-6 space-y-5" v-if="entregaParaRecibir">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <p class="text-sm text-gray-500">Entregado por</p>
-            <p class="text-sm font-semibold text-gray-900 bg-white px-3 py-2 rounded-md">{{ entregaParaRecibir.usuario?.name }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Entregado por</p>
+            <p class="text-sm font-semibold text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ entregaParaRecibir.usuario?.name }}</p>
           </div>
           <div>
-            <p class="text-sm text-gray-500">Recibe</p>
-            <p class="text-sm font-semibold text-gray-900 bg-white px-3 py-2 rounded-md">{{ currentUser?.name }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Recibe</p>
+            <p class="text-sm font-semibold text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ currentUser?.name }}</p>
           </div>
           <div>
-            <p class="text-sm text-gray-500">Fecha de entrega</p>
-            <p class="text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(entregaParaRecibir.fecha_entrega) }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Fecha de entrega</p>
+            <p class="text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ formatearFecha(entregaParaRecibir.fecha_entrega) }}</p>
           </div>
           <div>
-            <p class="text-sm text-gray-500">Total</p>
-            <p class="text-lg font-bold text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(entregaParaRecibir.total) }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Total</p>
+            <p class="text-lg font-bold text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">${{ formatNumber(entregaParaRecibir.total) }}</p>
           </div>
         </div>
 
-        <div class="bg-white p-4 rounded-lg space-y-2">
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-lg space-y-2">
           <p class="text-sm font-medium text-gray-700">Detalle de montos registrados</p>
           <div class="flex flex-wrap gap-2">
             <span v-if="entregaParaRecibir.monto_efectivo > 0" class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Efectivo ${{ formatNumber(entregaParaRecibir.monto_efectivo) }}</span>
             <span v-if="entregaParaRecibir.monto_transferencia > 0" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Transferencia ${{ formatNumber(entregaParaRecibir.monto_transferencia) }}</span>
             <span v-if="entregaParaRecibir.monto_cheques > 0" class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">Cheques ${{ formatNumber(entregaParaRecibir.monto_cheques) }}</span>
             <span v-if="entregaParaRecibir.monto_tarjetas > 0" class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">Tarjetas ${{ formatNumber(entregaParaRecibir.monto_tarjetas) }}</span>
-            <span v-if="entregaParaRecibir.monto_efectivo <= 0 && entregaParaRecibir.monto_transferencia <= 0 && entregaParaRecibir.monto_cheques <= 0 && entregaParaRecibir.monto_tarjetas <= 0" class="text-xs text-gray-500">Sin detalle de montos</span>
+            <span v-if="entregaParaRecibir.monto_efectivo <= 0 && entregaParaRecibir.monto_transferencia <= 0 && entregaParaRecibir.monto_cheques <= 0 && entregaParaRecibir.monto_tarjetas <= 0" class="text-xs text-gray-500 dark:text-gray-400">Sin detalle de montos</span>
           </div>
         </div>
 
@@ -887,7 +887,7 @@ const handlePageChange = (newPage) => {
             <option value="mixto">Mixto</option>
             <option value="otros">Otros</option>
           </select>
-          <p class="text-xs text-gray-500 mt-1">Como se recibe la entrega fisicamente.</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Como se recibe la entrega fisicamente.</p>
         </div>
 
         <div>
@@ -911,11 +911,11 @@ const handlePageChange = (newPage) => {
               {{ cuenta.nombre }} - {{ cuenta.banco }} (Saldo: ${{ formatNumber(cuenta.saldo_actual) }})
             </option>
           </select>
-          <p class="text-xs text-gray-500 mt-1">Selecciona la cuenta bancaria donde se depositar� este dinero. El saldo se actualizar� autom�ticamente.</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Selecciona la cuenta bancaria donde se depositar� este dinero. El saldo se actualizar� autom�ticamente.</p>
         </div>
       </div>
 
-      <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
+      <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
         <button @click="cerrarRecibirModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
           Cancelar
         </button>
@@ -932,11 +932,11 @@ const handlePageChange = (newPage) => {
 
   <!-- Modal de Monto Recibido -->
   <div v-if="showMontoModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="cerrarMontoModal">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
       <!-- Header del modal -->
-      <div class="flex items-center justify-between p-6 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Registrar Monto Recibido</h3>
-            <button @click="cerrarMontoModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+      <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Registrar Monto Recibido</h3>
+            <button @click="cerrarMontoModal" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 transition-colors">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -946,10 +946,10 @@ const handlePageChange = (newPage) => {
           <div class="p-6">
             <div v-if="selectedRegistro" class="space-y-4">
               <!-- Informaci�n del registro -->
-              <div class="bg-white p-4 rounded-lg space-y-3">
+              <div class="bg-white dark:bg-slate-900 p-4 rounded-lg space-y-3">
                 <div class="flex justify-between items-center">
                   <span class="text-sm font-medium text-gray-700">Tipo:</span>
-                  <span class="text-sm text-gray-900">
+                  <span class="text-sm text-gray-900 dark:text-white">
                     <span :class="selectedRegistro.tipo === 'cobranza' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'"
                           class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium">
                       {{ selectedRegistro.tipo === 'cobranza' ? 'Cobranza' : 'Venta' }}
@@ -958,15 +958,15 @@ const handlePageChange = (newPage) => {
                 </div>
                 <div class="flex justify-between items-center">
                   <span class="text-sm font-medium text-gray-700">Concepto:</span>
-                  <span class="text-sm text-gray-900">{{ selectedRegistro.concepto }}</span>
+                  <span class="text-sm text-gray-900 dark:text-white">{{ selectedRegistro.concepto }}</span>
                 </div>
                 <div class="flex justify-between items-center">
                   <span class="text-sm font-medium text-gray-700">Cliente:</span>
-                  <span class="text-sm text-gray-900">{{ selectedRegistro.cliente }}</span>
+                  <span class="text-sm text-gray-900 dark:text-white">{{ selectedRegistro.cliente }}</span>
                 </div>
                 <div class="flex justify-between items-center">
                   <span class="text-sm font-medium text-gray-700">M�todo de Pago Original:</span>
-                  <span class="text-sm font-semibold text-gray-900">
+                  <span class="text-sm font-semibold text-gray-900 dark:text-white">
                     <span :class="getMetodoPagoClass(selectedRegistro)">
                       {{ getMetodoPagoLabel(selectedRegistro) }}
                     </span>
@@ -974,15 +974,15 @@ const handlePageChange = (newPage) => {
                 </div>
                 <div class="flex justify-between items-center">
                   <span class="text-sm font-medium text-gray-700">Saldo Pendiente:</span>
-                  <span class="text-lg font-bold text-gray-900">${{ formatNumber(selectedRegistro.saldo_pendiente || selectedRegistro.total) }}</span>
+                  <span class="text-lg font-bold text-gray-900 dark:text-white">${{ formatNumber(selectedRegistro.saldo_pendiente || selectedRegistro.total) }}</span>
                 </div>
                 <div v-if="tieneSaldoPendiente(selectedRegistro) && selectedRegistro.ya_entregado > 0" class="flex justify-between items-center">
-                  <span class="text-sm font-medium text-gray-600">Ya entregado:</span>
+                  <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Ya entregado:</span>
                   <span class="text-sm text-blue-600">${{ formatNumber(selectedRegistro.ya_entregado) }}</span>
                 </div>
-                <div class="flex justify-between items-center pt-2 border-t border-gray-200">
+                <div class="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-slate-800">
                   <span class="text-sm font-medium text-gray-700">Total Original:</span>
-                  <span class="text-sm text-gray-900">${{ formatNumber(selectedRegistro.total) }}</span>
+                  <span class="text-sm text-gray-900 dark:text-white">${{ formatNumber(selectedRegistro.total) }}</span>
                 </div>
               </div>
 
@@ -1000,7 +1000,7 @@ const handlePageChange = (newPage) => {
                   <option value="tarjeta">Tarjeta</option>
                   <option value="otros">Otros</option>
                 </select>
-                <p class="text-xs text-gray-500 mt-1">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Especifica c�mo se entrega f�sicamente el dinero
                 </p>
               </div>
@@ -1017,7 +1017,7 @@ const handlePageChange = (newPage) => {
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="0.00"
                 />
-                <p class="text-xs text-gray-500 mt-1">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   M�ximo: ${{ formatNumber(selectedRegistro.saldo_pendiente || selectedRegistro.total) }}
                 </p>
               </div>
@@ -1036,7 +1036,7 @@ const handlePageChange = (newPage) => {
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
             <button @click="cerrarMontoModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
               Cancelar
             </button>

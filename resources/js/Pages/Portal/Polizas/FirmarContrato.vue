@@ -253,15 +253,15 @@ const formatCurrency = (value) => {
                 <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white text-4xl mb-6 shadow-2xl transform hover:rotate-3 transition-transform">
                     ✍️
                 </div>
-                <h1 class="text-3xl font-black text-gray-900 tracking-tight">Firma Digital del Contrato</h1>
-                <p class="text-gray-500 mt-2 flex items-center justify-center gap-2">
+                <h1 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Firma Digital del Contrato</h1>
+                <p class="text-gray-500 dark:text-gray-400 mt-2 flex items-center justify-center gap-2">
                     Póliza <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-md font-bold text-sm">{{ poliza.folio }}</span>
                 </p>
             </div>
 
             <!-- Resumen del Contrato -->
-            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 mb-8">
-                <h2 class="font-black text-gray-800 uppercase text-xs tracking-widest mb-4 flex items-center gap-2">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 p-6 mb-8">
+                <h2 class="font-black text-gray-800 dark:text-gray-100 uppercase text-xs tracking-widest mb-4 flex items-center gap-2">
                     <span class="w-6 h-6 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-sm">📋</span>
                     Resumen del Contrato
                 </h2>
@@ -269,7 +269,7 @@ const formatCurrency = (value) => {
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
                         <p class="text-gray-400 text-xs uppercase font-bold">Plan</p>
-                        <p class="font-bold text-gray-800">{{ poliza.plan_poliza?.nombre || poliza.nombre }}</p>
+                        <p class="font-bold text-gray-800 dark:text-gray-100">{{ poliza.plan_poliza?.nombre || poliza.nombre }}</p>
                     </div>
                     <div>
                         <p class="text-gray-400 text-xs uppercase font-bold">Monto Mensual</p>
@@ -277,11 +277,11 @@ const formatCurrency = (value) => {
                     </div>
                     <div>
                         <p class="text-gray-400 text-xs uppercase font-bold">Vigencia Desde</p>
-                        <p class="font-bold text-gray-800">{{ formatDate(poliza.fecha_inicio) }}</p>
+                        <p class="font-bold text-gray-800 dark:text-gray-100">{{ formatDate(poliza.fecha_inicio) }}</p>
                     </div>
                     <div>
                         <p class="text-gray-400 text-xs uppercase font-bold">Vigencia Hasta</p>
-                        <p class="font-bold text-gray-800">{{ formatDate(poliza.fecha_fin) }}</p>
+                        <p class="font-bold text-gray-800 dark:text-gray-100">{{ formatDate(poliza.fecha_fin) }}</p>
                     </div>
                 </div>
 
@@ -302,8 +302,8 @@ const formatCurrency = (value) => {
             </div>
 
             <!-- Área de Firma -->
-            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 mb-8">
-                <h2 class="font-black text-gray-800 uppercase text-xs tracking-widest mb-4 flex items-center gap-2">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 p-6 mb-8">
+                <h2 class="font-black text-gray-800 dark:text-gray-100 uppercase text-xs tracking-widest mb-4 flex items-center gap-2">
                     <span class="w-6 h-6 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center text-sm">✍️</span>
                     Tu Firma
                 </h2>
@@ -325,10 +325,10 @@ const formatCurrency = (value) => {
                     
                     <!-- Overlay de Guía -->
                     <div v-if="!hasDrawn" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-300 group-hover:opacity-60">
-                        <div class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-3 shadow-sm border border-gray-100">
+                        <div class="w-16 h-16 rounded-full bg-gray-50 dark:bg-slate-950 flex items-center justify-center mb-3 shadow-sm border border-gray-100">
                             <span class="text-2xl animate-bounce">🖋️</span>
                         </div>
-                        <p class="text-gray-600 text-base font-bold">Escribe tu firma aquí</p>
+                        <p class="text-gray-600 dark:text-gray-300 text-base font-bold">Escribe tu firma aquí</p>
                         <p class="text-gray-400 text-[10px] uppercase tracking-[0.2em] mt-2 font-black">Dedo • Mouse • Stylus</p>
                     </div>
 
@@ -352,14 +352,14 @@ const formatCurrency = (value) => {
 
                 <!-- Nombre del firmante -->
                 <div class="mb-6">
-                    <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">
+                    <label class="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">
                         Nombre completo del firmante
                     </label>
                     <input
                         v-model="form.nombre_firmante"
                         type="text"
                         placeholder="Ej: Juan Pérez García"
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+                        class="w-full px-4 py-3 border-2 border-gray-200 dark:border-slate-800 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
                         :class="{ 'border-red-300': form.errors.nombre_firmante }"
                     />
                     <p v-if="form.errors.nombre_firmante" class="mt-1 text-xs text-red-500 font-medium">
@@ -375,7 +375,7 @@ const formatCurrency = (value) => {
                             type="checkbox"
                             class="mt-1 w-5 h-5 rounded border-2 border-gray-300 text-blue-600 focus:ring-blue-500"
                         />
-                        <span class="text-sm text-gray-600 group-hover:text-gray-800 transition-colors">
+                        <span class="text-sm text-gray-600 dark:text-gray-300 group-hover:text-gray-800 dark:text-gray-100 transition-colors">
                             He leído y acepto los <strong>términos y condiciones</strong> del contrato de póliza de servicio, 
                             incluyendo las cláusulas de pago, renovación y cancelación.
                         </span>

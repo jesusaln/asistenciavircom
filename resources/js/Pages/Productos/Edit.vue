@@ -1,11 +1,11 @@
 <template>
     <Head title="Editar Producto" />
     <div class="w-full">
-        <div class="bg-white shadow-sm rounded-lg">
+        <div class="bg-white dark:bg-slate-900 shadow-sm rounded-lg">
             <!-- Header -->
-            <div class="border-b border-gray-200 px-6 py-4">
-                <h1 class="text-2xl font-semibold text-gray-900">Editar Producto</h1>
-                <p class="text-sm text-gray-600 mt-1">Actualice la información del producto</p>
+            <div class="border-b border-gray-200 dark:border-slate-800 px-6 py-4">
+                <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Editar Producto</h1>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Actualice la información del producto</p>
                 <div class="mt-3 bg-blue-50 border border-blue-200 rounded-md p-3">
                     <div class="flex">
                         <div class="flex-shrink-0">
@@ -23,7 +23,7 @@
             </div>
 
             <!-- Navigation Tabs -->
-            <div class="border-b border-gray-200">
+            <div class="border-b border-gray-200 dark:border-slate-800">
                 <nav class="flex space-x-8 px-6" aria-label="Tabs">
                     <button
                         @click="activeTab = 'general'"
@@ -31,7 +31,7 @@
                             'py-4 px-1 border-b-2 font-medium text-sm',
                             activeTab === 'general'
                                 ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:border-gray-300'
                         ]"
                         type="button"
                     >
@@ -43,7 +43,7 @@
                             'py-4 px-1 border-b-2 font-medium text-sm',
                             activeTab === 'pricing'
                                 ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:border-gray-300'
                         ]"
                         type="button"
                     >
@@ -55,7 +55,7 @@
                             'py-4 px-1 border-b-2 font-medium text-sm',
                             activeTab === 'additional'
                                 ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:border-gray-300'
                         ]"
                         type="button"
                     >
@@ -67,7 +67,7 @@
                             'py-4 px-1 border-b-2 font-medium text-sm',
                             activeTab === 'sat'
                                 ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:border-gray-300'
                         ]"
                         type="button"
                     >
@@ -117,7 +117,7 @@
                                     </svg>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 El código no se puede modificar
                             </p>
                             <div v-if="form.errors.codigo" class="error-message">{{ form.errors.codigo }}</div>
@@ -230,9 +230,9 @@
                                 Stock Mínimo por Almacén
                             </label>
                             <div class="space-y-3">
-                                <div v-for="almacen in almacenes" :key="almacen.id" class="flex items-center space-x-3 p-3 bg-white rounded-lg">
+                                <div v-for="almacen in almacenes" :key="almacen.id" class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-900 rounded-lg">
                                     <div class="flex-1">
-                                        <span class="text-sm font-medium text-gray-900">{{ almacen.nombre }}</span>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white">{{ almacen.nombre }}</span>
                                     </div>
                                     <div class="w-32">
                                         <input
@@ -245,7 +245,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 mt-2">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
                                 Configure el stock mínimo específico para cada almacén. Si no especifica un valor, se mantendrá el actual.
                             </p>
                         </div>
@@ -287,7 +287,7 @@
         required
     />
 </div>
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 El IVA se calculará automáticamente según la configuración de la empresa
                             </p>
                             <div v-if="form.errors.precio_venta" class="error-message">{{ form.errors.precio_venta }}</div>
@@ -310,7 +310,7 @@
                                     {{ unidad.nombre }}{{ unidad.nombre === unidadMedidaPredeterminada ? ' (Predeterminada)' : '' }}
                                 </option>
                             </select>
-                            <p class="text-xs text-gray-500 mt-1 flex items-center gap-2">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-2">
                                 <span class="px-2 py-0.5 bg-gray-100 rounded text-gray-700">
                                     Predeterminada: {{ unidadMedidaPredeterminada }}
                                 </span>
@@ -336,9 +336,9 @@
                                     min="0"
                                     max="100"
                                 />
-                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
+                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">%</span>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Porcentaje adicional que recibe el vendedor por cada venta de este producto
                             </p>
                             <div v-if="form.errors.comision_vendedor" class="error-message">{{ form.errors.comision_vendedor }}</div>
@@ -346,24 +346,24 @@
                     </div>
 
                     <!-- Margen de Ganancia (calculado automáticamente) -->
-                    <div v-if="form.precio_compra && form.precio_venta" class="bg-white p-4 rounded-lg">
+                    <div v-if="form.precio_compra && form.precio_venta" class="bg-white dark:bg-slate-900 p-4 rounded-lg">
                         <h4 class="text-sm font-medium text-gray-700 mb-2">Análisis de Rentabilidad</h4>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                             <div>
-                                <span class="text-gray-600">Margen:</span>
+                                <span class="text-gray-600 dark:text-gray-300">Margen:</span>
                                 <span class="font-medium text-green-600 ml-2">
                                     ${{ (parseFloat(form.precio_venta) - parseFloat(form.precio_compra)).toFixed(2) }}
                                 </span>
                             </div>
                             <div>
-                                <span class="text-gray-600">Porcentaje:</span>
+                                <span class="text-gray-600 dark:text-gray-300">Porcentaje:</span>
                                 <span class="font-medium text-blue-600 ml-2">
                                     {{ ((parseFloat(form.precio_venta) - parseFloat(form.precio_compra)) / parseFloat(form.precio_compra) * 100).toFixed(1) }}%
                                 </span>
                             </div>
                             <div>
-                                <span class="text-gray-600">Precio Final (CON IVA):</span>
-                                <span class="font-medium text-gray-900 ml-2">
+                                <span class="text-gray-600 dark:text-gray-300">Precio Final (CON IVA):</span>
+                                <span class="font-medium text-gray-900 dark:text-white ml-2">
                                     ${{ (parseFloat(form.precio_venta) * (1 + (props.defaults?.ivaPorcentaje ?? 16) / 100)).toFixed(2) }}
                                 </span>
                             </div>
@@ -417,14 +417,14 @@
                                 <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                                     <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
-                                <div class="text-sm text-gray-600">
-                                    <label for="imagen" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                <div class="text-sm text-gray-600 dark:text-gray-300">
+                                    <label for="imagen" class="relative cursor-pointer bg-white dark:bg-slate-900 rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
                                         <span>Subir imagen</span>
                                         <input @change="handleImageUpload" id="imagen" name="imagen" type="file" accept="image/*" class="sr-only" />
                                     </label>
                                     <p class="pl-1">o arrastrar y soltar</p>
                                 </div>
-                                <p class="text-xs text-gray-500">PNG, JPG, GIF hasta 10MB</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF hasta 10MB</p>
                                 <div v-if="imagePreview" class="mt-4">
                                     <img 
                                         :src="imagePreview" 
@@ -492,11 +492,11 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
+                <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-slate-800">
                     <button
                         type="button"
                         @click="$inertia.visit(route('productos.index'))"
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 border border-gray-300 rounded-md hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                     >
                         Cancelar
                     </button>
@@ -514,7 +514,7 @@
     </div>
         <!-- Modales rápidos -->
         <div v-if="showCategoriaModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div class="bg-white rounded-lg shadow p-6 w-full max-w-md">
+          <div class="bg-white dark:bg-slate-900 rounded-lg shadow p-6 w-full max-w-md">
             <h3 class="text-lg font-semibold mb-4">Nueva categoría</h3>
             <input v-model="quickCategoria.nombre" type="text" placeholder="Nombre" class="input-field mb-2" />
             <textarea v-model="quickCategoria.descripcion" placeholder="Descripción (opcional)" class="input-field mb-4"></textarea>
@@ -526,7 +526,7 @@
         </div>
 
         <div v-if="showMarcaModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div class="bg-white rounded-lg shadow p-6 w-full max-w-md">
+          <div class="bg-white dark:bg-slate-900 rounded-lg shadow p-6 w-full max-w-md">
             <h3 class="text-lg font-semibold mb-4">Nueva marca</h3>
             <input v-model="quickMarca.nombre" type="text" placeholder="Nombre" class="input-field mb-2" />
             <textarea v-model="quickMarca.descripcion" placeholder="Descripción (opcional)" class="input-field mb-4"></textarea>
@@ -538,7 +538,7 @@
         </div>
 
         <div v-if="showAlmacenModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div class="bg-white rounded-lg shadow p-6 w-full max-w-md">
+          <div class="bg-white dark:bg-slate-900 rounded-lg shadow p-6 w-full max-w-md">
             <h3 class="text-lg font-semibold mb-4">Nuevo almacén</h3>
             <input v-model="quickAlmacen.nombre" type="text" placeholder="Nombre" class="input-field mb-2" />
             <input v-model="quickAlmacen.ubicacion" type="text" placeholder="Ubicación/Dirección" class="input-field mb-2" />
@@ -1020,7 +1020,7 @@ const handleUnidadDeleted = (unidad) => {
     border-color: #D1D5DB; /* gray-300 */
     border-radius: 0.375rem; /* rounded-md */
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm approximation */
-    color: #111827; /* text-gray-900 */
+    color: #111827; /* text-gray-900 dark:text-white */
     outline: none;
     background-color: #fff;
     -webkit-appearance: none;
@@ -1037,7 +1037,7 @@ const handleUnidadDeleted = (unidad) => {
 }
 
 .input-field option {
-    color: #111827; /* text-gray-900 */
+    color: #111827; /* text-gray-900 dark:text-white */
     background-color: #ffffff;
 }
 

@@ -348,19 +348,19 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
 <template>
   <Head title="Pagos de Préstamos" />
 
-  <div class="pagos-index min-h-screen bg-white">
+  <div class="pagos-index min-h-screen bg-white dark:bg-slate-900">
     <!-- Contenido principal -->
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Pagos de Préstamos</h1>
-            <p class="text-gray-600 mt-2">Gestiona y registra los pagos de préstamos de tus clientes</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Pagos de Préstamos</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-2">Gestiona y registra los pagos de préstamos de tus clientes</p>
           </div>
           <Link
             href="/prestamos"
-            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
           >
             ← Volver a Préstamos
           </Link>
@@ -370,8 +370,8 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
       <!-- Estadísticas -->
       <!-- Estadísticas -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-              <div class="p-6 text-gray-900">
+          <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
+              <div class="p-6 text-gray-900 dark:text-white">
                   <div class="flex items-center">
                       <div class="flex-shrink-0">
                           <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
@@ -379,10 +379,10 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                           </div>
                       </div>
                       <div class="ml-4">
-                          <dt class="text-sm font-medium text-gray-500 truncate">
+                          <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
                               Total Vencido
                           </dt>
-                          <dd class="text-lg font-semibold text-gray-900">
+                          <dd class="text-lg font-semibold text-gray-900 dark:text-white">
                               ${{ formatearMoneda(estadisticas.total_vencido) }}
                           </dd>
                       </div>
@@ -390,8 +390,8 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
               </div>
           </div>
 
-          <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-              <div class="p-6 text-gray-900">
+          <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
+              <div class="p-6 text-gray-900 dark:text-white">
                   <div class="flex items-center">
                       <div class="flex-shrink-0">
                           <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
@@ -399,10 +399,10 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                           </div>
                       </div>
                       <div class="ml-4">
-                          <dt class="text-sm font-medium text-gray-500 truncate">
+                          <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
                               Total Pendiente
                           </dt>
-                          <dd class="text-lg font-semibold text-gray-900">
+                          <dd class="text-lg font-semibold text-gray-900 dark:text-white">
                               ${{ formatearMoneda(estadisticas.total_pendiente) }}
                           </dd>
                       </div>
@@ -410,8 +410,8 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
               </div>
           </div>
 
-          <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-              <div class="p-6 text-gray-900">
+          <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
+              <div class="p-6 text-gray-900 dark:text-white">
                   <div class="flex items-center">
                       <div class="flex-shrink-0">
                           <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
@@ -419,10 +419,10 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                           </div>
                       </div>
                       <div class="ml-4">
-                          <dt class="text-sm font-medium text-gray-500 truncate">
+                          <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
                               Pagos Pendientes
                           </dt>
-                          <dd class="text-lg font-semibold text-gray-900">
+                          <dd class="text-lg font-semibold text-gray-900 dark:text-white">
                               {{ estadisticas.pagos_pendientes }}
                           </dd>
                       </div>
@@ -430,8 +430,8 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
               </div>
           </div>
 
-          <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-              <div class="p-6 text-gray-900">
+          <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
+              <div class="p-6 text-gray-900 dark:text-white">
                   <div class="flex items-center">
                       <div class="flex-shrink-0">
                           <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
@@ -439,10 +439,10 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                           </div>
                       </div>
                       <div class="ml-4">
-                          <dt class="text-sm font-medium text-gray-500 truncate">
+                          <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
                               Pagos Vencidos
                           </dt>
-                          <dd class="text-lg font-semibold text-gray-900">
+                          <dd class="text-lg font-semibold text-gray-900 dark:text-white">
                               {{ estadisticas.pagos_vencidos }}
                           </dd>
                       </div>
@@ -452,8 +452,8 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
       </div>
 
       <!-- Filtros -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-        <div class="px-6 py-4 bg-white/50 border-b border-gray-200/60">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+        <div class="px-6 py-4 bg-white dark:bg-slate-900/50 border-b border-gray-200 dark:border-slate-800/60">
           <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
             <!-- Filtros -->
             <div class="flex items-center space-x-3">
@@ -461,7 +461,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
               <select
                 v-model="filtroPrestamo"
                 @change="handleFilter"
-                class="block w-64 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                class="block w-64 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-900"
               >
                 <option value="">Todos los préstamos</option>
                 <option v-for="prestamo in prestamos" :key="prestamo.id" :value="prestamo.id">
@@ -473,7 +473,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
               <select
                 v-model="filtroEstado"
                 @change="handleFilter"
-                class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-900"
               >
                 <option value="">Todos los estados</option>
                 <option value="pendiente">Pendientes</option>
@@ -485,7 +485,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
               <!-- Limpiar filtros -->
               <button
                 @click="handleLimpiarFiltros"
-                class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
               >
                 ❌ Limpiar
               </button>
@@ -495,7 +495,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
       </div>
 
       <!-- Información de paginación -->
-      <div class="flex justify-between items-center mb-4 text-sm text-gray-600">
+      <div class="flex justify-between items-center mb-4 text-sm text-gray-600 dark:text-gray-300">
         <div>
           Mostrando {{ paginationData.from }} - {{ paginationData.to }} de {{ paginationData.total }} pagos
         </div>
@@ -517,12 +517,12 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
 
       <!-- Tabla de pagos -->
       <div class="mt-6">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <!-- Header -->
-          <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 px-6 py-4 border-b border-gray-200/60">
+          <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 px-6 py-4 border-b border-gray-200 dark:border-slate-800/60">
             <div class="flex items-center justify-between">
-              <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Pagos de Préstamos</h2>
-              <div class="text-sm text-gray-600 bg-white/70 px-3 py-1 rounded-full border border-gray-200/50">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">Pagos de Préstamos</h2>
+              <div class="text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-slate-900/70 px-3 py-1 rounded-full border border-gray-200 dark:border-slate-800/50">
                 {{ props.pagos.data?.length || 0 }} de {{ paginationData.total }} pagos
               </div>
             </div>
@@ -530,33 +530,33 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
 
           <!-- Table -->
           <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200/60">
-              <thead class="bg-white/60">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800/60">
+              <thead class="bg-white dark:bg-slate-900/60">
                 <tr>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha Programada</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Cliente</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Monto Programado</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Monto Pagado</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Días Atraso</th>
-                  <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Fecha Programada</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Cliente</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Monto Programado</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Monto Pagado</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Estado</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Días Atraso</th>
+                  <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
                 </tr>
               </thead>
 
-              <tbody class="bg-white divide-y divide-gray-200/40">
+              <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800/40">
                 <template v-if="props.pagos.data && props.pagos.data.length > 0">
                   <tr
                     v-for="pago in props.pagos.data"
                     :key="pago.id"
-                    class="group hover:bg-white/60 transition-all duration-150 hover:shadow-sm"
+                    class="group hover:bg-white dark:bg-slate-900/60 transition-all duration-150 hover:shadow-sm"
                   >
                     <!-- Fecha Programada -->
                     <td class="px-6 py-4">
                       <div class="flex flex-col space-y-0.5">
-                        <div class="text-sm font-medium text-gray-900">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white">
                           {{ formatearFecha(pago.fecha_programada) }}
                         </div>
-                        <div class="text-xs text-gray-500">
+                        <div class="text-xs text-gray-500 dark:text-gray-400">
                           Pago #{{ pago.numero_pago }}
                         </div>
                       </div>
@@ -565,10 +565,10 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                     <!-- Cliente -->
                     <td class="px-6 py-4">
                       <div class="flex flex-col space-y-0.5">
-                        <div class="text-sm font-medium text-gray-900 group-hover:text-gray-800">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white group-hover:text-gray-800 dark:text-gray-100">
                           {{ pago.prestamo?.cliente?.nombre_razon_social || 'Sin cliente' }}
                         </div>
-                        <div class="text-xs text-gray-500">
+                        <div class="text-xs text-gray-500 dark:text-gray-400">
                           {{ pago.prestamo?.cliente?.rfc || '' }}
                         </div>
                       </div>
@@ -576,7 +576,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
 
                     <!-- Monto Programado -->
                     <td class="px-6 py-4">
-                      <div class="text-sm font-medium text-gray-900">
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">
                         ${{ formatearMoneda(pago.monto_programado) }}
                       </div>
                     </td>
@@ -586,7 +586,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                       <div v-if="pago.monto_pagado > 0" class="text-sm font-medium text-green-600">
                         ${{ formatearMoneda(pago.monto_pagado) }}
                       </div>
-                      <div v-else class="text-sm text-gray-500">
+                      <div v-else class="text-sm text-gray-500 dark:text-gray-400">
                         No pagado
                       </div>
                     </td>
@@ -610,7 +610,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                       <div v-if="pago.dias_atraso > 0" class="text-sm text-red-600 font-medium">
                         {{ pago.dias_atraso }} días
                       </div>
-                      <div v-else class="text-sm text-gray-500">
+                      <div v-else class="text-sm text-gray-500 dark:text-gray-400">
                         A tiempo
                       </div>
                     </td>
@@ -669,7 +669,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                       </div>
                       <div class="space-y-1">
                         <p class="text-gray-700 font-medium">No hay pagos</p>
-                        <p class="text-sm text-gray-500">Los pagos de préstamos aparecerán aquí cuando se creen</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Los pagos de préstamos aparecerán aquí cuando se creen</p>
                       </div>
                     </div>
                   </td>
@@ -685,7 +685,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
         <button
           @click="prevPage"
           :disabled="paginationData.current_page === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-slate-900 border border-gray-300 rounded-md hover:bg-white dark:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Anterior
         </button>
@@ -699,7 +699,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
               'px-3 py-2 text-sm font-medium border border-gray-300 rounded-md',
               page === paginationData.current_page
                 ? 'bg-blue-500 text-white border-blue-500'
-                : 'text-gray-700 bg-white hover:bg-white'
+                : 'text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900'
             ]"
           >
             {{ page }}
@@ -709,7 +709,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
         <button
           @click="nextPage"
           :disabled="paginationData.current_page === paginationData.last_page"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-slate-900 border border-gray-300 rounded-md hover:bg-white dark:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Siguiente
         </button>
@@ -724,7 +724,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
         @click.self="onClose"
       >
         <div
-          class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 outline-none"
+          class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 outline-none"
           role="dialog"
           aria-modal="true"
           :aria-label="`Modal de Pago`"
@@ -747,7 +747,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
             <h3 class="text-lg font-medium mb-2">
               ¿Eliminar pago?
             </h3>
-            <p class="text-gray-600 mb-6">
+            <p class="text-gray-600 dark:text-gray-300 mb-6">
               Esta acción no se puede deshacer.
             </p>
             <div class="flex gap-3">
@@ -770,23 +770,23 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
           <div v-else-if="modalMode === 'details'" class="space-y-4">
             <h3 class="text-lg font-medium mb-1 flex items-center gap-2">
               Detalles de Pago
-              <span v-if="selectedPago?.id" class="text-sm text-gray-500">#{{ selectedPago.numero_pago }}</span>
+              <span v-if="selectedPago?.id" class="text-sm text-gray-500 dark:text-gray-400">#{{ selectedPago.numero_pago }}</span>
             </h3>
 
             <div v-if="selectedPago" class="space-y-4">
               <!-- Información general -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-gray-600 dark:text-gray-300">
                     <strong>Cliente:</strong> {{ selectedPago.prestamo?.cliente?.nombre_razon_social || 'Sin cliente' }}
                   </p>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-gray-600 dark:text-gray-300">
                     <strong>Préstamo ID:</strong> #{{ selectedPago.prestamo_id }}
                   </p>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-gray-600 dark:text-gray-300">
                     <strong>Número de Pago:</strong> #{{ selectedPago.numero_pago }}
                   </p>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-gray-600 dark:text-gray-300">
                     <strong>Estado:</strong>
                     <span
                       :class="obtenerClasesEstado(selectedPago.estado)"
@@ -798,32 +798,32 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                 </div>
 
                 <div>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-gray-600 dark:text-gray-300">
                     <strong>Fecha Programada:</strong> {{ formatearFecha(selectedPago.fecha_programada) }}
                   </p>
-                  <p v-if="selectedPago.fecha_pago" class="text-sm text-gray-600">
+                  <p v-if="selectedPago.fecha_pago" class="text-sm text-gray-600 dark:text-gray-300">
                     <strong>Fecha de Pago:</strong> {{ formatearFecha(selectedPago.fecha_pago) }}
                   </p>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-gray-600 dark:text-gray-300">
                     <strong>Fecha Registro:</strong> {{ formatearFecha(selectedPago.fecha_registro) }}
                   </p>
                 </div>
               </div>
 
               <!-- Información financiera -->
-              <div class="bg-white rounded-lg p-4">
-                <h4 class="text-sm font-medium text-gray-900 mb-3">Información Financiera</h4>
+              <div class="bg-white dark:bg-slate-900 rounded-lg p-4">
+                <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Información Financiera</h4>
                 <div class="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p class="text-gray-600">Monto Programado:</p>
-                    <p class="text-lg font-semibold text-gray-900">${{ formatearMoneda(selectedPago.monto_programado) }}</p>
+                    <p class="text-gray-600 dark:text-gray-300">Monto Programado:</p>
+                    <p class="text-lg font-semibold text-gray-900 dark:text-white">${{ formatearMoneda(selectedPago.monto_programado) }}</p>
                   </div>
                   <div>
-                    <p class="text-gray-600">Monto Pagado:</p>
+                    <p class="text-gray-600 dark:text-gray-300">Monto Pagado:</p>
                     <p class="text-lg font-semibold text-green-600">${{ formatearMoneda(selectedPago.monto_pagado) }}</p>
                   </div>
                   <div v-if="selectedPago.dias_atraso > 0">
-                    <p class="text-gray-600">Días de Atraso:</p>
+                    <p class="text-gray-600 dark:text-gray-300">Días de Atraso:</p>
                     <p class="text-lg font-semibold text-red-600">{{ selectedPago.dias_atraso }} días</p>
                   </div>
                 </div>
@@ -853,7 +853,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
 
     <!-- Loading overlay -->
     <div v-if="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white p-6 rounded-lg shadow-lg">
+      <div class="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-lg">
         <div class="flex items-center space-x-3">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
           <span class="text-gray-700">Procesando...</span>

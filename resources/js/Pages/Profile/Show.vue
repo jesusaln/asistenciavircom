@@ -129,9 +129,9 @@ const updateAlmacenCompra = async () => {
     <AppLayout>
         <Head title="Mi Perfil" />
 
-        <div class="profile-page min-h-screen bg-white">
+        <div class="profile-page min-h-screen bg-white dark:bg-slate-900">
         <!-- Header personalizado -->
-        <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-8 mb-6 transition-all duration-300 hover:shadow-lg">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 rounded-xl shadow-sm p-8 mb-6 transition-all duration-300 hover:shadow-lg">
             <div class="flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">
                 <!-- Información del usuario -->
                 <div class="flex flex-col gap-6 w-full lg:w-auto">
@@ -194,7 +194,7 @@ const updateAlmacenCompra = async () => {
         <div class="w-full px-6 py-8">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Información del Perfil -->
-                <div v-if="$page.props.jetstream.canUpdateProfileInformation" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all duration-300">
+                <div v-if="$page.props.jetstream.canUpdateProfileInformation" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all duration-300">
                     <div class="flex items-center gap-3 mb-6">
                         <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                             <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -207,7 +207,7 @@ const updateAlmacenCompra = async () => {
                 </div>
 
                 <!-- Seguridad -->
-                <div v-if="$page.props.jetstream.canUpdatePassword" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all duration-300">
+                <div v-if="$page.props.jetstream.canUpdatePassword" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all duration-300">
                     <div class="flex items-center gap-3 mb-6">
                         <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                             <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -220,7 +220,7 @@ const updateAlmacenCompra = async () => {
                 </div>
 
                 <!-- Autenticación de Dos Factores -->
-                <div v-if="$page.props.jetstream.canManageTwoFactorAuthentication" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all duration-300">
+                <div v-if="$page.props.jetstream.canManageTwoFactorAuthentication" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all duration-300">
                     <div class="flex items-center gap-3 mb-6">
                         <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                             <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,7 +233,7 @@ const updateAlmacenCompra = async () => {
                 </div>
 
                 <!-- Almacén de Venta Predeterminado -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all duration-300">
+                <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all duration-300">
                     <div class="flex items-center gap-3 mb-6">
                         <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
                             <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -258,7 +258,7 @@ const updateAlmacenCompra = async () => {
                                     {{ almacen.nombre }}
                                 </option>
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Este almacén se seleccionará automáticamente al crear nuevas ventas.
                             </p>
                         </div>
@@ -276,7 +276,7 @@ const updateAlmacenCompra = async () => {
                 </div>
 
                 <!-- Almacén de Compra Predeterminado -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all duration-300">
+                <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all duration-300">
                     <div class="flex items-center gap-3 mb-6">
                         <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                             <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -301,7 +301,7 @@ const updateAlmacenCompra = async () => {
                                     {{ almacen.nombre }}
                                 </option>
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Este almacén se seleccionará automáticamente al crear nuevas compras.
                             </p>
                         </div>
@@ -319,7 +319,7 @@ const updateAlmacenCompra = async () => {
                 </div>
 
                 <!-- Integraciones / Microsoft To Do -->
-                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all duration-300">
+                 <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all duration-300">
                     <div class="flex items-center gap-3 mb-6">
                         <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                             <!-- Microsoft Logo -->
@@ -362,7 +362,7 @@ const updateAlmacenCompra = async () => {
                  </div>
 
                 <!-- Sesiones del Navegador -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all duration-300">
+                <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all duration-300">
                     <div class="flex items-center gap-3 mb-6">
                         <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
                             <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -377,7 +377,7 @@ const updateAlmacenCompra = async () => {
 
             <!-- Eliminar Cuenta -->
             <template v-if="$page.props.jetstream.hasAccountDeletionFeatures">
-                <div class="mt-8 bg-white rounded-xl shadow-sm border border-red-200 p-6 hover:shadow-lg transition-all duration-300">
+                <div class="mt-8 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-red-200 p-6 hover:shadow-lg transition-all duration-300">
                     <div class="flex items-center gap-3 mb-6">
                         <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
                             <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -415,11 +415,11 @@ const updateAlmacenCompra = async () => {
 }
 
 /* Hover effects para las tarjetas */
-.profile-page .bg-white {
+.profile-page .bg-white dark:bg-slate-900 {
   transition: all 0.3s ease;
 }
 
-.profile-page .bg-white:hover {
+.profile-page .bg-white dark:bg-slate-900:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }

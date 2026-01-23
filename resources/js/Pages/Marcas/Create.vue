@@ -63,14 +63,14 @@ const cancel = () => {
 <template>
   <Head title="Crear Marca" />
 
-  <div class="min-h-screen bg-white">
+  <div class="min-h-screen bg-white dark:bg-slate-900">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">Crear Nueva Marca</h1>
-            <p class="text-gray-600 mt-1">Agrega una nueva marca al sistema</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Crear Nueva Marca</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-1">Agrega una nueva marca al sistema</p>
           </div>
           <button
             @click="cancel"
@@ -85,7 +85,7 @@ const cancel = () => {
       </div>
 
       <!-- Formulario -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-8">
         <form @submit.prevent="submit" class="space-y-6">
           <!-- Nombre -->
           <div>
@@ -130,7 +130,7 @@ const cancel = () => {
               <option value="activo">Activo</option>
               <option value="inactivo">Inactivo</option>
             </select>
-            <p class="mt-1 text-sm text-gray-500">
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Las marcas activas estarán disponibles para ser usadas en productos
             </p>
           </div>
@@ -159,7 +159,7 @@ const cancel = () => {
           </div>
 
           <!-- Botones de acción -->
-          <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
+          <div class="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-slate-800">
             <button
               type="button"
               @click="cancel"

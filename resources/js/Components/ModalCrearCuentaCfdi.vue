@@ -199,14 +199,14 @@ const formatCurrency = (value) => {
             <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" @click="$emit('close')"></div>
             
             <!-- Modal -->
-            <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg p-8 animate-fadeIn">
+            <div class="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg p-8 animate-fadeIn">
                 <!-- Header -->
                 <div class="flex items-center justify-between mb-6">
                     <div>
-                        <h2 class="text-xl font-black text-gray-900 tracking-tight italic">
+                        <h2 class="text-xl font-black text-gray-900 dark:text-white tracking-tight italic">
                             {{ esCuentaPorPagar ? 'Crear Cuenta por Pagar' : 'Crear Cuenta por Cobrar' }}
                         </h2>
-                        <p class="text-sm text-gray-500 font-medium">Desde CFDI {{ cfdi?.folio || cfdi?.uuid?.substr(0,8) }}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Desde CFDI {{ cfdi?.folio || cfdi?.uuid?.substr(0,8) }}</p>
                     </div>
                     <button @click="$emit('close')" class="p-2 hover:bg-gray-100 rounded-xl transition-colors">
                         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -218,7 +218,7 @@ const formatCurrency = (value) => {
                 <!-- Loading -->
                 <div v-if="isLoading" class="py-12 text-center">
                     <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p class="text-gray-500 font-bold">Analizando CFDI...</p>
+                    <p class="text-gray-500 dark:text-gray-400 font-bold">Analizando CFDI...</p>
                 </div>
                 
                 <!-- Error -->
@@ -240,13 +240,13 @@ const formatCurrency = (value) => {
                         </svg>
                     </div>
                     <p class="text-gray-800 font-bold mb-2">Este CFDI ya tiene una cuenta vinculada</p>
-                    <p class="text-sm text-gray-500">Para evitar duplicados, no es posible crear otra cuenta.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Para evitar duplicados, no es posible crear otra cuenta.</p>
                 </div>
                 
                 <!-- Contenido principal -->
                 <div v-else-if="datosCuenta" class="space-y-6">
                     <!-- Info CFDI -->
-                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-4 border border-gray-200">
+                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-4 border border-gray-200 dark:border-slate-800">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total</span>
@@ -260,7 +260,7 @@ const formatCurrency = (value) => {
                     </div>
                     
                     <!-- Sección Proveedor/Cliente -->
-                    <div class="border border-gray-200 rounded-2xl p-4">
+                    <div class="border border-gray-200 dark:border-slate-800 rounded-2xl p-4">
                         <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">{{ tipoEntidad }}</h3>
                         
                         <!-- Entidad encontrada -->
@@ -272,7 +272,7 @@ const formatCurrency = (value) => {
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="font-bold text-gray-800 truncate">{{ datosCuenta.entidad.datos?.nombre }}</p>
-                                <p class="text-xs text-gray-500 font-mono">{{ datosCuenta.entidad.datos?.rfc }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ datosCuenta.entidad.datos?.rfc }}</p>
                             </div>
                         </div>
                         
@@ -303,7 +303,7 @@ const formatCurrency = (value) => {
                                 <div>
                                     <label class="block text-xs font-bold text-gray-600 mb-1">RFC *</label>
                                     <input v-model="formEntidad.rfc" type="text" 
-                                           class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                           class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 dark:border-slate-800 rounded-xl font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                            placeholder="XAXX010101000">
                                 </div>
                                 <div>
@@ -312,22 +312,22 @@ const formatCurrency = (value) => {
                                     </label>
                                     <input v-if="esCuentaPorPagar" v-model="formEntidad.nombre_razon_social" 
                                            type="text" 
-                                           class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                           class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                     <input v-else v-model="formEntidad.nombre" 
                                            type="text" 
-                                           class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                           class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 mb-1">Régimen Fiscal</label>
                                         <input v-model="formEntidad.regimen_fiscal" type="text" 
-                                               class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                               class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 dark:border-slate-800 rounded-xl font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                placeholder="601">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-bold text-gray-600 mb-1">C.P.</label>
                                         <input v-model="formEntidad.codigo_postal" type="text" 
-                                               class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                               class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 dark:border-slate-800 rounded-xl font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                placeholder="83000">
                                     </div>
                                 </div>
@@ -350,12 +350,12 @@ const formatCurrency = (value) => {
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1">Fecha de Vencimiento</label>
                             <input v-model="formCuenta.fecha_vencimiento" type="date" 
-                                   class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                   class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1">Notas (opcional)</label>
                             <textarea v-model="formCuenta.notas" rows="2"
-                                      class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                      class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                                       placeholder="Notas adicionales..."></textarea>
                         </div>
                     </div>

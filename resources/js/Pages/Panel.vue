@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-white dark:bg-gray-900 relative overflow-hidden transition-colors duration-300">
+  <div class="min-h-screen bg-white dark:bg-slate-900 dark:bg-gray-900 relative overflow-hidden transition-colors duration-300">
 
     <Head title="Panel" />
 
@@ -21,7 +21,7 @@
             <!-- Left: Greeting & Date -->
             <div>
               <div class="flex items-center gap-4 mb-3">
-                <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/30">
+                <div class="w-16 h-16 rounded-2xl bg-white dark:bg-slate-900/20 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/30">
                   <FontAwesomeIcon :icon="['fas', 'chart-line']" class="h-8 w-8 text-white" />
                 </div>
                 <div>
@@ -40,21 +40,21 @@
             <div class="flex flex-wrap gap-3">
               <PanLink
                 :href="route('ventas.create')"
-                class="group inline-flex items-center gap-2 px-5 py-3 bg-white dark:bg-amber-600 text-amber-600 dark:text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+                class="group inline-flex items-center gap-2 px-5 py-3 bg-white dark:bg-slate-900 dark:bg-amber-600 text-amber-600 dark:text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
               >
                 <FontAwesomeIcon :icon="['fas', 'plus']" class="group-hover:rotate-90 transition-transform duration-300" />
                 Nueva Venta
               </PanLink>
               <PanLink
                 :href="route('citas.create')"
-                class="group inline-flex items-center gap-2 px-5 py-3 bg-white/20 dark:bg-blue-600 backdrop-blur-sm text-white dark:text-white font-semibold rounded-xl shadow border border-white/30 dark:border-blue-500 hover:bg-white/30 dark:hover:bg-blue-700 hover:shadow-lg transition-all duration-300"
+                class="group inline-flex items-center gap-2 px-5 py-3 bg-white dark:bg-slate-900/20 dark:bg-blue-600 backdrop-blur-sm text-white dark:text-white font-semibold rounded-xl shadow border border-white/30 dark:border-blue-500 hover:bg-white dark:bg-slate-900/30 dark:hover:bg-blue-700 hover:shadow-lg transition-all duration-300"
               >
                 <FontAwesomeIcon :icon="['fas', 'calendar-plus']" />
                 Nueva Cita
               </PanLink>
               <PanLink
                 :href="route('clientes.create')"
-                class="group inline-flex items-center gap-2 px-5 py-3 bg-white/20 dark:bg-blue-800 backdrop-blur-sm text-white dark:text-white font-semibold rounded-xl shadow border border-white/30 dark:border-blue-700 hover:bg-white/30 dark:hover:bg-blue-900 hover:shadow-lg transition-all duration-300"
+                class="group inline-flex items-center gap-2 px-5 py-3 bg-white dark:bg-slate-900/20 dark:bg-blue-800 backdrop-blur-sm text-white dark:text-white font-semibold rounded-xl shadow border border-white/30 dark:border-blue-700 hover:bg-white dark:bg-slate-900/30 dark:hover:bg-blue-900 hover:shadow-lg transition-all duration-300"
               >
                 <FontAwesomeIcon :icon="['fas', 'user-plus']" />
                 Nuevo Cliente
@@ -69,7 +69,7 @@
       <!-- Clientes -->
       <PanLink
         :href="clientesHref"
-        class="group relative bg-white dark:bg-gray-800 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
+        class="group relative bg-white dark:bg-slate-900 dark:bg-gray-800 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
         aria-label="Ir a clientes"
       >
         <!-- Gradient Overlay on Hover -->
@@ -81,12 +81,12 @@
             <FontAwesomeIcon :icon="['fas', 'users']" class="h-7 w-7 text-white" />
           </div>
           <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white group-hover:text-blue-600 transition-colors">
               {{ n(clientesCount) }}
             </h2>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Clientes</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400">Clientes</p>
           </div>
-          <p class="text-xs text-gray-400 dark:text-gray-500 bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-full transition-colors">
+          <p class="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-full transition-colors">
             +{{ n(clientesNuevosCount) }} este mes
           </p>
         </div>
@@ -95,7 +95,7 @@
       <!-- Productos -->
       <PanLink
         :href="productosHref"
-        class="group relative bg-white dark:bg-gray-800 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
+        class="group relative bg-white dark:bg-slate-900 dark:bg-gray-800 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
         aria-label="Ir a productos"
       >
         <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/0 via-emerald-500/0 to-emerald-600/0 group-hover:from-emerald-500/10 group-hover:via-emerald-500/5 group-hover:to-emerald-600/10 transition-all duration-500 rounded-2xl"></div>
@@ -105,12 +105,12 @@
             <FontAwesomeIcon :icon="['fas', 'box']" class="h-7 w-7 text-white" />
           </div>
           <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 transition-colors">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white group-hover:text-emerald-600 transition-colors">
               {{ n(productosCount) }}
             </h2>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Productos</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400">Productos</p>
           </div>
-          <p class="text-xs text-gray-400 dark:text-gray-500 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full transition-colors" :class="{ 'text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20': productosBajoStockCount > 0 }">
+          <p class="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full transition-colors" :class="{ 'text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20': productosBajoStockCount > 0 }">
             {{ productosBajoStockCount > 0 ? `⚠️ ${n(productosBajoStockCount)} bajo stock` : '✓ Stock OK' }}
           </p>
         </div>
@@ -119,7 +119,7 @@
       <!-- Proveedores -->
       <PanLink
         :href="proveedoresHref"
-        class="group relative bg-white dark:bg-gray-800 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
+        class="group relative bg-white dark:bg-slate-900 dark:bg-gray-800 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
         aria-label="Ir a proveedores"
       >
         <div class="absolute inset-0 bg-gradient-to-br from-purple-500/0 via-purple-500/0 to-purple-600/0 group-hover:from-purple-500/10 group-hover:via-purple-500/5 group-hover:to-purple-600/10 transition-all duration-500 rounded-2xl"></div>
@@ -129,12 +129,12 @@
             <FontAwesomeIcon :icon="['fas', 'truck']" class="h-7 w-7 text-white" />
           </div>
           <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 transition-colors">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white group-hover:text-purple-600 transition-colors">
               {{ n(proveedoresCount) }}
             </h2>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Proveedores</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400">Proveedores</p>
           </div>
-          <p class="text-xs text-gray-400 dark:text-gray-500 bg-purple-50 dark:bg-purple-900/20 px-3 py-1 rounded-full transition-colors">
+          <p class="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 bg-purple-50 dark:bg-purple-900/20 px-3 py-1 rounded-full transition-colors">
             {{ n(proveedoresPedidosPendientesCount) }} pedidos pend.
           </p>
         </div>
@@ -142,7 +142,7 @@
 
       <PanLink
         :href="citasHref"
-        class="group relative bg-white dark:bg-gray-800 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
+        class="group relative bg-white dark:bg-slate-900 dark:bg-gray-800 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
         aria-label="Ir a citas"
       >
         <div class="absolute inset-0 bg-gradient-to-br from-amber-500/0 via-amber-500/0 to-orange-600/0 group-hover:from-amber-500/10 group-hover:via-amber-500/5 group-hover:to-orange-600/10 transition-all duration-500 rounded-2xl"></div>
@@ -152,12 +152,12 @@
             <FontAwesomeIcon :icon="['fas', 'calendar-alt']" class="h-7 w-7 text-white" />
           </div>
           <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-amber-600 transition-colors">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white group-hover:text-amber-600 transition-colors">
               {{ n(citasCount) }}
             </h2>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Citas</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400">Citas</p>
           </div>
-          <p class="text-xs text-gray-400 dark:text-gray-500 bg-amber-50 dark:bg-amber-900/20 px-3 py-1 rounded-full transition-colors" :class="{ 'text-amber-600 dark:text-amber-400 font-medium': citasHoyCount > 0 }">
+          <p class="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-1 rounded-full transition-colors" :class="{ 'text-amber-600 dark:text-amber-400 font-medium': citasHoyCount > 0 }">
             {{ citasHoyCount > 0 ? `📅 ${n(citasHoyCount)} hoy` : 'Sin citas hoy' }}
           </p>
         </div>
@@ -166,7 +166,7 @@
       <!-- Mantenimientos -->
       <PanLink
         :href="mantenimientosHref"
-        class="group relative bg-white dark:bg-gray-800 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
+        class="group relative bg-white dark:bg-slate-900 dark:bg-gray-800 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden"
         aria-label="Ir a mantenimientos"
       >
         <div class="absolute inset-0 bg-gradient-to-br from-rose-500/0 via-rose-500/0 to-rose-600/0 group-hover:from-rose-500/10 group-hover:via-rose-500/5 group-hover:to-rose-600/10 transition-all duration-500 rounded-2xl"></div>
@@ -176,10 +176,10 @@
             <FontAwesomeIcon :icon="['fas', 'wrench']" class="h-7 w-7 text-white" />
           </div>
           <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-rose-600 transition-colors">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white group-hover:text-rose-600 transition-colors">
               {{ n(mantenimientosCount) }}
             </h2>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Mantenimientos</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400">Mantenimientos</p>
           </div>
           <p class="text-xs px-3 py-1 rounded-full transition-colors" :class="{
             'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 font-medium animate-pulse': mantenimientosVencidosCount > 0,
@@ -201,26 +201,26 @@
       <!-- Alerta de Órdenes de Compra Pendientes -->
       <div
         v-if="proveedoresPedidosPendientesCount > 0"
-        class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-amber-500 flex flex-col justify-between items-start text-left transition-colors"
+        class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-amber-500 flex flex-col justify-between items-start text-left transition-colors"
       >
         <div class="w-full">
           <div class="flex items-center mb-4">
             <FontAwesomeIcon :icon="['fas', 'clipboard-list']" class="h-8 w-8 text-amber-600 mr-3" />
-            <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white">Órdenes de Compra Pendientes</h3>
+            <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white dark:text-white">Órdenes de Compra Pendientes</h3>
           </div>
           <p class="text-base text-gray-700 dark:text-gray-300 mb-4 transition-colors">
             Tienes <strong>{{ n(proveedoresPedidosPendientesCount) }} orden(es) de compra pendientes</strong> con proveedores.
           </p>
-          <h4 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2 transition-colors">Detalles de órdenes:</h4>
+          <h4 class="text-lg font-bold text-gray-800 dark:text-gray-100 dark:text-gray-200 mb-2 transition-colors">Detalles de órdenes:</h4>
           <ul class="text-gray-700 dark:text-gray-300 space-y-2 list-none transition-colors">
             <li
               v-for="orden in ordenesPendientesDetallesSafe"
               :key="`oc-${orden.id ?? orden.proveedor ?? Math.random()}`"
-              class="text-base bg-white dark:bg-gray-700/50 p-3 rounded-md transition-colors"
+              class="text-base bg-white dark:bg-slate-900 dark:bg-gray-700/50 p-3 rounded-md transition-colors"
             >
               <div class="font-medium">{{ orden.proveedor ?? 'Proveedor N/D' }}</div>
-              <div class="text-sm text-gray-600 dark:text-gray-400">Prioridad: <span :class="getPrioridadClass(orden.prioridad)">{{ orden.prioridad ?? 'N/D' }}</span></div>
-              <div class="text-sm text-gray-600 dark:text-gray-400">Fecha esperada: {{ orden.fecha_esperada ?? 'N/D' }}</div>
+              <div class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400">Prioridad: <span :class="getPrioridadClass(orden.prioridad)">{{ orden.prioridad ?? 'N/D' }}</span></div>
+              <div class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400">Fecha esperada: {{ orden.fecha_esperada ?? 'N/D' }}</div>
               <div v-if="orden.dias_retraso !== null" class="text-sm transition-colors">
                 <span :class="getRetrasoClass(orden.dias_retraso)">
                   {{ orden.dias_retraso > 0 ? `${orden.dias_retraso} ${orden.dias_retraso === 1 ? 'día' : 'días'} de retraso` : 'En tiempo' }}
@@ -242,28 +242,28 @@
         <!-- Alerta de Órdenes de Compra Enviadas -->
         <div
           v-if="ordenesEnviadasDetallesSafe.length > 0"
-          class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-green-500 flex flex-col justify-between items-start text-left transition-colors"
+          class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-green-500 flex flex-col justify-between items-start text-left transition-colors"
         >
           <div class="w-full">
             <div class="flex items-center mb-4">
               <FontAwesomeIcon :icon="['fas', 'paper-plane']" class="h-8 w-8 text-green-600 mr-3" />
-              <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white">Órdenes de Compra Enviadas</h3>
+              <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white dark:text-white">Órdenes de Compra Enviadas</h3>
             </div>
             <p class="text-base text-gray-700 dark:text-gray-300 mb-4 transition-colors">
               Tienes <strong>{{ n(ordenesEnviadasDetallesSafe.length) }} orden(es) de compra enviada(s)</strong> a proveedores esperando confirmación.
             </p>
 
-            <h4 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2 transition-colors">Últimas órdenes enviadas:</h4>
+            <h4 class="text-lg font-bold text-gray-800 dark:text-gray-100 dark:text-gray-200 mb-2 transition-colors">Últimas órdenes enviadas:</h4>
             <ul class="text-gray-700 dark:text-gray-300 space-y-2 list-none transition-colors">
               <li
                 v-for="orden in ordenesEnviadasDetallesSafe"
                 :key="`env-${orden.id ?? orden.proveedor ?? Math.random()}`"
-                class="text-base bg-white dark:bg-gray-700/50 p-3 rounded-md transition-colors"
+                class="text-base bg-white dark:bg-slate-900 dark:bg-gray-700/50 p-3 rounded-md transition-colors"
               >
                 <div class="font-medium">{{ orden.proveedor ?? 'Proveedor N/D' }}</div>
-                <div class="text-sm text-gray-600 dark:text-gray-400">Total: ${{ orden.total ?? 'N/D' }}</div>
-                <div class="text-sm text-gray-600 dark:text-gray-400">Fecha envío: {{ orden.fecha_envio ?? 'N/D' }}</div>
-                <div class="text-sm text-gray-600 dark:text-gray-400">Fecha esperada: {{ orden.fecha_esperada ?? 'N/D' }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400">Total: ${{ orden.total ?? 'N/D' }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400">Fecha envío: {{ orden.fecha_envio ?? 'N/D' }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400">Fecha esperada: {{ orden.fecha_esperada ?? 'N/D' }}</div>
               </li>
             </ul>
           </div>
@@ -280,12 +280,12 @@
         <!-- Alerta de Mantenimientos Críticos -->
         <div
           v-if="mantenimientosVencidosCount > 0 || mantenimientosCriticosCount > 0"
-          class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-red-500 flex flex-col justify-between items-start text-left transition-colors"
+          class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-red-500 flex flex-col justify-between items-start text-left transition-colors"
         >
           <div class="w-full">
             <div class="flex items-center mb-4">
               <FontAwesomeIcon :icon="['fas', 'wrench']" class="h-8 w-8 text-red-600 mr-3" />
-              <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white">Mantenimientos Urgentes</h3>
+              <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white dark:text-white">Mantenimientos Urgentes</h3>
             </div>
             <p class="text-base text-gray-700 dark:text-gray-300 mb-4 transition-colors">
               <span v-if="mantenimientosVencidosCount > 0" class="text-red-600 dark:text-red-400 font-bold">
@@ -297,7 +297,7 @@
             </p>
 
             <div v-if="mantenimientosCriticosDetallesSafe.length > 0" class="space-y-2 transition-colors">
-              <h4 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2">Mantenimientos críticos:</h4>
+              <h4 class="text-lg font-bold text-gray-800 dark:text-gray-100 dark:text-gray-200 mb-2">Mantenimientos críticos:</h4>
               <ul class="text-gray-700 dark:text-gray-300 space-y-2 list-none transition-colors">
                 <li
                   v-for="mantenimiento in mantenimientosCriticosDetallesSafe.slice(0, 3)"
@@ -305,13 +305,13 @@
                   class="text-base bg-red-50 dark:bg-red-900/20 p-3 rounded-md border-l-4 border-red-500 transition-colors"
                 >
                   <div class="font-medium">{{ mantenimiento.carro?.marca }} {{ mantenimiento.carro?.modelo }}</div>
-                  <div class="text-sm text-gray-600 dark:text-gray-400">{{ mantenimiento.tipo }}</div>
+                  <div class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400">{{ mantenimiento.tipo }}</div>
                   <div class="text-sm text-red-600 dark:text-red-400 font-medium whitespace-nowrap">
                     {{ mantenimiento.dias_restantes < 0 ? `${Math.abs(mantenimiento.dias_restantes)} días vencido` : 'Próximo a vencer' }}
                   </div>
                 </li>
               </ul>
-              <div v-if="mantenimientosCriticosDetallesSafe.length > 3" class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              <div v-if="mantenimientosCriticosDetallesSafe.length > 3" class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-2">
                 Y {{ n(mantenimientosCriticosDetallesSafe.length - 3) }} más...
               </div>
             </div>
@@ -330,11 +330,11 @@
     <!-- Citas activas del día de hoy -->
     <div
       v-if="citasHoyDetallesSafe.length > 0"
-      class="mt-8 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-blue-500 transition-colors"
+      class="mt-8 bg-white dark:bg-slate-900 dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-blue-500 transition-colors"
     >
       <div class="flex items-center mb-4 transition-colors">
         <FontAwesomeIcon :icon="['fas', 'calendar-alt']" class="h-8 w-8 text-blue-600 mr-3" />
-        <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white transition-colors">Citas activas del día de hoy</h3>
+        <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white dark:text-white transition-colors">Citas activas del día de hoy</h3>
       </div>
       <p class="text-base text-gray-700 dark:text-gray-300 mb-4 transition-colors">
         Tienes <strong>{{ n(citasHoyDetallesSafe.length) }} cita(s) activa(s)</strong> programadas para hoy (en proceso y pendientes).
@@ -343,11 +343,11 @@
         <li
           v-for="cita in citasHoyDetallesSafe"
           :key="`cita-${cita.id ?? cita.titulo ?? Math.random()}`"
-          class="flex items-center justify-between text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-700/50 p-4 rounded-md shadow-sm border-l-4 transition-colors"
+          class="flex items-center justify-between text-gray-800 dark:text-gray-100 dark:text-gray-200 bg-white dark:bg-slate-900 dark:bg-gray-700/50 p-4 rounded-md shadow-sm border-l-4 transition-colors"
           :class="cita.estado === 'en_proceso' ? 'border-l-blue-500' : 'border-l-yellow-500'"
         >
           <div class="flex flex-col text-left flex-1 transition-colors">
-            <div class="font-semibold text-lg text-gray-900 dark:text-white mb-1 transition-colors">
+            <div class="font-semibold text-lg text-gray-900 dark:text-white dark:text-white mb-1 transition-colors">
               {{ cita.titulo ?? 'Sin título' }}
             </div>
             <div class="text-sm text-gray-700 dark:text-gray-400 transition-colors">Cliente: {{ cita.cliente ?? 'N/D' }}</div>
@@ -369,7 +369,7 @@
             <div class="text-base font-medium text-blue-600 mb-1">
               {{ cita.hora ?? '—' }}
             </div>
-            <div class="text-xs text-gray-400 dark:text-gray-500">
+            <div class="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400">
               Hoy
             </div>
           </div>
@@ -388,12 +388,12 @@
     <!-- Mis Tareas Pendientes -->
     <div
       v-if="tareasPendientesSafe.total > 0"
-      class="mt-8 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-purple-500 transition-colors"
+      class="mt-8 bg-white dark:bg-slate-900 dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-l-8 border-purple-500 transition-colors"
     >
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center">
           <FontAwesomeIcon :icon="['fas', 'tasks']" class="h-8 w-8 text-purple-600 mr-3" />
-          <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white transition-colors">Mis Tareas Pendientes</h3>
+          <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white dark:text-white transition-colors">Mis Tareas Pendientes</h3>
         </div>
         <div class="flex items-center gap-2">
           <span v-if="tareasPendientesSafe.en_proceso > 0" class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 py-1 rounded-full text-xs font-medium transition-colors">
@@ -411,7 +411,7 @@
         <li
           v-for="tarea in tareasPendientesSafe.tareas"
           :key="`tarea-${tarea.id}`"
-          class="flex items-center justify-between text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-700/50 p-4 rounded-md shadow-sm border-l-4 transition-colors"
+          class="flex items-center justify-between text-gray-800 dark:text-gray-100 dark:text-gray-200 bg-white dark:bg-slate-900 dark:bg-gray-700/50 p-4 rounded-md shadow-sm border-l-4 transition-colors"
           :class="{
             'border-l-blue-500': tarea.estado === 'en_proceso',
             'border-l-yellow-500': tarea.estado === 'pendiente',
@@ -419,13 +419,13 @@
           }"
         >
           <div class="flex flex-col text-left flex-1 transition-colors">
-            <div class="font-semibold text-lg text-gray-900 dark:text-white mb-1 transition-colors">
+            <div class="font-semibold text-lg text-gray-900 dark:text-white dark:text-white mb-1 transition-colors">
               {{ tarea.titulo }}
             </div>
-            <div v-if="tarea.descripcion" class="text-sm text-gray-600 dark:text-gray-400 mb-1 transition-colors">
+            <div v-if="tarea.descripcion" class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400 mb-1 transition-colors">
               {{ tarea.descripcion }}
             </div>
-            <div class="flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400 transition-colors">
+            <div class="flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">
               <span v-if="tarea.cliente">
                 <FontAwesomeIcon :icon="['fas', 'user']" class="mr-1" />
                 {{ tarea.cliente }}
@@ -453,7 +453,7 @@
                 <FontAwesomeIcon :icon="['fas', 'exclamation-triangle']" class="mr-1" />
                 Vencida
               </span>
-              <span class="text-xs text-gray-500">
+              <span class="text-xs text-gray-500 dark:text-gray-400">
                 Fecha: {{ tarea.fecha }}
               </span>
             </div>
@@ -489,21 +489,21 @@
 
     <!-- Alertas de Vencimientos de Cuentas -->
     <div v-if="hayAlertasVencimientos" class="mt-8">
-      <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
         <FontAwesomeIcon :icon="['fas', 'bell']" class="h-6 w-6 text-amber-500 mr-3" />
         Alertas de Vencimientos
       </h2>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Cuentas por Pagar -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-800 dark:border-gray-700 overflow-hidden transition-colors">
           <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center">
                 <FontAwesomeIcon :icon="['fas', 'file-invoice-dollar']" class="h-6 w-6 text-white mr-3" />
                 <h3 class="text-xl font-bold text-white">Cuentas por Pagar</h3>
               </div>
-              <span class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-sm font-medium">
+              <span class="bg-white dark:bg-slate-900/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-sm font-medium">
                 {{ totalCuentasPagar }} pendientes
               </span>
             </div>
@@ -596,7 +596,7 @@
             </div>
 
             <!-- Sin alertas -->
-            <div v-if="totalCuentasPagar === 0" class="text-center py-6 text-gray-500 dark:text-gray-400 transition-colors">
+            <div v-if="totalCuentasPagar === 0" class="text-center py-6 text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">
               <FontAwesomeIcon :icon="['fas', 'check-circle']" class="h-10 w-10 text-green-400 mb-2" />
               <p class="font-medium">¡Todo al día!</p>
             </div>
@@ -611,14 +611,14 @@
         </div>
 
         <!-- Cuentas por Cobrar -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-800 dark:border-gray-700 overflow-hidden transition-colors">
           <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center">
                 <FontAwesomeIcon :icon="['fas', 'hand-holding-usd']" class="h-6 w-6 text-white mr-3" />
                 <h3 class="text-xl font-bold text-white">Cuentas por Cobrar</h3>
               </div>
-              <span class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-sm font-medium">
+              <span class="bg-white dark:bg-slate-900/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-sm font-medium">
                 {{ totalCuentasCobrar }} pendientes
               </span>
             </div>
@@ -711,7 +711,7 @@
             </div>
 
             <!-- Sin alertas -->
-            <div v-if="totalCuentasCobrar === 0" class="text-center py-6 text-gray-500 dark:text-gray-400 transition-colors">
+            <div v-if="totalCuentasCobrar === 0" class="text-center py-6 text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">
               <FontAwesomeIcon :icon="['fas', 'check-circle']" class="h-10 w-10 text-green-400 mb-2" />
               <p class="font-medium">¡Todo al día!</p>
             </div>
@@ -726,14 +726,14 @@
         </div>
         
         <!-- Préstamos -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-800 dark:border-gray-700 overflow-hidden transition-colors">
           <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center">
                 <FontAwesomeIcon :icon="['fas', 'money-bill-wave']" class="h-6 w-6 text-white mr-3" />
                 <h3 class="text-xl font-bold text-white">Préstamos</h3>
               </div>
-              <span class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-sm font-medium">
+              <span class="bg-white dark:bg-slate-900/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-sm font-medium">
                 {{ totalPrestamos }} pendientes
               </span>
             </div>
@@ -826,7 +826,7 @@
             </div>
 
             <!-- Sin alertas -->
-            <div v-if="totalPrestamos === 0" class="text-center py-6 text-gray-500 dark:text-gray-400 transition-colors">
+            <div v-if="totalPrestamos === 0" class="text-center py-6 text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">
               <FontAwesomeIcon :icon="['fas', 'check-circle']" class="h-10 w-10 text-green-400 mb-2" />
               <p class="font-medium">¡Todo al día!</p>
             </div>
@@ -850,15 +850,15 @@
             <FontAwesomeIcon :icon="['fas', 'chart-pie']" class="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Análisis y Tendencias</h2>
-            <p class="text-gray-500 dark:text-gray-400 text-sm transition-colors">Visualiza el rendimiento de tu negocio</p>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white transition-colors">Análisis y Tendencias</h2>
+            <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 text-sm transition-colors">Visualiza el rendimiento de tu negocio</p>
           </div>
         </div>
       </div>
       
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Gráfico de Ventas Mensuales -->
-        <div class="group relative bg-white/60 dark:bg-gray-800/60 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 overflow-hidden hover:shadow-xl transition-all duration-500">
+        <div class="group relative bg-white dark:bg-slate-900/60 dark:bg-gray-800/60 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 overflow-hidden hover:shadow-xl transition-all duration-500">
           <!-- Decorative gradient -->
           <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-blue-600/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
           <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-blue-400/10 to-transparent rounded-full translate-y-1/2 -translate-x-1/2 blur-xl"></div>
@@ -870,8 +870,8 @@
                   <FontAwesomeIcon :icon="['fas', 'chart-line']" class="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 class="text-lg font-bold text-gray-900 dark:text-white transition-colors">Ventas Mensuales</h3>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 transition-colors">Últimos 6 meses</p>
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white dark:text-white transition-colors">Ventas Mensuales</h3>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">Últimos 6 meses</p>
                 </div>
               </div>
               <span class="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-medium rounded-full">Tendencia</span>
@@ -886,13 +886,13 @@
                 :fill="true"
               />
             </div>
-            <div v-else class="h-72 flex items-center justify-center bg-gradient-to-br from-gray-50 dark:from-gray-700/50 to-blue-50/30 dark:to-blue-900/20 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 transition-colors">
+            <div v-else class="h-72 flex items-center justify-center bg-gradient-to-br from-gray-50 dark:from-gray-700/50 to-blue-50/30 dark:to-blue-900/20 rounded-2xl border border-dashed border-gray-200 dark:border-slate-800 dark:border-gray-700 transition-colors">
               <div class="text-center">
                 <div class="w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mx-auto mb-4">
                   <FontAwesomeIcon :icon="['fas', 'chart-line']" class="h-8 w-8 text-blue-400 dark:text-blue-300" />
                 </div>
-                <p class="text-gray-600 dark:text-gray-300 font-semibold mb-2">Sin datos de ventas</p>
-                <p class="text-sm text-gray-400 dark:text-gray-500 mb-4">Registra tus primeras ventas</p>
+                <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300 font-semibold mb-2">Sin datos de ventas</p>
+                <p class="text-sm text-gray-400 dark:text-gray-500 dark:text-gray-400 mb-4">Registra tus primeras ventas</p>
                 <PanLink :href="route('ventas.create')" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300">
                   <FontAwesomeIcon :icon="['fas', 'plus']" class="mr-2" />
                   Nueva Venta
@@ -903,7 +903,7 @@
         </div>
 
         <!-- Gráfico de Productos Más Vendidos -->
-        <div class="group relative bg-white/60 dark:bg-gray-800/60 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 overflow-hidden hover:shadow-xl transition-all duration-500">
+        <div class="group relative bg-white dark:bg-slate-900/60 dark:bg-gray-800/60 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 overflow-hidden hover:shadow-xl transition-all duration-500">
           <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-400/20 to-emerald-600/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
           <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-400/10 to-transparent rounded-full translate-y-1/2 -translate-x-1/2 blur-xl"></div>
           
@@ -914,8 +914,8 @@
                   <FontAwesomeIcon :icon="['fas', 'box']" class="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 class="text-lg font-bold text-gray-900 dark:text-white transition-colors">Productos Más Vendidos</h3>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 transition-colors">Últimos 30 días</p>
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white dark:text-white transition-colors">Productos Más Vendidos</h3>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">Últimos 30 días</p>
                 </div>
               </div>
               <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-xs font-medium rounded-full">Top 5</span>
@@ -930,13 +930,13 @@
                 :backgroundColor="['rgba(245, 158, 11, 0.85)', 'rgba(217, 119, 6, 0.85)', 'rgba(180, 83, 9, 0.85)', 'rgba(146, 64, 14, 0.85)', 'rgba(120, 53, 15, 0.85)']"
               />
             </div>
-            <div v-else class="h-72 flex items-center justify-center bg-gradient-to-br from-gray-50 dark:from-gray-700/50 to-emerald-50/30 dark:to-emerald-900/20 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 transition-colors">
+            <div v-else class="h-72 flex items-center justify-center bg-gradient-to-br from-gray-50 dark:from-gray-700/50 to-emerald-50/30 dark:to-emerald-900/20 rounded-2xl border border-dashed border-gray-200 dark:border-slate-800 dark:border-gray-700 transition-colors">
               <div class="text-center">
                 <div class="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-4">
                   <FontAwesomeIcon :icon="['fas', 'box']" class="h-8 w-8 text-emerald-400 dark:text-emerald-300" />
                 </div>
-                <p class="text-gray-600 dark:text-gray-300 font-semibold mb-2">Sin ventas recientes</p>
-                <p class="text-sm text-gray-400 dark:text-gray-500 mb-4">Registra ventas para ver el ranking</p>
+                <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300 font-semibold mb-2">Sin ventas recientes</p>
+                <p class="text-sm text-gray-400 dark:text-gray-500 dark:text-gray-400 mb-4">Registra ventas para ver el ranking</p>
                 <PanLink :href="route('ventas.create')" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300">
                   <FontAwesomeIcon :icon="['fas', 'plus']" class="mr-2" />
                   Nueva Venta
@@ -947,7 +947,7 @@
         </div>
 
         <!-- Gráfico de Estados de Órdenes -->
-        <div class="group relative bg-white/60 dark:bg-gray-800/60 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 overflow-hidden hover:shadow-xl transition-all duration-500">
+        <div class="group relative bg-white dark:bg-slate-900/60 dark:bg-gray-800/60 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 overflow-hidden hover:shadow-xl transition-all duration-500">
           <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-400/20 to-purple-600/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
           <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-purple-400/10 to-transparent rounded-full translate-y-1/2 -translate-x-1/2 blur-xl"></div>
           
@@ -958,8 +958,8 @@
                   <FontAwesomeIcon :icon="['fas', 'clipboard-list']" class="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 class="text-lg font-bold text-gray-900 dark:text-white transition-colors">Órdenes de Compra</h3>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 transition-colors">Por estado</p>
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white dark:text-white transition-colors">Órdenes de Compra</h3>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">Por estado</p>
                 </div>
               </div>
               <span class="px-3 py-1 bg-purple-50 text-purple-600 text-xs font-medium rounded-full">Distribución</span>
@@ -971,13 +971,13 @@
                 :backgroundColor="['rgba(245, 158, 11, 0.9)', 'rgba(217, 119, 6, 0.9)', 'rgba(16, 185, 129, 0.9)', 'rgba(99, 102, 241, 0.9)']"
               />
             </div>
-            <div v-else class="h-72 flex items-center justify-center bg-gradient-to-br from-gray-50 dark:from-gray-700/50 to-purple-50/30 dark:to-purple-900/20 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 transition-colors">
+            <div v-else class="h-72 flex items-center justify-center bg-gradient-to-br from-gray-50 dark:from-gray-700/50 to-purple-50/30 dark:to-purple-900/20 rounded-2xl border border-dashed border-gray-200 dark:border-slate-800 dark:border-gray-700 transition-colors">
               <div class="text-center">
                 <div class="w-16 h-16 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mx-auto mb-4">
                   <FontAwesomeIcon :icon="['fas', 'clipboard-list']" class="h-8 w-8 text-purple-400 dark:text-purple-300" />
                 </div>
-                <p class="text-gray-600 dark:text-gray-300 font-semibold mb-2">Sin órdenes de compra</p>
-                <p class="text-sm text-gray-400 dark:text-gray-500 mb-4">Gestiona tus proveedores</p>
+                <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300 font-semibold mb-2">Sin órdenes de compra</p>
+                <p class="text-sm text-gray-400 dark:text-gray-500 dark:text-gray-400 mb-4">Gestiona tus proveedores</p>
                 <PanLink :href="route('ordenescompra.create')" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300">
                   <FontAwesomeIcon :icon="['fas', 'plus']" class="mr-2" />
                   Crear Orden
@@ -988,7 +988,7 @@
         </div>
 
         <!-- Gráfico de Crecimiento de Clientes -->
-        <div class="group relative bg-white/60 dark:bg-gray-800/60 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 overflow-hidden hover:shadow-xl transition-all duration-500">
+        <div class="group relative bg-white dark:bg-slate-900/60 dark:bg-gray-800/60 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 overflow-hidden hover:shadow-xl transition-all duration-500">
           <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-400/20 to-orange-500/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
           <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-amber-400/10 to-transparent rounded-full translate-y-1/2 -translate-x-1/2 blur-xl"></div>
           
@@ -999,8 +999,8 @@
                   <FontAwesomeIcon :icon="['fas', 'users']" class="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 class="text-lg font-bold text-gray-900 dark:text-white transition-colors">Crecimiento de Clientes</h3>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 transition-colors">Últimos 6 meses</p>
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white dark:text-white transition-colors">Crecimiento de Clientes</h3>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">Últimos 6 meses</p>
                 </div>
               </div>
               <span class="px-3 py-1 bg-amber-50 text-amber-600 text-xs font-medium rounded-full">Evolución</span>
@@ -1016,13 +1016,13 @@
                 :show-currency="false"
               />
             </div>
-            <div v-else class="h-72 flex items-center justify-center bg-gradient-to-br from-gray-50 dark:from-gray-700/50 to-amber-50/30 dark:to-orange-900/20 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 transition-colors">
+            <div v-else class="h-72 flex items-center justify-center bg-gradient-to-br from-gray-50 dark:from-gray-700/50 to-amber-50/30 dark:to-orange-900/20 rounded-2xl border border-dashed border-gray-200 dark:border-slate-800 dark:border-gray-700 transition-colors">
               <div class="text-center">
                 <div class="w-16 h-16 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mx-auto mb-4">
                   <FontAwesomeIcon :icon="['fas', 'users']" class="h-8 w-8 text-amber-400 dark:text-amber-300" />
                 </div>
-                <p class="text-gray-600 dark:text-gray-300 font-semibold mb-2">Sin registro de clientes</p>
-                <p class="text-sm text-gray-400 dark:text-gray-500 mb-4">Agrega clientes para visualizar el crecimiento</p>
+                <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300 font-semibold mb-2">Sin registro de clientes</p>
+                <p class="text-sm text-gray-400 dark:text-gray-500 dark:text-gray-400 mb-4">Agrega clientes para visualizar el crecimiento</p>
                 <PanLink :href="route('clientes.create')" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300">
                   <FontAwesomeIcon :icon="['fas', 'plus']" class="mr-2" />
                   Nuevo Cliente
@@ -1196,7 +1196,7 @@ const getPrioridadClass = (prioridad) => {
     case 'baja':
       return 'text-green-600 dark:text-green-400'
     default:
-      return 'text-gray-600 dark:text-gray-400'
+      return 'text-gray-600 dark:text-gray-300 dark:text-gray-400'
   }
 }
 
@@ -1206,7 +1206,7 @@ const getRetrasoClass = (diasRetraso) => {
   } else if (diasRetraso > 0) {
     return 'text-red-600 dark:text-red-400 font-semibold'
   }
-  return 'text-gray-600 dark:text-gray-400'
+  return 'text-gray-600 dark:text-gray-300 dark:text-gray-400'
 }
 
 // ===== Fallbacks defensivos

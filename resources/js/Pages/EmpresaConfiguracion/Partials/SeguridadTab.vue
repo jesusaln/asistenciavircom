@@ -1,7 +1,7 @@
 <template>
     <div class="space-y-8">
         <div>
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white dark:text-gray-100 mb-6 flex items-center gap-2">
                 <FontAwesomeIcon icon="shield-alt" class="text-red-600 dark:text-red-400" />
                 Seguridad y Acceso
             </h2>
@@ -14,53 +14,53 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                      <div>
                          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Intentos fallidos antes de bloqueo</label>
-                         <input type="number" v-model="form.intentos_login" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200" min="1" max="10">
+                         <input type="number" v-model="form.intentos_login" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200" min="1" max="10">
                     </div>
                     <div>
                          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tiempo de bloqueo (minutos)</label>
-                         <input type="number" v-model="form.tiempo_bloqueo" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200" min="1" max="60">
+                         <input type="number" v-model="form.tiempo_bloqueo" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200" min="1" max="60">
                     </div>
                 </div>
             </div>
 
             <!-- Autenticación de dos factores -->
-            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700">
                 <div class="flex items-center gap-4">
                      <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" v-model="form.requerir_2fa" class="sr-only peer">
-                        <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-100">Requerir 2FA para administradores</span>
+                        <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:bg-slate-900 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        <span class="ml-3 text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">Requerir 2FA para administradores</span>
                     </label>
                 </div>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 ml-14">Obliga a los usuarios con rol de Admin a configurar la autenticación de dos factores.</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-2 ml-14">Obliga a los usuarios con rol de Admin a configurar la autenticación de dos factores.</p>
             </div>
             
              <!-- Configuración DKIM -->
-            <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 font-mono text-sm">
-                <h3 class="text-md font-sans font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+            <div class="mt-8 pt-6 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700 font-mono text-sm">
+                <h3 class="text-md font-sans font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4 flex items-center gap-2">
                      <FontAwesomeIcon icon="key" class="text-yellow-600 dark:text-yellow-400" /> Claves DKIM (Correo)
                 </h3>
                  <div class="space-y-4">
                       <div class="flex items-center gap-4 mb-2">
                          <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" v-model="form.dkim_enabled" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yellow-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-600"></div>
-                            <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-100">Habilitar firma DKIM</span>
+                            <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yellow-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:bg-slate-900 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-600"></div>
+                            <span class="ml-3 text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">Habilitar firma DKIM</span>
                         </label>
                     </div>
 
                     <div v-if="form.dkim_enabled" class="grid grid-cols-1 gap-4">
                         <div>
-                             <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Dominio</label>
-                             <input type="text" v-model="form.dkim_domain" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200" placeholder="midominio.com" />
+                             <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 mb-1">Dominio</label>
+                             <input type="text" v-model="form.dkim_domain" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200" placeholder="midominio.com" />
                         </div>
                         <div>
-                             <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Selector</label>
-                             <input type="text" v-model="form.dkim_selector" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200" placeholder="default" />
+                             <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 mb-1">Selector</label>
+                             <input type="text" v-model="form.dkim_selector" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200" placeholder="default" />
                         </div>
                          <div>
-                             <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Clave Privada (RSA)</label>
-                             <textarea v-model="form.dkim_public_key" rows="4" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 text-xs" placeholder="-----BEGIN PRIVATE KEY-----..."></textarea>
+                             <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 mb-1">Clave Privada (RSA)</label>
+                             <textarea v-model="form.dkim_public_key" rows="4" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 text-xs" placeholder="-----BEGIN PRIVATE KEY-----..."></textarea>
                         </div>
                     </div>
                 </div>

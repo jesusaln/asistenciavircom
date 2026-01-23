@@ -1,13 +1,13 @@
 <template>
   <Head title="Mis Vacaciones" />
-  <div class="mis-vacaciones min-h-screen bg-white">
+  <div class="mis-vacaciones min-h-screen bg-white dark:bg-slate-900">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">Mis Vacaciones</h1>
-            <p class="text-gray-600 mt-1">Consulta el historial de tus solicitudes de vacaciones</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Mis Vacaciones</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-1">Consulta el historial de tus solicitudes de vacaciones</p>
           </div>
           <Link
             :href="route('vacaciones.create')"
@@ -23,7 +23,7 @@
 
       <!-- Estadísticas personales -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 p-6">
           <div class="flex items-center">
             <div class="p-2 bg-yellow-100 rounded-lg">
               <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,13 +31,13 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600">Pendientes</p>
-              <p class="text-2xl font-semibold text-gray-900">{{ vacaciones.data.filter(v => v.estado === 'pendiente').length }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Pendientes</p>
+              <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ vacaciones.data.filter(v => v.estado === 'pendiente').length }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 p-6">
           <div class="flex items-center">
             <div class="p-2 bg-green-100 rounded-lg">
               <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,13 +45,13 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600">Aprobadas</p>
-              <p class="text-2xl font-semibold text-gray-900">{{ vacaciones.data.filter(v => v.estado === 'aprobada').length }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Aprobadas</p>
+              <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ vacaciones.data.filter(v => v.estado === 'aprobada').length }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 p-6">
           <div class="flex items-center">
             <div class="p-2 bg-blue-100 rounded-lg">
               <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,15 +59,15 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600">Total</p>
-              <p class="text-2xl font-semibold text-gray-900">{{ vacaciones.total }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total</p>
+              <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ vacaciones.total }}</p>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Filtros -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 p-6 mb-6">
         <div class="flex flex-col sm:flex-row gap-4">
           <div class="flex-1">
             <label class="block text-sm font-medium text-gray-700 mb-2">Filtrar por estado</label>
@@ -86,43 +86,43 @@
       </div>
 
       <!-- Tabla -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+            <thead class="bg-white dark:bg-slate-900">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                   Fechas
                 </th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                   Días
                 </th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                   Estado
                 </th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                   Motivo
                 </th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                   Solicitado
                 </th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="vacacion in vacaciones.data" :key="vacacion.id" class="hover:bg-white transition-colors duration-150">
+            <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+              <tr v-for="vacacion in vacaciones.data" :key="vacacion.id" class="hover:bg-white dark:bg-slate-900 transition-colors duration-150">
                 <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-gray-900">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">
                     {{ formatDate(vacacion.fecha_inicio) }}
                   </div>
-                  <div class="text-sm text-gray-500">
+                  <div class="text-sm text-gray-500 dark:text-gray-400">
                     hasta {{ formatDate(vacacion.fecha_fin) }}
                   </div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">{{ vacacion.dias_solicitados }} días</div>
+                  <div class="text-sm text-gray-900 dark:text-white">{{ vacacion.dias_solicitados }} días</div>
                 </td>
                 <td class="px-6 py-4">
                   <span :class="getEstadoClasses(vacacion.estado)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
@@ -130,12 +130,12 @@
                   </span>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900 max-w-xs truncate" :title="vacacion.motivo">
+                  <div class="text-sm text-gray-900 dark:text-white max-w-xs truncate" :title="vacacion.motivo">
                     {{ vacacion.motivo || 'Sin motivo especificado' }}
                   </div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">{{ formatDate(vacacion.created_at) }}</div>
+                  <div class="text-sm text-gray-900 dark:text-white">{{ formatDate(vacacion.created_at) }}</div>
                 </td>
                 <td class="px-6 py-4 text-right">
                   <div class="flex items-center justify-end space-x-2">
@@ -188,7 +188,7 @@
                     </div>
                     <div class="space-y-1">
                       <p class="text-gray-700 font-medium">No tienes solicitudes de vacaciones</p>
-                      <p class="text-sm text-gray-500">Tus solicitudes aparecerán aquí cuando las crees</p>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Tus solicitudes aparecerán aquí cuando las crees</p>
                     </div>
                   </div>
                 </td>
@@ -198,7 +198,7 @@
         </div>
 
         <!-- Paginación -->
-        <div v-if="vacaciones.last_page > 1" class="bg-white border-t border-gray-200 px-4 py-3">
+        <div v-if="vacaciones.last_page > 1" class="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 px-4 py-3">
           <div class="flex items-center justify-between">
             <div class="text-sm text-gray-700">
               Mostrando {{ vacaciones.from }} - {{ vacaciones.to }} de {{ vacaciones.total }} resultados
@@ -209,7 +209,7 @@
                 v-for="page in getPageNumbers()"
                 :key="page"
                 @click="changePage(page)"
-                :class="page === vacaciones.current_page ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'"
+                :class="page === vacaciones.current_page ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white dark:bg-slate-900 border-gray-300 text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900'"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               >
                 {{ page }}

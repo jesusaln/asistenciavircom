@@ -40,10 +40,10 @@ const getMargenColor = (margen) => {
         <template #header>
             <div class="flex justify-between items-center">
                 <div>
-                    <h2 class="font-black text-xl text-gray-800 dark:text-white uppercase tracking-tight">
+                    <h2 class="font-black text-xl text-gray-800 dark:text-gray-100 dark:text-white uppercase tracking-tight">
                         📊 Reporte de Rentabilidad
                     </h2>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">
                         Análisis de ingresos vs costos operativos por póliza
                     </p>
                 </div>
@@ -58,21 +58,21 @@ const getMargenColor = (margen) => {
                 
                 <!-- KPIs Principales -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Ingresos</p>
-                        <p class="text-2xl font-black text-gray-900 dark:text-white">{{ formatCurrency(resumen.total_ingresos) }}</p>
+                        <p class="text-2xl font-black text-gray-900 dark:text-white dark:text-white">{{ formatCurrency(resumen.total_ingresos) }}</p>
                     </div>
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Costos</p>
                         <p class="text-2xl font-black text-red-500">{{ formatCurrency(resumen.total_costos) }}</p>
                     </div>
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Utilidad Neta</p>
                         <p class="text-2xl font-black" :class="resumen.utilidad_neta >= 0 ? 'text-emerald-600' : 'text-red-600'">
                             {{ formatCurrency(resumen.utilidad_neta) }}
                         </p>
                     </div>
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Margen Promedio</p>
                         <p class="text-2xl font-black" :class="getMargenColor(resumen.margen_promedio)">
                             {{ resumen.margen_promedio }}%
@@ -121,40 +121,40 @@ const getMargenColor = (margen) => {
                 </div>
 
                 <!-- Tabla de Pólizas -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
                     <div class="p-6 border-b border-gray-100 dark:border-gray-700">
-                        <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-tight">
+                        <h3 class="font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-tight">
                             Detalle por Póliza
                         </h3>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">
                             Costo hora técnico: {{ formatCurrency(resumen.costo_hora_tecnico) }}
                         </p>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full">
-                            <thead class="bg-gray-50 dark:bg-gray-700/50">
+                            <thead class="bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Póliza</th>
-                                    <th class="px-6 py-3 text-left text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Cliente</th>
-                                    <th class="px-6 py-3 text-right text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Ingreso</th>
-                                    <th class="px-6 py-3 text-right text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Hrs</th>
-                                    <th class="px-6 py-3 text-right text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Costo</th>
-                                    <th class="px-6 py-3 text-right text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Utilidad</th>
-                                    <th class="px-6 py-3 text-right text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Margen</th>
-                                    <th class="px-6 py-3 text-center text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Estado</th>
+                                    <th class="px-6 py-3 text-left text-[10px] font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest">Póliza</th>
+                                    <th class="px-6 py-3 text-left text-[10px] font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest">Cliente</th>
+                                    <th class="px-6 py-3 text-right text-[10px] font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest">Ingreso</th>
+                                    <th class="px-6 py-3 text-right text-[10px] font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest">Hrs</th>
+                                    <th class="px-6 py-3 text-right text-[10px] font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest">Costo</th>
+                                    <th class="px-6 py-3 text-right text-[10px] font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest">Utilidad</th>
+                                    <th class="px-6 py-3 text-right text-[10px] font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest">Margen</th>
+                                    <th class="px-6 py-3 text-center text-[10px] font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest">Estado</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                                <tr v-for="p in polizas" :key="p.poliza_id" class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                                <tr v-for="p in polizas" :key="p.poliza_id" class="hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700/30 transition-colors">
                                     <td class="px-6 py-4">
                                         <Link :href="route('polizas-servicio.show', p.poliza_id)" class="font-bold text-blue-600 dark:text-blue-400 hover:underline">
                                             {{ p.folio }}
                                         </Link>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ p.plan }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">{{ p.plan }}</p>
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{{ p.cliente }}</td>
-                                    <td class="px-6 py-4 text-right text-sm font-bold text-gray-900 dark:text-white">{{ formatCurrency(p.ingreso_mensual) }}</td>
-                                    <td class="px-6 py-4 text-right text-sm text-gray-600 dark:text-gray-400">{{ p.horas_consumidas }}h</td>
+                                    <td class="px-6 py-4 text-right text-sm font-bold text-gray-900 dark:text-white dark:text-white">{{ formatCurrency(p.ingreso_mensual) }}</td>
+                                    <td class="px-6 py-4 text-right text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400">{{ p.horas_consumidas }}h</td>
                                     <td class="px-6 py-4 text-right text-sm text-red-500">{{ formatCurrency(p.costo_operativo) }}</td>
                                     <td class="px-6 py-4 text-right text-sm font-bold" :class="p.utilidad >= 0 ? 'text-emerald-600' : 'text-red-600'">
                                         {{ formatCurrency(p.utilidad) }}

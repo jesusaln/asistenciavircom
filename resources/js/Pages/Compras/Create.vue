@@ -32,7 +32,7 @@
 
       <form @submit.prevent="crearCompra" class="space-y-8">
         <!-- Informacion General -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,7 +58,7 @@
                   id="numero_compra"
                   v-model="form.numero_compra"
                   type="text"
-                  class="w-full bg-white text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  class="w-full bg-white dark:bg-slate-900 text-gray-500 dark:text-gray-400 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   placeholder="C0001"
                   readonly
                   required
@@ -69,7 +69,7 @@
                   </svg>
                 </div>
               </div>
-              <p class="mt-1 text-xs text-gray-500">
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Este numero es fijo para todas las compras
               </p>
             </div>
@@ -90,7 +90,7 @@
                   id="fecha_compra"
                   v-model="form.fecha_compra"
                   type="date"
-                  class="w-full bg-white text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  class="w-full bg-white dark:bg-slate-900 text-gray-500 dark:text-gray-400 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   readonly
                   required
                 />
@@ -100,7 +100,7 @@
                   </svg>
                 </div>
               </div>
-              <p class="mt-1 text-xs text-gray-500">
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Esta fecha se establece automaticamente con la fecha de creacion
               </p>
             </div>
@@ -140,7 +140,7 @@
                   </svg>
                 </div>
               </div>
-              <p class="mt-1 text-xs text-gray-500">
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Selecciona el almacen donde se recibiran los productos
                 <span v-if="props.almacen_predeterminado" class="text-blue-600">
                   {{ props.recordatorio_almacen }}
@@ -151,7 +151,7 @@
         </div>
 
         <!-- Información Fiscal (CFDI) -->
-        <div v-if="form.cfdi_uuid" class="bg-white rounded-xl border border-blue-200 shadow-sm overflow-hidden animate-fadeIn">
+        <div v-if="form.cfdi_uuid" class="bg-white dark:bg-slate-900 rounded-xl border border-blue-200 shadow-sm overflow-hidden animate-fadeIn">
           <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 flex items-center justify-between">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,7 +182,7 @@
         </div>
 
         <!-- Proveedor -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -206,7 +206,7 @@
 
 
         <!-- Productos Disponibles -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -216,11 +216,11 @@
             </h2>
           </div>
           <div class="p-6">
-            <div class="mb-6 text-sm text-gray-600">
+            <div class="mb-6 text-sm text-gray-600 dark:text-gray-300">
               Usa el buscador para agregar productos; no se listan todos para evitar sobrecarga.
             </div>
 
-            <div class="pt-2 border-t border-gray-200">
+            <div class="pt-2 border-t border-gray-200 dark:border-slate-800">
               <BuscarProducto
                 ref="buscarProductoRef"
                 :productos="props.productos"
@@ -248,17 +248,17 @@
     
        <!-- Modal para capturar series -->
        <div v-if="showSerialsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-         <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+         <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-md mx-4">
            <div class="p-6">
-             <h3 class="text-lg font-semibold text-gray-900 mb-4">
+             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                Capturar Series - {{ currentSerialProduct?.nombre }}
              </h3>
     
              <div class="mb-4">
-               <p class="text-sm text-gray-600">
+               <p class="text-sm text-gray-600 dark:text-gray-300">
                  Cantidad: {{ currentSerialQty }} unidades
                </p>
-               <p class="text-xs text-gray-500 mt-1">
+               <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                  Debe capturar exactamente {{ currentSerialQty }} series unicas
                </p>
              </div>
@@ -269,7 +269,7 @@
                  :key="index"
                  class="flex items-center space-x-2"
                >
-                 <span class="text-sm font-medium text-gray-500 w-6">{{ index + 1 }}.</span>
+                 <span class="text-sm font-medium text-gray-500 dark:text-gray-400 w-6">{{ index + 1 }}.</span>
                  <input
                    v-model="serialsForEntry[index]"
                    type="text"
@@ -301,7 +301,7 @@
         </div>
 
         <!-- Notas -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -321,7 +321,7 @@
         </div>
 
         <!-- Descuento General -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -345,7 +345,7 @@
                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder="0.00"
                 />
-                <p class="mt-1 text-xs text-gray-500">
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Este descuento se aplica al subtotal despues de los descuentos por item
                 </p>
               </div>

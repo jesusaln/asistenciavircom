@@ -3,7 +3,7 @@
     <label class="block text-sm font-medium text-gray-700 mb-1">
       {{ label }}
     </label>
-    <div :class="`p-3 rounded-md border ${isEmpty ? 'bg-gray-50 text-gray-500 italic' : 'bg-white border-gray-200'}`">
+    <div :class="`p-3 rounded-md border ${isEmpty ? 'bg-gray-50 text-gray-500 dark:text-gray-400 italic' : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800'}`">
       <a v-if="type === 'email' && !isEmpty" :href="`mailto:${value}`" class="text-blue-600 hover:text-blue-800">
         {{ formatValue() }}
       </a>

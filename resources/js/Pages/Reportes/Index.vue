@@ -2,7 +2,7 @@
     <AppLayout title="Centro de Reportes">
         <template #header>
             <div class="flex flex-col md:flex-row justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight mb-4 md:mb-0">
+                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight mb-4 md:mb-0">
                     Reportes - {{ tabs.find(t => t.key === activeTab)?.label }}
                 </h2>
                 <!-- Actions moved to header for better visibility -->
@@ -24,7 +24,7 @@
                      <button
                         v-if="fechaInicio || fechaFin"
                         @click="limpiarFiltros"
-                        class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
                         Limpiar
                     </button>
@@ -47,7 +47,7 @@
                 </div>
 
                 <!-- Desktop/Tablet Tab Navigation -->
-                <div class="hidden sm:block mb-6 border-b border-gray-200 bg-white rounded-lg shadow-sm overflow-hidden">
+                <div class="hidden sm:block mb-6 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-lg shadow-sm overflow-hidden">
                     <nav class="-mb-px flex overflow-x-auto custom-scrollbar" aria-label="Tabs">
                         <button
                             v-for="tab in tabs"
@@ -56,7 +56,7 @@
                             :class="[
                                 activeTab === tab.key
                                     ? 'border-blue-500 text-blue-600 bg-blue-50'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:bg-white',
+                                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:border-gray-300 hover:bg-white dark:bg-slate-900',
                                 'whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm flex items-center transition-colors duration-200 min-w-max'
                             ]"
                         >
@@ -66,7 +66,7 @@
                     </nav>
                 </div>
 
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg min-h-[600px]">
+                <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-xl sm:rounded-lg min-h-[600px]">
                     <div class="p-6">
                         <!-- Tab General -->
                         <div v-if="activeTab === 'general'">
@@ -112,11 +112,11 @@
                         <!-- Tab Corte Diario -->
                         <div v-show="activeTab === 'corte'">
                             <div class="mb-6">
-                                <h3 class="text-lg font-medium text-gray-900 mb-4">Corte Diario - Cobros del Día</h3>
-                                <p class="text-sm text-gray-600 mb-4">Todas las ventas y rentas cobradas en el período seleccionado</p>
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Corte Diario - Cobros del Día</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">Todas las ventas y rentas cobradas en el período seleccionado</p>
 
                                 <!-- Filtros específicos para corte -->
-                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-white rounded-lg">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-white dark:bg-slate-900 rounded-lg">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Fecha del Corte</label>
                                         <input
@@ -202,23 +202,23 @@
                                 </div>
 
                                 <!-- Tabla de corte diario -->
-                                <div class="overflow-x-auto border border-gray-200 rounded-lg">
-                                    <table class="min-w-full divide-y divide-gray-200">
-                                        <thead class="bg-white">
+                                <div class="overflow-x-auto border border-gray-200 dark:border-slate-800 rounded-lg">
+                                    <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                                        <thead class="bg-white dark:bg-slate-900">
                                             <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha/Hora</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Concepto</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Método</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cobrado Por</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fecha/Hora</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tipo</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Número</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Concepto</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Método</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Monto</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cobrado Por</th>
                                             </tr>
                                         </thead>
-                                        <tbody class="bg-white divide-y divide-gray-200">
-                                            <tr v-for="cobro in pagosCorteFiltrados" :key="cobro.id" class="hover:bg-white">
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+                                            <tr v-for="cobro in pagosCorteFiltrados" :key="cobro.id" class="hover:bg-white dark:bg-slate-900">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                                     {{ formatDateTime(cobro.fecha_pago) }}
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -229,27 +229,27 @@
                                                         {{ cobro.tipo === 'venta' ? 'Venta' : 'Renta' }}
                                                     </span>
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-white">
                                                     {{ cobro.numero }}
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                                     {{ cobro.cliente }}
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                                     {{ cobro.concepto }}
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                                     {{ cobro.metodo_pago || 'N/A' }}
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                                                     {{ formatCurrency(cobro.total) }}
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                                     {{ cobro.cobrado_por }}
                                                 </td>
                                             </tr>
                                             <tr v-if="pagosCorteFiltrados.length === 0">
-                                                <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                                                <td colspan="8" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                                                     No hay cobros en el período seleccionado
                                                 </td>
                                             </tr>
@@ -267,7 +267,7 @@
                         <!-- Tab Clientes -->
                         <div v-show="activeTab === 'clientes'">
                             <div class="mb-6">
-                                <h3 class="text-lg font-medium text-gray-900 mb-4">Reporte de Clientes</h3>
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Reporte de Clientes</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                     <div class="bg-blue-50 p-4 rounded-lg">
                                         <div class="text-2xl font-bold text-blue-600">{{ clientesActivos.length }}</div>
@@ -288,29 +288,29 @@
                                 </div>
                             </div>
 
-                            <div class="overflow-x-auto border border-gray-200 rounded-lg">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-white">
+                            <div class="overflow-x-auto border border-gray-200 dark:border-slate-800 rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                                    <thead class="bg-white dark:bg-slate-900">
                                         <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teléfono</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ventas</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rentas</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Teléfono</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ventas</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Rentas</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        <tr v-for="cliente in clientesActivos" :key="cliente.id" class="hover:bg-white">
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ cliente.nombre_razon_social }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ cliente.email || 'N/A' }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ cliente.telefono || 'N/A' }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ cliente.ventas_count || 0 }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ cliente.rentas_count || 0 }}</td>
+                                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+                                        <tr v-for="cliente in clientesActivos" :key="cliente.id" class="hover:bg-white dark:bg-slate-900">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ cliente.nombre_razon_social }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ cliente.email || 'N/A' }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ cliente.telefono || 'N/A' }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ cliente.ventas_count || 0 }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ cliente.rentas_count || 0 }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span :class="{
                                                     'bg-green-100 text-green-800': (cliente.ventas_count || 0) > 0 || (cliente.rentas_count || 0) > 0,
-                                                    'bg-gray-100 text-gray-800': (cliente.ventas_count || 0) === 0 && (cliente.rentas_count || 0) === 0
+                                                    'bg-gray-100 text-gray-800 dark:text-gray-100': (cliente.ventas_count || 0) === 0 && (cliente.rentas_count || 0) === 0
                                                 }" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                                                     {{ (cliente.ventas_count || 0) > 0 || (cliente.rentas_count || 0) > 0 ? 'Activo' : 'Inactivo' }}
                                                 </span>
@@ -323,15 +323,15 @@
 
                         <!-- Servicios -->
                         <div v-show="activeTab === 'servicios'">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Top Servicios</h3>
-                            <div class="overflow-x-auto border border-gray-200 rounded-lg">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-white"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Servicio</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Ventas</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ingresos</th></tr></thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Top Servicios</h3>
+                            <div class="overflow-x-auto border border-gray-200 dark:border-slate-800 rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                                    <thead class="bg-white dark:bg-slate-900"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Servicio</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Total Ventas</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Ingresos</th></tr></thead>
+                                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
                                         <tr v-for="(item, i) in reportesServicios" :key="i">
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item.servicio?.nombre || 'Desconocido' }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.total_cantidad }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatCurrency(item.total_ingreso) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ item.servicio?.nombre || 'Desconocido' }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ item.total_cantidad }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ formatCurrency(item.total_ingreso) }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -340,16 +340,16 @@
 
                          <!-- Citas -->
                         <div v-show="activeTab === 'citas'">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Últimas Citas</h3>
-                            <div class="overflow-x-auto border border-gray-200 rounded-lg">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-white"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Técnico</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th></tr></thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Últimas Citas</h3>
+                            <div class="overflow-x-auto border border-gray-200 dark:border-slate-800 rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                                    <thead class="bg-white dark:bg-slate-900"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Fecha</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Cliente</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Técnico</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Estado</th></tr></thead>
+                                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
                                         <tr v-for="cita in reportesCitas" :key="cita.id">
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatDateTime(cita.fecha_inicio) }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ cita.cliente?.nombre_razon_social }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ cita.tecnico?.name }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ cita.estado }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ formatDateTime(cita.fecha_inicio) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ cita.cliente?.nombre_razon_social }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ cita.tecnico?.name }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ cita.estado }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -358,16 +358,16 @@
 
                         <!-- Mantenimientos -->
                         <div v-show="activeTab === 'mantenimientos'">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Mantenimientos Recientes</h3>
-                            <div class="overflow-x-auto border border-gray-200 rounded-lg">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-white"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Equipo</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th></tr></thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Mantenimientos Recientes</h3>
+                            <div class="overflow-x-auto border border-gray-200 dark:border-slate-800 rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                                    <thead class="bg-white dark:bg-slate-900"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Fecha</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Cliente</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Equipo</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Estado</th></tr></thead>
+                                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
                                         <tr v-for="mant in reportesMantenimientos" :key="mant.id">
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatDateTime(mant.fecha_programada) }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ mant.cliente?.nombre_razon_social }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ mant.carro?.modelo }} {{ mant.carro?.placas }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ mant.estado }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ formatDateTime(mant.fecha_programada) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ mant.cliente?.nombre_razon_social }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ mant.carro?.modelo }} {{ mant.carro?.placas }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ mant.estado }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -376,16 +376,16 @@
 
                         <!-- Rentas -->
                         <div v-show="activeTab === 'rentas'">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Rentas Recientes</h3>
-                             <div class="overflow-x-auto border border-gray-200 rounded-lg">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-white"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contrato</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Equipo</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th></tr></thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Rentas Recientes</h3>
+                             <div class="overflow-x-auto border border-gray-200 dark:border-slate-800 rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                                    <thead class="bg-white dark:bg-slate-900"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Contrato</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Cliente</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Equipo</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Estado</th></tr></thead>
+                                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
                                         <tr v-for="renta in reportesRentas" :key="renta.id">
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ renta.numero_contrato }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ renta.cliente?.nombre_razon_social }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ renta.equipo?.nombre }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ renta.estado }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ renta.numero_contrato }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ renta.cliente?.nombre_razon_social }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ renta.equipo?.nombre }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ renta.estado }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -394,16 +394,16 @@
 
                         <!-- Cobranzas -->
                         <div v-show="activeTab === 'cobranzas'">
-                             <h3 class="text-lg font-medium text-gray-900 mb-4">Últimas Cobranzas</h3>
-                             <div class="overflow-x-auto border border-gray-200 rounded-lg">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-white"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Monto</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th></tr></thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
+                             <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Últimas Cobranzas</h3>
+                             <div class="overflow-x-auto border border-gray-200 dark:border-slate-800 rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                                    <thead class="bg-white dark:bg-slate-900"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Fecha</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Cliente</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Monto</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Estado</th></tr></thead>
+                                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
                                         <tr v-for="cob in reportesCobranzas" :key="cob.id">
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatDateTime(cob.created_at) }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ cob.renta?.cliente?.nombre_razon_social }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">{{ formatCurrency(cob.monto_pagado) }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ cob.estado }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ formatDateTime(cob.created_at) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ cob.renta?.cliente?.nombre_razon_social }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white font-bold">{{ formatCurrency(cob.monto_pagado) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ cob.estado }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -412,7 +412,7 @@
 
                         <!-- Ganancias -->
                         <div v-show="activeTab === 'ganancias'">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Resumen de Ganancias</h3>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Resumen de Ganancias</h3>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div class="bg-green-50 p-6 rounded-lg border border-green-200">
                                     <h4 class="text-sm font-medium text-green-800 uppercase mb-2">Total Ventas</h4>
@@ -431,14 +431,14 @@
 
                         <!-- Proveedores -->
                         <div v-show="activeTab === 'proveedores'">
-                             <h3 class="text-lg font-medium text-gray-900 mb-4">Proveedores Principales</h3>
-                             <div class="overflow-x-auto border border-gray-200 rounded-lg">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-white"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Proveedor</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Compras Realizadas</th></tr></thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
+                             <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Proveedores Principales</h3>
+                             <div class="overflow-x-auto border border-gray-200 dark:border-slate-800 rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                                    <thead class="bg-white dark:bg-slate-900"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Proveedor</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Compras Realizadas</th></tr></thead>
+                                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
                                         <tr v-for="prov in reportesProveedores" :key="prov.id">
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ prov.nombre_razon_social }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ prov.compras_count }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ prov.nombre_razon_social }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ prov.compras_count }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -447,16 +447,16 @@
 
                         <!-- Personal -->
                         <div v-show="activeTab === 'personal'">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Rendimiento de Personal</h3>
-                             <div class="overflow-x-auto border border-gray-200 rounded-lg">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-white"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usuario</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ventas</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Citas</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mantenimientos</th></tr></thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Rendimiento de Personal</h3>
+                             <div class="overflow-x-auto border border-gray-200 dark:border-slate-800 rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                                    <thead class="bg-white dark:bg-slate-900"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Usuario</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Ventas</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Citas</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Mantenimientos</th></tr></thead>
+                                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
                                         <tr v-for="user in reportesPersonal" :key="user.id">
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ user.name }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.ventas_count }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.citas_count }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.mantenimientos_count }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ user.name }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ user.ventas_count }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ user.citas_count }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ user.mantenimientos_count }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -465,16 +465,16 @@
 
                         <!-- Auditoría -->
                         <div v-show="activeTab === 'auditoria'">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Auditoría Reciente</h3>
-                             <div class="overflow-x-auto border border-gray-200 rounded-lg">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-white"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usuario</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acción</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th></tr></thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Auditoría Reciente</h3>
+                             <div class="overflow-x-auto border border-gray-200 dark:border-slate-800 rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                                    <thead class="bg-white dark:bg-slate-900"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Fecha</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Usuario</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Acción</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Descripción</th></tr></thead>
+                                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
                                         <tr v-for="log in reportesAuditoria" :key="log.id">
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatDateTime(log.created_at) }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ log.user?.name }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ log.accion || 'Acción' }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">{{ log.descripcion }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ formatDateTime(log.created_at) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ log.user?.name }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ log.accion || 'Acción' }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">{{ log.descripcion }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -483,24 +483,24 @@
 
                         <!-- Gastos Operativos -->
                        <div v-show="activeTab === 'gastos'">
-                            <h3 class="text-lg font-medium text-gray-900 mb-6">Detalle de Gastos Operativos</h3>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-6">Detalle de Gastos Operativos</h3>
                             
                             <!-- Totales de Gastos -->
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                                <div class="bg-white p-6 rounded-xl border-b-4 border-red-500 shadow-sm">
-                                    <p class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Total Gastos</p>
+                                <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border-b-4 border-red-500 shadow-sm">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider mb-1">Total Gastos</p>
                                     <h4 class="text-2xl font-black text-red-600">{{ formatCurrency(gastosOperativos.totales?.total) }}</h4>
                                 </div>
-                                <div class="bg-white p-6 rounded-xl border-b-4 border-orange-500 shadow-sm">
-                                    <p class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Subtotal</p>
+                                <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border-b-4 border-orange-500 shadow-sm">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider mb-1">Subtotal</p>
                                     <h4 class="text-2xl font-black text-orange-600">{{ formatCurrency(gastosOperativos.totales?.subtotal) }}</h4>
                                 </div>
-                                <div class="bg-white p-6 rounded-xl border-b-4 border-blue-500 shadow-sm">
-                                    <p class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">IVA Pagado</p>
+                                <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border-b-4 border-blue-500 shadow-sm">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider mb-1">IVA Pagado</p>
                                     <h4 class="text-2xl font-black text-blue-600">{{ formatCurrency(gastosOperativos.totales?.iva) }}</h4>
                                 </div>
-                                <div class="bg-white p-6 rounded-xl border-b-4 border-indigo-500 shadow-sm">
-                                    <p class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Cantidad</p>
+                                <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border-b-4 border-indigo-500 shadow-sm">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider mb-1">Cantidad</p>
                                     <h4 class="text-2xl font-black text-indigo-600">{{ gastosOperativos.totales?.cantidad || 0 }}</h4>
                                 </div>
                             </div>
@@ -509,18 +509,18 @@
                             <div class="mb-8">
                                 <h4 class="text-md font-bold text-gray-700 mb-4">Gasto por Categoría</h4>
                                 <div class="grid grid-cols-1 gap-4">
-                                    <div v-for="cat in gastosOperativos.porCategoria" :key="cat.nombre" class="bg-white border rounded-lg p-4 flex items-center justify-between">
+                                    <div v-for="cat in gastosOperativos.porCategoria" :key="cat.nombre" class="bg-white dark:bg-slate-900 border rounded-lg p-4 flex items-center justify-between">
                                         <div class="flex items-center">
                                             <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 mr-4">
                                                 <FontAwesomeIcon icon="folder" />
                                             </div>
                                             <div>
-                                                <div class="font-bold text-gray-800">{{ cat.nombre }}</div>
-                                                <div class="text-sm text-gray-500">{{ cat.cantidad }} registros • {{ cat.porcentaje }}% del total</div>
+                                                <div class="font-bold text-gray-800 dark:text-gray-100">{{ cat.nombre }}</div>
+                                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ cat.cantidad }} registros • {{ cat.porcentaje }}% del total</div>
                                             </div>
                                         </div>
                                         <div class="text-right">
-                                            <div class="text-lg font-bold text-gray-900">{{ formatCurrency(cat.total) }}</div>
+                                            <div class="text-lg font-bold text-gray-900 dark:text-white">{{ formatCurrency(cat.total) }}</div>
                                             <div class="w-32 h-2 bg-gray-100 rounded-full mt-1 overflow-hidden">
                                                 <div class="h-full bg-red-500" :style="{ width: cat.porcentaje + '%' }"></div>
                                             </div>
@@ -531,20 +531,20 @@
 
                             <!-- Listado Detallado -->
                             <div class="overflow-x-auto border rounded-xl shadow-sm">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-white">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                                    <thead class="bg-white dark:bg-slate-900">
                                         <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Fecha</th>
-                                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Categoría</th>
-                                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Proveedor</th>
-                                            <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase">Total</th>
+                                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Fecha</th>
+                                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Categoría</th>
+                                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Proveedor</th>
+                                            <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-gray-200">
-                                        <tr v-for="gasto in gastosOperativos.gastos" :key="gasto.id" class="hover:bg-white">
-                                            <td class="px-6 py-4 text-sm text-gray-600">{{ formatDateTime(gasto.fecha_compra) }}</td>
-                                            <td class="px-6 py-4 text-sm font-bold text-gray-800">{{ gasto.categoria_gasto?.nombre || 'General' }}</td>
-                                            <td class="px-6 py-4 text-sm text-gray-600">{{ gasto.proveedor?.nombre_razon_social || 'N/A' }}</td>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-slate-800">
+                                        <tr v-for="gasto in gastosOperativos.gastos" :key="gasto.id" class="hover:bg-white dark:bg-slate-900">
+                                            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ formatDateTime(gasto.fecha_compra) }}</td>
+                                            <td class="px-6 py-4 text-sm font-bold text-gray-800 dark:text-gray-100">{{ gasto.categoria_gasto?.nombre || 'General' }}</td>
+                                            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ gasto.proveedor?.nombre_razon_social || 'N/A' }}</td>
                                             <td class="px-6 py-4 text-sm font-black text-red-600 text-right">{{ formatCurrency(gasto.total) }}</td>
                                         </tr>
                                     </tbody>
@@ -554,31 +554,31 @@
 
                         <!-- Balance Ventas vs Compras -->
                         <div v-show="activeTab === 'balance'">
-                            <h3 class="text-lg font-medium text-gray-900 mb-6">Balance Financiero: Ventas vs Egresos</h3>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-6">Balance Financiero: Ventas vs Egresos</h3>
                             
                             <!-- Tarjetas de Balance -->
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                                 <div class="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-2xl text-white shadow-lg">
                                     <p class="text-sm font-bold opacity-80 uppercase mb-2">Total Ingresos (Ventas)</p>
                                     <h4 class="text-3xl font-black">{{ formatCurrency(balanceData.balance?.ventas) }}</h4>
-                                    <div class="mt-4 text-xs font-bold bg-white/20 inline-block px-2 py-1 rounded">Ingresos aprobados</div>
+                                    <div class="mt-4 text-xs font-bold bg-white dark:bg-slate-900/20 inline-block px-2 py-1 rounded">Ingresos aprobados</div>
                                 </div>
                                 <div class="bg-gradient-to-br from-red-500 to-red-600 p-6 rounded-2xl text-white shadow-lg">
                                     <p class="text-sm font-bold opacity-80 uppercase mb-2">Total Egresos</p>
                                     <h4 class="text-3xl font-black">{{ formatCurrency(balanceData.balance?.total_egresos) }}</h4>
-                                    <div class="mt-4 text-xs font-bold bg-white/20 inline-block px-2 py-1 rounded">Compras + Gastos</div>
+                                    <div class="mt-4 text-xs font-bold bg-white dark:bg-slate-900/20 inline-block px-2 py-1 rounded">Compras + Gastos</div>
                                 </div>
                                 <div :class="[balanceData.metricas?.diferencia >= 0 ? 'bg-gradient-to-br from-blue-500 to-indigo-600' : 'bg-gradient-to-br from-amber-500 to-orange-600', 'p-6 rounded-2xl text-white shadow-lg']">
                                     <p class="text-sm font-bold opacity-80 uppercase mb-2">Utilidad Operativa</p>
                                     <h4 class="text-3xl font-black">{{ formatCurrency(balanceData.metricas?.diferencia) }}</h4>
-                                    <div class="mt-4 text-xs font-bold bg-white/20 inline-block px-2 py-1 rounded">Resultado del periodo</div>
+                                    <div class="mt-4 text-xs font-bold bg-white dark:bg-slate-900/20 inline-block px-2 py-1 rounded">Resultado del periodo</div>
                                 </div>
                             </div>
 
                             <!-- Métricas de Eficiencia -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                                <div class="bg-white border rounded-xl p-6 shadow-sm">
-                                    <h4 class="text-sm font-bold text-gray-500 uppercase mb-6">Méridicas de Desempeño</h4>
+                                <div class="bg-white dark:bg-slate-900 border rounded-xl p-6 shadow-sm">
+                                    <h4 class="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase mb-6">Méridicas de Desempeño</h4>
                                     <div class="space-y-6">
                                         <div>
                                             <div class="flex justify-between text-sm mb-2">
@@ -601,17 +601,17 @@
                                     </div>
                                 </div>
                                 
-                                <div class="bg-white border rounded-xl p-6 shadow-sm">
-                                    <h4 class="text-sm font-bold text-gray-500 uppercase mb-6">Desglose de Egresos</h4>
+                                <div class="bg-white dark:bg-slate-900 border rounded-xl p-6 shadow-sm">
+                                    <h4 class="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase mb-6">Desglose de Egresos</h4>
                                     <div class="flex items-center justify-around h-full">
                                         <div class="text-center">
                                             <div class="text-2xl font-black text-red-600">{{ formatCurrency(balanceData.balance?.compras_inventario) }}</div>
-                                            <div class="text-xs text-gray-500 font-bold uppercase">Inventario</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase">Inventario</div>
                                         </div>
                                         <div class="w-px h-12 bg-gray-200"></div>
                                         <div class="text-center">
                                             <div class="text-2xl font-black text-orange-600">{{ formatCurrency(balanceData.balance?.gastos_operativos) }}</div>
-                                            <div class="text-xs text-gray-500 font-bold uppercase">G. Operativos</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase">G. Operativos</div>
                                         </div>
                                     </div>
                                 </div>

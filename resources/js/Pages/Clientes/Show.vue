@@ -1,12 +1,12 @@
 <template>
   <Head :title="`Cliente: ${cliente.nombre_razon_social}`" />
   <div class="w-full p-4" :style="cssVars">
-    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-xl dark:shadow-none rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700">
+    <div class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-xl dark:shadow-none rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700">
       <!-- Header moderno con gradiente -->
       <div class="p-6 text-white" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
         <div class="flex items-start justify-between">
           <div class="flex items-center gap-4">
-            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+            <div class="w-16 h-16 bg-white dark:bg-slate-900/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
               <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
@@ -15,15 +15,15 @@
               <h1 class="text-2xl font-bold">{{ cliente.nombre_razon_social }}</h1>
               <p class="text-white/80 text-sm mt-1">Cliente #{{ cliente.id }}</p>
               <div class="mt-3 flex gap-2">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm" v-if="cliente.activo">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white dark:bg-slate-900/20 backdrop-blur-sm" v-if="cliente.activo">
                   <span class="w-2 h-2 bg-green-400 rounded-full mr-1.5"></span>
                   Activo
                 </span>
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm" v-else>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white dark:bg-slate-900/20 backdrop-blur-sm" v-else>
                   <span class="w-2 h-2 bg-gray-400 rounded-full mr-1.5"></span>
                   Inactivo
                 </span>
-                <span v-if="cliente.credito_activo" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm">
+                <span v-if="cliente.credito_activo" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white dark:bg-slate-900/20 backdrop-blur-sm">
                   <span class="w-2 h-2 bg-purple-400 rounded-full mr-1.5"></span>
                   Crédito Activo
                 </span>
@@ -34,7 +34,7 @@
             <div class="flex space-x-2">
               <Link
                 :href="route('clientes.edit', cliente.id)"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium bg-white/20 backdrop-blur-sm text-white border border-white/30 rounded-xl hover:bg-white/30 transition-all duration-200"
+                class="inline-flex items-center px-4 py-2 text-sm font-medium bg-white dark:bg-slate-900/20 backdrop-blur-sm text-white border border-white/30 rounded-xl hover:bg-white dark:bg-slate-900/30 transition-all duration-200"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -43,7 +43,7 @@
               </Link>
               <Link
                 :href="route('clientes.index')"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium bg-white/20 backdrop-blur-sm text-white border border-white/30 rounded-xl hover:bg-white/30 transition-all duration-200"
+                class="inline-flex items-center px-4 py-2 text-sm font-medium bg-white dark:bg-slate-900/20 backdrop-blur-sm text-white border border-white/30 rounded-xl hover:bg-white dark:bg-slate-900/30 transition-all duration-200"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -82,21 +82,21 @@
       </div>
 
       <!-- Información General -->
-      <section class="border-b border-gray-200 dark:border-gray-700 pb-6 mb-6">
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Información General</h2>
+      <section class="border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 pb-6 mb-6">
+        <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Información General</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre/Razón Social</label>
-            <p class="text-gray-900 dark:text-gray-100 font-medium">{{ cliente.nombre_razon_social }}</p>
+            <p class="text-gray-900 dark:text-white dark:text-gray-100 font-medium">{{ cliente.nombre_razon_social }}</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
-            <p class="text-gray-900 dark:text-gray-100">{{ cliente.email }}</p>
+            <p class="text-gray-900 dark:text-white dark:text-gray-100">{{ cliente.email }}</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Teléfono</label>
-            <p class="text-gray-900 dark:text-gray-100" v-if="cliente.telefono">{{ cliente.telefono }}</p>
-            <p class="text-gray-500 dark:text-gray-400 italic" v-else>Sin teléfono</p>
+            <p class="text-gray-900 dark:text-white dark:text-gray-100" v-if="cliente.telefono">{{ cliente.telefono }}</p>
+            <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 italic" v-else>Sin teléfono</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo de Persona</label>
@@ -107,45 +107,45 @@
           </div>
           <div v-if="cliente.notas">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notas</label>
-            <p class="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{{ cliente.notas }}</p>
+            <p class="text-gray-900 dark:text-white dark:text-gray-100 whitespace-pre-wrap">{{ cliente.notas }}</p>
           </div>
         </div>
       </section>
 
       <!-- Información Fiscal -->
-      <section class="border-b border-gray-200 dark:border-gray-700 pb-6 mb-6">
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Información Fiscal</h2>
+      <section class="border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 pb-6 mb-6">
+        <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Información Fiscal</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">RFC</label>
-            <p class="text-gray-900 dark:text-gray-100 font-mono bg-white dark:bg-gray-700 px-2 py-1 rounded inline-block">{{ cliente.rfc }}</p>
+            <p class="text-gray-900 dark:text-white dark:text-gray-100 font-mono bg-white dark:bg-slate-900 dark:bg-gray-700 px-2 py-1 rounded inline-block">{{ cliente.rfc }}</p>
           </div>
           <div v-if="cliente.curp">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">CURP</label>
-            <p class="text-gray-900 dark:text-gray-100 font-mono">{{ cliente.curp }}</p>
+            <p class="text-gray-900 dark:text-white dark:text-gray-100 font-mono">{{ cliente.curp }}</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Régimen Fiscal</label>
-            <p class="text-gray-900 dark:text-gray-100">{{ cliente.regimen_fiscal }} - {{ cliente.regimen_fiscal_nombre }}</p>
+            <p class="text-gray-900 dark:text-white dark:text-gray-100">{{ cliente.regimen_fiscal }} - {{ cliente.regimen_fiscal_nombre }}</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Uso CFDI</label>
-            <p class="text-gray-900 dark:text-gray-100">{{ cliente.uso_cfdi }} - {{ cliente.uso_cfdi_nombre }}</p>
+            <p class="text-gray-900 dark:text-white dark:text-gray-100">{{ cliente.uso_cfdi }} - {{ cliente.uso_cfdi_nombre }}</p>
           </div>
           <div v-if="cliente.cfdi_default_use">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Uso CFDI Predeterminado</label>
-            <p class="text-gray-900 dark:text-gray-100">{{ cliente.cfdi_default_use }}</p>
+            <p class="text-gray-900 dark:text-white dark:text-gray-100">{{ cliente.cfdi_default_use }}</p>
           </div>
           <div v-if="cliente.payment_form_default">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Forma de Pago Predeterminada</label>
-            <p class="text-gray-900 dark:text-gray-100">{{ cliente.payment_form_default }}</p>
+            <p class="text-gray-900 dark:text-white dark:text-gray-100">{{ cliente.payment_form_default }}</p>
           </div>
         </div>
       </section>
 
       <!-- Estado de Cuenta (Crédito) -->
-      <section class="border-b border-gray-200 dark:border-gray-700 pb-6 mb-6" v-if="cliente.credito_activo">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+      <section class="border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 pb-6 mb-6" v-if="cliente.credito_activo">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white dark:text-gray-100 mb-4 flex items-center gap-2">
           <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: colors.principal }"></span>
           Estado de Cuenta
         </h2>
@@ -178,7 +178,7 @@
         
         <!-- Barra de Progreso -->
         <div class="mt-4">
-          <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+          <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mb-1">
             <span>Uso de Crédito</span>
             <span>{{ Math.min(100, Math.round((cliente.saldo_pendiente / (cliente.limite_credito || 1)) * 100)) }}%</span>
           </div>
@@ -193,31 +193,31 @@
               }"
             ></div>
           </div>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" v-if="(cliente.saldo_pendiente / (cliente.limite_credito || 1)) > 0.9">
+          <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1" v-if="(cliente.saldo_pendiente / (cliente.limite_credito || 1)) > 0.9">
             <span class="text-red-500 dark:text-red-400 font-medium">¡Atención!</span> El cliente está próximo a exceder su límite de crédito o ya lo ha excedido.
           </p>
         </div>
       </section>
 
       <!-- Dirección -->
-      <section class="border-b border-gray-200 dark:border-gray-700 pb-6 mb-6">
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Dirección</h2>
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+      <section class="border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 pb-6 mb-6">
+        <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Dirección</h2>
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-lg p-4">
              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                <div>
-                  <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Calle y Números</h4>
-                  <p class="text-base text-gray-900 dark:text-gray-100">
+                  <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase">Calle y Números</h4>
+                  <p class="text-base text-gray-900 dark:text-white dark:text-gray-100">
                     {{ cliente.calle || 'No especificada' }} 
                     {{ cliente.numero_exterior ? '#' + cliente.numero_exterior : '' }}
                     {{ cliente.numero_interior ? 'Int. ' + cliente.numero_interior : '' }}
                   </p>
                </div>
                <div>
-                  <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Ubicación</h4>
-                  <p class="text-base text-gray-900 dark:text-gray-100">
+                  <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase">Ubicación</h4>
+                  <p class="text-base text-gray-900 dark:text-white dark:text-gray-100">
                     {{ cliente.colonia }}, CP {{ cliente.codigo_postal }}
                   </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                     {{ cliente.municipio }}, {{ cliente.estado_nombre || cliente.estado }}
                   </p>
                </div>
@@ -227,12 +227,12 @@
 
       <!-- Estadísticas Relacionadas -->
       <section>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Módulos Relacionados</h2>
+        <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Módulos Relacionados</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
           <Link :href="route('cotizaciones.index', { cliente_id: cliente.id })" class="block group">
-              <div class="bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-700 transform transition-all duration-200 group-hover:shadow-md group-hover:bg-gray-100 dark:group-hover:bg-gray-700 text-center">
-                <h3 class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">Cots</h3>
-                <p class="text-xl font-black text-gray-800 dark:text-gray-100">{{ cliente.cotizaciones_count || 0 }}</p>
+              <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-700 transform transition-all duration-200 group-hover:shadow-md group-hover:bg-gray-100 dark:group-hover:bg-gray-700 text-center">
+                <h3 class="text-[10px] font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Cots</h3>
+                <p class="text-xl font-black text-gray-800 dark:text-gray-100 dark:text-gray-100">{{ cliente.cotizaciones_count || 0 }}</p>
               </div>
           </Link>
           <Link :href="route('ventas.index', { cliente_id: cliente.id })" class="block group">
@@ -271,8 +271,8 @@
       </section>
 
       <!-- Pólizas de Servicio -->
-      <section class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6" v-if="polizas && polizas.length > 0">
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Pólizas de Servicio Vigentes</h2>
+      <section class="border-t border-gray-200 dark:border-slate-800 dark:border-gray-700 pt-6 mt-6" v-if="polizas && polizas.length > 0">
+        <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Pólizas de Servicio Vigentes</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
            <div v-for="poliza in polizas" :key="poliza.id" class="p-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-700 rounded-xl">
               <div class="flex justify-between items-start">
@@ -293,15 +293,15 @@
       </section>
 
       <!-- Soporte y Citas (Grid 2 columnas) -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700 pt-6 mt-6">
           <!-- Últimos Tickets -->
           <section>
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Tickets de Soporte</h2>
+                <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100">Tickets de Soporte</h2>
                 <Link :href="route('soporte.index', { cliente_id: cliente.id })" class="text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline">Ver todos</Link>
             </div>
             <div v-if="tickets && tickets.length > 0" class="space-y-3">
-               <div v-for="ticket in tickets" :key="ticket.id" class="p-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+               <div v-for="ticket in tickets" :key="ticket.id" class="p-3 bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-md transition-shadow">
                   <div class="flex justify-between items-start mb-1">
                      <Link :href="route('soporte.show', ticket.id)" class="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline">#{{ ticket.numero }} - {{ ticket.titulo }}</Link>
                      <span :class="['text-[10px] px-2 py-0.5 rounded-full font-bold uppercase', 
@@ -312,19 +312,19 @@
                         {{ ticket.estado }}
                      </span>
                   </div>
-                  <div class="flex justify-between items-center text-[11px] text-gray-500 dark:text-gray-400">
+                  <div class="flex justify-between items-center text-[11px] text-gray-500 dark:text-gray-400 dark:text-gray-400">
                      <span>{{ ticket.categoria?.nombre }}</span>
                      <span>{{ new Date(ticket.created_at).toLocaleDateString() }}</span>
                   </div>
                </div>
             </div>
-            <p v-else class="text-sm text-gray-500 dark:text-gray-400 italic">No hay tickets registrados</p>
+            <p v-else class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 italic">No hay tickets registrados</p>
           </section>
 
           <!-- Próximas Citas -->
           <section>
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Visitas Técnicas</h2>
+                <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100">Visitas Técnicas</h2>
                 <Link :href="route('citas.index', { cliente_id: cliente.id })" class="text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline">Ver historial</Link>
             </div>
             <div v-if="citas && citas.length > 0" class="space-y-3">
@@ -345,41 +345,41 @@
                   </div>
                </div>
             </div>
-            <p v-else class="text-sm text-gray-500 dark:text-gray-400 italic">No hay citas programadas</p>
+            <p v-else class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 italic">No hay citas programadas</p>
           </section>
       </div>
 
       <!-- Historial de Compras -->
-      <section class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6" v-if="historialCompras && historialCompras.length > 0">
+      <section class="border-t border-gray-200 dark:border-slate-800 dark:border-gray-700 pt-6 mt-6" v-if="historialCompras && historialCompras.length > 0">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Historial de Ventas (Últimas 50)</h2>
+          <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100">Historial de Ventas (Últimas 50)</h2>
           <Link :href="route('ventas.index', { cliente_id: cliente.id })" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium">
             Ver todas las ventas &rarr;
           </Link>
         </div>
-        <div class="overflow-x-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm dark:shadow-none">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-white dark:bg-gray-800">
+        <div class="overflow-x-auto bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-lg shadow-sm dark:shadow-none">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+            <thead class="bg-white dark:bg-slate-900 dark:bg-gray-800">
               <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Folio</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fecha</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Método Pago</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">Folio</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">Fecha</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">Total</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">Método Pago</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">Estado</th>
               </tr>
             </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              <tr v-for="compra in historialCompras" :key="compra.id" class="hover:bg-white dark:hover:bg-gray-700">
+            <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+              <tr v-for="compra in historialCompras" :key="compra.id" class="hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-700">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 dark:text-blue-400">
                   <Link :href="route('ventas.show', compra.id)">{{ compra.numero_venta }}</Link>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
                   {{ new Date(compra.fecha).toLocaleDateString('es-MX') }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 font-semibold">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white dark:text-gray-100 font-semibold">
                   ${{ Number(compra.total).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 capitalize">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 capitalize">
                   {{ compra.metodo_pago }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -395,40 +395,40 @@
       </section>
 
       <!-- Expediente de Crédito -->
-      <section class="border-t border-gray-200 pt-6 mt-6">
+      <section class="border-t border-gray-200 dark:border-slate-800 pt-6 mt-6">
            <ExpedienteCredito :cliente="cliente" :documentos="cliente.documentos" />
       </section>
 
       <!-- Historial de Crédito -->
-      <section class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6" v-if="historialCredito && historialCredito.length > 0">
+      <section class="border-t border-gray-200 dark:border-slate-800 dark:border-gray-700 pt-6 mt-6" v-if="historialCredito && historialCredito.length > 0">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Historial de Crédito (Cuentas por Cobrar)</h2>
+          <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100">Historial de Crédito (Cuentas por Cobrar)</h2>
           <Link :href="route('cuentas-por-cobrar.index', { cliente_id: cliente.id })" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium">
             Ver todo el historial &rarr;
           </Link>
         </div>
-        <div class="overflow-x-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm dark:shadow-none">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-white dark:bg-gray-800">
+        <div class="overflow-x-auto bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-lg shadow-sm dark:shadow-none">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+            <thead class="bg-white dark:bg-slate-900 dark:bg-gray-800">
               <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Venta Origen</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vencimiento</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pagado</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pendiente</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">Venta Origen</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">Vencimiento</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">Total</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">Pagado</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">Pendiente</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">Estado</th>
               </tr>
             </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              <tr v-for="credito in historialCredito" :key="credito.id" class="hover:bg-white dark:hover:bg-gray-700">
+            <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+              <tr v-for="credito in historialCredito" :key="credito.id" class="hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-700">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 dark:text-blue-400">
                    <Link v-if="credito.venta" :href="route('ventas.show', credito.venta_id)">{{ credito.venta.numero_venta }}</Link>
                    <span v-else>N/A</span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
                   {{ credito.fecha_vencimiento ? new Date(credito.fecha_vencimiento).toLocaleDateString('es-MX') : '-' }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white dark:text-gray-100">
                   ${{ Number(credito.monto_total).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 dark:text-green-400">
@@ -443,7 +443,7 @@
                         'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300': credito.estado === 'pagado',
                         'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300': credito.estado === 'pendiente' || credito.estado === 'parcial',
                         'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300': credito.estado === 'vencida' || credito.estado === 'vencido',
-                        'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200': credito.estado === 'cancelada'
+                        'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 dark:text-gray-200': credito.estado === 'cancelada'
                       }">
                     {{ credito.estado }}
                   </span>
@@ -465,7 +465,7 @@
       </section>
 
       <!-- Debug (desarrollo) -->
-      <div v-if="isDevelopment" class="mt-6 p-4 bg-white dark:bg-gray-800 rounded-md text-xs">
+      <div v-if="isDevelopment" class="mt-6 p-4 bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-md text-xs">
         <h3 class="font-semibold mb-2">Debug: Cliente ID {{ cliente.id }}</h3>
         <pre class="text-xs overflow-auto">{{ JSON.stringify(cliente, null, 2) }}</pre>
       </div>

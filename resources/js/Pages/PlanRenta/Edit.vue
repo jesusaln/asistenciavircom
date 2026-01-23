@@ -76,7 +76,7 @@ const coloresPreset = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
                     <Link :href="route('planes-renta.index')" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 text-sm mb-2 inline-block font-semibold">
                         ← Volver al listado
                     </Link>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white">
                         {{ isEditing ? `Editar: ${plan.nombre}` : 'Crear Nuevo Plan de Renta' }}
                     </h1>
                 </div>
@@ -86,8 +86,8 @@ const coloresPreset = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
                         <!-- Columna Principal -->
                         <div class="lg:col-span-2 space-y-6">
                             <!-- Información Básica -->
-                            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
-                                <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2 flex items-center gap-2">
+                            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+                                <h3 class="font-bold text-gray-900 dark:text-white dark:text-white mb-4 border-b border-gray-200 dark:border-slate-800 dark:border-gray-600 pb-2 flex items-center gap-2">
                                     <span class="text-xl">📄</span> Información del Paquete
                                 </h3>
                                 
@@ -97,7 +97,7 @@ const coloresPreset = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
                                         <input 
                                             v-model="form.nombre" 
                                             type="text" 
-                                            class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                            class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                             placeholder="Ej: Kit Punto de Venta Básico, Renta Laptop Core i7..."
                                         />
                                         <p v-if="form.errors.nombre" class="text-red-500 text-sm mt-1">{{ form.errors.nombre }}</p>
@@ -105,7 +105,7 @@ const coloresPreset = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
 
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Tipo de Plan *</label>
-                                        <select v-model="form.tipo" class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+                                        <select v-model="form.tipo" class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white">
                                             <option v-for="(nombre, key) in tipos" :key="key" :value="key">{{ nombre }}</option>
                                         </select>
                                     </div>
@@ -120,7 +120,7 @@ const coloresPreset = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
                                                     v-for="c in coloresPreset" 
                                                     :key="c" 
                                                     @click="form.color = c"
-                                                    class="w-6 h-6 rounded-full border border-gray-200"
+                                                    class="w-6 h-6 rounded-full border border-gray-200 dark:border-slate-800"
                                                     :style="{ backgroundColor: c }"
                                                 ></button>
                                             </div>
@@ -133,7 +133,7 @@ const coloresPreset = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
                                             v-model="form.descripcion_corta" 
                                             type="text" 
                                             maxlength="500"
-                                            class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                            class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                             placeholder="Ej: Todo lo que necesitas para tu negocio"
                                         />
                                     </div>
@@ -143,7 +143,7 @@ const coloresPreset = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
                                         <textarea 
                                             v-model="form.descripcion" 
                                             rows="4"
-                                            class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                            class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                             placeholder="Detalles sobre el servicio, soporte técnico incluido, etc."
                                         ></textarea>
                                     </div>
@@ -151,17 +151,17 @@ const coloresPreset = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
                             </div>
 
                             <!-- Equipamiento Incluido -->
-                            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
-                                <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2 flex items-center gap-2">
+                            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+                                <h3 class="font-bold text-gray-900 dark:text-white dark:text-white mb-4 border-b border-gray-200 dark:border-slate-800 dark:border-gray-600 pb-2 flex items-center gap-2">
                                     <span class="text-xl">🛠️</span> Equipamiento Incluido
                                 </h3>
-                                <p class="text-xs text-gray-500 mb-4">Lista los equipos físicos que contempla este paquete de renta.</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Lista los equipos físicos que contempla este paquete de renta.</p>
                                 
                                 <div class="flex gap-2 mb-4">
                                     <input 
                                         v-model="nuevoEquipo" 
                                         type="text" 
-                                        class="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                        class="flex-1 px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                         placeholder="Ej: CPU Dell Optiplex i5, Monitor 22 pulgadas, Impresora Térmica..."
                                         @keyup.enter="agregarEquipo"
                                     />
@@ -178,7 +178,7 @@ const coloresPreset = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
                                     <div 
                                         v-for="(equipo, index) in form.equipamiento_incluido" 
                                         :key="index"
-                                        class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 group transition-all"
+                                        class="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700 group transition-all"
                                     >
                                         <div class="flex items-center gap-3">
                                             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
@@ -192,24 +192,24 @@ const coloresPreset = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
                                             ✕
                                         </button>
                                     </div>
-                                    <p v-if="!form.equipamiento_incluido.length" class="text-center py-4 text-gray-400 dark:text-gray-500 italic text-sm">
+                                    <p v-if="!form.equipamiento_incluido.length" class="text-center py-4 text-gray-400 dark:text-gray-500 dark:text-gray-400 italic text-sm">
                                         No se han definido equipos para este plan.
                                     </p>
                                 </div>
                             </div>
 
                             <!-- Beneficios -->
-                            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
-                                <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2 flex items-center gap-2">
+                            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+                                <h3 class="font-bold text-gray-900 dark:text-white dark:text-white mb-4 border-b border-gray-200 dark:border-slate-800 dark:border-gray-600 pb-2 flex items-center gap-2">
                                     <span class="text-xl">✅</span> Beneficios y Servicios Plus
                                 </h3>
-                                <p class="text-xs text-gray-500 mb-4">Que otras ventajas ofrece este plan (Soporte, Mantenimiento, etc.)</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Que otras ventajas ofrece este plan (Soporte, Mantenimiento, etc.)</p>
                                 
                                 <div class="flex gap-2 mb-4">
                                     <input 
                                         v-model="nuevoBeneficio" 
                                         type="text" 
-                                        class="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                        class="flex-1 px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                         placeholder="Ej: Mantenimiento incluido cada 6 meses, Soporte remoto ilimitado..."
                                         @keyup.enter="agregarBeneficio"
                                     />
@@ -238,8 +238,8 @@ const coloresPreset = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
                         <!-- Columna Sidebar -->
                         <div class="space-y-6">
                             <!-- Precios y Condiciones -->
-                            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
-                                <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2">💰 Costos y Contrato</h3>
+                            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+                                <h3 class="font-bold text-gray-900 dark:text-white dark:text-white mb-4 border-b border-gray-200 dark:border-slate-800 dark:border-gray-600 pb-2">💰 Costos y Contrato</h3>
                                 
                                 <div class="space-y-4">
                                     <div>
@@ -251,7 +251,7 @@ const coloresPreset = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
                                                 type="number" 
                                                 step="0.01"
                                                 min="0"
-                                                class="w-full pl-8 pr-4 py-3 border-2 border-gray-100 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-emerald-500 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-xl font-black"
+                                                class="w-full pl-8 pr-4 py-3 border-2 border-gray-100 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-emerald-500 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white text-xl font-black"
                                             />
                                         </div>
                                     </div>
@@ -264,7 +264,7 @@ const coloresPreset = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
                                                 v-model.number="form.deposito_garantia" 
                                                 type="number" 
                                                 step="0.01"
-                                                class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                                class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                             />
                                         </div>
                                     </div>
@@ -275,15 +275,15 @@ const coloresPreset = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
                                             v-model.number="form.meses_minimos" 
                                             type="number" 
                                             min="1"
-                                            class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                            class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                         />
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Configuración Visual -->
-                            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
-                                <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2">👁️ Configuración</h3>
+                            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+                                <h3 class="font-bold text-gray-900 dark:text-white dark:text-white mb-4 border-b border-gray-200 dark:border-slate-800 dark:border-gray-600 pb-2">👁️ Configuración</h3>
                                 
                                 <div class="space-y-4">
                                     <div>
@@ -296,7 +296,7 @@ const coloresPreset = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
                                                 @click="form.icono = icono"
                                                 :class="[
                                                     'w-full aspect-square rounded-xl text-xl flex items-center justify-center transition border-2',
-                                                    form.icono === icono ? 'bg-emerald-50 border-emerald-500 scale-105' : 'bg-gray-50 dark:bg-gray-900 border-transparent hover:bg-gray-100'
+                                                    form.icono === icono ? 'bg-emerald-50 border-emerald-500 scale-105' : 'bg-gray-50 dark:bg-slate-950 dark:bg-gray-900 border-transparent hover:bg-gray-100'
                                                 ]"
                                             >
                                                 {{ icono }}
@@ -326,7 +326,7 @@ const coloresPreset = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
                                         <input 
                                             v-model.number="form.orden" 
                                             type="number" 
-                                            class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                            class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                         />
                                     </div>
                                 </div>
@@ -343,7 +343,7 @@ const coloresPreset = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
                                 </button>
                                 <Link 
                                     :href="route('planes-renta.index')" 
-                                    class="block w-full py-3 text-center text-gray-400 font-bold uppercase tracking-widest text-xs hover:text-gray-600"
+                                    class="block w-full py-3 text-center text-gray-400 font-bold uppercase tracking-widest text-xs hover:text-gray-600 dark:text-gray-300"
                                 >
                                     Cancelar
                                 </Link>

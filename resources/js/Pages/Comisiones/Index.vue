@@ -6,13 +6,13 @@
         <div class="mb-8">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                         <span class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white shadow-lg">
                             <FontAwesomeIcon :icon="['fas', 'hand-holding-usd']" class="h-6 w-6" />
                         </span>
                         Comisiones
                     </h1>
-                    <p class="mt-2 text-gray-500">
+                    <p class="mt-2 text-gray-500 dark:text-gray-400">
                         {{ resumen.periodo_label }}
                     </p>
                 </div>
@@ -48,53 +48,53 @@
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-8 stagger-children">
             <!-- Total Comisiones -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 card-hover">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 card-hover">
                 <div class="flex items-center gap-4">
                     <div class="p-3 rounded-lg bg-green-100 text-green-600">
                         <FontAwesomeIcon :icon="['fas', 'dollar-sign']" class="h-6 w-6" />
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-500">Total Comisiones</p>
-                        <p class="text-2xl font-bold text-gray-900">${{ formatMonto(resumen.total_comisiones) }}</p>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Comisiones</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">${{ formatMonto(resumen.total_comisiones) }}</p>
                     </div>
                 </div>
             </div>
 
             <!-- Pagadas -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 card-hover">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 card-hover">
                 <div class="flex items-center gap-4">
                     <div class="p-3 rounded-lg bg-blue-100 text-blue-600">
                         <FontAwesomeIcon :icon="['fas', 'check-circle']" class="h-6 w-6" />
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-500">Pagadas</p>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pagadas</p>
                         <p class="text-2xl font-bold text-blue-600">${{ formatMonto(resumen.total_pagado) }}</p>
                     </div>
                 </div>
             </div>
 
             <!-- Pendientes -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 card-hover">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 card-hover">
                 <div class="flex items-center gap-4">
                     <div class="p-3 rounded-lg bg-amber-100 text-amber-600">
                         <FontAwesomeIcon :icon="['fas', 'clock']" class="h-6 w-6" />
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-500">Pendientes</p>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pendientes</p>
                         <p class="text-2xl font-bold text-amber-600">${{ formatMonto(resumen.total_pendiente) }}</p>
                     </div>
                 </div>
             </div>
 
             <!-- Mejor Vendedor -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 card-hover">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 card-hover">
                 <div class="flex items-center gap-4">
                     <div class="p-3 rounded-lg bg-purple-100 text-purple-600">
                         <FontAwesomeIcon :icon="['fas', 'trophy']" class="h-6 w-6" />
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-500">Mejor Vendedor</p>
-                        <p class="text-lg font-bold text-gray-900 truncate">{{ mejorVendedor?.nombre || 'N/A' }}</p>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Mejor Vendedor</p>
+                        <p class="text-lg font-bold text-gray-900 dark:text-white truncate">{{ mejorVendedor?.nombre || 'N/A' }}</p>
                         <p v-if="mejorVendedor" class="text-sm text-green-600">${{ formatMonto(mejorVendedor.comision) }}</p>
                     </div>
                 </div>
@@ -104,7 +104,7 @@
         <!-- Ranking y Tabla -->
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
             <!-- Top 5 Vendedores -->
-            <div class="lg:col-span-1 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="lg:col-span-1 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-purple-500 to-purple-600">
                     <h3 class="text-lg font-semibold text-white flex items-center gap-2">
                         <FontAwesomeIcon :icon="['fas', 'medal']" />
@@ -115,14 +115,14 @@
                     <div 
                         v-for="(vendedor, index) in top5Vendedores" 
                         :key="vendedor.id"
-                        class="flex items-center gap-3 p-3 rounded-lg hover:bg-white transition-colors"
+                        class="flex items-center gap-3 p-3 rounded-lg hover:bg-white dark:bg-slate-900 transition-colors"
                     >
                         <span :class="getMedalClass(index)" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">
                             {{ index + 1 }}
                         </span>
                         <div class="flex-1 min-w-0">
-                            <p class="font-medium text-gray-900 truncate">{{ vendedor.nombre }}</p>
-                            <p class="text-sm text-gray-500">{{ vendedor.num_ventas }} ventas</p>
+                            <p class="font-medium text-gray-900 dark:text-white truncate">{{ vendedor.nombre }}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ vendedor.num_ventas }} ventas</p>
                         </div>
                         <span class="text-green-600 font-bold whitespace-nowrap">${{ formatMonto(vendedor.comision) }}</span>
                     </div>
@@ -133,38 +133,38 @@
             </div>
 
             <!-- Tabla de vendedores -->
-            <div class="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100 bg-white/50">
-                    <h3 class="text-lg font-semibold text-gray-900">Comisiones por Vendedor</h3>
+            <div class="lg:col-span-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-white dark:bg-slate-900/50">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Comisiones por Vendedor</h3>
                 </div>
 
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-white">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                    <thead class="bg-white dark:bg-slate-900">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Vendedor</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Tipo</th>
-                            <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Ventas</th>
-                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Total Ventas</th>
-                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Comisión</th>
-                            <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Estado</th>
-                            <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Acciones</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Vendedor</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Tipo</th>
+                            <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Ventas</th>
+                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Total Ventas</th>
+                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Comisión</th>
+                            <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Estado</th>
+                            <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-100">
+                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-100">
                         <tr v-if="resumen.vendedores.length === 0">
                             <td colspan="7" class="px-6 py-12 text-center">
                                 <FontAwesomeIcon :icon="['fas', 'inbox']" class="h-12 w-12 text-gray-300 mb-4" />
-                                <p class="text-gray-500">No hay comisiones en este periodo</p>
+                                <p class="text-gray-500 dark:text-gray-400">No hay comisiones en este periodo</p>
                             </td>
                         </tr>
                         <tr v-for="vendedor in resumen.vendedores" :key="`${vendedor.type}-${vendedor.id}`" class="hover:bg-amber-50/50 transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
+                                    <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 dark:text-gray-300 font-semibold">
                                         {{ vendedor.nombre.charAt(0) }}
                                     </div>
-                                    <span class="font-medium text-gray-900">{{ vendedor.nombre }}</span>
+                                    <span class="font-medium text-gray-900 dark:text-white">{{ vendedor.nombre }}</span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -173,7 +173,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <span class="text-gray-900 font-medium">{{ vendedor.num_ventas }}</span>
+                                <span class="text-gray-900 dark:text-white font-medium">{{ vendedor.num_ventas }}</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right">
                                 <span class="text-gray-700">${{ formatMonto(vendedor.total_ventas) }}</span>
@@ -213,7 +213,7 @@
                                     <button 
                                         v-if="vendedor.pago_id"
                                         @click="descargarRecibo(vendedor.pago_id)"
-                                        class="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                                        class="p-2 rounded-lg bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200 transition-colors"
                                         title="Descargar recibo"
                                     >
                                         <FontAwesomeIcon :icon="['fas', 'file-pdf']" class="w-4 h-4" />
@@ -232,19 +232,19 @@
             <div class="flex items-center justify-center min-h-screen px-4">
                 <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
                 
-                <div class="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-scale-in">
+                <div class="relative bg-white dark:bg-slate-900 rounded-xl shadow-xl max-w-md w-full p-6 animate-scale-in">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl font-bold text-gray-900">Registrar Pago de Comisión</h3>
-                        <button @click="showModalPago = false" class="text-gray-400 hover:text-gray-600">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Registrar Pago de Comisión</h3>
+                        <button @click="showModalPago = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300">
                             <FontAwesomeIcon :icon="['fas', 'times']" />
                         </button>
                     </div>
 
                     <form @submit.prevent="procesarPago">
                         <div class="space-y-4">
-                            <div class="p-4 bg-white rounded-lg">
-                                <p class="text-sm text-gray-600">Vendedor</p>
-                                <p class="font-semibold text-gray-900">{{ vendedorSeleccionado?.nombre }}</p>
+                            <div class="p-4 bg-white dark:bg-slate-900 rounded-lg">
+                                <p class="text-sm text-gray-600 dark:text-gray-300">Vendedor</p>
+                                <p class="font-semibold text-gray-900 dark:text-white">{{ vendedorSeleccionado?.nombre }}</p>
                                 <p class="text-2xl font-bold text-green-600 mt-2">${{ formatMonto(vendedorSeleccionado?.comision) }}</p>
                             </div>
 
@@ -405,7 +405,7 @@ const getMedalClass = (index) => {
         case 0: return 'bg-yellow-400 text-yellow-900'; // Oro
         case 1: return 'bg-gray-300 text-gray-700';     // Plata
         case 2: return 'bg-amber-600 text-white';       // Bronce
-        default: return 'bg-gray-100 text-gray-600';
+        default: return 'bg-gray-100 text-gray-600 dark:text-gray-300';
     }
 };
 

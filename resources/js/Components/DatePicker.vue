@@ -305,7 +305,7 @@ const inputClasses = computed(() => {
   }
 
   if (props.disabled) {
-    classes += ' bg-gray-100 text-gray-500 cursor-not-allowed'
+    classes += ' bg-gray-100 text-gray-500 dark:text-gray-400 cursor-not-allowed'
   }
 
   return classes
@@ -375,7 +375,7 @@ const containerClasses = computed(() => {
       </div>
 
       <!-- Help text -->
-      <p v-if="helpText && !error && !validationMessage" class="mt-1 text-xs text-gray-500">
+      <p v-if="helpText && !error && !validationMessage" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
         {{ helpText }}
       </p>
 
@@ -395,7 +395,7 @@ const containerClasses = computed(() => {
         class="block text-sm font-medium text-gray-700 mb-1"
       >
         Fecha de fin
-        <span class="text-xs font-normal text-gray-500 ml-1">({{ durationText }})</span>
+        <span class="text-xs font-normal text-gray-500 dark:text-gray-400 ml-1">({{ durationText }})</span>
       </label>
 
       <div class="relative">
@@ -416,7 +416,7 @@ const containerClasses = computed(() => {
       </div>
 
       <!-- Duration info -->
-      <div v-if="calculatedEndDate && variant === 'default'" class="mt-1 text-xs text-gray-500">
+      <div v-if="calculatedEndDate && variant === 'default'" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
         {{ formatDateLong(calculatedEndDate) }}
       </div>
     </div>

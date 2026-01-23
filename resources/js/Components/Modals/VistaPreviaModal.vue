@@ -1,9 +1,9 @@
 <template>
   <div v-if="show" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
       <!-- Encabezado del modal -->
-      <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-        <h3 class="text-xl font-bold text-gray-900">
+      <div class="sticky top-0 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 px-6 py-4 flex justify-between items-center">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white">
           Vista Previa de {{ documentTypeLabel }}
         </h3>
         <button @click="close" class="text-gray-400 hover:text-gray-600">
@@ -16,7 +16,7 @@
       <div class="p-6">
         <!-- Encabezado del documento -->
         <div class="text-center mb-8">
-          <h1 class="text-3xl font-bold text-gray-900 mb-2 uppercase">
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2 uppercase">
             {{ documentTypeLabel }}
           </h1>
           <p class="text-gray-600">{{ currentDate }}</p>
@@ -24,7 +24,7 @@
 
         <!-- Información del cliente -->
         <div v-if="cliente" class="mb-8 p-6 bg-gray-50 rounded-lg">
-          <h2 class="text-lg font-semibold text-gray-900 mb-4">Cliente</h2>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Cliente</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p><strong>Nombre:</strong> {{ cliente.nombre_razon_social }}</p>
@@ -39,33 +39,33 @@
 
         <!-- Tabla de productos/servicios -->
         <div class="mb-8">
-          <h2 class="text-lg font-semibold text-gray-900 mb-4">Detalles</h2>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Detalles</h2>
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cant.</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">P. Unitario</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descuento</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Descripción</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cant.</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">P. Unitario</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Descuento</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Subtotal</th>
                 </tr>
               </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
+              <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200">
                 <tr v-for="item in items" :key="item.id">
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {{ item.nombre || item.descripcion }}
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     {{ item.cantidad }}
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     ${{ (item.precio || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-orange-600">
                     {{ item.descuento }}%
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                     ${{ ((item.cantidad * item.precio) - (item.cantidad * item.precio * item.descuento / 100)).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}
                   </td>
                 </tr>
@@ -76,7 +76,7 @@
 
         <!-- Resumen de totales -->
         <div class="bg-gray-50 rounded-lg p-6 mb-8">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Resumen</h3>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Resumen</h3>
           <div class="space-y-3">
             <div class="flex justify-between items-center text-gray-700">
               <span>Subtotal:</span>
@@ -103,7 +103,7 @@
               <span class="font-semibold">${{ Number(depositoGarantia).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
             </div>
             <div class="border-t border-gray-300 pt-3">
-              <div class="flex justify-between items-center text-lg font-bold text-gray-900">
+              <div class="flex justify-between items-center text-lg font-bold text-gray-900 dark:text-white">
                 <span>Total Final:</span>
                 <span>${{ (totals.total + Number(depositoGarantia || 0)).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
               </div>

@@ -68,14 +68,14 @@ const cancel = () => {
 <template>
   <Head title="Crear Almacen" />
 
-  <div class="min-h-screen bg-white dark:bg-gray-900">
+  <div class="min-h-screen bg-white dark:bg-slate-900 dark:bg-gray-900">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Crear Nuevo Almacen</h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-1">Agrega un nuevo almacen al sistema</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white dark:text-gray-100">Crear Nuevo Almacen</h1>
+            <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300 mt-1">Agrega un nuevo almacen al sistema</p>
           </div>
           <button
             @click="cancel"
@@ -90,7 +90,7 @@ const cancel = () => {
       </div>
 
       <!-- Formulario -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 dark:border-gray-700 p-8">
         <form @submit.prevent="submit" class="space-y-6">
           <!-- Nombre -->
           <div>
@@ -102,7 +102,7 @@ const cancel = () => {
               v-model="form.nombre"
               type="text"
               required
-              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               placeholder="Ingresa el nombre del almacen"
             />
           </div>
@@ -116,7 +116,7 @@ const cancel = () => {
               id="descripcion"
               v-model="form.descripcion"
               rows="4"
-              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               placeholder="Ingresa una descripcion opcional para el almacen"
             ></textarea>
           </div>
@@ -130,7 +130,7 @@ const cancel = () => {
               id="direccion"
               v-model="form.direccion"
               rows="3"
-              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               placeholder="Ingresa la dirección completa del almacen"
             ></textarea>
           </div>
@@ -145,7 +145,7 @@ const cancel = () => {
                 id="telefono"
                 v-model="form.telefono"
                 type="tel"
-                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                 placeholder="Ingresa el telefono de contacto"
               />
             </div>
@@ -157,7 +157,7 @@ const cancel = () => {
               <select
                 id="responsable"
                 v-model="form.responsable"
-                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               >
                 <option value="">Seleccionar responsable</option>
                 <option v-for="usuario in usuarios" :key="usuario.id" :value="usuario.id">
@@ -176,12 +176,12 @@ const cancel = () => {
               id="estado"
               v-model="form.estado"
               required
-              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
             >
               <option value="activo">Activo</option>
               <option value="inactivo">Inactivo</option>
             </select>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
               Los almacenes activos estaran disponibles para ser usados en productos
             </p>
           </div>
@@ -211,7 +211,7 @@ const cancel = () => {
           </div>
 
           <!-- Botones de acción -->
-          <div class="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div class="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700">
             <button
               type="button"
               @click="cancel"

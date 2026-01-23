@@ -41,7 +41,7 @@ const getColorPlan = computed(() => {
 
         <main class="py-12">
             <div class="w-full px-4">
-                <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl dark:shadow-none overflow-hidden border border-gray-100 dark:border-gray-700">
+                <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-3xl shadow-xl dark:shadow-none overflow-hidden border border-gray-100 dark:border-gray-700">
                     <div class="grid grid-cols-1 lg:grid-cols-2">
                         
                         <!-- Columna Izquierda: Visual -->
@@ -56,15 +56,15 @@ const getColorPlan = computed(() => {
                             </p>
                             
                             <div class="space-y-4">
-                                <div class="flex items-center gap-4 bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
-                                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl">⏱️</div>
+                                <div class="flex items-center gap-4 bg-white dark:bg-slate-900/10 p-4 rounded-2xl backdrop-blur-sm">
+                                    <div class="w-12 h-12 bg-white dark:bg-slate-900/20 rounded-xl flex items-center justify-center text-2xl">⏱️</div>
                                     <div>
                                         <div class="font-bold text-lg">{{ plan.horas_incluidas || 'Horas ilimitadas' }}</div>
                                         <div class="text-white/70 text-sm">Servicio Técnico Incluido</div>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-4 bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
-                                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl">⚡</div>
+                                <div class="flex items-center gap-4 bg-white dark:bg-slate-900/10 p-4 rounded-2xl backdrop-blur-sm">
+                                    <div class="w-12 h-12 bg-white dark:bg-slate-900/20 rounded-xl flex items-center justify-center text-2xl">⚡</div>
                                     <div>
                                         <div class="font-bold text-lg">{{ plan.sla_horas_respuesta }} Horas</div>
                                         <div class="text-white/70 text-sm">Tiempo Máximo de Respuesta</div>
@@ -76,7 +76,7 @@ const getColorPlan = computed(() => {
                         <!-- Columna Derecha: Detalles y Precio -->
                         <div class="p-8 lg:p-12">
                             <div class="mb-8">
-                                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 underline decoration-[var(--color-primary)] decoration-4 underline-offset-8">
+                                <h2 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white mb-6 underline decoration-[var(--color-primary)] decoration-4 underline-offset-8">
                                     Incluido en este Plan
                                 </h2>
                                 <ul class="grid grid-cols-1 gap-4">
@@ -89,23 +89,23 @@ const getColorPlan = computed(() => {
                                 </ul>
                             </div>
 
-                            <div v-if="plan.descripcion" class="mb-8 text-gray-600 dark:text-gray-300 leading-relaxed">
+                            <div v-if="plan.descripcion" class="mb-8 text-gray-600 dark:text-gray-300 dark:text-gray-300 leading-relaxed">
                                 <p>{{ plan.descripcion }}</p>
                             </div>
 
                             <!-- Card de Precio -->
-                            <div class="bg-slate-50 dark:bg-gray-700 rounded-2xl p-6 border-2 border-dashed border-gray-200 dark:border-gray-600">
+                            <div class="bg-slate-50 dark:bg-gray-700 rounded-2xl p-6 border-2 border-dashed border-gray-200 dark:border-slate-800 dark:border-gray-600">
                                 <div class="flex justify-between items-end mb-4">
                                     <div>
-                                        <div class="text-gray-500 dark:text-gray-400 text-sm font-semibold uppercase tracking-wider">Inversión Mensual</div>
-                                        <div class="text-4xl font-extrabold text-gray-900 dark:text-white">{{ formatCurrency(plan.precio_mensual) }}</div>
+                                        <div class="text-gray-500 dark:text-gray-400 dark:text-gray-400 text-sm font-semibold uppercase tracking-wider">Inversión Mensual</div>
+                                        <div class="text-4xl font-extrabold text-gray-900 dark:text-white dark:text-white">{{ formatCurrency(plan.precio_mensual) }}</div>
                                     </div>
                                     <div v-if="plan.ahorro_anual > 0" class="text-right">
                                         <div class="text-green-600 dark:text-green-400 font-bold text-sm bg-green-100 dark:bg-green-900/20 px-3 py-1 rounded-full">-{{ plan.porcentaje_descuento_anual }}% Anual</div>
                                     </div>
                                 </div>
 
-                                <div v-if="plan.precio_instalacion > 0" class="text-sm text-gray-500 dark:text-gray-400 mb-6 italic">
+                                <div v-if="plan.precio_instalacion > 0" class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 mb-6 italic">
                                     * Costo único de activación: {{ formatCurrency(plan.precio_instalacion) }}
                                 </div>
 
@@ -116,7 +116,7 @@ const getColorPlan = computed(() => {
                                     Contratar Plan Ahora
                                 </Link>
                                 
-                                <p class="text-center text-xs text-gray-400 dark:text-gray-500 mt-4">
+                                <p class="text-center text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 mt-4">
                                     Sujeto a términos y condiciones establecidos en el contrato de servicio.
                                 </p>
                             </div>

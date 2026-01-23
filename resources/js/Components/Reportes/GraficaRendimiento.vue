@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+    <div class="bg-white dark:bg-slate-900 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800">
         <h3 v-if="title" class="text-lg font-semibold text-gray-700 mb-4">{{ title }}</h3>
         <div class="relative h-64 w-full">
             <Bar v-if="chartData.labels.length" :data="chartData" :options="chartOptions" />

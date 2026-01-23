@@ -3,13 +3,13 @@
     <div class="w-full space-y-6">
       
       <!-- Encabezado Ticket -->
-      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+      <div class="bg-white dark:bg-slate-900 shadow overflow-hidden sm:rounded-lg">
         <div class="px-4 py-5 sm:px-6 flex justify-between items-start">
           <div>
-            <h3 class="text-lg leading-6 font-medium text-gray-900">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
               #{{ ticket.numero }} - {{ ticket.titulo }}
             </h3>
-            <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
               Categoría: {{ ticket.categoria?.nombre || 'General' }}
             </p>
           </div>
@@ -19,13 +19,13 @@
               'bg-green-100 text-green-800': ticket.estado === 'resuelto',
               'bg-blue-100 text-blue-800': ticket.estado === 'abierto',
               'bg-yellow-100 text-yellow-800': ticket.estado === 'en_progreso',
-              'bg-gray-100 text-gray-800': ticket.estado === 'cerrado',
+              'bg-gray-100 text-gray-800 dark:text-gray-100': ticket.estado === 'cerrado',
             }"
           >
             {{ ticket.estado }}
           </span>
         </div>
-        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+        <div class="border-t border-gray-200 dark:border-slate-800 px-4 py-5 sm:px-6">
            <div class="prose max-w-none text-gray-700 whitespace-pre-line">
              {{ ticket.descripcion }}
            </div>
@@ -33,9 +33,9 @@
       </div>
 
       <!-- Timeline / Comentarios -->
-      <div class="bg-white shadow sm:rounded-lg">
+      <div class="bg-white dark:bg-slate-900 shadow sm:rounded-lg">
           <div class="px-4 py-5 sm:p-6">
-              <h4 class="text-base font-medium text-gray-900 mb-4">Actividad</h4>
+              <h4 class="text-base font-medium text-gray-900 dark:text-white mb-4">Actividad</h4>
               
               <ul role="list" class="-mb-8">
                   <li v-for="(comment, commentIdx) in ticket.comentarios" :key="comment.id">
@@ -53,8 +53,8 @@
                               </div>
                               <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
                                   <div>
-                                      <p class="text-sm text-gray-500">
-                                          <span class="font-medium text-gray-900">
+                                      <p class="text-sm text-gray-500 dark:text-gray-400">
+                                          <span class="font-medium text-gray-900 dark:text-white">
                                               {{ comment.user ? comment.user.name : 'Tú' }}
                                           </span>
                                       </p>
@@ -62,21 +62,21 @@
                                         {{ comment.comentario }}
                                       </div>
                                   </div>
-                                  <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                  <div class="text-right text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
                                       {{ new Date(comment.created_at).toLocaleString() }}
                                   </div>
                               </div>
                           </div>
                       </div>
                   </li>
-                  <li v-if="!ticket.comentarios || ticket.comentarios.length === 0" class="text-center text-gray-500 py-4">
+                  <li v-if="!ticket.comentarios || ticket.comentarios.length === 0" class="text-center text-gray-500 dark:text-gray-400 py-4">
                       No hay comentarios aún.
                   </li>
               </ul>
               
               <!-- Formulario de respuesta -->
-              <div class="mt-8 border-t border-gray-200 pt-6" v-if="ticket.estado !== 'cerrado'">
-                 <h4 class="text-sm font-medium text-gray-900 mb-2">Agregar respuesta</h4>
+              <div class="mt-8 border-t border-gray-200 dark:border-slate-800 pt-6" v-if="ticket.estado !== 'cerrado'">
+                 <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Agregar respuesta</h4>
                  <form @submit.prevent="submitComment">
                     <div class="mt-1">
                       <textarea

@@ -106,8 +106,8 @@ const copyToClipboard = (text) => {
 </script>
 
 <template>
-    <div class="mt-6 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+    <div class="mt-6 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="p-4 bg-gray-50 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
                     <font-awesome-icon icon="key" />
@@ -132,10 +132,10 @@ const copyToClipboard = (text) => {
             </div>
 
             <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div v-for="item in items" :key="item.id" class="p-4 rounded-xl border border-gray-100 hover:border-indigo-200 transition-all group bg-white shadow-sm">
+                <div v-for="item in items" :key="item.id" class="p-4 rounded-xl border border-gray-100 dark:border-slate-800 hover:border-indigo-200 transition-all group bg-white dark:bg-slate-900 shadow-sm">
                     <div class="flex items-start justify-between mb-3">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-indigo-500 border border-gray-100">
+                            <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-indigo-500 border border-gray-100 dark:border-slate-800">
                                 <font-awesome-icon :icon="item.host ? 'server' : 'lock'" />
                             </div>
                             <div>
@@ -150,7 +150,7 @@ const copyToClipboard = (text) => {
                     </div>
 
                     <div class="space-y-2">
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg border border-gray-100">
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg border border-gray-100 dark:border-slate-800">
                             <span class="text-[9px] font-black text-gray-400 uppercase">Usuario</span>
                             <div class="flex items-center gap-2">
                                 <span class="text-xs font-bold text-gray-700">{{ item.usuario }}</span>
@@ -158,7 +158,7 @@ const copyToClipboard = (text) => {
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg border border-gray-100">
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg border border-gray-100 dark:border-slate-800">
                             <span class="text-[9px] font-black text-gray-400 uppercase">Contraseña</span>
                             <div class="flex items-center gap-2">
                                 <span v-if="revealedPasswords[item.id]" class="text-xs font-mono font-bold text-indigo-600">{{ revealedPasswords[item.id] }}</span>
@@ -183,8 +183,8 @@ const copyToClipboard = (text) => {
 
         <!-- Modal -->
         <div v-if="showingModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-                <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+                <div class="p-6 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-gray-50">
                     <h3 class="text-sm font-black text-gray-800 uppercase tracking-widest">
                         {{ editingItem ? 'Editar Credencial' : 'Nueva Credencial Segura' }}
                     </h3>
@@ -197,17 +197,17 @@ const copyToClipboard = (text) => {
                     <div class="grid grid-cols-1 gap-4">
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Nombre / Título</label>
-                            <input v-model="form.nombre" type="text" placeholder="Ej: SQL Admin Production" class="w-full border-gray-200 rounded-xl h-11 text-sm font-bold focus:ring-indigo-500 focus:border-indigo-500" required />
+                            <input v-model="form.nombre" type="text" placeholder="Ej: SQL Admin Production" class="w-full border-gray-200 dark:border-slate-800 rounded-xl h-11 text-sm font-bold focus:ring-indigo-500 focus:border-indigo-500" required />
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Usuario</label>
-                                <input v-model="form.usuario" type="text" placeholder="admin" class="w-full border-gray-200 rounded-xl h-11 text-sm font-bold focus:ring-indigo-500 focus:border-indigo-500" required />
+                                <input v-model="form.usuario" type="text" placeholder="admin" class="w-full border-gray-200 dark:border-slate-800 rounded-xl h-11 text-sm font-bold focus:ring-indigo-500 focus:border-indigo-500" required />
                             </div>
                             <div>
                                 <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Contraseña</label>
-                                <input v-model="form.password" type="password" :placeholder="editingItem ? '••••••••' : 'Password'" class="w-full border-gray-200 rounded-xl h-11 text-sm font-bold focus:ring-indigo-500 focus:border-indigo-500" :required="!editingItem" />
+                                <input v-model="form.password" type="password" :placeholder="editingItem ? '••••••••' : 'Password'" class="w-full border-gray-200 dark:border-slate-800 rounded-xl h-11 text-sm font-bold focus:ring-indigo-500 focus:border-indigo-500" :required="!editingItem" />
                                 <p v-if="editingItem" class="text-[9px] text-gray-400 mt-1">Dejar vacío para no cambiar</p>
                             </div>
                         </div>
@@ -215,17 +215,17 @@ const copyToClipboard = (text) => {
                         <div class="grid grid-cols-3 gap-4">
                             <div class="col-span-2">
                                 <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Host / URL</label>
-                                <input v-model="form.host" type="text" placeholder="192.168.1.50" class="w-full border-gray-200 rounded-xl h-11 text-sm font-bold focus:ring-indigo-500 focus:border-indigo-500" />
+                                <input v-model="form.host" type="text" placeholder="192.168.1.50" class="w-full border-gray-200 dark:border-slate-800 rounded-xl h-11 text-sm font-bold focus:ring-indigo-500 focus:border-indigo-500" />
                             </div>
                             <div>
                                 <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Puerto</label>
-                                <input v-model="form.puerto" type="text" placeholder="1433" class="w-full border-gray-200 rounded-xl h-11 text-sm font-bold focus:ring-indigo-500 focus:border-indigo-500" />
+                                <input v-model="form.puerto" type="text" placeholder="1433" class="w-full border-gray-200 dark:border-slate-800 rounded-xl h-11 text-sm font-bold focus:ring-indigo-500 focus:border-indigo-500" />
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Notas Adicionales</label>
-                            <textarea v-model="form.notas" rows="3" class="w-full border-gray-200 rounded-xl text-sm font-bold focus:ring-indigo-500 focus:border-indigo-500" placeholder="Instrucciones especiales de acceso..."></textarea>
+                            <textarea v-model="form.notas" rows="3" class="w-full border-gray-200 dark:border-slate-800 rounded-xl text-sm font-bold focus:ring-indigo-500 focus:border-indigo-500" placeholder="Instrucciones especiales de acceso..."></textarea>
                         </div>
                     </div>
 

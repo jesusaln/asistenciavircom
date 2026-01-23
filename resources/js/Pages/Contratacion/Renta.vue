@@ -412,7 +412,7 @@ const cssVars = computed(() => ({
                             </div>
                             <span :class="[
                                 'hidden md:block text-xs font-bold uppercase tracking-widest transition-colors',
-                                currentStep >= step ? 'text-gray-900' : 'text-gray-400'
+                                currentStep >= step ? 'text-gray-900 dark:text-white' : 'text-gray-400'
                             ]">
                                 {{ step === 1 ? 'Datos' : step === 2 ? 'Documentos' : step === 3 ? 'Firma' : 'Pago' }}
                             </span>
@@ -431,8 +431,8 @@ const cssVars = computed(() => ({
                 <div class="lg:col-span-2 space-y-8">
                     
                     <!-- PASO 1: DATOS PERSONALES Y DIRECCIÓN -->
-                    <div v-if="currentStep === 1" class="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 p-8 md:p-12 animate-fade-in">
-                        <h2 class="text-3xl font-black text-gray-900 mb-10 flex items-center gap-4">
+                    <div v-if="currentStep === 1" class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-gray-100 p-8 md:p-12 animate-fade-in">
+                        <h2 class="text-3xl font-black text-gray-900 dark:text-white mb-10 flex items-center gap-4">
                             <span class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl">📋</span>
                             Datos de Contratación
                         </h2>
@@ -456,14 +456,14 @@ const cssVars = computed(() => ({
                             <div v-if="!clienteData" class="md:col-span-2 bg-emerald-50/50 p-8 rounded-3xl border border-emerald-100/50">
                                 <p class="text-xs font-black text-emerald-700 uppercase tracking-widest mb-4">Crear contraseña para su Portal de Cliente</p>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <input v-model="form.password" type="password" class="w-full px-6 py-4 bg-white border-none rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all font-medium" placeholder="Contraseña">
-                                    <input v-model="form.password_confirmation" type="password" class="w-full px-6 py-4 bg-white border-none rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all font-medium" placeholder="Confirmar">
+                                    <input v-model="form.password" type="password" class="w-full px-6 py-4 bg-white dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all font-medium" placeholder="Contraseña">
+                                    <input v-model="form.password_confirmation" type="password" class="w-full px-6 py-4 bg-white dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all font-medium" placeholder="Confirmar">
                                 </div>
                             </div>
 
                             <!-- Ubicación con Sepomex -->
                             <div class="md:col-span-2 pt-8 border-t border-gray-50">
-                                <h3 class="text-sm font-black text-gray-900 uppercase tracking-widest mb-8 flex items-center gap-3">
+                                <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest mb-8 flex items-center gap-3">
                                     📍 Ubicación de Instalación
                                 </h3>
                                 <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
@@ -513,12 +513,12 @@ const cssVars = computed(() => ({
                             <!-- SECCIÓN DE FACTURACIÓN -->
                             <div class="md:col-span-2 pt-8 border-t border-gray-50">
                                 <div class="flex items-center justify-between mb-6">
-                                    <h3 class="text-sm font-black text-gray-900 uppercase tracking-widest flex items-center gap-3">
+                                    <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest flex items-center gap-3">
                                         🧾 Facturación
                                     </h3>
                                     <label class="flex items-center gap-3 cursor-pointer group">
                                         <input v-model="form.requiere_factura" type="checkbox" class="w-5 h-5 rounded-lg border-gray-300 text-emerald-600 focus:ring-emerald-500 transition-all">
-                                        <span class="text-sm font-bold text-gray-600 group-hover:text-gray-900 transition-colors">Requiero Factura</span>
+                                        <span class="text-sm font-bold text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:text-white transition-colors">Requiero Factura</span>
                                     </label>
                                 </div>
 
@@ -527,29 +527,29 @@ const cssVars = computed(() => ({
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
                                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Tipo de Persona *</label>
-                                            <select v-model="form.tipo_persona" class="w-full px-6 py-4 bg-white border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all font-medium">
+                                            <select v-model="form.tipo_persona" class="w-full px-6 py-4 bg-white dark:bg-slate-900 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all font-medium">
                                                 <option value="fisica">Persona Física</option>
                                                 <option value="moral">Persona Moral</option>
                                             </select>
                                         </div>
                                         <div>
                                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">RFC *</label>
-                                            <input v-model="form.rfc" type="text" class="w-full px-6 py-4 bg-white border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all font-medium uppercase" :placeholder="form.tipo_persona === 'moral' ? 'XXX010101XXX' : 'XXXX010101XXX'" maxlength="13">
+                                            <input v-model="form.rfc" type="text" class="w-full px-6 py-4 bg-white dark:bg-slate-900 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all font-medium uppercase" :placeholder="form.tipo_persona === 'moral' ? 'XXX010101XXX' : 'XXXX010101XXX'" maxlength="13">
                                         </div>
                                         <div class="md:col-span-2">
                                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Razón Social (como aparece en constancia SAT) *</label>
-                                            <input v-model="form.razon_social" type="text" class="w-full px-6 py-4 bg-white border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all font-medium uppercase" placeholder="NOMBRE O RAZÓN SOCIAL">
+                                            <input v-model="form.razon_social" type="text" class="w-full px-6 py-4 bg-white dark:bg-slate-900 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all font-medium uppercase" placeholder="NOMBRE O RAZÓN SOCIAL">
                                         </div>
                                         <div>
                                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Régimen Fiscal *</label>
-                                            <select v-model="form.regimen_fiscal" class="w-full px-6 py-4 bg-white border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all font-medium">
+                                            <select v-model="form.regimen_fiscal" class="w-full px-6 py-4 bg-white dark:bg-slate-900 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all font-medium">
                                                 <option value="">Seleccione...</option>
                                                 <option v-for="r in catalogos.regimenes" :key="r.clave" :value="r.clave">{{ r.clave }} - {{ r.descripcion }}</option>
                                             </select>
                                         </div>
                                         <div>
                                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Uso de CFDI *</label>
-                                            <select v-model="form.uso_cfdi" class="w-full px-6 py-4 bg-white border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all font-medium">
+                                            <select v-model="form.uso_cfdi" class="w-full px-6 py-4 bg-white dark:bg-slate-900 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all font-medium">
                                                 <option v-for="u in catalogos.usosCfdi" :key="u.clave" :value="u.clave">{{ u.clave }} - {{ u.descripcion }}</option>
                                             </select>
                                         </div>
@@ -559,30 +559,30 @@ const cssVars = computed(() => ({
                                     <div class="pt-4 border-t border-blue-100/50">
                                         <label class="flex items-center gap-3 cursor-pointer group mb-4">
                                             <input v-model="form.misma_direccion_fiscal" type="checkbox" class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500 transition-all">
-                                            <span class="text-sm font-bold text-gray-600 group-hover:text-gray-900 transition-colors">La dirección fiscal es la misma que la de instalación</span>
+                                            <span class="text-sm font-bold text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:text-white transition-colors">La dirección fiscal es la misma que la de instalación</span>
                                         </label>
 
                                         <!-- Campos de dirección fiscal diferente -->
                                         <div v-if="!form.misma_direccion_fiscal" class="grid grid-cols-1 md:grid-cols-6 gap-4 animate-fade-in">
                                             <div class="md:col-span-2">
                                                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">C.P. Fiscal *</label>
-                                                <input v-model="form.domicilio_fiscal_cp" type="text" maxlength="5" class="w-full px-4 py-3 bg-white border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all font-medium" placeholder="00000">
+                                                <input v-model="form.domicilio_fiscal_cp" type="text" maxlength="5" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all font-medium" placeholder="00000">
                                             </div>
                                             <div class="md:col-span-4">
                                                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Calle y Número *</label>
-                                                <input v-model="form.domicilio_fiscal_calle" type="text" class="w-full px-4 py-3 bg-white border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all font-medium" placeholder="Calle y número">
+                                                <input v-model="form.domicilio_fiscal_calle" type="text" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all font-medium" placeholder="Calle y número">
                                             </div>
                                             <div class="md:col-span-2">
                                                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Colonia *</label>
-                                                <input v-model="form.domicilio_fiscal_colonia" type="text" class="w-full px-4 py-3 bg-white border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all font-medium" placeholder="Colonia">
+                                                <input v-model="form.domicilio_fiscal_colonia" type="text" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all font-medium" placeholder="Colonia">
                                             </div>
                                             <div class="md:col-span-2">
                                                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Municipio *</label>
-                                                <input v-model="form.domicilio_fiscal_municipio" type="text" class="w-full px-4 py-3 bg-white border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all font-medium" placeholder="Municipio">
+                                                <input v-model="form.domicilio_fiscal_municipio" type="text" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all font-medium" placeholder="Municipio">
                                             </div>
                                             <div class="md:col-span-2">
                                                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Estado *</label>
-                                                <select v-model="form.domicilio_fiscal_estado" class="w-full px-4 py-3 bg-white border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all font-medium">
+                                                <select v-model="form.domicilio_fiscal_estado" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all font-medium">
                                                     <option value="">Seleccione...</option>
                                                     <option v-for="e in catalogos.estados" :key="e.value" :value="e.value">{{ e.label }}</option>
                                                 </select>
@@ -592,9 +592,9 @@ const cssVars = computed(() => ({
                                 </div>
 
                                 <!-- Opción sin factura -->
-                                <div v-else class="bg-gray-50/50 rounded-2xl p-4 flex items-center gap-3">
+                                <div v-else class="bg-gray-50 dark:bg-slate-950/50 rounded-2xl p-4 flex items-center gap-3">
                                     <span class="text-lg">💡</span>
-                                    <p class="text-xs text-gray-500 font-medium">Puede solicitar factura en cualquier momento desde su portal de cliente</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Puede solicitar factura en cualquier momento desde su portal de cliente</p>
                                 </div>
                             </div>
                         </div>
@@ -612,8 +612,8 @@ const cssVars = computed(() => ({
                     </div>
 
                     <!-- PASO 2: DOCUMENTOS -->
-                    <div v-if="currentStep === 2" class="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 p-8 md:p-12 animate-fade-in">
-                        <h2 class="text-3xl font-black text-gray-900 mb-10 flex items-center gap-4">
+                    <div v-if="currentStep === 2" class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-gray-100 p-8 md:p-12 animate-fade-in">
+                        <h2 class="text-3xl font-black text-gray-900 dark:text-white mb-10 flex items-center gap-4">
                             <span class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl">📁</span>
                             Documentación Requerida
                         </h2>
@@ -622,14 +622,14 @@ const cssVars = computed(() => ({
                             <!-- INE Frontal -->
                             <div class="relative group">
                                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">INE Frontal *</label>
-                                <div :class="['relative border-2 border-dashed rounded-3xl p-6 transition-all h-44 flex flex-col items-center justify-center text-center', form.ine_frontal ? 'border-emerald-500 bg-emerald-50/10' : 'border-gray-200 hover:border-emerald-400']">
+                                <div :class="['relative border-2 border-dashed rounded-3xl p-6 transition-all h-44 flex flex-col items-center justify-center text-center', form.ine_frontal ? 'border-emerald-500 bg-emerald-50/10' : 'border-gray-200 dark:border-slate-800 hover:border-emerald-400']">
                                     <template v-if="uploading.ine_frontal">
                                         <div class="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-2"></div>
                                         <span class="text-[10px] font-bold text-emerald-500 uppercase">Subiendo...</span>
                                     </template>
                                     <template v-else-if="form.ine_frontal">
                                         <div class="w-12 h-12 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xl mb-2">✅</div>
-                                        <span class="text-xs font-bold text-gray-600">INE Frontal Lista</span>
+                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-300">INE Frontal Lista</span>
                                         <button @click="form.ine_frontal = ''" class="mt-2 text-[10px] text-red-500 font-bold uppercase hover:underline">Cambiar</button>
                                     </template>
                                     <template v-else>
@@ -643,14 +643,14 @@ const cssVars = computed(() => ({
                             <!-- INE Trasera -->
                             <div class="relative group">
                                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">INE Trasera *</label>
-                                <div :class="['relative border-2 border-dashed rounded-3xl p-6 transition-all h-44 flex flex-col items-center justify-center text-center', form.ine_trasera ? 'border-emerald-500 bg-emerald-50/10' : 'border-gray-200 hover:border-emerald-400']">
+                                <div :class="['relative border-2 border-dashed rounded-3xl p-6 transition-all h-44 flex flex-col items-center justify-center text-center', form.ine_trasera ? 'border-emerald-500 bg-emerald-50/10' : 'border-gray-200 dark:border-slate-800 hover:border-emerald-400']">
                                     <template v-if="uploading.ine_trasera">
                                         <div class="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-2"></div>
                                         <span class="text-[10px] font-bold text-emerald-500 uppercase">Subiendo...</span>
                                     </template>
                                     <template v-else-if="form.ine_trasera">
                                         <div class="w-12 h-12 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xl mb-2">✅</div>
-                                        <span class="text-xs font-bold text-gray-600">INE Trasera Lista</span>
+                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-300">INE Trasera Lista</span>
                                         <button @click="form.ine_trasera = ''" class="mt-2 text-[10px] text-red-500 font-bold uppercase hover:underline">Cambiar</button>
                                     </template>
                                     <template v-else>
@@ -664,14 +664,14 @@ const cssVars = computed(() => ({
                             <!-- Comprobante Domicilio -->
                             <div class="relative group md:col-span-2">
                                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Comprobante de Domicilio * <span class="text-gray-300">(Recibo de luz, agua, teléfono - máx. 3 meses)</span></label>
-                                <div :class="['relative border-2 border-dashed rounded-3xl p-6 transition-all h-44 flex flex-col items-center justify-center text-center', form.comprobante_domicilio ? 'border-emerald-500 bg-emerald-50/10' : 'border-gray-200 hover:border-emerald-400']">
+                                <div :class="['relative border-2 border-dashed rounded-3xl p-6 transition-all h-44 flex flex-col items-center justify-center text-center', form.comprobante_domicilio ? 'border-emerald-500 bg-emerald-50/10' : 'border-gray-200 dark:border-slate-800 hover:border-emerald-400']">
                                     <template v-if="uploading.comprobante_domicilio">
                                         <div class="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-2"></div>
                                         <span class="text-[10px] font-bold text-emerald-500 uppercase">Subiendo...</span>
                                     </template>
                                     <template v-else-if="form.comprobante_domicilio">
                                         <div class="w-12 h-12 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xl mb-2">✅</div>
-                                        <span class="text-xs font-bold text-gray-600">Comprobante Listo</span>
+                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-300">Comprobante Listo</span>
                                         <button @click="form.comprobante_domicilio = ''" class="mt-2 text-[10px] text-red-500 font-bold uppercase hover:underline">Cambiar</button>
                                     </template>
                                     <template v-else>
@@ -684,7 +684,7 @@ const cssVars = computed(() => ({
                         </div>
 
                         <div class="mt-10 flex justify-between">
-                            <button @click="goToStep(1)" class="px-8 py-5 bg-gray-100 text-gray-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-all flex items-center gap-2">
+                            <button @click="goToStep(1)" class="px-8 py-5 bg-gray-100 text-gray-600 dark:text-gray-300 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-all flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                                 Atrás
                             </button>
@@ -700,8 +700,8 @@ const cssVars = computed(() => ({
                     </div>
 
                     <!-- PASO 3: FIRMA DIGITAL -->
-                    <div v-if="currentStep === 3" class="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 p-8 md:p-12 animate-fade-in">
-                        <h2 class="text-3xl font-black text-gray-900 mb-10 flex items-center gap-4">
+                    <div v-if="currentStep === 3" class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-gray-100 p-8 md:p-12 animate-fade-in">
+                        <h2 class="text-3xl font-black text-gray-900 dark:text-white mb-10 flex items-center gap-4">
                             <span class="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center text-2xl">✍️</span>
                             Firma Digital del Contrato
                         </h2>
@@ -720,10 +720,10 @@ const cssVars = computed(() => ({
                             ></canvas>
                             
                             <div v-if="!hasDrawn" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-300 group-hover:opacity-60">
-                                <div class="w-14 h-14 rounded-full bg-white flex items-center justify-center mb-3 shadow-lg border border-gray-100">
+                                <div class="w-14 h-14 rounded-full bg-white dark:bg-slate-900 flex items-center justify-center mb-3 shadow-lg border border-gray-100">
                                     <span class="text-2xl animate-bounce">🖋️</span>
                                 </div>
-                                <p class="text-gray-900 text-lg font-black tracking-tight">Dibuja tu firma aquí</p>
+                                <p class="text-gray-900 dark:text-white text-lg font-black tracking-tight">Dibuja tu firma aquí</p>
                                 <p class="text-gray-400 text-[10px] uppercase tracking-[0.3em] mt-2 font-black">Firma Electrónica Avanzada</p>
                             </div>
 
@@ -736,7 +736,7 @@ const cssVars = computed(() => ({
                             <button 
                                 @click="limpiarFirma" 
                                 type="button"
-                                class="inline-flex items-center gap-2 text-[10px] text-gray-400 font-black hover:text-red-500 transition-colors uppercase tracking-[0.2em] px-4 py-2 bg-gray-50 rounded-xl"
+                                class="inline-flex items-center gap-2 text-[10px] text-gray-400 font-black hover:text-red-500 transition-colors uppercase tracking-[0.2em] px-4 py-2 bg-gray-50 dark:bg-slate-950 rounded-xl"
                             >
                                 🗑️ Borrar y reintentar
                             </button>
@@ -750,7 +750,7 @@ const cssVars = computed(() => ({
                                     v-model="form.nombre_firmante"
                                     type="text"
                                     placeholder="Nombre y Apellidos"
-                                    class="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all font-black text-gray-900 shadow-inner"
+                                    class="w-full px-6 py-4 bg-gray-50 dark:bg-slate-950 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all font-black text-gray-900 dark:text-white shadow-inner"
                                 />
                             </div>
                             <div class="flex items-end">
@@ -764,7 +764,7 @@ const cssVars = computed(() => ({
                         </div>
 
                         <div class="mt-10 flex justify-between">
-                            <button @click="goToStep(2)" class="px-8 py-5 bg-gray-100 text-gray-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-all flex items-center gap-2">
+                            <button @click="goToStep(2)" class="px-8 py-5 bg-gray-100 text-gray-600 dark:text-gray-300 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-all flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                                 Atrás
                             </button>
@@ -780,8 +780,8 @@ const cssVars = computed(() => ({
                     </div>
 
                     <!-- PASO 4: CONFIRMACIÓN Y PAGO -->
-                    <div v-if="currentStep === 4" class="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 p-8 md:p-12 animate-fade-in">
-                        <h2 class="text-3xl font-black text-gray-900 mb-10 flex items-center gap-4">
+                    <div v-if="currentStep === 4" class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-gray-100 p-8 md:p-12 animate-fade-in">
+                        <h2 class="text-3xl font-black text-gray-900 dark:text-white mb-10 flex items-center gap-4">
                             <span class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-2xl">💳</span>
                             Confirmar y Pagar
                         </h2>
@@ -791,11 +791,11 @@ const cssVars = computed(() => ({
                             <div class="grid md:grid-cols-2 gap-6 text-sm">
                                 <div>
                                     <p class="text-gray-400 text-[10px] uppercase font-bold tracking-widest">Nombre</p>
-                                    <p class="font-bold text-gray-900">{{ form.nombre_razon_social }}</p>
+                                    <p class="font-bold text-gray-900 dark:text-white">{{ form.nombre_razon_social }}</p>
                                 </div>
                                 <div>
                                     <p class="text-gray-400 text-[10px] uppercase font-bold tracking-widest">Ubicación</p>
-                                    <p class="font-bold text-gray-900">{{ form.colonia }}, {{ form.municipio }}</p>
+                                    <p class="font-bold text-gray-900 dark:text-white">{{ form.colonia }}, {{ form.municipio }}</p>
                                 </div>
                                 <div>
                                     <p class="text-gray-400 text-[10px] uppercase font-bold tracking-widest">Documentos</p>
@@ -811,12 +811,12 @@ const cssVars = computed(() => ({
                         <div class="mb-8">
                             <label class="flex items-center gap-4 cursor-pointer group">
                                 <input v-model="form.aceptar_terminos" type="checkbox" class="w-6 h-6 rounded-lg border-gray-300 text-emerald-600 focus:ring-emerald-500">
-                                <span class="text-sm font-medium text-gray-600">Acepto el <a href="#" class="text-emerald-600 underline">contrato de arrendamiento</a> y <a href="#" class="text-emerald-600 underline">términos de servicio</a>.</span>
+                                <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Acepto el <a href="#" class="text-emerald-600 underline">contrato de arrendamiento</a> y <a href="#" class="text-emerald-600 underline">términos de servicio</a>.</span>
                             </label>
                         </div>
 
                         <div class="flex justify-between">
-                            <button @click="goToStep(3)" class="px-8 py-5 bg-gray-100 text-gray-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-all flex items-center gap-2">
+                            <button @click="goToStep(3)" class="px-8 py-5 bg-gray-100 text-gray-600 dark:text-gray-300 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-all flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                                 Atrás
                             </button>
@@ -834,13 +834,13 @@ const cssVars = computed(() => ({
 
                 <!-- Sidebar - Resumen -->
                 <div class="lg:col-span-1">
-                    <div class="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 p-8 sticky top-24">
-                        <h3 class="text-xl font-black text-gray-900 mb-8">Resumen de Renta</h3>
+                    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-gray-100 p-8 sticky top-24">
+                        <h3 class="text-xl font-black text-gray-900 dark:text-white mb-8">Resumen de Renta</h3>
                         
                         <div class="flex items-center gap-4 mb-8 bg-slate-50 p-4 rounded-2xl">
                             <div class="text-3xl">{{ plan.icono || '🖥️' }}</div>
                             <div>
-                                <div class="font-black text-gray-900">{{ plan.nombre }}</div>
+                                <div class="font-black text-gray-900 dark:text-white">{{ plan.nombre }}</div>
                                 <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{{ plan.tipo_label }}</div>
                             </div>
                         </div>
@@ -849,7 +849,7 @@ const cssVars = computed(() => ({
                         <div class="mb-6">
                             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Equipamiento Incluido</p>
                             <ul class="space-y-2">
-                                <li v-for="equipo in plan.equipamiento_incluido" :key="equipo" class="flex items-center gap-2 text-xs text-gray-600">
+                                <li v-for="equipo in plan.equipamiento_incluido" :key="equipo" class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                     {{ equipo }}
                                 </li>
@@ -859,15 +859,15 @@ const cssVars = computed(() => ({
                         <div class="space-y-4 mb-8 pt-6 border-t border-gray-50">
                             <div class="flex justify-between text-sm font-medium">
                                 <span class="text-gray-400">Renta Mensual</span>
-                                <span class="text-gray-900 font-bold">{{ formatCurrency(plan.precio_mensual) }}</span>
+                                <span class="text-gray-900 dark:text-white font-bold">{{ formatCurrency(plan.precio_mensual) }}</span>
                             </div>
                             <div class="flex justify-between text-sm font-medium">
                                 <span class="text-gray-400">Depósito Garantía</span>
-                                <span class="text-gray-900 font-bold">{{ formatCurrency(plan.deposito_garantia) }}</span>
+                                <span class="text-gray-900 dark:text-white font-bold">{{ formatCurrency(plan.deposito_garantia) }}</span>
                             </div>
                             <div class="pt-4 border-t border-gray-50 flex justify-between text-sm">
                                 <span class="text-gray-400 font-bold">IVA (16%)</span>
-                                <span class="text-gray-900 font-black">{{ formatCurrency(totalInversionInicial - (Number(plan.precio_mensual) + Number(plan.deposito_garantia))) }}</span>
+                                <span class="text-gray-900 dark:text-white font-black">{{ formatCurrency(totalInversionInicial - (Number(plan.precio_mensual) + Number(plan.deposito_garantia))) }}</span>
                             </div>
                         </div>
 
@@ -893,15 +893,15 @@ const cssVars = computed(() => ({
         <!-- Payment Modal -->
         <div v-if="showPaymentModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" @click="showPaymentModal = false"></div>
-            <div class="bg-white rounded-[3rem] p-10 max-w-lg w-full relative z-[110] animate-scale-in">
-                <h3 class="text-2xl font-black text-gray-900 mb-6 text-center">Seleccionar Método de Pago</h3>
+            <div class="bg-white dark:bg-slate-900 rounded-[3rem] p-10 max-w-lg w-full relative z-[110] animate-scale-in">
+                <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-6 text-center">Seleccionar Método de Pago</h3>
                 <div class="grid grid-cols-1 gap-4">
-                    <button v-for="p in ['tarjeta', 'paypal', 'mercadopago']" :key="p" @click="confirmarPago(p)" class="p-6 border-2 border-gray-50 rounded-2xl hover:border-emerald-500 hover:bg-emerald-50 transition-all font-black text-xs uppercase tracking-widest text-gray-600 flex items-center justify-center gap-3">
+                    <button v-for="p in ['tarjeta', 'paypal', 'mercadopago']" :key="p" @click="confirmarPago(p)" class="p-6 border-2 border-gray-50 rounded-2xl hover:border-emerald-500 hover:bg-emerald-50 transition-all font-black text-xs uppercase tracking-widest text-gray-600 dark:text-gray-300 flex items-center justify-center gap-3">
                         <span class="text-2xl">{{ p === 'tarjeta' ? '💳' : p === 'paypal' ? '🅿️' : '🔵' }}</span>
                         {{ p }}
                     </button>
                 </div>
-                <button @click="showPaymentModal = false" class="mt-6 w-full py-4 bg-gray-100 rounded-2xl text-gray-500 font-bold text-xs uppercase hover:bg-gray-200 transition-colors">
+                <button @click="showPaymentModal = false" class="mt-6 w-full py-4 bg-gray-100 rounded-2xl text-gray-500 dark:text-gray-400 font-bold text-xs uppercase hover:bg-gray-200 transition-colors">
                     Cancelar
                 </button>
             </div>

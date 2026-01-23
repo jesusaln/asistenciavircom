@@ -5,20 +5,20 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-8">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                     <div class="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg shadow-purple-500/30">
                         <FontAwesomeIcon :icon="['fas', 'bullhorn']" class="h-6 w-6" />
                     </div>
                     Campañas de Productos
                 </h1>
-                <p class="text-gray-500 mt-2">Configura campañas con scripts generados por IA</p>
+                <p class="text-gray-500 dark:text-gray-400 mt-2">Configura campañas con scripts generados por IA</p>
             </div>
             <div class="flex items-center gap-3">
                 <button @click="showModalNueva = true" class="px-4 py-2 bg-purple-500 text-white rounded-xl hover:bg-purple-600 flex items-center gap-2 font-medium">
                     <FontAwesomeIcon :icon="['fas', 'plus']" />
                     Nueva Campaña
                 </button>
-                <Link href="/crm" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200">
+                <Link href="/crm" class="px-4 py-2 text-gray-600 dark:text-gray-300 bg-gray-100 rounded-xl hover:bg-gray-200">
                     <FontAwesomeIcon :icon="['fas', 'arrow-left']" class="mr-2" />
                     Volver
                 </Link>
@@ -28,14 +28,14 @@
         <!-- Lista de Campañas -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div v-for="c in campanias" :key="c.id" 
-                 class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow">
+                 class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow">
                 <!-- Header -->
                 <div class="px-5 py-4 border-b border-gray-100" 
-                     :class="c.vigente ? 'bg-gradient-to-r from-purple-50 to-white' : 'bg-white'">
+                     :class="c.vigente ? 'bg-gradient-to-r from-purple-50 to-white' : 'bg-white dark:bg-slate-900'">
                     <div class="flex items-center justify-between">
-                        <h3 class="font-bold text-gray-900 truncate">{{ c.nombre }}</h3>
+                        <h3 class="font-bold text-gray-900 dark:text-white truncate">{{ c.nombre }}</h3>
                         <span class="px-2.5 py-1 rounded-lg text-xs font-bold"
-                              :class="c.vigente ? 'bg-green-100 text-green-700' : c.activa ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-500'">
+                              :class="c.vigente ? 'bg-green-100 text-green-700' : c.activa ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-500 dark:text-gray-400'">
                             {{ c.vigente ? 'Activa' : c.activa ? 'Próxima' : 'Inactiva' }}
                         </span>
                     </div>
@@ -47,9 +47,9 @@
 
                 <!-- Body -->
                 <div class="px-5 py-4 space-y-3">
-                    <p v-if="c.objetivo" class="text-sm text-gray-600">{{ c.objetivo }}</p>
+                    <p v-if="c.objetivo" class="text-sm text-gray-600 dark:text-gray-300">{{ c.objetivo }}</p>
                     
-                    <div class="flex items-center gap-4 text-sm text-gray-500">
+                    <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                         <span class="flex items-center gap-1">
                             <FontAwesomeIcon :icon="['fas', 'calendar']" class="w-4 h-4" />
                             {{ c.fecha_inicio }} - {{ c.fecha_fin }}
@@ -73,7 +73,7 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="px-5 py-3 bg-white border-t border-gray-100 flex items-center justify-between gap-2">
+                <div class="px-5 py-3 bg-white dark:bg-slate-900 border-t border-gray-100 flex items-center justify-between gap-2">
                     <div class="flex items-center gap-1">
                         <a :href="`/crm/campanias/${c.id}/exportar`" 
                            class="p-2 rounded-lg bg-green-50 text-green-600 hover:bg-green-100" 
@@ -87,7 +87,7 @@
                         </button>
                         <button @click="toggleCampania(c)" 
                                 class="p-2 rounded-lg" 
-                                :class="c.activa ? 'bg-amber-50 text-amber-600 hover:bg-amber-100' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'"
+                                :class="c.activa ? 'bg-amber-50 text-amber-600 hover:bg-amber-100' : 'bg-gray-100 text-gray-500 dark:text-gray-400 hover:bg-gray-200'"
                                 :title="c.activa ? 'Desactivar' : 'Activar'">
                             <FontAwesomeIcon :icon="['fas', c.activa ? 'pause' : 'play']" />
                         </button>
@@ -100,9 +100,9 @@
             </div>
 
             <!-- Empty State -->
-            <div v-if="!campanias.length" class="col-span-full text-center py-16 bg-white rounded-2xl border border-gray-100">
+            <div v-if="!campanias.length" class="col-span-full text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100">
                 <FontAwesomeIcon :icon="['fas', 'bullhorn']" class="h-12 w-12 text-gray-300 mb-4" />
-                <p class="text-gray-500 font-medium mb-2">Sin campañas</p>
+                <p class="text-gray-500 dark:text-gray-400 font-medium mb-2">Sin campañas</p>
                 <p class="text-sm text-gray-400 mb-4">Crea tu primera campaña para generar scripts con IA</p>
                 <button @click="showModalNueva = true" class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">
                     <FontAwesomeIcon :icon="['fas', 'plus']" class="mr-2" />
@@ -115,10 +115,10 @@
         <div v-if="showModalNueva" class="fixed inset-0 z-50 overflow-y-auto" @click.self="showModalNueva = false">
             <div class="flex items-center justify-center min-h-screen px-4">
                 <div class="fixed inset-0 bg-black bg-opacity-50"></div>
-                <div class="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6 animate-scale-in">
+                <div class="relative bg-white dark:bg-slate-900 rounded-xl shadow-xl max-w-lg w-full p-6 animate-scale-in">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl font-bold text-gray-900">Nueva Campaña</h3>
-                        <button @click="showModalNueva = false" class="text-gray-400 hover:text-gray-600">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Nueva Campaña</h3>
+                        <button @click="showModalNueva = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300">
                             <FontAwesomeIcon :icon="['fas', 'times']" />
                         </button>
                     </div>
@@ -160,7 +160,7 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Meta de Actividades/Día *</label>
                                 <input v-model.number="form.meta_actividades_dia" type="number" min="1" max="50" required
                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500" />
-                                <p class="text-xs text-gray-500 mt-1">Cuántas llamadas/seguimientos debe hacer cada vendedor por día</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Cuántas llamadas/seguimientos debe hacer cada vendedor por día</p>
                             </div>
                         </div>
 
@@ -182,13 +182,13 @@
         <div v-if="showModalImport" class="fixed inset-0 z-50 overflow-y-auto" @click.self="showModalImport = false">
             <div class="flex items-center justify-center min-h-screen px-4">
                 <div class="fixed inset-0 bg-black bg-opacity-50"></div>
-                <div class="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6 animate-scale-in">
+                <div class="relative bg-white dark:bg-slate-900 rounded-xl shadow-xl max-w-lg w-full p-6 animate-scale-in">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                             <FontAwesomeIcon :icon="['fas', 'upload']" class="text-blue-500" />
                             Importar Scripts
                         </h3>
-                        <button @click="showModalImport = false" class="text-gray-400 hover:text-gray-600">
+                        <button @click="showModalImport = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300">
                             <FontAwesomeIcon :icon="['fas', 'times']" />
                         </button>
                     </div>
@@ -203,9 +203,9 @@
                         </ol>
                     </div>
 
-                    <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+                    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-4 mb-4">
                         <h4 class="font-semibold text-gray-700 mb-2">Formato CSV esperado:</h4>
-                        <pre class="text-xs bg-white p-2 rounded border overflow-x-auto">tipo,nombre,contenido,tips
+                        <pre class="text-xs bg-white dark:bg-slate-900 p-2 rounded border overflow-x-auto">tipo,nombre,contenido,tips
 apertura,Saludo inicial,Buenos días...,Sonreír
 presentacion,Características,Este producto...,Destacar ahorro
 objecion,Muy caro,Entiendo...,Comparar</pre>

@@ -38,7 +38,7 @@ const submit = () => {
     <Link class="text-blue-600 hover:underline" :href="route('herramientas.index')">Volver</Link>
   </div>
 
-  <form @submit.prevent="submit" class="bg-white shadow rounded p-6 space-y-4 max-w-2xl">
+  <form @submit.prevent="submit" class="bg-white dark:bg-slate-900 shadow rounded p-6 space-y-4 max-w-2xl">
     <div>
       <label class="block text-sm font-medium text-gray-700">Nombre</label>
       <input v-model="form.nombre" type="text" class="mt-1 w-full border rounded px-3 py-2" required />

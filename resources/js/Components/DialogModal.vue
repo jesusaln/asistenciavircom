@@ -31,7 +31,7 @@ const close = () => {
         @close="close"
     >
         <div class="px-6 py-4">
-            <div class="text-lg font-medium text-gray-900 dark:text-gray-100" style="font-family: 'Figtree', 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;">
+            <div class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100" style="font-family: 'Figtree', 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;">
                 <slot name="title" />
             </div>
 

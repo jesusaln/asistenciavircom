@@ -13,18 +13,18 @@
                 </svg>
               </div>
               <div>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Editar Actividad</h1>
-                <p class="text-sm text-gray-600 dark:text-gray-300">Actualiza los detalles de tu actividad</p>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white dark:text-gray-100 tracking-tight">Editar Actividad</h1>
+                <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">Actualiza los detalles de tu actividad</p>
               </div>
             </div>
-            <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg">
+            <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 bg-white dark:bg-slate-900 dark:bg-gray-800 px-3 py-2 rounded-lg">
               <div class="flex items-center">
                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
                 Creada: {{ formatDate(actividad.created_at) }}
               </div>
-              <span v-if="actividad.updated_at !== actividad.created_at" class="text-gray-400 dark:text-gray-500">•</span>
+              <span v-if="actividad.updated_at !== actividad.created_at" class="text-gray-400 dark:text-gray-500 dark:text-gray-400">•</span>
               <div v-if="actividad.updated_at !== actividad.created_at" class="flex items-center">
                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
@@ -36,7 +36,7 @@
           <div class="flex gap-2">
             <Link
               :href="route('bitacora.show', actividad.id)"
-              class="inline-flex items-center px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-600 hover:border-gray-300 transition-all duration-200 shadow-sm"
+              class="inline-flex items-center px-4 py-2.5 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-600 hover:border-gray-300 transition-all duration-200 shadow-sm"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -46,7 +46,7 @@
             </Link>
             <Link
               :href="route('bitacora.index')"
-              class="inline-flex items-center px-4 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-200 transition-all duration-200"
+              class="inline-flex items-center px-4 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-200 transition-all duration-200"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -112,10 +112,10 @@
         </Transition>
 
         <!-- Progreso de completitud -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 p-4 shadow-sm">
           <div class="flex items-center justify-between mb-2">
             <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Completitud del formulario</span>
-            <span class="text-sm text-gray-500 dark:text-gray-400">{{ Math.round(formCompleteness) }}%</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">{{ Math.round(formCompleteness) }}%</span>
           </div>
           <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div
@@ -127,7 +127,7 @@
       </div>
 
       <!-- Formulario principal -->
-      <form @submit.prevent="submit" class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+      <form @submit.prevent="submit" class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-800 dark:border-gray-700">
         <div class="p-8">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Título -->
@@ -141,7 +141,7 @@
                   id="titulo"
                   v-model.trim="form.titulo"
                   type="text"
-                  class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                  class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                   :class="getInputClass('titulo')"
                   placeholder="Ej. Instalación minisplit sucursal Centro"
                   maxlength="150"
@@ -161,7 +161,7 @@
                   </svg>
                   {{ form.errors.titulo }}
                 </p>
-                <span class="text-xs text-gray-400 dark:text-gray-500 ml-auto">{{ (form.titulo || '').length }} / 150</span>
+                <span class="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 ml-auto">{{ (form.titulo || '').length }} / 150</span>
               </div>
             </div>
 
@@ -175,14 +175,14 @@
                 <select
                   id="user_id"
                   v-model="form.user_id"
-                  class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                  class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 appearance-none bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                   :class="getInputClass('user_id')"
                   @change="validateField('user_id')"
                 >
                   <option value="" disabled>Selecciona un empleado</option>
                   <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>
                 </select>
-                <svg class="w-5 h-5 text-gray-400 dark:text-gray-500 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-gray-400 dark:text-gray-500 dark:text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                 </svg>
               </div>
@@ -201,13 +201,13 @@
                 <select
                   id="cliente_id"
                   v-model="form.cliente_id"
-                  class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                  class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 appearance-none bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                   :class="getInputClass('cliente_id')"
                 >
                   <option :value="null">— Sin cliente específico —</option>
                   <option v-for="c in clientes" :key="c.id" :value="c.id">{{ c.nombre_razon_social }}</option>
                 </select>
-                <svg class="w-5 h-5 text-gray-400 dark:text-gray-500 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-gray-400 dark:text-gray-500 dark:text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                 </svg>
               </div>
@@ -218,24 +218,24 @@
             <div>
               <label for="asignado_id" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 Asignar a
-                <span class="text-xs text-gray-500 dark:text-gray-400 ml-1">(opcional)</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 ml-1">(opcional)</span>
               </label>
               <div class="relative">
                 <select
                   id="asignado_id"
                   v-model="form.asignado_id"
-                  class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                  class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 appearance-none bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                   :class="getInputClass('asignado_id')"
                 >
                   <option :value="null">— Sin asignar (automático) —</option>
                   <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>
                 </select>
-                <svg class="w-5 h-5 text-gray-400 dark:text-gray-500 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-gray-400 dark:text-gray-500 dark:text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                 </svg>
               </div>
               <p v-if="form.errors.asignado_id" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.errors.asignado_id }}</p>
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
                 <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
@@ -253,14 +253,14 @@
                 <select
                   id="tipo"
                   v-model="form.tipo"
-                  class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                  class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 appearance-none bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                   :class="getInputClass('tipo')"
                   @change="validateField('tipo')"
                 >
                   <option value="" disabled>Selecciona un tipo</option>
                   <option v-for="t in tipos" :key="t" :value="t" class="capitalize">{{ formatLabel(t) }}</option>
                 </select>
-                <svg class="w-5 h-5 text-gray-400 dark:text-gray-500 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-gray-400 dark:text-gray-500 dark:text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                 </svg>
               </div>
@@ -277,20 +277,20 @@
                 <select
                   id="estado"
                   v-model="form.estado"
-                  class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                  class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 appearance-none bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                   :class="getInputClass('estado')"
                   @change="validateField('estado')"
                 >
                   <option v-for="e in estados" :key="e" :value="e">{{ formatLabel(e) }}</option>
                 </select>
-                <svg class="w-5 h-5 text-gray-400 dark:text-gray-500 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-gray-400 dark:text-gray-500 dark:text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                 </svg>
               </div>
               <div class="mt-2 flex items-center justify-between">
                 <div class="flex items-center">
                   <div class="w-2 h-2 rounded-full mr-2" :class="getEstadoIndicator(form.estado)"></div>
-                  <span class="text-xs text-gray-600 dark:text-gray-300">{{ getEstadoDescription(form.estado) }}</span>
+                  <span class="text-xs text-gray-600 dark:text-gray-300 dark:text-gray-300">{{ getEstadoDescription(form.estado) }}</span>
                 </div>
                 <span v-if="hasEstadoChanged" class="text-xs text-blue-600 dark:text-blue-400 font-medium bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">
                   Antes: {{ formatLabel(actividad.estado) }}
@@ -320,7 +320,7 @@
                 id="inicio_at"
                 v-model="form.inicio_at"
                 type="datetime-local"
-                class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                 :class="getInputClass('inicio_at')"
                 @change="validateField('inicio_at')"
               />
@@ -332,16 +332,16 @@
               <div class="flex items-center justify-between mb-2">
                 <label for="fin_at" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Fecha y hora de fin</label>
                 <div class="flex gap-1 flex-wrap">
-                  <button type="button" @click="setNow('fin_at')" class="text-xs px-2 py-1 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                  <button type="button" @click="setNow('fin_at')" class="text-xs px-2 py-1 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-600 dark:text-gray-300 dark:text-gray-300 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                     Ahora
                   </button>
-                  <button type="button" @click="sumarMinutos(30)" class="text-xs px-2 py-1 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                  <button type="button" @click="sumarMinutos(30)" class="text-xs px-2 py-1 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-600 dark:text-gray-300 dark:text-gray-300 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                     +30m
                   </button>
-                  <button type="button" @click="sumarMinutos(60)" class="text-xs px-2 py-1 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                  <button type="button" @click="sumarMinutos(60)" class="text-xs px-2 py-1 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-600 dark:text-gray-300 dark:text-gray-300 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                     +1h
                   </button>
-                  <button type="button" @click="sumarMinutos(120)" class="text-xs px-2 py-1 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                  <button type="button" @click="sumarMinutos(120)" class="text-xs px-2 py-1 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-600 dark:text-gray-300 dark:text-gray-300 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                     +2h
                   </button>
                 </div>
@@ -350,16 +350,16 @@
                 id="fin_at"
                 v-model="form.fin_at"
                 type="datetime-local"
-                class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                 :class="getInputClass('fin_at')"
               />
               <div class="mt-2 space-y-1">
                 <p v-if="form.errors.fin_at" class="text-sm text-red-600 dark:text-red-400">{{ form.errors.fin_at }}</p>
-                <p v-if="duracionTexto" class="text-xs text-gray-600 dark:text-gray-300 flex items-center">
+                <p v-if="duracionTexto" class="text-xs text-gray-600 dark:text-gray-300 dark:text-gray-300 flex items-center">
                   <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
-                  Duración: <span class="font-medium text-gray-800 dark:text-gray-100 ml-1">{{ duracionTexto }}</span>
+                  Duración: <span class="font-medium text-gray-800 dark:text-gray-100 dark:text-gray-100 ml-1">{{ duracionTexto }}</span>
                 </p>
                 <p v-if="duracionWarning" class="text-xs text-amber-600 dark:text-amber-400 flex items-center bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded">
                   <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -378,19 +378,19 @@
                   id="ubicacion"
                   v-model.trim="form.ubicacion"
                   type="text"
-                  class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                  class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                   :class="getInputClass('ubicacion')"
                   placeholder="Ej. Sucursal Centro, Blvd. X, #123"
                   maxlength="255"
                 />
-                <svg class="w-5 h-5 text-gray-400 dark:text-gray-500 absolute right-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-gray-400 dark:text-gray-500 dark:text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
               </div>
               <div class="flex justify-between mt-2">
                 <p v-if="form.errors.ubicacion" class="text-sm text-red-600 dark:text-red-400">{{ form.errors.ubicacion }}</p>
-                <span class="text-xs text-gray-400 dark:text-gray-500 ml-auto">{{ (form.ubicacion || '').length }} / 255</span>
+                <span class="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 ml-auto">{{ (form.ubicacion || '').length }} / 255</span>
               </div>
             </div>
 
@@ -398,14 +398,14 @@
             <div class="md:col-span-2">
               <div class="flex items-center justify-between mb-2">
                 <label for="descripcion" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Descripción detallada</label>
-                <span class="text-xs text-gray-400 dark:text-gray-500">{{ (form.descripcion || '').length }} / 5000</span>
+                <span class="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400">{{ (form.descripcion || '').length }} / 5000</span>
               </div>
               <div class="relative">
                 <textarea
                   id="descripcion"
                   v-model.trim="form.descripcion"
                   rows="5"
-                  class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                  class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                   :class="getInputClass('descripcion')"
                   placeholder="Detalle las actividades realizadas, materiales usados, pendientes, observaciones, etc."
                   maxlength="5000"
@@ -416,7 +416,7 @@
 
               <!-- Plantillas de descripción -->
               <div class="mt-3">
-                <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Plantillas rápidas:</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mb-2">Plantillas rápidas:</p>
                 <div class="flex flex-wrap gap-2">
                   <button
                     v-for="template in descripcionTemplates"
@@ -434,9 +434,9 @@
         </div>
 
         <!-- Footer del formulario -->
-        <div class="px-8 py-6 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 rounded-b-2xl">
+        <div class="px-8 py-6 bg-white dark:bg-slate-900 dark:bg-gray-800 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-b-2xl">
           <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-            <div class="text-xs text-gray-500 dark:text-gray-400 flex items-start">
+            <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 flex items-start">
               <svg class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
@@ -447,7 +447,7 @@
                 type="button"
                 @click="resetForm"
                 :disabled="form.processing || !hasChanges"
-                class="px-6 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-sm"
+                class="px-6 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-sm"
               >
                 <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
@@ -481,11 +481,11 @@
       <!-- Modal de cambios -->
       <Transition name="modal">
         <div v-if="showChangesModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" @click="showChangesModal = false">
-          <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full" @click.stop>
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full" @click.stop>
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800 dark:border-gray-700">
               <div class="flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Cambios realizados</h3>
-                <button @click="showChangesModal = false" class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white dark:text-gray-100">Cambios realizados</h3>
+                <button @click="showChangesModal = false" class="text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-300">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                   </svg>
@@ -503,7 +503,7 @@
                 </div>
               </div>
             </div>
-            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+            <div class="px-6 py-4 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700">
               <button
                 @click="showChangesModal = false"
                 class="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
@@ -552,7 +552,7 @@
       <!-- Atajos de teclado -->
       <div class="mt-4 text-center">
         <details class="group">
-          <summary class="text-xs text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+          <summary class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
             💡 Mostrar atajos de teclado
           </summary>
           <div class="mt-3 bg-gray-900 text-gray-300 rounded-xl p-4 text-xs">

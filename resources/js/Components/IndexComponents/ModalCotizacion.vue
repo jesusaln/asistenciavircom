@@ -6,7 +6,7 @@
       @click.self="onClose"
     >
       <div
-        class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 outline-none"
+        class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 outline-none"
         role="dialog"
         aria-modal="true"
         aria-label="Modal de Cotización"
@@ -18,7 +18,7 @@
           <!-- Columna Principal -->
           <div class="lg:col-span-2 space-y-6">
             <!-- Encabezado -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800">
               <div class="px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-700 text-white rounded-t-lg">
                 <div class="flex justify-between items-start">
                   <div>
@@ -32,12 +32,12 @@
                 </div>
               </div>
 
-              <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+              <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50">
                 <div class="grid grid-cols-2 gap-6">
                   <!-- Cliente -->
                   <div>
-                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Cliente</h3>
-                    <p class="text-base font-bold text-gray-900">{{ selected?.cliente?.nombre || 'Desconocido' }}</p>
+                    <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Cliente</h3>
+                    <p class="text-base font-bold text-gray-900 dark:text-white">{{ selected?.cliente?.nombre || 'Desconocido' }}</p>
                     <div class="mt-2 space-y-1 text-sm text-gray-600">
                       <p v-if="selected?.cliente?.rfc && selected.cliente.rfc !== 'N/A'"><span class="font-medium">RFC:</span> {{ selected.cliente.rfc }}</p>
                       <p v-if="selected?.cliente?.email && selected.cliente.email !== 'N/A'"><span class="font-medium">Email:</span> {{ selected.cliente.email }}</p>
@@ -47,14 +47,14 @@
 
                   <!-- Información -->
                   <div>
-                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Información</h3>
+                    <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Información</h3>
                     <div class="space-y-2 text-sm">
                       <div v-if="selected?.vendedor" class="flex items-center">
                         <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                         <span class="text-gray-600">Vendedor:</span>
-                        <span class="ml-2 font-medium text-gray-900">{{ selected.vendedor?.nombre }}</span>
+                        <span class="ml-2 font-medium text-gray-900 dark:text-white">{{ selected.vendedor?.nombre }}</span>
                       </div>
                       <div class="flex items-center">
                         <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,11 +82,11 @@
             </div>
 
             <!-- Productos -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800">
+              <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50">
                 <div class="flex justify-between items-center">
-                  <h2 class="text-lg font-semibold text-gray-900">Productos y Servicios</h2>
-                  <span class="text-sm text-gray-500">{{ itemsCalculados.length + (productoPrincipal ? 1 : 0) }} items</span>
+                  <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Productos y Servicios</h2>
+                  <span class="text-sm text-gray-500 dark:text-gray-400">{{ itemsCalculados.length + (productoPrincipal ? 1 : 0) }} items</span>
                 </div>
               </div>
 
@@ -94,14 +94,14 @@
                 <table class="min-w-full divide-y divide-gray-200">
                   <thead class="bg-gray-50">
                     <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto/Servicio</th>
-                      <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Cant.</th>
-                      <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Unit.</th>
-                      <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Desc.</th>
-                      <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Producto/Servicio</th>
+                      <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cant.</th>
+                      <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Precio Unit.</th>
+                      <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Desc.</th>
+                      <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Subtotal</th>
                     </tr>
                   </thead>
-                  <tbody class="bg-white divide-y divide-gray-200">
+                  <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200">
                     <template v-for="producto in productoPrincipal ? [productoPrincipal] : itemsCalculados" :key="producto.id">
                       <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4">
@@ -115,7 +115,7 @@
                               </svg>
                             </div>
                             <div class="ml-4">
-                              <div class="text-sm font-medium text-gray-900">{{ producto.nombre }}</div>
+                              <div class="text-sm font-medium text-gray-900 dark:text-white">{{ producto.nombre }}</div>
                               <div class="flex items-center mt-1 space-x-2">
                                 <span :class="producto.tipo === 'producto' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium capitalize">{{ producto.tipo }}</span>
                                 <span v-if="producto.requiere_serie && producto.series && producto.series.length > 0" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
@@ -129,14 +129,14 @@
                           </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
-                          <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-100 text-sm font-semibold text-gray-900">{{ producto.pivot.cantidad }}</span>
+                          <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-100 text-sm font-semibold text-gray-900 dark:text-white">{{ producto.pivot.cantidad }}</span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">{{ formatCurrency(producto.pivot.precio) }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">{{ formatCurrency(producto.pivot.precio) }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
                           <span v-if="producto.pivot.descuento > 0" class="text-red-600 font-medium">{{ producto.pivot.descuento }}%</span>
                           <span v-else class="text-gray-400">-</span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold text-gray-900">{{ formatCurrency(producto.pivot.subtotal) }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold text-gray-900 dark:text-white">{{ formatCurrency(producto.pivot.subtotal) }}</td>
                       </tr>
                       <tr v-if="producto.requiere_serie && producto.series && producto.series.length > 0" class="bg-blue-50">
                         <td colspan="5" class="px-6 py-3">
@@ -147,9 +147,9 @@
                             Series:
                           </div>
                           <div class="flex flex-wrap gap-2">
-                            <div v-for="(serie, idx) in producto.series" :key="idx" class="inline-flex items-center bg-white border border-blue-200 rounded-md px-3 py-1.5 shadow-sm">
-                              <span class="text-sm font-mono font-semibold text-gray-900">{{ serie.numero_serie }}</span>
-                              <span class="ml-2 text-xs text-gray-500">Almacén {{ serie.almacen || 'N/D' }}</span>
+                            <div v-for="(serie, idx) in producto.series" :key="idx" class="inline-flex items-center bg-white dark:bg-slate-900 border border-blue-200 rounded-md px-3 py-1.5 shadow-sm">
+                              <span class="text-sm font-mono font-semibold text-gray-900 dark:text-white">{{ serie.numero_serie }}</span>
+                              <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">Almacén {{ serie.almacen || 'N/D' }}</span>
                             </div>
                           </div>
                         </td>
@@ -163,22 +163,22 @@
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                 </svg>
-                <h3 class="mt-2 text-sm font-medium text-gray-900">No hay productos asociados</h3>
-                <p class="mt-1 text-sm text-gray-500">Esta cotización no tiene productos o servicios registrados.</p>
+                <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No hay productos asociados</h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Esta cotización no tiene productos o servicios registrados.</p>
               </div>
             </div>
           </div>
 
           <!-- Columna Lateral -->
           <div class="space-y-6">
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <h2 class="text-lg font-semibold text-gray-900">Resumen</h2>
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800">
+              <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Resumen</h2>
               </div>
               <div class="px-6 py-4 space-y-3">
                 <div class="flex justify-between text-sm">
                   <span class="text-gray-600">Subtotal</span>
-                  <span class="font-medium text-gray-900">{{ formatCurrency(selected?.subtotal || calcularSubtotal()) }}</span>
+                  <span class="font-medium text-gray-900 dark:text-white">{{ formatCurrency(selected?.subtotal || calcularSubtotal()) }}</span>
                 </div>
                 <div v-if="selected?.descuento_general > 0" class="flex justify-between text-sm">
                   <span class="text-gray-600">Descuento General</span>
@@ -186,11 +186,11 @@
                 </div>
                 <div class="flex justify-between text-sm">
                   <span class="text-gray-600">IVA</span>
-                  <span class="font-medium text-gray-900">{{ formatCurrency(selected?.iva || 0) }}</span>
+                  <span class="font-medium text-gray-900 dark:text-white">{{ formatCurrency(selected?.iva || 0) }}</span>
                 </div>
                 <div class="pt-3 border-t-2 border-gray-300">
                   <div class="flex justify-between items-center">
-                    <span class="text-base font-semibold text-gray-900">Total</span>
+                    <span class="text-base font-semibold text-gray-900 dark:text-white">Total</span>
                     <span class="text-2xl font-bold text-purple-600">{{ formatCurrency(selected?.total || calcularTotal()) }}</span>
                   </div>
                 </div>
@@ -208,27 +208,27 @@
               </div>
             </div>
 
-            <div v-if="auditoriaSafe" class="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-900">Auditoría</h2>
+            <div v-if="auditoriaSafe" class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800">
+              <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Auditoría</h2>
               </div>
               <div class="px-6 py-4 space-y-3 text-sm">
                 <div>
-                  <dt class="text-xs font-medium text-gray-500">Creado por</dt>
-                  <dd class="text-gray-900 font-medium">{{ auditoriaSafe.creado_por || 'N/A' }}</dd>
-                  <dd class="text-xs text-gray-500">{{ formatearFechaHora(auditoriaSafe.creado_en || selected?.created_at) }}</dd>
+                  <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Creado por</dt>
+                  <dd class="text-gray-900 dark:text-white font-medium">{{ auditoriaSafe.creado_por || 'N/A' }}</dd>
+                  <dd class="text-xs text-gray-500 dark:text-gray-400">{{ formatearFechaHora(auditoriaSafe.creado_en || selected?.created_at) }}</dd>
                 </div>
                 <div>
-                  <dt class="text-xs font-medium text-gray-500">Última actualización</dt>
-                  <dd class="text-gray-900 font-medium">{{ auditoriaSafe.actualizado_por || 'N/A' }}</dd>
-                  <dd class="text-xs text-gray-500">{{ formatearFechaHora(auditoriaSafe.actualizado_en || selected?.updated_at) }}</dd>
+                  <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Última actualización</dt>
+                  <dd class="text-gray-900 dark:text-white font-medium">{{ auditoriaSafe.actualizado_por || 'N/A' }}</dd>
+                  <dd class="text-xs text-gray-500 dark:text-gray-400">{{ formatearFechaHora(auditoriaSafe.actualizado_en || selected?.updated_at) }}</dd>
                 </div>
               </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 space-y-2">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 p-4 space-y-2">
               <button @click="verPdfEnNavegador(selected?.id)" 
-                      class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                      class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 hover:bg-gray-50 transition-colors">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -236,7 +236,7 @@
                 Ver PDF
               </button>
               <button @click="descargarPdf(selected?.id, numeroCotizacion)" 
-                      class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                      class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 hover:bg-gray-50 transition-colors">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
@@ -344,12 +344,12 @@ const estadoClaseBg = computed(() => {
     convertida_pedido: 'bg-green-50 border-green-200',
     convertida: 'bg-green-50 border-green-200',
     aprobada: 'bg-blue-50 border-blue-200',
-    pendiente: 'bg-gray-50 border-gray-200',
+    pendiente: 'bg-gray-50 border-gray-200 dark:border-slate-800',
     enviada: 'bg-purple-50 border-purple-200',
     enviado_pedido: 'bg-orange-50 border-orange-200',
     borrador: 'bg-yellow-50 border-yellow-200'
   }
-  return map[props.selected?.estado] || 'bg-gray-50 border-gray-200'
+  return map[props.selected?.estado] || 'bg-gray-50 border-gray-200 dark:border-slate-800'
 })
 
 const estadoPunto = computed(() => {

@@ -2,14 +2,14 @@
 <template>
   <Head title="Traspasos de Inventario" />
 
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+  <div class="min-h-screen bg-gray-50 dark:bg-slate-950 dark:bg-gray-900 p-6">
     <div class="w-full">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Traspasos de Inventario</h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-1">Historial completo de movimientos entre almacenes</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white dark:text-gray-100">Traspasos de Inventario</h1>
+            <p class="text-gray-600 dark:text-gray-300 dark:text-gray-400 mt-1">Historial completo de movimientos entre almacenes</p>
           </div>
           <Link
             :href="route('traspasos.create')"
@@ -25,7 +25,7 @@
 
       <!-- Estadísticas -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm p-6">
           <div class="flex items-center">
             <div class="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
               <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,13 +33,13 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Traspasos</p>
-              <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ stats.total }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300 dark:text-gray-300">Total Traspasos</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white dark:text-gray-100">{{ stats.total }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm p-6">
           <div class="flex items-center">
             <div class="p-3 bg-green-100 dark:bg-green-900/40 rounded-lg">
               <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,13 +47,13 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Productos Trasladados</p>
-              <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ stats.productos_trasladados }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300 dark:text-gray-300">Productos Trasladados</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white dark:text-gray-100">{{ stats.productos_trasladados }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm p-6">
           <div class="flex items-center">
             <div class="p-3 bg-orange-100 dark:bg-orange-900/40 rounded-lg">
               <svg class="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,13 +61,13 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Almacenes Origen</p>
-              <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ stats.almacenes_origen }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300 dark:text-gray-300">Almacenes Origen</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white dark:text-gray-100">{{ stats.almacenes_origen }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm p-6">
           <div class="flex items-center">
             <div class="p-3 bg-purple-100 dark:bg-purple-900/40 rounded-lg">
               <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,15 +75,15 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Almacenes Destino</p>
-              <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ stats.almacenes_destino }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300 dark:text-gray-300">Almacenes Destino</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white dark:text-gray-100">{{ stats.almacenes_destino }}</p>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Filtros -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 mb-6">
+      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <!-- Búsqueda -->
           <div>
@@ -149,54 +149,54 @@
       </div>
 
       <!-- Tabla -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-700/50">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Productos</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Origen → Destino</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">ID</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Productos</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Origen → Destino</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Total</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              <tr v-for="traspaso in traspasos.data" :key="traspaso.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+            <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+              <tr v-for="traspaso in traspasos.data" :key="traspaso.id" class="hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700/50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">
                   #{{ traspaso.id }}
                 </td>
                 <td class="px-6 py-4">
                   <div class="flex items-center">
                     <div class="flex-shrink-0 h-10 w-10">
                       <div class="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                        <span v-if="traspaso.productos_count > 1" class="text-xs font-bold text-gray-600 dark:text-gray-300">{{ traspaso.productos_count }}</span>
-                        <svg v-else class="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <span v-if="traspaso.productos_count > 1" class="text-xs font-bold text-gray-600 dark:text-gray-300 dark:text-gray-300">{{ traspaso.productos_count }}</span>
+                        <svg v-else class="h-5 w-5 text-gray-500 dark:text-gray-400 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                         </svg>
                       </div>
                     </div>
                     <div class="ml-4">
-                      <div v-if="traspaso.productos && traspaso.productos.length > 1" class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <div v-if="traspaso.productos && traspaso.productos.length > 1" class="text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">
                         {{ traspaso.productos.length }} productos
-                        <span class="text-xs text-gray-500 dark:text-gray-400 block">
+                        <span class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 block">
                           {{ traspaso.productos.slice(0, 2).map(p => p.nombre).join(', ') }}
                           <span v-if="traspaso.productos.length > 2">...</span>
                         </span>
                       </div>
-                      <div v-else class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <div v-else class="text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">
                         {{ traspaso.producto?.nombre || traspaso.productos?.[0]?.nombre || 'Producto no encontrado' }}
                       </div>
                     </div>
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900 dark:text-gray-100">
+                  <div class="text-sm text-gray-900 dark:text-white dark:text-gray-100">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300">
                       {{ traspaso.almacen_origen?.nombre || 'N/A' }}
                     </span>
-                    <svg class="inline w-4 h-4 mx-2 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="inline w-4 h-4 mx-2 text-gray-400 dark:text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                     </svg>
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300">
@@ -204,15 +204,15 @@
                     </span>
                   </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white dark:text-gray-100">
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
                     {{ traspaso.cantidad_total || traspaso.cantidad || 0 }} unidades
                   </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
                   {{ formatDate(traspaso.created_at) }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white dark:text-gray-100">
                   <div class="flex items-center gap-2">
                     <button type="button" @click="verTraspaso(traspaso)" class="p-2 rounded-full text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700" title="Ver">
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
@@ -231,7 +231,7 @@
         </div>
 
         <!-- Paginación -->
-        <div class="bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700 sm:px-6">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700 sm:px-6">
           <div class="flex items-center justify-between">
             <div class="text-sm text-gray-700 dark:text-gray-300">
               Mostrando {{ pagination.from }} a {{ pagination.to }} de {{ pagination.total }} resultados
@@ -240,14 +240,14 @@
               <Link
                 v-if="traspasos.prev_page_url"
                 :href="traspasos.prev_page_url"
-                class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600"
+                class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600"
               >
                 Anterior
               </Link>
               <Link
                 v-if="traspasos.next_page_url"
                 :href="traspasos.next_page_url"
-                class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600"
+                class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600"
               >
                 Siguiente
               </Link>
@@ -260,56 +260,56 @@
 
   <!-- Modal Ver Traspaso -->
   <div v-if="mostrarModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" @click.self="cerrarModal">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-2xl w-full p-6 space-y-4">
+    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-xl max-w-2xl w-full p-6 space-y-4">
       <div class="flex items-center justify-between">
         <div>
-          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Traspaso #{{ traspasoSeleccionado?.id }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-300">Fecha: {{ formatDate(traspasoSeleccionado?.created_at) }}</p>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white dark:text-gray-100">Traspaso #{{ traspasoSeleccionado?.id }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">Fecha: {{ formatDate(traspasoSeleccionado?.created_at) }}</p>
         </div>
-        <button @click="cerrarModal" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+        <button @click="cerrarModal" class="text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div class="p-3 bg-white dark:bg-gray-700 rounded-lg">
-          <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-semibold">Origen</p>
-          <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ traspasoSeleccionado?.almacen_origen?.nombre || 'N/D' }}</p>
+        <div class="p-3 bg-white dark:bg-slate-900 dark:bg-gray-700 rounded-lg">
+          <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase font-semibold">Origen</p>
+          <p class="text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">{{ traspasoSeleccionado?.almacen_origen?.nombre || 'N/D' }}</p>
         </div>
-        <div class="p-3 bg-white dark:bg-gray-700 rounded-lg">
-          <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-semibold">Destino</p>
-          <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ traspasoSeleccionado?.almacen_destino?.nombre || 'N/D' }}</p>
+        <div class="p-3 bg-white dark:bg-slate-900 dark:bg-gray-700 rounded-lg">
+          <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase font-semibold">Destino</p>
+          <p class="text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">{{ traspasoSeleccionado?.almacen_destino?.nombre || 'N/D' }}</p>
         </div>
-        <div class="p-3 bg-white dark:bg-gray-700 rounded-lg">
-          <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-semibold">Referencia</p>
-          <p class="text-sm text-gray-800 dark:text-gray-200">{{ traspasoSeleccionado?.referencia || 'Sin referencia' }}</p>
+        <div class="p-3 bg-white dark:bg-slate-900 dark:bg-gray-700 rounded-lg">
+          <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase font-semibold">Referencia</p>
+          <p class="text-sm text-gray-800 dark:text-gray-100 dark:text-gray-200">{{ traspasoSeleccionado?.referencia || 'Sin referencia' }}</p>
         </div>
-        <div class="p-3 bg-white dark:bg-gray-700 rounded-lg">
-          <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-semibold">Costo transporte</p>
-          <p class="text-sm text-gray-800 dark:text-gray-200">{{ traspasoSeleccionado?.costo_transporte ?? 0 }}</p>
+        <div class="p-3 bg-white dark:bg-slate-900 dark:bg-gray-700 rounded-lg">
+          <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase font-semibold">Costo transporte</p>
+          <p class="text-sm text-gray-800 dark:text-gray-100 dark:text-gray-200">{{ traspasoSeleccionado?.costo_transporte ?? 0 }}</p>
         </div>
       </div>
 
       <!-- Lista de Productos -->
-      <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-        <div class="bg-gray-100 dark:bg-gray-700/50 px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+      <div class="border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-lg overflow-hidden">
+        <div class="bg-gray-100 dark:bg-gray-700/50 px-4 py-2 border-b border-gray-200 dark:border-slate-800 dark:border-gray-700">
           <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">Productos Traspasados ({{ traspasoSeleccionado?.productos?.length || 1 }})</p>
         </div>
-        <div class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+        <div class="divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700 bg-white dark:bg-slate-900 dark:bg-gray-800">
           <div v-if="traspasoSeleccionado?.productos && traspasoSeleccionado.productos.length" v-for="(prod, idx) in traspasoSeleccionado.productos" :key="idx" class="px-4 py-3 flex justify-between items-center">
-            <span class="text-sm text-gray-900 dark:text-gray-100">{{ prod.nombre }}</span>
+            <span class="text-sm text-gray-900 dark:text-white dark:text-gray-100">{{ prod.nombre }}</span>
             <span class="text-sm font-semibold text-blue-600 dark:text-blue-400">{{ prod.cantidad }} unid.</span>
           </div>
           <div v-else class="px-4 py-3 flex justify-between items-center">
-            <span class="text-sm text-gray-900 dark:text-gray-100">{{ traspasoSeleccionado?.producto?.nombre || 'N/D' }}</span>
+            <span class="text-sm text-gray-900 dark:text-white dark:text-gray-100">{{ traspasoSeleccionado?.producto?.nombre || 'N/D' }}</span>
             <span class="text-sm font-semibold text-blue-600 dark:text-blue-400">{{ traspasoSeleccionado?.cantidad || traspasoSeleccionado?.cantidad_total }} unid.</span>
           </div>
         </div>
       </div>
 
-      <div class="p-3 bg-white dark:bg-gray-700 rounded-lg">
-        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-semibold">Observaciones</p>
-        <p class="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-line">{{ traspasoSeleccionado?.observaciones || 'Sin observaciones' }}</p>
+      <div class="p-3 bg-white dark:bg-slate-900 dark:bg-gray-700 rounded-lg">
+        <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase font-semibold">Observaciones</p>
+        <p class="text-sm text-gray-800 dark:text-gray-100 dark:text-gray-200 whitespace-pre-line">{{ traspasoSeleccionado?.observaciones || 'Sin observaciones' }}</p>
       </div>
 
       <div class="flex justify-end">
@@ -320,10 +320,10 @@
 
   <!-- Modal Eliminar -->
   <div v-if="mostrarModalEliminar" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" @click.self="cerrarModalEliminar">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4">
+    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4">
       <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Eliminar traspaso</h2>
-        <button @click="cerrarModalEliminar" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white dark:text-gray-100">Eliminar traspaso</h2>
+        <button @click="cerrarModalEliminar" class="text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
@@ -334,7 +334,7 @@
         Esta acción regresará la cantidad al almacén origen y descontará del destino.
       </div>
       <div class="flex justify-end gap-3">
-        <button @click="cerrarModalEliminar" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600">Cancelar</button>
+        <button @click="cerrarModalEliminar" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600">Cancelar</button>
         <button @click="eliminarTraspaso" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">Eliminar</button>
       </div>
     </div>

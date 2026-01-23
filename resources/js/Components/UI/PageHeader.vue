@@ -7,14 +7,14 @@
                     <Link 
                         v-if="crumb.href && index < breadcrumbs.length - 1"
                         :href="crumb.href"
-                        class="text-gray-500 hover:text-amber-600 transition-colors"
+                        class="text-gray-500 dark:text-gray-400 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-400 transition-colors"
                     >
                         {{ crumb.label }}
                     </Link>
-                    <span v-else class="text-gray-900 font-medium">{{ crumb.label }}</span>
+                    <span v-else class="text-gray-900 dark:text-white dark:text-white font-medium transition-colors">{{ crumb.label }}</span>
                     <svg 
                         v-if="index < breadcrumbs.length - 1" 
-                        class="h-4 w-4 text-gray-400 mx-2" 
+                        class="h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-400 mx-2 transition-colors" 
                         fill="currentColor" 
                         viewBox="0 0 20 20"
                     >
@@ -28,14 +28,14 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <!-- Left side: Title and subtitle -->
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white flex items-center gap-3 transition-colors">
                     <!-- Icon -->
-                    <span v-if="$slots.icon" class="flex-shrink-0 h-8 w-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center">
+                    <span v-if="$slots.icon" class="flex-shrink-0 h-8 w-8 rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400 flex items-center justify-center transition-colors">
                         <slot name="icon" />
                     </span>
                     {{ title }}
                 </h1>
-                <p v-if="subtitle" class="mt-1 text-sm text-gray-500">
+                <p v-if="subtitle" class="mt-1 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">
                     {{ subtitle }}
                 </p>
             </div>
@@ -57,7 +57,7 @@
         </div>
 
         <!-- Divider -->
-        <div v-if="showDivider" class="mt-6 border-b border-gray-200"></div>
+        <div v-if="showDivider" class="mt-6 border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 transition-colors"></div>
     </div>
 </template>
 

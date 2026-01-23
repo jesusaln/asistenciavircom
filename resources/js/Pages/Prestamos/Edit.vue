@@ -261,21 +261,21 @@ const getEstadoColor = (estado) => {
     'completado': 'bg-blue-100 text-blue-800',
     'cancelado': 'bg-red-100 text-red-800'
   }
-  return colors[estado] || 'bg-gray-100 text-gray-800'
+  return colors[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100'
 }
 </script>
 
 <template>
   <Head title="Editar Préstamo" />
 
-  <div class="prestamos-edit min-h-screen bg-white">
+  <div class="prestamos-edit min-h-screen bg-white dark:bg-slate-900">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Editar Préstamo</h1>
-            <p class="text-gray-600 mt-2">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Editar Préstamo</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-2">
               Modifique la información del préstamo
               <span v-if="!puedeEditarTerminos" class="text-orange-600 font-medium">
                 (Algunos campos están bloqueados porque ya tiene pagos registrados)
@@ -288,13 +288,13 @@ const getEstadoColor = (estado) => {
             </span>
             <Link
               :href="`/prestamos/${prestamo.id}`"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
             >
               👁 Ver Detalles
             </Link>
             <Link
               href="/prestamos"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
             >
               ← Volver a Préstamos
             </Link>
@@ -305,9 +305,9 @@ const getEstadoColor = (estado) => {
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Formulario principal -->
         <div class="lg:col-span-2">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-              <h2 class="text-lg font-semibold text-gray-900">Información del Préstamo</h2>
+          <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información del Préstamo</h2>
             </div>
 
             <form @submit.prevent="submitForm" class="p-6 space-y-6">
@@ -357,7 +357,7 @@ const getEstadoColor = (estado) => {
                   </label>
                   <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span class="text-gray-500 sm:text-sm">$</span>
+                      <span class="text-gray-500 dark:text-gray-400 sm:text-sm">$</span>
                     </div>
                     <input
                       id="monto_prestado"
@@ -394,7 +394,7 @@ const getEstadoColor = (estado) => {
                       :class="{ 'border-red-300': errors.tasa_interes }"
                     />
                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <span class="text-gray-500 sm:text-sm">%</span>
+                      <span class="text-gray-500 dark:text-gray-400 sm:text-sm">%</span>
                     </div>
                   </div>
                   <p v-if="errors.tasa_interes" class="mt-1 text-sm text-red-600">{{ errors.tasa_interes }}</p>
@@ -483,10 +483,10 @@ const getEstadoColor = (estado) => {
               </div>
 
               <!-- Botones de acción -->
-              <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
+              <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-slate-800">
                 <Link
                   :href="`/prestamos/${prestamo.id}`"
-                  class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                  class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
                 >
                   ❌ Cancelar
                 </Link>
@@ -511,12 +511,12 @@ const getEstadoColor = (estado) => {
 
         <!-- Panel de cálculos e información -->
         <div class="lg:col-span-1">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-8">
-            <div class="px-6 py-4 border-b border-gray-200">
-              <h3 class="text-lg font-semibold text-gray-900">
+          <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-8">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
                 {{ puedeEditarTerminos ? 'Cálculo de Pagos' : 'Información Actual' }}
               </h3>
-              <p class="text-sm text-gray-600 mt-1">
+              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
                 {{ puedeEditarTerminos ? 'Se actualiza automáticamente' : 'Valores actuales del préstamo' }}
               </p>
             </div>
@@ -524,7 +524,7 @@ const getEstadoColor = (estado) => {
             <div class="p-6">
               <div v-if="puedeEditarTerminos && calculando" class="text-center py-8">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto"></div>
-                <p class="text-sm text-gray-600 mt-2">Calculando...</p>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">Calculando...</p>
               </div>
 
               <div v-else-if="puedeEditarTerminos && form.monto_prestado > 0 && form.numero_pagos > 0">
@@ -546,9 +546,9 @@ const getEstadoColor = (estado) => {
                   </div>
 
                   <!-- Total a pagar -->
-                  <div class="flex justify-between items-center py-3 border-b-2 border-gray-200">
+                  <div class="flex justify-between items-center py-3 border-b-2 border-gray-200 dark:border-slate-800">
                     <span class="text-sm font-medium text-gray-700">Total a Pagar:</span>
-                    <span class="text-xl font-bold text-gray-900">
+                    <span class="text-xl font-bold text-gray-900 dark:text-white">
                       ${{ formatearMoneda(calculos.total_pagar) }}
                     </span>
                   </div>
@@ -571,17 +571,17 @@ const getEstadoColor = (estado) => {
                   </span>
                 </div>
 
-                <div class="flex justify-between items-center py-3 border-b-2 border-gray-200">
+                <div class="flex justify-between items-center py-3 border-b-2 border-gray-200 dark:border-slate-800">
                   <span class="text-sm font-medium text-gray-700">Total a Pagar:</span>
-                  <span class="text-xl font-bold text-gray-900">
+                  <span class="text-xl font-bold text-gray-900 dark:text-white">
                     ${{ formatearMoneda(prestamo.monto_total_pagar) }}
                   </span>
                 </div>
 
                 <!-- Información adicional -->
-                <div class="bg-white rounded-lg p-4 mt-4">
-                  <h4 class="text-sm font-medium text-gray-900 mb-2">Estado del Préstamo</h4>
-                  <div class="space-y-2 text-sm text-gray-600">
+                <div class="bg-white dark:bg-slate-900 rounded-lg p-4 mt-4">
+                  <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Estado del Préstamo</h4>
+                  <div class="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                     <div class="flex justify-between">
                       <span>Pagos realizados:</span>
                       <span>{{ prestamo.pagos_realizados }} / {{ prestamo.numero_pagos }}</span>
@@ -597,11 +597,11 @@ const getEstadoColor = (estado) => {
                   </div>
 
                   <!-- Información del cálculo original -->
-                  <div class="mt-3 pt-3 border-t border-gray-200">
-                    <div class="text-xs text-gray-500 mb-2">
+                  <div class="mt-3 pt-3 border-t border-gray-200 dark:border-slate-800">
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
                       <strong>Configuración original:</strong>
                     </div>
-                    <div class="space-y-1 text-xs text-gray-500">
+                    <div class="space-y-1 text-xs text-gray-500 dark:text-gray-400">
                       <div class="flex justify-between">
                         <span>Tasa anual:</span>
                         <span>{{ prestamo.tasa_interes }}%</span>

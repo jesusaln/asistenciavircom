@@ -9,16 +9,16 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
           </svg>
         </div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
           {{ isAdmin ? `Editar Usuario #${props.usuario.id}` : `Ver Usuario #${props.usuario.id}` }}
         </h1>
-        <p class="text-gray-600">
+        <p class="text-gray-600 dark:text-gray-300">
           {{ isAdmin ? 'Actualiza la información del usuario' : 'Información del usuario (solo lectura)' }}
         </p>
       </div>
 
       <!-- Form Card -->
-      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
         <!-- Progress Bar -->
         <div class="h-1 bg-gray-100">
           <div class="h-1 bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-300"
@@ -28,14 +28,14 @@
         <form @submit.prevent="submit" class="p-8 space-y-8">
           <!-- Personal Information Section -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                 <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                 </svg>
                 Información Personal
               </h2>
-              <p class="text-sm text-gray-600 mt-1">Actualiza los datos básicos del usuario</p>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Actualiza los datos básicos del usuario</p>
             </div>
 
             <!-- Nombre -->
@@ -54,7 +54,7 @@
                   type="text"
                   id="name"
                   :readonly="!isAdmin"
-                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900"
                   :class="{
                     'border-red-300 bg-red-50 focus:ring-red-500': form.errors.name,
                     'border-green-300 bg-green-50': form.name && !form.errors.name,
@@ -88,7 +88,7 @@
                   type="email"
                   id="email"
                   :readonly="!isAdmin"
-                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900"
                   :class="{
                     'border-red-300 bg-red-50 focus:ring-red-500': form.errors.email,
                     'border-green-300 bg-green-50': form.email && !form.errors.email && isValidEmail,
@@ -122,7 +122,7 @@
                   type="tel"
                   id="telefono"
                   :readonly="!isAdmin"
-                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900"
                   :class="{
                     'bg-gray-100 cursor-not-allowed': !isAdmin
                   }"
@@ -135,14 +135,14 @@
 
           <!-- Almacenes Predeterminados (Solo para admins) -->
           <div v-if="isAdmin" class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                 <svg class="w-5 h-5 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                 </svg>
                 Almacenes Predeterminados
               </h2>
-              <p class="text-sm text-gray-600 mt-1">Asigna almacenes por defecto para ventas y compras</p>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Asigna almacenes por defecto para ventas y compras</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -155,14 +155,14 @@
                   v-model="selectedAlmacenVenta"
                   @change="updateAlmacenVenta"
                   id="almacen_venta_id"
-                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white appearance-none"
+                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 appearance-none"
                 >
                   <option value="">Sin almacén predeterminado</option>
                   <option v-for="almacen in props.almacenes" :key="almacen.id" :value="almacen.id">
                     {{ almacen.nombre }}
                   </option>
                 </select>
-                <p class="mt-1 text-xs text-gray-500">Este almacén se usará por defecto al crear ventas</p>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Este almacén se usará por defecto al crear ventas</p>
               </div>
 
               <!-- Almacén de Compra -->
@@ -174,40 +174,40 @@
                   v-model="selectedAlmacenCompra"
                   @change="updateAlmacenCompra"
                   id="almacen_compra_id"
-                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white appearance-none"
+                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 appearance-none"
                 >
                   <option value="">Sin almacén predeterminado</option>
                   <option v-for="almacen in props.almacenes" :key="almacen.id" :value="almacen.id">
                     {{ almacen.nombre }}
                   </option>
                 </select>
-                <p class="mt-1 text-xs text-gray-500">Este almacén se usará por defecto al recibir compras</p>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Este almacén se usará por defecto al recibir compras</p>
               </div>
             </div>
           </div>
 
           <!-- Asignación de Roles (Solo para admins) -->
           <div v-if="isAdmin" class="space-y-6 border-t pt-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                 <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                 </svg>
                 Roles del Usuario
               </h2>
-              <p class="text-sm text-gray-600 mt-1">Selecciona los roles que tendrá el usuario. Cada rol incluye permisos predefinidos.</p>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Selecciona los roles que tendrá el usuario. Cada rol incluye permisos predefinidos.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div v-for="role in props.roles" :key="role.id" 
                    class="relative border rounded-xl p-4 hover:shadow-md transition-all duration-200 cursor-pointer"
-                   :class="form.roles.includes(role.name) ? 'border-purple-400 bg-purple-50 ring-2 ring-purple-200' : 'border-gray-200 hover:border-purple-200'"
+                   :class="form.roles.includes(role.name) ? 'border-purple-400 bg-purple-50 ring-2 ring-purple-200' : 'border-gray-200 dark:border-slate-800 hover:border-purple-200'"
                    @click="toggleRole(role.name)">
                 
                 <!-- Checkbox visual -->
                 <div class="absolute top-3 right-3">
                   <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
-                       :class="form.roles.includes(role.name) ? 'border-purple-600 bg-purple-600' : 'border-gray-300 bg-white'">
+                       :class="form.roles.includes(role.name) ? 'border-purple-600 bg-purple-600' : 'border-gray-300 bg-white dark:bg-slate-900'">
                     <svg v-if="form.roles.includes(role.name)" class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                     </svg>
@@ -216,8 +216,8 @@
 
                 <!-- Rol Header -->
                 <div class="mb-3">
-                  <h3 class="text-base font-bold text-gray-900">{{ role.label }}</h3>
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                  <h3 class="text-base font-bold text-gray-900 dark:text-white">{{ role.label }}</h3>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:text-gray-300">
                     {{ role.permissions_count }} permisos
                   </span>
                 </div>
@@ -225,7 +225,7 @@
                 <!-- Permisos Summary -->
                 <div class="space-y-1">
                   <div v-for="(count, action) in role.permissions_summary" :key="action" class="flex items-center justify-between text-xs">
-                    <span class="text-gray-500 capitalize">{{ action }}</span>
+                    <span class="text-gray-500 dark:text-gray-400 capitalize">{{ action }}</span>
                     <span class="font-semibold text-gray-700">{{ count }}</span>
                   </div>
                 </div>
@@ -237,7 +237,7 @@
                     <span v-for="perm in role.permissions_list.slice(0, 3)" :key="perm" class="inline-block px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-[10px] font-medium">
                       {{ perm }}
                     </span>
-                    <span v-if="role.permissions_count > 3" class="inline-block px-2 py-0.5 bg-gray-100 text-gray-500 rounded text-[10px] font-medium">
+                    <span v-if="role.permissions_count > 3" class="inline-block px-2 py-0.5 bg-gray-100 text-gray-500 dark:text-gray-400 rounded text-[10px] font-medium">
                       +{{ role.permissions_count - 3 }} más
                     </span>
                   </div>
@@ -249,14 +249,14 @@
 
           <!-- Permisos Personalizados (Solo para admins) -->
           <div v-if="isAdmin && props.permissionGroups" class="space-y-6 border-t pt-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                 <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
                 </svg>
                 Permisos Personalizados
               </h2>
-              <p class="text-sm text-gray-600 mt-1">Asigna permisos específicos además de los heredados por roles</p>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Asigna permisos específicos además de los heredados por roles</p>
             </div>
 
             <!-- Leyenda -->
@@ -273,18 +273,18 @@
 
             <!-- Matrix Table -->
             <div class="overflow-x-auto border rounded-xl">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-white">
+              <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                <thead class="bg-white dark:bg-slate-900">
                   <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Módulo</th>
-                    <th v-for="action in actions" :key="action" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Módulo</th>
+                    <th v-for="action in actions" :key="action" class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       {{ actionLabels[action] || action }}
                     </th>
                   </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                  <tr v-for="group in props.permissionGroups" :key="group.module" class="hover:bg-white">
-                    <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ group.label }}</td>
+                <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+                  <tr v-for="group in props.permissionGroups" :key="group.module" class="hover:bg-white dark:bg-slate-900">
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">{{ group.label }}</td>
                     <td v-for="action in actions" :key="action" class="px-3 py-3 text-center">
                       <template v-if="group.permissions[action]">
                         <input
@@ -327,14 +327,14 @@
 
           <!-- Security Section -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                 <svg class="w-5 h-5 mr-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                 </svg>
                 Seguridad (Opcional)
               </h2>
-              <p class="text-sm text-gray-600 mt-1">Deja en blanco si no deseas cambiar la contraseña</p>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Deja en blanco si no deseas cambiar la contraseña</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -353,7 +353,7 @@
                     v-model="form.password"
                     :type="showPassword ? 'text' : 'password'"
                     id="password"
-                    class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
+                    class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900"
                     placeholder="Mínimo 8 caracteres"
                     :class="{
                       'border-red-300 bg-red-50 focus:ring-red-500': form.errors.password,
@@ -364,7 +364,7 @@
                   <button
                     type="button"
                     @click="showPassword = !showPassword"
-                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:text-gray-300"
                   >
                     <svg v-if="showPassword" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
@@ -382,7 +382,7 @@
                            class="h-1 w-6 rounded-full transition-all duration-200"
                            :class="passwordStrength >= i ? 'bg-green-500' : 'bg-gray-200'"></div>
                     </div>
-                    <span class="text-xs text-gray-600">{{ passwordStrengthText }}</span>
+                    <span class="text-xs text-gray-600 dark:text-gray-300">{{ passwordStrengthText }}</span>
                   </div>
                 </div>
                 <InputError class="mt-2" :message="form.errors.password" />
@@ -403,7 +403,7 @@
                     v-model="form.password_confirmation"
                     :type="showPasswordConfirmation ? 'text' : 'password'"
                     id="password_confirmation"
-                    class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
+                    class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900"
                     placeholder="Repite la contraseña"
                     :class="{
                       'border-red-300 bg-red-50 focus:ring-red-500': form.errors.password_confirmation || (form.password_confirmation && form.password !== form.password_confirmation),
@@ -414,7 +414,7 @@
                   <button
                     type="button"
                     @click="showPasswordConfirmation = !showPasswordConfirmation"
-                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:text-gray-300"
                   >
                     <svg v-if="showPasswordConfirmation" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
@@ -443,10 +443,10 @@
           </div>
 
           <!-- Action Buttons -->
-          <div class="pt-6 border-t border-gray-200">
+          <div class="pt-6 border-t border-gray-200 dark:border-slate-800">
             <div class="flex flex-col sm:flex-row gap-4 justify-end">
               <Link :href="route('usuarios.index')"
-                    class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-gray-300 rounded-xl text-gray-700 bg-white hover:bg-white font-semibold transition-all duration-200 hover:shadow-md">
+                    class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-gray-300 rounded-xl text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 font-semibold transition-all duration-200 hover:shadow-md">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>

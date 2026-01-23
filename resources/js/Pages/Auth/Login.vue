@@ -46,25 +46,25 @@ const submit = () => {
 <template>
     <Head title="Iniciar Sesión" />
 
-    <div class="min-h-screen bg-white dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans transition-colors duration-300">
+    <div class="min-h-screen bg-white dark:bg-slate-900 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans transition-colors duration-300">
         <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
             <Link href="/" class="flex justify-center mb-6">
                 <img v-if="$page.props.empresa_config?.logo_url" :src="$page.props.empresa_config.logo_url" class="h-20 w-auto object-contain" :alt="$page.props.empresa_config.nombre_empresa">
                 <div v-else class="flex flex-col items-center">
                     <span class="text-4xl">🔒</span>
-                    <span class="text-2xl font-black text-gray-900 dark:text-white mt-2 uppercase tracking-tight transition-colors">{{ $page.props.empresa_config?.nombre_empresa || 'Vircom' }}</span>
+                    <span class="text-2xl font-black text-gray-900 dark:text-white dark:text-white mt-2 uppercase tracking-tight transition-colors">{{ $page.props.empresa_config?.nombre_empresa || 'Vircom' }}</span>
                 </div>
             </Link>
-            <h2 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight uppercase transition-colors">
+            <h2 class="text-3xl font-black text-gray-900 dark:text-white dark:text-white tracking-tight uppercase transition-colors">
                 Bienvenido al Panel
             </h2>
-            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400 font-medium transition-colors">
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium transition-colors">
                 Accede a tus herramientas administrativas
             </p>
         </div>
 
         <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-            <div class="bg-white dark:bg-gray-900 py-10 px-6 sm:px-12 shadow-2xl shadow-gray-200/50 dark:shadow-none sm:rounded-[3rem] border border-gray-100 dark:border-gray-800 relative overflow-hidden group transition-colors">
+            <div class="bg-white dark:bg-slate-900 dark:bg-gray-900 py-10 px-6 sm:px-12 shadow-2xl shadow-gray-200/50 dark:shadow-none sm:rounded-[3rem] border border-gray-100 dark:border-gray-800 relative overflow-hidden group transition-colors">
                  <!-- Decoración -->
                 <div class="absolute -top-12 -right-12 w-32 h-32 bg-[var(--color-primary-soft)] rounded-full group-hover:scale-110 transition-transform duration-500"></div>
 
@@ -110,7 +110,7 @@ const submit = () => {
 
                     <div class="flex items-center">
                         <Checkbox id="remember" v-model:checked="form.remember" name="remember" />
-                        <label for="remember" class="ms-3 text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors">Mantener sesión iniciada</label>
+                        <label for="remember" class="ms-3 text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-300 transition-colors">Mantener sesión iniciada</label>
                     </div>
 
                     <div class="pt-2">
@@ -125,7 +125,7 @@ const submit = () => {
                     </div>
 
                     <div class="text-center pt-4">
-                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-300 dark:text-gray-600 transition-colors">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-300 dark:text-gray-600 dark:text-gray-300 transition-colors">
                             ¿Aún no tienes cuenta administrativa?
                         </p>
                         <Link :href="route('register')" class="inline-block mt-3 text-xs font-black uppercase tracking-widest text-[var(--color-primary)] bg-[var(--color-primary-soft)] px-6 py-2 rounded-xl hover:bg-[var(--color-primary)] hover:text-white transition-all">
@@ -135,7 +135,7 @@ const submit = () => {
                 </form>
             </div>
 
-            <p class="mt-10 text-center text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 dark:text-gray-600 transition-colors">
+            <p class="mt-10 text-center text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 dark:text-gray-600 dark:text-gray-300 transition-colors">
                 &copy; {{ new Date().getFullYear() }} {{ $page.props.empresa_config?.nombre_empresa }} &bull; Panel Seguro
             </p>
         </div>

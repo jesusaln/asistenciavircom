@@ -1,6 +1,6 @@
 <template>
     <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+      <div class="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-lg w-96">
         <h2 class="text-xl font-semibold mb-4">Detalles de la Empresa</h2>
         <p><strong>Nombre:</strong> {{ empresa.nombre_razon_social }}</p>
         <p><strong>RFC:</strong> {{ empresa.rfc }}</p>

@@ -1,6 +1,6 @@
 <template>
     <div class="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
-      <div class="bg-white rounded-lg w-1/3">
+      <div class="bg-white dark:bg-slate-900 rounded-lg w-1/3">
         <div class="flex justify-between items-center p-4 border-b">
           <h2 class="text-xl font-semibold">Detalles de la Herramienta</h2>
           <button @click="closeModal" class="text-gray-600 hover:text-gray-800">

@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-white dark:bg-slate-950 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-800 overflow-hidden transition-all duration-300">
+  <div class="bg-white dark:bg-slate-900 dark:bg-slate-950 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-800 dark:border-slate-800 overflow-hidden transition-all duration-300">
     <!-- Header principal -->
-    <div class="px-8 py-6 border-b border-gray-100 dark:border-slate-800" :style="{ background: `linear-gradient(135deg, ${colors.principal}08 0%, ${colors.secundario}05 100%)` }">
+    <div class="px-8 py-6 border-b border-gray-100 dark:border-slate-800 dark:border-slate-800" :style="{ background: `linear-gradient(135deg, ${colors.principal}08 0%, ${colors.secundario}05 100%)` }">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div class="flex items-center space-x-5">
           <div class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl transform transition-transform hover:scale-105" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
@@ -10,7 +10,7 @@
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-wider">Ventas</h1>
+            <h1 class="text-2xl font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-wider">Ventas</h1>
             <p class="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">Panel de Control Financiero</p>
           </div>
         </div>
@@ -31,10 +31,10 @@
     </div>
 
     <!-- Estadísticas -->
-    <div class="px-8 py-6 bg-gray-50/30 dark:bg-slate-900/40 border-b border-gray-100 dark:border-slate-800">
+    <div class="px-8 py-6 bg-gray-50/30 dark:bg-slate-900/40 border-b border-gray-100 dark:border-slate-800 dark:border-slate-800">
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
         <!-- Card 1: Total -->
-        <div class="bg-white/80 dark:bg-slate-800/40 backdrop-blur-md p-5 rounded-2xl border border-gray-100 dark:border-slate-700/50 shadow-sm transition-all hover:bg-white dark:hover:bg-slate-800/60">
+        <div class="bg-white dark:bg-slate-900/80 dark:bg-slate-800/40 backdrop-blur-md p-5 rounded-2xl border border-gray-100 dark:border-slate-800 dark:border-slate-700/50 shadow-sm transition-all hover:bg-white dark:bg-slate-900 dark:hover:bg-slate-800/60">
           <div class="flex flex-col">
             <div class="flex items-center justify-between mb-2">
                 <span class="text-[9px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Total Global</span>
@@ -42,17 +42,17 @@
                     <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                 </div>
             </div>
-            <p class="text-2xl font-black text-gray-900 dark:text-white">{{ total }}</p>
+            <p class="text-2xl font-black text-gray-900 dark:text-white dark:text-white">{{ total }}</p>
           </div>
         </div>
 
         <!-- Card 2: Borradores -->
-        <div class="bg-white/80 dark:bg-slate-800/40 backdrop-blur-md p-5 rounded-2xl border border-gray-100 dark:border-slate-700/50 shadow-sm transition-all hover:bg-white dark:hover:bg-slate-800/60">
+        <div class="bg-white dark:bg-slate-900/80 dark:bg-slate-800/40 backdrop-blur-md p-5 rounded-2xl border border-gray-100 dark:border-slate-800 dark:border-slate-700/50 shadow-sm transition-all hover:bg-white dark:bg-slate-900 dark:hover:bg-slate-800/60">
           <div class="flex flex-col">
             <div class="flex items-center justify-between mb-2">
                 <span class="text-[9px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Borrador</span>
                 <div class="w-7 h-7 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-                    <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                 </div>
             </div>
             <p class="text-2xl font-black text-gray-600 dark:text-slate-400">{{ borrador }}</p>
@@ -60,7 +60,7 @@
         </div>
 
         <!-- Card 3: Pendientes -->
-        <div class="bg-white/80 dark:bg-slate-800/40 backdrop-blur-md p-5 rounded-2xl border border-gray-100 dark:border-slate-700/50 shadow-sm transition-all hover:bg-white dark:hover:bg-slate-800/60">
+        <div class="bg-white dark:bg-slate-900/80 dark:bg-slate-800/40 backdrop-blur-md p-5 rounded-2xl border border-gray-100 dark:border-slate-800 dark:border-slate-700/50 shadow-sm transition-all hover:bg-white dark:bg-slate-900 dark:hover:bg-slate-800/60">
           <div class="flex flex-col">
             <div class="flex items-center justify-between mb-2">
                 <span class="text-[9px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest">Pendientes</span>
@@ -73,7 +73,7 @@
         </div>
 
         <!-- Card 4: Aprobadas -->
-        <div class="bg-white/80 dark:bg-slate-800/40 backdrop-blur-md p-5 rounded-2xl border border-gray-100 dark:border-slate-700/50 shadow-sm transition-all hover:bg-white dark:hover:bg-slate-800/60">
+        <div class="bg-white dark:bg-slate-900/80 dark:bg-slate-800/40 backdrop-blur-md p-5 rounded-2xl border border-gray-100 dark:border-slate-800 dark:border-slate-700/50 shadow-sm transition-all hover:bg-white dark:bg-slate-900 dark:hover:bg-slate-800/60">
           <div class="flex flex-col">
             <div class="flex items-center justify-between mb-2">
                 <span class="text-[9px] font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-widest">Aprobadas</span>
@@ -86,7 +86,7 @@
         </div>
 
         <!-- Card 5: Canceladas -->
-        <div class="bg-white/80 dark:bg-slate-800/40 backdrop-blur-md p-5 rounded-2xl border border-gray-100 dark:border-slate-700/50 shadow-sm transition-all hover:bg-white dark:hover:bg-slate-800/60">
+        <div class="bg-white dark:bg-slate-900/80 dark:bg-slate-800/40 backdrop-blur-md p-5 rounded-2xl border border-gray-100 dark:border-slate-800 dark:border-slate-700/50 shadow-sm transition-all hover:bg-white dark:bg-slate-900 dark:hover:bg-slate-800/60">
           <div class="flex flex-col">
             <div class="flex items-center justify-between mb-2">
                 <span class="text-[9px] font-black text-rose-600 dark:text-rose-500 uppercase tracking-widest">Canceladas</span>
@@ -101,7 +101,7 @@
     </div>
 
     <!-- Filtros -->
-    <div class="px-8 py-5 bg-white dark:bg-slate-900">
+    <div class="px-8 py-5 bg-white dark:bg-slate-900 dark:bg-slate-900">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <!-- Búsqueda -->
         <div class="flex-1 max-w-xl">
@@ -115,7 +115,7 @@
               v-model="searchTerm"
               type="text"
               :placeholder="config.searchPlaceholder || 'Buscar ventas por cliente, folio, estado...'"
-              class="block w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-slate-950 border-2 border-transparent dark:border-slate-800 rounded-2xl font-bold text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-600 focus:bg-white dark:focus:bg-slate-900 focus:border-gray-900 dark:focus:border-slate-700 focus:ring-0 transition-all duration-300 text-sm"
+              class="block w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-slate-950 border-2 border-transparent dark:border-slate-800 rounded-2xl font-bold text-gray-900 dark:text-white dark:text-white placeholder-gray-400 dark:placeholder-slate-600 focus:bg-white dark:bg-slate-900 dark:focus:bg-slate-900 focus:border-gray-900 dark:focus:border-slate-700 focus:ring-0 transition-all duration-300 text-sm"
               @input="onSearchChange"
             />
           </div>
@@ -127,7 +127,7 @@
           <div class="relative min-w-[180px]">
             <select
               v-model="filtroCfdi"
-              class="appearance-none block w-full pl-4 pr-10 py-3.5 bg-gray-50 dark:bg-slate-950 border-2 border-transparent dark:border-slate-800 rounded-2xl font-black uppercase text-[10px] tracking-widest text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-gray-900 dark:focus:border-slate-700 focus:ring-0 transition-all duration-300"
+              class="appearance-none block w-full pl-4 pr-10 py-3.5 bg-gray-50 dark:bg-slate-950 border-2 border-transparent dark:border-slate-800 rounded-2xl font-black uppercase text-[10px] tracking-widest text-gray-900 dark:text-white dark:text-white focus:bg-white dark:bg-slate-900 dark:focus:bg-slate-900 focus:border-gray-900 dark:focus:border-slate-700 focus:ring-0 transition-all duration-300"
               @change="onFiltroCfdiChange"
             >
               <option value="">Todos los CFDI</option>
@@ -144,7 +144,7 @@
           <!-- Limpiar filtros -->
           <button
             @click="onLimpiarFiltros"
-            class="inline-flex items-center px-5 py-3.5 bg-gray-50 dark:bg-slate-950 border-2 border-transparent dark:border-slate-800 rounded-2xl font-black uppercase text-[10px] tracking-widest text-gray-500 dark:text-slate-500 hover:text-gray-900 dark:hover:text-white hover:border-gray-900 dark:hover:border-slate-700 transition-all duration-300"
+            class="inline-flex items-center px-5 py-3.5 bg-gray-50 dark:bg-slate-950 border-2 border-transparent dark:border-slate-800 rounded-2xl font-black uppercase text-[10px] tracking-widest text-gray-500 dark:text-gray-400 dark:text-slate-500 hover:text-gray-900 dark:text-white dark:hover:text-white hover:border-gray-900 dark:hover:border-slate-700 transition-all duration-300"
           >
             <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -230,7 +230,7 @@ const onCrearNuevo = () => {
 
 @media (prefers-contrast: high) {
   .bg-green-50 { background-color: #f0fdf4; }
-  .border-gray-200 { border-color: #d1d5db; }
+  .border-gray-200 dark:border-slate-800 { border-color: #d1d5db; }
 }
 
 button:focus-visible { outline: 2px solid; outline-offset: 2px; }

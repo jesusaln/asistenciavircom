@@ -121,10 +121,10 @@ const submitForm = () => {
                     <span class="text-[var(--color-primary)] text-[10px] font-black uppercase tracking-[0.2em]">Agenda en 2 minutos</span>
                 </span>
                 
-                <h2 class="text-3xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight mb-4 transition-colors">
+                <h2 class="text-3xl md:text-5xl font-black text-gray-900 dark:text-white dark:text-white tracking-tight mb-4 transition-colors">
                     Agenda tu <span class="text-[var(--color-primary)]">Cita</span> Hoy
                 </h2>
-                <p class="text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto transition-colors">
+                <p class="text-lg text-gray-500 dark:text-gray-400 dark:text-gray-400 max-w-2xl mx-auto transition-colors">
                     Completa el formulario y nos pondremos en contacto contigo para confirmar tu cita.
                 </p>
             </div>
@@ -215,7 +215,7 @@ const submitForm = () => {
             <div class="grid lg:grid-cols-2 gap-12 items-start">
                 <!-- Left: Service Selection -->
                 <div>
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6 transition-colors">1. ¿Qué servicio necesitas?</h3>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white dark:text-white mb-6 transition-colors">1. ¿Qué servicio necesitas?</h3>
                     
                     <div class="grid grid-cols-2 gap-4">
                         <button
@@ -225,16 +225,16 @@ const submitForm = () => {
                             class="p-6 rounded-2xl border-2 text-left transition-all duration-300 group"
                             :class="selectedService === servicio.id 
                                 ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] dark:bg-[var(--color-primary)]/20 shadow-lg' 
-                                : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-[var(--color-primary)]/30 hover:shadow-md'"
+                                : 'border-gray-100 dark:border-slate-800 dark:border-gray-700 bg-white dark:bg-slate-900 dark:bg-gray-800 hover:border-[var(--color-primary)]/30 hover:shadow-md'"
                         >
                             <span class="text-3xl mb-4 block group-hover:scale-110 transition-transform">{{ servicio.icono }}</span>
-                            <span class="font-bold text-gray-900 dark:text-white block text-sm transition-colors">{{ servicio.nombre }}</span>
+                            <span class="font-bold text-gray-900 dark:text-white dark:text-white block text-sm transition-colors">{{ servicio.nombre }}</span>
                         </button>
                     </div>
                     
                     <!-- Trust Badges -->
-                    <div class="mt-10 p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700 transition-colors">
-                        <p class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">¿Por qué agendar con nosotros?</p>
+                    <div class="mt-10 p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-slate-800 dark:border-gray-700 transition-colors">
+                        <p class="text-xs font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">¿Por qué agendar con nosotros?</p>
                         <div class="space-y-3">
                             <div class="flex items-center gap-3">
                                 <span class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center text-green-600 dark:text-green-400 text-sm">✓</span>
@@ -253,8 +253,8 @@ const submitForm = () => {
                 </div>
                 
                 <!-- Right: Form -->
-                <div class="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 transition-colors">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6 transition-colors">2. Tus datos de contacto</h3>
+                <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-8 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-800 dark:border-gray-700 transition-colors">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white dark:text-white mb-6 transition-colors">2. Tus datos de contacto</h3>
                     
                     <form @submit.prevent="submitForm" class="space-y-5">
                         <!-- Nombre -->
@@ -266,7 +266,7 @@ const submitForm = () => {
                                 type="text"
                                 required
                                 placeholder="Ej: Juan Pérez"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none"
                             >
                         </div>
                         
@@ -279,7 +279,7 @@ const submitForm = () => {
                                 type="tel"
                                 required
                                 placeholder="Ej: 614 123 4567"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none"
                             >
                         </div>
                         
@@ -291,7 +291,7 @@ const submitForm = () => {
                                 v-model="form.email"
                                 type="email"
                                 placeholder="tu@email.com"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none"
                             >
                         </div>
                         
@@ -304,7 +304,7 @@ const submitForm = () => {
                                     v-model="form.fecha_preferida"
                                     type="date"
                                     :min="minDate"
-                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:[color-scheme:dark] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none"
+                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:[color-scheme:dark] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none"
                                 >
                             </div>
                             <div>
@@ -312,9 +312,9 @@ const submitForm = () => {
                                 <select
                                     id="appointment-hora"
                                     v-model="form.hora_preferida"
-                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none bg-white dark:bg-gray-900 dark:text-white"
+                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none bg-white dark:bg-slate-900 dark:bg-gray-900 dark:text-white"
                                 >
-                                    <option value="" class="text-gray-500">Seleccionar</option>
+                                    <option value="" class="text-gray-500 dark:text-gray-400">Seleccionar</option>
                                     <option v-for="hora in horasDisponibles" :key="hora" :value="hora">{{ hora }}</option>
                                 </select>
                             </div>
@@ -328,7 +328,7 @@ const submitForm = () => {
                                 v-model="form.descripcion"
                                 rows="3"
                                 placeholder="Describe brevemente tu necesidad..."
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none resize-none"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none resize-none"
                             ></textarea>
                         </div>
                         

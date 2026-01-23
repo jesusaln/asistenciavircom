@@ -29,7 +29,7 @@
             </div>
         </div>
 
-        <div v-if="showResults && (results.length > 0 || search.length >= 3)" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+        <div v-if="showResults && (results.length > 0 || search.length >= 3)" class="absolute z-50 w-full mt-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-md shadow-lg max-h-60 overflow-y-auto">
             <ul v-if="results.length > 0" class="py-1">
                 <li
                     v-for="(result, index) in results"
@@ -42,7 +42,7 @@
                     <div class="text-gray-600 truncate">{{ result.descripcion }}</div>
                 </li>
             </ul>
-            <div v-else-if="search.length >= 3 && !loading" class="px-4 py-3 text-sm text-gray-500 italic">
+            <div v-else-if="search.length >= 3 && !loading" class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 italic">
                 No se encontraron resultados para "{{ search }}"
             </div>
             <div v-else-if="search.length < 3" class="px-4 py-3 text-sm text-gray-400 italic">

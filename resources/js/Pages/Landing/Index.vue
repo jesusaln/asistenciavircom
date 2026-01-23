@@ -202,7 +202,7 @@ const planesCalculados = computed(() => {
         <meta name="description" :content="`Proveemos Soluciones Integrales en: Redes, Cámaras de Vigilancia (CCTV), Control de Acceso, Alarmas y GPS Vehicular. Expertos en Seguridad y Tecnología en ${empresaData?.ciudad || 'Hermosillo'}.`" />
     </Head>
 
-    <div class="min-h-screen bg-white dark:bg-gray-900 font-sans text-gray-900 dark:text-gray-100 overflow-x-hidden selection:bg-[var(--color-primary-soft)] selection:text-[var(--color-primary)] relative transition-colors duration-300">
+    <div class="min-h-screen bg-white dark:bg-slate-900 dark:bg-gray-900 font-sans text-gray-900 dark:text-white dark:text-gray-100 overflow-x-hidden selection:bg-[var(--color-primary-soft)] selection:text-[var(--color-primary)] relative transition-colors duration-300">
         
         <!-- Progress Bar -->
         <div class="fixed top-0 left-0 h-1 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] z-[100] transition-all duration-150" :style="{ width: scrollProgress + '%' }"></div>
@@ -222,7 +222,7 @@ const planesCalculados = computed(() => {
         <PublicNavbar :empresa="empresaData" activeTab="inicio" />
 
         <!-- HERO SECTION -->
-        <section class="relative pt-24 pb-24 lg:pt-36 lg:pb-36 bg-white dark:bg-gray-900 overflow-hidden transition-colors duration-300">
+        <section class="relative pt-24 pb-24 lg:pt-36 lg:pb-36 bg-white dark:bg-slate-900 dark:bg-gray-900 overflow-hidden transition-colors duration-300">
             <!-- Interactivte Background Elements -->
             <div class="absolute inset-0 z-0">
                 <!-- Light Mode BG -->
@@ -240,19 +240,19 @@ const planesCalculados = computed(() => {
                 <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
                     
                     <div :class="{'translate-x-0 opacity-100': isVisible, '-translate-x-12 opacity-0': !isVisible}" class="transition-all duration-1000 ease-out">
-                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-sm border border-gray-100 mb-8 animate-bounce-subtle relative group cursor-pointer">
+                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-slate-900 shadow-sm border border-gray-100 mb-8 animate-bounce-subtle relative group cursor-pointer">
                             <span class="absolute inset-0 bg-[var(--color-primary-soft)] rounded-full scale-0 group-hover:scale-100 transition-transform duration-300"></span>
                             <span class="flex h-2 w-2 rounded-full bg-green-500 relative ring-4 ring-green-100"></span>
-                            <span class="text-xs font-black uppercase tracking-widest text-gray-500 relative">{{ empresaData?.hero_badge_texto || 'Servicio Disponible hoy' }} en {{ empresaData?.ciudad || 'tu ciudad' }}</span>
+                            <span class="text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 relative">{{ empresaData?.hero_badge_texto || 'Servicio Disponible hoy' }} en {{ empresaData?.ciudad || 'tu ciudad' }}</span>
                         </div>
                         
-                        <h1 class="text-5xl lg:text-7xl font-black text-gray-900 dark:text-white leading-[1.1] mb-8 tracking-tighter transition-colors">
+                        <h1 class="text-5xl lg:text-7xl font-black text-gray-900 dark:text-white dark:text-white leading-[1.1] mb-8 tracking-tighter transition-colors">
                             {{ (empresaData?.hero_titulo || 'Seguridad y Tecnología para tu Negocio').split(' ').slice(0, -3).join(' ') || 'Soluciones' }} <br>
                             <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">{{ empresaData?.hero_subtitulo || 'Inteligente' }}</span> <br>
                             {{ (empresaData?.hero_titulo || 'para tu Negocio').split(' ').slice(-3).join(' ') }}
                         </h1>
                         
-                        <p class="text-xl text-gray-600 dark:text-gray-400 mb-10 leading-relaxed max-w-xl transition-colors">
+                        <p class="text-xl text-gray-600 dark:text-gray-300 dark:text-gray-400 mb-10 leading-relaxed max-w-xl transition-colors">
                             {{ empresaData?.hero_descripcion || 'Protegemos lo que más te importa con sistemas de videovigilancia, alarmas y soporte TI de clase mundial.' }}
                         </p>
                         
@@ -266,7 +266,7 @@ const planesCalculados = computed(() => {
                             </Link>
                             <Link 
                                 :href="route('catalogo.rentas')"
-                                class="px-8 py-5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-gray-100 dark:border-gray-700 rounded-2xl font-black text-sm uppercase tracking-widest hover:border-emerald-500 hover:text-emerald-500 transition-all flex items-center justify-center gap-3 group"
+                                class="px-8 py-5 bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-900 dark:text-white dark:text-white border-2 border-gray-100 dark:border-gray-700 rounded-2xl font-black text-sm uppercase tracking-widest hover:border-emerald-500 hover:text-emerald-500 transition-all flex items-center justify-center gap-3 group"
                             >
                                 <span class="text-xl group-hover:scale-125 transition-transform duration-300">🖥️</span>
                                 Renta de Equipos
@@ -276,13 +276,13 @@ const planesCalculados = computed(() => {
                         <div class="mt-12 flex items-center gap-6">
                             <div class="flex -space-x-3">
                                 <img v-for="i in 4" :key="i" :src="`https://i.pravatar.cc/100?u=${i}`" class="w-12 h-12 rounded-full border-4 border-white dark:border-gray-800 shadow-sm transition-colors" alt="Usuario">
-                                <div class="w-12 h-12 rounded-full border-4 border-white dark:border-gray-800 bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-500 dark:text-gray-300 shadow-sm transition-colors">+99</div>
+                                <div class="w-12 h-12 rounded-full border-4 border-white dark:border-gray-800 bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-500 dark:text-gray-400 dark:text-gray-300 shadow-sm transition-colors">+99</div>
                             </div>
                             <div class="text-sm">
                                 <div class="flex items-center gap-1 text-amber-400 mb-0.5">
                                     <svg v-for="i in 5" :key="i" class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                                 </div>
-                                <p class="text-gray-500 dark:text-gray-400 font-medium">Empresas protegidas confirman <span class="text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700">nuestra calidad</span></p>
+                                <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium">Empresas protegidas confirman <span class="text-gray-900 dark:text-white dark:text-white border-b border-gray-200 dark:border-slate-800 dark:border-gray-700">nuestra calidad</span></p>
                             </div>
                         </div>
                     </div>
@@ -302,14 +302,14 @@ const planesCalculados = computed(() => {
                                 <!-- Sharp Border -->
                                 <div class="absolute inset-0 rounded-3xl bg-[conic-gradient(from_0deg,transparent_0_300deg,var(--color-primary)_360deg)] animate-[spin_3s_linear_infinite]"></div>
                                 <!-- Content -->
-                                <div class="relative m-[2px] bg-white rounded-[22px] p-6 shadow-xl flex flex-col justify-center h-full">
+                                <div class="relative m-[2px] bg-white dark:bg-slate-900 rounded-[22px] p-6 shadow-xl flex flex-col justify-center h-full">
                                     <div class="flex items-center gap-3 mb-2">
                                         <div class="w-10 h-10 bg-[var(--color-primary-soft)] rounded-xl flex items-center justify-center text-lg text-[var(--color-primary)]">
                                             <font-awesome-icon icon="laptop" />
                                         </div>
                                         <span class="text-xs font-black uppercase tracking-widest text-gray-400">Tecnología</span>
                                     </div>
-                                    <p class="text-lg font-bold text-gray-900 leading-tight">Soporte TI 24/7 Empresarial</p>
+                                    <p class="text-lg font-bold text-gray-900 dark:text-white leading-tight">Soporte TI 24/7 Empresarial</p>
                                 </div>
                             </div>
                         </div>
@@ -321,14 +321,14 @@ const planesCalculados = computed(() => {
                                 <!-- Sharp Border -->
                                 <div class="absolute inset-0 rounded-3xl bg-[conic-gradient(from_0deg,transparent_0_300deg,var(--color-primary)_360deg)] animate-[spin_3s_linear_infinite]"></div>
                                 <!-- Content -->
-                                <div class="relative m-[2px] bg-white rounded-[22px] p-6 shadow-xl flex flex-col justify-center h-full">
+                                <div class="relative m-[2px] bg-white dark:bg-slate-900 rounded-[22px] p-6 shadow-xl flex flex-col justify-center h-full">
                                     <div class="flex items-center gap-3 mb-2">
                                         <div class="w-10 h-10 bg-[var(--color-primary-soft)] rounded-xl flex items-center justify-center text-lg text-[var(--color-primary)]">
                                             <font-awesome-icon icon="shield-alt" />
                                         </div>
                                         <span class="text-xs font-black uppercase tracking-widest text-gray-400">Seguridad</span>
                                     </div>
-                                    <p class="text-lg font-bold text-gray-900 leading-tight">CCTV con IA y Acceso Remoto</p>
+                                    <p class="text-lg font-bold text-gray-900 dark:text-white leading-tight">CCTV con IA y Acceso Remoto</p>
                                 </div>
                             </div>
                         </div>
@@ -344,9 +344,9 @@ const planesCalculados = computed(() => {
         </section>
 
         <!-- TRUST LOGOS -->
-        <section class="py-12 bg-white dark:bg-gray-900 border-y border-gray-100 dark:border-gray-900 transition-colors duration-300">
+        <section class="py-12 bg-white dark:bg-slate-900 dark:bg-gray-900 border-y border-gray-100 dark:border-gray-900 transition-colors duration-300">
             <div class="w-full px-4">
-                <p class="text-center text-xs font-black uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500 mb-10 transition-colors">Marcas Líderes que Confián en Nosotros</p>
+                <p class="text-center text-xs font-black uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500 dark:text-gray-400 mb-10 transition-colors">Marcas Líderes que Confián en Nosotros</p>
                 <div class="flex flex-wrap justify-between items-center gap-8 opacity-50 grayscale hover:grayscale-0 dark:grayscale-0 dark:opacity-100 dark:brightness-110 transition-all duration-500">
                      <img v-for="marca in marcas" :key="marca.id" :src="marca.logo_url || `https://placehold.co/200x80?text=${marca.nombre}`" class="h-8 lg:h-12 w-auto object-contain" :alt="marca.nombre">
                      <template v-if="!marcas?.length">
@@ -357,7 +357,7 @@ const planesCalculados = computed(() => {
         </section>
 
         <!-- STATS SECTION (MODERN DARK & LIGHT) -->
-        <section ref="statsSection" class="py-32 relative overflow-hidden bg-white dark:bg-gray-900 transition-colors duration-300">
+        <section ref="statsSection" class="py-32 relative overflow-hidden bg-white dark:bg-slate-900 dark:bg-gray-900 transition-colors duration-300">
              <!-- Background Dynamic Gradients (Dark Only) -->
              <div class="absolute inset-0 opacity-30 pointer-events-none hidden dark:block">
                 <div class="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-blue-600 blur-[120px] mix-blend-screen animate-pulse"></div>
@@ -368,7 +368,7 @@ const planesCalculados = computed(() => {
             <div class="w-full px-4 relative z-10">
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
                     <div v-for="(stat, index) in stats" :key="stat.id" 
-                         class="group relative p-6 lg:p-8 rounded-[2rem] bg-white dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/50 hover:bg-white dark:hover:bg-gray-800/80 hover:border-[var(--color-primary)]/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[var(--color-primary)]/20 backdrop-blur-md overflow-hidden flex flex-col justify-center items-center h-full min-h-[220px]"
+                         class="group relative p-6 lg:p-8 rounded-[2rem] bg-white dark:bg-slate-900 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/50 hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-800/80 hover:border-[var(--color-primary)]/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[var(--color-primary)]/20 backdrop-blur-md overflow-hidden flex flex-col justify-center items-center h-full min-h-[220px]"
                          :class="{'translate-y-0 opacity-100': statsAnimated, 'translate-y-12 opacity-0': !statsAnimated}"
                          :style="{ transitionDelay: `${index * 150}ms` }"
                     >
@@ -388,7 +388,7 @@ const planesCalculados = computed(() => {
                             <p class="text-4xl lg:text-5xl xl:text-6xl font-black mb-2 tracking-tight bg-gradient-to-b from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent group-hover:from-[var(--color-primary)] group-hover:to-[var(--color-secondary)] dark:group-hover:from-white dark:group-hover:to-[var(--color-primary)] transition-all duration-500 whitespace-nowrap">
                                 {{ stat.prefix }}{{ stat.current }}{{ stat.suffix }}
                             </p>
-                            <p class="text-[10px] lg:text-xs font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors truncate w-full">{{ stat.label }}</p>
+                            <p class="text-[10px] lg:text-xs font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 dark:text-gray-400 group-hover:text-gray-900 dark:text-white dark:group-hover:text-white transition-colors truncate w-full">{{ stat.label }}</p>
                         </div>
                         
                         <!-- Barra inferior -->
@@ -399,18 +399,18 @@ const planesCalculados = computed(() => {
         </section>
 
         <!-- SERVICES / PRODUCTS FEATURED -->
-        <section class="py-24 bg-white dark:bg-gray-900 relative overflow-hidden transition-colors duration-300">
+        <section class="py-24 bg-white dark:bg-slate-900 dark:bg-gray-900 relative overflow-hidden transition-colors duration-300">
             <div class="absolute top-0 right-0 w-96 h-96 bg-[var(--color-primary-soft)] rounded-full blur-[100px] opacity-20"></div>
             
             <div class="w-full px-4 relative z-10">
                 <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
                     <div class="max-w-2xl">
                         <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Nuestro Catálogo</h2>
-                        <h3 class="text-4xl lg:text-5xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight transition-colors">
+                        <h3 class="text-4xl lg:text-5xl font-black text-gray-900 dark:text-white dark:text-white tracking-tighter leading-tight transition-colors">
                             Soluciones de <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Próxima Generación</span>
                         </h3>
                     </div>
-                    <Link :href="route('catalogo.index')" class="px-8 py-4 bg-white dark:bg-gray-800 rounded-2xl font-black text-xs uppercase tracking-widest text-gray-900 dark:text-white shadow-xl shadow-gray-200/50 dark:shadow-none hover:-translate-y-1 transition-all">
+                    <Link :href="route('catalogo.index')" class="px-8 py-4 bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl font-black text-xs uppercase tracking-widest text-gray-900 dark:text-white dark:text-white shadow-xl shadow-gray-200/50 dark:shadow-none hover:-translate-y-1 transition-all">
                         Ver Catálogo Completo →
                     </Link>
                 </div>
@@ -418,17 +418,17 @@ const planesCalculados = computed(() => {
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
                     <!-- Producto Destacado Card Premium -->
                     <article v-for="(item, index) in destacados" :key="item.id" 
-                        class="group bg-white dark:bg-gray-800 rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-3 transition-all duration-700 relative"
+                        class="group bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-3 transition-all duration-700 relative"
                         :style="{ transitionDelay: `${index * 100}ms` }"
                     >
-                        <div class="relative aspect-[4/5] bg-white overflow-hidden">
+                        <div class="relative aspect-[4/5] bg-white dark:bg-slate-900 overflow-hidden">
                             <img :src="getImageUrl(item) || 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?q=80&w=2070&auto=format&fit=crop'" class="w-full h-full object-contain p-8 group-hover:scale-110 transition-transform duration-1000 ease-in-out" alt="Producto">
                             
                             <!-- Glassmorphism Overlay -->
                             <div class="absolute inset-0 bg-gradient-to-t from-gray-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
                             <div class="absolute top-6 left-6 flex flex-col gap-2 z-10 transition-transform duration-500 group-hover:translate-x-1">
-                                <span class="px-4 py-1.5 bg-white/95 dark:bg-gray-800/90 backdrop-blur-xl rounded-full text-[10px] font-black uppercase tracking-[0.1em] text-[var(--color-primary)] dark:text-white shadow-sm border border-gray-100 dark:border-gray-700">🔥 Top Ventas</span>
+                                <span class="px-4 py-1.5 bg-white dark:bg-slate-900/95 dark:bg-gray-800/90 backdrop-blur-xl rounded-full text-[10px] font-black uppercase tracking-[0.1em] text-[var(--color-primary)] dark:text-white shadow-sm border border-gray-100 dark:border-gray-700">🔥 Top Ventas</span>
                                 <span v-if="item.categoria" class="px-4 py-1.5 bg-gray-900/90 backdrop-blur-xl rounded-full text-[10px] font-black uppercase tracking-[0.1em] text-white shadow-sm">{{ item.categoria }}</span>
                             </div>
 
@@ -441,23 +441,23 @@ const planesCalculados = computed(() => {
                         </div>
 
                         <div class="p-6">
-                            <h4 :title="item.nombre" class="text-sm font-black text-gray-900 dark:text-white mb-2 group-hover:text-[var(--color-primary)] transition-colors line-clamp-3 h-[3.2rem] leading-tight text-center">{{ item.nombre }}</h4>
+                            <h4 :title="item.nombre" class="text-sm font-black text-gray-900 dark:text-white dark:text-white mb-2 group-hover:text-[var(--color-primary)] transition-colors line-clamp-3 h-[3.2rem] leading-tight text-center">{{ item.nombre }}</h4>
                             
                             <div class="flex flex-col items-center justify-center mt-4">
-                                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-1">Precio Online</p>
-                                <p class="text-xl font-black text-gray-900 dark:text-white tracking-tighter transition-colors">${{ formatPrice(item.precio) }}</p>
+                                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-[0.2em] mb-1">Precio Online</p>
+                                <p class="text-xl font-black text-gray-900 dark:text-white dark:text-white tracking-tighter transition-colors">${{ formatPrice(item.precio) }}</p>
                             </div>
                         </div>
                     </article>
 
                     <!-- Empty State for Featured if none -->
                      <template v-if="!destacados?.length">
-                        <article v-for="i in 4" :key="i" class="group bg-white rounded-[2rem] overflow-hidden border border-gray-50 animate-pulse">
-                            <div class="aspect-square bg-white"></div>
+                        <article v-for="i in 4" :key="i" class="group bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden border border-gray-50 animate-pulse">
+                            <div class="aspect-square bg-white dark:bg-slate-900"></div>
                             <div class="p-8 space-y-4">
                                 <div class="h-6 bg-gray-100 rounded-full w-3/4"></div>
-                                <div class="h-4 bg-white rounded-full w-full"></div>
-                                <div class="h-12 bg-white rounded-2xl w-full pt-6"></div>
+                                <div class="h-4 bg-white dark:bg-slate-900 rounded-full w-full"></div>
+                                <div class="h-12 bg-white dark:bg-slate-900 rounded-2xl w-full pt-6"></div>
                             </div>
                         </article>
                      </template>
@@ -477,28 +477,28 @@ const planesCalculados = computed(() => {
             <div class="w-full px-4 relative z-10">
                 <div class="text-center mb-20">
                     <h2 class="text-xs font-black uppercase tracking-[0.3em] text-emerald-600 mb-6">Equipamiento sin Inversión</h2>
-                    <h3 class="text-5xl lg:text-7xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight mb-8">
+                    <h3 class="text-5xl lg:text-7xl font-black text-gray-900 dark:text-white dark:text-white tracking-tighter leading-tight mb-8">
                         Renta de <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">Tecnología PDV</span>
                     </h3>
-                    <p class="text-xl text-gray-600 dark:text-gray-400 font-medium max-w-3xl mx-auto leading-relaxed">
+                    <p class="text-xl text-gray-600 dark:text-gray-300 dark:text-gray-400 font-medium max-w-3xl mx-auto leading-relaxed">
                         Obtén el hardware que tu negocio necesita hoy mismo. Sin descapitalizarte, con mantenimiento y soporte técnico incluido.
                     </p>
                 </div>
 
                 <div class="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                    <article v-for="plan in rentas" :key="plan.id" class="group bg-white dark:bg-gray-800 p-10 rounded-[3rem] border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-4 transition-all duration-700 relative overflow-hidden">
+                    <article v-for="plan in rentas" :key="plan.id" class="group bg-white dark:bg-slate-900 dark:bg-gray-800 p-10 rounded-[3rem] border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-4 transition-all duration-700 relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 -mr-16 -mt-16 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
                         
                         <div class="mb-10 relative">
                             <div class="text-5xl mb-6 transition-transform group-hover:scale-110 duration-500">{{ plan.icono || '🖥️' }}</div>
-                            <h4 class="text-3xl font-black text-gray-900 dark:text-white mb-2 tracking-tight transition-colors">{{ plan.nombre }}</h4>
+                            <h4 class="text-3xl font-black text-gray-900 dark:text-white dark:text-white mb-2 tracking-tight transition-colors">{{ plan.nombre }}</h4>
                             <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{{ plan.tipo_label }}</span>
                         </div>
 
                         <div class="mb-10 text-center py-6 border-y border-gray-50 dark:border-gray-700 transition-colors">
                             <div class="flex items-baseline justify-center gap-1">
                                 <span class="text-gray-400 text-xl font-bold">$</span>
-                                <span class="text-6xl font-black text-gray-900 dark:text-white tracking-tighter transition-colors">
+                                <span class="text-6xl font-black text-gray-900 dark:text-white dark:text-white tracking-tighter transition-colors">
                                     {{ formatPrice(plan.precio_mensual).split('.')[0] }}
                                 </span>
                                 <span class="text-gray-400 font-bold">/mes</span>
@@ -506,7 +506,7 @@ const planesCalculados = computed(() => {
                         </div>
 
                         <ul class="space-y-4 mb-12 flex-grow">
-                            <li v-for="equipo in plan.equipamiento_incluido.slice(0, 4)" :key="equipo" class="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 font-medium transition-colors">
+                            <li v-for="equipo in plan.equipamiento_incluido.slice(0, 4)" :key="equipo" class="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400 font-medium transition-colors">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                 {{ equipo }}
                             </li>
@@ -531,7 +531,7 @@ const planesCalculados = computed(() => {
         </section>
 
         <!-- POLIZAS DE MANTENIMIENTO (CYBER DARK & LIGHT) -->
-        <section class="py-32 bg-white dark:bg-gray-900 relative overflow-hidden transition-colors duration-300">
+        <section class="py-32 bg-white dark:bg-slate-900 dark:bg-gray-900 relative overflow-hidden transition-colors duration-300">
              <!-- Background FX (Dark Only) -->
              <div class="absolute inset-0 pointer-events-none hidden dark:block">
                 <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-[var(--color-primary)] opacity-[0.05] blur-[100px] rounded-full mix-blend-screen animate-pulse"></div>
@@ -549,24 +549,24 @@ const planesCalculados = computed(() => {
             <div class="w-full px-4 relative z-10">
                 <div class="text-center mb-24 w-full">
                     <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-6 drop-shadow-md">Tranquilidad Total</h2>
-                    <h3 class="text-5xl lg:text-7xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight mb-8 transition-colors">Pólizas de <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-blue-600 dark:to-blue-400">Soporte Técnico</span></h3>
-                    <p class="text-xl text-gray-600 dark:text-gray-400 font-medium leading-relaxed w-full transition-colors">Delega los problemas técnicos a los expertos. Mantenimiento preventivo, soporte remoto y respuesta inmediata.</p>
+                    <h3 class="text-5xl lg:text-7xl font-black text-gray-900 dark:text-white dark:text-white tracking-tighter leading-tight mb-8 transition-colors">Pólizas de <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-blue-600 dark:to-blue-400">Soporte Técnico</span></h3>
+                    <p class="text-xl text-gray-600 dark:text-gray-300 dark:text-gray-400 font-medium leading-relaxed w-full transition-colors">Delega los problemas técnicos a los expertos. Mantenimiento preventivo, soporte remoto y respuesta inmediata.</p>
                 </div>
 
                 <!-- Toggle billing Moderno -->
                 <div class="flex items-center justify-center gap-6 mb-20">
-                    <span :class="billingCycle === 'monthly' ? 'text-gray-900 dark:text-white font-bold' : 'text-gray-400 dark:text-gray-500'" class="text-sm tracking-widest uppercase transition-colors cursor-pointer" @click="billingCycle = 'monthly'">Mensual</span>
+                    <span :class="billingCycle === 'monthly' ? 'text-gray-900 dark:text-white dark:text-white font-bold' : 'text-gray-400 dark:text-gray-500 dark:text-gray-400'" class="text-sm tracking-widest uppercase transition-colors cursor-pointer" @click="billingCycle = 'monthly'">Mensual</span>
                     <button @click="billingCycle = billingCycle === 'monthly' ? 'yearly' : 'monthly'" class="w-20 h-10 bg-gray-200 dark:bg-gray-800 rounded-full relative p-1 transition-all duration-300 shadow-inner border border-gray-300 dark:border-gray-700/50 group focus:outline-none ring-1 ring-transparent hover:ring-[var(--color-primary)]/50">
                         <div :class="billingCycle === 'yearly' ? 'translate-x-10 bg-[var(--color-primary)] shadow-[0_0_15px_var(--color-primary)]' : 'translate-x-0 bg-gray-400'" class="w-8 h-8 rounded-full transition-all duration-500 shadow-md"></div>
                     </button>
-                    <span :class="billingCycle === 'yearly' ? 'text-[var(--color-primary)] font-bold' : 'text-gray-400 dark:text-gray-500'" class="text-sm flex items-center gap-3 tracking-widest uppercase transition-colors cursor-pointer" @click="billingCycle = 'yearly'">
+                    <span :class="billingCycle === 'yearly' ? 'text-[var(--color-primary)] font-bold' : 'text-gray-400 dark:text-gray-500 dark:text-gray-400'" class="text-sm flex items-center gap-3 tracking-widest uppercase transition-colors cursor-pointer" @click="billingCycle = 'yearly'">
                         Anual <span class="px-3 py-1 bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20 rounded-lg text-[10px] font-black uppercase shadow-sm">-15%</span>
                     </span>
                 </div>
 
                 <div class="grid md:grid-cols-3 gap-8 lg:gap-12">
                     <div v-for="plan in planesCalculados" :key="plan.id" 
-                        :class="plan.destacado ? 'ring-2 ring-[var(--color-primary)] shadow-[0_0_40px_-10px_var(--color-primary)]/50 lg:-translate-y-8 z-20 bg-white dark:bg-gray-900/80' : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-gray-900/40'" 
+                        :class="plan.destacado ? 'ring-2 ring-[var(--color-primary)] shadow-[0_0_40px_-10px_var(--color-primary)]/50 lg:-translate-y-8 z-20 bg-white dark:bg-slate-900 dark:bg-gray-900/80' : 'border-gray-200 dark:border-slate-800 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-slate-900 dark:bg-gray-900/40'" 
                         class="relative backdrop-blur-xl p-8 lg:p-10 rounded-[3rem] border flex flex-col group transition-all duration-700 hover:-translate-y-4"
                     >
                         <!-- Etiqueta Destacado Flotante -->
@@ -592,19 +592,19 @@ const planesCalculados = computed(() => {
                             >
                                 <font-awesome-icon :icon="getFaIcon(plan)" class="drop-shadow-lg" />
                             </div>
-                            <h4 class="text-3xl font-black text-gray-900 dark:text-white mb-3 tracking-tight transition-colors">{{ plan.nombre }}</h4>
-                            <p class="text-xs text-gray-500 font-bold uppercase tracking-[0.3em]">{{ plan.tipo_label }}</p>
+                            <h4 class="text-3xl font-black text-gray-900 dark:text-white dark:text-white mb-3 tracking-tight transition-colors">{{ plan.nombre }}</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-[0.3em]">{{ plan.tipo_label }}</p>
                         </div>
 
                         <div class="mb-12 text-center">
                             <template v-if="plan.precio_mensual > 0">
                                 <div class="flex items-baseline justify-center gap-1 mb-4">
-                                    <span class="text-2xl text-gray-500 font-bold">$</span>
+                                    <span class="text-2xl text-gray-500 dark:text-gray-400 font-bold">$</span>
                                     <span class="text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-gray-900 to-gray-500 dark:from-white dark:to-gray-400 tracking-tighter transition-all">
                                         {{ billingCycle === 'monthly' ? formatPrice(plan.precio_mensual) : formatPrice(plan.precio_anual / 12) }}
                                     </span>
                                 </div>
-                                <p class="text-gray-500 text-xs font-black uppercase tracking-widest">pesos por mes</p>
+                                <p class="text-gray-500 dark:text-gray-400 text-xs font-black uppercase tracking-widest">pesos por mes</p>
                                 <div v-if="billingCycle === 'yearly'" class="mt-6 inline-block">
                                     <span class="text-[10px] font-black text-[var(--color-primary)] bg-[var(--color-primary-soft)] px-4 py-2 rounded-xl border border-[var(--color-primary)]/20">
                                         Ahorras ${{ formatPrice(plan.ahorro_anual) }} / año
@@ -612,18 +612,18 @@ const planesCalculados = computed(() => {
                                 </div>
                             </template>
                             <template v-else>
-                                <p class="text-4xl font-black text-gray-900 dark:text-white tracking-tighter mb-2 uppercase drop-shadow-lg leading-tight transition-colors">Diseño <br>VIP</p>
+                                <p class="text-4xl font-black text-gray-900 dark:text-white dark:text-white tracking-tighter mb-2 uppercase drop-shadow-lg leading-tight transition-colors">Diseño <br>VIP</p>
                                 <p class="text-[var(--color-primary)] text-xs font-black uppercase tracking-widest mt-4">Adaptado a su Negocio</p>
                                 <div class="h-10 mt-4 opacity-20">
-                                    <font-awesome-icon icon="gem" class="text-4xl text-gray-900 dark:text-white transition-colors" />
+                                    <font-awesome-icon icon="gem" class="text-4xl text-gray-900 dark:text-white dark:text-white transition-colors" />
                                 </div>
                             </template>
                         </div>
 
                         <ul class="space-y-5 mb-12 flex-grow px-2">
-                             <li v-for="beneficio in plan.beneficios_array" :key="beneficio" class="flex items-start gap-4 text-sm text-gray-600 dark:text-gray-300 font-medium group/item transition-colors">
+                             <li v-for="beneficio in plan.beneficios_array" :key="beneficio" class="flex items-start gap-4 text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300 font-medium group/item transition-colors">
                                 <span class="w-6 h-6 rounded-full bg-[var(--color-primary-soft)] flex-shrink-0 flex items-center justify-center text-[var(--color-primary)] text-xs group-hover/item:bg-[var(--color-primary)] group-hover/item:text-white transition-all">✓</span> 
-                                <span class="group-hover/item:text-gray-900 dark:group-hover/item:text-white transition-colors">{{ beneficio }}</span>
+                                <span class="group-hover/item:text-gray-900 dark:text-white dark:group-hover/item:text-white transition-colors">{{ beneficio }}</span>
                             </li>
                         </ul>
 
@@ -633,7 +633,7 @@ const planesCalculados = computed(() => {
                             class="w-full py-6 rounded-2xl font-black text-xs uppercase tracking-widest text-center transition-all duration-300 relative overflow-hidden group/btn"
                             :class="plan.destacado ? 'bg-[var(--color-primary)] text-white shadow-lg hover:shadow-[var(--color-primary)]/50' : 'bg-gray-900 dark:bg-gray-800 text-white hover:bg-gray-800 dark:hover:bg-gray-700 border border-gray-700'"
                         >
-                            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500"></div>
+                            <div class="absolute inset-0 bg-white dark:bg-slate-900/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500"></div>
                             <span class="relative z-10">Contratar Plan</span>
                         </Link>
                         <a 
@@ -651,14 +651,14 @@ const planesCalculados = computed(() => {
         </section>
 
         <!-- PROCESS SECTION - Rediseñado -->
-        <section class="py-24 bg-white dark:bg-gray-900 overflow-hidden transition-colors duration-300">
+        <section class="py-24 bg-white dark:bg-slate-900 dark:bg-gray-900 overflow-hidden transition-colors duration-300">
             <div class="w-full px-4">
                 <div class="text-center mb-20 w-full">
                     <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Nuestro Método</h2>
-                    <h3 class="text-4xl lg:text-5xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight mb-6 transition-colors">
+                    <h3 class="text-4xl lg:text-5xl font-black text-gray-900 dark:text-white dark:text-white tracking-tighter leading-tight mb-6 transition-colors">
                         Implementación <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Impecable</span>
                     </h3>
-                    <p class="text-lg text-gray-500 dark:text-gray-400 font-medium leading-relaxed transition-colors">Desde el diseño del proyecto hasta la puesta en marcha, garantizamos funcionalidad total.</p>
+                    <p class="text-lg text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium leading-relaxed transition-colors">Desde el diseño del proyecto hasta la puesta en marcha, garantizamos funcionalidad total.</p>
                 </div>
 
                 <!-- Pasos Proceso -->
@@ -672,14 +672,14 @@ const planesCalculados = computed(() => {
                             {icon: '📋', title: 'Diseño', desc: 'Planos de ubicación y selección de tecnología óptima.'},
                             {icon: '🛠️', title: 'Instalación', desc: 'Cableado estructurado peinado y equipos configurados.'},
                             {icon: '⭐', title: 'Capacitación', desc: 'Te enseñamos a usar tu sistema al 100% y damos soporte.'}
-                        ]" :key="index" class="group bg-white dark:bg-gray-800 p-10 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 shadow-xl shadow-gray-200/50 dark:shadow-none hover:-translate-y-2 transition-all duration-500 hover:border-[var(--color-primary)] dark:hover:bg-gray-750">
-                            <div class="w-20 h-20 bg-white dark:bg-gray-700 rounded-3xl flex items-center justify-center text-4xl mb-8 group-hover:scale-110 group-hover:bg-[var(--color-primary-soft)] transition-all">
+                        ]" :key="index" class="group bg-white dark:bg-slate-900 dark:bg-gray-800 p-10 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 shadow-xl shadow-gray-200/50 dark:shadow-none hover:-translate-y-2 transition-all duration-500 hover:border-[var(--color-primary)] dark:hover:bg-gray-750">
+                            <div class="w-20 h-20 bg-white dark:bg-slate-900 dark:bg-gray-700 rounded-3xl flex items-center justify-center text-4xl mb-8 group-hover:scale-110 group-hover:bg-[var(--color-primary-soft)] transition-all">
                                 {{ p.icon }}
                             </div>
                             <div class="relative">
                                 <span class="absolute -top-16 -right-2 text-7xl font-black text-gray-50 dark:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity">0{{ index + 1 }}</span>
-                                <h4 class="text-2xl font-black text-gray-900 dark:text-white mb-4 transition-colors">{{ p.title }}</h4>
-                                <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed font-medium transition-colors">{{ p.desc }}</p>
+                                <h4 class="text-2xl font-black text-gray-900 dark:text-white dark:text-white mb-4 transition-colors">{{ p.title }}</h4>
+                                <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 text-sm leading-relaxed font-medium transition-colors">{{ p.desc }}</p>
                             </div>
                         </div>
                     </div>
@@ -688,11 +688,11 @@ const planesCalculados = computed(() => {
         </section>
 
         <!-- TESTIMONIOS - Carrusel Animado Corregido -->
-        <section class="py-24 bg-white dark:bg-gray-900 overflow-hidden transition-colors duration-300">
+        <section class="py-24 bg-white dark:bg-slate-900 dark:bg-gray-900 overflow-hidden transition-colors duration-300">
             <div class="w-full px-4">
                 <div class="text-center mb-16 w-full">
                     <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Experiencias Reales</h2>
-                    <h3 class="text-4xl lg:text-5xl font-black text-gray-900 dark:text-white tracking-tighter transition-colors">Voces de nuestros <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Clientes Seguros</span></h3>
+                    <h3 class="text-4xl lg:text-5xl font-black text-gray-900 dark:text-white dark:text-white tracking-tighter transition-colors">Voces de nuestros <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Clientes Seguros</span></h3>
                 </div>
             </div>
             
@@ -713,12 +713,12 @@ const planesCalculados = computed(() => {
                         <div class="flex items-center gap-1 text-amber-400 mb-6">
                             <svg v-for="i in 5" :key="i" class="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                         </div>
-                        <p class="text-gray-600 dark:text-gray-300 font-medium mb-8 leading-relaxed italic line-clamp-4 transition-colors">"{{ testimonio.contenido }}"</p>
+                        <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300 font-medium mb-8 leading-relaxed italic line-clamp-4 transition-colors">"{{ testimonio.contenido }}"</p>
                         <div class="flex items-center gap-4 border-t border-gray-100 dark:border-gray-700 pt-6 transition-colors">
                             <img :src="`https://i.pravatar.cc/100?u=${testimonio.id}`" class="w-12 h-12 rounded-2xl shadow-sm" alt="Autor">
                             <div>
-                                <h5 class="font-black text-gray-900 dark:text-white text-sm transition-colors">{{ testimonio.nombre }}</h5>
-                                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">{{ testimonio.entidad || 'Hogar' }}</p>
+                                <h5 class="font-black text-gray-900 dark:text-white dark:text-white text-sm transition-colors">{{ testimonio.nombre }}</h5>
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 dark:text-gray-400">{{ testimonio.entidad || 'Hogar' }}</p>
                             </div>
                         </div>
                     </div>
@@ -734,11 +734,11 @@ const planesCalculados = computed(() => {
         <QuickAppointmentForm :empresa="empresaData" />
 
         <!-- FAQ SECTION -->
-        <section class="py-24 bg-white dark:bg-gray-900 overflow-hidden transition-colors duration-300">
+        <section class="py-24 bg-white dark:bg-slate-900 dark:bg-gray-900 overflow-hidden transition-colors duration-300">
             <div class="w-full px-4">
                  <div class="text-center mb-16">
                     <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">¿Dudas?</h2>
-                    <h3 class="text-4xl lg:text-5xl font-black text-gray-900 dark:text-white tracking-tighter transition-colors">Preguntas Frecuentes</h3>
+                    <h3 class="text-4xl lg:text-5xl font-black text-gray-900 dark:text-white dark:text-white tracking-tighter transition-colors">Preguntas Frecuentes</h3>
                 </div>
 
                 <div class="space-y-4">
@@ -750,7 +750,7 @@ const planesCalculados = computed(() => {
                         {id: 5, icon: 'camera', pregunta: '¿Qué marcas de cámaras manejas?', respuesta: 'Trabajamos con las mejores marcas del mercado como Hikvision, Dahua y Axis, asegurando la más alta resolución y durabilidad en cada sistema de videovigilancia.'},
                         {id: 6, icon: 'mobile-alt', pregunta: '¿Puedo monitorear mis cámaras de forma remota?', respuesta: 'Sí, configuramos todos nuestros sistemas para que pueda visualizar sus cámaras en tiempo real desde su celular o computadora, desde cualquier parte del mundo.'}
                     ])" :key="faq.id" 
-                        class="bg-white dark:bg-gray-800 rounded-[2rem] border border-gray-100 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group"
+                        class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-[2rem] border border-gray-100 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group"
                         :class="{'ring-2 ring-[var(--color-primary-soft)]': activeFaq === faq.id}"
                     >
                         <button 
@@ -761,9 +761,9 @@ const planesCalculados = computed(() => {
                                 <span class="w-12 h-12 rounded-2xl bg-[var(--color-primary-soft)] dark:bg-gray-700 flex items-center justify-center text-lg text-[var(--color-primary)] transition-colors">
                                     <font-awesome-icon :icon="faq.icon || 'question'" />
                                 </span>
-                                <span class="font-black text-gray-900 dark:text-white group-hover:text-[var(--color-primary)] transition-colors text-lg leading-snug">{{ faq.pregunta }}</span>
+                                <span class="font-black text-gray-900 dark:text-white dark:text-white group-hover:text-[var(--color-primary)] transition-colors text-lg leading-snug">{{ faq.pregunta }}</span>
                             </div>
-                            <span class="w-10 h-10 rounded-xl bg-white dark:bg-gray-700 flex items-center justify-center text-gray-400 transition-transform duration-500 shrink-0" :class="{'rotate-180 bg-[var(--color-primary)] text-white shadow-lg': activeFaq === faq.id}">
+                            <span class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 dark:bg-gray-700 flex items-center justify-center text-gray-400 transition-transform duration-500 shrink-0" :class="{'rotate-180 bg-[var(--color-primary)] text-white shadow-lg': activeFaq === faq.id}">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>
                             </span>
                         </button>
@@ -777,7 +777,7 @@ const planesCalculados = computed(() => {
                         >
                             <div v-if="activeFaq === faq.id" class="px-8 pb-8 pt-2">
                                 <div class="pl-16 pr-8">
-                                    <p class="text-gray-500 dark:text-gray-400 font-medium leading-relaxed border-t border-gray-50 dark:border-gray-700 pt-6 text-[15px] transition-colors">{{ faq.respuesta }}</p>
+                                    <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium leading-relaxed border-t border-gray-50 dark:border-gray-700 pt-6 text-[15px] transition-colors">{{ faq.respuesta }}</p>
                                 </div>
                             </div>
                         </transition>

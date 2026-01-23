@@ -101,7 +101,7 @@ onUnmounted(() => {
     <div class="signature-pad-container">
         <label v-if="label" class="block text-sm font-medium text-gray-700 mb-2">{{ label }}</label>
         
-        <div class="relative border-2 border-dashed border-gray-300 rounded-xl overflow-hidden bg-white">
+        <div class="relative border-2 border-dashed border-gray-300 rounded-xl overflow-hidden bg-white dark:bg-slate-900">
             <canvas 
                 ref="canvas"
                 class="w-full cursor-crosshair touch-none"
@@ -132,8 +132,8 @@ onUnmounted(() => {
         
         <p v-if="error" class="mt-1 text-xs text-red-600 font-medium">{{ error }}</p>
 
-        <div v-if="modelValue && !isEmpty" class="mt-2 p-2 bg-gray-50 rounded-lg border border-gray-100 flex items-center gap-3">
-             <div class="w-12 h-8 bg-white border border-gray-200 rounded p-1">
+        <div v-if="modelValue && !isEmpty" class="mt-2 p-2 bg-gray-50 rounded-lg border border-gray-100 dark:border-slate-800 flex items-center gap-3">
+             <div class="w-12 h-8 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-1">
                  <img :src="modelValue" class="w-full h-full object-contain">
              </div>
              <span class="text-[10px] font-bold text-green-600 uppercase">Firma capturada correctamente</span>

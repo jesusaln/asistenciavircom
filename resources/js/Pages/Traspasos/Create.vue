@@ -225,14 +225,14 @@ const cancel = () => {
 <template>
   <Head title="Nuevo Traspaso" />
 
-  <div class="min-h-screen bg-white">
+  <div class="min-h-screen bg-white dark:bg-slate-900">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">Nuevo Traspaso</h1>
-            <p class="text-gray-600 mt-1">Transfiere múltiples productos entre almacenes</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Nuevo Traspaso</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-1">Transfiere múltiples productos entre almacenes</p>
           </div>
           <button
             @click="cancel"
@@ -249,8 +249,8 @@ const cancel = () => {
       <!-- Formulario Principal -->
       <div class="space-y-6">
         <!-- Almacenes Origen/Destino -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6">
+          <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center">
             <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
@@ -290,8 +290,8 @@ const cancel = () => {
         </div>
 
         <!-- Agregar Productos -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" v-if="form.almacen_origen_id">
-          <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6" v-if="form.almacen_origen_id">
+          <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center">
             <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
@@ -311,7 +311,7 @@ const cancel = () => {
                   {{ producto.nombre }} {{ producto.requiere_serie ? '(Serie)' : '' }}
                 </option>
               </select>
-              <p v-if="nuevoItem.producto_id && stockProductoEnOrigen > 0" class="mt-1 text-sm text-gray-500">
+              <p v-if="nuevoItem.producto_id && stockProductoEnOrigen > 0" class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Stock disponible: <strong>{{ stockProductoEnOrigen }}</strong>
               </p>
             </div>
@@ -373,7 +373,7 @@ const cancel = () => {
               <label
                 v-for="serie in seriesDisponibles"
                 :key="serie.id"
-                class="flex items-center gap-3 p-2 bg-white border border-blue-200 rounded-md hover:bg-blue-100 cursor-pointer"
+                class="flex items-center gap-3 p-2 bg-white dark:bg-slate-900 border border-blue-200 rounded-md hover:bg-blue-100 cursor-pointer"
               >
                 <input
                   type="checkbox"
@@ -381,7 +381,7 @@ const cancel = () => {
                   v-model="seriesSeleccionadas"
                   class="text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
-                <span class="text-sm text-gray-800 font-mono">{{ serie.numero_serie }}</span>
+                <span class="text-sm text-gray-800 dark:text-gray-100 font-mono">{{ serie.numero_serie }}</span>
               </label>
             </div>
             <p class="mt-3 text-sm text-blue-800 font-medium">
@@ -391,15 +391,15 @@ const cancel = () => {
         </div>
 
         <!-- Lista de Productos Agregados -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" v-if="form.items.length > 0">
-          <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center justify-between">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6" v-if="form.items.length > 0">
+          <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center justify-between">
             <span class="flex items-center">
               <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
               Productos a Traspasar
             </span>
-            <span class="text-sm font-normal text-gray-500">
+            <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
               {{ totalProductos }} producto(s) • {{ totalUnidades }} unidad(es)
             </span>
           </h2>
@@ -408,11 +408,11 @@ const cancel = () => {
             <div
               v-for="(item, index) in form.items"
               :key="index"
-              class="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200"
+              class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800"
             >
               <div class="flex-1">
-                <p class="font-medium text-gray-900">{{ item.producto_nombre }}</p>
-                <p class="text-sm text-gray-500">
+                <p class="font-medium text-gray-900 dark:text-white">{{ item.producto_nombre }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
                   Cantidad: <strong>{{ item.cantidad }}</strong>
                   <span v-if="item.requiere_serie" class="ml-2 text-blue-600">
                     ({{ item.series.length }} series)
@@ -433,8 +433,8 @@ const cancel = () => {
         </div>
 
         <!-- Información Adicional -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 class="text-lg font-semibold text-gray-800 mb-4">Información Adicional</h2>
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6">
+          <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Información Adicional</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Referencia</label>

@@ -13,27 +13,27 @@
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nombre</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">SLA</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Color/Icono</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tickets</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Estado</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Nombre</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">SLA</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Color/Icono</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Tickets</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Estado</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
           </tr>
         </thead>
-        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+        <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
           <tr v-for="cat in categorias" :key="cat.id">
             <td class="px-6 py-4">
-              <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ cat.nombre }}</div>
-              <div class="text-sm text-gray-500 dark:text-gray-400">{{ cat.descripcion }}</div>
+              <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">{{ cat.nombre }}</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">{{ cat.descripcion }}</div>
             </td>
-            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{{ cat.sla_horas }}h</td>
+            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">{{ cat.sla_horas }}h</td>
             <td class="px-6 py-4">
               <span :class="`badge bg-${cat.color}-100 dark:bg-${cat.color}-900/50 text-${cat.color}-800 dark:text-${cat.color}-300 px-2 py-1 rounded inline-flex items-center text-xs`">
                 <font-awesome-icon :icon="cat.icono" class="mr-1" /> {{ cat.color }}
               </span>
             </td>
-            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{{ cat.tickets_count || 0 }}</td>
+            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">{{ cat.tickets_count || 0 }}</td>
             <td class="px-6 py-4">
               <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
                 :class="cat.activo ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'">
@@ -46,7 +46,7 @@
             </td>
           </tr>
           <tr v-if="categorias.length === 0">
-              <td colspan="6" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+              <td colspan="6" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400 dark:text-gray-400 text-sm">
                   No hay categorías registradas.
               </td>
           </tr>
@@ -56,8 +56,8 @@
 
     <!-- Modal Crear/Editar -->
     <Modal :show="showModal" @close="closeModal">
-      <div class="p-6 bg-white dark:bg-gray-800 transition-colors">
-        <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">{{ form.id ? 'Editar' : 'Nueva' }} Categoría</h2>
+      <div class="p-6 bg-white dark:bg-slate-900 dark:bg-gray-800 transition-colors">
+        <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-white mb-4">{{ form.id ? 'Editar' : 'Nueva' }} Categoría</h2>
         <form @submit.prevent="submit">
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre</label>
@@ -102,7 +102,7 @@
             <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Activo</label>
           </div>
           <div class="flex justify-end mt-6">
-            <button type="button" @click="closeModal" class="mr-3 px-4 py-2 text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">Cancelar</button>
+            <button type="button" @click="closeModal" class="mr-3 px-4 py-2 text-gray-700 hover:text-gray-900 dark:text-white dark:text-gray-400 dark:hover:text-gray-200">Cancelar</button>
             <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700" :disabled="form.processing">Guardar</button>
           </div>
         </form>

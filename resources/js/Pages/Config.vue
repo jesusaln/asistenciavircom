@@ -2,7 +2,7 @@
 
     <Head title="Configuracion" />
         <div>
-            <h1 class="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">Configuracion de la empresa</h1>
+            <h1 class="text-2xl font-semibold mb-6 text-gray-900 dark:text-white dark:text-gray-100">Configuracion de la empresa</h1>
             <!-- Formulario de creación de clientes -->
             <form @submit.prevent="submit">
                 <div v-if="form.errors.email" class="text-red-500">{{ form.errors.email }}</div>
@@ -14,7 +14,7 @@
                             v-model="form.nombre_razon_social"
                             type="text"
                             id="nombre_razon_social"
-                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             @blur="convertirAMayusculas('nombre_razon_social')"
                         />
                         <p v-if="form.errors.nombre_razon_social" class="text-red-500 dark:text-red-400 text-sm">{{ form.errors.nombre_razon_social }}</p>
@@ -28,7 +28,7 @@
                             type="text"
                             id="rfc"
                             maxlength="13"
-                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             @blur="validarRFC"
                             required
                         />
@@ -41,7 +41,7 @@
                         <select
                             v-model="form.regimen_fiscal"
                             id="regimen_fiscal"
-                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             required
                         >
                             <option value="" disabled>Selecciona un régimen fiscal</option>
@@ -55,7 +55,7 @@
                         <select
                             v-model="form.uso_cfdi"
                             id="uso_cfdi"
-                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             required
                         >
                             <option value="" disabled>Selecciona un uso CFDI</option>
@@ -71,7 +71,7 @@
                             v-model="form.email"
                             type="email"
                             id="email"
-                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             required
                         />
                         <p v-if="form.errors.email" class="text-red-500 dark:text-red-400 text-sm">{{ form.errors.email }}</p>
@@ -85,7 +85,7 @@
                             type="text"
                             id="telefono"
                             maxlength="10"
-                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             @input="validarTelefono"
                             required
                         />
@@ -100,7 +100,7 @@
                             type="text"
                             id="calle"
                             maxlength="40"
-                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             @blur="convertirAMayusculas('calle')"
                             required
                         />
@@ -114,7 +114,7 @@
                             v-model="form.numero_exterior"
                             type="text"
                             id="numero_exterior"
-                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             required
                         />
                     </div>
@@ -126,7 +126,7 @@
                             v-model="form.numero_interior"
                             type="text"
                             id="numero_interior"
-                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                         />
                     </div>
 
@@ -137,7 +137,7 @@
                             v-model="form.colonia"
                             type="text"
                             id="colonia"
-                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             @blur="convertirAMayusculas('colonia')"
                             required
                         />
@@ -150,7 +150,7 @@
                             v-model="form.codigo_postal"
                             type="text"
                             id="codigo_postal"
-                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             required
                         />
                     </div>
@@ -162,7 +162,7 @@
                             v-model="form.municipio"
                             type="text"
                             id="municipio"
-                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             readonly
                         />
                     </div>
@@ -174,7 +174,7 @@
                             v-model="form.estado"
                             type="text"
                             id="estado"
-                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             readonly
                         />
                     </div>
@@ -186,7 +186,7 @@
                             v-model="form.pais"
                             type="text"
                             id="pais"
-                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             readonly
                         />
                     </div>

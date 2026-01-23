@@ -22,7 +22,7 @@
                     leave-from-class="opacity-100 translate-y-0 sm:scale-100"
                     leave-to-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 >
-                    <div v-if="show" class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-red-100">
+                    <div v-if="show" class="inline-block align-bottom bg-white dark:bg-slate-900 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-red-100">
                         <!-- Header with gradient icon -->
                         <div class="px-6 pt-8 pb-4 text-center">
                             <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-red-50 mb-6">
@@ -32,18 +32,18 @@
                                     </svg>
                                 </div>
                             </div>
-                            <h3 class="text-2xl font-bold text-gray-900 leading-tight" id="modal-title">
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight" id="modal-title">
                                 ¡Ups! Algo no salió como esperábamos
                             </h3>
                             <div class="mt-4">
-                                <p class="text-gray-500 text-base leading-relaxed">
+                                <p class="text-gray-500 dark:text-gray-400 text-base leading-relaxed">
                                     Ha ocurrido un error inesperado al procesar tu solicitud. No te preocupes, no es tu culpa.
                                 </p>
                             </div>
                         </div>
 
                         <!-- Error details (optional/collapsed) -->
-                        <div v-if="error" class="px-6 py-4 bg-gray-50/50 border-y border-gray-100">
+                        <div v-if="error" class="px-6 py-4 bg-gray-50/50 border-y border-gray-100 dark:border-slate-800">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Detalles del Error</span>
                                 <button 
@@ -63,7 +63,7 @@
                         </div>
 
                         <!-- Footer actions -->
-                        <div class="px-6 py-6 bg-white sm:flex sm:flex-row-reverse gap-3">
+                        <div class="px-6 py-6 bg-white dark:bg-slate-900 sm:flex sm:flex-row-reverse gap-3">
                             <button 
                                 type="button" 
                                 class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-md px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-base font-semibold text-white hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto transition-all transform hover:scale-[1.02] active:scale-[0.98]"
@@ -73,7 +73,7 @@
                             </button>
                             <button 
                                 type="button" 
-                                class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-200 px-6 py-3 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto transition-colors"
+                                class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-200 dark:border-slate-800 px-6 py-3 bg-white dark:bg-slate-900 text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto transition-colors"
                                 @click="close"
                             >
                                 Entendido

@@ -19,9 +19,9 @@ const getPrioridadClass = (prioridad) => {
         urgente: 'border-red-500 bg-red-50',
         alta: 'border-orange-500 bg-orange-50',
         media: 'border-yellow-500 bg-yellow-50',
-        baja: 'border-gray-300 bg-gray-50',
+        baja: 'border-gray-300 bg-gray-50 dark:bg-slate-950',
     };
-    return classes[prioridad] || 'border-gray-300 bg-gray-50';
+    return classes[prioridad] || 'border-gray-300 bg-gray-50 dark:bg-slate-950';
 };
 
 const getPrioridadTextClass = (prioridad) => {
@@ -29,9 +29,9 @@ const getPrioridadTextClass = (prioridad) => {
         urgente: 'text-red-600',
         alta: 'text-orange-600',
         media: 'text-yellow-600',
-        baja: 'text-gray-600',
+        baja: 'text-gray-600 dark:text-gray-300',
     };
-    return classes[prioridad] || 'text-gray-600';
+    return classes[prioridad] || 'text-gray-600 dark:text-gray-300';
 }
 
 </script>
@@ -39,7 +39,7 @@ const getPrioridadTextClass = (prioridad) => {
 <template>
     <AppLayout title="Mi Dashboard">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
                 Mi Dashboard de Agente
             </h2>
         </template>
@@ -65,15 +65,15 @@ const getPrioridadTextClass = (prioridad) => {
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Columna de Tickets -->
                     <div class="lg:col-span-2">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Mis Tickets Más Urgentes</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Mis Tickets Más Urgentes</h3>
                         <div class="space-y-4">
-                            <div v-if="misTicketsUrgentes.length > 0" v-for="ticket in misTicketsUrgentes" :key="ticket.id" :class="['p-4 bg-white rounded-lg shadow-md border-l-4', getPrioridadClass(ticket.prioridad)]">
+                            <div v-if="misTicketsUrgentes.length > 0" v-for="ticket in misTicketsUrgentes" :key="ticket.id" :class="['p-4 bg-white dark:bg-slate-900 rounded-lg shadow-md border-l-4', getPrioridadClass(ticket.prioridad)]">
                                 <div class="flex justify-between items-start">
                                     <div>
-                                        <Link :href="route('soporte.show', ticket.id)" class="font-bold text-gray-800 hover:text-indigo-600">
+                                        <Link :href="route('soporte.show', ticket.id)" class="font-bold text-gray-800 dark:text-gray-100 hover:text-indigo-600">
                                             {{ ticket.titulo }}
                                         </Link>
-                                        <p class="text-sm text-gray-500">
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">
                                             Cliente: {{ ticket.cliente?.nombre_razon_social || 'N/A' }}
                                         </p>
                                     </div>
@@ -81,30 +81,30 @@ const getPrioridadTextClass = (prioridad) => {
                                         {{ ticket.prioridad }}
                                     </span>
                                 </div>
-                                <div class="mt-2 text-xs text-gray-500">
+                                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
                                     <span>Folio: #{{ ticket.folio }}</span> | <span>Límite: {{ formatDate(ticket.fecha_limite) }}</span>
                                 </div>
                             </div>
-                            <div v-else class="text-center py-10 bg-white rounded-lg shadow-md">
-                                <p class="text-gray-500">¡Excelente! No tienes tickets urgentes asignados.</p>
+                            <div v-else class="text-center py-10 bg-white dark:bg-slate-900 rounded-lg shadow-md">
+                                <p class="text-gray-500 dark:text-gray-400">¡Excelente! No tienes tickets urgentes asignados.</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Columna de Citas -->
                     <div class="lg:col-span-1">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Mis Próximas Citas</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Mis Próximas Citas</h3>
                         <div class="space-y-4">
-                            <div v-if="misProximasCitas.length > 0" v-for="cita in misProximasCitas" :key="cita.id" class="p-4 bg-white rounded-lg shadow-md border-l-4 border-blue-500">
-                                <p class="font-semibold text-gray-800">{{ formatDate(cita.fecha_hora) }}</p>
-                                <p class="text-sm text-gray-600 truncate">{{ cita.descripcion }}</p>
-                                <p class="text-xs text-gray-500">Cliente: {{ cita.cliente?.nombre_razon_social || 'N/A' }}</p>
+                            <div v-if="misProximasCitas.length > 0" v-for="cita in misProximasCitas" :key="cita.id" class="p-4 bg-white dark:bg-slate-900 rounded-lg shadow-md border-l-4 border-blue-500">
+                                <p class="font-semibold text-gray-800 dark:text-gray-100">{{ formatDate(cita.fecha_hora) }}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-300 truncate">{{ cita.descripcion }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Cliente: {{ cita.cliente?.nombre_razon_social || 'N/A' }}</p>
                                 <Link :href="route('citas.show', cita.id)" class="text-sm text-indigo-500 hover:underline mt-2 inline-block">
                                     Ver detalles &rarr;
                                 </Link>
                             </div>
-                            <div v-else class="text-center py-10 bg-white rounded-lg shadow-md">
-                                <p class="text-gray-500">No tienes citas próximas en tu agenda.</p>
+                            <div v-else class="text-center py-10 bg-white dark:bg-slate-900 rounded-lg shadow-md">
+                                <p class="text-gray-500 dark:text-gray-400">No tienes citas próximas en tu agenda.</p>
                             </div>
                         </div>
                     </div>

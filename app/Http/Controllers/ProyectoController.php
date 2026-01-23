@@ -13,15 +13,21 @@ use App\Models\Cliente;
 
 class ProyectoController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Proyecto::class, 'proyecto');
+    }
+
     /**
      * Listado de Proyectos (Propios y Compartidos)
      */
     public function index()
     {
-        if (!\Illuminate\Support\Facades\Gate::allows('view proyectos')) {
-            abort(403);
-        }
+        // El constructor ya autoriza 'viewAny'
+
         $user = Auth::user();
+
+        // ... (resto del código igual) ...
 
         // Proyectos propios
         $misProyectos = $user->ownedProjects;
@@ -69,14 +75,14 @@ class ProyectoController extends Controller
     /**
      * Ver tablero del proyecto (Roadmap)
      */
+    /**
+     * Ver tablero del proyecto (Roadmap)
+     */
     public function show(Proyecto $proyecto)
     {
         $user = Auth::user();
 
-        // Validar acceso (Dueño o Miembro)
-        if ($proyecto->owner_id !== $user->id && !$proyecto->members->contains($user->id)) {
-            abort(403, 'No tienes permiso para ver este proyecto.');
-        }
+        // Validar acceso: Manejado por Policy
 
         // Cargar tareas agrupadas
         $tareas = $proyecto->tareas()->orderBy('orden')->get();
@@ -137,11 +143,7 @@ class ProyectoController extends Controller
      */
     public function update(Request $request, Proyecto $proyecto)
     {
-        // $this->authorize('update', $proyecto); // Implementar Policy luego si es necesario simple check aqui
-
-        if ($proyecto->owner_id !== Auth::id()) {
-            abort(403);
-        }
+        // Autorización manejada por Policy
 
         $request->validate([
             'nombre' => 'required|string|max:255',
@@ -159,9 +161,7 @@ class ProyectoController extends Controller
      */
     public function destroy(Proyecto $proyecto)
     {
-        if ($proyecto->owner_id !== Auth::id()) {
-            abort(403);
-        }
+        // Autorización manejada por Policy
 
         $proyecto->delete();
 
@@ -173,9 +173,7 @@ class ProyectoController extends Controller
      */
     public function share(Request $request, Proyecto $proyecto)
     {
-        if ($proyecto->owner_id !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('update', $proyecto);
 
         $request->validate([
             'user_id' => 'required|exists:users,id',
@@ -200,9 +198,7 @@ class ProyectoController extends Controller
      */
     public function removeMember(Proyecto $proyecto, User $user)
     {
-        if ($proyecto->owner_id !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('update', $proyecto);
 
         $proyecto->members()->detach($user->id);
 
@@ -214,9 +210,8 @@ class ProyectoController extends Controller
      */
     public function addProducto(Request $request, Proyecto $proyecto)
     {
-        if ($proyecto->owner_id !== Auth::id() && !$proyecto->members->contains(Auth::id())) {
-            abort(403);
-        }
+        // Usamos 'view' porque cualquier miembro puede agregar productos
+        $this->authorize('view', $proyecto);
 
         $request->validate([
             'producto_id' => 'required|exists:productos,id',
@@ -246,9 +241,8 @@ class ProyectoController extends Controller
      */
     public function removeProducto(Proyecto $proyecto, $productoId)
     {
-        if ($proyecto->owner_id !== Auth::id() && !$proyecto->members->contains(Auth::id())) {
-            abort(403);
-        }
+        // Usamos 'view' porque cualquier miembro puede quitar productos (o update si quieres ser estricto)
+        $this->authorize('view', $proyecto);
 
         $proyecto->productos()->detach($productoId);
 
@@ -260,9 +254,7 @@ class ProyectoController extends Controller
      */
     public function addGasto(Request $request, Proyecto $proyecto)
     {
-        if ($proyecto->owner_id !== Auth::id() && !$proyecto->members->contains(Auth::id())) {
-            abort(403);
-        }
+        $this->authorize('view', $proyecto);
 
         $request->validate([
             'total' => 'required|numeric|min:0.01',

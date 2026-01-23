@@ -5,7 +5,7 @@
     :closeable="closeable"
     @close="close"
   >
-    <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
       <div class="sm:flex sm:items-start">
         <div class="mx-auto shrink-0 flex items-center justify-center size-12 rounded-full bg-yellow-100 sm:mx-0 sm:size-10">
           <svg class="size-6 text-yellow-600 dark:text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -14,7 +14,7 @@
         </div>
 
         <div class="mt-3 text-center sm:mt-0 sm:ms-4 sm:text-start flex-1">
-          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100">
             ⚠️ Productos con Margen Insuficiente
           </h3>
 
@@ -32,7 +32,7 @@
               >
                 <div class="flex justify-between items-start">
                   <div class="flex-1">
-                    <h4 class="font-medium text-gray-900 dark:text-gray-100">
+                    <h4 class="font-medium text-gray-900 dark:text-white dark:text-gray-100">
                       {{ item.producto.nombre }}
                     </h4>
                     <div class="mt-2 space-y-1 text-xs text-gray-600 dark:text-gray-400">

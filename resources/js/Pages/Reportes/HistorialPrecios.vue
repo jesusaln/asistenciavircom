@@ -1,12 +1,12 @@
 <template>
-  <div class="min-h-screen bg-white">
+  <div class="min-h-screen bg-white dark:bg-slate-900">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">Historial de Precios</h1>
-            <p class="text-gray-600 mt-1">Consulta el historial completo de cambios de precios de productos</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Historial de Precios</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-1">Consulta el historial completo de cambios de precios de productos</p>
           </div>
           <button
             @click="$inertia.visit(route('productos.index'))"
@@ -21,11 +21,11 @@
       </div>
 
       <!-- Información del producto -->
-      <div v-if="producto" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+      <div v-if="producto" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6 mb-8">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ producto.nombre }}</h3>
-            <p class="text-sm text-gray-600">{{ producto.descripcion || 'Sin descripción' }}</p>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ producto.nombre }}</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300">{{ producto.descripcion || 'Sin descripción' }}</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700">Precio de Compra Actual</label>
@@ -39,7 +39,7 @@
       </div>
 
       <!-- Filtros -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6 mb-8">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Cambio</label>
@@ -68,31 +68,31 @@
       </div>
 
       <!-- Tabla de historial -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
             Historial de Cambios ({{ historial.length }} registros)
           </h3>
         </div>
 
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+            <thead class="bg-white dark:bg-slate-900">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de Cambio</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Compra Anterior</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Compra Nuevo</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cambio</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Venta Anterior</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Venta Nuevo</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notas</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fecha</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tipo de Cambio</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Precio Compra Anterior</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Precio Compra Nuevo</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cambio</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Precio Venta Anterior</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Precio Venta Nuevo</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Usuario</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Notas</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="registro in historial" :key="registro.id" class="hover:bg-white">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+              <tr v-for="registro in historial" :key="registro.id" class="hover:bg-white dark:bg-slate-900">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                   {{ registro.fecha }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -101,36 +101,36 @@
                     {{ getTipoCambioLabel(registro.tipo_cambio) }}
                   </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                   ${{ registro.precio_compra_anterior?.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00' }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                   ${{ registro.precio_compra_nuevo?.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00' }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <span class="font-medium" :class="registro.cambio_compra >= 0 ? 'text-green-600' : 'text-red-600'">
                     {{ registro.cambio_compra >= 0 ? '+' : '' }}${{ registro.cambio_compra?.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00' }}
                   </span>
-                  <span class="text-gray-500 ml-1">
+                  <span class="text-gray-500 dark:text-gray-400 ml-1">
                     ({{ registro.cambio_compra >= 0 ? '+' : '' }}{{ ((registro.cambio_compra / (registro.precio_compra_anterior || 1)) * 100).toFixed(1) }}%)
                   </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                   <span v-if="registro.precio_venta_anterior">
                     ${{ registro.precio_venta_anterior?.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                   </span>
                   <span v-else class="text-gray-400">N/A</span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                   <span v-if="registro.precio_venta_nuevo">
                     ${{ registro.precio_venta_nuevo?.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                   </span>
                   <span v-else class="text-gray-400">N/A</span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                   {{ registro.usuario || 'Sistema' }}
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-900">
+                <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
                   <div class="max-w-xs truncate" :title="registro.notas">
                     {{ registro.notas || 'Sin notas' }}
                   </div>
@@ -148,7 +148,7 @@
                     </div>
                     <div class="space-y-1">
                       <p class="text-gray-700 font-medium">No hay historial de precios</p>
-                      <p class="text-sm text-gray-500">Los cambios de precios aparecerán aquí</p>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Los cambios de precios aparecerán aquí</p>
                     </div>
                   </div>
                 </td>
@@ -160,7 +160,7 @@
 
       <!-- Estadísticas -->
       <div v-if="historial.length > 0" class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -170,15 +170,15 @@
               </div>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">Precio Más Alto</p>
-              <p class="text-2xl font-semibold text-gray-900">
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Precio Más Alto</p>
+              <p class="text-2xl font-semibold text-gray-900 dark:text-white">
                 ${{ estadisticas.precio_max?.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00' }}
               </p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
@@ -188,15 +188,15 @@
               </div>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">Precio Más Bajo</p>
-              <p class="text-2xl font-semibold text-gray-900">
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Precio Más Bajo</p>
+              <p class="text-2xl font-semibold text-gray-900 dark:text-white">
                 ${{ estadisticas.precio_min?.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00' }}
               </p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -206,8 +206,8 @@
               </div>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">Promedio</p>
-              <p class="text-2xl font-semibold text-gray-900">
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Promedio</p>
+              <p class="text-2xl font-semibold text-gray-900 dark:text-white">
                 ${{ estadisticas.precio_promedio?.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00' }}
               </p>
             </div>
@@ -276,9 +276,9 @@ const getTipoCambioClass = (tipo) => {
     'orden_compra': 'bg-blue-100 text-blue-800',
     'edicion_orden_compra': 'bg-green-100 text-green-800',
     'orden_compra_directa': 'bg-purple-100 text-purple-800',
-    'manual': 'bg-gray-100 text-gray-800'
+    'manual': 'bg-gray-100 text-gray-800 dark:text-gray-100'
   }
-  return classes[tipo] || 'bg-gray-100 text-gray-800'
+  return classes[tipo] || 'bg-gray-100 text-gray-800 dark:text-gray-100'
 }
 
 // Función para aplicar filtros

@@ -67,8 +67,8 @@ const socialNetworks = [
                     📱
                 </div>
                 <div>
-                    <h3 class="font-bold text-gray-900 dark:text-gray-100">Redes Sociales</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-300">Configura los enlaces a tus perfiles de redes sociales. Se mostrarán en el footer de tu sitio web.</p>
+                    <h3 class="font-bold text-gray-900 dark:text-white dark:text-gray-100">Redes Sociales</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">Configura los enlaces a tus perfiles de redes sociales. Se mostrarán en el footer de tu sitio web.</p>
                 </div>
             </div>
         </div>
@@ -78,13 +78,13 @@ const socialNetworks = [
             <div 
                 v-for="network in socialNetworks" 
                 :key="network.key"
-                class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 transition-all"
+                class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:border-slate-800 dark:hover:border-gray-600 transition-all"
             >
                 <div class="flex items-center gap-3 mb-4">
                     <div :class="[network.color, 'w-10 h-10 rounded-xl flex items-center justify-center text-white text-lg']">
                         {{ network.icon }}
                     </div>
-                    <label class="font-semibold text-gray-900 dark:text-gray-100">{{ network.label }}</label>
+                    <label class="font-semibold text-gray-900 dark:text-white dark:text-gray-100">{{ network.label }}</label>
                 </div>
                 
                 <input
@@ -92,7 +92,7 @@ const socialNetworks = [
                     :value="form[network.key]"
                     @input="updateField(network.key, $event.target.value)"
                     :placeholder="network.placeholder"
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all outline-none text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-600 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all outline-none text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                 />
                 
                 <p v-if="form[network.key]" class="mt-2 text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
@@ -103,7 +103,7 @@ const socialNetworks = [
 
         <!-- Preview Section -->
         <div class="bg-gray-900 rounded-xl p-6">
-            <h4 class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">Vista previa del Footer</h4>
+            <h4 class="text-xs font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">Vista previa del Footer</h4>
             <div class="flex items-center gap-3 flex-wrap">
                 <a 
                     v-for="network in socialNetworks.filter(n => form[n.key])" 
@@ -115,7 +115,7 @@ const socialNetworks = [
                 >
                     {{ network.icon }}
                 </a>
-                <span v-if="!socialNetworks.some(n => form[n.key])" class="text-gray-500 dark:text-gray-400 text-sm">
+                <span v-if="!socialNetworks.some(n => form[n.key])" class="text-gray-500 dark:text-gray-400 dark:text-gray-400 text-sm">
                     No hay redes sociales configuradas
                 </span>
             </div>
@@ -128,12 +128,12 @@ const socialNetworks = [
                     🤖
                 </div>
                 <div>
-                    <h3 class="font-bold text-gray-900 dark:text-gray-100">Automatización de Blog (n8n)</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-300">Conecta tu blog con n8n para publicar automáticamente en redes sociales.</p>
+                    <h3 class="font-bold text-gray-900 dark:text-white dark:text-gray-100">Automatización de Blog (n8n)</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">Conecta tu blog con n8n para publicar automáticamente en redes sociales.</p>
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">n8n Webhook URL (Blog)</label>
                 <div class="flex gap-2">
                     <input
@@ -141,10 +141,10 @@ const socialNetworks = [
                         :value="form.n8n_webhook_blog"
                         @input="updateField('n8n_webhook_blog', $event.target.value)"
                         placeholder="https://n8n.tuempresa.com/webhook/..."
-                        class="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all outline-none text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                        class="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-600 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all outline-none text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                     />
                 </div>
-                <p class="mt-3 text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                <p class="mt-3 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 leading-relaxed">
                     Cuando publiques un artículo en el blog, se enviará una solicitud POST a esta URL con los detalles del post. Puedes usar n8n para formatear esta información y enviarla a Facebook, Instagram, Twitter y TikTok.
                 </p>
             </div>

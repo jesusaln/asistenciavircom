@@ -140,7 +140,7 @@ const onError = () => {
             <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
                 <div class="flex flex-col items-center gap-3">
                     <div class="w-10 h-10 border-3 border-gray-300 border-t-[var(--color-primary)] rounded-full animate-spin"></div>
-                    <span class="text-sm text-gray-500">Cargando mapa...</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Cargando mapa...</span>
                 </div>
             </div>
         </Transition>
@@ -148,7 +148,7 @@ const onError = () => {
         <!-- Error State -->
         <div v-if="hasError" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 z-10">
             <span class="text-4xl mb-3 opacity-50">📍</span>
-            <p class="text-gray-500 text-sm mb-3">No se pudo cargar el mapa</p>
+            <p class="text-gray-500 dark:text-gray-400 text-sm mb-3">No se pudo cargar el mapa</p>
             <a 
                 :href="googleMapsLink"
                 target="_blank"
@@ -186,7 +186,7 @@ const onError = () => {
                 :href="openStreetMapLink"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="px-3 py-2 bg-white rounded-lg shadow-lg text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-1.5"
+                class="px-3 py-2 bg-white dark:bg-slate-900 rounded-lg shadow-lg text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-1.5"
                 title="Ver en OpenStreetMap"
             >
                 <svg class="w-4 h-4 text-green-600" viewBox="0 0 24 24" fill="currentColor">
@@ -200,7 +200,7 @@ const onError = () => {
                 :href="googleMapsLink"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="px-3 py-2 bg-white rounded-lg shadow-lg text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-1.5"
+                class="px-3 py-2 bg-white dark:bg-slate-900 rounded-lg shadow-lg text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-1.5"
                 title="Ver en Google Maps"
             >
                 <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
@@ -211,7 +211,7 @@ const onError = () => {
         </div>
         
         <!-- Attribution (required by OSM) -->
-        <div class="absolute bottom-0 left-0 px-2 py-0.5 bg-white/80 text-[9px] text-gray-500 z-20">
+        <div class="absolute bottom-0 left-0 px-2 py-0.5 bg-white dark:bg-slate-900/80 text-[9px] text-gray-500 dark:text-gray-400 z-20">
             © <a href="https://www.openstreetmap.org/copyright" target="_blank" class="hover:underline">OpenStreetMap</a>
         </div>
     </div>

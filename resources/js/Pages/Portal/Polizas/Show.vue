@@ -153,10 +153,10 @@ const getEstadoBadge = (estado) => {
         activa: 'bg-emerald-50 text-emerald-600 border-emerald-100',
         inactiva: 'bg-amber-50 text-amber-600 border-amber-100',
         vencida: 'bg-red-50 text-red-600 border-red-100',
-        cancelada: 'bg-white text-gray-500 border-gray-100',
+        cancelada: 'bg-white dark:bg-slate-900 text-gray-500 dark:text-gray-400 border-gray-100',
         pendiente_pago: 'bg-purple-50 text-purple-600 border-purple-100',
     };
-    return colores[estado] || 'bg-white text-gray-800';
+    return colores[estado] || 'bg-white dark:bg-slate-900 text-gray-800 dark:text-gray-100';
 };
 
 // Cálculo de ahorro del cliente con precios reales (Mejora 2.4)
@@ -262,7 +262,7 @@ const enviarSolicitud = () => {
         <div class="px-2 sm:px-0">
             <!-- Header -->
             <div class="mb-8">
-                <Link :href="route('portal.dashboard')" class="text-xs uppercase tracking-widest font-bold text-gray-400 dark:text-gray-500 hover:text-[var(--color-primary)] mb-4 inline-block transition-colors">
+                <Link :href="route('portal.dashboard')" class="text-xs uppercase tracking-widest font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-[var(--color-primary)] mb-4 inline-block transition-colors">
                     ← Volver al Panel
                 </Link>
 
@@ -287,7 +287,7 @@ const enviarSolicitud = () => {
                         </p>
                     </div>
                 </div>
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-900/60 p-8 rounded-[2rem] shadow-xl dark:shadow-2xl shadow-gray-200/50 dark:shadow-black/50 border border-gray-100 dark:border-white/10 dark:backdrop-blur-xl transition-all">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-900 dark:bg-slate-900/60 p-8 rounded-[2rem] shadow-xl dark:shadow-2xl shadow-gray-200/50 dark:shadow-black/50 border border-gray-100 dark:border-white/10 dark:backdrop-blur-xl transition-all">
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <span class="font-mono text-sm font-black text-[var(--color-primary)] uppercase tracking-widest">{{ poliza.folio }}</span>
@@ -302,8 +302,8 @@ const enviarSolicitud = () => {
                                 ⚠️ Sin Firmar
                             </span>
                         </div>
-                        <h1 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">{{ poliza.nombre }}</h1>
-                        <p class="text-gray-500 dark:text-gray-400 font-medium text-sm mt-1">Vence: <strong class="text-gray-700 dark:text-gray-300">{{ formatDate(poliza.fecha_fin) }}</strong></p>
+                        <h1 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white dark:text-white tracking-tight">{{ poliza.nombre }}</h1>
+                        <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium text-sm mt-1">Vence: <strong class="text-gray-700 dark:text-gray-300">{{ formatDate(poliza.fecha_fin) }}</strong></p>
                     </div>
                     <div class="flex gap-2 flex-wrap">
                         <!-- Botón de Firma Digital (Si no está firmada) -->
@@ -311,7 +311,7 @@ const enviarSolicitud = () => {
                             <font-awesome-icon icon="signature" /> 
                             <span>Firmar Contrato</span>
                         </Link>
-                        <a :href="route('portal.polizas.contrato.pdf', poliza.id)" target="_blank" class="px-4 py-3 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-200 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-700 transition-all border-2 border-slate-100 dark:border-slate-700/50 flex items-center gap-2">
+                        <a :href="route('portal.polizas.contrato.pdf', poliza.id)" target="_blank" class="px-4 py-3 bg-white dark:bg-slate-900 dark:bg-slate-800 text-slate-600 dark:text-slate-200 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-700 transition-all border-2 border-slate-100 dark:border-slate-700/50 flex items-center gap-2">
                             <font-awesome-icon icon="file-pdf" /> 
                             <span>Contrato</span>
                         </a>
@@ -324,7 +324,7 @@ const enviarSolicitud = () => {
                             <font-awesome-icon icon="sync" /> 
                             <span>Renovar Ahora</span>
                         </Link>
-                        <a :href="route('portal.polizas.export-calendar', poliza.id)" class="px-4 py-3 bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all border-2 border-indigo-100 dark:border-indigo-900/30 flex items-center gap-2">
+                        <a :href="route('portal.polizas.export-calendar', poliza.id)" class="px-4 py-3 bg-white dark:bg-slate-900 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all border-2 border-indigo-100 dark:border-indigo-900/30 flex items-center gap-2">
                             <font-awesome-icon icon="calendar-alt" /> 
                             <span>Calendario</span>
                         </a>
@@ -340,26 +340,26 @@ const enviarSolicitud = () => {
                 <!-- Columna Principal -->
                 <div class="lg:col-span-2 space-y-8">
                     <!-- Descripción -->
-                    <div class="bg-white dark:bg-slate-900/60 rounded-[2rem] shadow-xl dark:shadow-2xl shadow-gray-200/50 dark:shadow-black/50 border border-gray-100 dark:border-white/10 p-8 dark:backdrop-blur-xl transition-all">
-                        <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-tight mb-6 flex items-center gap-3">
+                    <div class="bg-white dark:bg-slate-900 dark:bg-slate-900/60 rounded-[2rem] shadow-xl dark:shadow-2xl shadow-gray-200/50 dark:shadow-black/50 border border-gray-100 dark:border-white/10 p-8 dark:backdrop-blur-xl transition-all">
+                        <h3 class="font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-tight mb-6 flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm">
                                 <font-awesome-icon icon="star" />
                             </div>
                             Beneficios Incluidos
                         </h3>
                         <div v-if="poliza.plan_poliza?.beneficios" class="grid sm:grid-cols-2 gap-4">
-                            <div v-for="(beneficio, idx) in poliza.plan_poliza.beneficios" :key="idx" class="flex items-start gap-3 p-4 bg-gray-50/50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-white/5">
+                            <div v-for="(beneficio, idx) in poliza.plan_poliza.beneficios" :key="idx" class="flex items-start gap-3 p-4 bg-gray-50 dark:bg-slate-950/50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-white/5">
                                 <font-awesome-icon icon="check-circle" class="text-blue-500 dark:text-blue-400 mt-0.5" />
                                 <span class="text-sm font-bold text-gray-700 dark:text-gray-300 leading-snug">{{ beneficio }}</span>
                             </div>
                         </div>
-                        <p v-else class="text-gray-600 dark:text-gray-400 font-medium leading-relaxed whitespace-pre-wrap">{{ poliza.descripcion || 'Servicios integrales de soporte y mantenimiento.' }}</p>
+                        <p v-else class="text-gray-600 dark:text-gray-300 dark:text-gray-400 font-medium leading-relaxed whitespace-pre-wrap">{{ poliza.descripcion || 'Servicios integrales de soporte y mantenimiento.' }}</p>
                     </div>
 
                     <!-- Consumo Actual -->
-                    <div class="bg-white dark:bg-slate-900/60 rounded-[2rem] shadow-xl dark:shadow-2xl shadow-gray-200/50 dark:shadow-black/50 border border-gray-100 dark:border-white/10 p-8 dark:backdrop-blur-xl transition-all">
+                    <div class="bg-white dark:bg-slate-900 dark:bg-slate-900/60 rounded-[2rem] shadow-xl dark:shadow-2xl shadow-gray-200/50 dark:shadow-black/50 border border-gray-100 dark:border-white/10 p-8 dark:backdrop-blur-xl transition-all">
                         <div class="flex justify-between items-center mb-6">
-                            <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-tight flex items-center gap-3">
+                            <h3 class="font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-tight flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm">
                                     <font-awesome-icon icon="chart-pie" />
                                 </div>
@@ -372,8 +372,8 @@ const enviarSolicitud = () => {
 
                         <div class="grid lg:grid-cols-2 gap-8">
                             <!-- Gráfica de Dona -->
-                            <div v-if="consumoData && consumoData.datasets[0].data.length > 0" class="flex flex-col items-center justify-center p-4 bg-gray-50/50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-white/5">
-                                <h4 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">Distribución de Horas</h4>
+                            <div v-if="consumoData && consumoData.datasets[0].data.length > 0" class="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-slate-950/50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-white/5">
+                                <h4 class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">Distribución de Horas</h4>
                                 <div class="w-48 h-48 relative">
                                     <Doughnut :data="consumoData" :options="doughnutOptions" />
                                 </div>
@@ -383,12 +383,12 @@ const enviarSolicitud = () => {
                             <div class="space-y-6">
                             <div v-if="poliza.horas_incluidas_mensual > 0">
                                 <div class="flex justify-between items-end mb-2">
-                                    <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Horas de Soporte</p>
-                                    <p class="text-xs font-bold" :class="poliza.excede_horas ? 'text-red-500 dark:text-red-400' : 'text-gray-600 dark:text-gray-300'">
+                                    <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest">Horas de Soporte</p>
+                                    <p class="text-xs font-bold" :class="poliza.excede_horas ? 'text-red-500 dark:text-red-400' : 'text-gray-600 dark:text-gray-300 dark:text-gray-300'">
                                         {{ poliza.horas_consumidas_mes || 0 }} / {{ poliza.horas_incluidas_mensual }} hrs
                                     </p>
                                 </div>
-                                <div class="w-full bg-white dark:bg-slate-800 rounded-full h-2 overflow-hidden border border-gray-100 dark:border-white/5">
+                                <div class="w-full bg-white dark:bg-slate-900 dark:bg-slate-800 rounded-full h-2 overflow-hidden border border-gray-100 dark:border-white/5">
                                         <div 
                                         class="h-full rounded-full transition-all duration-1000 ease-out" 
                                         :class="poliza.excede_horas ? 'bg-red-500' : 'bg-[var(--color-primary)]'"
@@ -401,12 +401,12 @@ const enviarSolicitud = () => {
                             <!-- Barra de Tickets -->
                             <div v-if="poliza.limite_mensual_tickets > 0">
                                 <div class="flex justify-between items-end mb-2">
-                                    <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Tickets Incluidos</p>
-                                    <p class="text-xs font-bold text-gray-600 dark:text-gray-300">
+                                    <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest">Tickets Incluidos</p>
+                                    <p class="text-xs font-bold text-gray-600 dark:text-gray-300 dark:text-gray-300">
                                         {{ poliza.tickets_mes_actual_count || 0 }} / {{ poliza.limite_mensual_tickets }}
                                     </p>
                                 </div>
-                                <div class="w-full bg-white dark:bg-slate-800 rounded-full h-2 overflow-hidden border border-gray-100 dark:border-white/5">
+                                <div class="w-full bg-white dark:bg-slate-900 dark:bg-slate-800 rounded-full h-2 overflow-hidden border border-gray-100 dark:border-white/5">
                                         <div 
                                         class="bg-emerald-500 h-full rounded-full transition-all duration-1000 ease-out" 
                                         :style="{ width: Math.min(poliza.porcentaje_tickets || 0, 100) + '%' }"
@@ -417,12 +417,12 @@ const enviarSolicitud = () => {
                             <!-- Barra de Visitas en Sitio -->
                             <div v-if="poliza.visitas_sitio_mensuales > 0">
                                 <div class="flex justify-between items-end mb-2">
-                                    <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Visitas en Sitio</p>
-                                    <p class="text-xs font-bold" :class="visitasRestantes() <= 0 ? 'text-amber-500' : 'text-gray-600 dark:text-gray-300'">
+                                    <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest">Visitas en Sitio</p>
+                                    <p class="text-xs font-bold" :class="visitasRestantes() <= 0 ? 'text-amber-500' : 'text-gray-600 dark:text-gray-300 dark:text-gray-300'">
                                         {{ poliza.visitas_sitio_consumidas_mes || 0 }} / {{ poliza.visitas_sitio_mensuales }}
                                     </p>
                                 </div>
-                                <div class="w-full bg-white dark:bg-slate-800 rounded-full h-2 overflow-hidden border border-gray-100 dark:border-white/5">
+                                <div class="w-full bg-white dark:bg-slate-900 dark:bg-slate-800 rounded-full h-2 overflow-hidden border border-gray-100 dark:border-white/5">
                                         <div 
                                         class="h-full rounded-full transition-all duration-1000 ease-out"
                                         :class="visitasRestantes() <= 0 ? 'bg-amber-500' : 'bg-purple-500'"
@@ -437,13 +437,13 @@ const enviarSolicitud = () => {
                         </div> <!-- Cierra el grid de 2 columnas -->
 
                         <!-- Info de Reinicio -->
-                        <div class="mt-6 p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl flex items-center justify-between">
+                        <div class="mt-6 p-4 bg-gray-50 dark:bg-slate-950 dark:bg-slate-800/50 rounded-xl flex items-center justify-between">
                             <div>
-                                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Próximo Reinicio de Consumos</p>
+                                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest">Próximo Reinicio de Consumos</p>
                                 <p class="text-sm font-bold text-gray-700 dark:text-gray-200">{{ proximoCobro() }}</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Próximo Cobro</p>
+                                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest">Próximo Cobro</p>
                                 <p class="text-sm font-bold text-[var(--color-primary)]">{{ formatCurrency(poliza.monto_mensual) }}</p>
                             </div>
                         </div>
@@ -462,8 +462,8 @@ const enviarSolicitud = () => {
                     </div>
 
                     <!-- Gráfica de Consumo Histórico (Mejora 4.1) -->
-                    <div class="bg-white dark:bg-slate-900/60 rounded-[2rem] shadow-xl dark:shadow-2xl shadow-gray-200/50 dark:shadow-black/50 border border-gray-100 dark:border-white/10 p-8 dark:backdrop-blur-xl transition-all">
-                        <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-tight mb-6 flex items-center gap-3">
+                    <div class="bg-white dark:bg-slate-900 dark:bg-slate-900/60 rounded-[2rem] shadow-xl dark:shadow-2xl shadow-gray-200/50 dark:shadow-black/50 border border-gray-100 dark:border-white/10 p-8 dark:backdrop-blur-xl transition-all">
+                        <h3 class="font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-tight mb-6 flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm">
                                 <font-awesome-icon icon="chart-bar" />
                             </div>
@@ -471,7 +471,7 @@ const enviarSolicitud = () => {
                         </h3>
                         <div class="h-64">
                             <Bar v-if="historicoConsumo?.length" :data="chartData" :options="chartOptions" />
-                            <div v-else class="h-full flex flex-col items-center justify-center text-gray-400 dark:text-gray-600">
+                            <div v-else class="h-full flex flex-col items-center justify-center text-gray-400 dark:text-gray-600 dark:text-gray-300">
                                 <font-awesome-icon icon="chart-bar" size="2x" class="mb-2 opacity-20" />
                                 <p class="text-xs font-medium">Aún no hay suficiente historial para mostrar la gráfica.</p>
                             </div>
@@ -479,8 +479,8 @@ const enviarSolicitud = () => {
                     </div>
 
                     <!-- Detalle de Tickets Consumidos este mes (Mejora 4.4) -->
-                    <div class="bg-white dark:bg-slate-900/60 rounded-[2rem] shadow-xl dark:shadow-2xl shadow-gray-200/50 dark:shadow-black/50 border border-gray-100 dark:border-white/10 p-8 dark:backdrop-blur-xl transition-all">
-                        <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-tight mb-6 flex items-center gap-3">
+                    <div class="bg-white dark:bg-slate-900 dark:bg-slate-900/60 rounded-[2rem] shadow-xl dark:shadow-2xl shadow-gray-200/50 dark:shadow-black/50 border border-gray-100 dark:border-white/10 p-8 dark:backdrop-blur-xl transition-all">
+                        <h3 class="font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-tight mb-6 flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm">
                                 <font-awesome-icon icon="ticket-alt" />
                             </div>
@@ -488,17 +488,17 @@ const enviarSolicitud = () => {
                         </h3>
                         
                         <div v-if="ticketsMesActual?.length" class="space-y-4">
-                            <div v-for="ticket in ticketsMesActual" :key="ticket.id" class="flex items-center justify-between p-4 border border-gray-50 dark:border-white/5 rounded-2xl bg-gray-50/30 dark:bg-slate-800/30 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <div v-for="ticket in ticketsMesActual" :key="ticket.id" class="flex items-center justify-between p-4 border border-gray-50 dark:border-white/5 rounded-2xl bg-gray-50 dark:bg-slate-950/30 dark:bg-slate-800/30 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800/50 transition-colors">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-700/50 flex items-center justify-center text-blue-500 dark:text-blue-400 font-black text-xs shadow-sm border border-gray-100 dark:border-white/5">
+                                    <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 dark:bg-slate-700/50 flex items-center justify-center text-blue-500 dark:text-blue-400 font-black text-xs shadow-sm border border-gray-100 dark:border-white/5">
                                         #{{ ticket.folio }}
                                     </div>
                                     <div>
-                                        <p class="font-bold text-gray-900 dark:text-white text-sm mb-0.5">{{ ticket.titulo }}</p>
-                                        <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-widest">{{ formatDate(ticket.created_at) }} • {{ ticket.categoria?.nombre || 'Soporte' }}</p>
+                                        <p class="font-bold text-gray-900 dark:text-white dark:text-white text-sm mb-0.5">{{ ticket.titulo }}</p>
+                                        <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest">{{ formatDate(ticket.created_at) }} • {{ ticket.categoria?.nombre || 'Soporte' }}</p>
                                     </div>
                                 </div>
-                                <Link :href="route('portal.tickets.show', ticket.id)" class="px-4 py-2 bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-300 border border-gray-100 dark:border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-slate-700 transition-all">
+                                <Link :href="route('portal.tickets.show', ticket.id)" class="px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-800 text-gray-600 dark:text-gray-300 dark:text-gray-300 border border-gray-100 dark:border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-slate-700 transition-all">
                                     Ver Detalle
                                 </Link>
                             </div>
@@ -509,8 +509,8 @@ const enviarSolicitud = () => {
                     </div>
 
                     <!-- FASE 2: Mantenimientos Incluidos (Autoservicio) -->
-                    <div v-if="poliza.mantenimientos && poliza.mantenimientos.length > 0" class="bg-white dark:bg-slate-900/60 rounded-[2rem] shadow-xl dark:shadow-2xl shadow-gray-200/50 dark:shadow-black/50 border border-gray-100 dark:border-white/10 p-8 dark:backdrop-blur-xl transition-all">
-                         <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-tight mb-6 flex items-center gap-3">
+                    <div v-if="poliza.mantenimientos && poliza.mantenimientos.length > 0" class="bg-white dark:bg-slate-900 dark:bg-slate-900/60 rounded-[2rem] shadow-xl dark:shadow-2xl shadow-gray-200/50 dark:shadow-black/50 border border-gray-100 dark:border-white/10 p-8 dark:backdrop-blur-xl transition-all">
+                         <h3 class="font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-tight mb-6 flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center text-sm">
                                 <font-awesome-icon icon="tools" />
                             </div>
@@ -518,16 +518,16 @@ const enviarSolicitud = () => {
                         </h3>
                         
                         <div class="grid gap-4">
-                            <div v-for="mant in poliza.mantenimientos" :key="mant.id" class="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-100 dark:border-white/10 rounded-2xl bg-gray-50/50 dark:bg-slate-800/30 hover:bg-white dark:hover:bg-slate-800 hover:shadow-lg dark:hover:shadow-black/40 transition-all">
+                            <div v-for="mant in poliza.mantenimientos" :key="mant.id" class="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-100 dark:border-white/10 rounded-2xl bg-gray-50 dark:bg-slate-950/50 dark:bg-slate-800/30 hover:bg-white dark:bg-slate-900 dark:hover:bg-slate-800 hover:shadow-lg dark:hover:shadow-black/40 transition-all">
                                 <div class="mb-4 sm:mb-0">
                                     <div class="flex items-center gap-2 mb-1">
-                                        <span class="px-2 py-0.5 text-[10px] font-black uppercase tracking-widest bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">{{ mant.frecuencia }}</span>
+                                        <span class="px-2 py-0.5 text-[10px] font-black uppercase tracking-widest bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 dark:text-gray-300 rounded-full">{{ mant.frecuencia }}</span>
                                         <span v-if="mant.requiere_visita" class="px-2 py-0.5 text-[10px] font-black uppercase tracking-widest bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 rounded-full">Requiere Visita</span>
                                     </div>
-                                    <h4 class="font-bold text-gray-900 dark:text-white">{{ mant.nombre }}</h4>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ mant.descripcion || 'Mantenimiento preventivo programado.' }}</p>
+                                    <h4 class="font-bold text-gray-900 dark:text-white dark:text-white">{{ mant.nombre }}</h4>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">{{ mant.descripcion || 'Mantenimiento preventivo programado.' }}</p>
                                 </div>
-                                <button @click="abrirSolicitud(mant)" class="px-4 py-2 bg-white dark:bg-slate-700 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-600/30 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-purple-600 hover:text-white dark:hover:bg-purple-600 dark:hover:text-white transition-all shadow-sm">
+                                <button @click="abrirSolicitud(mant)" class="px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-700 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-600/30 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-purple-600 hover:text-white dark:hover:bg-purple-600 dark:hover:text-white transition-all shadow-sm">
                                     Solicitar Ahora
                                 </button>
                             </div>
@@ -535,7 +535,7 @@ const enviarSolicitud = () => {
 
                         <!-- Historial de Ejecuciones Recientes -->
                         <div v-if="poliza.mantenimientos_ejecuciones && poliza.mantenimientos_ejecuciones.length > 0" class="mt-8">
-                            <h4 class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">Actividad Reciente</h4>
+                            <h4 class="text-xs font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">Actividad Reciente</h4>
                             <div class="space-y-3">
                                 <div v-for="ejc in poliza.mantenimientos_ejecuciones" :key="ejc.id" class="flex items-center gap-3 text-sm">
                                     <div class="w-2 h-2 rounded-full" :class="{
@@ -543,7 +543,7 @@ const enviarSolicitud = () => {
                                         'bg-amber-500': ejc.resultado === 'alerta' || ejc.estado === 'pendiente',
                                         'bg-red-500': ejc.resultado === 'critico' || ejc.estado === 'vencido'
                                     }"></div>
-                                    <span class="text-gray-900 dark:text-gray-200 font-medium flex-1">
+                                    <span class="text-gray-900 dark:text-white dark:text-gray-200 font-medium flex-1">
                                         {{ ejc.mantenimiento ? ejc.mantenimiento.nombre : 'Mantenimiento' }}
                                     </span>
                                     <span class="text-gray-400 text-xs tabular-nums">
@@ -559,8 +559,8 @@ const enviarSolicitud = () => {
                     </div>
 
                     <!-- Equipos Vinculados -->
-                    <div class="bg-white dark:bg-slate-900/60 rounded-[2rem] shadow-xl dark:shadow-2xl shadow-gray-200/50 dark:shadow-black/50 border border-gray-100 dark:border-white/10 p-8 dark:backdrop-blur-xl transition-all">
-                         <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-tight mb-6 flex items-center gap-3">
+                    <div class="bg-white dark:bg-slate-900 dark:bg-slate-900/60 rounded-[2rem] shadow-xl dark:shadow-2xl shadow-gray-200/50 dark:shadow-black/50 border border-gray-100 dark:border-white/10 p-8 dark:backdrop-blur-xl transition-all">
+                         <h3 class="font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-tight mb-6 flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm">
                                 <font-awesome-icon icon="desktop" />
                             </div>
@@ -569,15 +569,15 @@ const enviarSolicitud = () => {
                         
                         <div class="grid sm:grid-cols-2 gap-4">
                             <div v-for="equipo in poliza.equipos" :key="equipo.id" class="flex items-center gap-4 p-4 border border-gray-50 dark:border-white/5 rounded-2xl hover:border-blue-100 dark:hover:border-blue-500/30 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-all">
-                                <div class="w-10 h-10 bg-white dark:bg-slate-700/50 border border-gray-100 dark:border-white/5 rounded-xl flex items-center justify-center text-gray-400 dark:text-gray-300">
+                                <div class="w-10 h-10 bg-white dark:bg-slate-900 dark:bg-slate-700/50 border border-gray-100 dark:border-white/5 rounded-xl flex items-center justify-center text-gray-400 dark:text-gray-300">
                                     <font-awesome-icon icon="desktop" />
                                 </div>
                                 <div>
-                                    <p class="font-bold text-gray-900 dark:text-gray-100 text-sm">{{ equipo.nombre }}</p>
-                                    <p class="font-mono text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-widest">{{ equipo.serie || 'S/N: N/A' }}</p>
+                                    <p class="font-bold text-gray-900 dark:text-white dark:text-gray-100 text-sm">{{ equipo.nombre }}</p>
+                                    <p class="font-mono text-[10px] text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest">{{ equipo.serie || 'S/N: N/A' }}</p>
                                 </div>
                             </div>
-                             <div v-if="(!poliza.equipos || poliza.equipos.length === 0)" class="col-span-full py-8 text-center text-gray-400 dark:text-gray-500 text-sm font-medium italic">
+                             <div v-if="(!poliza.equipos || poliza.equipos.length === 0)" class="col-span-full py-8 text-center text-gray-400 dark:text-gray-500 dark:text-gray-400 text-sm font-medium italic">
                                 No hay equipos vinculados específicamente.
                             </div>
                         </div>
@@ -587,13 +587,13 @@ const enviarSolicitud = () => {
                 <!-- Sidebar -->
                 <div class="space-y-8">
                      <!-- Detalles Técnicos -->
-                    <div class="bg-white dark:bg-slate-900/60 rounded-[2rem] shadow-xl dark:shadow-2xl shadow-gray-200/50 dark:shadow-black/50 border border-gray-100 dark:border-white/10 p-8 dark:backdrop-blur-xl transition-all">
-                        <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-tight mb-4 text-sm">Características</h3>
+                    <div class="bg-white dark:bg-slate-900 dark:bg-slate-900/60 rounded-[2rem] shadow-xl dark:shadow-2xl shadow-gray-200/50 dark:shadow-black/50 border border-gray-100 dark:border-white/10 p-8 dark:backdrop-blur-xl transition-all">
+                        <h3 class="font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-tight mb-4 text-sm">Características</h3>
                         <ul class="space-y-4">
                             <li class="flex justify-between items-center text-sm">
                                 <div class="flex items-center gap-1 group relative cursor-help">
-                                    <span class="text-gray-500 dark:text-gray-400 font-medium border-b border-dashed border-gray-300 dark:border-gray-600">Garantía SLA</span>
-                                    <font-awesome-icon icon="circle-info" class="text-gray-300 dark:text-gray-600 text-[10px]" />
+                                    <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium border-b border-dashed border-gray-300 dark:border-gray-600">Garantía SLA</span>
+                                    <font-awesome-icon icon="circle-info" class="text-gray-300 dark:text-gray-600 dark:text-gray-300 text-[10px]" />
                                     <!-- Tooltip simple -->
                                     <div class="absolute bottom-full left-0 mb-2 w-48 p-2 bg-gray-800 dark:bg-black text-white text-[10px] rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                                         Tiempo máximo garantizado para iniciar la atención de sus reportes.
@@ -602,28 +602,28 @@ const enviarSolicitud = () => {
                                 <span class="font-black text-[var(--color-primary)] bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-full text-xs">{{ poliza.sla_horas_respuesta ? poliza.sla_horas_respuesta + ' horas' : 'Estándar' }}</span>
                             </li>
                              <li class="flex justify-between items-center text-sm">
-                                <span class="text-gray-500 dark:text-gray-400 font-medium">Renovación</span>
-                                <span class="font-bold text-gray-900 dark:text-gray-200">{{ poliza.renovacion_automatica ? 'Automática' : 'Manual' }}</span>
+                                <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium">Renovación</span>
+                                <span class="font-bold text-gray-900 dark:text-white dark:text-gray-200">{{ poliza.renovacion_automatica ? 'Automática' : 'Manual' }}</span>
                             </li>
                              <li class="flex justify-between items-center text-sm">
-                                <span class="text-gray-500 dark:text-gray-400 font-medium">Facturación</span>
-                                <span class="font-bold text-gray-900 dark:text-gray-200">Mensual</span>
+                                <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium">Facturación</span>
+                                <span class="font-bold text-gray-900 dark:text-white dark:text-gray-200">Mensual</span>
                             </li>
                              <li class="flex justify-between items-center text-sm pt-4 border-t border-gray-50 dark:border-white/5">
-                                <span class="text-gray-500 dark:text-gray-400 font-medium">Inversión</span>
+                                <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium">Inversión</span>
                                 <div class="text-right">
-                                    <span class="font-black text-gray-900 dark:text-white block">{{ formatCurrency(poliza.monto_mensual) }}</span>
-                                    <span class="text-[10px] font-bold text-slate-500 dark:text-gray-500 block">+ IVA / mes</span>
+                                    <span class="font-black text-gray-900 dark:text-white dark:text-white block">{{ formatCurrency(poliza.monto_mensual) }}</span>
+                                    <span class="text-[10px] font-bold text-slate-500 dark:text-gray-500 dark:text-gray-400 block">+ IVA / mes</span>
                                 </div>
                             </li>
                         </ul>
                     </div>
 
                      <!-- Aviso de privacidad o Legal simplificado -->
-                     <div class="bg-white dark:bg-slate-900/60 rounded-[2rem] p-6 text-center border border-gray-100 dark:border-white/10 dark:backdrop-blur-xl transition-all">
-                        <p class="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-widest font-black mb-2">Soporte Técnico</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium mb-4">¿Tiene problemas con sus equipos cubiertos?</p>
-                         <Link :href="route('portal.tickets.create', { poliza_id: poliza.id })" class="inline-block px-6 py-3 bg-white dark:bg-slate-800 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-xl font-black text-xs uppercase tracking-widest hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] dark:hover:text-white dark:hover:border-[var(--color-primary)] transition-all">
+                     <div class="bg-white dark:bg-slate-900 dark:bg-slate-900/60 rounded-[2rem] p-6 text-center border border-gray-100 dark:border-white/10 dark:backdrop-blur-xl transition-all">
+                        <p class="text-[10px] text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest font-black mb-2">Soporte Técnico</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium mb-4">¿Tiene problemas con sus equipos cubiertos?</p>
+                         <Link :href="route('portal.tickets.create', { poliza_id: poliza.id })" class="inline-block px-6 py-3 bg-white dark:bg-slate-900 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-xl font-black text-xs uppercase tracking-widest hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] dark:hover:text-white dark:hover:border-[var(--color-primary)] transition-all">
                             Abrir Ticket
                         </Link>
                     </div>
@@ -638,7 +638,7 @@ const enviarSolicitud = () => {
             </template>
             <template #content>
                 <div class="space-y-4">
-                    <p class="text-sm text-gray-600">
+                    <p class="text-sm text-gray-600 dark:text-gray-300">
                         Indica cuándo te gustaría recibir este servicio. Un técnico confirmará la disponibilidad.
                     </p>
                     

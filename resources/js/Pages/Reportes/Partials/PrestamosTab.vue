@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="mb-6">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Reporte de Préstamos</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Reporte de Préstamos</h3>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="bg-blue-50 p-4 rounded-lg">
                     <div class="text-2xl font-bold text-blue-600">{{ prestamosTotales }}</div>
@@ -28,11 +28,11 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">Préstamos por Cliente</h3>
-            <p class="text-sm text-gray-500 mb-4">Análisis detallado de préstamos agrupados por cliente</p>
-            <div class="bg-white p-6 rounded-lg w-full">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Préstamos por Cliente</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Análisis detallado de préstamos agrupados por cliente</p>
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-lg w-full">
                 <div class="text-center">
-                    <p class="text-gray-600">Los datos de préstamos se cargan desde el controlador específico</p>
+                    <p class="text-gray-600 dark:text-gray-300">Los datos de préstamos se cargan desde el controlador específico</p>
                     <Link
                         :href="route('reportes.prestamos-por-cliente')"
                         class="inline-flex items-center mt-4 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"

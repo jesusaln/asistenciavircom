@@ -1,6 +1,6 @@
 <template>
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="$emit('close')">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 overflow-hidden">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-lg mx-4 overflow-hidden">
       <!-- Header -->
       <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-6">
         <div class="flex items-center justify-between">
@@ -23,7 +23,7 @@
             <option value="">Detectar automáticamente</option>
             <option v-for="banco in bancosSoportados" :key="banco" :value="banco">{{ banco }}</option>
           </select>
-          <p class="text-xs text-gray-500 mt-1">El sistema intentará detectar el formato automáticamente</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">El sistema intentará detectar el formato automáticamente</p>
         </div>
 
         <!-- Cuenta bancaria -->
@@ -38,7 +38,7 @@
               {{ cuenta.nombre }} - {{ cuenta.banco }} (${{ formatMonto(cuenta.saldo_actual) }})
             </option>
           </select>
-          <p class="text-xs text-gray-500 mt-1">
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Vincula los movimientos a una cuenta para actualizar su saldo automáticamente
           </p>
         </div>
@@ -63,7 +63,7 @@
           <div v-else class="text-green-700">
             <FontAwesomeIcon :icon="['fas', 'file-excel']" class="h-12 w-12 mb-2" />
             <p class="font-medium">{{ archivo.name }}</p>
-            <p class="text-sm text-gray-500">{{ formatSize(archivo.size) }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ formatSize(archivo.size) }}</p>
             <button type="button" @click="archivo = null" class="mt-2 text-red-600 text-sm hover:underline">
               Cambiar archivo
             </button>

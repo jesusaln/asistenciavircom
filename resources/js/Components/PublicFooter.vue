@@ -132,12 +132,12 @@ const whatsappLink = computed(() => {
 
             <!-- Copyright Bar -->
             <div class="pt-8 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <p class="text-gray-500 text-xs text-center sm:text-left">
+                <p class="text-gray-500 dark:text-gray-400 text-xs text-center sm:text-left">
                     © {{ new Date().getFullYear() }} {{ empresaData?.nombre_empresa || empresaData?.nombre || 'Empresa' }} · Todos los derechos reservados
                 </p>
                 <div class="flex items-center gap-6 text-xs">
-                    <Link :href="route('public.privacidad')" class="text-gray-500 hover:text-gray-300 transition-colors">Privacidad</Link>
-                    <Link :href="route('public.terminos')" class="text-gray-500 hover:text-gray-300 transition-colors">Términos</Link>
+                    <Link :href="route('public.privacidad')" class="text-gray-500 dark:text-gray-400 hover:text-gray-300 transition-colors">Privacidad</Link>
+                    <Link :href="route('public.terminos')" class="text-gray-500 dark:text-gray-400 hover:text-gray-300 transition-colors">Términos</Link>
                 </div>
             </div>
         </div>

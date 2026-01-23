@@ -1,6 +1,6 @@
 <template>
     <div class="p-6">
-        <h2 class="text-lg font-medium text-gray-900 mb-4">Nueva Categoría Rápida</h2>
+        <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Nueva Categoría Rápida</h2>
         <form @submit.prevent="submit">
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">Nombre</label>
@@ -29,7 +29,7 @@
             <!-- Icono por defecto: tag -->
             
             <div class="flex justify-end mt-6">
-                <button type="button" @click="$emit('close')" class="mr-3 px-4 py-2 text-gray-700 hover:text-gray-900">Cancelar</button>
+                <button type="button" @click="$emit('close')" class="mr-3 px-4 py-2 text-gray-700 hover:text-gray-900 dark:text-white">Cancelar</button>
                 <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700" :disabled="processing">
                     {{ processing ? 'Guardando...' : 'Guardar' }}
                 </button>

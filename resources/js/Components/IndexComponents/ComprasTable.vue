@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+  <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
     <!-- Header -->
-    <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 px-6 py-4 border-b border-gray-200/60">
+    <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 px-6 py-4 border-b border-gray-200 dark:border-slate-800/60">
       <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Compras</h2>
-        <div class="text-sm text-gray-600 bg-white/70 px-3 py-1 rounded-full border border-gray-200/50">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">Compras</h2>
+        <div class="text-sm text-gray-600 bg-white dark:bg-slate-900/70 px-3 py-1 rounded-full border border-gray-200 dark:border-slate-800/50">
           {{ items.length }} de {{ total }} compras
         </div>
       </div>
@@ -14,15 +14,15 @@
     <Teleport to="body">
       <div
         v-if="showTooltip && hoveredDoc"
-        class="fixed z-[9999] bg-white rounded-xl shadow-xl border border-gray-200/50 backdrop-blur-sm w-80 max-h-96 pointer-events-auto transform transition-all duration-200 ease-out"
+        class="fixed z-[9999] bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-800/50 backdrop-blur-sm w-80 max-h-96 pointer-events-auto transform transition-all duration-200 ease-out"
         :style="tooltipStyle"
         @mouseenter="clearHideTimeout"
         @mouseleave="hideProductTooltip"
       >
-        <div class="p-4 border-b border-gray-100">
+        <div class="p-4 border-b border-gray-100 dark:border-slate-800">
            <div class="flex items-center justify-between">
-             <h3 class="text-sm font-semibold text-gray-900">Productos</h3>
-             <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full font-medium">
+             <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Productos</h3>
+             <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full font-medium">
                {{ getProductosDelDoc(hoveredDoc)?.length || 0 }}
              </span>
            </div>
@@ -37,11 +37,11 @@
              >
               <div class="flex items-start justify-between">
                 <div class="flex-1 min-w-0 mr-3">
-                  <p class="text-sm font-medium text-gray-900 truncate group-hover:text-gray-800">
+                  <p class="text-sm font-medium text-gray-900 dark:text-white truncate group-hover:text-gray-800">
                     {{ producto.nombre || producto.descripcion || 'Sin nombre' }}
                   </p>
                   <div class="flex items-center mt-1.5 space-x-2 text-xs">
-                    <span class="text-gray-600 bg-white/60 px-2 py-0.5 rounded-md">
+                    <span class="text-gray-600 bg-white dark:bg-slate-900/60 px-2 py-0.5 rounded-md">
                       {{ producto.cantidad || 0 }} und
                     </span>
                     <span class="text-gray-400">•</span>
@@ -49,12 +49,12 @@
                       ${{ formatearMoneda(producto.precio || producto.precio_venta || producto.pv || 0) }}
                     </span>
                   </div>
-                  <p v-if="producto.descripcion" class="text-xs text-gray-500 mt-1.5 line-clamp-2">
+                  <p v-if="producto.descripcion" class="text-xs text-gray-500 dark:text-gray-400 mt-1.5 line-clamp-2">
                     {{ producto.descripcion }}
                   </p>
                 </div>
                 <div class="text-right flex-shrink-0">
-                  <p class="text-sm font-semibold text-gray-900">
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">
                     ${{ formatearMoneda((producto.cantidad || 0) * (producto.precio || producto.precio_venta || producto.pv || 0)) }}
                   </p>
                 </div>
@@ -67,7 +67,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m0 0V9a2 2 0 012-2h2m2 2v4" />
               </svg>
             </div>
-            <p class="text-sm text-gray-500">Sin productos registrados</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Sin productos registrados</p>
           </div>
         </div>
       </div>
@@ -190,7 +190,7 @@
           </tr>
         </thead>
 
-        <tbody class="bg-white divide-y divide-gray-200/40">
+        <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200/40">
           <template v-if="items.length > 0">
             <tr
               v-for="doc in items"
@@ -203,7 +203,7 @@
               <!-- Fecha -->
               <td class="px-6 py-4">
                 <div class="flex flex-col space-y-0.5">
-                  <div class="text-sm font-medium text-gray-900">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">
                     {{ formatearFecha(doc.fecha) }}
                   </div>
                   <div class="text-[10px] text-gray-400 italic">
@@ -215,17 +215,17 @@
               <!-- Proveedor -->
               <td class="px-6 py-4">
                 <div class="flex flex-col space-y-0.5">
-                  <div class="text-sm font-medium text-gray-900 group-hover:text-gray-800">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white group-hover:text-gray-800">
                     {{ doc.proveedor?.nombre_razon_social || 'Sin proveedor' }}
                   </div>
-                  <div v-if="doc.proveedor?.email" class="text-xs text-gray-500 truncate max-w-48">
+                  <div v-if="doc.proveedor?.email" class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-48">
                     {{ doc.proveedor?.email }}
                   </div>
                 </div>
               </td>
 
               <!-- N° Compra -->
-              <td class="px-6 py-4 text-sm font-medium text-gray-900 group-hover:text-gray-800">
+              <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white group-hover:text-gray-800">
                 <div class="flex items-center space-x-2">
                   <div class="text-sm font-mono font-medium text-gray-700 bg-gray-100/60 px-2 py-1 rounded-md inline-block">
                     {{ doc.numero_compra || 'N/A' }}
@@ -264,7 +264,7 @@
 
               <!-- Total -->
               <td class="px-6 py-4">
-                <div class="text-sm font-semibold text-gray-900">
+                <div class="text-sm font-semibold text-gray-900 dark:text-white">
                   <template v-if="typeof doc.total !== 'undefined' && doc.total !== null">
                     ${{ formatearMoneda(doc.total) }}
                   </template>
@@ -328,7 +328,7 @@
                     </span>
                     <span 
                       v-else
-                      class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600 shadow-sm border border-gray-200"
+                      class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600 shadow-sm border border-gray-200 dark:border-slate-800"
                     >
                       NO PAGADO
                     </span>
@@ -388,7 +388,7 @@
                 </div>
                 <div class="space-y-1">
                   <p class="text-gray-700 font-medium">No hay compras</p>
-                  <p class="text-sm text-gray-500">Las compras aparecerán aquí cuando se creen</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Las compras aparecerán aquí cuando se creen</p>
                 </div>
               </div>
             </td>
@@ -662,7 +662,7 @@ const onSort = (field) => {
 
 @media (prefers-contrast: high) {
   .bg-gray-50 { background-color: #f9fafb; }
-  .border-gray-200 { border-color: #d1d5db; }
+  .border-gray-200 dark:border-slate-800 { border-color: #d1d5db; }
 }
 
 button:focus-visible { outline: 2px solid; outline-offset: 2px; }

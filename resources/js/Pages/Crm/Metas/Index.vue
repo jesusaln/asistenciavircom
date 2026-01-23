@@ -5,13 +5,13 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-8">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                     <div class="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/30">
                         <FontAwesomeIcon :icon="['fas', 'bullseye']" class="h-6 w-6" />
                     </div>
                     Metas de Empleados
                 </h1>
-                <p class="text-gray-500 mt-2">Administra las metas diarias de tu equipo de ventas</p>
+                <p class="text-gray-500 dark:text-gray-400 mt-2">Administra las metas diarias de tu equipo de ventas</p>
             </div>
             <div class="flex items-center gap-3">
                 <a href="/crm/metas/exportar" class="px-4 py-2 text-green-700 bg-green-100 rounded-lg hover:bg-green-200 flex items-center gap-2" title="Exportar datos para IA">
@@ -22,7 +22,7 @@
                     <FontAwesomeIcon :icon="['fas', 'upload']" />
                     Importar CSV
                 </button>
-                <Link href="/crm" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
+                <Link href="/crm" class="px-4 py-2 text-gray-600 dark:text-gray-300 bg-gray-100 rounded-lg hover:bg-gray-200">
                     <FontAwesomeIcon :icon="['fas', 'arrow-left']" class="mr-2" />
                     Volver
                 </Link>
@@ -32,9 +32,9 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Panel de Asignación de Metas -->
             <div class="lg:col-span-2">
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-white flex items-center justify-between">
-                        <h3 class="text-lg font-bold text-gray-800">Asignar Metas</h3>
+                        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">Asignar Metas</h3>
                         <button @click="showModalNueva = true" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 flex items-center gap-2">
                             <FontAwesomeIcon :icon="['fas', 'plus']" />
                             Nueva Meta
@@ -46,7 +46,7 @@
                         <div v-if="metas.length" class="overflow-x-auto">
                             <table class="w-full">
                                 <thead>
-                                    <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <tr class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                         <th class="pb-3">Vendedor</th>
                                         <th class="pb-3">Tipo</th>
                                         <th class="pb-3 text-center">Meta Diaria</th>
@@ -55,13 +55,13 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
-                                    <tr v-for="meta in metas" :key="meta.id" class="hover:bg-white">
+                                    <tr v-for="meta in metas" :key="meta.id" class="hover:bg-white dark:bg-slate-900">
                                         <td class="py-4">
                                             <div class="flex items-center gap-3">
                                                 <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-bold text-sm">
                                                     {{ getInitials(meta.user?.name) }}
                                                 </div>
-                                                <span class="font-medium text-gray-900">{{ meta.user?.name }}</span>
+                                                <span class="font-medium text-gray-900 dark:text-white">{{ meta.user?.name }}</span>
                                             </div>
                                         </td>
                                         <td class="py-4">
@@ -71,7 +71,7 @@
                                             </span>
                                         </td>
                                         <td class="py-4 text-center">
-                                            <span class="text-lg font-bold text-gray-800">{{ meta.meta_diaria }}</span>
+                                            <span class="text-lg font-bold text-gray-800 dark:text-gray-100">{{ meta.meta_diaria }}</span>
                                         </td>
                                         <td class="py-4">
                                             <div class="flex items-center justify-center gap-2">
@@ -80,7 +80,7 @@
                                                          :style="{ width: meta.progreso.porcentaje + '%' }"
                                                          class="h-full transition-all duration-300"></div>
                                                 </div>
-                                                <span class="text-sm font-medium" :class="meta.progreso.cumplida ? 'text-green-600' : 'text-gray-600'">
+                                                <span class="text-sm font-medium" :class="meta.progreso.cumplida ? 'text-green-600' : 'text-gray-600 dark:text-gray-300'">
                                                     {{ meta.progreso.realizado }}/{{ meta.progreso.meta }}
                                                 </span>
                                                 <FontAwesomeIcon v-if="meta.progreso.cumplida" :icon="['fas', 'check-circle']" class="text-green-500" />
@@ -109,9 +109,9 @@
 
             <!-- Leaderboard -->
             <div class="lg:col-span-1">
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-6">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-6">
                     <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-white">
-                        <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
                             <FontAwesomeIcon :icon="['fas', 'trophy']" class="text-amber-500" />
                             Leaderboard Hoy
                         </h3>
@@ -119,17 +119,17 @@
                     <div class="p-4">
                         <div v-if="leaderboard.length" class="space-y-3">
                             <div v-for="(item, index) in leaderboard" :key="item.user_id"
-                                 :class="index === 0 ? 'bg-amber-50 border-amber-200' : index === 1 ? 'bg-gray-100 border-gray-200' : index === 2 ? 'bg-orange-50 border-orange-200' : 'bg-white border-gray-100'"
+                                 :class="index === 0 ? 'bg-amber-50 border-amber-200' : index === 1 ? 'bg-gray-100 border-gray-200 dark:border-slate-800' : index === 2 ? 'bg-orange-50 border-orange-200' : 'bg-white dark:bg-slate-900 border-gray-100'"
                                  class="flex items-center gap-3 p-3 rounded-xl border">
                                 <!-- Posición -->
                                 <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm"
-                                     :class="index === 0 ? 'bg-amber-500 text-white' : index === 1 ? 'bg-gray-400 text-white' : index === 2 ? 'bg-orange-400 text-white' : 'bg-gray-200 text-gray-600'">
+                                     :class="index === 0 ? 'bg-amber-500 text-white' : index === 1 ? 'bg-gray-400 text-white' : index === 2 ? 'bg-orange-400 text-white' : 'bg-gray-200 text-gray-600 dark:text-gray-300'">
                                     {{ index + 1 }}
                                 </div>
                                 <!-- Info -->
                                 <div class="flex-1 min-w-0">
-                                    <p class="font-medium text-gray-900 truncate">{{ item.nombre }}</p>
-                                    <div class="flex items-center gap-2 text-xs text-gray-500">
+                                    <p class="font-medium text-gray-900 dark:text-white truncate">{{ item.nombre }}</p>
+                                    <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                         <span>{{ item.actividades }} actividades</span>
                                         <span>•</span>
                                         <span>{{ item.prospectos }} prospectos</span>
@@ -137,7 +137,7 @@
                                 </div>
                                 <!-- Metas cumplidas -->
                                 <div class="text-right">
-                                    <div class="text-lg font-bold" :class="item.porcentaje_cumplimiento === 100 ? 'text-green-600' : 'text-gray-800'">
+                                    <div class="text-lg font-bold" :class="item.porcentaje_cumplimiento === 100 ? 'text-green-600' : 'text-gray-800 dark:text-gray-100'">
                                         {{ item.porcentaje_cumplimiento }}%
                                     </div>
                                     <div class="text-xs text-gray-400">
@@ -159,10 +159,10 @@
         <div v-if="showModalNueva" class="fixed inset-0 z-50 overflow-y-auto" @click.self="showModalNueva = false">
             <div class="flex items-center justify-center min-h-screen px-4">
                 <div class="fixed inset-0 bg-black bg-opacity-50"></div>
-                <div class="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-scale-in">
+                <div class="relative bg-white dark:bg-slate-900 rounded-xl shadow-xl max-w-md w-full p-6 animate-scale-in">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl font-bold text-gray-900">{{ form.id ? 'Editar' : 'Nueva' }} Meta</h3>
-                        <button @click="showModalNueva = false" class="text-gray-400 hover:text-gray-600">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ form.id ? 'Editar' : 'Nueva' }} Meta</h3>
+                        <button @click="showModalNueva = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300">
                             <FontAwesomeIcon :icon="['fas', 'times']" />
                         </button>
                     </div>
@@ -186,7 +186,7 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Meta Diaria *</label>
                                 <input v-model.number="form.meta_diaria" type="number" min="1" max="100" required 
                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500" />
-                                <p class="text-xs text-gray-500 mt-1">Cuántas actividades o prospectos por día</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Cuántas actividades o prospectos por día</p>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
@@ -218,13 +218,13 @@
         <div v-if="showModalImport" class="fixed inset-0 z-50 overflow-y-auto" @click.self="showModalImport = false">
             <div class="flex items-center justify-center min-h-screen px-4">
                 <div class="fixed inset-0 bg-black bg-opacity-50"></div>
-                <div class="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6 animate-scale-in">
+                <div class="relative bg-white dark:bg-slate-900 rounded-xl shadow-xl max-w-lg w-full p-6 animate-scale-in">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                             <FontAwesomeIcon :icon="['fas', 'upload']" class="text-blue-500" />
                             Importar Metas desde CSV
                         </h3>
-                        <button @click="showModalImport = false" class="text-gray-400 hover:text-gray-600">
+                        <button @click="showModalImport = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300">
                             <FontAwesomeIcon :icon="['fas', 'times']" />
                         </button>
                     </div>
@@ -244,9 +244,9 @@
                         </ol>
                     </div>
 
-                    <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+                    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-4 mb-4">
                         <h4 class="font-semibold text-gray-700 mb-2">Formato esperado:</h4>
-                        <pre class="text-xs bg-white p-2 rounded border overflow-x-auto">user_id,tipo,meta_diaria,fecha_inicio,fecha_fin
+                        <pre class="text-xs bg-white dark:bg-slate-900 p-2 rounded border overflow-x-auto">user_id,tipo,meta_diaria,fecha_inicio,fecha_fin
 1,actividades,10,2025-01-01,2025-12-31
 2,prospectos,5,2025-01-01,2025-12-31</pre>
                     </div>

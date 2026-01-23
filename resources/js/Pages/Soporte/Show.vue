@@ -135,9 +135,9 @@ const getEstadoBadge = (estado) => {
         en_progreso: 'bg-yellow-100 text-yellow-800 border-yellow-300',
         pendiente: 'bg-orange-100 text-orange-800 border-orange-300',
         resuelto: 'bg-green-100 text-green-800 border-green-300',
-        cerrado: 'bg-gray-100 text-gray-800 border-gray-300',
+        cerrado: 'bg-gray-100 text-gray-800 dark:text-gray-100 border-gray-300',
     };
-    return colores[estado] || 'bg-gray-100 text-gray-800';
+    return colores[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100';
 };
 
 const getPrioridadBadge = (prioridad) => {
@@ -147,7 +147,7 @@ const getPrioridadBadge = (prioridad) => {
         media: 'bg-yellow-500 text-white',
         baja: 'bg-green-500 text-white',
     };
-    return colores[prioridad] || 'bg-white0 text-white';
+    return colores[prioridad] || 'bg-white dark:bg-slate-9000 text-white';
 };
 
 const formatDate = (date) => {
@@ -187,7 +187,7 @@ const formatDate = (date) => {
                                     🛡️ GARANTÍA
                                 </span>
                             </div>
-                            <h1 class="text-2xl font-bold text-gray-900 mt-1">{{ ticket.titulo }}</h1>
+                            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ ticket.titulo }}</h1>
                         </div>
                         
                         <!-- Acciones Principales -->
@@ -228,14 +228,14 @@ const formatDate = (date) => {
                     <!-- Contenido principal -->
                     <div class="lg:col-span-2 space-y-6">
                         <!-- Descripción -->
-                        <div class="bg-white rounded-xl shadow-sm p-6">
-                            <h3 class="font-semibold text-gray-900 mb-3">Descripción</h3>
+                        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
+                            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Descripción</h3>
                             <p class="text-gray-700 whitespace-pre-wrap">{{ ticket.descripcion }}</p>
                         </div>
 
                         <!-- Timeline de comentarios -->
-                        <div class="bg-white rounded-xl shadow-sm p-6">
-                            <h3 class="font-semibold text-gray-900 mb-4">Conversación</h3>
+                        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
+                            <h3 class="font-semibold text-gray-900 dark:text-white mb-4">Conversación</h3>
                             
                             <div class="space-y-4">
                                 <div 
@@ -243,7 +243,7 @@ const formatDate = (date) => {
                                     :key="comentario.id"
                                     :class="[
                                         'p-4 rounded-lg',
-                                        comentario.es_interno ? 'bg-yellow-50 border-l-4 border-yellow-400' : 'bg-white'
+                                        comentario.es_interno ? 'bg-yellow-50 border-l-4 border-yellow-400' : 'bg-white dark:bg-slate-900'
                                     ]"
                                 >
                                     <div class="flex justify-between items-start mb-2">
@@ -252,7 +252,7 @@ const formatDate = (date) => {
                                                 {{ comentario.user?.name?.charAt(0) || '?' }}
                                             </div>
                                             <div>
-                                                <span class="font-medium text-gray-900">{{ comentario.user?.name }}</span>
+                                                <span class="font-medium text-gray-900 dark:text-white">{{ comentario.user?.name }}</span>
                                                 <span v-if="comentario.es_interno" class="ml-2 text-xs text-yellow-700 bg-yellow-200 px-2 py-0.5 rounded">
                                                     Nota interna
                                                 </span>
@@ -261,7 +261,7 @@ const formatDate = (date) => {
                                                 </span>
                                             </div>
                                         </div>
-                                        <span class="text-xs text-gray-500">{{ formatDate(comentario.created_at) }}</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">{{ formatDate(comentario.created_at) }}</span>
                                     </div>
                                     <p class="text-gray-700 ml-10">{{ comentario.contenido }}</p>
                                 </div>
@@ -280,7 +280,7 @@ const formatDate = (date) => {
                                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 resize-none"
                                 ></textarea>
                                 <div class="flex justify-between items-center mt-3">
-                                    <label class="flex items-center gap-2 text-sm text-gray-600">
+                                    <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                                         <input type="checkbox" v-model="nuevoComentario.es_interno" class="rounded text-yellow-500" />
                                         Nota interna (no visible para cliente)
                                     </label>
@@ -299,8 +299,8 @@ const formatDate = (date) => {
                     <!-- Sidebar -->
                     <div class="lg:col-span-1 space-y-4">
                         <!-- Acciones rápidas -->
-                        <div class="bg-white rounded-xl shadow-sm p-4">
-                            <h3 class="font-semibold text-gray-900 mb-3">Acciones</h3>
+                        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4">
+                            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Acciones</h3>
                             
                             <!-- Cambiar estado -->
                             <div class="mb-4">
@@ -314,7 +314,7 @@ const formatDate = (date) => {
                                             'px-2 py-1 text-xs rounded transition',
                                             ticket.estado === e 
                                                 ? 'bg-orange-500 text-white' 
-                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                : 'bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200'
                                         ]"
                                     >
                                         {{ e.replace('_', ' ') }}
@@ -337,42 +337,42 @@ const formatDate = (date) => {
                         </div>
 
                         <!-- Info del ticket -->
-                        <div class="bg-white rounded-xl shadow-sm p-4">
-                            <h3 class="font-semibold text-gray-900 mb-3">Detalles</h3>
+                        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4">
+                            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Detalles</h3>
                             <dl class="space-y-2 text-sm">
                                 <div class="flex justify-between">
-                                    <dt class="text-gray-500">Categoría</dt>
-                                    <dd class="text-gray-900">{{ ticket.categoria?.nombre || '-' }}</dd>
+                                    <dt class="text-gray-500 dark:text-gray-400">Categoría</dt>
+                                    <dd class="text-gray-900 dark:text-white">{{ ticket.categoria?.nombre || '-' }}</dd>
                                 </div>
                                 <div class="flex justify-between">
-                                    <dt class="text-gray-500">Origen</dt>
-                                    <dd class="text-gray-900">{{ ticket.origen }}</dd>
+                                    <dt class="text-gray-500 dark:text-gray-400">Origen</dt>
+                                    <dd class="text-gray-900 dark:text-white">{{ ticket.origen }}</dd>
                                 </div>
                                 <div class="flex justify-between">
-                                    <dt class="text-gray-500">Creado</dt>
-                                    <dd class="text-gray-900">{{ formatDate(ticket.created_at) }}</dd>
+                                    <dt class="text-gray-500 dark:text-gray-400">Creado</dt>
+                                    <dd class="text-gray-900 dark:text-white">{{ formatDate(ticket.created_at) }}</dd>
                                 </div>
                                 <div class="flex justify-between">
-                                    <dt class="text-gray-500">Por</dt>
-                                    <dd class="text-gray-900">{{ ticket.creador?.name }}</dd>
+                                    <dt class="text-gray-500 dark:text-gray-400">Por</dt>
+                                    <dd class="text-gray-900 dark:text-white">{{ ticket.creador?.name }}</dd>
                                 </div>
                                 <div v-if="ticket.fecha_limite" class="flex justify-between">
-                                    <dt class="text-gray-500">SLA Límite</dt>
-                                    <dd :class="ticket.sla_status === 'vencido' ? 'text-red-600 font-bold' : ticket.sla_status === 'critico' ? 'text-orange-600' : 'text-gray-900'">
+                                    <dt class="text-gray-500 dark:text-gray-400">SLA Límite</dt>
+                                    <dd :class="ticket.sla_status === 'vencido' ? 'text-red-600 font-bold' : ticket.sla_status === 'critico' ? 'text-orange-600' : 'text-gray-900 dark:text-white'">
                                         {{ formatDate(ticket.fecha_limite) }}
                                     </dd>
                                 </div>
                                 <div v-if="ticket.resuelto_at" class="flex justify-between">
-                                    <dt class="text-gray-500">Resuelto</dt>
+                                    <dt class="text-gray-500 dark:text-gray-400">Resuelto</dt>
                                     <dd class="text-green-600">{{ formatDate(ticket.resuelto_at) }}</dd>
                                 </div>
                                 <div v-if="ticket.servicio_inicio_at" class="flex justify-between">
-                                    <dt class="text-gray-500">Inicio Servicio</dt>
-                                    <dd class="text-gray-900">{{ formatDate(ticket.servicio_inicio_at) }}</dd>
+                                    <dt class="text-gray-500 dark:text-gray-400">Inicio Servicio</dt>
+                                    <dd class="text-gray-900 dark:text-white">{{ formatDate(ticket.servicio_inicio_at) }}</dd>
                                 </div>
                                 <div v-if="ticket.servicio_fin_at" class="flex justify-between">
-                                    <dt class="text-gray-500">Fin Servicio</dt>
-                                    <dd class="text-gray-900">{{ formatDate(ticket.servicio_fin_at) }}</dd>
+                                    <dt class="text-gray-500 dark:text-gray-400">Fin Servicio</dt>
+                                    <dd class="text-gray-900 dark:text-white">{{ formatDate(ticket.servicio_fin_at) }}</dd>
                                 </div>
                                 <div v-if="ticket.horas_trabajadas" class="flex justify-between bg-blue-50 -mx-2 px-2 py-1 rounded">
                                     <dt class="text-blue-600 font-semibold">⏱️ Duración Total</dt>
@@ -388,7 +388,7 @@ const formatDate = (date) => {
                                  Citas del Servicio
                              </h3>
                              <div class="space-y-3">
-                                 <div v-for="cita in ticket.citas" :key="cita.id" class="text-sm bg-white p-3 rounded-lg border border-blue-100 shadow-sm">
+                                 <div v-for="cita in ticket.citas" :key="cita.id" class="text-sm bg-white dark:bg-slate-900 p-3 rounded-lg border border-blue-100 shadow-sm">
                                      <div class="flex justify-between items-start mb-1">
                                          <Link :href="route('citas.show', cita.id)" class="font-bold text-blue-700 hover:underline">
                                              {{ cita.folio }}
@@ -401,7 +401,7 @@ const formatDate = (date) => {
                                              {{ cita.estado }}
                                          </span>
                                      </div>
-                                     <div class="text-xs text-gray-600">
+                                     <div class="text-xs text-gray-600 dark:text-gray-300">
                                          {{ formatDate(cita.fecha_hora) }}
                                      </div>
                                  </div>
@@ -427,12 +427,12 @@ const formatDate = (date) => {
                         </div>
 
                         <!-- Info del cliente -->
-                        <div v-if="ticket.cliente" class="bg-white rounded-xl shadow-sm p-4">
-                            <h3 class="font-semibold text-gray-900 mb-3">Cliente</h3>
+                        <div v-if="ticket.cliente" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4">
+                            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Cliente</h3>
                             <div class="text-sm">
-                                <div class="font-medium text-gray-900">{{ ticket.cliente.nombre }}</div>
-                                <div class="text-gray-600">{{ ticket.cliente.email }}</div>
-                                <div class="text-gray-600">{{ ticket.cliente.telefono || ticket.cliente.celular }}</div>
+                                <div class="font-medium text-gray-900 dark:text-white">{{ ticket.cliente.nombre }}</div>
+                                <div class="text-gray-600 dark:text-gray-300">{{ ticket.cliente.email }}</div>
+                                <div class="text-gray-600 dark:text-gray-300">{{ ticket.cliente.telefono || ticket.cliente.celular }}</div>
                                 
                                 <Link :href="route('clientes.show', ticket.cliente.id)" class="inline-block mt-2 text-orange-600 hover:text-orange-800 text-xs">
                                     Ver ficha completa →
@@ -441,22 +441,22 @@ const formatDate = (date) => {
 
                             <!-- Historial de tickets del cliente -->
                             <div v-if="historialCliente && historialCliente.length > 0" class="mt-4 pt-3 border-t">
-                                <div class="text-xs font-semibold text-gray-500 mb-2">Otros tickets:</div>
+                                <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Otros tickets:</div>
                                 <div v-for="t in historialCliente" :key="t.id" class="text-xs py-1">
                                     <Link :href="route('soporte.show', t.id)" class="text-orange-600 hover:underline">
                                         {{ t.numero }}
                                     </Link>
-                                    <span class="text-gray-500 ml-1">{{ t.estado }}</span>
+                                    <span class="text-gray-500 dark:text-gray-400 ml-1">{{ t.estado }}</span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Producto relacionado -->
-                        <div v-if="ticket.producto" class="bg-white rounded-xl shadow-sm p-4">
-                            <h3 class="font-semibold text-gray-900 mb-3">Producto</h3>
+                        <div v-if="ticket.producto" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4">
+                            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Producto</h3>
                             <div class="text-sm">
-                                <div class="font-medium text-gray-900">{{ ticket.producto.nombre }}</div>
-                                <div class="text-gray-600 font-mono text-xs">{{ ticket.producto.sku }}</div>
+                                <div class="font-medium text-gray-900 dark:text-white">{{ ticket.producto.nombre }}</div>
+                                <div class="text-gray-600 dark:text-gray-300 font-mono text-xs">{{ ticket.producto.sku }}</div>
                             </div>
                         </div>
                     </div>
@@ -480,7 +480,7 @@ const formatDate = (date) => {
                         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" @click="cancelarConsumoHoras"></div>
                         
                         <!-- Modal Card -->
-                        <div class="relative bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden z-10 transform transition-all">
+                        <div class="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden z-10 transform transition-all">
                             
                             <!-- Header con gradiente -->
                             <div :class="[
@@ -489,7 +489,7 @@ const formatDate = (date) => {
                                     ? 'bg-gradient-to-br from-gray-600 to-gray-800' 
                                     : 'bg-gradient-to-br from-green-500 to-emerald-600'
                             ]">
-                                <div class="w-14 h-14 mx-auto bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center mb-3">
+                                <div class="w-14 h-14 mx-auto bg-white dark:bg-slate-900/20 backdrop-blur rounded-2xl flex items-center justify-center mb-3">
                                     <span class="text-3xl">{{ estadoPendiente === 'cerrado' ? '✅' : '🎉' }}</span>
                                 </div>
                                 <h3 class="text-xl font-bold text-white">
@@ -516,7 +516,7 @@ const formatDate = (date) => {
                                                 'py-3 rounded-xl text-sm font-bold border-2 transition-all',
                                                 parseFloat(horasTrabajadas) === t 
                                                     ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-md scale-105' 
-                                                    : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-gray-300'
+                                                    : 'bg-gray-50 dark:bg-slate-950 border-gray-200 dark:border-slate-800 text-gray-600 dark:text-gray-300 hover:border-gray-300'
                                             ]"
                                         >
                                             {{ t }}h
@@ -531,7 +531,7 @@ const formatDate = (date) => {
                                             step="0.25" 
                                             min="0.25" 
                                             placeholder="Otro..."
-                                            class="w-full text-center text-lg font-bold py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition"
+                                            class="w-full text-center text-lg font-bold py-3 border-2 border-gray-200 dark:border-slate-800 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition"
                                         />
                                         <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">horas</span>
                                     </div>
@@ -548,11 +548,11 @@ const formatDate = (date) => {
                                                 'relative p-4 rounded-xl border-2 text-left transition-all',
                                                 tipoServicio === 'garantia' 
                                                     ? 'bg-green-50 border-green-500 shadow-md' 
-                                                    : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                                                    : 'bg-gray-50 dark:bg-slate-950 border-gray-200 dark:border-slate-800 hover:border-gray-300'
                                             ]"
                                         >
                                             <div class="text-2xl mb-1">🛡️</div>
-                                            <div class="text-sm font-bold" :class="tipoServicio === 'garantia' ? 'text-green-700' : 'text-gray-600'">Bajo Póliza</div>
+                                            <div class="text-sm font-bold" :class="tipoServicio === 'garantia' ? 'text-green-700' : 'text-gray-600 dark:text-gray-300'">Bajo Póliza</div>
                                             <div class="text-[10px] text-gray-400">Consume del plan</div>
                                             <div v-if="tipoServicio === 'garantia'" class="absolute top-2 right-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
                                                 <span class="text-white text-xs">✓</span>
@@ -565,11 +565,11 @@ const formatDate = (date) => {
                                                 'relative p-4 rounded-xl border-2 text-left transition-all',
                                                 tipoServicio === 'costo' 
                                                     ? 'bg-purple-50 border-purple-500 shadow-md' 
-                                                    : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                                                    : 'bg-gray-50 dark:bg-slate-950 border-gray-200 dark:border-slate-800 hover:border-gray-300'
                                             ]"
                                         >
                                             <div class="text-2xl mb-1">💰</div>
-                                            <div class="text-sm font-bold" :class="tipoServicio === 'costo' ? 'text-purple-700' : 'text-gray-600'">Con Cargo</div>
+                                            <div class="text-sm font-bold" :class="tipoServicio === 'costo' ? 'text-purple-700' : 'text-gray-600 dark:text-gray-300'">Con Cargo</div>
                                             <div class="text-[10px] text-gray-400">Servicio extra</div>
                                             <div v-if="tipoServicio === 'costo'" class="absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center">
                                                 <span class="text-white text-xs">✓</span>
@@ -582,7 +582,7 @@ const formatDate = (date) => {
                                 <div v-if="!ticket.poliza && !ticket.venta_id" class="pt-4 border-t">
                                     <label 
                                         class="flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all"
-                                        :class="generarVentaAlCerrar ? 'bg-purple-50 border-purple-400' : 'bg-gray-50 border-gray-200 hover:border-gray-300'"
+                                        :class="generarVentaAlCerrar ? 'bg-purple-50 border-purple-400' : 'bg-gray-50 dark:bg-slate-950 border-gray-200 dark:border-slate-800 hover:border-gray-300'"
                                     >
                                         <input 
                                             type="checkbox" 
@@ -592,9 +592,9 @@ const formatDate = (date) => {
                                         <div class="flex-1">
                                             <div class="flex items-center gap-2">
                                                 <span class="text-xl">💳</span>
-                                                <span class="font-bold text-gray-800">Generar Nota de Venta</span>
+                                                <span class="font-bold text-gray-800 dark:text-gray-100">Generar Nota de Venta</span>
                                             </div>
-                                            <p class="text-xs text-gray-500 mt-1">
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                 Se creará automáticamente una venta para facturar este servicio
                                             </p>
                                         </div>
@@ -621,7 +621,7 @@ const formatDate = (date) => {
                             <div class="px-6 pb-6 flex gap-3">
                                 <button 
                                     @click="cancelarConsumoHoras" 
-                                    class="flex-1 px-4 py-3.5 border-2 border-gray-200 text-gray-600 rounded-xl font-semibold hover:bg-gray-50 transition"
+                                    class="flex-1 px-4 py-3.5 border-2 border-gray-200 dark:border-slate-800 text-gray-600 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition"
                                 >
                                     Cancelar
                                 </button>

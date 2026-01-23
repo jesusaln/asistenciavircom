@@ -156,13 +156,13 @@ const origenes = [
                     <Link :href="route('soporte.index')" class="text-orange-600 hover:text-orange-800 text-sm mb-2 inline-block">
                         ← Volver a tickets
                     </Link>
-                    <h1 class="text-2xl font-bold text-gray-900">Nuevo Ticket de Soporte</h1>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Nuevo Ticket de Soporte</h1>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- Formulario principal -->
                     <div class="lg:col-span-2">
-                        <form @submit.prevent="submit" class="bg-white rounded-xl shadow-sm p-6 space-y-6">
+                        <form @submit.prevent="submit" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 space-y-6">
                             <!-- Búsqueda de cliente -->
                             <div class="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl p-4 border border-orange-200">
                                 <label class="block text-sm font-semibold text-orange-800 mb-2">
@@ -187,7 +187,7 @@ const origenes = [
                                 </div>
 
                                 <!-- Lista de Resultados (Si hay múltiples) -->
-                                <div v-if="resultadosBusqueda.length > 0 && !clienteEncontrado" class="mt-4 bg-white rounded-lg border border-orange-200 overflow-hidden shadow-sm">
+                                <div v-if="resultadosBusqueda.length > 0 && !clienteEncontrado" class="mt-4 bg-white dark:bg-slate-900 rounded-lg border border-orange-200 overflow-hidden shadow-sm">
                                     <div class="px-4 py-2 bg-orange-100 text-orange-800 text-xs font-bold uppercase">
                                         Resultados encontrados ({{ resultadosBusqueda.length }})
                                     </div>
@@ -197,8 +197,8 @@ const origenes = [
                                             class="px-4 py-3 hover:bg-orange-50 cursor-pointer flex justify-between items-center transition-colors"
                                         >
                                             <div>
-                                                <div class="font-bold text-gray-800">{{ res.nombre }}</div>
-                                                <div class="text-xs text-gray-500">{{ res.email }} • {{ res.telefono }}</div>
+                                                <div class="font-bold text-gray-800 dark:text-gray-100">{{ res.nombre }}</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ res.email }} • {{ res.telefono }}</div>
                                             </div>
                                             <span class="text-orange-500">Seleccionar →</span>
                                         </li>
@@ -206,34 +206,34 @@ const origenes = [
                                 </div>
 
                                 <!-- Cliente seleccionado -->
-                                <div v-if="clienteEncontrado" class="mt-4 bg-white rounded-lg p-4 border border-green-300">
+                                <div v-if="clienteEncontrado" class="mt-4 bg-white dark:bg-slate-900 rounded-lg p-4 border border-green-300">
                                     <div class="flex justify-between items-start">
                                         <div>
-                                            <div class="text-lg font-bold text-gray-900">{{ clienteEncontrado.nombre }}</div>
-                                            <div class="text-sm text-gray-600">{{ clienteEncontrado.email }}</div>
-                                            <div class="text-sm text-gray-600">{{ clienteEncontrado.telefono || clienteEncontrado.celular }}</div>
+                                            <div class="text-lg font-bold text-gray-900 dark:text-white">{{ clienteEncontrado.nombre }}</div>
+                                            <div class="text-sm text-gray-600 dark:text-gray-300">{{ clienteEncontrado.email }}</div>
+                                            <div class="text-sm text-gray-600 dark:text-gray-300">{{ clienteEncontrado.telefono || clienteEncontrado.celular }}</div>
                                             <!-- Info de Póliza -->
                                             <div v-if="polizaActiva" class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
                                                 <font-awesome-icon icon="shield-halved" class="mr-1" />
                                                 Póliza Activa: {{ polizaActiva.nombre }} (Folio: {{ polizaActiva.folio }})
                                             </div>
-                                            <div v-else class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                                            <div v-else class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-slate-800">
                                                 Sin Póliza Activa
                                             </div>
                                         </div>
-                                        <button type="button" @click="limpiarCliente" class="text-gray-400 hover:text-gray-600">✕</button>
+                                        <button type="button" @click="limpiarCliente" class="text-gray-400 hover:text-gray-600 dark:text-gray-300">✕</button>
                                     </div>
                                     
                                     <!-- Tickets recientes del cliente -->
                                     <div v-if="ticketsCliente.length > 0" class="mt-3 pt-3 border-t">
-                                        <div class="text-xs font-semibold text-gray-500 mb-2">Tickets recientes:</div>
+                                        <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Tickets recientes:</div>
                                         <div class="max-h-40 overflow-y-auto pr-1">
-                                            <div v-for="t in ticketsCliente" :key="t.id" class="text-xs py-1 flex justify-between items-center hover:bg-white rounded px-1">
+                                            <div v-for="t in ticketsCliente" :key="t.id" class="text-xs py-1 flex justify-between items-center hover:bg-white dark:bg-slate-900 rounded px-1">
                                                 <Link :href="route('soporte.show', t.id)" target="_blank" class="font-mono text-orange-600 hover:text-orange-800 hover:underline">
                                                     {{ t.numero }}
                                                 </Link>
-                                                <span class="text-gray-600 truncate max-w-[150px]" :title="t.titulo">{{ t.titulo }}</span>
-                                                <span :class="t.estado === 'abierto' ? 'text-blue-600' : t.estado === 'resuelto' ? 'text-green-600' : 'text-gray-500'">
+                                                <span class="text-gray-600 dark:text-gray-300 truncate max-w-[150px]" :title="t.titulo">{{ t.titulo }}</span>
+                                                <span :class="t.estado === 'abierto' ? 'text-blue-600' : t.estado === 'resuelto' ? 'text-green-600' : 'text-gray-500 dark:text-gray-400'">
                                                     {{ t.estado }}
                                                 </span>
                                             </div>
@@ -301,15 +301,15 @@ const origenes = [
                                     <label class="flex items-center gap-2 cursor-pointer border p-3 rounded-lg w-full hover:bg-orange-50" :class="{'ring-2 ring-orange-500 bg-orange-50': form.tipo_servicio === 'garantia'}">
                                         <input type="radio" v-model="form.tipo_servicio" value="garantia" class="text-orange-500 focus:ring-orange-500">
                                         <div>
-                                            <span class="block font-bold text-gray-800">🛡️ Garantía / Póliza</span>
-                                            <span class="text-xs text-gray-500">Sin costo para el cliente</span>
+                                            <span class="block font-bold text-gray-800 dark:text-gray-100">🛡️ Garantía / Póliza</span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">Sin costo para el cliente</span>
                                         </div>
                                     </label>
                                     <label class="flex items-center gap-2 cursor-pointer border p-3 rounded-lg w-full hover:bg-orange-50" :class="{'ring-2 ring-orange-500 bg-orange-50': form.tipo_servicio === 'costo'}">
                                         <input type="radio" v-model="form.tipo_servicio" value="costo" class="text-orange-500 focus:ring-orange-500">
                                         <div>
-                                            <span class="block font-bold text-gray-800">💰 Con Costo</span>
-                                            <span class="text-xs text-gray-500">Genera venta y facturación</span>
+                                            <span class="block font-bold text-gray-800 dark:text-gray-100">💰 Con Costo</span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">Genera venta y facturación</span>
                                         </div>
                                     </label>
                                 </div>
@@ -325,7 +325,7 @@ const origenes = [
                                     placeholder="Ej. Nota 1234"
                                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"
                                 />
-                                <p class="text-xs text-gray-500 mt-1">Si tienes un folio impreso o de otro sistema.</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Si tienes un folio impreso o de otro sistema.</p>
                             </div>
 
                             <!-- Prioridad y Categoría -->
@@ -348,7 +348,7 @@ const origenes = [
                                         <button 
                                             type="button" 
                                             @click="showCategoryModal = true"
-                                            class="px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 text-gray-600"
+                                            class="px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 text-gray-600 dark:text-gray-300"
                                             title="Nueva Categoría"
                                         >
                                             <font-awesome-icon icon="plus" />
@@ -389,7 +389,7 @@ const origenes = [
 
                             <!-- Botones -->
                             <div class="flex justify-end gap-3 pt-4 border-t">
-                                <Link :href="route('soporte.index')" class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-white">
+                                <Link :href="route('soporte.index')" class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-white dark:bg-slate-900">
                                     Cancelar
                                 </Link>
                                 <button 
@@ -405,9 +405,9 @@ const origenes = [
 
                     <!-- Sidebar de ayuda -->
                     <div class="lg:col-span-1 space-y-4">
-                        <div class="bg-white rounded-xl shadow-sm p-4">
-                            <h3 class="font-semibold text-gray-900 mb-3">💡 Tips</h3>
-                            <ul class="text-sm text-gray-600 space-y-2">
+                        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4">
+                            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">💡 Tips</h3>
+                            <ul class="text-sm text-gray-600 dark:text-gray-300 space-y-2">
                                 <li>• Usa el buscador de teléfono para identificar al cliente rápidamente</li>
                                 <li>• Selecciona la prioridad correcta para un mejor SLA</li>
                                 <li>• Incluye todos los detalles relevantes en la descripción</li>

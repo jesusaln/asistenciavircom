@@ -593,21 +593,21 @@ const helpSections = [
                         <font-awesome-icon icon="circle-info" class="text-2xl" />
                     </div>
                     <div>
-                        <h3 class="text-xl font-black text-gray-900">Guía de Configuración de Pólizas</h3>
-                        <p class="text-gray-500 text-sm">Siga estos estándares para garantizar la rentabilidad y claridad operativa.</p>
+                        <h3 class="text-xl font-black text-gray-900 dark:text-white">Guía de Configuración de Pólizas</h3>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm">Siga estos estándares para garantizar la rentabilidad y claridad operativa.</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div v-for="section in helpSections" :key="section.title" class="space-y-4">
-                        <div class="flex items-center gap-2 text-gray-800">
+                        <div class="flex items-center gap-2 text-gray-800 dark:text-gray-100">
                              <font-awesome-icon :icon="section.icon" class="text-blue-500" />
                              <h4 class="font-bold uppercase tracking-widest text-xs">{{ section.title }}</h4>
                         </div>
                         <ul class="space-y-3">
-                            <li v-for="point in section.points" :key="point" class="text-xs text-gray-600 leading-relaxed flex gap-2">
+                            <li v-for="point in section.points" :key="point" class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed flex gap-2">
                                 <span class="text-blue-400 font-bold">•</span>
-                                <span v-html="point.replace(/\*\*(.*?)\*\*/g, '<b class=\'text-gray-900\'>$1</b>')"></span>
+                                <span v-html="point.replace(/\*\*(.*?)\*\*/g, '<b class=\'text-gray-900 dark:text-white\'>$1</b>')"></span>
                             </li>
                         </ul>
                     </div>

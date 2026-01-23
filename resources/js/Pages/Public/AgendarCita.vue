@@ -198,7 +198,7 @@ const stepLabels = [
     
     <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100" :style="cssVars">
         <!-- Header -->
-        <header class="bg-white shadow-sm sticky top-0 z-50">
+        <header class="bg-white dark:bg-slate-900 shadow-sm sticky top-0 z-50">
             <div class="w-full px-4 py-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -206,8 +206,8 @@ const stepLabels = [
                             {{ empresa?.nombre?.charAt(0) || 'C' }}
                         </div>
                         <div>
-                            <h1 class="font-bold text-gray-900">{{ empresa?.nombre || 'Asistencia Vircom' }}</h1>
-                            <p class="text-xs text-gray-500">Agenda tu servicio</p>
+                            <h1 class="font-bold text-gray-900 dark:text-white">{{ empresa?.nombre || 'Asistencia Vircom' }}</h1>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Agenda tu servicio</p>
                         </div>
                     </div>
                     <a 
@@ -226,7 +226,7 @@ const stepLabels = [
         </header>
 
         <!-- Progress Bar -->
-        <div class="bg-white border-b">
+        <div class="bg-white dark:bg-slate-900 border-b">
             <div class="w-full px-4 py-3">
                 <!-- Steps Indicators -->
                 <div class="flex items-center justify-between mb-3 overflow-x-auto pb-2">
@@ -244,7 +244,7 @@ const stepLabels = [
                                 'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300',
                                 currentStep > step.num ? 'bg-[var(--color-primary)] text-white' : 
                                 currentStep === step.num ? 'bg-[var(--color-primary)] text-white ring-4 ring-[var(--color-primary-soft)]' : 
-                                'bg-gray-200 text-gray-500'
+                                'bg-gray-200 text-gray-500 dark:text-gray-400'
                             ]"
                         >
                             <span v-if="currentStep > step.num">✓</span>
@@ -266,7 +266,7 @@ const stepLabels = [
 
         <!-- Form Content -->
         <main class="w-full px-4 py-6">
-            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-lg overflow-hidden">
                 
                 <!-- PASO 1: Datos Personales -->
                 <div v-if="currentStep === 1" class="p-6">
@@ -274,8 +274,8 @@ const stepLabels = [
                         <div class="w-16 h-16 bg-[var(--color-primary-soft)] rounded-2xl flex items-center justify-center mx-auto mb-4">
                             <span class="text-3xl">👤</span>
                         </div>
-                        <h2 class="text-xl font-bold text-gray-900">¿Cómo te llamas?</h2>
-                        <p class="text-gray-500 text-sm mt-1">Necesitamos tus datos para contactarte</p>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">¿Cómo te llamas?</h2>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Necesitamos tus datos para contactarte</p>
                     </div>
                     
                     <div class="space-y-4">
@@ -287,7 +287,7 @@ const stepLabels = [
                                 v-model="form.nombre"
                                 type="text"
                                 placeholder="Ej: Juan Pérez García"
-                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
                                 :class="{ 'border-red-400': stepErrors.nombre }"
                             />
                             <p v-if="stepErrors.nombre" class="text-red-500 text-xs mt-1">{{ stepErrors.nombre }}</p>
@@ -305,7 +305,7 @@ const stepLabels = [
                                     type="tel"
                                     placeholder="10 dígitos"
                                     maxlength="10"
-                                    class="w-full pl-14 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
+                                    class="w-full pl-14 pr-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
                                     :class="{ 'border-red-400': stepErrors.telefono }"
                                 />
                             </div>
@@ -321,7 +321,7 @@ const stepLabels = [
                                 v-model="form.email"
                                 type="email"
                                 placeholder="tucorreo@ejemplo.com"
-                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
                                 :class="{ 'border-red-400': stepErrors.email }"
                             />
                             <p v-if="stepErrors.email" class="text-red-500 text-xs mt-1">{{ stepErrors.email }}</p>
@@ -335,8 +335,8 @@ const stepLabels = [
                         <div class="w-16 h-16 bg-[var(--color-primary-soft)] rounded-2xl flex items-center justify-center mx-auto mb-4">
                             <span class="text-3xl">📍</span>
                         </div>
-                        <h2 class="text-xl font-bold text-gray-900">¿Dónde realizamos el servicio?</h2>
-                        <p class="text-gray-500 text-sm mt-1">Ingresa la dirección completa</p>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">¿Dónde realizamos el servicio?</h2>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Ingresa la dirección completa</p>
                     </div>
                     
                     <div class="space-y-4">
@@ -348,7 +348,7 @@ const stepLabels = [
                                 v-model="form.direccion_calle"
                                 type="text"
                                 placeholder="Ej: Av. Constitución #1234"
-                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
                                 :class="{ 'border-red-400': stepErrors.direccion_calle }"
                             />
                             <p v-if="stepErrors.direccion_calle" class="text-red-500 text-xs mt-1">{{ stepErrors.direccion_calle }}</p>
@@ -363,7 +363,7 @@ const stepLabels = [
                                     v-model="form.direccion_colonia"
                                     type="text"
                                     placeholder="Nombre de colonia"
-                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
                                     :class="{ 'border-red-400': stepErrors.direccion_colonia }"
                                 />
                                 <p v-if="stepErrors.direccion_colonia" class="text-red-500 text-xs mt-1">{{ stepErrors.direccion_colonia }}</p>
@@ -378,7 +378,7 @@ const stepLabels = [
                                     type="text"
                                     placeholder="00000"
                                     maxlength="5"
-                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
                                 />
                             </div>
                         </div>
@@ -391,7 +391,7 @@ const stepLabels = [
                                 v-model="form.direccion_referencias"
                                 rows="3"
                                 placeholder="Ej: Entre calle Juárez y calle Hidalgo, casa color azul con portón negro"
-                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--color-primary)] focus:ring-0 transition-colors resize-none"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors resize-none"
                             ></textarea>
                             <p class="text-gray-400 text-xs mt-1">Ayúdanos a encontrar tu domicilio más fácil</p>
                         </div>
@@ -404,15 +404,15 @@ const stepLabels = [
                         <div class="w-16 h-16 bg-[var(--color-primary-soft)] rounded-2xl flex items-center justify-center mx-auto mb-4">
                             <span class="text-3xl">📅</span>
                         </div>
-                        <h2 class="text-xl font-bold text-gray-900">¿Cuándo te queda bien?</h2>
-                        <p class="text-gray-500 text-sm mt-1">Selecciona hasta 3 días de tu preferencia</p>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">¿Cuándo te queda bien?</h2>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Selecciona hasta 3 días de tu preferencia</p>
                     </div>
                     
                     <p v-if="stepErrors.dias_preferidos" class="text-red-500 text-sm text-center mb-4">{{ stepErrors.dias_preferidos }}</p>
                     
                     <div class="space-y-6">
                         <div v-for="(mes, key) in diasPorMes" :key="key">
-                            <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3 capitalize">
+                            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide mb-3 capitalize">
                                 {{ mes.nombre }}
                             </h3>
                             <div class="grid grid-cols-4 sm:grid-cols-5 gap-2">
@@ -425,7 +425,7 @@ const stepLabels = [
                                         'relative p-3 rounded-xl border-2 transition-all duration-200 text-center',
                                         form.dias_preferidos.includes(dia.fecha) 
                                             ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-white shadow-lg scale-105' 
-                                            : 'border-gray-200 hover:border-[var(--color-primary)] hover:bg-[var(--color-primary-soft)]',
+                                            : 'border-gray-200 dark:border-slate-800 hover:border-[var(--color-primary)] hover:bg-[var(--color-primary-soft)]',
                                         form.dias_preferidos.length >= 3 && !form.dias_preferidos.includes(dia.fecha) 
                                             ? 'opacity-50 cursor-not-allowed' 
                                             : ''
@@ -445,7 +445,7 @@ const stepLabels = [
                                     <!-- Check si está seleccionado -->
                                     <div 
                                         v-if="form.dias_preferidos.includes(dia.fecha)"
-                                        class="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center text-[var(--color-primary)] text-xs shadow"
+                                        class="absolute -top-1 -right-1 w-5 h-5 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center text-[var(--color-primary)] text-xs shadow"
                                     >
                                         ✓
                                     </div>
@@ -476,8 +476,8 @@ const stepLabels = [
                         <div class="w-16 h-16 bg-[var(--color-primary-soft)] rounded-2xl flex items-center justify-center mx-auto mb-4">
                             <span class="text-3xl">⏰</span>
                         </div>
-                        <h2 class="text-xl font-bold text-gray-900">¿A qué hora prefieres?</h2>
-                        <p class="text-gray-500 text-sm mt-1">Selecciona el horario más conveniente</p>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">¿A qué hora prefieres?</h2>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Selecciona el horario más conveniente</p>
                     </div>
                     
                     <p v-if="stepErrors.horario_preferido" class="text-red-500 text-sm text-center mb-4">{{ stepErrors.horario_preferido }}</p>
@@ -492,13 +492,13 @@ const stepLabels = [
                                 'w-full p-4 rounded-xl border-2 transition-all duration-200 text-left flex items-center gap-4',
                                 form.horario_preferido === key 
                                     ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] shadow-lg' 
-                                    : 'border-gray-200 hover:border-[var(--color-primary)] hover:bg-white'
+                                    : 'border-gray-200 dark:border-slate-800 hover:border-[var(--color-primary)] hover:bg-white dark:bg-slate-900'
                             ]"
                         >
                             <span class="text-3xl">{{ horario.emoji }}</span>
                             <div class="flex-1">
-                                <div class="font-bold text-gray-900">{{ horario.nombre }}</div>
-                                <div class="text-sm text-gray-500">{{ horario.inicio }} - {{ horario.fin }}</div>
+                                <div class="font-bold text-gray-900 dark:text-white">{{ horario.nombre }}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ horario.inicio }} - {{ horario.fin }}</div>
                             </div>
                             <div 
                                 v-if="form.horario_preferido === key"
@@ -520,8 +520,8 @@ const stepLabels = [
                         <div class="w-16 h-16 bg-[var(--color-primary-soft)] rounded-2xl flex items-center justify-center mx-auto mb-4">
                             <span class="text-3xl">🔧</span>
                         </div>
-                        <h2 class="text-xl font-bold text-gray-900">¿Qué servicio necesitas?</h2>
-                        <p class="text-gray-500 text-sm mt-1">Cuéntanos sobre tu equipo y el servicio</p>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">¿Qué servicio necesitas?</h2>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Cuéntanos sobre tu equipo y el servicio</p>
                     </div>
                     
                     <div class="space-y-4">
@@ -540,7 +540,7 @@ const stepLabels = [
                                         'p-3 rounded-xl border-2 text-sm font-medium transition-all',
                                         form.tipo_servicio === key 
                                             ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-white' 
-                                            : 'border-gray-200 hover:border-[var(--color-primary)]'
+                                            : 'border-gray-200 dark:border-slate-800 hover:border-[var(--color-primary)]'
                                     ]"
                                 >
                                     {{ label }}
@@ -564,7 +564,7 @@ const stepLabels = [
                                         'p-3 rounded-xl border-2 text-xs font-medium transition-all',
                                         form.tipo_equipo === key 
                                             ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-white' 
-                                            : 'border-gray-200 hover:border-[var(--color-primary)]'
+                                            : 'border-gray-200 dark:border-slate-800 hover:border-[var(--color-primary)]'
                                     ]"
                                 >
                                     {{ label }}
@@ -580,7 +580,7 @@ const stepLabels = [
                             </label>
                             <select 
                                 v-model="form.origen_tienda"
-                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--color-primary)] focus:ring-0 transition-colors appearance-none bg-white"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors appearance-none bg-white dark:bg-slate-900"
                                 :class="{ 'border-red-400': stepErrors.origen_tienda }"
                             >
                                 <option value="">Seleccionar tienda...</option>
@@ -600,7 +600,7 @@ const stepLabels = [
                                 v-model="form.numero_ticket_tienda"
                                 type="text"
                                 placeholder="Ej: FAC-2024-001234"
-                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
                             />
                         </div>
                         
@@ -613,7 +613,7 @@ const stepLabels = [
                                 v-model="form.descripcion"
                                 rows="3"
                                 placeholder="Ej: Instalación de minisplit en recámara principal, segundo piso..."
-                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--color-primary)] focus:ring-0 transition-colors resize-none"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors resize-none"
                             ></textarea>
                         </div>
                     </div>
@@ -625,20 +625,20 @@ const stepLabels = [
                         <div class="w-16 h-16 bg-[var(--color-primary-soft)] rounded-2xl flex items-center justify-center mx-auto mb-4">
                             <span class="text-3xl">✅</span>
                         </div>
-                        <h2 class="text-xl font-bold text-gray-900">Confirma tu solicitud</h2>
-                        <p class="text-gray-500 text-sm mt-1">Revisa que todo esté correcto</p>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Confirma tu solicitud</h2>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Revisa que todo esté correcto</p>
                     </div>
                     
                     <!-- Resumen -->
                     <div class="space-y-4 mb-6">
                         <!-- Datos personales -->
-                        <div class="p-4 bg-white rounded-xl">
+                        <div class="p-4 bg-white dark:bg-slate-900 rounded-xl">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-lg">👤</span>
                                 <span class="font-semibold text-gray-700">Datos personales</span>
                                 <button @click="goToStep(1)" class="ml-auto text-[var(--color-primary)] text-sm">Editar</button>
                             </div>
-                            <div class="text-sm text-gray-600">
+                            <div class="text-sm text-gray-600 dark:text-gray-300">
                                 <p><strong>{{ form.nombre }}</strong></p>
                                 <p>📱 +52 {{ form.telefono }}</p>
                                 <p v-if="form.email">✉️ {{ form.email }}</p>
@@ -646,27 +646,27 @@ const stepLabels = [
                         </div>
                         
                         <!-- Dirección -->
-                        <div class="p-4 bg-white rounded-xl">
+                        <div class="p-4 bg-white dark:bg-slate-900 rounded-xl">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-lg">📍</span>
                                 <span class="font-semibold text-gray-700">Dirección</span>
                                 <button @click="goToStep(2)" class="ml-auto text-[var(--color-primary)] text-sm">Editar</button>
                             </div>
-                            <div class="text-sm text-gray-600">
+                            <div class="text-sm text-gray-600 dark:text-gray-300">
                                 <p>{{ form.direccion_calle }}</p>
                                 <p>{{ form.direccion_colonia }} {{ form.direccion_cp ? `C.P. ${form.direccion_cp}` : '' }}</p>
-                                <p v-if="form.direccion_referencias" class="text-gray-500 italic mt-1">"{{ form.direccion_referencias }}"</p>
+                                <p v-if="form.direccion_referencias" class="text-gray-500 dark:text-gray-400 italic mt-1">"{{ form.direccion_referencias }}"</p>
                             </div>
                         </div>
                         
                         <!-- Fecha y Hora -->
-                        <div class="p-4 bg-white rounded-xl">
+                        <div class="p-4 bg-white dark:bg-slate-900 rounded-xl">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-lg">📅</span>
                                 <span class="font-semibold text-gray-700">Fecha y horario</span>
                                 <button @click="goToStep(3)" class="ml-auto text-[var(--color-primary)] text-sm">Editar</button>
                             </div>
-                            <div class="text-sm text-gray-600">
+                            <div class="text-sm text-gray-600 dark:text-gray-300">
                                 <div class="flex flex-wrap gap-1 mb-1">
                                     <span 
                                         v-for="fecha in form.dias_preferidos" 
@@ -683,17 +683,17 @@ const stepLabels = [
                         </div>
                         
                         <!-- Servicio -->
-                        <div class="p-4 bg-white rounded-xl">
+                        <div class="p-4 bg-white dark:bg-slate-900 rounded-xl">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-lg">🔧</span>
                                 <span class="font-semibold text-gray-700">Servicio</span>
                                 <button @click="goToStep(5)" class="ml-auto text-[var(--color-primary)] text-sm">Editar</button>
                             </div>
-                            <div class="text-sm text-gray-600">
+                            <div class="text-sm text-gray-600 dark:text-gray-300">
                                 <p><strong>{{ tiposServicio[form.tipo_servicio] }}</strong> - {{ tiposEquipo[form.tipo_equipo] }}</p>
                                 <p>🏪 Comprado en: {{ tiendas[form.origen_tienda] }}</p>
                                 <p v-if="form.numero_ticket_tienda">🎫 Ticket: {{ form.numero_ticket_tienda }}</p>
-                                <p v-if="form.descripcion" class="text-gray-500 mt-1">{{ form.descripcion }}</p>
+                                <p v-if="form.descripcion" class="text-gray-500 dark:text-gray-400 mt-1">{{ form.descripcion }}</p>
                             </div>
                         </div>
                     </div>
@@ -706,7 +706,7 @@ const stepLabels = [
                                 v-model="form.acepta_terminos"
                                 class="w-5 h-5 mt-0.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
                             />
-                            <span class="text-sm text-gray-600">
+                            <span class="text-sm text-gray-600 dark:text-gray-300">
                                 Acepto los <a href="#" class="text-[var(--color-primary)] underline">términos y condiciones</a> 
                                 y autorizo el uso de mis datos para la prestación del servicio.
                             </span>
@@ -721,12 +721,12 @@ const stepLabels = [
                 </div>
 
                 <!-- Footer con Botones -->
-                <div class="px-6 py-4 bg-white border-t flex items-center justify-between gap-4">
+                <div class="px-6 py-4 bg-white dark:bg-slate-900 border-t flex items-center justify-between gap-4">
                     <button
                         v-if="currentStep > 1"
                         @click="prevStep"
                         type="button"
-                        class="px-5 py-2.5 text-gray-600 font-medium rounded-xl hover:bg-gray-200 transition-colors"
+                        class="px-5 py-2.5 text-gray-600 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-200 transition-colors"
                     >
                         ← Atrás
                     </button>

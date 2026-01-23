@@ -4,8 +4,8 @@
   <div class="w-full p-6">
     <!-- Header Section -->
     <div class="mb-8 text-center">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Gestión de Garantías</h1>
-      <p class="text-gray-600 dark:text-gray-400">Busca una serie o selecciona una venta reciente para iniciar el proceso.</p>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white dark:text-white mb-2">Gestión de Garantías</h1>
+      <p class="text-gray-600 dark:text-gray-300 dark:text-gray-400">Busca una serie o selecciona una venta reciente para iniciar el proceso.</p>
     </div>
 
     <!-- Main Search Bar -->
@@ -19,7 +19,7 @@
           type="text"
           v-model="searchQuery"
           @keydown.enter="realizarBusqueda"
-          class="block w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl leading-5 bg-white dark:bg-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 sm:text-lg shadow-sm transition duration-150 ease-in-out"
+          class="block w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl leading-5 bg-white dark:bg-slate-900 dark:bg-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 sm:text-lg shadow-sm transition duration-150 ease-in-out"
           placeholder="Escanear o escribir número de serie, cliente, producto..."
           autofocus
         />
@@ -36,7 +36,7 @@
 
     <!-- Resultado Exacto (Card Destacado) -->
     <div v-if="resultado" class="w-full mb-10 transform transition-all duration-300 ease-in-out">
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-blue-100 dark:border-gray-700 overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg border border-blue-100 dark:border-gray-700 overflow-hidden">
         <div class="bg-blue-50 dark:bg-gray-700 px-6 py-4 border-b border-blue-100 dark:border-gray-600 flex justify-between items-center">
           <h2 class="text-lg font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
             <span class="text-2xl">🎯</span> Resultado Exacto
@@ -52,24 +52,24 @@
         <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="space-y-4">
             <div>
-              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Número de Serie</label>
-              <div class="text-xl font-mono font-bold text-gray-900 dark:text-white mt-1">{{ resultado.numero_serie }}</div>
+              <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Número de Serie</label>
+              <div class="text-xl font-mono font-bold text-gray-900 dark:text-white dark:text-white mt-1">{{ resultado.numero_serie }}</div>
             </div>
             <div>
-              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Producto</label>
-              <div class="text-base font-medium text-gray-900 dark:text-white mt-1">{{ resultado.producto_nombre }}</div>
+              <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Producto</label>
+              <div class="text-base font-medium text-gray-900 dark:text-white dark:text-white mt-1">{{ resultado.producto_nombre }}</div>
             </div>
           </div>
           
           <div class="space-y-4">
             <div v-if="resultado.cliente_id">
-              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Cliente</label>
-              <div class="text-base font-medium text-gray-900 dark:text-white mt-1">{{ resultado.cliente_nombre }}</div>
-              <div class="text-sm text-gray-500">{{ resultado.cliente_email }}</div>
+              <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cliente</label>
+              <div class="text-base font-medium text-gray-900 dark:text-white dark:text-white mt-1">{{ resultado.cliente_nombre }}</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">{{ resultado.cliente_email }}</div>
             </div>
             <div>
-              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Venta</label>
-              <div class="text-base font-medium text-gray-900 dark:text-white mt-1">
+              <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Venta</label>
+              <div class="text-base font-medium text-gray-900 dark:text-white dark:text-white mt-1">
                 {{ resultado.numero_venta ? '#' + resultado.numero_venta : 'No asociado' }}
                 <span class="text-gray-400 text-sm font-normal" v-if="resultado.venta_fecha">
                   ({{ new Date(resultado.venta_fecha).toLocaleDateString() }})
@@ -79,7 +79,7 @@
           </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-700/50 px-6 py-4 flex justify-end gap-3">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-700/50 px-6 py-4 flex justify-end gap-3">
           <button
             v-if="!resultado.cita_id && resultado.cliente_id"
             @click="crearCita(resultado.producto_serie_id)"
@@ -102,39 +102,39 @@
     </div>
 
     <!-- Lista de Series Vendidas -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex justify-between items-center">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Historial de Series Vendidas</h3>
-        <span class="text-sm text-gray-500" v-if="seriesVendidas.total > 0">
+    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 dark:border-gray-700 overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 bg-white dark:bg-slate-900 dark:bg-gray-900 flex justify-between items-center">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white dark:text-white">Historial de Series Vendidas</h3>
+        <span class="text-sm text-gray-500 dark:text-gray-400" v-if="seriesVendidas.total > 0">
           {{ seriesVendidas.total }} registros encontrados
         </span>
       </div>
 
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-white dark:bg-gray-700">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+          <thead class="bg-white dark:bg-slate-900 dark:bg-gray-700">
             <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Serie</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Producto</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cliente</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Garantía</th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acción</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Serie</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Producto</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Cliente</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Garantía</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Acción</th>
             </tr>
           </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            <tr v-for="item in seriesVendidas.data" :key="item.producto_serie_id" class="hover:bg-white dark:hover:bg-gray-700 transition-colors">
+          <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+            <tr v-for="item in seriesVendidas.data" :key="item.producto_serie_id" class="hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-700 transition-colors">
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-bold text-gray-900 dark:text-white font-mono">{{ item.numero_serie }}</div>
+                <div class="text-sm font-bold text-gray-900 dark:text-white dark:text-white font-mono">{{ item.numero_serie }}</div>
               </td>
               <td class="px-6 py-4">
-                <div class="text-sm text-gray-900 dark:text-white font-medium">{{ item.producto_nombre }}</div>
-                <div class="text-xs text-gray-500">{{ item.producto_codigo }}</div>
+                <div class="text-sm text-gray-900 dark:text-white dark:text-white font-medium">{{ item.producto_nombre }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">{{ item.producto_codigo }}</div>
               </td>
               <td class="px-6 py-4">
-                <div class="text-sm text-gray-900 dark:text-white">{{ item.cliente_nombre }}</div>
+                <div class="text-sm text-gray-900 dark:text-white dark:text-white">{{ item.cliente_nombre }}</div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
                 {{ new Date(item.venta_fecha).toLocaleDateString() }}
               </td>
               <!-- Columna de estado de garantía -->
@@ -184,7 +184,7 @@
               </td>
             </tr>
             <tr v-if="seriesVendidas.data.length === 0">
-              <td colspan="6" class="px-6 py-10 text-center text-gray-500 dark:text-gray-400">
+              <td colspan="6" class="px-6 py-10 text-center text-gray-500 dark:text-gray-400 dark:text-gray-400">
                 No se encontraron series que coincidan con la búsqueda.
               </td>
             </tr>
@@ -193,11 +193,11 @@
       </div>
       
       <!-- Paginación -->
-      <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-gray-900" v-if="seriesVendidas.prev_page_url || seriesVendidas.next_page_url">
+      <div class="px-6 py-4 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-slate-900 dark:bg-gray-900" v-if="seriesVendidas.prev_page_url || seriesVendidas.next_page_url">
          <Link 
            v-if="seriesVendidas.prev_page_url" 
            :href="seriesVendidas.prev_page_url"
-           class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+           class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-900 dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
          >
           ← Anterior
          </Link>
@@ -206,7 +206,7 @@
          <Link 
            v-if="seriesVendidas.next_page_url" 
            :href="seriesVendidas.next_page_url"
-           class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+           class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-900 dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
          >
           Siguiente →
          </Link>

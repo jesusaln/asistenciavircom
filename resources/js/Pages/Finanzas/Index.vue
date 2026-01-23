@@ -55,19 +55,19 @@ const toggleSection = (id) => {
 <template>
     <AppLayout title="Finanzas">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 dark:text-gray-200 leading-tight">
                 Panel Financiero
             </h2>
         </template>
 
         <div class="py-12">
             <div class="w-full sm:px-6 lg:px-8">
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="p-6 lg:p-8 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                        <h1 class="mt-2 text-2xl font-medium text-gray-900 dark:text-white">
+                <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+                    <div class="p-6 lg:p-8 bg-white dark:bg-slate-900 dark:bg-gray-800 border-b border-gray-200 dark:border-slate-800 dark:border-gray-700">
+                        <h1 class="mt-2 text-2xl font-medium text-gray-900 dark:text-white dark:text-white">
                             Gestión Financiera Unificada
                         </h1>
-                        <p class="mt-4 text-gray-500 dark:text-gray-400 leading-relaxed">
+                        <p class="mt-4 text-gray-500 dark:text-gray-400 dark:text-gray-400 leading-relaxed">
                             Accede a todos los módulos financieros desde un solo lugar. Gestiona bancos, caja chica, conciliaciones y cuentas pendientes de forma eficiente.
                         </p>
                     </div>
@@ -77,22 +77,22 @@ const toggleSection = (id) => {
                         <!-- Accordion Container -->
                         <div class="space-y-4">
                             <div v-for="section in sections" :key="section.id" 
-                                class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden transition-all duration-300 shadow-sm hover:shadow-md bg-white dark:bg-gray-900">
+                                class="border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-lg overflow-hidden transition-all duration-300 shadow-sm hover:shadow-md bg-white dark:bg-slate-900 dark:bg-gray-900">
                                 
                                 <!-- Header -->
                                 <button @click="toggleSection(section.id)" 
                                     class="w-full px-6 py-4 flex items-center justify-between text-left focus:outline-none transition-colors duration-200"
-                                    :class="activeSection === section.id ? 'bg-indigo-50 dark:bg-indigo-900/20' : 'hover:bg-white dark:hover:bg-gray-800'">
+                                    :class="activeSection === section.id ? 'bg-indigo-50 dark:bg-indigo-900/20' : 'hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-800'">
                                     <div class="flex items-center space-x-4">
                                         <div class="p-2 rounded-full" 
-                                            :class="activeSection === section.id ? 'bg-indigo-100 text-amber-600 dark:bg-indigo-800 dark:text-indigo-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'">
+                                            :class="activeSection === section.id ? 'bg-indigo-100 text-amber-600 dark:bg-indigo-800 dark:text-indigo-300' : 'bg-gray-100 text-gray-500 dark:text-gray-400 dark:bg-gray-800 dark:text-gray-400'">
                                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="section.icon" />
                                             </svg>
                                         </div>
                                         <div>
-                                            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ section.title }}</h3>
-                                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ section.description }}</p>
+                                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white dark:text-gray-100">{{ section.title }}</h3>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">{{ section.description }}</p>
                                         </div>
                                     </div>
                                     <svg class="w-5 h-5 transform transition-transform duration-300 text-gray-400"
@@ -104,18 +104,18 @@ const toggleSection = (id) => {
 
                                 <!-- Content -->
                                 <div v-show="activeSection === section.id" 
-                                    class="border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800/50">
+                                    class="border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-slate-900 dark:bg-gray-800/50">
                                     <div class="p-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                                         <Link v-for="link in section.links" :key="link.route" 
                                             :href="route(link.route)"
-                                            class="flex items-center p-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-indigo-300 dark:hover:border-amber-500 hover:shadow-lg transition-all duration-300 group">
+                                            class="flex items-center p-4 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-600 bg-white dark:bg-slate-900 dark:bg-gray-800 hover:border-indigo-300 dark:hover:border-amber-500 hover:shadow-lg transition-all duration-300 group">
                                             <div class="flex-shrink-0 p-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-amber-600 dark:text-indigo-400 group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
                                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="link.icon" />
                                                 </svg>
                                             </div>
                                             <div class="ml-4">
-                                                <h4 class="text-base font-semibold text-gray-900 dark:text-gray-200 group-hover:text-amber-600 dark:group-hover:text-indigo-300 transition-colors">
+                                                <h4 class="text-base font-semibold text-gray-900 dark:text-white dark:text-gray-200 group-hover:text-amber-600 dark:group-hover:text-indigo-300 transition-colors">
                                                     {{ link.label }}
                                                 </h4>
                                                 <span class="text-xs text-gray-400 group-hover:text-indigo-400 transition-colors">Ir al módulo &rarr;</span>

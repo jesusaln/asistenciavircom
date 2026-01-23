@@ -6,11 +6,11 @@
       <!-- Header -->
       <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
             <FontAwesomeIcon :icon="['fas', 'university']" class="h-8 w-8 text-blue-600 mr-3" />
             Conciliación Bancaria
           </h1>
-          <p class="text-gray-600 mt-1">Concilia movimientos bancarios con cuentas por pagar y cobrar</p>
+          <p class="text-gray-600 dark:text-gray-300 mt-1">Concilia movimientos bancarios con cuentas por pagar y cobrar</p>
         </div>
         <div class="mt-4 md:mt-0 flex gap-3">
           <button
@@ -41,39 +41,39 @@
 
       <!-- Resumen -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-md p-6 border-l-4 border-blue-500">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-gray-500 text-sm">Pendientes</p>
-              <p class="text-2xl font-bold text-gray-900">{{ resumen.total }}</p>
+              <p class="text-gray-500 dark:text-gray-400 text-sm">Pendientes</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ resumen.total }}</p>
             </div>
             <FontAwesomeIcon :icon="['fas', 'clock']" class="h-10 w-10 text-blue-400" />
           </div>
         </div>
-        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-md p-6 border-l-4 border-green-500">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-gray-500 text-sm">Depósitos</p>
+              <p class="text-gray-500 dark:text-gray-400 text-sm">Depósitos</p>
               <p class="text-2xl font-bold text-green-600">${{ formatMonto(resumen.monto_depositos) }}</p>
             </div>
             <FontAwesomeIcon :icon="['fas', 'arrow-down']" class="h-10 w-10 text-green-400" />
           </div>
           <p class="text-xs text-gray-400 mt-1">{{ resumen.depositos }} movimientos</p>
         </div>
-        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-md p-6 border-l-4 border-red-500">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-gray-500 text-sm">Retiros</p>
+              <p class="text-gray-500 dark:text-gray-400 text-sm">Retiros</p>
               <p class="text-2xl font-bold text-red-600">${{ formatMonto(resumen.monto_retiros) }}</p>
             </div>
             <FontAwesomeIcon :icon="['fas', 'arrow-up']" class="h-10 w-10 text-red-400" />
           </div>
           <p class="text-xs text-gray-400 mt-1">{{ resumen.retiros }} movimientos</p>
         </div>
-        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-md p-6 border-l-4 border-purple-500">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-gray-500 text-sm">Diferencia</p>
+              <p class="text-gray-500 dark:text-gray-400 text-sm">Diferencia</p>
               <p class="text-2xl font-bold" :class="diferencia >= 0 ? 'text-green-600' : 'text-red-600'">
                 ${{ formatMonto(diferencia) }}
               </p>
@@ -84,7 +84,7 @@
       </div>
 
       <!-- Filtros -->
-      <div class="bg-white rounded-xl shadow-md p-4 mb-6">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-md p-4 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
           <select v-model="form.estado" @change="aplicarFiltros" class="rounded-lg border-gray-300">
             <option value="pendiente">Pendientes</option>
@@ -107,21 +107,21 @@
       </div>
 
       <!-- Tabla de movimientos -->
-      <div class="bg-white rounded-xl shadow-md overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-white">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-md overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+          <thead class="bg-white dark:bg-slate-900">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Concepto</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Monto</th>
-              <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Banco</th>
-              <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Estado</th>
-              <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Fecha</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Concepto</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Monto</th>
+              <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Banco</th>
+              <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Estado</th>
+              <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Acciones</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="mov in movimientos.data" :key="mov.id" class="hover:bg-white">
-              <td class="px-4 py-3 text-sm text-gray-900">{{ formatFecha(mov.fecha) }}</td>
+          <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+            <tr v-for="mov in movimientos.data" :key="mov.id" class="hover:bg-white dark:bg-slate-900">
+              <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ formatFecha(mov.fecha) }}</td>
               <td class="px-4 py-3 text-sm text-gray-700">
                 <div class="max-w-xs truncate" :title="mov.concepto">{{ mov.concepto || '-' }}</div>
                 <div v-if="mov.referencia" class="text-xs text-gray-400">Ref: {{ mov.referencia }}</div>
@@ -150,7 +150,7 @@
                   <button
                     v-if="mov.estado === 'pendiente'"
                     @click="ignorar(mov.id)"
-                    class="p-2 text-gray-600 hover:bg-white rounded-lg transition-colors"
+                    class="p-2 text-gray-600 dark:text-gray-300 hover:bg-white dark:bg-slate-900 rounded-lg transition-colors"
                     title="Ignorar"
                   >
                     <FontAwesomeIcon :icon="['fas', 'eye-slash']" />
@@ -175,7 +175,7 @@
               </td>
             </tr>
             <tr v-if="movimientos.data.length === 0">
-              <td colspan="6" class="px-4 py-12 text-center text-gray-500">
+              <td colspan="6" class="px-4 py-12 text-center text-gray-500 dark:text-gray-400">
                 <FontAwesomeIcon :icon="['fas', 'inbox']" class="h-12 w-12 text-gray-300 mb-3" />
                 <p class="font-medium">No hay movimientos</p>
                 <p class="text-sm">Importa un estado de cuenta para comenzar</p>
@@ -185,8 +185,8 @@
         </table>
 
         <!-- Paginación -->
-        <div v-if="movimientos.last_page > 1" class="px-4 py-3 bg-white border-t border-gray-200 flex items-center justify-between">
-          <div class="text-sm text-gray-500">
+        <div v-if="movimientos.last_page > 1" class="px-4 py-3 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 flex items-center justify-between">
+          <div class="text-sm text-gray-500 dark:text-gray-400">
             Mostrando {{ movimientos.from }} a {{ movimientos.to }} de {{ movimientos.total }}
           </div>
           <div class="flex gap-2">
@@ -197,7 +197,7 @@
               v-html="link.label"
               :class="[
                 'px-3 py-1 rounded text-sm',
-                link.active ? 'bg-blue-600 text-white' : 'bg-white border hover:bg-white',
+                link.active ? 'bg-blue-600 text-white' : 'bg-white dark:bg-slate-900 border hover:bg-white dark:bg-slate-900',
                 !link.url ? 'opacity-50 cursor-not-allowed' : ''
               ]"
             />
@@ -269,9 +269,9 @@ const estadoClass = (estado) => {
   const clases = {
     pendiente: 'bg-yellow-100 text-yellow-800',
     conciliado: 'bg-green-100 text-green-800',
-    ignorado: 'bg-gray-100 text-gray-600',
+    ignorado: 'bg-gray-100 text-gray-600 dark:text-gray-300',
   }
-  return clases[estado] || 'bg-gray-100 text-gray-600'
+  return clases[estado] || 'bg-gray-100 text-gray-600 dark:text-gray-300'
 }
 
 const estadoLabel = (estado) => {

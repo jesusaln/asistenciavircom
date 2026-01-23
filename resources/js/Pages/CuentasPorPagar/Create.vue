@@ -2,12 +2,12 @@
     <AppLayout title="Crear Cuenta por Pagar">
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
                     Crear Cuenta por Pagar
                 </h2>
                 <Link
                     :href="route('cuentas-por-pagar.index')"
-                    class="bg-white0 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                    class="bg-white dark:bg-slate-9000 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
                 >
                     Cancelar
                 </Link>
@@ -16,29 +16,29 @@
 
         <div class="py-12">
             <div class="w-full sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 bg-white border-b border-gray-200">
+                <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
                         <form @submit.prevent="submit">
                             <!-- Compra -->
                             <div v-if="compra" class="mb-6">
-                                <h3 class="text-lg font-medium text-gray-900 mb-4">Información de la Compra</h3>
-                                <div class="bg-white p-4 rounded-lg">
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Información de la Compra</h3>
+                                <div class="bg-white dark:bg-slate-900 p-4 rounded-lg">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700">Número de Compra</label>
-                                            <p class="mt-1 text-sm text-gray-900">{{ compra.numero_compra }}</p>
+                                            <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ compra.numero_compra }}</p>
                                         </div>
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700">Proveedor</label>
-                                            <p class="mt-1 text-sm text-gray-900">{{ compra.proveedor?.nombre_razon_social || 'N/A' }}</p>
+                                            <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ compra.proveedor?.nombre_razon_social || 'N/A' }}</p>
                                         </div>
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700">Total de la Compra</label>
-                                            <p class="mt-1 text-sm text-gray-900">{{ compra ? formatCurrency(compra.total) : 'N/A' }}</p>
+                                            <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ compra ? formatCurrency(compra.total) : 'N/A' }}</p>
                                         </div>
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700">Fecha</label>
-                                            <p class="mt-1 text-sm text-gray-900">{{ new Date(compra.created_at).toLocaleDateString() }}</p>
+                                            <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ new Date(compra.created_at).toLocaleDateString() }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -100,7 +100,7 @@
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500"
                                     :class="{ 'border-red-500': form.errors.fecha_vencimiento }"
                                 />
-                                <p class="mt-1 text-sm text-gray-500">
+                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                                     Opcional. Si no se especifica, se establecerá automáticamente en 30 días.
                                 </p>
                                 <p v-if="form.errors.fecha_vencimiento" class="mt-2 text-sm text-red-600">
@@ -130,7 +130,7 @@
                             <div class="flex items-center justify-end">
                                 <Link
                                     :href="route('cuentas-por-pagar.index')"
-                                    class="mr-4 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                                    class="mr-4 bg-gray-300 hover:bg-gray-400 text-gray-800 dark:text-gray-100 font-bold py-2 px-4 rounded"
                                 >
                                     Cancelar
                                 </Link>

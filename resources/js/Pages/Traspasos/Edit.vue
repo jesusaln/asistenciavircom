@@ -2,11 +2,11 @@
 <template>
   <Head title="Editar Traspaso" />
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-    <div class="w-full bg-white border border-gray-200 rounded-2xl shadow-sm p-6 space-y-6">
+    <div class="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 space-y-6">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900">Editar Traspaso #{{ traspaso.id }}</h1>
-          <p class="text-sm text-gray-600">Solo se editan campos informativos; el inventario no cambia.</p>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Editar Traspaso #{{ traspaso.id }}</h1>
+          <p class="text-sm text-gray-600 dark:text-gray-300">Solo se editan campos informativos; el inventario no cambia.</p>
         </div>
         <Link :href="route('traspasos.index')" class="text-blue-600 hover:underline text-sm">Volver</Link>
       </div>
@@ -15,16 +15,16 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
           <p class="text-xs text-red-600 uppercase font-semibold mb-1">Almacén Origen</p>
-          <p class="text-lg font-medium text-gray-900">{{ traspaso.almacen_origen?.nombre || 'N/D' }}</p>
+          <p class="text-lg font-medium text-gray-900 dark:text-white">{{ traspaso.almacen_origen?.nombre || 'N/D' }}</p>
         </div>
         <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
           <p class="text-xs text-green-600 uppercase font-semibold mb-1">Almacén Destino</p>
-          <p class="text-lg font-medium text-gray-900">{{ traspaso.almacen_destino?.nombre || 'N/D' }}</p>
+          <p class="text-lg font-medium text-gray-900 dark:text-white">{{ traspaso.almacen_destino?.nombre || 'N/D' }}</p>
         </div>
       </div>
 
       <!-- Lista de Productos (solo lectura) -->
-      <div class="border border-gray-200 rounded-lg overflow-hidden">
+      <div class="border border-gray-200 dark:border-slate-800 rounded-lg overflow-hidden">
         <div class="bg-gray-100 px-4 py-3 border-b flex justify-between items-center">
           <p class="text-sm font-semibold text-gray-700">
             Productos Traspasados ({{ traspaso.productos_count || traspaso.productos?.length || 1 }})
@@ -33,7 +33,7 @@
             Total: {{ traspaso.cantidad_total || calcularTotal() }} unidades
           </span>
         </div>
-        <div class="divide-y divide-gray-200 max-h-64 overflow-y-auto">
+        <div class="divide-y divide-gray-200 dark:divide-slate-800 max-h-64 overflow-y-auto">
           <div
             v-if="traspaso.productos && traspaso.productos.length"
             v-for="(prod, idx) in traspaso.productos"
@@ -46,7 +46,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                 </svg>
               </div>
-              <span class="text-sm text-gray-900">{{ prod.nombre }}</span>
+              <span class="text-sm text-gray-900 dark:text-white">{{ prod.nombre }}</span>
             </div>
             <span class="text-sm font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
               {{ prod.cantidad }} unid.
@@ -56,8 +56,8 @@
       </div>
 
       <!-- Formulario Editable -->
-      <form @submit.prevent="actualizar" class="space-y-4 pt-4 border-t border-gray-200">
-        <h3 class="text-lg font-semibold text-gray-800">Información Editable</h3>
+      <form @submit.prevent="actualizar" class="space-y-4 pt-4 border-t border-gray-200 dark:border-slate-800">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Información Editable</h3>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -92,7 +92,7 @@
         </div>
         
         <div class="flex justify-end gap-3 pt-4">
-          <Link :href="route('traspasos.index')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-white">
+          <Link :href="route('traspasos.index')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg hover:bg-white dark:bg-slate-900">
             Cancelar
           </Link>
           <button 

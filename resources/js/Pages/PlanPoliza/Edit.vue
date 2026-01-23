@@ -105,15 +105,15 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                     <Link :href="route('planes-poliza.index')" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm mb-2 inline-block font-semibold">
                         ← Volver al listado
                     </Link>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white">
                         {{ isEditing ? `Editar: ${plan.nombre}` : 'Crear Nuevo Plan de Póliza' }}
                     </h1>
                 </div>
 
                 <form @submit.prevent="submit" class="space-y-6">
                     <!-- Información Básica -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
-                        <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2">Información Básica</h3>
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="font-bold text-gray-900 dark:text-white dark:text-white mb-4 border-b border-gray-200 dark:border-slate-800 dark:border-gray-600 pb-2">Información Básica</h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="md:col-span-2">
@@ -121,7 +121,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                 <input 
                                     v-model="form.nombre" 
                                     type="text" 
-                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                     placeholder="Ej: Plan Básico, Plan Premium..."
                                 />
                                 <p v-if="form.errors.nombre" class="text-red-500 text-sm mt-1">{{ form.errors.nombre }}</p>
@@ -129,7 +129,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
 
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Tipo *</label>
-                                <select v-model="form.tipo" class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+                                <select v-model="form.tipo" class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white">
                                     <option v-for="(nombre, key) in tipos" :key="key" :value="key">{{ nombre }}</option>
                                 </select>
                             </div>
@@ -158,7 +158,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     v-model="form.descripcion_corta" 
                                     type="text" 
                                     maxlength="500"
-                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                     placeholder="Descripción breve para mostrar en las tarjetas"
                                 />
                             </div>
@@ -168,7 +168,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                 <textarea 
                                     v-model="form.descripcion" 
                                     rows="3"
-                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                     placeholder="Descripción detallada del plan..."
                                 ></textarea>
                             </div>
@@ -176,8 +176,8 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                     </div>
 
                     <!-- Precios -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
-                        <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2">💰 Precios</h3>
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="font-bold text-gray-900 dark:text-white dark:text-white mb-4 border-b border-gray-200 dark:border-slate-800 dark:border-gray-600 pb-2">💰 Precios</h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
@@ -189,7 +189,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                         type="number" 
                                         step="0.01"
                                         min="0"
-                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                     />
                                 </div>
                             </div>
@@ -202,11 +202,11 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                         type="number" 
                                         step="0.01"
                                         min="0"
-                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                         placeholder="Opcional"
                                     />
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">Si se define, se mostrará el ahorro</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Si se define, se mostrará el ahorro</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1">Costo de Activación</label>
@@ -217,7 +217,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                         type="number" 
                                         step="0.01"
                                         min="0"
-                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                     />
                                 </div>
                             </div>
@@ -225,8 +225,8 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                     </div>
 
                     <!-- Características del Servicio -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
-                        <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2">⚙️ Configuración del Servicio</h3>
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="font-bold text-gray-900 dark:text-white dark:text-white mb-4 border-b border-gray-200 dark:border-slate-800 dark:border-gray-600 pb-2">⚙️ Configuración del Servicio</h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div>
@@ -235,7 +235,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     v-model.number="form.horas_incluidas" 
                                     type="number" 
                                     min="0"
-                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                     placeholder="Ej: 8"
                                 />
                             </div>
@@ -245,7 +245,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     v-model.number="form.tickets_incluidos" 
                                     type="number" 
                                     min="0"
-                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                     placeholder="Ej: 5"
                                 />
                             </div>
@@ -255,7 +255,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     v-model.number="form.sla_horas_respuesta" 
                                     type="number" 
                                     min="1"
-                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                     placeholder="Ej: 4"
                                 />
                             </div>
@@ -268,7 +268,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                         type="number" 
                                         step="0.01"
                                         min="0"
-                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                     />
                                 </div>
                             </div>
@@ -278,7 +278,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     v-model.number="form.visitas_sitio_mensuales" 
                                     type="number" 
                                     min="0"
-                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                     placeholder="Ej: 1"
                                 />
                             </div>
@@ -291,7 +291,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                         type="number" 
                                         step="0.01"
                                         min="0"
-                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                     />
                                 </div>
                             </div>
@@ -304,7 +304,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                         type="number" 
                                         step="0.01"
                                         min="0"
-                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                     />
                                 </div>
                             </div>
@@ -312,8 +312,8 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                     </div>
 
                     <!-- Mantenimiento Automático -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
-                        <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2">🛠️ Mantenimiento Automático</h3>
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="font-bold text-gray-900 dark:text-white dark:text-white mb-4 border-b border-gray-200 dark:border-slate-800 dark:border-gray-600 pb-2">🛠️ Mantenimiento Automático</h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
@@ -323,10 +323,10 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     type="number" 
                                     min="1"
                                     max="24"
-                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                     placeholder="Ej: 6"
                                 />
-                                <p class="text-xs text-gray-500 mt-1">Frecuencia recomendada</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Frecuencia recomendada</p>
                             </div>
 
                             <div>
@@ -336,18 +336,18 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     type="number" 
                                     min="1"
                                     max="60"
-                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                     placeholder="Ej: 7"
                                 />
-                                <p class="text-xs text-gray-500 mt-1">Días antes para generar ticket</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Días antes para generar ticket</p>
                             </div>
 
                             <div class="flex items-center">
-                                <label class="flex items-center gap-3 cursor-pointer p-3 bg-white dark:bg-gray-700/50 rounded-xl border border-gray-100 dark:border-gray-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all w-full">
+                                <label class="flex items-center gap-3 cursor-pointer p-3 bg-white dark:bg-slate-900 dark:bg-gray-700/50 rounded-xl border border-gray-100 dark:border-gray-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all w-full">
                                     <input type="checkbox" v-model="form.generar_cita_automatica" class="w-5 h-5 rounded text-blue-600 dark:bg-gray-600 dark:border-gray-500">
                                     <div>
-                                        <span class="font-semibold text-sm text-gray-900 dark:text-white">Autogenerar Citas</span>
-                                        <p class="text-[11px] text-gray-500 dark:text-gray-400">Sugerir generación automática de tickets/citas</p>
+                                        <span class="font-semibold text-sm text-gray-900 dark:text-white dark:text-white">Autogenerar Citas</span>
+                                        <p class="text-[11px] text-gray-500 dark:text-gray-400 dark:text-gray-400">Sugerir generación automática de tickets/citas</p>
                                     </div>
                                 </label>
                             </div>
@@ -355,14 +355,14 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                     </div>
 
                     <!-- Beneficios -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
-                        <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2">✅ Beneficios del Plan</h3>
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="font-bold text-gray-900 dark:text-white dark:text-white mb-4 border-b border-gray-200 dark:border-slate-800 dark:border-gray-600 pb-2">✅ Beneficios del Plan</h3>
                         
                         <div class="flex gap-2 mb-4">
                             <input 
                                 v-model="nuevoBeneficio" 
                                 type="text" 
-                                class="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                                class="flex-1 px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                                 placeholder="Escribe un beneficio y presiona Enter o el botón"
                                 @keyup.enter="agregarBeneficio"
                             />
@@ -384,7 +384,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                 ✓ {{ beneficio }}
                                 <button type="button" @click="eliminarBeneficio(index)" class="text-green-600 dark:text-green-400 hover:text-red-600 dark:hover:text-red-400">×</button>
                             </span>
-                            <span v-if="!form.beneficios.length" class="text-gray-400 dark:text-gray-500 text-sm">
+                            <span v-if="!form.beneficios.length" class="text-gray-400 dark:text-gray-500 dark:text-gray-400 text-sm">
                                 Agrega los beneficios que se mostrarán en el catálogo
                             </span>
                         </div>
@@ -402,7 +402,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     <span class="text-amber-700 dark:text-amber-400 font-semibold">Los NO seleccionados se cobrarán tarifa completa.</span>
                                 </p>
                             </div>
-                            <Link :href="route('servicios.index')" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 hover:underline bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+                            <Link :href="route('servicios.index')" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 hover:underline bg-white dark:bg-slate-900 dark:bg-gray-800 px-3 py-1.5 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 dark:border-gray-600">
                                 <font-awesome-icon icon="external-link-alt" /> Gestionar Catálogo
                             </Link>
                         </div>
@@ -414,15 +414,15 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                     v-model="busquedaServicio"
                                     type="text"
                                     placeholder="🔍 Buscar servicio..."
-                                    class="w-full md:w-80 px-4 py-2 pl-10 border border-blue-200 dark:border-blue-700 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                                    class="w-full md:w-80 px-4 py-2 pl-10 border border-blue-200 dark:border-blue-700 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-900 dark:text-white dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                                 >
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 dark:text-gray-400">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                                 </span>
                                 <button 
                                     v-if="busquedaServicio" 
                                     @click="busquedaServicio = ''"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-300"
                                 >
                                     ✕
                                 </button>
@@ -430,7 +430,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                         </div>
                         
                         <!-- Tabla de Servicios -->
-                        <div class="overflow-hidden rounded-xl border border-blue-200 dark:border-blue-700 bg-white dark:bg-gray-800 max-h-96 overflow-y-auto">
+                        <div class="overflow-hidden rounded-xl border border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-900 dark:bg-gray-800 max-h-96 overflow-y-auto">
                             <table class="w-full">
                                 <thead class="sticky top-0 bg-blue-100/90 dark:bg-blue-900/50 backdrop-blur-sm">
                                     <tr class="text-left">
@@ -467,13 +467,13 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                             </label>
                                         </td>
                                         <td class="px-4 py-3">
-                                            <span class="font-semibold text-gray-800 dark:text-gray-200">{{ servicio.nombre }}</span>
+                                            <span class="font-semibold text-gray-800 dark:text-gray-100 dark:text-gray-200">{{ servicio.nombre }}</span>
                                         </td>
                                         <td class="px-4 py-3 text-right">
                                             <span v-if="Number(servicio.precio) > 0" class="text-sm font-mono text-green-600 dark:text-green-400 font-bold">
                                                 ${{ Number(servicio.precio).toFixed(2) }}
                                             </span>
-                                            <span v-else class="text-xs text-gray-400 dark:text-gray-500">—</span>
+                                            <span v-else class="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400">—</span>
                                         </td>
                                         <td class="px-4 py-3 text-center">
                                             <span 
@@ -491,7 +491,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                         </td>
                                     </tr>
                                     <tr v-if="!serviciosFiltrados.length">
-                                        <td colspan="4" class="px-4 py-8 text-center text-gray-400 dark:text-gray-500 italic">
+                                        <td colspan="4" class="px-4 py-8 text-center text-gray-400 dark:text-gray-500 dark:text-gray-400 italic">
                                             <template v-if="busquedaServicio">
                                                 No se encontraron servicios para "{{ busquedaServicio }}".
                                             </template>
@@ -506,7 +506,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                         </div>
                         
                         <!-- Resumen -->
-                        <div class="mt-4 flex flex-wrap items-center justify-between gap-4 p-3 bg-white/80 dark:bg-gray-800/80 rounded-lg border border-blue-100 dark:border-blue-800">
+                        <div class="mt-4 flex flex-wrap items-center justify-between gap-4 p-3 bg-white dark:bg-slate-900/80 dark:bg-gray-800/80 rounded-lg border border-blue-100 dark:border-blue-800">
                             <div class="flex gap-4 text-sm">
                                 <span class="text-blue-700 dark:text-blue-300 font-bold flex items-center gap-1">
                                     ⏱️ {{ form.servicios_elegibles.length }} usan banco de horas
@@ -535,8 +535,8 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                     </div>
 
                     <!-- Cláusulas y Términos de Pago -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
-                        <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2">⚖️ Cláusulas y Condiciones Legales</h3>
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="font-bold text-gray-900 dark:text-white dark:text-white mb-4 border-b border-gray-200 dark:border-slate-800 dark:border-gray-600 pb-2">⚖️ Cláusulas y Condiciones Legales</h3>
                         
                         <div class="space-y-4">
                             <div>
@@ -544,10 +544,10 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                 <textarea 
                                     v-model="form.clausulas" 
                                     rows="8"
-                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm font-mono bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm font-mono bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                                     placeholder="Escribe las cláusulas legales separadas por párrafos..."
                                 ></textarea>
-                                <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Estas cláusulas aparecerán en la impresión del contrato para el cliente.</p>
+                                <p class="text-[10px] text-gray-400 dark:text-gray-500 dark:text-gray-400 mt-1">Estas cláusulas aparecerán en la impresión del contrato para el cliente.</p>
                             </div>
 
                             <div>
@@ -555,7 +555,7 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                                 <textarea 
                                     v-model="form.terminos_pago" 
                                     rows="3"
-                                    class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                                    class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                                     placeholder="Ej: El pago debe realizarse los primeros 5 días del mes..."
                                 ></textarea>
                             </div>
@@ -563,50 +563,50 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                     </div>
 
                     <!-- Configuración de Visualización -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
-                        <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2">👁️ Configuración de Visualización</h3>
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="font-bold text-gray-900 dark:text-white dark:text-white mb-4 border-b border-gray-200 dark:border-slate-800 dark:border-gray-600 pb-2">👁️ Configuración de Visualización</h3>
                         
                         <div class="space-y-4">
-                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                                 <input type="checkbox" v-model="form.activo" class="w-5 h-5 rounded text-blue-600 dark:bg-gray-600 dark:border-gray-500">
                                 <div>
-                                    <span class="font-semibold text-gray-900 dark:text-white">Plan Activo</span>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">Si está activo, el plan estará disponible para contratar</p>
+                                    <span class="font-semibold text-gray-900 dark:text-white dark:text-white">Plan Activo</span>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Si está activo, el plan estará disponible para contratar</p>
                                 </div>
                             </label>
 
-                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                                 <input type="checkbox" v-model="form.visible_catalogo" class="w-5 h-5 rounded text-blue-600 dark:bg-gray-600 dark:border-gray-500">
                                 <div>
-                                    <span class="font-semibold text-gray-900 dark:text-white">Visible en Catálogo</span>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">Mostrar este plan en la página pública de planes</p>
+                                    <span class="font-semibold text-gray-900 dark:text-white dark:text-white">Visible en Catálogo</span>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Mostrar este plan en la página pública de planes</p>
                                 </div>
                             </label>
 
                             <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors">
                                 <input type="checkbox" v-model="form.destacado" class="w-5 h-5 rounded text-yellow-500 dark:bg-gray-600 dark:border-gray-500">
                                 <div>
-                                    <span class="font-semibold text-gray-900 dark:text-white">⭐ Plan Destacado</span>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">Resaltar este plan como recomendado</p>
+                                    <span class="font-semibold text-gray-900 dark:text-white dark:text-white">⭐ Plan Destacado</span>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Resaltar este plan como recomendado</p>
                                 </div>
                             </label>
 
-                            <div class="pt-4 border-t border-gray-200 dark:border-gray-600">
+                            <div class="pt-4 border-t border-gray-200 dark:border-slate-800 dark:border-gray-600">
                                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Orden de visualización</label>
                                 <input 
                                     v-model.number="form.orden" 
                                     type="number" 
                                     min="0"
-                                    class="w-24 px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                    class="w-24 px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                 />
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Menor número = aparece primero</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">Menor número = aparece primero</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Botones -->
                     <div class="flex justify-end gap-3 pt-4">
-                        <Link :href="route('planes-poliza.index')" class="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg font-semibold text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 transition">
+                        <Link :href="route('planes-poliza.index')" class="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg font-semibold text-gray-700 dark:text-gray-300 hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-700 transition">
                             Cancelar
                         </Link>
                         <button 

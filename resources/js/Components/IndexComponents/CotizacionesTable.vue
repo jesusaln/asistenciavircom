@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
+  <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 dark:border-gray-700 overflow-hidden transition-colors">
     <!-- Header -->
-    <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-800 dark:to-gray-700/50 px-6 py-4 border-b border-gray-200/60 dark:border-gray-700">
+    <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-800 dark:to-gray-700/50 px-6 py-4 border-b border-gray-200 dark:border-slate-800/60 dark:border-gray-700">
       <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">Cotizaciones</h2>
-        <div class="text-sm text-gray-600 dark:text-gray-400 bg-white/70 dark:bg-gray-700/70 px-3 py-1 rounded-full border border-gray-200/50 dark:border-gray-600/50">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white dark:text-white tracking-tight">Cotizaciones</h2>
+        <div class="text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-slate-900/70 dark:bg-gray-700/70 px-3 py-1 rounded-full border border-gray-200 dark:border-slate-800/50 dark:border-gray-600/50">
           {{ items.length }} de {{ total }} cotizaciones
         </div>
       </div>
@@ -117,7 +117,7 @@
           </tr>
         </thead>
 
-        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200/40 dark:divide-gray-700/40">
+        <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200/40 dark:divide-gray-700/40">
           <template v-if="items.length > 0">
             <tr
               v-for="doc in items"
@@ -130,10 +130,10 @@
               <!-- Fecha -->
               <td class="px-6 py-4">
                 <div class="flex flex-col space-y-0.5">
-                  <div class="text-sm font-medium text-gray-900 dark:text-white">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-white">
                     {{ formatearFecha(doc.created_at || doc.fecha) }}
                   </div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">
+                  <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
                     {{ formatearHora(doc.created_at || doc.fecha) }}
                   </div>
                 </div>
@@ -142,10 +142,10 @@
               <!-- Cliente -->
               <td class="px-6 py-4">
                 <div class="flex flex-col space-y-0.5">
-                  <div class="text-sm font-medium text-gray-900 dark:text-white group-hover:text-gray-800 dark:group-hover:text-gray-100">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-white group-hover:text-gray-800 dark:group-hover:text-gray-100">
                     {{ doc.cliente?.nombre || 'Sin cliente' }}
                   </div>
-                  <div v-if="doc.cliente?.email" class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-48">
+                  <div v-if="doc.cliente?.email" class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 truncate max-w-48">
                     {{ doc.cliente.email }}
                   </div>
                 </div>
@@ -160,7 +160,7 @@
 
               <!-- Total -->
               <td class="px-6 py-4">
-                <div class="text-sm font-semibold text-gray-900 dark:text-white">
+                <div class="text-sm font-semibold text-gray-900 dark:text-white dark:text-white">
                   <template v-if="typeof doc.total !== 'undefined' && doc.total !== null">
                     ${{ formatearMoneda(doc.total) }}
                   </template>
@@ -251,13 +251,13 @@
             <td :colspan="6" class="px-6 py-16 text-center">
               <div class="flex flex-col items-center space-y-4">
                 <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                  <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg class="w-8 h-8 text-gray-400 dark:text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
                 <div class="space-y-1">
                   <p class="text-gray-700 dark:text-gray-300 font-medium">No hay cotizaciones</p>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Las cotizaciones aparecerán aquí cuando se creen</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Las cotizaciones aparecerán aquí cuando se creen</p>
                 </div>
               </div>
             </td>
@@ -291,7 +291,7 @@ const estadosConfig = {
   'enviado_pedido': { label: 'Enviado a Pedido', classes: 'bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300', color: 'bg-orange-400 dark:bg-orange-500' },
   'convertida_pedido': { label: 'Convertida a Pedido', classes: 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300', color: 'bg-green-400 dark:bg-green-500' },
   'cancelado': { label: 'Cancelado', classes: 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300', color: 'bg-red-400 dark:bg-red-500' },
-  'sin_estado': { label: 'Sin Estado', classes: 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400', color: 'bg-gray-400 dark:bg-gray-500' }
+  'sin_estado': { label: 'Sin Estado', classes: 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 dark:text-gray-400', color: 'bg-gray-400 dark:bg-gray-500' }
 }
 
 const obtenerClasesEstado = (estado) => estadosConfig[estado]?.classes || 'bg-gray-100 text-gray-700'
@@ -416,7 +416,7 @@ const onSort = (field) => {
 
 @media (prefers-contrast: high) {
   .bg-gray-50 { background-color: #f9fafb; }
-  .border-gray-200 { border-color: #d1d5db; }
+  .border-gray-200 dark:border-slate-800 { border-color: #d1d5db; }
 }
 
 button:focus-visible { outline: 2px solid; outline-offset: 2px; }

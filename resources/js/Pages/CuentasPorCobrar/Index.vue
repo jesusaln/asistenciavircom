@@ -2,7 +2,7 @@
     <AppLayout title="Cuentas por Cobrar">
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 dark:text-gray-200 leading-tight">
                     Cuentas por Cobrar
                 </h2>
                 <div class="flex space-x-3">
@@ -26,8 +26,8 @@
         </template>
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6 font-black uppercase">
-            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 dark:border-slate-800 transition-all">
-                <div class="p-6 text-gray-900 dark:text-white">
+            <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 dark:border-slate-800 transition-all">
+                <div class="p-6 text-gray-900 dark:text-white dark:text-white">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
@@ -35,10 +35,10 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 truncate">
                                 Total Vencido
                             </dt>
-                            <dd class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            <dd class="text-lg font-semibold text-gray-900 dark:text-white dark:text-gray-100">
                                 {{ formatCurrency(stats.total_vencido) }}
                             </dd>
                         </div>
@@ -46,8 +46,8 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 dark:border-slate-800 transition-all">
-                <div class="p-6 text-gray-900 dark:text-white">
+            <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 dark:border-slate-800 transition-all">
+                <div class="p-6 text-gray-900 dark:text-white dark:text-white">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
@@ -55,10 +55,10 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 truncate">
                                 Total Pendiente
                             </dt>
-                            <dd class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            <dd class="text-lg font-semibold text-gray-900 dark:text-white dark:text-gray-100">
                                 {{ formatCurrency(stats.total_pendiente) }}
                             </dd>
                         </div>
@@ -66,8 +66,8 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 dark:border-slate-800 transition-all">
-                <div class="p-6 text-gray-900 dark:text-white">
+            <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 dark:border-slate-800 transition-all">
+                <div class="p-6 text-gray-900 dark:text-white dark:text-white">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
@@ -75,10 +75,10 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 truncate">
                                 Cuentas Pendientes
                             </dt>
-                            <dd class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            <dd class="text-lg font-semibold text-gray-900 dark:text-white dark:text-gray-100">
                                 {{ stats.cuentas_pendientes }}
                             </dd>
                         </div>
@@ -86,8 +86,8 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 dark:border-slate-800 transition-all">
-                <div class="p-6 text-gray-900 dark:text-white">
+            <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 dark:border-slate-800 transition-all">
+                <div class="p-6 text-gray-900 dark:text-white dark:text-white">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
@@ -95,10 +95,10 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 truncate">
                                 Cuentas Vencidas
                             </dt>
-                            <dd class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            <dd class="text-lg font-semibold text-gray-900 dark:text-white dark:text-gray-100">
                                 {{ stats.cuentas_vencidas }}
                             </dd>
                         </div>
@@ -108,7 +108,7 @@
         </div>
 
         <!-- Filtros -->
-        <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 dark:border-slate-800 mb-6 transition-all">
+        <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 dark:border-slate-800 mb-6 transition-all">
             <div class="p-6">
                 <form @submit.prevent="applyFilters" class="flex flex-wrap gap-4 items-end">
                     <div class="w-full md:w-1/3 min-w-[200px]">
@@ -155,63 +155,63 @@
         </div>
 
         <!-- Tabla de cuentas -->
-        <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-3xl border border-gray-100 dark:border-slate-800 transition-all">
+        <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-3xl border border-gray-100 dark:border-slate-800 transition-all">
             <div class="p-6">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
-                        <thead class="bg-gray-50 dark:bg-slate-800/50">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800 dark:divide-slate-800">
+                        <thead class="bg-gray-50 dark:bg-slate-950 dark:bg-slate-800/50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">
                                     Origen
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">
                                     Cliente
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">
                                     Monto Total
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">
                                     Pendiente
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">
                                     Vencimiento
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">
                                     Estado
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">
                                     Acciones
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
-                            <tr v-for="cuenta in cuentas.data" :key="cuenta.id" class="hover:bg-gray-50 dark:hover:bg-gray-700 transaction-colors">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                        <tbody class="bg-white dark:bg-slate-900 dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800 dark:divide-slate-800">
+                            <tr v-for="cuenta in cuentas.data" :key="cuenta.id" class="hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700 transaction-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">
                                     <template v-if="cuenta.cobrable_type && cuenta.cobrable_type.includes('Venta')">
                                         Venta #{{ cuenta.cobrable?.numero_venta || cuenta.cobrable_data?.numero_venta || '' }}
                                     </template>
                                     <template v-else-if="cuenta.cobrable_type && (cuenta.cobrable_type.includes('Renta') || cuenta.cobrable_type === 'renta')">
                                         Renta #{{ cuenta.cobrable?.numero_contrato || cuenta.cobrable_data?.numero_contrato || '' }}
-                                        <div class="text-xs text-gray-500">{{ cuenta.notas }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ cuenta.notas }}</div>
                                     </template>
                                     <template v-else-if="cuenta.cobrable_type && (cuenta.cobrable_type.includes('Poliza') || cuenta.cobrable_type === 'poliza_servicio')">
                                         Póliza #{{ cuenta.cobrable?.folio || cuenta.cobrable_data?.folio || '' }}
-                                        <div class="text-xs text-gray-500">{{ cuenta.notas }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ cuenta.notas }}</div>
                                     </template>
                                     <template v-else>
                                         {{ cuenta.cobrable?.folio || cuenta.cobrable?.numero_venta || cuenta.cobrable_data?.folio || cuenta.cobrable_data?.numero_venta || '---' }}
                                     </template>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
                                     {{ cuenta.cobrable?.cliente?.nombre_razon_social || cuenta.cobrable_data?.cliente?.nombre_razon_social || cuenta.cliente?.nombre_razon_social || 'Sin identificar' }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
                                     {{ formatCurrency(cuenta.monto_total) }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
                                     {{ formatCurrency(cuenta.monto_pendiente) }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
                                     {{ cuenta.fecha_vencimiento ? new Date(cuenta.fecha_vencimiento).toLocaleDateString() : 'N/A' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -219,7 +219,7 @@
                                         'bg-red-100 text-red-800': cuenta.estado === 'vencido',
                                         'bg-yellow-100 text-yellow-800': cuenta.estado === 'parcial',
                                         'bg-green-100 text-green-800': cuenta.estado === 'pagado',
-                                        'bg-gray-100 text-gray-800': cuenta.estado === 'pendiente'
+                                        'bg-gray-100 text-gray-800 dark:text-gray-100': cuenta.estado === 'pendiente'
                                     }" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                                         {{ cuenta.estado }}
                                     </span>
@@ -280,7 +280,7 @@
                                 v-html="link.label"
                                 :class="[
                                     'px-3 py-2 text-sm border rounded transition-colors',
-                                    link.active ? 'bg-blue-500 text-white border-blue-500' : (link.url ? 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600' : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-gray-200 dark:border-gray-700 cursor-not-allowed')
+                                    link.active ? 'bg-blue-500 text-white border-blue-500' : (link.url ? 'bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600' : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 dark:text-gray-400 border-gray-200 dark:border-slate-800 dark:border-gray-700 cursor-not-allowed')
                                 ]"
                                 :preserve-scroll="link.url ? true : false"
                             />

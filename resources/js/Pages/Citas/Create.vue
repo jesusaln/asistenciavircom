@@ -1,23 +1,23 @@
 <template>
   <div>
     <Head title="Crear Cita" />
-    <div class="citas-create min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div class="citas-create min-h-screen bg-gray-50 dark:bg-slate-950 dark:bg-gray-900 transition-colors duration-300">
       
       <!-- Header Premium Flotante/Sticky -->
-      <div class="sticky top-0 z-30 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-700 shadow-sm transition-all">
+      <div class="sticky top-0 z-30 bg-white dark:bg-slate-900/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-700 shadow-sm transition-all">
         <div class="max-w-[1600px] mx-auto px-6 lg:px-12 py-5 flex items-center justify-between">
           <div class="flex items-center gap-6">
-            <Link :href="route('citas.index')" class="group w-12 h-12 flex items-center justify-center rounded-2xl bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-100 dark:hover:border-blue-900/30 transition-all shadow-sm">
+            <Link :href="route('citas.index')" class="group w-12 h-12 flex items-center justify-center rounded-2xl bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-100 dark:hover:border-blue-900/30 transition-all shadow-sm">
               <svg class="w-6 h-6 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             </Link>
             <div>
-              <h1 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight transition-colors">Crear <span class="text-blue-600">Nueva Cita</span></h1>
-              <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1">Módulo de Asistencia Técnica Vircom</p>
+              <h1 class="text-2xl font-black text-gray-900 dark:text-white dark:text-white tracking-tight transition-colors">Crear <span class="text-blue-600">Nueva Cita</span></h1>
+              <p class="text-xs font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Módulo de Asistencia Técnica Vircom</p>
             </div>
           </div>
           
           <div class="flex items-center gap-4">
-            <button @click="saveDraft" class="hidden md:flex items-center gap-2 px-5 py-2.5 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest hover:text-gray-700 dark:hover:text-white transition-colors">
+            <button @click="saveDraft" class="hidden md:flex items-center gap-2 px-5 py-2.5 text-xs font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest hover:text-gray-700 dark:hover:text-white transition-colors">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
               Guardar Borrador
             </button>
@@ -43,14 +43,14 @@
           <form @submit.prevent="submit" class="lg:col-span-8 space-y-10">
             
             <!-- Sección 1: Cliente e Identificación -->
-            <div class="bg-white dark:bg-gray-800 rounded-[32px] shadow-2xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 p-8 lg:p-12 transition-all">
+            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-[32px] shadow-2xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 p-8 lg:p-12 transition-all">
               <div class="flex items-center gap-4 mb-10">
                 <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm">
                   <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                 </div>
                 <div>
-                  <h2 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Identificación del Cliente</h2>
-                  <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1">Busca y selecciona un cliente registrado</p>
+                  <h2 class="text-xl font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-tight">Identificación del Cliente</h2>
+                  <p class="text-xs font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Busca y selecciona un cliente registrado</p>
                 </div>
               </div>
 
@@ -85,8 +85,8 @@
                   
                   <!-- Selector de Póliza -->
                   <div v-if="clientePolizas.length > 0">
-                    <label class="block text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Póliza de Servicio</label>
-                    <select v-model="form.poliza_id" class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all">
+                    <label class="block text-xs font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Póliza de Servicio</label>
+                    <select v-model="form.poliza_id" class="w-full px-4 py-3 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all">
                       <option value="">Sin póliza (cobro normal)</option>
                       <option v-for="pol in clientePolizas" :key="pol.id" :value="pol.id">
                         🛡️ {{ pol.nombre }} - {{ pol.folio }} ({{ pol.visitas_disponibles }} visitas disp.)
@@ -117,51 +117,51 @@
             </div>
 
             <!-- Sección 2: Programación y Logística -->
-            <div class="bg-white dark:bg-gray-800 rounded-[32px] shadow-2xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 p-8 lg:p-12 transition-all">
+            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-[32px] shadow-2xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 p-8 lg:p-12 transition-all">
               <div class="flex items-center gap-4 mb-10">
                 <div class="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shadow-sm">
                   <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 </div>
                 <div>
-                  <h2 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Programación de la Cita</h2>
-                  <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1">Define cuándo y dónde se realizará el servicio</p>
+                  <h2 class="text-xl font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-tight">Programación de la Cita</h2>
+                  <p class="text-xs font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Define cuándo y dónde se realizará el servicio</p>
                 </div>
               </div>
 
               <div class="space-y-8">
                 <!-- Selector de Fecha Mejorado -->
                 <div class="space-y-4">
-                   <label class="block text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest transition-colors">Fecha Sugerida <span class="text-red-500">*</span></label>
+                   <label class="block text-xs font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest transition-colors">Fecha Sugerida <span class="text-red-500">*</span></label>
                    <div class="flex flex-wrap gap-3">
-                      <button type="button" v-for="q in quickDates" :key="q.val" @click="setQuickDate(q.val)" :class="selectedDateType === q.val ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200 dark:shadow-none' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-100 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'" class="px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all active:scale-95">
+                      <button type="button" v-for="q in quickDates" :key="q.val" @click="setQuickDate(q.val)" :class="selectedDateType === q.val ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200 dark:shadow-none' : 'bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-600 dark:text-gray-300 dark:text-gray-300 border-gray-100 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600'" class="px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all active:scale-95">
                         {{ q.label }}
                       </button>
                    </div>
-                   <input type="date" v-model="internalDate" :min="todayDate" class="w-full md:w-auto px-6 py-4 bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-700 rounded-2xl text-lg font-black text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+                   <input type="date" v-model="internalDate" :min="todayDate" class="w-full md:w-auto px-6 py-4 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900 border-gray-100 dark:border-gray-700 rounded-2xl text-lg font-black text-gray-900 dark:text-white dark:text-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
                 </div>
 
                 <!-- Selector de Horarios -->
                 <div class="space-y-4">
-                  <label class="block text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest transition-colors">Intervalo de Atención</label>
+                  <label class="block text-xs font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest transition-colors">Intervalo de Atención</label>
                   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                     <button type="button" @click="setQuickTime('09:00')" :class="form.fecha_hora.includes('09:00') ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-700'" class="p-6 rounded-3xl border-2 text-left transition-all group overflow-hidden relative">
+                     <button type="button" @click="setQuickTime('09:00')" :class="form.fecha_hora.includes('09:00') ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-slate-900 dark:bg-gray-700'" class="p-6 rounded-3xl border-2 text-left transition-all group overflow-hidden relative">
                         <div class="relative z-10">
-                          <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase mb-1">Mañana</p>
-                          <p class="text-xl font-black text-gray-900 dark:text-white transition-colors">09:00 AM</p>
+                          <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase mb-1">Mañana</p>
+                          <p class="text-xl font-black text-gray-900 dark:text-white dark:text-white transition-colors">09:00 AM</p>
                         </div>
                         <div class="absolute -right-2 -bottom-2 text-blue-500/10 dark:text-blue-500/5 group-hover:scale-125 transition-transform"><svg class="w-20 h-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"/></svg></div>
                      </button>
-                     <button type="button" @click="setQuickTime('13:00')" :class="form.fecha_hora.includes('13:00') ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-700'" class="p-6 rounded-3xl border-2 text-left transition-all group overflow-hidden relative">
+                     <button type="button" @click="setQuickTime('13:00')" :class="form.fecha_hora.includes('13:00') ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-slate-900 dark:bg-gray-700'" class="p-6 rounded-3xl border-2 text-left transition-all group overflow-hidden relative">
                         <div class="relative z-10">
-                          <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase mb-1">Mediodía</p>
-                          <p class="text-xl font-black text-gray-900 dark:text-white transition-colors">01:00 PM</p>
+                          <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase mb-1">Mediodía</p>
+                          <p class="text-xl font-black text-gray-900 dark:text-white dark:text-white transition-colors">01:00 PM</p>
                         </div>
                         <div class="absolute -right-2 -bottom-2 text-orange-500/10 dark:text-orange-500/5 group-hover:scale-125 transition-transform"><svg class="w-20 h-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"/></svg></div>
                      </button>
-                     <button type="button" @click="setQuickTime('17:00')" :class="form.fecha_hora.includes('17:00') ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-700'" class="p-6 rounded-3xl border-2 text-left transition-all group overflow-hidden relative">
+                     <button type="button" @click="setQuickTime('17:00')" :class="form.fecha_hora.includes('17:00') ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-slate-900 dark:bg-gray-700'" class="p-6 rounded-3xl border-2 text-left transition-all group overflow-hidden relative">
                         <div class="relative z-10">
-                          <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase mb-1">Tarde</p>
-                          <p class="text-xl font-black text-gray-900 dark:text-white transition-colors">05:00 PM</p>
+                          <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase mb-1">Tarde</p>
+                          <p class="text-xl font-black text-gray-900 dark:text-white dark:text-white transition-colors">05:00 PM</p>
                         </div>
                         <div class="absolute -right-2 -bottom-2 text-indigo-500/10 dark:text-indigo-500/5 group-hover:scale-125 transition-transform"><svg class="w-20 h-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"/></svg></div>
                      </button>
@@ -201,14 +201,14 @@
             </div>
 
             <!-- Sección 3: Datos Técnicos del Equipo -->
-            <div class="bg-white dark:bg-gray-800 rounded-[32px] shadow-2xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 p-8 lg:p-12 transition-all">
+            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-[32px] shadow-2xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 p-8 lg:p-12 transition-all">
                <div class="flex items-center gap-4 mb-10">
                 <div class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm">
                   <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 </div>
                 <div>
-                  <h2 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Información del Equipo</h2>
-                  <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1">Especificaciones técnicas para el diagnóstico</p>
+                  <h2 class="text-xl font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-tight">Información del Equipo</h2>
+                  <p class="text-xs font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Especificaciones técnicas para el diagnóstico</p>
                 </div>
               </div>
 
@@ -223,13 +223,13 @@
                 />
                 
                 <div class="space-y-1">
-                  <label for="marca_equipo" class="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5">Marca</label>
+                  <label for="marca_equipo" class="block text-xs font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest mb-1.5">Marca</label>
                   <input 
                     v-model="form.marca_equipo" 
                     list="marcas-list" 
                     id="marca_equipo"
                     type="text"
-                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 shadow-sm transition-all text-gray-900 dark:text-gray-100"
+                    class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 shadow-sm transition-all text-gray-900 dark:text-white dark:text-gray-100"
                     placeholder="Ej. Samsung"
                     @input="onInputToUpper('marca_equipo')"
                   >
@@ -270,7 +270,7 @@
               
               <div class="space-y-6">
                 <div class="flex items-start gap-4">
-                  <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-md">👤</div>
+                  <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900/20 flex items-center justify-center backdrop-blur-md">👤</div>
                   <div>
                     <p class="text-[10px] font-black uppercase tracking-widest opacity-60">Cliente</p>
                     <p class="text-sm font-black truncate max-w-[200px]">{{ selectedCliente?.nombre_razon_social || 'No seleccionado' }}</p>
@@ -278,7 +278,7 @@
                 </div>
 
                 <div class="flex items-start gap-4">
-                  <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-md">📅</div>
+                  <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900/20 flex items-center justify-center backdrop-blur-md">📅</div>
                   <div>
                     <p class="text-[10px] font-black uppercase tracking-widest opacity-60">Programación</p>
                     <p class="text-sm font-black">{{ form.fecha_hora ? formatearFecha(form.fecha_hora) : 'Pendiente de definir' }}</p>
@@ -286,7 +286,7 @@
                 </div>
 
                 <div class="flex items-start gap-4">
-                  <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-md">🛠️</div>
+                  <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900/20 flex items-center justify-center backdrop-blur-md">🛠️</div>
                   <div>
                     <p class="text-[10px] font-black uppercase tracking-widest opacity-60">Tipo de Servicio</p>
                     <p class="text-sm font-black uppercase">{{ formatearTipoServicioShort(form.tipo_servicio) || 'Sin asignar' }}</p>
@@ -295,7 +295,7 @@
               </div>
 
               <div class="mt-10 pt-8 border-t border-white/10 space-y-4">
-                <div v-if="visitLimitInfo" class="bg-white/10 rounded-2xl p-4 border border-white/10">
+                <div v-if="visitLimitInfo" class="bg-white dark:bg-slate-900/10 rounded-2xl p-4 border border-white/10">
                    <p class="text-xs font-black uppercase tracking-widest mb-1 flex items-center gap-2">
                      <span class="text-sm">⚠️</span> Póliza de Servicio
                    </p>
@@ -307,10 +307,10 @@
             </div>
 
             <!-- Card Instrucciones -->
-            <div class="bg-white dark:bg-gray-800 rounded-[32px] border border-gray-100 dark:border-gray-700 p-8 shadow-sm transition-colors">
-               <h3 class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-widest mb-4">Guía Rápida</h3>
+            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-[32px] border border-gray-100 dark:border-gray-700 p-8 shadow-sm transition-colors">
+               <h3 class="text-xs font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-widest mb-4">Guía Rápida</h3>
                <ul class="space-y-3">
-                 <li v-for="(tip, idx) in helperTips" :key="idx" class="flex gap-3 text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                 <li v-for="(tip, idx) in helperTips" :key="idx" class="flex gap-3 text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 leading-relaxed">
                    <span class="text-blue-500 font-black">{{ idx+1 }}.</span>
                    {{ tip }}
                  </li>
@@ -321,7 +321,7 @@
       </div>
 
       <!-- Footer Mobile Fijo -->
-      <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 p-4 z-40">
+      <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 p-4 z-40">
          <button @click="submit" :disabled="form.processing || !selectedCliente" class="w-full py-4 bg-blue-600 text-white text-sm font-black uppercase tracking-widest rounded-2xl shadow-lg active:scale-95 transition-all">
             {{ form.processing ? 'Procesando...' : 'Confirmar y Guardar Cita' }}
          </button>

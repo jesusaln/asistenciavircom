@@ -608,16 +608,16 @@ const formatNumber = (num) => {
 <template>
   <Head title="Vehículos" />
 
-  <div class="carros-index min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="carros-index min-h-screen bg-gray-50 dark:bg-slate-950 dark:bg-gray-900">
     <!-- Contenido principal -->
     <div class="w-full px-6 py-8">
       <!-- Header específico de vehículos -->
-      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-8 mb-6">
+      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-xl shadow-sm p-8 mb-6">
         <div class="flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">
           <!-- Izquierda -->
           <div class="flex flex-col gap-6 w-full lg:w-auto">
             <div class="flex items-center gap-3">
-              <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Vehículos</h1>
+              <h1 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-gray-100">Vehículos</h1>
             </div>
 
             <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
@@ -644,13 +644,13 @@ const formatNumber = (num) => {
 
             <!-- Estadísticas mejoradas -->
             <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              <div class="flex items-center gap-2 px-4 py-3 bg-white dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
-                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="flex items-center gap-2 px-4 py-3 bg-white dark:bg-slate-900 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-600">
+                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 <div class="flex flex-col">
                   <span class="font-medium text-gray-700 dark:text-gray-300 text-sm">Total</span>
-                  <span class="font-bold text-gray-900 dark:text-gray-100 text-lg">{{ formatNumber(estadisticas.total) }}</span>
+                  <span class="font-bold text-gray-900 dark:text-white dark:text-gray-100 text-lg">{{ formatNumber(estadisticas.total) }}</span>
                 </div>
               </div>
 
@@ -715,9 +715,9 @@ const formatNumber = (num) => {
                 @input="handleSearch"
                 type="text"
                 placeholder="Buscar por marca, modelo, placa..."
-                class="w-full sm:w-64 lg:w-80 pl-4 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
+                class="w-full sm:w-64 lg:w-80 pl-4 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
               />
-              <svg class="absolute right-3 top-3.5 w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="absolute right-3 top-3.5 w-4 h-4 text-gray-400 dark:text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -726,7 +726,7 @@ const formatNumber = (num) => {
             <select
               v-model="filtroEstado"
               @change="handleFilter"
-              class="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
+              class="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
             >
               <option value="">Todos los Estados</option>
               <option value="1">Activos</option>
@@ -737,7 +737,7 @@ const formatNumber = (num) => {
             <select
               v-model="filtroCombustible"
               @change="handleFilter"
-              class="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
+              class="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
             >
               <option value="">Todos los Combustibles</option>
               <option value="Gasolina">Gasolina</option>
@@ -761,7 +761,7 @@ const formatNumber = (num) => {
       </div>
 
       <!-- Información de paginación -->
-      <div class="flex justify-between items-center mb-4 text-sm text-gray-600 dark:text-gray-400">
+      <div class="flex justify-between items-center mb-4 text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400">
         <div>
           Mostrando {{ paginationData.from }} - {{ paginationData.to }} de {{ paginationData.total }} vehículos
         </div>
@@ -770,7 +770,7 @@ const formatNumber = (num) => {
           <select
             :value="paginationData.per_page"
             @change="changePerPage"
-            class="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm bg-white dark:bg-gray-700 dark:text-gray-200"
+            class="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 dark:text-gray-200"
           >
             <option value="10">10</option>
             <option value="15">15</option>
@@ -783,12 +783,12 @@ const formatNumber = (num) => {
 
       <!-- Tabla de vehículos -->
       <div class="mt-6">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
           <!-- Header -->
-          <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-700/50 dark:to-gray-800/50 px-6 py-4 border-b border-gray-200/60 dark:border-gray-700">
+          <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-700/50 dark:to-gray-800/50 px-6 py-4 border-b border-gray-200 dark:border-slate-800/60 dark:border-gray-700">
             <div class="flex items-center justify-between">
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 tracking-tight">Lista de Vehículos</h2>
-              <div class="text-sm text-gray-600 dark:text-gray-300 bg-white/70 dark:bg-gray-700/50 px-3 py-1 rounded-full border border-gray-200/50 dark:border-gray-600">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white dark:text-gray-100 tracking-tight">Lista de Vehículos</h2>
+              <div class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300 bg-white dark:bg-slate-900/70 dark:bg-gray-700/50 px-3 py-1 rounded-full border border-gray-200 dark:border-slate-800/50 dark:border-gray-600">
                 {{ items.length }} de {{ paginationData.total }} vehículos
               </div>
             </div>
@@ -796,48 +796,48 @@ const formatNumber = (num) => {
 
           <!-- Table -->
           <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200/60 dark:divide-gray-700">
-              <thead class="bg-gray-50/60 dark:bg-gray-700/60">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800/60 dark:divide-gray-700">
+              <thead class="bg-gray-50 dark:bg-slate-950/60 dark:bg-gray-700/60">
                 <tr>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                    <button @click="onSort('fecha')" class="flex items-center gap-1 hover:text-gray-900 dark:hover:text-gray-100">
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">
+                    <button @click="onSort('fecha')" class="flex items-center gap-1 hover:text-gray-900 dark:text-white dark:hover:text-gray-100">
                       Fecha
-                      <svg class="w-3 h-3" :class="sortBy.startsWith('fecha') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-3 h-3" :class="sortBy.startsWith('fecha') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500 dark:text-gray-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                       </svg>
                     </button>
                   </th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                    <button @click="onSort('marca')" class="flex items-center gap-1 hover:text-gray-900 dark:hover:text-gray-100">
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">
+                    <button @click="onSort('marca')" class="flex items-center gap-1 hover:text-gray-900 dark:text-white dark:hover:text-gray-100">
                       Vehículo
-                      <svg class="w-3 h-3" :class="sortBy.startsWith('marca') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-3 h-3" :class="sortBy.startsWith('marca') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500 dark:text-gray-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                       </svg>
                     </button>
                   </th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Año</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Precio</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Kilometraje</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Estado</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Combustible</th>
-                  <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Año</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Precio</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Kilometraje</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Estado</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Combustible</th>
+                  <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
                 </tr>
               </thead>
 
-              <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200/40 dark:divide-gray-700/40">
+              <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-slate-800/40 dark:divide-gray-700/40">
                 <template v-if="items.length > 0">
                   <tr
                     v-for="carro in items"
                     :key="carro.id"
-                    class="group hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-150 hover:shadow-sm"
+                    class="group hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700/50 transition-all duration-150 hover:shadow-sm"
                   >
                     <!-- Fecha -->
                     <td class="px-6 py-4">
                       <div class="flex flex-col space-y-0.5">
-                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">
                           {{ formatearFecha(carro.created_at || carro.fecha) }}
                         </div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                        <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
                           {{ formatearHora(carro.created_at || carro.fecha) }}
                         </div>
                       </div>
@@ -846,10 +846,10 @@ const formatNumber = (num) => {
                     <!-- Vehículo -->
                     <td class="px-6 py-4">
                       <div class="flex flex-col space-y-0.5">
-                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-gray-800 dark:group-hover:text-gray-200">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100 group-hover:text-gray-800 dark:text-gray-100 dark:group-hover:text-gray-200">
                           {{ carro.marca || 'Sin marca' }} {{ carro.modelo || 'Sin modelo' }}
                         </div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                        <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
                           Placa: {{ carro.placa || 'N/A' }}
                         </div>
                       </div>
@@ -944,13 +944,13 @@ const formatNumber = (num) => {
                   <td :colspan="8" class="px-6 py-16 text-center">
                     <div class="flex flex-col items-center space-y-4">
                       <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                        <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="w-8 h-8 text-gray-400 dark:text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                         </svg>
                       </div>
                       <div class="space-y-1">
                         <p class="text-gray-700 dark:text-gray-300 font-medium">No hay vehículos</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Los vehículos aparecerán aquí cuando se creen</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Los vehículos aparecerán aquí cuando se creen</p>
                       </div>
                     </div>
                   </td>
@@ -966,7 +966,7 @@ const formatNumber = (num) => {
         <button
           @click="prevPage"
           :disabled="paginationData.current_page === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Anterior
         </button>
@@ -980,7 +980,7 @@ const formatNumber = (num) => {
               'px-3 py-2 text-sm font-medium border border-gray-300 dark:border-gray-600 rounded-md',
               page === paginationData.current_page
                 ? 'bg-blue-500 text-white border-blue-500'
-                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+                : 'bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600'
             ]"
           >
             {{ page }}
@@ -990,7 +990,7 @@ const formatNumber = (num) => {
         <button
           @click="nextPage"
           :disabled="paginationData.current_page === paginationData.last_page"
-          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Siguiente
         </button>
@@ -1005,7 +1005,7 @@ const formatNumber = (num) => {
         @click.self="onClose"
       >
         <div
-          class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 outline-none"
+          class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 outline-none"
           role="dialog"
           aria-modal="true"
           :aria-label="`Modal de Vehículo`"
@@ -1025,16 +1025,16 @@ const formatNumber = (num) => {
                 />
               </svg>
             </div>
-            <h3 class="text-lg font-medium mb-2 text-gray-900 dark:text-gray-100">
+            <h3 class="text-lg font-medium mb-2 text-gray-900 dark:text-white dark:text-gray-100">
               ¿Eliminar vehículo?
             </h3>
-            <p class="text-gray-600 dark:text-gray-400 mb-6">
+            <p class="text-gray-600 dark:text-gray-300 dark:text-gray-400 mb-6">
               Esta acción no se puede deshacer.
             </p>
             <div class="flex gap-3">
               <button
                 @click="onCancel"
-                class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors"
+                class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-9500 transition-colors"
               >
                 Cancelar
               </button>
@@ -1049,28 +1049,28 @@ const formatNumber = (num) => {
 
           <!-- Modo: Detalles -->
           <div v-else-if="modalMode === 'details'" class="space-y-4">
-            <h3 class="text-lg font-medium mb-1 flex items-center gap-2 text-gray-900 dark:text-gray-100">
+            <h3 class="text-lg font-medium mb-1 flex items-center gap-2 text-gray-900 dark:text-white dark:text-gray-100">
               Detalles de Vehículo
-              <span v-if="selectedCarro?.id" class="text-sm text-gray-500 dark:text-gray-400">#{{ selectedCarro.id }}</span>
+              <span v-if="selectedCarro?.id" class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">#{{ selectedCarro.id }}</span>
             </h3>
 
             <div v-if="selectedCarro" class="space-y-4">
               <!-- Información general -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                     <strong>Marca:</strong> {{ selectedCarro.marca || 'Sin marca' }}
                   </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                     <strong>Modelo:</strong> {{ selectedCarro.modelo || 'Sin modelo' }}
                   </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                     <strong>Año:</strong> {{ selectedCarro.anio || 'N/A' }}
                   </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                     <strong>Color:</strong> {{ selectedCarro.color || 'N/A' }}
                   </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                     <strong>Estado:</strong>
                     <span
                       :class="obtenerClasesEstado(selectedCarro.activo ? 'activo' : 'inactivo')"
@@ -1082,19 +1082,19 @@ const formatNumber = (num) => {
                 </div>
 
                 <div>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                     <strong>Precio:</strong> ${{ formatearMoneda(selectedCarro.precio) }}
                   </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                     <strong>Kilometraje:</strong> {{ formatNumber(selectedCarro.kilometraje || 0) }} km
                   </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                     <strong>Placa:</strong> {{ selectedCarro.placa || 'N/A' }}
                   </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                     <strong>Número de Serie:</strong> {{ selectedCarro.numero_serie || 'N/A' }}
                   </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                     <strong>Combustible:</strong>
                     <span
                       :class="obtenerClasesCombustible(selectedCarro.combustible)"
@@ -1118,7 +1118,7 @@ const formatNumber = (num) => {
 
               <button
                 @click="onClose"
-                class="px-3 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors text-sm"
+                class="px-3 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-9500 transition-colors text-sm"
               >
                 Cerrar
               </button>
@@ -1130,7 +1130,7 @@ const formatNumber = (num) => {
 
     <!-- Loading overlay -->
     <div v-if="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-6 rounded-lg shadow-lg">
         <div class="flex items-center space-x-3">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 dark:border-blue-400"></div>
           <span class="text-gray-700 dark:text-gray-200">Procesando...</span>

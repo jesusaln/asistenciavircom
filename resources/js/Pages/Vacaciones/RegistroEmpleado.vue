@@ -1,11 +1,11 @@
 <template>
   <Head :title="`Registro de Vacaciones - ${empleado.name}`" />
-  <div class="min-h-screen bg-white">
+  <div class="min-h-screen bg-white dark:bg-slate-900">
     <div class="w-full px-6 py-8">
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900">Registro de Vacaciones</h1>
-          <p class="text-gray-600">Empleado: <span class="font-medium">{{ empleado.name }}</span></p>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Registro de Vacaciones</h1>
+          <p class="text-gray-600 dark:text-gray-300">Empleado: <span class="font-medium">{{ empleado.name }}</span></p>
         </div>
         <div class="flex gap-3">
           <div class="flex items-center gap-2">
@@ -23,24 +23,24 @@
 
       <!-- Resumen -->
       <div v-if="registro" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-        <div class="bg-white border border-gray-200 rounded-lg p-4">
-          <p class="text-xs text-gray-600">Año</p>
-          <p class="text-xl font-semibold text-gray-900">{{ anio }}</p>
+        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-4">
+          <p class="text-xs text-gray-600 dark:text-gray-300">Año</p>
+          <p class="text-xl font-semibold text-gray-900 dark:text-white">{{ anio }}</p>
         </div>
-        <div class="bg-white border border-gray-200 rounded-lg p-4">
-          <p class="text-xs text-gray-600">Días correspondientes</p>
-          <p class="text-xl font-semibold text-gray-900">{{ registro.dias_correspondientes ?? 0 }}</p>
+        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-4">
+          <p class="text-xs text-gray-600 dark:text-gray-300">Días correspondientes</p>
+          <p class="text-xl font-semibold text-gray-900 dark:text-white">{{ registro.dias_correspondientes ?? 0 }}</p>
         </div>
-        <div class="bg-white border border-gray-200 rounded-lg p-4">
-          <p class="text-xs text-gray-600">Disponibles</p>
-          <p class="text-xl font-semibold text-gray-900">{{ registro.dias_disponibles ?? 0 }}</p>
+        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-4">
+          <p class="text-xs text-gray-600 dark:text-gray-300">Disponibles</p>
+          <p class="text-xl font-semibold text-gray-900 dark:text-white">{{ registro.dias_disponibles ?? 0 }}</p>
         </div>
-        <div class="bg-white border border-gray-200 rounded-lg p-4">
-          <p class="text-xs text-gray-600">Utilizados</p>
-          <p class="text-xl font-semibold text-gray-900">{{ registro.dias_utilizados ?? 0 }}</p>
+        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-4">
+          <p class="text-xs text-gray-600 dark:text-gray-300">Utilizados</p>
+          <p class="text-xl font-semibold text-gray-900 dark:text-white">{{ registro.dias_utilizados ?? 0 }}</p>
         </div>
-        <div class="bg-white border border-gray-200 rounded-lg p-4">
-          <p class="text-xs text-gray-600">Días restantes</p>
+        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-4">
+          <p class="text-xs text-gray-600 dark:text-gray-300">Días restantes</p>
           <p class="text-xl font-semibold" :class="getDiasRestantesColor(registro.dias_disponibles - registro.dias_utilizados)">
             {{ (registro.dias_disponibles - registro.dias_utilizados) >= 0 ? (registro.dias_disponibles - registro.dias_utilizados) : 0 }}
           </p>
@@ -60,35 +60,35 @@
       </div>
 
       <!-- Vacaciones del empleado -->
-      <div class="bg-white border border-gray-200 rounded-lg overflow-hidden mb-6">
-        <div class="p-4 border-b border-gray-200">
-          <h2 class="text-lg font-semibold text-gray-900">Solicitudes de Vacaciones</h2>
+      <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg overflow-hidden mb-6">
+        <div class="p-4 border-b border-gray-200 dark:border-slate-800">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Solicitudes de Vacaciones</h2>
         </div>
         <div v-if="vacaciones && vacaciones.length" class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+            <thead class="bg-white dark:bg-slate-900">
               <tr>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fechas</th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Días</th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Motivo</th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Solicitado</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Fechas</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Días</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Estado</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Motivo</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Solicitado</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="vacacion in vacaciones" :key="vacacion.id" class="hover:bg-white">
-                <td class="px-4 py-3 text-sm text-gray-900">
+            <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+              <tr v-for="vacacion in vacaciones" :key="vacacion.id" class="hover:bg-white dark:bg-slate-900">
+                <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
                   <div>{{ formatDate(vacacion.fecha_inicio) }}</div>
-                  <div class="text-gray-500 text-xs">hasta {{ formatDate(vacacion.fecha_fin) }}</div>
+                  <div class="text-gray-500 dark:text-gray-400 text-xs">hasta {{ formatDate(vacacion.fecha_fin) }}</div>
                 </td>
-                <td class="px-4 py-3 text-sm text-gray-900">{{ vacacion.dias_solicitados }} días</td>
+                <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ vacacion.dias_solicitados }} días</td>
                 <td class="px-4 py-3 text-sm">
                   <span :class="getEstadoClasses(vacacion.estado)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                     {{ getEstadoLabel(vacacion.estado) }}
                   </span>
                 </td>
                 <td class="px-4 py-3 text-sm text-gray-700">{{ vacacion.motivo || '-' }}</td>
-                <td class="px-4 py-3 text-sm text-gray-600">{{ formatDate(vacacion.created_at) }}</td>
+                <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{{ formatDate(vacacion.created_at) }}</td>
               </tr>
             </tbody>
           </table>
@@ -97,38 +97,38 @@
           <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
-          <p class="text-gray-500">No hay solicitudes de vacaciones registradas</p>
+          <p class="text-gray-500 dark:text-gray-400">No hay solicitudes de vacaciones registradas</p>
         </div>
       </div>
 
       <!-- Ajustes -->
-      <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
-        <div class="p-4 border-b border-gray-200 flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-gray-900">Ajustes ({{ anio }} y {{ anio - 1 }})</h2>
+      <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg overflow-hidden">
+        <div class="p-4 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Ajustes ({{ anio }} y {{ anio - 1 }})</h2>
         </div>
         <div v-if="ajustes && ajustes.length" class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+            <thead class="bg-white dark:bg-slate-900">
               <tr>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha</th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Año</th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Días (+/-)</th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Motivo</th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Aplicado por</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Año</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Días (+/-)</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Motivo</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Aplicado por</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
               <tr v-for="a in ajustes" :key="a.id">
-                <td class="px-4 py-3 text-sm text-gray-900">{{ formatDate(a.created_at) }}</td>
+                <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ formatDate(a.created_at) }}</td>
                 <td class="px-4 py-3 text-sm text-gray-700">{{ a.anio }}</td>
                 <td class="px-4 py-3 text-sm" :class="a.dias >= 0 ? 'text-green-700' : 'text-red-700'">{{ a.dias }}</td>
                 <td class="px-4 py-3 text-sm text-gray-700">{{ a.motivo || '-' }}</td>
-                <td class="px-4 py-3 text-sm text-gray-900">{{ a.creador?.name || 'Sistema' }}</td>
+                <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ a.creador?.name || 'Sistema' }}</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <p v-else class="p-4 text-sm text-gray-600">No hay ajustes registrados.</p>
+        <p v-else class="p-4 text-sm text-gray-600 dark:text-gray-300">No hay ajustes registrados.</p>
       </div>
     </div>
   </div>

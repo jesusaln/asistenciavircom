@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+  <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-gray-100 dark:border-slate-800 overflow-hidden">
     <!-- Header con estadísticas -->
-    <div class="px-6 py-6 border-b border-gray-200/60">
+    <div class="px-6 py-6 border-b border-gray-200 dark:border-slate-800/60">
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Rentas</h1>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Rentas</h1>
           <p class="text-sm text-gray-600 mt-1">Gestiona todas tus rentas de equipos en un solo lugar</p>
         </div>
         <button
@@ -20,11 +20,11 @@
 
       <!-- Estadísticas -->
       <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Total</p>
-              <p class="text-2xl font-bold text-gray-900">{{ total }}</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total }}</p>
             </div>
             <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
               <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -34,7 +34,7 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Activas</p>
@@ -48,7 +48,7 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Próx. 7 días</p>
@@ -62,7 +62,7 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Vencidas</p>
@@ -76,7 +76,7 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">En Mora</p>
@@ -90,7 +90,7 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Monto Vencido</p>
@@ -104,7 +104,7 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Ingresos Esperados</p>
@@ -121,7 +121,7 @@
     </div>
 
     <!-- Filtros y búsqueda -->
-    <div class="px-6 py-4 bg-gray-50/50 border-b border-gray-200/60">
+    <div class="px-6 py-4 bg-gray-50/50 border-b border-gray-200 dark:border-slate-800/60">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
         <!-- Búsqueda -->
         <div class="flex-1 max-w-md">
@@ -135,7 +135,7 @@
               v-model="searchTerm"
               type="text"
               placeholder="Buscar por cliente, equipo, número de contrato..."
-              class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white dark:bg-slate-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
               @input="onSearchChange"
             />
           </div>
@@ -147,7 +147,7 @@
           <select
             v-model="filtroEstado"
             @change="onFiltroEstadoChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-900"
           >
             <option value="">Todos los Estados</option>
             <option value="activo">Activas</option>
@@ -163,7 +163,7 @@
           <select
             v-model="sortBy"
             @change="onSortChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-900"
           >
             <option value="created_at-desc">Fecha (Más reciente)</option>
             <option value="created_at-asc">Fecha (Más antiguo)</option>
@@ -176,7 +176,7 @@
           <!-- Limpiar filtros -->
           <button
             @click="onLimpiarFiltros"
-            class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
           >
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

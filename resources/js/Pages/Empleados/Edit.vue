@@ -134,15 +134,15 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
           </svg>
         </div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ empleado.user?.name || 'Nuevo Empleado' }}</h1>
-        <p class="text-sm text-gray-500 mb-4">{{ empleado.puesto || 'Puesto no asignado' }} • {{ empleado.departamento || 'Departamento no asignado' }}</p>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">{{ empleado.user?.name || 'Nuevo Empleado' }}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">{{ empleado.puesto || 'Puesto no asignado' }} • {{ empleado.departamento || 'Departamento no asignado' }}</p>
         
         <!-- Botón Imprimir Contrato -->
         <button 
           v-if="empleado.puede_imprimir_contrato" 
           @click="imprimirContrato"
           type="button"
-          class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150 mb-4"
+          class="inline-flex items-center px-4 py-2 bg-white dark:bg-slate-900 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150 mb-4"
         >
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -152,19 +152,19 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
       </div>
 
       <!-- Formulario -->
-      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
         <form @submit.prevent="submit" class="p-8 space-y-8">
 
           <!-- Estado Activo -->
-          <div class="flex items-center justify-between p-4 bg-white rounded-lg">
+          <div class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-lg">
             <div>
-              <p class="font-medium text-gray-900">Estado del Empleado</p>
-              <p class="text-sm text-gray-500">Desactivar marcará al empleado como dado de baja</p>
+              <p class="font-medium text-gray-900 dark:text-white">Estado del Empleado</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Desactivar marcará al empleado como dado de baja</p>
             </div>
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" v-model="form.activo" class="sr-only peer">
-              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-              <span class="ml-3 text-sm font-medium" :class="form.activo ? 'text-emerald-600' : 'text-gray-500'">
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:bg-slate-900 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+              <span class="ml-3 text-sm font-medium" :class="form.activo ? 'text-emerald-600' : 'text-gray-500 dark:text-gray-400'">
                 {{ form.activo ? 'Activo' : 'Inactivo' }}
               </span>
             </label>
@@ -172,8 +172,8 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
 
           <!-- Información Personal -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900">Información Personal</h2>
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información Personal</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -212,8 +212,8 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
 
           <!-- Información Laboral -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900">Información Laboral</h2>
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información Laboral</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -279,8 +279,8 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
                   />
                 </div>
                 <div class="flex items-end">
-                  <div class="w-full bg-white rounded-lg p-4 border border-blue-100 text-center">
-                    <p class="text-xs text-gray-500 uppercase tracking-wide">Horario L-V</p>
+                  <div class="w-full bg-white dark:bg-slate-900 rounded-lg p-4 border border-blue-100 text-center">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Horario L-V</p>
                     <p class="text-xl font-bold text-blue-600">{{ form.hora_entrada }} - {{ form.hora_salida }}</p>
                   </div>
                 </div>
@@ -292,7 +292,7 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
                   <div class="flex items-center">
                     <label class="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" v-model="form.trabaja_sabado" class="sr-only peer">
-                      <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:bg-slate-900 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                     </label>
                     <span class="ml-3 text-sm font-semibold text-gray-700">Trabaja los Sábados</span>
                   </div>
@@ -317,8 +317,8 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
                     />
                   </div>
                   <div class="flex items-end">
-                    <div class="w-full bg-white rounded-lg p-4 border border-blue-100 text-center">
-                      <p class="text-xs text-gray-500 uppercase tracking-wide">Horario Sábado</p>
+                    <div class="w-full bg-white dark:bg-slate-900 rounded-lg p-4 border border-blue-100 text-center">
+                      <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Horario Sábado</p>
                       <p class="text-xl font-bold text-blue-600">{{ form.hora_entrada_sabado }} - {{ form.hora_salida_sabado }}</p>
                     </div>
                   </div>
@@ -329,14 +329,14 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
 
           <!-- Información Salarial -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                 <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Información Salarial
               </h2>
-              <p class="text-sm text-gray-600 mt-1">Configura el salario y la frecuencia de pago del empleado</p>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Configura el salario y la frecuencia de pago del empleado</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -346,7 +346,7 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
                 <div class="grid grid-cols-2 gap-3">
                   <label 
                     class="relative flex items-center justify-center p-4 border-2 rounded-xl cursor-pointer transition-all"
-                    :class="form.frecuencia_pago === 'semanal' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-gray-200 hover:border-gray-300'"
+                    :class="form.frecuencia_pago === 'semanal' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-gray-200 dark:border-slate-800 hover:border-gray-300'"
                   >
                     <input type="radio" v-model="form.frecuencia_pago" value="semanal" class="sr-only" />
                     <div class="text-center">
@@ -359,7 +359,7 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
                   </label>
                   <label 
                     class="relative flex items-center justify-center p-4 border-2 rounded-xl cursor-pointer transition-all"
-                    :class="form.frecuencia_pago === 'quincenal' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-gray-200 hover:border-gray-300'"
+                    :class="form.frecuencia_pago === 'quincenal' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-gray-200 dark:border-slate-800 hover:border-gray-300'"
                   >
                     <input type="radio" v-model="form.frecuencia_pago" value="quincenal" class="sr-only" />
                     <div class="text-center">
@@ -378,7 +378,7 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Salario Base Mensual *</label>
                 <div class="relative">
-                  <span class="absolute left-3 top-3 text-gray-500 font-medium">$</span>
+                  <span class="absolute left-3 top-3 text-gray-500 dark:text-gray-400 font-medium">$</span>
                   <input 
                     v-model="form.salario_base" 
                     type="number" 
@@ -388,7 +388,7 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
                     class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-lg font-semibold" 
                   />
                 </div>
-                <p class="text-xs text-gray-500 mt-1">Este es el salario total mensual del empleado</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Este es el salario total mensual del empleado</p>
                 <InputError :message="form.errors.salario_base" class="mt-2" />
               </div>
             </div>
@@ -402,23 +402,23 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
                 Desglose Salarial
               </h3>
               <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white rounded-lg p-4 border border-emerald-100">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Salario Diario</p>
-                  <p class="text-xl font-bold text-gray-900">{{ formatCurrency(salarioDiario) }}</p>
+                <div class="bg-white dark:bg-slate-900 rounded-lg p-4 border border-emerald-100">
+                  <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Salario Diario</p>
+                  <p class="text-xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(salarioDiario) }}</p>
                   <p class="text-xs text-gray-400">Base / 30 días</p>
                 </div>
-                <div class="bg-white rounded-lg p-4 border border-emerald-100">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Pago {{ form.frecuencia_pago === 'semanal' ? 'Semanal' : 'Quincenal' }}</p>
+                <div class="bg-white dark:bg-slate-900 rounded-lg p-4 border border-emerald-100">
+                  <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Pago {{ form.frecuencia_pago === 'semanal' ? 'Semanal' : 'Quincenal' }}</p>
                   <p class="text-xl font-bold text-emerald-600">{{ formatCurrency(salarioPorPeriodo) }}</p>
                   <p class="text-xs text-gray-400">{{ pagosPorMes }} pagos/mes</p>
                 </div>
-                <div class="bg-white rounded-lg p-4 border border-emerald-100">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Total Mensual</p>
-                  <p class="text-xl font-bold text-gray-900">{{ formatCurrency(totalMensual) }}</p>
+                <div class="bg-white dark:bg-slate-900 rounded-lg p-4 border border-emerald-100">
+                  <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Mensual</p>
+                  <p class="text-xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(totalMensual) }}</p>
                   <p class="text-xs text-gray-400">Verificación</p>
                 </div>
-                <div class="bg-white rounded-lg p-4 border border-emerald-100">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Diferencia</p>
+                <div class="bg-white dark:bg-slate-900 rounded-lg p-4 border border-emerald-100">
+                  <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Diferencia</p>
                   <p class="text-xl font-bold text-green-600">
                     {{ formatCurrency(0) }}
                   </p>
@@ -432,8 +432,8 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
 
           <!-- Información Bancaria -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900">Información Bancaria</h2>
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información Bancaria</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -454,8 +454,8 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
 
           <!-- Contacto de Emergencia -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900">Contacto de Emergencia</h2>
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Contacto de Emergencia</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -476,14 +476,14 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
 
           <!-- Contrato Adjunto -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                 <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 Contrato Físico
               </h2>
-              <p class="text-sm text-gray-600 mt-1">Adjunta un nuevo contrato para reemplazar el anterior si existe</p>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Adjunta un nuevo contrato para reemplazar el anterior si existe</p>
             </div>
 
             <div v-if="empleado.contrato_adjunto" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 flex items-center justify-between">
@@ -496,7 +496,7 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
               <a :href="`/empleados/${empleado.id}/descargar-contrato`" target="_blank" class="text-sm text-blue-600 hover:underline">Ver actual</a>
             </div>
 
-            <div class="bg-white border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center transition-all hover:border-emerald-400 group">
+            <div class="bg-white dark:bg-slate-900 border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center transition-all hover:border-emerald-400 group">
               <input
                 type="file"
                 id="contrato_adjunto"
@@ -505,7 +505,7 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
                 accept=".pdf,image/*"
               />
               <label for="contrato_adjunto" class="cursor-pointer flex flex-col items-center">
-                <div class="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <div class="w-12 h-12 bg-white dark:bg-slate-900 rounded-full shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                   <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
@@ -513,7 +513,7 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
                 <span class="text-sm font-medium text-gray-700">
                   {{ form.contrato_adjunto ? form.contrato_adjunto.name : 'Subir nuevo archivo' }}
                 </span>
-                <span class="text-xs text-gray-500 mt-1">PDF, JPG o PNG hasta 5MB</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400 mt-1">PDF, JPG o PNG hasta 5MB</span>
               </label>
               <button
                 v-if="form.contrato_adjunto"
@@ -534,7 +534,7 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
           </div>
 
           <!-- Botones -->
-          <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+          <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-slate-800">
             <button type="button" @click="cancelar" class="px-6 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
               Cancelar
             </button>

@@ -6,9 +6,9 @@
         <div class="mb-8">
             <div class="flex items-center gap-4 mb-4">
                 <Link href="/comisiones" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
-                    <FontAwesomeIcon :icon="['fas', 'arrow-left']" class="w-4 h-4 text-gray-600" />
+                    <FontAwesomeIcon :icon="['fas', 'arrow-left']" class="w-4 h-4 text-gray-600 dark:text-gray-300" />
                 </Link>
-                <h1 class="text-2xl font-bold text-gray-900">Historial de Pagos de Comisiones</h1>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Historial de Pagos de Comisiones</h1>
             </div>
             
             <!-- Filtros -->
@@ -23,36 +23,36 @@
         </div>
 
         <!-- Tabla de pagos -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-white">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                    <thead class="bg-white dark:bg-slate-900">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Vendedor</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Periodo</th>
-                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Comisión</th>
-                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Pagado</th>
-                            <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Estado</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Fecha Pago</th>
-                            <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Acciones</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Vendedor</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Periodo</th>
+                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Comisión</th>
+                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Pagado</th>
+                            <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Estado</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Fecha Pago</th>
+                            <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-100">
+                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-100">
                         <tr v-if="pagos.data.length === 0">
-                            <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                            <td colspan="8" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                                 No hay pagos registrados
                             </td>
                         </tr>
-                        <tr v-for="pago in pagos.data" :key="pago.id" class="hover:bg-white">
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-600">#{{ pago.id }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                        <tr v-for="pago in pagos.data" :key="pago.id" class="hover:bg-white dark:bg-slate-900">
+                            <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300">#{{ pago.id }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                 {{ pago.vendedor?.name || 'N/A' }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-600">
+                            <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300">
                                 {{ formatFecha(pago.periodo_inicio) }} - {{ formatFecha(pago.periodo_fin) }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-gray-900">
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-gray-900 dark:text-white">
                                 ${{ formatMonto(pago.monto_comision) }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-green-600 font-medium">
@@ -69,11 +69,11 @@
                                     Pendiente
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-600">
+                            <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300">
                                 {{ pago.fecha_pago ? formatFecha(pago.fecha_pago) : '-' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <a :href="`/comisiones/recibo/${pago.id}`" target="_blank" class="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 inline-flex" title="Descargar recibo">
+                                <a :href="`/comisiones/recibo/${pago.id}`" target="_blank" class="p-2 rounded-lg bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200 inline-flex" title="Descargar recibo">
                                     <FontAwesomeIcon :icon="['fas', 'file-pdf']" class="w-4 h-4" />
                                 </a>
                             </td>
@@ -83,7 +83,7 @@
             </div>
 
             <!-- Paginación -->
-            <div v-if="pagos.links && pagos.links.length > 3" class="px-6 py-4 border-t border-gray-100 bg-white/50">
+            <div v-if="pagos.links && pagos.links.length > 3" class="px-6 py-4 border-t border-gray-100 bg-white dark:bg-slate-900/50">
                 <nav class="flex items-center justify-center gap-1">
                     <Link
                         v-for="link in pagos.links"
@@ -91,7 +91,7 @@
                         :href="link.url || '#'"
                         :class="[
                             'px-3 py-2 text-sm rounded-lg transition-colors',
-                            link.active ? 'bg-amber-500 text-white' : link.url ? 'text-gray-600 hover:bg-gray-100' : 'text-gray-300 cursor-not-allowed'
+                            link.active ? 'bg-amber-500 text-white' : link.url ? 'text-gray-600 dark:text-gray-300 hover:bg-gray-100' : 'text-gray-300 cursor-not-allowed'
                         ]"
                         v-html="link.label"
                     />

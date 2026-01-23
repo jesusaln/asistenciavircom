@@ -54,7 +54,7 @@ const getEstadoBadge = (estado) => {
         'procesada': 'bg-green-100 text-green-800',
         'cancelada': 'bg-red-100 text-red-800',
     };
-    return badges[estado] || 'bg-gray-100 text-gray-800';
+    return badges[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100';
 };
 
 const estadoBadgeStyle = (valor) => {
@@ -123,7 +123,7 @@ const closeModal = () => {
         <Head title="Gastos Operativos" />
 
         <template #header>
-            <div class="rounded-xl border border-gray-200/60 overflow-hidden" :style="cssVars">
+            <div class="rounded-xl border border-gray-200 dark:border-slate-800/60 overflow-hidden" :style="cssVars">
                 <div class="px-6 py-6 text-white" :style="headerGradientStyle">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
@@ -161,16 +161,16 @@ const closeModal = () => {
                         </div>
                     </div>
                     <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="bg-white/85 backdrop-blur-sm rounded-xl p-4 border border-white/40">
-                            <p class="text-sm font-medium text-gray-600">Total</p>
+                        <div class="bg-white dark:bg-slate-900/85 backdrop-blur-sm rounded-xl p-4 border border-white/40">
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total</p>
                             <p class="text-2xl font-bold" :style="{ color: colors.principal }">{{ stats.total }}</p>
                         </div>
-                        <div class="bg-white/85 backdrop-blur-sm rounded-xl p-4 border border-white/40">
-                            <p class="text-sm font-medium text-gray-600">Procesadas</p>
+                        <div class="bg-white dark:bg-slate-900/85 backdrop-blur-sm rounded-xl p-4 border border-white/40">
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Procesadas</p>
                             <p class="text-2xl font-bold" :style="{ color: colors.principal }">{{ stats.procesadas }}</p>
                         </div>
-                        <div class="bg-white/85 backdrop-blur-sm rounded-xl p-4 border border-white/40">
-                            <p class="text-sm font-medium text-gray-600">Canceladas</p>
+                        <div class="bg-white dark:bg-slate-900/85 backdrop-blur-sm rounded-xl p-4 border border-white/40">
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Canceladas</p>
                             <p class="text-2xl font-bold text-red-600">{{ stats.canceladas }}</p>
                         </div>
                     </div>
@@ -181,7 +181,7 @@ const closeModal = () => {
         <div class="py-6" :style="cssVars">
             <div class="px-4 sm:px-6 lg:px-8">
                 <!-- Filtros -->
-                <div class="bg-white shadow rounded-lg mb-6 p-4">
+                <div class="bg-white dark:bg-slate-900 shadow rounded-lg mb-6 p-4">
                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
@@ -238,56 +238,56 @@ const closeModal = () => {
                 </div>
 
                 <!-- Tabla -->
-                <div class="bg-white shadow rounded-lg overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-white">
+                <div class="bg-white dark:bg-slate-900 shadow rounded-lg overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                        <thead class="bg-white dark:bg-slate-900">
                             <tr>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Número</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Categoría</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Proveedor</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Proyecto</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usuario</th>
-                                <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase">Monto</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase">Estado</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Número</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Fecha</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Categoría</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Descripción</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Proveedor</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Proyecto</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Usuario</th>
+                                <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Monto</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Estado</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <tr v-for="gasto in gastos.data" :key="gasto.id" class="hover:bg-white">
+                        <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+                            <tr v-for="gasto in gastos.data" :key="gasto.id" class="hover:bg-white dark:bg-slate-900">
                                 <td class="px-3 py-4 whitespace-nowrap">
                                     <button @click="showGasto(gasto)" class="text-amber-600 hover:text-indigo-900 font-medium">
                                         {{ gasto.numero_compra }}
                                     </button>
                                 </td>
-                                <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                     {{ formatDate(gasto.fecha_compra) }}
                                 </td>
-                                <td class="px-3 py-4 text-sm text-gray-900">
+                                <td class="px-3 py-4 text-sm text-gray-900 dark:text-white">
                                     {{ gasto.categoria_gasto?.nombre || '-' }}
                                 </td>
-                                <td class="px-3 py-4 text-sm text-gray-600 max-w-xs truncate" :title="gasto.notas">
+                                <td class="px-3 py-4 text-sm text-gray-600 dark:text-gray-300 max-w-xs truncate" :title="gasto.notas">
                                     {{ gasto.notas || '-' }}
                                 </td>
-                                <td class="px-3 py-4 text-sm text-gray-500">
+                                <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                     {{ gasto.proveedor?.nombre_razon_social || 'Sin proveedor' }}
                                 </td>
-                                <td class="px-3 py-4 text-sm text-gray-500">
+                                <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                     <span v-if="gasto.proyecto" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
                                         {{ gasto.proyecto.nombre }}
                                     </span>
                                     <span v-else class="text-gray-400">-</span>
                                 </td>
-                                <td class="px-3 py-4 text-sm text-gray-500">
+                                <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                     <div class="flex items-center gap-1">
-                                        <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] uppercase font-bold text-gray-600">
+                                        <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] uppercase font-bold text-gray-600 dark:text-gray-300">
                                             {{ gasto.created_by?.name?.charAt(0) || '?' }}
                                         </div>
                                         <span class="truncate max-w-[80px] text-xs">{{ gasto.created_by?.name || 'Sistema' }}</span>
                                     </div>
                                 </td>
-                                <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
+                                <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right font-medium">
                                     {{ formatCurrency(gasto.total) }}
                                 </td>
                                 <td class="px-3 py-4 whitespace-nowrap text-center">
@@ -341,7 +341,7 @@ const closeModal = () => {
                                 </td>
                             </tr>
                             <tr v-if="!gastos.data?.length">
-                                <td colspan="10" class="px-6 py-12 text-center text-gray-500">
+                                <td colspan="10" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                                     No hay gastos registrados
                                 </td>
                             </tr>
@@ -349,7 +349,7 @@ const closeModal = () => {
                     </table>
 
                     <!-- Pagination -->
-                    <div v-if="gastos.links?.length > 3" class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                    <div v-if="gastos.links?.length > 3" class="bg-white dark:bg-slate-900 px-4 py-3 border-t border-gray-200 dark:border-slate-800 sm:px-6">
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-gray-700">
                                 Mostrando {{ gastos.from }} a {{ gastos.to }} de {{ gastos.total }} resultados
@@ -359,7 +359,7 @@ const closeModal = () => {
                                     :href="link.url || '#'"
                                     :class="[
                                         'px-3 py-1 text-sm border rounded',
-                                        link.active ? 'text-white' : 'bg-white text-gray-700 border-gray-300 hover:bg-white',
+                                        link.active ? 'text-white' : 'bg-white dark:bg-slate-900 text-gray-700 border-gray-300 hover:bg-white dark:bg-slate-900',
                                         !link.url ? 'opacity-50 cursor-not-allowed' : ''
                                     ]"
                                     :style="link.active ? headerGradientStyle : null"

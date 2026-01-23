@@ -120,7 +120,7 @@ onUnmounted(() => {
             class="fixed bottom-4 left-4 z-50 max-w-sm"
         >
             <!-- Notificación con efecto cristal -->
-            <div class="relative bg-white/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 p-4 overflow-hidden">
+            <div class="relative bg-white dark:bg-slate-900/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 p-4 overflow-hidden">
                 <!-- Efecto de brillo superior -->
                 <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent"></div>
                 
@@ -143,7 +143,7 @@ onUnmounted(() => {
                     <div class="flex-1 min-w-0">
                         <p class="text-sm text-gray-800">
                             <span class="font-bold">{{ currentNotification.nombre }}</span>
-                            <span class="text-gray-500"> de </span>
+                            <span class="text-gray-500 dark:text-gray-400"> de </span>
                             <span class="font-medium">{{ currentNotification.ciudad }}</span>
                         </p>
                         <p class="text-sm text-gray-600 truncate">

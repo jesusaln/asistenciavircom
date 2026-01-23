@@ -44,19 +44,19 @@ const shareToTwitter = () => {
         <meta property="og:image" :content="post.imagen_portada_url">
     </Head>
     
-    <div :style="cssVars" class="min-h-screen bg-white dark:bg-gray-900 flex flex-col font-sans">
+    <div :style="cssVars" class="min-h-screen bg-white dark:bg-slate-900 dark:bg-gray-900 flex flex-col font-sans">
         <PublicNavbar :empresa="empresa" />
 
         <main class="flex-grow">
             <!-- Article Content -->
             <article class="w-full px-4 py-12 md:py-20">
                 <!-- Breadcrumbs -->
-                <nav class="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500 mb-8">
+                <nav class="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500 dark:text-gray-400 mb-8">
                     <Link :href="route('landing')" class="hover:text-[var(--color-primary)] transition-colors">Inicio</Link>
                     <FontAwesomeIcon icon="chevron-right" class="text-[10px]" />
                     <Link :href="route('public.blog.index')" class="hover:text-[var(--color-primary)] transition-colors">Blog</Link>
                     <FontAwesomeIcon icon="chevron-right" class="text-[10px]" />
-                    <span class="text-gray-600 dark:text-gray-300 truncate max-w-[200px]">{{ post.titulo }}</span>
+                    <span class="text-gray-600 dark:text-gray-300 dark:text-gray-300 truncate max-w-[200px]">{{ post.titulo }}</span>
                 </nav>
 
                 <!-- Post Header -->
@@ -66,10 +66,10 @@ const shareToTwitter = () => {
                             {{ post.categoria || 'Tecnología' }}
                         </span>
                     </div>
-                    <h1 class="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-gray-100 mb-6 leading-tight">
+                    <h1 class="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white dark:text-gray-100 mb-6 leading-tight">
                         {{ post.titulo }}
                     </h1>
-                    <div class="flex flex-wrap items-center gap-6 text-sm text-gray-500 dark:text-gray-400 border-y border-gray-100 dark:border-gray-700 py-4 font-medium">
+                    <div class="flex flex-wrap items-center gap-6 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 border-y border-gray-100 dark:border-gray-700 py-4 font-medium">
                         <div class="flex items-center gap-2">
                             <FontAwesomeIcon icon="calendar-alt" class="text-[var(--color-primary)]" />
                             {{ formatDate(post.publicado_at) }}
@@ -79,11 +79,11 @@ const shareToTwitter = () => {
                             {{ post.visitas }} vistas
                         </div>
                         <div class="flex items-center gap-4 ml-auto">
-                            <span class="text-xs uppercase tracking-widest text-gray-400 dark:text-gray-500">Compartir:</span>
-                            <button @click="shareToFacebook" class="text-gray-400 dark:text-gray-500 hover:text-blue-600 transition-colors">
+                            <span class="text-xs uppercase tracking-widest text-gray-400 dark:text-gray-500 dark:text-gray-400">Compartir:</span>
+                            <button @click="shareToFacebook" class="text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-blue-600 transition-colors">
                                 <FontAwesomeIcon :icon="['fab', 'facebook']" size="lg" />
                             </button>
-                            <button @click="shareToTwitter" class="text-gray-400 dark:text-gray-500 hover:text-black transition-colors">
+                            <button @click="shareToTwitter" class="text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-black transition-colors">
                                 <FontAwesomeIcon :icon="['fab', 'twitter']" size="lg" />
                             </button>
                         </div>
@@ -107,27 +107,27 @@ const shareToTwitter = () => {
                                 <h3 class="text-2xl font-bold mb-2">¿Necesitas asesoría técnica?</h3>
                                 <p class="text-blue-100 opacity-90">Contáctanos hoy mismo y uno de nuestros expertos te ayudará.</p>
                             </div>
-                            <a :href="`https://wa.me/${empresa.whatsapp}`" class="bg-white dark:bg-gray-700 text-[var(--color-primary)] px-8 py-4 rounded-2xl font-bold hover:bg-blue-50 dark:hover:bg-gray-600 transition-all flex items-center gap-3 shadow-xl transform active:scale-95">
+                            <a :href="`https://wa.me/${empresa.whatsapp}`" class="bg-white dark:bg-slate-900 dark:bg-gray-700 text-[var(--color-primary)] px-8 py-4 rounded-2xl font-bold hover:bg-blue-50 dark:hover:bg-gray-600 transition-all flex items-center gap-3 shadow-xl transform active:scale-95">
                                 <FontAwesomeIcon :icon="['fab', 'whatsapp']" size="lg" />
                                 Hablar con un Experto
                             </a>
                         </div>
                         <!-- Background Shapes -->
-                        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-3xl transition-transform duration-700 group-hover:scale-150"></div>
-                        <div class="absolute -left-10 -top-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white dark:bg-slate-900/10 rounded-full blur-3xl transition-transform duration-700 group-hover:scale-150"></div>
+                        <div class="absolute -left-10 -top-10 w-32 h-32 bg-white dark:bg-slate-900/10 rounded-full blur-2xl"></div>
                     </div>
                 </footer>
 
                 <!-- Related Posts -->
                 <section v-if="relacionados.length > 0" class="mt-24">
-                    <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-8 border-l-4 border-[var(--color-primary)] pl-4">También te puede interesar</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-gray-100 mb-8 border-l-4 border-[var(--color-primary)] pl-4">También te puede interesar</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <article v-for="rel in relacionados" :key="rel.id" class="group">
                             <Link :href="route('public.blog.show', rel.slug)">
                                 <div class="relative h-40 rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-700 mb-4">
                                     <img v-if="rel.imagen_portada_url" :src="rel.imagen_portada_url" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                                 </div>
-                                <h4 class="font-bold text-gray-900 dark:text-gray-100 group-hover:text-[var(--color-primary)] transition-colors line-clamp-2">
+                                <h4 class="font-bold text-gray-900 dark:text-white dark:text-gray-100 group-hover:text-[var(--color-primary)] transition-colors line-clamp-2">
                                     {{ rel.titulo }}
                                 </h4>
                             </Link>

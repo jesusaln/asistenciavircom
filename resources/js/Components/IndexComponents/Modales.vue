@@ -12,7 +12,7 @@
           'max-w-md': mode === 'confirm' || mode === 'confirm-duplicate' || mode === 'confirm-cancel' || mode === 'close',
           'max-w-4xl': mode === 'details'
         }"
-        class="bg-white rounded-lg shadow-xl w-full max-h-[90vh] overflow-y-auto p-6 outline-none"
+        class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-h-[90vh] overflow-y-auto p-6 outline-none"
         role="dialog"
         aria-modal="true"
         :aria-label="`Modal de ${config.titulo}`"
@@ -70,14 +70,14 @@
             <p class="mb-1 text-sm">
               {{ config.titulo }} <strong>#{{ selected.numero_cotizacion || selected.numero_pedido || selected.numero_venta }}</strong>
             </p>
-            <p v-if="selected?.email_destino" class="text-xs text-gray-500">
+            <p v-if="selected?.email_destino" class="text-xs text-gray-500 dark:text-gray-400">
               📧 {{ selected.email_destino }}
             </p>
             <p v-if="selected?.email_enviado" class="text-xs text-blue-600">
               ✉️ Enviado: {{ selected.email_enviado_fecha || 'N/A' }}
             </p>
           </div>
-          <p class="text-gray-500 mb-4 text-xs">
+          <p class="text-gray-500 dark:text-gray-400 mb-4 text-xs">
             {{ selected?.tipo_envio === 'recordatorio_pago'
                ? 'El cliente recibirá el recordatorio de pago con la factura adjunta por email'
                : 'El cliente recibirá el PDF por email' }}
@@ -165,7 +165,7 @@
         <div v-else-if="mode === 'details'" class="space-y-4">
           <h3 class="text-lg font-medium mb-1 flex items-center gap-2">
             Detalles de {{ config.titulo }}
-            <span v-if="selected?.id" class="text-sm text-gray-500">#{{ selected.id }}</span>
+            <span v-if="selected?.id" class="text-sm text-gray-500 dark:text-gray-400">#{{ selected.id }}</span>
           </h3>
 
           <!-- NUEVO: Folio detectado automáticamente -->
@@ -174,33 +174,33 @@
           </p>
 
           <!-- NUEVO: Auditoría -->
-          <div v-if="auditoriaBoxVisible" class="mt-2 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <div v-if="auditoriaBoxVisible" class="mt-2 p-4 bg-gray-50 rounded-lg border border-gray-200 dark:border-slate-800">
             <h4 class="text-sm font-semibold text-gray-800 mb-3">Auditoría</h4>
             <div class="grid md:grid-cols-3 gap-3 text-sm">
               <div>
-                <span class="text-gray-500">Creado por:</span>
-                <div class="font-medium text-gray-900">
+                <span class="text-gray-500 dark:text-gray-400">Creado por:</span>
+                <div class="font-medium text-gray-900 dark:text-white">
                   {{ auditoriaSafe.creado_por || '—' }}
                 </div>
-                <div class="text-gray-500">
+                <div class="text-gray-500 dark:text-gray-400">
                   {{ auditoriaSafe.creado_en ? formatearFecha(auditoriaSafe.creado_en) : '—' }}
                 </div>
               </div>
               <div>
-                <span class="text-gray-500">Actualizado por:</span>
-                <div class="font-medium text-gray-900">
+                <span class="text-gray-500 dark:text-gray-400">Actualizado por:</span>
+                <div class="font-medium text-gray-900 dark:text-white">
                   {{ auditoriaSafe.actualizado_por || '—' }}
                 </div>
-                <div class="text-gray-500">
+                <div class="text-gray-500 dark:text-gray-400">
                   {{ auditoriaSafe.actualizado_en ? formatearFecha(auditoriaSafe.actualizado_en) : '—' }}
                 </div>
               </div>
               <div v-if="auditoriaSafe.eliminado_en">
-                <span class="text-gray-500">Eliminado por:</span>
-                <div class="font-medium text-gray-900">
+                <span class="text-gray-500 dark:text-gray-400">Eliminado por:</span>
+                <div class="font-medium text-gray-900 dark:text-white">
                   {{ auditoriaSafe.eliminado_por || '—' }}
                 </div>
-                <div class="text-gray-500">
+                <div class="text-gray-500 dark:text-gray-400">
                   {{ auditoriaSafe.eliminado_en ? formatearFecha(auditoriaSafe.eliminado_en) : '—' }}
                 </div>
               </div>
@@ -531,8 +531,8 @@
                 </template>
 
                 <!-- Dirección para clientes -->
-                <div v-if="isClientes && (selected.calle || selected.colonia || selected.municipio)" class="mt-3 pt-3 border-t border-gray-200">
-                  <p class="text-sm font-medium text-gray-900 mb-1">Dirección</p>
+                <div v-if="isClientes && (selected.calle || selected.colonia || selected.municipio)" class="mt-3 pt-3 border-t border-gray-200 dark:border-slate-800">
+                  <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">Dirección</p>
                   <p class="text-sm text-gray-600">
                     {{ [
                       selected.calle,
@@ -551,44 +551,44 @@
 
             <!-- Tabla de productos (no aplica a equipos ni clientes) -->
             <div v-if="!isEquipos && !isClientes && (selected.productos || selected.items)?.length" class="mt-4">
-              <h4 class="text-sm font-medium text-gray-900 mb-2">Productos y Servicios</h4>
+              <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Productos y Servicios</h4>
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                   <thead class="bg-gray-50">
                     <tr>
-                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Nombre
                       </th>
-                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Tipo
                       </th>
-                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Cantidad
                       </th>
-                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Precio
                       </th>
-                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Descuento
                       </th>
-                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Subtotal
                       </th>
                       <!-- Columnas adicionales para compras -->
-                      <th v-if="isCompras" class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th v-if="isCompras" class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Stock Antes
                       </th>
-                      <th v-if="isCompras" class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th v-if="isCompras" class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Stock Después
                       </th>
-                      <th v-if="isCompras" class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th v-if="isCompras" class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Diferencia
                       </th>
                     </tr>
                   </thead>
-                  <tbody class="bg-white divide-y divide-gray-200">
+                  <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200">
                     <tr v-for="producto in (selected.productos || selected.items)" :key="producto.id || producto.nombre">
-                      <td class="px-4 py-2 text-sm text-gray-900">
+                      <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">
                         {{ producto.nombre || 'Sin nombre' }}
                       </td>
                       <td class="px-4 py-2 text-sm text-gray-600 capitalize">
@@ -643,8 +643,8 @@
             <p v-else-if="!isEquipos && !isClientes && !isOrdenesCompra" class="text-sm text-gray-600">No hay productos asociados.</p>
 
             <!-- Totales para cotizaciones -->
-            <div v-if="isCotizaciones && selected.productos?.length" class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <h4 class="text-sm font-medium text-gray-900 mb-3">Resumen de Cotización</h4>
+            <div v-if="isCotizaciones && selected.productos?.length" class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 dark:border-slate-800">
+              <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Resumen de Cotización</h4>
               <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
                   <span class="text-gray-600">Subtotal:</span>
@@ -663,15 +663,15 @@
                   <span class="font-medium">${{ formatearMoneda(calcularIVACotizacion()) }}</span>
                 </div>
                 <div class="flex justify-between border-t border-gray-300 pt-2">
-                  <span class="text-gray-900 font-semibold">Total:</span>
-                  <span class="text-gray-900 font-bold">${{ formatearMoneda(calcularTotalCotizacion()) }}</span>
+                  <span class="text-gray-900 dark:text-white font-semibold">Total:</span>
+                  <span class="text-gray-900 dark:text-white font-bold">${{ formatearMoneda(calcularTotalCotizacion()) }}</span>
                 </div>
               </div>
             </div>
 
             <!-- Totales para órdenes de compra -->
-            <div v-if="isOrdenesCompra && selected.productos?.length" class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <h4 class="text-sm font-medium text-gray-900 mb-3">Resumen de Orden de Compra</h4>
+            <div v-if="isOrdenesCompra && selected.productos?.length" class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 dark:border-slate-800">
+              <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Resumen de Orden de Compra</h4>
               <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
                   <span class="text-gray-600">Subtotal:</span>
@@ -690,15 +690,15 @@
                   <span class="font-medium">${{ formatearMoneda(selected.iva || 0) }}</span>
                 </div>
                 <div class="flex justify-between border-t border-gray-300 pt-2">
-                  <span class="text-gray-900 font-semibold">Total:</span>
-                  <span class="text-gray-900 font-bold">${{ formatearMoneda(selected.total || 0) }}</span>
+                  <span class="text-gray-900 dark:text-white font-semibold">Total:</span>
+                  <span class="text-gray-900 dark:text-white font-bold">${{ formatearMoneda(selected.total || 0) }}</span>
                 </div>
               </div>
             </div>
 
             <!-- Totales para compras -->
-            <div v-if="isCompras && selected.productos?.length" class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <h4 class="text-sm font-medium text-gray-900 mb-3">Resumen de Compra</h4>
+            <div v-if="isCompras && selected.productos?.length" class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 dark:border-slate-800">
+              <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Resumen de Compra</h4>
               <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
                   <span class="text-gray-600">Subtotal:</span>
@@ -717,15 +717,15 @@
                   <span class="font-medium">${{ formatearMoneda(selected.iva || 0) }}</span>
                 </div>
                 <div class="flex justify-between border-t border-gray-300 pt-2">
-                  <span class="text-gray-900 font-semibold">Total:</span>
-                  <span class="text-gray-900 font-bold">${{ formatearMoneda(selected.total || 0) }}</span>
+                  <span class="text-gray-900 dark:text-white font-semibold">Total:</span>
+                  <span class="text-gray-900 dark:text-white font-bold">${{ formatearMoneda(selected.total || 0) }}</span>
                 </div>
               </div>
             </div>
 
             <!-- Totales para pedidos -->
-            <div v-if="isPedidos && (selected.productos || selected.items)?.length" class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <h4 class="text-sm font-medium text-gray-900 mb-3">Resumen de Pedido</h4>
+            <div v-if="isPedidos && (selected.productos || selected.items)?.length" class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 dark:border-slate-800">
+              <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Resumen de Pedido</h4>
               <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
                   <span class="text-gray-600">Subtotal:</span>
@@ -744,8 +744,8 @@
                   <span class="font-medium">${{ formatearMoneda(selected.iva || 0) }}</span>
                 </div>
                 <div class="flex justify-between border-t border-gray-300 pt-2">
-                  <span class="text-gray-900 font-semibold">Total:</span>
-                  <span class="text-gray-900 font-bold">${{ formatearMoneda(selected.total || 0) }}</span>
+                  <span class="text-gray-900 dark:text-white font-semibold">Total:</span>
+                  <span class="text-gray-900 dark:text-white font-bold">${{ formatearMoneda(selected.total || 0) }}</span>
                 </div>
               </div>
             </div>
@@ -951,7 +951,7 @@
       class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       @click.self="showConfirmReenvioPedido = false"
     >
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+      <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-md p-6">
         <div class="text-center">
           <div class="w-12 h-12 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-4">
             <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -989,7 +989,7 @@
       class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       @click.self="showConfirmReenvioVenta = false"
     >
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+      <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-md p-6">
         <div class="text-center">
           <div class="w-12 h-12 mx-auto bg-emerald-100 rounded-full flex items-center justify-center mb-4">
             <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1148,8 +1148,8 @@ const config = computed(() => {
         moroso: { label: 'Moroso', classes: 'bg-red-200 text-red-800', color: 'bg-red-500' },
         suspendido: { label: 'Suspendido', classes: 'bg-yellow-100 text-yellow-700', color: 'bg-yellow-400' },
         finalizado: { label: 'Finalizado', classes: 'bg-gray-100 text-gray-600', color: 'bg-gray-400' },
-        anulado: { label: 'Anulado', classes: 'bg-gray-100 text-gray-500', color: 'bg-gray-400' },
-        sin_estado: { label: 'Sin Estado', classes: 'bg-gray-100 text-gray-500', color: 'bg-gray-400' }
+        anulado: { label: 'Anulado', classes: 'bg-gray-100 text-gray-500 dark:text-gray-400', color: 'bg-gray-400' },
+        sin_estado: { label: 'Sin Estado', classes: 'bg-gray-100 text-gray-500 dark:text-gray-400', color: 'bg-gray-400' }
       })
     },
     equipos: {

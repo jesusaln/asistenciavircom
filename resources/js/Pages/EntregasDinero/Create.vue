@@ -69,14 +69,14 @@ const submit = () => {
 <template>
   <Head title="Registrar Entrega de Dinero" />
 
-  <div class="entregas-dinero-create min-h-screen bg-white">
+  <div class="entregas-dinero-create min-h-screen bg-white dark:bg-slate-900">
     <div class="w-full px-6 py-8">
       <!-- Header -->
-      <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-8 mb-6">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 rounded-xl shadow-sm p-8 mb-6">
         <div class="flex items-center gap-3 mb-6">
           <button
             @click="router.visit(route('entregas-dinero.index'))"
-            class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+            class="p-2 bg-gray-100 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -189,7 +189,7 @@ const submit = () => {
           </div>
 
           <!-- Botones -->
-          <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
+          <div class="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-slate-800">
             <button
               type="button"
               @click="router.visit(route('entregas-dinero.index'))"

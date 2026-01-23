@@ -64,7 +64,7 @@ const faqs = [
 <template>
     <Head :title="`Soporte Técnico - ${empresaData?.nombre || empresaData?.nombre_empresa || 'Empresa'}`" />
 
-    <div class="min-h-screen bg-white flex flex-col font-sans" :style="cssVars">
+    <div class="min-h-screen bg-white dark:bg-slate-900 flex flex-col font-sans" :style="cssVars">
         <!-- Widget Flotante de WhatsApp -->
         <WhatsAppWidget :whatsapp="empresaData?.whatsapp" :empresaNombre="empresaData?.nombre || empresaData?.nombre_empresa" />
         
@@ -77,7 +77,7 @@ const faqs = [
                 <div class="absolute -top-24 -right-24 w-96 h-96 bg-[var(--color-primary)] rounded-full blur-[150px] opacity-20"></div>
                 
                 <div class="w-full px-4 relative z-10 text-center">
-                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 mb-8">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-slate-900/10 backdrop-blur-md border border-white/10 mb-8">
                          <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
                          <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white">Sistemas Operativos</span>
                     </div>
@@ -92,24 +92,24 @@ const faqs = [
                     <div class="grid md:grid-cols-2 gap-8">
                         
                         <!-- Opción 1: Clientes Registrados -->
-                        <div class="bg-white p-10 rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col items-center text-center group hover:-translate-y-2 transition-all duration-300">
+                        <div class="bg-white dark:bg-slate-900 p-10 rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col items-center text-center group hover:-translate-y-2 transition-all duration-300">
                             <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 mb-8 text-4xl group-hover:scale-110 transition-transform">
                                 🛡️
                             </div>
-                            <h2 class="text-2xl font-black text-gray-900 mb-4">¿Ya es Cliente?</h2>
-                            <p class="text-gray-500 mb-8 max-w-sm">Ingrese a su portal de clientes para levantar tickets, ver el estado de sus servicios y descargar facturas.</p>
+                            <h2 class="text-2xl font-black text-gray-900 dark:text-white mb-4">¿Ya es Cliente?</h2>
+                            <p class="text-gray-500 dark:text-gray-400 mb-8 max-w-sm">Ingrese a su portal de clientes para levantar tickets, ver el estado de sus servicios y descargar facturas.</p>
                             <a :href="route('login')" class="px-8 py-4 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition w-full max-w-xs shadow-lg shadow-blue-200">
                                 Acceder al Portal
                             </a>
                         </div>
 
                         <!-- Opción 2: Soporte Remoto -->
-                        <div class="bg-white p-10 rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col items-center text-center group hover:-translate-y-2 transition-all duration-300">
+                        <div class="bg-white dark:bg-slate-900 p-10 rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col items-center text-center group hover:-translate-y-2 transition-all duration-300">
                             <div class="w-20 h-20 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-600 mb-8 text-4xl group-hover:scale-110 transition-transform">
                                 💻
                             </div>
-                            <h2 class="text-2xl font-black text-gray-900 mb-4">Soporte Remoto</h2>
-                            <p class="text-gray-500 mb-8 max-w-sm">Si un técnico se lo indica, descargue nuestra herramienta de soporte remoto para asistencia inmediata.</p>
+                            <h2 class="text-2xl font-black text-gray-900 dark:text-white mb-4">Soporte Remoto</h2>
+                            <p class="text-gray-500 dark:text-gray-400 mb-8 max-w-sm">Si un técnico se lo indica, descargue nuestra herramienta de soporte remoto para asistencia inmediata.</p>
                             <div class="flex gap-4 w-full max-w-xs justify-center">
                                 <a href="https://anydesk.com/es/downloads" target="_blank" class="flex-1 px-4 py-4 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition border border-red-100">
                                     AnyDesk
@@ -125,26 +125,26 @@ const faqs = [
             </section>
 
             <!-- Preguntas Frecuentes Section -->
-            <section class="py-24 bg-white overflow-hidden relative">
+            <section class="py-24 bg-white dark:bg-slate-900 overflow-hidden relative">
                 <div class="w-full px-4 relative z-10">
                     <div class="text-center mb-16 px-4">
                         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-primary-soft)] border border-[var(--color-primary-soft)] mb-4">
                              <span class="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--color-primary)]">Soporte Directo</span>
                         </div>
-                        <h2 class="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter mb-4">Preguntas Frecuentes</h2>
-                        <p class="text-gray-500 text-lg font-medium w-full">Todo lo que necesita saber sobre nuestros servicios y procesos técnicos para su tranquilidad.</p>
+                        <h2 class="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tighter mb-4">Preguntas Frecuentes</h2>
+                        <p class="text-gray-500 dark:text-gray-400 text-lg font-medium w-full">Todo lo que necesita saber sobre nuestros servicios y procesos técnicos para su tranquilidad.</p>
                     </div>
 
                     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div v-for="(faq, index) in faqs" :key="index" 
-                             class="p-8 rounded-[2.5rem] bg-white border border-gray-100 hover:bg-white hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 group flex flex-col">
-                            <div class="w-14 h-14 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center text-[var(--color-primary)] mb-6 group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all duration-500 transform group-hover:rotate-6">
+                             class="p-8 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-gray-100 hover:bg-white dark:bg-slate-900 hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 group flex flex-col">
+                            <div class="w-14 h-14 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center text-[var(--color-primary)] mb-6 group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all duration-500 transform group-hover:rotate-6">
                                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="faq.icon"></path>
                                 </svg>
                             </div>
-                            <h3 class="text-xl font-extrabold text-gray-900 mb-4 tracking-tight leading-tight">{{ faq.pregunta }}</h3>
-                            <p class="text-gray-500 leading-relaxed font-medium text-sm">{{ faq.respuesta }}</p>
+                            <h3 class="text-xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight leading-tight">{{ faq.pregunta }}</h3>
+                            <p class="text-gray-500 dark:text-gray-400 leading-relaxed font-medium text-sm">{{ faq.respuesta }}</p>
                         </div>
                     </div>
                 </div>
@@ -160,15 +160,15 @@ const faqs = [
                 <div class="w-full px-4 relative z-10 text-center">
                     <h2 class="text-3xl font-black text-white mb-8 tracking-tight">¿Necesita asistencia inmediata?</h2>
                     <div class="flex flex-col md:flex-row justify-center gap-6">
-                        <a :href="`tel:${empresaData?.telefono}`" class="flex-1 w-full md:mx-0 flex items-center gap-5 bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition group">
+                        <a :href="`tel:${empresaData?.telefono}`" class="flex-1 w-full md:mx-0 flex items-center gap-5 bg-white dark:bg-slate-900/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl hover:bg-white dark:bg-slate-900/10 transition group">
                             <span class="w-14 h-14 bg-[var(--color-primary)] rounded-2xl flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform">📞</span>
                             <div class="text-left">
                                 <div class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Llámenos Directo</div>
                                 <div class="text-xl font-black text-white whitespace-nowrap">{{ empresaData?.telefono || 'Consultar' }}</div>
                             </div>
                         </a>
-                        <a :href="`mailto:${empresaData?.email}`" class="flex-1 w-full md:mx-0 flex items-center gap-5 bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition group">
-                            <span class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform">✉️</span>
+                        <a :href="`mailto:${empresaData?.email}`" class="flex-1 w-full md:mx-0 flex items-center gap-5 bg-white dark:bg-slate-900/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl hover:bg-white dark:bg-slate-900/10 transition group">
+                            <span class="w-14 h-14 bg-white dark:bg-slate-900/10 rounded-2xl flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform">✉️</span>
                             <div class="text-left">
                                 <div class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Envíenos un Email</div>
                                 <div class="text-xl font-black text-white truncate max-w-[200px]">{{ empresaData?.email || 'soporte@empresa.com' }}</div>

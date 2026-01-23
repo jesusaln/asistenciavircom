@@ -1,6 +1,6 @@
 <template>
     <Head title="Ver Equipo" />
-    <div class="equipos-show w-full p-6 bg-white rounded-lg shadow-md">
+    <div class="equipos-show w-full p-6 bg-white dark:bg-slate-900 rounded-lg shadow-md">
       <h1 class="text-2xl font-semibold mb-6 text-center">Detalles del Equipo #{{ props.equipo.id }}</h1>
 
       <div class="space-y-6">
@@ -54,7 +54,7 @@
                alt="Foto del Equipo"
                class="max-w-full h-auto rounded-md shadow-sm"
                @error="handleImageError">
-          <p v-else class="text-gray-500 italic">No hay foto del equipo disponible</p>
+          <p v-else class="text-gray-500 dark:text-gray-400 italic">No hay foto del equipo disponible</p>
         </div>
       </div>
     </div>

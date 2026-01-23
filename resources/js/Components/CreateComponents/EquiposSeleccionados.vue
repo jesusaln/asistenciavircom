@@ -2,7 +2,7 @@
   <div class="equipos-seleccionados">
     <!-- Lista de equipos seleccionados -->
     <div v-if="selectedProducts.length > 0" class="mt-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
         <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
         </svg>
@@ -16,7 +16,7 @@
         <div
           v-for="entry in selectedProducts"
           :key="`${entry.tipo}-${entry.id}`"
-          class="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-all duration-200"
+          class="bg-gradient-to-r from-gray-50 to-white border border-gray-200 dark:border-slate-800 rounded-xl p-6 hover:shadow-md transition-all duration-200"
         >
           <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <!-- Información del equipo -->
@@ -32,7 +32,7 @@
                     </span>
                   </div>
 
-                  <h4 class="text-lg font-semibold text-gray-900 mb-1">
+                  <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">
                     {{ getItemInfo(entry).nombre }}
                   </h4>
 
@@ -42,7 +42,7 @@
 
                   <div class="space-y-1">
                     <!-- Precio mensual -->
-                    <div class="flex items-center text-sm text-gray-500">
+                    <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
                       <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
                       </svg>
@@ -50,7 +50,7 @@
                     </div>
 
                     <!-- Código y serie -->
-                    <div class="flex items-center text-sm text-gray-500">
+                    <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
                       <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
                       </svg>
@@ -136,7 +136,7 @@
           </div>
 
           <!-- Información adicional del equipo (descuento aplicado) -->
-          <div v-if="(discounts[`${entry.tipo}-${entry.id}`] || 0) > 0" class="mt-4 pt-4 border-t border-gray-200">
+          <div v-if="(discounts[`${entry.tipo}-${entry.id}`] || 0) > 0" class="mt-4 pt-4 border-t border-gray-200 dark:border-slate-800">
             <div class="grid grid-cols-2 gap-4 text-sm">
               <div class="text-gray-600">
                 <span class="font-medium">Subtotal sin descuento:</span>
@@ -157,7 +157,7 @@
       <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
       </svg>
-      <p class="text-gray-500 text-lg font-medium">No hay equipos seleccionados</p>
+      <p class="text-gray-500 dark:text-gray-400 text-lg font-medium">No hay equipos seleccionados</p>
       <p class="text-gray-400 text-sm mt-1">Busca y agrega equipos para comenzar con la renta</p>
     </div>
   </div>

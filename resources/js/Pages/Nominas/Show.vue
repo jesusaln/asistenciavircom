@@ -57,19 +57,19 @@ const volver = () => router.visit('/nominas')
 <template>
   <Head :title="`Nómina #${nomina.id}`" />
 
-  <div class="min-h-screen bg-white py-8">
+  <div class="min-h-screen bg-white dark:bg-slate-900 py-8">
     <div class="w-full px-6">
       <!-- Header -->
       <div class="mb-8 flex items-center justify-between">
         <div class="flex items-center space-x-4">
           <button @click="volver" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
-            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
           </button>
           <div>
-            <h1 class="text-2xl font-bold text-gray-900">Recibo de Nómina</h1>
-            <p class="text-sm text-gray-500">{{ nomina.periodo_formateado }} • {{ nomina.tipo_periodo_formateado }}</p>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Recibo de Nómina</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ nomina.periodo_formateado }} • {{ nomina.tipo_periodo_formateado }}</p>
           </div>
         </div>
         <div class="flex space-x-3">
@@ -81,7 +81,7 @@ const volver = () => router.visit('/nominas')
       </div>
 
       <!-- Recibo de Nómina -->
-      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
         <!-- Encabezado del Recibo -->
         <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-8 py-6 text-white">
           <div class="flex items-center justify-between">
@@ -98,22 +98,22 @@ const volver = () => router.visit('/nominas')
         </div>
 
         <!-- Información del Período -->
-        <div class="grid grid-cols-4 gap-4 px-8 py-4 bg-white border-b">
+        <div class="grid grid-cols-4 gap-4 px-8 py-4 bg-white dark:bg-slate-900 border-b">
           <div>
-            <p class="text-xs text-gray-500">Período</p>
-            <p class="font-medium text-gray-900">{{ nomina.periodo_formateado }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Período</p>
+            <p class="font-medium text-gray-900 dark:text-white">{{ nomina.periodo_formateado }}</p>
           </div>
           <div>
-            <p class="text-xs text-gray-500">Tipo</p>
-            <p class="font-medium text-gray-900">{{ nomina.tipo_periodo_formateado }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Tipo</p>
+            <p class="font-medium text-gray-900 dark:text-white">{{ nomina.tipo_periodo_formateado }}</p>
           </div>
           <div>
-            <p class="text-xs text-gray-500">Días Trabajados</p>
-            <p class="font-medium text-gray-900">{{ nomina.dias_trabajados }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Días Trabajados</p>
+            <p class="font-medium text-gray-900 dark:text-white">{{ nomina.dias_trabajados }}</p>
           </div>
           <div>
-            <p class="text-xs text-gray-500">Período #</p>
-            <p class="font-medium text-gray-900">{{ nomina.numero_periodo }} / {{ nomina.anio }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Período #</p>
+            <p class="font-medium text-gray-900 dark:text-white">{{ nomina.numero_periodo }} / {{ nomina.anio }}</p>
           </div>
         </div>
 
@@ -122,19 +122,19 @@ const volver = () => router.visit('/nominas')
           <div class="grid grid-cols-2 gap-8">
             <!-- Percepciones -->
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                 <span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
                 Percepciones
               </h3>
               <div class="space-y-3">
                 <div v-for="concepto in percepciones" :key="concepto.id" class="flex justify-between items-center py-2 border-b border-gray-100">
                   <div>
-                    <p class="font-medium text-gray-800">{{ concepto.concepto }}</p>
-                    <p v-if="concepto.clave" class="text-xs text-gray-500">{{ concepto.clave }}</p>
+                    <p class="font-medium text-gray-800 dark:text-gray-100">{{ concepto.concepto }}</p>
+                    <p v-if="concepto.clave" class="text-xs text-gray-500 dark:text-gray-400">{{ concepto.clave }}</p>
                   </div>
                   <p class="font-medium text-green-600">{{ formatearMoneda(concepto.monto) }}</p>
                 </div>
-                <div v-if="!percepciones.length" class="text-sm text-gray-500 py-4 text-center">
+                <div v-if="!percepciones.length" class="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">
                   Sin percepciones
                 </div>
               </div>
@@ -146,19 +146,19 @@ const volver = () => router.visit('/nominas')
 
             <!-- Deducciones -->
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                 <span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
                 Deducciones
               </h3>
               <div class="space-y-3">
                 <div v-for="concepto in deducciones" :key="concepto.id" class="flex justify-between items-center py-2 border-b border-gray-100">
                   <div>
-                    <p class="font-medium text-gray-800">{{ concepto.concepto }}</p>
-                    <p v-if="concepto.clave" class="text-xs text-gray-500">{{ concepto.clave }}</p>
+                    <p class="font-medium text-gray-800 dark:text-gray-100">{{ concepto.concepto }}</p>
+                    <p v-if="concepto.clave" class="text-xs text-gray-500 dark:text-gray-400">{{ concepto.clave }}</p>
                   </div>
                   <p class="font-medium text-red-600">{{ formatearMoneda(concepto.monto) }}</p>
                 </div>
-                <div v-if="!deducciones.length" class="text-sm text-gray-500 py-4 text-center">
+                <div v-if="!deducciones.length" class="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">
                   Sin deducciones
                 </div>
               </div>
@@ -173,10 +173,10 @@ const volver = () => router.visit('/nominas')
           <div class="mt-8 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-gray-600">Neto a Pagar</p>
+                <p class="text-sm text-gray-600 dark:text-gray-300">Neto a Pagar</p>
                 <p class="text-3xl font-bold text-emerald-600">{{ formatearMoneda(nomina.total_neto) }}</p>
               </div>
-              <div class="text-right text-sm text-gray-500">
+              <div class="text-right text-sm text-gray-500 dark:text-gray-400">
                 <p v-if="nomina.fecha_pago">Fecha de pago: {{ formatearFecha(nomina.fecha_pago) }}</p>
                 <p v-if="nomina.metodo_pago">Método: {{ nomina.metodo_pago }}</p>
               </div>
@@ -184,15 +184,15 @@ const volver = () => router.visit('/nominas')
           </div>
 
           <!-- Notas -->
-          <div v-if="nomina.notas" class="mt-6 bg-white rounded-lg p-4">
+          <div v-if="nomina.notas" class="mt-6 bg-white dark:bg-slate-900 rounded-lg p-4">
             <h4 class="text-sm font-semibold text-gray-700 mb-2">Notas</h4>
-            <p class="text-sm text-gray-600">{{ nomina.notas }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-300">{{ nomina.notas }}</p>
           </div>
         </div>
 
         <!-- Acciones -->
-        <div class="px-8 py-6 bg-white border-t flex items-center justify-between">
-          <div class="text-xs text-gray-500">
+        <div class="px-8 py-6 bg-white dark:bg-slate-900 border-t flex items-center justify-between">
+          <div class="text-xs text-gray-500 dark:text-gray-400">
             <p>Creado por: {{ nomina.creado_por?.name || 'Sistema' }}</p>
             <p v-if="nomina.procesado_por">Procesado por: {{ nomina.procesado_por?.name }}</p>
           </div>

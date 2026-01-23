@@ -6,11 +6,11 @@
       <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
             <div>
-              <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+              <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
                 <FontAwesomeIcon :icon="['fas', 'landmark']" class="h-8 w-8 text-blue-600 mr-3" />
                 Cuentas Bancarias
               </h1>
-              <p class="text-gray-600 mt-1">Gestiona tus cuentas bancarias y saldos</p>
+              <p class="text-gray-600 dark:text-gray-300 mt-1">Gestiona tus cuentas bancarias y saldos</p>
             </div>
             <div class="flex flex-col sm:flex-row gap-3">
                 <Link
@@ -55,7 +55,7 @@
         <div
           v-for="cuenta in cuentas"
           :key="cuenta.id"
-          class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+          class="bg-white dark:bg-slate-900 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
           :class="{ 'opacity-60': !cuenta.activa }"
         >
           <!-- Header de la tarjeta con color del banco -->
@@ -65,21 +65,21 @@
             <!-- Info del banco -->
             <div class="flex items-start justify-between mb-4">
               <div>
-                <h3 class="font-bold text-gray-900">{{ cuenta.nombre }}</h3>
-                <p class="text-sm text-gray-500">{{ cuenta.banco }}</p>
+                <h3 class="font-bold text-gray-900 dark:text-white">{{ cuenta.nombre }}</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{ cuenta.banco }}</p>
                 <p class="text-xs text-gray-400">{{ cuenta.numero_cuenta_mascarado }}</p>
               </div>
               <span
                 v-if="!cuenta.activa"
-                class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full"
+                class="px-2 py-1 bg-gray-100 text-gray-600 dark:text-gray-300 text-xs rounded-full"
               >
                 Inactiva
               </span>
             </div>
 
             <!-- Saldo -->
-            <div class="bg-white rounded-lg p-4 mb-4">
-              <p class="text-xs text-gray-500 uppercase">Saldo Actual</p>
+            <div class="bg-white dark:bg-slate-900 rounded-lg p-4 mb-4">
+              <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Saldo Actual</p>
               <p class="text-2xl font-bold" :class="cuenta.saldo_actual >= 0 ? 'text-green-600' : 'text-red-600'">
                 ${{ formatMonto(cuenta.saldo_actual) }}
               </p>
@@ -87,7 +87,7 @@
             </div>
 
             <!-- Info adicional -->
-            <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+            <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
               <span>{{ cuenta.tipo }}</span>
               <span>{{ cuenta.movimientos_count }} movimientos</span>
             </div>
@@ -117,7 +117,7 @@
               </button>
               <Link
                 :href="route('cuentas-bancarias.edit', { cuentas_bancaria: cuenta.id })"
-                class="p-2 text-gray-600 hover:bg-white rounded-lg transition-colors"
+                class="p-2 text-gray-600 dark:text-gray-300 hover:bg-white dark:bg-slate-900 rounded-lg transition-colors"
                 title="Editar"
               >
                 <FontAwesomeIcon :icon="['fas', 'edit']" />
@@ -136,10 +136,10 @@
       </div>
 
       <!-- Estado vacío -->
-      <div v-else class="bg-white rounded-xl shadow-md p-12 text-center">
+      <div v-else class="bg-white dark:bg-slate-900 rounded-xl shadow-md p-12 text-center">
         <FontAwesomeIcon :icon="['fas', 'piggy-bank']" class="h-16 w-16 text-gray-300 mb-4" />
-        <h3 class="text-xl font-medium text-gray-900 mb-2">No hay cuentas bancarias</h3>
-        <p class="text-gray-500 mb-6">Agrega una cuenta bancaria para comenzar a gestionar tus saldos</p>
+        <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-2">No hay cuentas bancarias</h3>
+        <p class="text-gray-500 dark:text-gray-400 mb-6">Agrega una cuenta bancaria para comenzar a gestionar tus saldos</p>
         <Link
           :href="route('cuentas-bancarias.create')"
           class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -151,14 +151,14 @@
 
     <!-- Modal de Detalle -->
     <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="showModal = false">
-      <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-lg mx-4 overflow-hidden">
         <!-- Header con color del banco -->
         <div class="h-2" :style="{ backgroundColor: cuentaSeleccionada?.color }"></div>
         <div class="p-6 border-b">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-xl font-bold text-gray-900">{{ cuentaSeleccionada?.nombre }}</h3>
-              <p class="text-gray-500">{{ cuentaSeleccionada?.banco }}</p>
+              <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ cuentaSeleccionada?.nombre }}</h3>
+              <p class="text-gray-500 dark:text-gray-400">{{ cuentaSeleccionada?.banco }}</p>
             </div>
             <button @click="showModal = false" class="p-2 hover:bg-gray-100 rounded-lg">
               <FontAwesomeIcon :icon="['fas', 'times']" class="text-gray-400" />
@@ -176,39 +176,39 @@
 
           <!-- Info -->
           <div class="grid grid-cols-2 gap-4">
-            <div class="bg-white rounded-lg p-3">
-              <p class="text-xs text-gray-500 uppercase">Número de cuenta</p>
-              <p class="font-medium text-gray-900">{{ cuentaSeleccionada?.numero_cuenta || 'No especificado' }}</p>
+            <div class="bg-white dark:bg-slate-900 rounded-lg p-3">
+              <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Número de cuenta</p>
+              <p class="font-medium text-gray-900 dark:text-white">{{ cuentaSeleccionada?.numero_cuenta || 'No especificado' }}</p>
             </div>
-            <div class="bg-white rounded-lg p-3">
-              <p class="text-xs text-gray-500 uppercase">Tipo</p>
-              <p class="font-medium text-gray-900 capitalize">{{ cuentaSeleccionada?.tipo }}</p>
+            <div class="bg-white dark:bg-slate-900 rounded-lg p-3">
+              <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Tipo</p>
+              <p class="font-medium text-gray-900 dark:text-white capitalize">{{ cuentaSeleccionada?.tipo }}</p>
             </div>
-            <div class="bg-white rounded-lg p-3">
-              <p class="text-xs text-gray-500 uppercase">Saldo inicial</p>
-              <p class="font-medium text-gray-900">${{ formatMonto(cuentaSeleccionada?.saldo_inicial) }}</p>
+            <div class="bg-white dark:bg-slate-900 rounded-lg p-3">
+              <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Saldo inicial</p>
+              <p class="font-medium text-gray-900 dark:text-white">${{ formatMonto(cuentaSeleccionada?.saldo_inicial) }}</p>
             </div>
-            <div class="bg-white rounded-lg p-3">
-              <p class="text-xs text-gray-500 uppercase">Movimientos</p>
-              <p class="font-medium text-gray-900">{{ cuentaSeleccionada?.movimientos_count }}</p>
+            <div class="bg-white dark:bg-slate-900 rounded-lg p-3">
+              <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Movimientos</p>
+              <p class="font-medium text-gray-900 dark:text-white">{{ cuentaSeleccionada?.movimientos_count }}</p>
             </div>
           </div>
 
           <!-- CLABE -->
-          <div v-if="cuentaSeleccionada?.clabe" class="bg-white rounded-lg p-3">
-            <p class="text-xs text-gray-500 uppercase">CLABE Interbancaria</p>
-            <p class="font-medium text-gray-900 font-mono">{{ cuentaSeleccionada?.clabe }}</p>
+          <div v-if="cuentaSeleccionada?.clabe" class="bg-white dark:bg-slate-900 rounded-lg p-3">
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">CLABE Interbancaria</p>
+            <p class="font-medium text-gray-900 dark:text-white font-mono">{{ cuentaSeleccionada?.clabe }}</p>
           </div>
 
           <!-- Notas -->
-          <div v-if="cuentaSeleccionada?.notas" class="bg-white rounded-lg p-3">
-            <p class="text-xs text-gray-500 uppercase">Notas</p>
+          <div v-if="cuentaSeleccionada?.notas" class="bg-white dark:bg-slate-900 rounded-lg p-3">
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Notas</p>
             <p class="text-gray-700">{{ cuentaSeleccionada?.notas }}</p>
           </div>
         </div>
 
         <!-- Footer -->
-        <div class="flex justify-end gap-3 p-4 border-t bg-white">
+        <div class="flex justify-end gap-3 p-4 border-t bg-white dark:bg-slate-900">
           <button @click="showModal = false" class="px-4 py-2 border rounded-lg hover:bg-gray-100">
             Cerrar
           </button>

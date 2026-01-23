@@ -1,8 +1,8 @@
 <template>
   <div class="space-y-8">
     <!-- Información General -->
-    <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-      <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Información General</h2>
+    <div class="border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 pb-6">
+      <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Información General</h2>
 
       <!-- Checkbox para factura -->
       <div class="mb-6">
@@ -20,7 +20,7 @@
             ¿Requiere factura? <span class="text-red-500">*</span>
           </label>
         </div>
-        <div class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <div class="mt-1 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
           Marque esta opción si el cliente necesita facturación electrónica
         </div>
       </div>
@@ -37,7 +37,7 @@
               @blur="toUpper('nombre_razon_social')"
               autocomplete="new-password"
               :class="[
-                    'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                    'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
                     form.errors.nombre_razon_social ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
                   ]"
               required
@@ -57,7 +57,7 @@
         <div class="mb-4">
           <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Email <span v-if="form.requiere_factura" class="text-red-500">*</span>
-            <span v-if="form.requiere_factura" class="text-gray-400 dark:text-gray-500">(requerido para facturación)</span>
+            <span v-if="form.requiere_factura" class="text-gray-400 dark:text-gray-500 dark:text-gray-400">(requerido para facturación)</span>
           </label>
           <input
             type="email"
@@ -69,7 +69,7 @@
             readonly
             onfocus="this.removeAttribute('readonly');"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
                   form.errors.email ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
                 ]"
             :required="form.requiere_factura"
@@ -83,7 +83,7 @@
         <div class="mb-4">
           <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             {{ isEdit ? 'Reseteo de Contraseña' : 'Contraseña' }}
-            <span class="text-gray-400 dark:text-gray-500">({{ isEdit ? 'dejar vacío para mantener actual' : 'opcional' }})</span>
+            <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400">({{ isEdit ? 'dejar vacío para mantener actual' : 'opcional' }})</span>
           </label>
           <input
             type="password"
@@ -91,7 +91,7 @@
             v-model="form.password"
             autocomplete="new-password"
             :placeholder="isEdit ? 'Nueva contraseña' : 'Mínimo 8 caracteres'"
-            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500"
+            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500"
           />
           <div v-if="form.errors.password" class="mt-2 text-sm text-red-600 dark:text-red-400">
             {{ form.errors.password }}
@@ -107,14 +107,14 @@
             id="password_confirmation"
             v-model="form.password_confirmation"
             autocomplete="new-password"
-            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           />
         </div>
 
         <div class="mb-4">
           <label for="telefono" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Teléfono <span v-if="form.requiere_factura" class="text-red-500">*</span>
-            <span v-if="form.requiere_factura" class="text-gray-400 dark:text-gray-500">(requerido para facturación)</span>
+            <span v-if="form.requiere_factura" class="text-gray-400 dark:text-gray-500 dark:text-gray-400">(requerido para facturación)</span>
           </label>
           <input
             type="tel"
@@ -124,7 +124,7 @@
             placeholder="10 dígitos"
             autocomplete="new-password"
             :class="[
-                   'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                   'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
                    form.errors.telefono ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
                  ]"
             :required="form.requiere_factura"
@@ -158,7 +158,7 @@
           v-model="form.price_list_id"
           @change="form.clearErrors('price_list_id')"
           :class="[
-                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200',
+                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200',
                 form.errors.price_list_id ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
               ]"
           required
@@ -175,7 +175,7 @@
         <div v-if="form.errors.price_list_id" class="mt-2 text-sm text-red-600 dark:text-red-400">
           {{ form.errors.price_list_id }}
         </div>
-        <div class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <div class="mt-1 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
           Determina los precios que se aplicarán a este cliente en las ventas
         </div>
       </div>
@@ -195,15 +195,15 @@
             Agregar información de dirección
           </label>
         </div>
-        <div class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <div class="mt-1 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
           Marque esta opción si desea agregar la dirección del cliente
         </div>
       </div>
     </div>
 
     <!-- Estado del Cliente -->
-    <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-      <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Estado del Cliente</h2>
+    <div class="border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 pb-6">
+      <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Estado del Cliente</h2>
       <div class="grid grid-cols-1 gap-6">
         <div class="mb-4">
           <label class="inline-flex items-center">
@@ -214,7 +214,7 @@
             />
             <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Cliente Activo</span>
           </label>
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
             Desmarca para inactivar el cliente. Los clientes inactivos no aparecerán en listas por defecto.
           </p>
         </div>
@@ -222,8 +222,8 @@
     </div>
 
     <!-- Gestión de Crédito -->
-    <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-      <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Gestión de Crédito</h2>
+    <div class="border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 pb-6">
+      <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Gestión de Crédito</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="mb-4">
           <label class="inline-flex items-center">
@@ -234,7 +234,7 @@
             />
             <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Habilitar Crédito</span>
           </label>
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
             Permite realizar ventas a crédito para este cliente.
           </p>
         </div>
@@ -247,7 +247,7 @@
             id="estado_credito"
             v-model="form.estado_credito"
             :class="[
-              'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-gray-900 dark:text-gray-200'
+              'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200'
             ]"
           >
             <option value="sin_credito">Sin Crédito</option>
@@ -255,7 +255,7 @@
             <option value="autorizado">Autorizado ✅</option>
             <option value="suspendido">Suspendido 🚫</option>
           </select>
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
             Define el flujo de aprobación del crédito.
           </p>
         </div>
@@ -266,20 +266,20 @@
           </label>
           <div class="mt-1 relative rounded-md shadow-sm">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span class="text-gray-500 dark:text-gray-400 sm:text-sm">$</span>
+              <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400 sm:text-sm">$</span>
             </div>
             <input
               type="number"
               name="limite_credito"
               id="limite_credito"
               v-model="form.limite_credito"
-              class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               placeholder="0.00"
               step="0.01"
               min="0"
             />
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <span class="text-gray-500 dark:text-gray-400 sm:text-sm">MXN</span>
+              <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400 sm:text-sm">MXN</span>
             </div>
           </div>
           <div v-if="form.errors.limite_credito" class="mt-2 text-sm text-red-600 dark:text-red-400">
@@ -297,13 +297,13 @@
               name="dias_credito"
               id="dias_credito"
               v-model="form.dias_credito"
-              class="focus:ring-blue-500 focus:border-blue-500 block w-full pr-12 sm:text-sm border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="focus:ring-blue-500 focus:border-blue-500 block w-full pr-12 sm:text-sm border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               placeholder="30"
               min="0"
               max="365"
             />
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <span class="text-gray-500 dark:text-gray-400 sm:text-sm">días</span>
+              <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400 sm:text-sm">días</span>
             </div>
           </div>
           <div v-if="form.errors.dias_credito" class="mt-2 text-sm text-red-600 dark:text-red-400">
@@ -322,13 +322,13 @@
               name="dias_gracia"
               id="dias_gracia"
               v-model="form.dias_gracia"
-              class="focus:ring-blue-500 focus:border-blue-500 block w-full pr-12 sm:text-sm border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="focus:ring-blue-500 focus:border-blue-500 block w-full pr-12 sm:text-sm border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               placeholder="Automático"
               min="0"
               max="365"
             />
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <span class="text-gray-500 dark:text-gray-400 sm:text-sm">días</span>
+              <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400 sm:text-sm">días</span>
             </div>
           </div>
           <p class="mt-1 text-xs text-blue-500 dark:text-blue-400">
@@ -342,20 +342,20 @@
     </div>
 
     <!-- Información Fiscal -->
-    <div v-if="form.requiere_factura" class="border-b border-gray-200 dark:border-gray-700 pb-6">
-      <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Información Fiscal</h2>
+    <div v-if="form.requiere_factura" class="border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 pb-6">
+      <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Información Fiscal</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="mb-4">
           <label for="tipo_persona" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Tipo de Persona <span v-if="form.requiere_factura" class="text-red-500">*</span>
-            <span v-if="!form.requiere_factura" class="text-gray-400 dark:text-gray-500">(opcional)</span>
+            <span v-if="!form.requiere_factura" class="text-gray-400 dark:text-gray-500 dark:text-gray-400">(opcional)</span>
           </label>
           <select
             id="tipo_persona"
             v-model="form.tipo_persona"
             @change="validateTipoPersona"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200',
                   form.errors.tipo_persona ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
                 ]"
             :required="form.requiere_factura"
@@ -388,9 +388,9 @@
             :disabled="!form.tipo_persona"
             autocomplete="new-password"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
                   form.errors.rfc ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600',
-                  !form.tipo_persona ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500' : ''
+                  !form.tipo_persona ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 dark:text-gray-400' : ''
                 ]"
             required
           />
@@ -413,9 +413,9 @@
             :placeholder="form.tipo_persona === 'fisica' ? 'ABCD123456HMEFGH99' : 'Opcional'"
             autocomplete="new-password"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
                   form.errors.curp ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600',
-                  form.tipo_persona === 'moral' ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500' : ''
+                  form.tipo_persona === 'moral' ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 dark:text-gray-400' : ''
                 ]"
           />
           <div v-if="form.errors.curp" class="mt-2 text-sm text-red-600 dark:text-red-400">
@@ -432,9 +432,9 @@
             v-model="form.regimen_fiscal"
             :disabled="!form.tipo_persona"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200',
                   form.errors.regimen_fiscal ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600',
-                  !form.tipo_persona ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500' : ''
+                  !form.tipo_persona ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 dark:text-gray-400' : ''
                 ]"
             required
           >
@@ -460,7 +460,7 @@
             id="uso_cfdi"
             v-model="form.uso_cfdi"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200',
                   form.errors.uso_cfdi ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
                 ]"
             required
@@ -481,15 +481,15 @@
 
          <div class="mb-4">
           <label for="forma_pago_default" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Forma de Pago Preferida <span class="text-gray-400 dark:text-gray-500">(opcional)</span>
+            Forma de Pago Preferida <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400">(opcional)</span>
           </label>
           <select
             id="forma_pago_default"
             v-model="form.forma_pago_default"
             :class="[
-              'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200',
+              'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200',
               form.errors.forma_pago_default ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600',
-              !form.requiere_factura ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500' : ''
+              !form.requiere_factura ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 dark:text-gray-400' : ''
             ]"
           >
             <option value="">Sin preferencia</option>
@@ -518,9 +518,9 @@
             placeholder="12345"
             :required="form.requiere_factura"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
                   form.errors.domicilio_fiscal_cp ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600',
-                  !form.requiere_factura ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500' : ''
+                  !form.requiere_factura ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 dark:text-gray-400' : ''
                 ]"
           />
           <div v-if="form.errors.domicilio_fiscal_cp" class="mt-2 text-sm text-red-600 dark:text-red-400">
@@ -532,12 +532,12 @@
 
     <!-- Dirección -->
     <div v-if="form.mostrar_direccion">
-      <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Dirección</h2>
+      <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Dirección</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div class="md:col-span-2">
           <div class="mb-4">
             <label for="calle" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Calle <span class="text-gray-400 dark:text-gray-500">(opcional)</span>
+              Calle <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400">(opcional)</span>
             </label>
             <input
               type="text"
@@ -546,7 +546,7 @@
               @blur="toUpper('calle')"
               autocomplete="new-password"
               :class="[
-                    'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                    'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
                     form.errors.calle ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
                   ]"
             />
@@ -555,7 +555,7 @@
 
         <div class="mb-4">
           <label for="numero_exterior" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Número Exterior <span class="text-gray-400 dark:text-gray-500">(opcional)</span>
+            Número Exterior <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400">(opcional)</span>
           </label>
           <input
             type="text"
@@ -563,7 +563,7 @@
             v-model="form.numero_exterior"
             @blur="toUpper('numero_exterior')"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
                   form.errors.numero_exterior ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
                 ]"
           />
@@ -578,13 +578,13 @@
             id="numero_interior"
             v-model="form.numero_interior"
             @blur="toUpper('numero_interior')"
-            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           />
         </div>
 
         <div class="mb-4">
           <label for="codigo_postal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Código Postal <span class="text-gray-400 dark:text-gray-500">(opcional)</span>
+            Código Postal <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400">(opcional)</span>
           </label>
           <input
             type="text"
@@ -594,7 +594,7 @@
             @input="$emit('cp-input', $event.target.value)"
             placeholder="12345"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
                   form.errors.codigo_postal ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
                 ]"
           />
@@ -612,14 +612,14 @@
 
         <div class="mb-4">
           <label for="colonia" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Colonia <span class="text-gray-400 dark:text-gray-500">(opcional)</span>
+            Colonia <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400">(opcional)</span>
           </label>
           <select
             id="colonia"
             v-model="form.colonia"
             :disabled="availableColonias.length === 0"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200',
                   form.errors.colonia ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
                 ]"
           >
@@ -647,7 +647,7 @@
             type="text"
             id="municipio"
             v-model="form.municipio"
-            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           />
         </div>
 
@@ -658,7 +658,7 @@
           <select
             id="estado"
             v-model="form.estado"
-            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           >
             <option value="">Selecciona una opción</option>
             <option
@@ -678,7 +678,7 @@
           <select
             id="pais"
             v-model="form.pais"
-            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           >
              <option value="MX">México</option>
              <option value="USA">Estados Unidos</option>

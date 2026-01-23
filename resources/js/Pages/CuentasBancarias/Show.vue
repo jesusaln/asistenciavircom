@@ -6,11 +6,11 @@
       <!-- Header -->
       <div class="flex items-center mb-8">
         <Link :href="route('cuentas-bancarias.index')" class="mr-4 p-2 hover:bg-gray-100 rounded-lg">
-          <FontAwesomeIcon :icon="['fas', 'arrow-left']" class="text-gray-600" />
+          <FontAwesomeIcon :icon="['fas', 'arrow-left']" class="text-gray-600 dark:text-gray-300" />
         </Link>
         <div class="flex-1">
-          <h1 class="text-3xl font-bold text-gray-900">{{ cuenta.nombre }}</h1>
-          <p class="text-gray-600 mt-1">{{ cuenta.banco }} • {{ cuenta.numero_cuenta || '****' }}</p>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ cuenta.nombre }}</h1>
+          <p class="text-gray-600 dark:text-gray-300 mt-1">{{ cuenta.banco }} • {{ cuenta.numero_cuenta || '****' }}</p>
         </div>
         <button
           @click="showModal = true"
@@ -53,33 +53,33 @@
 
       <!-- Info de la cuenta -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div class="bg-white rounded-xl shadow-md p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Información de la Cuenta</h3>
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-md p-6">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Información de la Cuenta</h3>
           <dl class="space-y-3">
             <div class="flex justify-between">
-              <dt class="text-gray-500">Banco</dt>
-              <dd class="text-gray-900 font-medium">{{ cuenta.banco }}</dd>
+              <dt class="text-gray-500 dark:text-gray-400">Banco</dt>
+              <dd class="text-gray-900 dark:text-white font-medium">{{ cuenta.banco }}</dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-gray-500">Número de cuenta</dt>
-              <dd class="text-gray-900 font-medium">{{ cuenta.numero_cuenta || 'No especificado' }}</dd>
+              <dt class="text-gray-500 dark:text-gray-400">Número de cuenta</dt>
+              <dd class="text-gray-900 dark:text-white font-medium">{{ cuenta.numero_cuenta || 'No especificado' }}</dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-gray-500">CLABE</dt>
-              <dd class="text-gray-900 font-medium">{{ cuenta.clabe || 'No especificada' }}</dd>
+              <dt class="text-gray-500 dark:text-gray-400">CLABE</dt>
+              <dd class="text-gray-900 dark:text-white font-medium">{{ cuenta.clabe || 'No especificada' }}</dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-gray-500">Tipo</dt>
-              <dd class="text-gray-900 font-medium capitalize">{{ cuenta.tipo }}</dd>
+              <dt class="text-gray-500 dark:text-gray-400">Tipo</dt>
+              <dd class="text-gray-900 dark:text-white font-medium capitalize">{{ cuenta.tipo }}</dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-gray-500">Moneda</dt>
-              <dd class="text-gray-900 font-medium">{{ cuenta.moneda }}</dd>
+              <dt class="text-gray-500 dark:text-gray-400">Moneda</dt>
+              <dd class="text-gray-900 dark:text-white font-medium">{{ cuenta.moneda }}</dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-gray-500">Estado</dt>
+              <dt class="text-gray-500 dark:text-gray-400">Estado</dt>
               <dd>
-                <span :class="cuenta.activa ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'" class="px-2 py-1 rounded-full text-xs font-medium">
+                <span :class="cuenta.activa ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600 dark:text-gray-300'" class="px-2 py-1 rounded-full text-xs font-medium">
                   {{ cuenta.activa ? 'Activa' : 'Inactiva' }}
                 </span>
               </dd>
@@ -87,32 +87,32 @@
           </dl>
         </div>
 
-        <div class="bg-white rounded-xl shadow-md p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Notas</h3>
-          <p class="text-gray-600">{{ cuenta.notas || 'Sin notas' }}</p>
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-md p-6">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Notas</h3>
+          <p class="text-gray-600 dark:text-gray-300">{{ cuenta.notas || 'Sin notas' }}</p>
         </div>
       </div>
 
       <!-- Últimos movimientos -->
-      <div class="bg-white rounded-xl shadow-md overflow-hidden">
-        <div class="px-6 py-4 border-b bg-white">
-          <h3 class="text-lg font-semibold text-gray-900">Últimos Movimientos</h3>
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-md overflow-hidden">
+        <div class="px-6 py-4 border-b bg-white dark:bg-slate-900">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Últimos Movimientos</h3>
         </div>
         <div v-if="movimientos.length > 0" class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+            <thead class="bg-white dark:bg-slate-900">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Concepto</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Monto</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Fecha</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Concepto</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Tipo</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Monto</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Estado</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
-              <tr v-for="mov in movimientos" :key="mov.id" class="hover:bg-white">
-                <td class="px-6 py-4 text-sm text-gray-900">{{ formatFecha(mov.fecha) }}</td>
-                <td class="px-6 py-4 text-sm text-gray-900">
+            <tbody class="divide-y divide-gray-200 dark:divide-slate-800">
+              <tr v-for="mov in movimientos" :key="mov.id" class="hover:bg-white dark:bg-slate-900">
+                <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">{{ formatFecha(mov.fecha) }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
                   <div>{{ mov.concepto }}</div>
                   <div v-if="mov.folio_venta" class="text-xs text-blue-600 font-medium">
                     Folio: {{ mov.folio_venta }}
@@ -137,17 +137,17 @@
         </div>
         <div v-else class="p-12 text-center">
           <FontAwesomeIcon :icon="['fas', 'receipt']" class="h-12 w-12 text-gray-300 mb-4" />
-          <p class="text-gray-500">No hay movimientos registrados</p>
+          <p class="text-gray-500 dark:text-gray-400">No hay movimientos registrados</p>
         </div>
       </div>
     </div>
 
     <!-- Modal para registrar movimiento manual -->
     <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="showModal = false">
-      <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-lg mx-4 overflow-hidden">
         <div class="px-6 py-4 border-b bg-amber-50">
-          <h3 class="text-xl font-bold text-gray-900">Registrar Movimiento Manual</h3>
-          <p class="text-gray-600 text-sm">Para ingresos o egresos fuera de operaciones normales</p>
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white">Registrar Movimiento Manual</h3>
+          <p class="text-gray-600 dark:text-gray-300 text-sm">Para ingresos o egresos fuera de operaciones normales</p>
         </div>
         <form @submit.prevent="registrarMovimiento" class="p-6 space-y-4">
           <!-- Tipo -->
@@ -255,9 +255,9 @@ const getEstadoClass = (estado) => {
   const clases = {
     'pendiente': 'bg-yellow-100 text-yellow-700',
     'conciliado': 'bg-green-100 text-green-700',
-    'ignorado': 'bg-gray-100 text-gray-600',
+    'ignorado': 'bg-gray-100 text-gray-600 dark:text-gray-300',
   }
-  return clases[estado] || 'bg-gray-100 text-gray-600'
+  return clases[estado] || 'bg-gray-100 text-gray-600 dark:text-gray-300'
 }
 
 const getEstadoLabel = (estado) => {

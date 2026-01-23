@@ -212,7 +212,7 @@ const estadisticasFormateadas = computed(() => ({
 <template>
   <Head title="Reporte de Préstamos por Cliente" />
 
-  <div class="prestamos-por-cliente min-h-screen bg-white">
+  <div class="prestamos-por-cliente min-h-screen bg-white dark:bg-slate-900">
     <!-- Contenido principal -->
     <div class="w-full px-6 py-8">
       <!-- Header -->
@@ -223,7 +223,7 @@ const estadisticasFormateadas = computed(() => ({
               <h1 class="text-3xl font-bold tracking-tight mb-2">Préstamos por Cliente</h1>
               <p class="text-blue-100 text-lg">Reporte consolidado de préstamos agrupados por cliente</p>
               <div class="flex items-center gap-4 mt-3">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/20 text-white border border-white/30">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white dark:bg-slate-900/20 text-white border border-white/30">
                   📊 Reporte Financiero
                 </span>
                 <span class="text-sm text-blue-100">
@@ -246,7 +246,7 @@ const estadisticasFormateadas = computed(() => ({
         </div>
 
         <!-- Filtros -->
-        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mt-4">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-gray-100 p-6 mt-4">
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- Fecha inicio -->
             <div>
@@ -320,7 +320,7 @@ const estadisticasFormateadas = computed(() => ({
 
             <button
               @click="limpiarFiltros"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-white transition-colors"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 transition-colors"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -343,7 +343,7 @@ const estadisticasFormateadas = computed(() => ({
 
       <!-- Estadísticas generales -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 p-6">
           <div class="flex items-center">
             <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-4">
               <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -351,13 +351,13 @@ const estadisticasFormateadas = computed(() => ({
               </svg>
             </div>
             <div>
-              <div class="text-2xl font-bold text-gray-900">{{ estadisticasFormateadas.total_clientes }}</div>
-              <div class="text-sm text-gray-600">Clientes con Préstamos</div>
+              <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ estadisticasFormateadas.total_clientes }}</div>
+              <div class="text-sm text-gray-600 dark:text-gray-300">Clientes con Préstamos</div>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 p-6">
           <div class="flex items-center">
             <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mr-4">
               <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -365,13 +365,13 @@ const estadisticasFormateadas = computed(() => ({
               </svg>
             </div>
             <div>
-              <div class="text-2xl font-bold text-gray-900">{{ estadisticasFormateadas.total_prestado }}</div>
-              <div class="text-sm text-gray-600">Total Prestado</div>
+              <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ estadisticasFormateadas.total_prestado }}</div>
+              <div class="text-sm text-gray-600 dark:text-gray-300">Total Prestado</div>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 p-6">
           <div class="flex items-center">
             <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mr-4">
               <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -379,13 +379,13 @@ const estadisticasFormateadas = computed(() => ({
               </svg>
             </div>
             <div>
-              <div class="text-2xl font-bold text-gray-900">{{ estadisticasFormateadas.total_pagado }}</div>
-              <div class="text-sm text-gray-600">Total Pagado</div>
+              <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ estadisticasFormateadas.total_pagado }}</div>
+              <div class="text-sm text-gray-600 dark:text-gray-300">Total Pagado</div>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 p-6">
           <div class="flex items-center">
             <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mr-4">
               <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -393,8 +393,8 @@ const estadisticasFormateadas = computed(() => ({
               </svg>
             </div>
             <div>
-              <div class="text-2xl font-bold text-gray-900">{{ estadisticasFormateadas.total_pendiente }}</div>
-              <div class="text-sm text-gray-600">Total Pendiente</div>
+              <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ estadisticasFormateadas.total_pendiente }}</div>
+              <div class="text-sm text-gray-600 dark:text-gray-300">Total Pendiente</div>
             </div>
           </div>
         </div>
@@ -402,19 +402,19 @@ const estadisticasFormateadas = computed(() => ({
 
       <!-- Lista de clientes con préstamos -->
       <div class="space-y-6">
-        <div v-if="prestamosPorCliente.length === 0" class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+        <div v-if="prestamosPorCliente.length === 0" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 p-12 text-center">
           <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
           </div>
-          <h3 class="text-lg font-medium text-gray-900 mb-2">No hay préstamos</h3>
-          <p class="text-gray-600">No se encontraron préstamos con los filtros aplicados.</p>
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No hay préstamos</h3>
+          <p class="text-gray-600 dark:text-gray-300">No se encontraron préstamos con los filtros aplicados.</p>
         </div>
 
-        <div v-else v-for="clienteData in prestamosPorCliente" :key="clienteData.cliente_id" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div v-else v-for="clienteData in prestamosPorCliente" :key="clienteData.cliente_id" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <!-- Header del cliente -->
-          <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+          <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200 dark:border-slate-800">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-4">
                 <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -423,8 +423,8 @@ const estadisticasFormateadas = computed(() => ({
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-lg font-semibold text-gray-900">{{ clienteData.cliente.nombre_razon_social }}</h3>
-                  <p class="text-sm text-gray-600">{{ clienteData.cliente.rfc }}</p>
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ clienteData.cliente.nombre_razon_social }}</h3>
+                  <p class="text-sm text-gray-600 dark:text-gray-300">{{ clienteData.cliente.rfc }}</p>
                 </div>
               </div>
               <div class="flex items-center space-x-4">
@@ -443,7 +443,7 @@ const estadisticasFormateadas = computed(() => ({
           </div>
 
           <!-- Resumen financiero del cliente -->
-          <div class="px-6 py-4 bg-blue-50 border-b border-gray-200">
+          <div class="px-6 py-4 bg-blue-50 border-b border-gray-200 dark:border-slate-800">
             <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               <div class="text-center">
                 <div class="text-lg font-bold text-blue-900">{{ formatearMoneda(clienteData.resumen_financiero.total_prestado) }}</div>
@@ -462,7 +462,7 @@ const estadisticasFormateadas = computed(() => ({
                 <div class="text-xs text-purple-700">Interés Total</div>
               </div>
               <div class="text-center">
-                <div class="text-lg font-bold text-gray-900">{{ clienteData.resumen_financiero.numero_prestamos }}</div>
+                <div class="text-lg font-bold text-gray-900 dark:text-white">{{ clienteData.resumen_financiero.numero_prestamos }}</div>
                 <div class="text-xs text-gray-700">Préstamos</div>
               </div>
               <div class="text-center">
@@ -474,29 +474,29 @@ const estadisticasFormateadas = computed(() => ({
 
           <!-- Lista de préstamos del cliente -->
           <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-white">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+              <thead class="bg-white dark:bg-slate-900">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Préstamo</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pagos</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fechas</th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID Préstamo</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Monto</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pagos</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fechas</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
                 </tr>
               </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr v-for="prestamo in clienteData.prestamos" :key="prestamo.id" class="hover:bg-white">
+              <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+                <tr v-for="prestamo in clienteData.prestamos" :key="prestamo.id" class="hover:bg-white dark:bg-slate-900">
                   <td class="px-6 py-4">
-                    <div class="text-sm font-medium text-gray-900">#{{ prestamo.id }}</div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">#{{ prestamo.id }}</div>
                   </td>
                   <td class="px-6 py-4">
-                    <div class="text-sm text-gray-900">{{ formatearMoneda(prestamo.monto_prestado) }}</div>
-                    <div class="text-xs text-gray-500">Pago: {{ formatearMoneda(prestamo.pago_periodico) }}</div>
+                    <div class="text-sm text-gray-900 dark:text-white">{{ formatearMoneda(prestamo.monto_prestado) }}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">Pago: {{ formatearMoneda(prestamo.pago_periodico) }}</div>
                   </td>
                   <td class="px-6 py-4">
-                    <div class="text-sm text-gray-900">{{ prestamo.pagos_realizados }} / {{ prestamo.numero_pagos }}</div>
-                    <div class="text-xs text-gray-500">{{ formatearPorcentaje(prestamo.progreso) }} completado</div>
+                    <div class="text-sm text-gray-900 dark:text-white">{{ prestamo.pagos_realizados }} / {{ prestamo.numero_pagos }}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ formatearPorcentaje(prestamo.progreso) }} completado</div>
                   </td>
                   <td class="px-6 py-4">
                     <span :class="obtenerClasesEstado(prestamo.estado)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
@@ -505,8 +505,8 @@ const estadisticasFormateadas = computed(() => ({
                     </span>
                   </td>
                   <td class="px-6 py-4">
-                    <div class="text-sm text-gray-900">Inicio: {{ formatearFecha(prestamo.fecha_inicio) }}</div>
-                    <div class="text-xs text-gray-500">Primer pago: {{ formatearFecha(prestamo.fecha_primer_pago) }}</div>
+                    <div class="text-sm text-gray-900 dark:text-white">Inicio: {{ formatearFecha(prestamo.fecha_inicio) }}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">Primer pago: {{ formatearFecha(prestamo.fecha_primer_pago) }}</div>
                   </td>
                   <td class="px-6 py-4 text-right">
                     <div class="flex items-center justify-end space-x-2">
@@ -547,7 +547,7 @@ const estadisticasFormateadas = computed(() => ({
 
     <!-- Loading overlay -->
     <div v-if="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white p-6 rounded-lg shadow-lg">
+      <div class="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-lg">
         <div class="flex items-center space-x-3">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
           <span class="text-gray-700">Aplicando filtros...</span>

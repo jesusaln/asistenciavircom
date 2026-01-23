@@ -30,9 +30,9 @@ const getEstadoBadge = (estado) => {
         activa: 'bg-green-100 text-green-800',
         inactiva: 'bg-yellow-100 text-yellow-800',
         vencida: 'bg-red-100 text-red-800',
-        cancelada: 'bg-gray-100 text-gray-800',
+        cancelada: 'bg-gray-100 text-gray-800 dark:text-gray-100',
     };
-    return colores[estado] || 'bg-gray-100 text-gray-800';
+    return colores[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100';
 };
 
 const formatCurrency = (value) => {

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors" :style="cssVars">
+  <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 dark:border-gray-700 overflow-hidden transition-colors" :style="cssVars">
     <!-- Header con estadísticas -->
     <div class="px-6 py-6 border-b border-white/30 dark:border-gray-700 text-white bg-gradient-to-br from-blue-500 to-amber-600 dark:from-gray-800 dark:to-gray-900">
       <div class="flex items-center justify-between mb-6">
@@ -21,7 +21,7 @@
 
       <!-- Estadísticas -->
       <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
-        <div class="bg-white/80 dark:bg-gray-800/60 rounded-lg p-4 border border-white/40 dark:border-white/20 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/60 rounded-lg p-4 border border-white/40 dark:border-white/20 backdrop-blur-sm">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-white/80">Total</p>
@@ -35,7 +35,7 @@
           </div>
         </div>
 
-        <div class="bg-white/80 dark:bg-gray-800/60 rounded-lg p-4 border border-white/40 dark:border-white/20 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/60 rounded-lg p-4 border border-white/40 dark:border-white/20 backdrop-blur-sm">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-white/80">Borradores</p>
@@ -49,7 +49,7 @@
           </div>
         </div>
 
-        <div class="bg-white/80 dark:bg-gray-800/60 rounded-lg p-4 border border-white/40 dark:border-white/20 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/60 rounded-lg p-4 border border-white/40 dark:border-white/20 backdrop-blur-sm">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-white/80">Pendientes</p>
@@ -63,7 +63,7 @@
           </div>
         </div>
 
-        <div class="bg-white/80 dark:bg-gray-800/60 rounded-lg p-4 border border-white/40 dark:border-white/20 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/60 rounded-lg p-4 border border-white/40 dark:border-white/20 backdrop-blur-sm">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-white/80">Confirmados</p>
@@ -77,7 +77,7 @@
           </div>
         </div>
 
-        <div class="bg-white/80 dark:bg-gray-800/60 rounded-lg p-4 border border-white/40 dark:border-white/20 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/60 rounded-lg p-4 border border-white/40 dark:border-white/20 backdrop-blur-sm">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-white/80">Enviados</p>
@@ -91,7 +91,7 @@
           </div>
         </div>
 
-        <div class="bg-white/80 dark:bg-gray-800/60 rounded-lg p-4 border border-white/40 dark:border-white/20 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/60 rounded-lg p-4 border border-white/40 dark:border-white/20 backdrop-blur-sm">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-white/80">Cancelados</p>
@@ -108,13 +108,13 @@
     </div>
 
     <!-- Filtros y búsqueda -->
-    <div class="px-6 py-4 bg-gray-50/60 dark:bg-gray-900/60 border-b border-gray-200/60 dark:border-gray-700">
+    <div class="px-6 py-4 bg-gray-50/60 dark:bg-gray-900/60 border-b border-gray-200 dark:border-slate-800/60 dark:border-gray-700">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
         <!-- Búsqueda -->
         <div class="flex-1 max-w-md">
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="h-5 w-5 text-gray-400 dark:text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -122,7 +122,7 @@
               v-model="searchTerm"
               type="text"
               placeholder="Buscar por cliente, número..."
-              class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:border-transparent text-sm transition-colors"
+              class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-slate-900 dark:bg-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:border-transparent text-sm transition-colors"
               :style="focusRingStyle"
               @input="onSearchChange"
             />
@@ -135,7 +135,7 @@
           <select
             v-model="filtroEstado"
             @change="onFiltroEstadoChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:border-transparent bg-white dark:bg-gray-800 dark:text-white transition-colors"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:border-transparent bg-white dark:bg-slate-900 dark:bg-gray-800 dark:text-white transition-colors"
             :style="focusRingStyle"
           >
             <option value="">Todos los estados</option>
@@ -150,7 +150,7 @@
           <select
             v-model="filtroCliente"
             @change="onFiltroClienteChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:border-transparent bg-white dark:bg-gray-800 dark:text-white transition-colors"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:border-transparent bg-white dark:bg-slate-900 dark:bg-gray-800 dark:text-white transition-colors"
             :style="focusRingStyle"
           >
             <option value="">Todos los clientes</option>
@@ -163,7 +163,7 @@
           <select
             v-model="sortBy"
             @change="onSortChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:border-transparent bg-white dark:bg-gray-800 dark:text-white transition-colors"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:border-transparent bg-white dark:bg-slate-900 dark:bg-gray-800 dark:text-white transition-colors"
             :style="focusRingStyle"
           >
             <option value="fecha-desc">Fecha (Más reciente)</option>
@@ -179,7 +179,7 @@
           <!-- Limpiar filtros -->
           <button
             @click="onLimpiarFiltros"
-            class="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 text-sm leading-4 font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200"
+            class="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 text-sm leading-4 font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-900 dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200"
             :style="focusRingStyle"
           >
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

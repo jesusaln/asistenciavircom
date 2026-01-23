@@ -27,7 +27,7 @@ const getEstadoBadge = (estado) => {
         'procesada': 'bg-green-100 text-green-800',
         'cancelada': 'bg-red-100 text-red-800',
     };
-    return badges[estado] || 'bg-gray-100 text-gray-800';
+    return badges[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100';
 };
 
 const cancelGasto = () => {
@@ -62,32 +62,32 @@ const deleteGasto = () => {
         <template #content>
             <div v-if="gasto" class="mt-4">
                 <!-- Header Info -->
-                <div class="mb-6 flex justify-between text-sm text-gray-500">
+                <div class="mb-6 flex justify-between text-sm text-gray-500 dark:text-gray-400">
                     <span>Fecha: {{ formatDate(gasto.fecha_compra) }}</span>
                 </div>
 
                 <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <dt class="text-sm font-medium text-gray-500">Categoría</dt>
-                        <dd class="mt-1 text-sm text-gray-900">
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Categoría</dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">
                             {{ gasto.categoria_gasto?.nombre || '-' }}
                         </dd>
                     </div>
                     <div>
-                        <dt class="text-sm font-medium text-gray-500">Proveedor</dt>
-                        <dd class="mt-1 text-sm text-gray-900">
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Proveedor</dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">
                             {{ gasto.proveedor?.nombre_razon_social || 'Sin proveedor' }}
                         </dd>
                     </div>
                     <div>
-                        <dt class="text-sm font-medium text-gray-500">Método de Pago</dt>
-                        <dd class="mt-1 text-sm text-gray-900 capitalize">
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Método de Pago</dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white capitalize">
                             {{ gasto.metodo_pago || '-' }}
                         </dd>
                     </div>
                     <div>
-                        <dt class="text-sm font-medium text-gray-500">Estado CxP</dt>
-                        <dd class="mt-1 text-sm text-gray-900">
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Estado CxP</dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">
                             <span v-if="gasto.cuentas_por_pagar" 
                                 :class="gasto.cuentas_por_pagar.estado === 'pagada' ? 'text-green-600' : 'text-yellow-600'">
                                 {{ gasto.cuentas_por_pagar.estado }}
@@ -96,28 +96,28 @@ const deleteGasto = () => {
                         </dd>
                     </div>
                     <div class="md:col-span-2">
-                        <dt class="text-sm font-medium text-gray-500">Descripción</dt>
-                        <dd class="mt-1 text-sm text-gray-900 whitespace-pre-line bg-white p-3 rounded-md">
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Descripción</dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white whitespace-pre-line bg-white dark:bg-slate-900 p-3 rounded-md">
                             {{ gasto.notas || '-' }}
                         </dd>
                     </div>
                 </dl>
 
                 <!-- Totales -->
-                <div class="mt-6 pt-6 border-t border-gray-200">
+                <div class="mt-6 pt-6 border-t border-gray-200 dark:border-slate-800">
                     <div class="flex justify-end">
                         <div class="w-full md:w-1/2">
                             <div class="flex justify-between py-1">
-                                <span class="text-gray-600 text-sm">Subtotal:</span>
-                                <span class="text-gray-900 text-sm">{{ formatCurrency(gasto.subtotal) }}</span>
+                                <span class="text-gray-600 dark:text-gray-300 text-sm">Subtotal:</span>
+                                <span class="text-gray-900 dark:text-white text-sm">{{ formatCurrency(gasto.subtotal) }}</span>
                             </div>
                             <div class="flex justify-between py-1">
-                                <span class="text-gray-600 text-sm">IVA:</span>
-                                <span class="text-gray-900 text-sm">{{ formatCurrency(gasto.iva) }}</span>
+                                <span class="text-gray-600 dark:text-gray-300 text-sm">IVA:</span>
+                                <span class="text-gray-900 dark:text-white text-sm">{{ formatCurrency(gasto.iva) }}</span>
                             </div>
-                            <div class="flex justify-between py-2 border-t border-gray-200 font-bold mt-2">
-                                <span class="text-gray-900">Total:</span>
-                                <span class="text-lg text-gray-900">{{ formatCurrency(gasto.total) }}</span>
+                            <div class="flex justify-between py-2 border-t border-gray-200 dark:border-slate-800 font-bold mt-2">
+                                <span class="text-gray-900 dark:text-white">Total:</span>
+                                <span class="text-lg text-gray-900 dark:text-white">{{ formatCurrency(gasto.total) }}</span>
                             </div>
                         </div>
                     </div>

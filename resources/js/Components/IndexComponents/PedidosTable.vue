@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+  <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
     <!-- Header -->
-    <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 px-6 py-4 border-b border-gray-200/60">
+    <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 px-6 py-4 border-b border-gray-200 dark:border-slate-800/60">
       <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Pedidos</h2>
-        <div class="text-sm text-gray-600 bg-white/70 px-3 py-1 rounded-full border border-gray-200/50">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">Pedidos</h2>
+        <div class="text-sm text-gray-600 bg-white dark:bg-slate-900/70 px-3 py-1 rounded-full border border-gray-200 dark:border-slate-800/50">
           {{ items.length }} de {{ total }} pedidos
         </div>
       </div>
@@ -117,7 +117,7 @@
           </tr>
         </thead>
 
-        <tbody class="bg-white divide-y divide-gray-200/40">
+        <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200/40">
           <template v-if="items.length > 0">
             <tr
               v-for="doc in items"
@@ -130,10 +130,10 @@
               <!-- Fecha -->
               <td class="px-6 py-4">
                 <div class="flex flex-col space-y-0.5">
-                  <div class="text-sm font-medium text-gray-900">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">
                     {{ formatearFecha(doc.created_at || doc.fecha) }}
                   </div>
-                  <div class="text-xs text-gray-500">
+                  <div class="text-xs text-gray-500 dark:text-gray-400">
                     {{ formatearHora(doc.created_at || doc.fecha) }}
                   </div>
                 </div>
@@ -142,10 +142,10 @@
               <!-- Cliente -->
               <td class="px-6 py-4">
                 <div class="flex flex-col space-y-0.5">
-                  <div class="text-sm font-medium text-gray-900 group-hover:text-gray-800">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white group-hover:text-gray-800">
                     {{ doc.cliente?.nombre || 'Sin cliente' }}
                   </div>
-                  <div v-if="doc.cliente?.email" class="text-xs text-gray-500 truncate max-w-48">
+                  <div v-if="doc.cliente?.email" class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-48">
                     {{ doc.cliente.email }}
                   </div>
                 </div>
@@ -160,7 +160,7 @@
 
               <!-- Total -->
               <td class="px-6 py-4">
-                <div class="text-sm font-semibold text-gray-900">
+                <div class="text-sm font-semibold text-gray-900 dark:text-white">
                   <template v-if="typeof doc.total !== 'undefined' && doc.total !== null">
                     ${{ formatearMoneda(doc.total) }}
                   </template>
@@ -257,7 +257,7 @@
                 </div>
                 <div class="space-y-1">
                   <p class="text-gray-700 font-medium">No hay pedidos</p>
-                  <p class="text-sm text-gray-500">Los pedidos aparecerán aquí cuando se creen</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Los pedidos aparecerán aquí cuando se creen</p>
                 </div>
               </div>
             </td>
@@ -422,7 +422,7 @@ const onSort = (field) => {
 
 @media (prefers-contrast: high) {
   .bg-gray-50 { background-color: #f9fafb; }
-  .border-gray-200 { border-color: #d1d5db; }
+  .border-gray-200 dark:border-slate-800 { border-color: #d1d5db; }
 }
 
 button:focus-visible { outline: 2px solid; outline-offset: 2px; }

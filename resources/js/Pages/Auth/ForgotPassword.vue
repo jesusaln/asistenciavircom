@@ -35,7 +35,7 @@ const submit = () => {
         </template>
 
         <!-- Mensaje informativo sobre el restablecimiento de contraseña -->
-        <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+        <div class="mb-4 text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400">
             ¿Olvidaste tu contraseña? No te preocupes. Simplemente indícanos tu dirección de correo electrónico y te enviaremos un enlace para restablecer la contraseña que te permitirá elegir una nueva.
         </div>
 

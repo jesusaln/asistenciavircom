@@ -18,11 +18,11 @@
         <!-- Header Principal -->
         <div class="px-8 py-6 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white relative overflow-hidden">
           <!-- Efecto de brillo de fondo -->
-          <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+          <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white dark:bg-slate-900/10 rounded-full blur-3xl"></div>
           
           <div class="flex justify-between items-start relative z-10">
             <div class="flex items-center gap-4">
-              <div class="bg-white/10 p-3 rounded-2xl backdrop-blur-md border border-white/20">
+              <div class="bg-white dark:bg-slate-900/10 p-3 rounded-2xl backdrop-blur-md border border-white/20">
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -223,11 +223,11 @@
               <div class="bg-indigo-600 rounded-3xl p-8 flex flex-col justify-between shadow-[0_20px_50px_rgba(79,70,229,0.3)] border border-indigo-400/30 relative overflow-hidden group">
                 <!-- Efecto lumínico -->
                 <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-transparent"></div>
-                <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-white dark:bg-slate-900/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
                 
                 <div class="relative z-10">
                   <div class="flex items-center gap-2 mb-2">
-                    <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                    <span class="w-2 h-2 rounded-full bg-white dark:bg-slate-900 animate-pulse"></span>
                     <h3 class="text-[10px] font-black text-indigo-100 uppercase tracking-[0.3em]">Cifra Total</h3>
                   </div>
                   <div class="flex items-baseline gap-1">

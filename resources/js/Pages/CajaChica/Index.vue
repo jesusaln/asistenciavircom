@@ -2,7 +2,7 @@
     <AppLayout title="Caja Chica">
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
+                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 dark:text-gray-100 leading-tight">
                     Caja Chica
                 </h2>
                 <div class="flex flex-wrap gap-2">
@@ -16,27 +16,27 @@
             </div>
         </template>
 
-        <div class="py-12 bg-gray-50 dark:bg-gray-900">
+        <div class="py-12 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900">
             <div class="w-full mx-auto sm:px-6 lg:px-8">
                 <!-- Barra de acciones -->
                 <div class="flex flex-wrap justify-between items-center mb-4 gap-3">
                     <div class="flex items-center gap-3">
-                        <div class="px-4 py-2 bg-white dark:bg-gray-800 shadow-sm rounded-lg">
-                            <div class="text-xs text-gray-500 dark:text-gray-400 uppercase">Exportar</div>
+                        <div class="px-4 py-2 bg-white dark:bg-slate-900 dark:bg-gray-800 shadow-sm rounded-lg">
+                            <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase">Exportar</div>
                             <a :href="route('caja-chica.export', filters)" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-semibold">CSV</a>
                         </div>
                     </div>
-                    <div class="flex items-center gap-4 bg-white dark:bg-gray-800 shadow-sm rounded-lg px-4 py-2">
+                    <div class="flex items-center gap-4 bg-white dark:bg-slate-900 dark:bg-gray-800 shadow-sm rounded-lg px-4 py-2">
                         <div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 uppercase">Balance</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase">Balance</div>
                             <div class="text-lg font-bold" :class="balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">${{ formatMoney(balance) }}</div>
                         </div>
                         <div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 uppercase">Ingreso</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase">Ingreso</div>
                             <div class="text-lg font-bold text-blue-600 dark:text-blue-400">${{ formatMoney(totalIngresos) }}</div>
                         </div>
                         <div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 uppercase">Egreso</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase">Egreso</div>
                             <div class="text-lg font-bold text-red-600 dark:text-red-400">${{ formatMoney(totalEgresos) }}</div>
                         </div>
                         <div class="w-32 h-12">
@@ -46,7 +46,7 @@
                 </div>
 
                 <!-- Filtros -->
-                <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-4 mb-6">
+                <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 shadow-sm sm:rounded-lg p-4 mb-6">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                         <div>
                             <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-1" for="search">
@@ -89,7 +89,7 @@
                     </div>
                     <div class="flex flex-wrap justify-between items-center gap-3 mt-4">
                         <div class="flex flex-wrap gap-2">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">Rangos rápidos:</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400">Rangos rápidos:</span>
                             <button @click="quickDate('hoy')" class="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 rounded">Hoy</button>
                             <button @click="quickDate('semana')" class="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 rounded">Esta semana</button>
                             <button @click="quickDate('mes')" class="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 rounded">Este mes</button>
@@ -105,7 +105,7 @@
                                 </select>
                             </div>
                             <div class="flex gap-2">
-                                <button @click="clearFilters" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded">
+                                <button @click="clearFilters" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-9500 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded">
                                     Limpiar
                                 </button>
                                 <button @click="applyFilters" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
@@ -118,20 +118,20 @@
 
                 <!-- Summary Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
-                        <div class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase">Balance Actual</div>
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
+                        <div class="text-gray-500 dark:text-gray-400 dark:text-gray-400 text-sm font-medium uppercase">Balance Actual</div>
                         <div class="text-3xl font-bold" :class="balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
                             ${{ formatMoney(balance) }}
                         </div>
                     </div>
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
-                        <div class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase">Total Ingresos</div>
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
+                        <div class="text-gray-500 dark:text-gray-400 dark:text-gray-400 text-sm font-medium uppercase">Total Ingresos</div>
                         <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">
                             ${{ formatMoney(totalIngresos) }}
                         </div>
                     </div>
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
-                        <div class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase">Total Egresos</div>
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
+                        <div class="text-gray-500 dark:text-gray-400 dark:text-gray-400 text-sm font-medium uppercase">Total Egresos</div>
                         <div class="text-3xl font-bold text-red-600 dark:text-red-400">
                             ${{ formatMoney(totalEgresos) }}
                         </div>
@@ -139,11 +139,11 @@
                 </div>
 
                 <!-- Transactions Table -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50 dark:bg-gray-700/50">
+                <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                        <thead class="bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">
                                     <button class="flex items-center gap-1" @click="toggleSort('fecha')">
                                         Fecha
                                         <span v-if="filters.sort_by === 'fecha'">
@@ -151,8 +151,8 @@
                                         </span>
                                     </button>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Concepto</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Concepto</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">
                                     <button class="flex items-center gap-1" @click="toggleSort('categoria')">
                                         Categoría
                                         <span v-if="filters.sort_by === 'categoria'">
@@ -160,8 +160,8 @@
                                         </span>
                                     </button>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tipo</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Tipo</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">
                                     <button class="flex items-center gap-1" @click="toggleSort('monto')">
                                         Monto
                                         <span v-if="filters.sort_by === 'monto'">
@@ -169,8 +169,8 @@
                                         </span>
                                     </button>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Comprobantes</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Comprobantes</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">
                                     <button class="flex items-center gap-1" @click="toggleSort('usuario')">
                                         Usuario
                                         <span v-if="filters.sort_by === 'usuario'">
@@ -178,24 +178,24 @@
                                         </span>
                                     </button>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
                             <tr v-for="movimiento in movimientos.data" :key="movimiento.id">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
                                     {{ formatDate(movimiento.fecha) }}
-                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">
                                         {{ new Date(movimiento.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) }}
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white dark:text-gray-100">
                                     <div class="font-semibold">{{ movimiento.concepto }}</div>
-                                    <div v-if="movimiento.nota" class="text-xs text-gray-500 dark:text-gray-400 mt-1 whitespace-normal max-w-xs">
+                                    <div v-if="movimiento.nota" class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1 whitespace-normal max-w-xs">
                                         {{ movimiento.nota }}
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white dark:text-gray-100">
                                     {{ movimiento.categoria || '—' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -208,7 +208,7 @@
                                     :class="movimiento.tipo === 'ingreso' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
                                     ${{ formatMoney(movimiento.monto) }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
                                     <button
                                         v-if="(movimiento.adjuntos && movimiento.adjuntos.length) || movimiento.comprobante_url"
                                         @click="verComprobante(movimiento)"
@@ -216,9 +216,9 @@
                                     >
                                         Ver ({{ movimiento.adjuntos?.length || (movimiento.comprobante_url ? 1 : 0) }})
                                     </button>
-                                    <span v-else class="text-gray-400 dark:text-gray-500">-</span>
+                                    <span v-else class="text-gray-400 dark:text-gray-500 dark:text-gray-400">-</span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
                                     {{ movimiento.user?.name || 'Desconocido' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -243,21 +243,21 @@
                                 </td>
                             </tr>
                             <tr v-if="movimientos.data.length === 0">
-                                <td colspan="7" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                                <td colspan="7" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400 dark:text-gray-400">
                                     No hay movimientos registrados.
                                 </td>
                             </tr>
                         </tbody>
                         <tfoot v-if="movimientos.data.length">
-                            <tr class="bg-gray-50 dark:bg-gray-700/50">
-                                <td colspan="4" class="px-6 py-3 text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Totales página</td>
-                                <td class="px-6 py-3 text-sm font-bold text-right text-gray-900 dark:text-gray-100">
+                            <tr class="bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50">
+                                <td colspan="4" class="px-6 py-3 text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase">Totales página</td>
+                                <td class="px-6 py-3 text-sm font-bold text-right text-gray-900 dark:text-white dark:text-gray-100">
                                     ${{ formatMoney(totalPagina.monto) }}
                                 </td>
                                 <td colspan="3"></td>
                             </tr>
-                            <tr class="bg-gray-50 dark:bg-gray-700/50">
-                                <td colspan="4" class="px-6 py-3 text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Ingresos / Egresos página</td>
+                            <tr class="bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50">
+                                <td colspan="4" class="px-6 py-3 text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase">Ingresos / Egresos página</td>
                                 <td class="px-6 py-3 text-sm font-bold text-right">
                                     <span class="text-green-600 dark:text-green-400">+${{ formatMoney(totalPagina.ingresos) }}</span>
                                     /
@@ -269,11 +269,11 @@
                     </table>
                     
                     <!-- Pagination -->
-                    <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800" v-if="movimientos.links.length > 3">
+                    <div class="px-6 py-4 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700 bg-white dark:bg-slate-900 dark:bg-gray-800" v-if="movimientos.links.length > 3">
                         <div class="flex justify-between">
                             <template v-for="(link, key) in movimientos.links" :key="key">
-                                <div v-if="link.url === null" class="mr-1 mb-1 px-4 py-3 text-sm leading-4 text-gray-400 dark:text-gray-500 border border-gray-300 dark:border-gray-600 rounded" v-html="link.label" />
-                                <Link v-else class="mr-1 mb-1 px-4 py-3 text-sm leading-4 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 focus:border-amber-500 focus:text-amber-500 dark:focus:border-amber-400 dark:focus:text-amber-400" :class="{ 'bg-blue-700 text-white': link.active, 'dark:bg-blue-600 dark:text-white dark:border-blue-600': link.active }" :href="link.url" v-html="link.label" />
+                                <div v-if="link.url === null" class="mr-1 mb-1 px-4 py-3 text-sm leading-4 text-gray-400 dark:text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded" v-html="link.label" />
+                                <Link v-else class="mr-1 mb-1 px-4 py-3 text-sm leading-4 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700 focus:border-amber-500 focus:text-amber-500 dark:focus:border-amber-400 dark:focus:text-amber-400" :class="{ 'bg-blue-700 text-white': link.active, 'dark:bg-blue-600 dark:text-white dark:border-blue-600': link.active }" :href="link.url" v-html="link.label" />
                             </template>
                         </div>
                     </div>
@@ -283,8 +283,8 @@
 
         <!-- Modal formulario -->
         <Modal :show="showModal" @close="closeModal">
-            <div class="p-6 bg-white dark:bg-gray-800 rounded-lg">
-                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
+            <div class="p-6 bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-lg">
+                <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">
                     {{ form.id ? 'Editar Transaccion' : 'Nueva Transaccion' }}
                 </h2>
                 
@@ -318,7 +318,7 @@
                         @blur="normalizarMonto"
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:border-gray-600 dark:bg-gray-700"
                     >
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Ingresa el monto en positivo; el signo lo define el tipo.</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">Ingresa el monto en positivo; el signo lo define el tipo.</p>
                     <div v-if="form.errors.monto" class="text-red-500 text-xs italic">{{ form.errors.monto }}</div>
                 </div>
 
@@ -351,7 +351,7 @@
                             <div v-for="adj in adjuntosEnEdicion" :key="adj.id" class="flex items-center gap-2 text-sm">
                                 <input type="checkbox" :value="adj.id" v-model="form.eliminar_adjuntos" class="dark:bg-gray-700 dark:border-gray-600">
                                 <button type="button" @click="verAdjuntoDirecto(adj)" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline">Ver</button>
-                                <span class="text-gray-600 dark:text-gray-300 truncate">{{ adj.path?.split('/').pop() || 'archivo' }}</span>
+                                <span class="text-gray-600 dark:text-gray-300 dark:text-gray-300 truncate">{{ adj.path?.split('/').pop() || 'archivo' }}</span>
                             </div>
                         </div>
                         <p v-if="form.eliminar_adjuntos.length" class="text-xs text-red-600 dark:text-red-400">Se eliminarán los seleccionados.</p>
@@ -375,7 +375,7 @@
                 </div>
 
                 <div class="flex justify-end mt-6">
-                    <button @click="closeModal" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 font-bold py-2 px-4 rounded mr-2" :disabled="form.processing">
+                    <button @click="closeModal" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-9500 text-gray-700 dark:text-gray-200 font-bold py-2 px-4 rounded mr-2" :disabled="form.processing">
                         Cancelar
                     </button>
                     <button @click="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-75" :disabled="form.processing">
@@ -388,14 +388,14 @@
 
         <!-- Modal comprobante -->
         <Modal :show="showComprobanteModal" @close="cerrarComprobante">
-            <div class="p-6 bg-white dark:bg-gray-800 rounded-lg">
-                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
+            <div class="p-6 bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-lg">
+                <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">
                     Comprobantes
                 </h2>
                 <div v-if="comprobanteSeleccionado && ((comprobanteSeleccionado.adjuntos && comprobanteSeleccionado.adjuntos.length) || comprobanteSeleccionado.comprobante_url)">
                     <div class="space-y-4">
                         <div v-for="adj in (comprobanteSeleccionado.adjuntos || [])" :key="adj.id">
-                            <div v-if="esImagen(adj.url)" class="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                            <div v-if="esImagen(adj.url)" class="rounded-lg overflow-hidden border border-gray-200 dark:border-slate-800 dark:border-gray-700">
                                 <img :src="adj.url" alt="Comprobante" class="w-full h-auto max-h-[70vh] object-contain">
                             </div>
                             <div v-else class="text-gray-700 dark:text-gray-200 text-sm mb-1">
@@ -403,7 +403,7 @@
                             </div>
                         </div>
                         <div v-if="(!comprobanteSeleccionado.adjuntos || comprobanteSeleccionado.adjuntos.length === 0) && comprobanteSeleccionado.comprobante_url">
-                            <div v-if="esImagen(comprobanteSeleccionado.comprobante_url)" class="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                            <div v-if="esImagen(comprobanteSeleccionado.comprobante_url)" class="rounded-lg overflow-hidden border border-gray-200 dark:border-slate-800 dark:border-gray-700">
                                 <img :src="comprobanteSeleccionado.comprobante_url" alt="Comprobante" class="w-full h-auto max-h-[70vh] object-contain">
                             </div>
                             <div v-else class="text-gray-700 dark:text-gray-200 text-sm mb-1">
@@ -412,12 +412,12 @@
                         </div>
                     </div>
                     <div class="mt-4 flex justify-end gap-2">
-                        <button @click="cerrarComprobante" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 font-bold py-2 px-4 rounded">
+                        <button @click="cerrarComprobante" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-9500 text-gray-700 dark:text-gray-200 font-bold py-2 px-4 rounded">
                             Cerrar
                         </button>
                     </div>
                 </div>
-                <div v-else class="text-gray-500 dark:text-gray-400">
+                <div v-else class="text-gray-500 dark:text-gray-400 dark:text-gray-400">
                     Sin comprobante disponible.
                 </div>
             </div>

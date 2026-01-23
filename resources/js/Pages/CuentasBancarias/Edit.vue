@@ -6,16 +6,16 @@
       <!-- Header -->
       <div class="flex items-center mb-8">
         <Link :href="route('cuentas-bancarias.index')" class="mr-4 p-2 hover:bg-gray-100 rounded-lg">
-          <FontAwesomeIcon :icon="['fas', 'arrow-left']" class="text-gray-600" />
+          <FontAwesomeIcon :icon="['fas', 'arrow-left']" class="text-gray-600 dark:text-gray-300" />
         </Link>
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">Editar Cuenta Bancaria</h1>
-          <p class="text-gray-600 mt-1">{{ cuenta.nombre }} - {{ cuenta.banco }}</p>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Editar Cuenta Bancaria</h1>
+          <p class="text-gray-600 dark:text-gray-300 mt-1">{{ cuenta.nombre }} - {{ cuenta.banco }}</p>
         </div>
       </div>
 
       <!-- Formulario -->
-      <div class="bg-white rounded-xl shadow-md p-6 max-w-2xl">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-md p-6 max-w-2xl">
         <form @submit.prevent="submit">
           <!-- Nombre -->
           <div class="mb-6">
@@ -80,7 +80,7 @@
                 Saldo Inicial <span class="text-red-500">*</span>
               </label>
               <div class="relative">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
                 <input
                   type="number"
                   v-model="form.saldo_inicial"
@@ -127,7 +127,7 @@
           <div class="flex justify-end gap-3 pt-4 border-t">
             <Link
               :href="route('cuentas-bancarias.index')"
-              class="px-4 py-2 border rounded-lg hover:bg-white"
+              class="px-4 py-2 border rounded-lg hover:bg-white dark:bg-slate-900"
             >
               Cancelar
             </Link>

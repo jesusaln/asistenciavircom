@@ -8,8 +8,8 @@
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">Costos de Inventario</h1>
-            <p class="text-gray-600 mt-1">Valorización y análisis de costos del inventario</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Costos de Inventario</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-1">Valorización y análisis de costos del inventario</p>
           </div>
           <Link
             :href="route('reportes.inventario.dashboard')"
@@ -26,7 +26,7 @@
       <!-- Filtros y Totales -->
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
         <!-- Filtro de tipo de costo -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-6">
           <label for="tipo_costo" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Costo</label>
           <select
             id="tipo_costo"
@@ -37,13 +37,13 @@
             <option value="promedio">Costo Promedio</option>
             <option value="ultimo">Último Costo</option>
           </select>
-          <p class="mt-2 text-xs text-gray-500">
+          <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
             {{ filtros.tipo_costo === 'promedio' ? 'Calcula el costo promedio ponderado' : 'Usa el último costo de entrada' }}
           </p>
         </div>
 
         <!-- Estadísticas -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-6">
           <div class="flex items-center">
             <div class="p-3 bg-blue-100 rounded-lg">
               <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,13 +51,13 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600">Productos con Stock</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Productos con Stock</p>
               <p class="text-2xl font-bold text-blue-600">{{ totales.productos_con_stock }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-6">
           <div class="flex items-center">
             <div class="p-3 bg-green-100 rounded-lg">
               <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,13 +65,13 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600">Valor Total</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Valor Total</p>
               <p class="text-2xl font-bold text-green-600">${{ formatCurrency(totales.valor_total_inventario) }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-6">
           <div class="flex items-center">
             <div class="p-3 bg-yellow-100 rounded-lg">
               <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,7 +79,7 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600">Margen Promedio</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Margen Promedio</p>
               <p class="text-2xl font-bold text-yellow-600">{{ (totales.margen_promedio || 0).toFixed(1) }}%</p>
             </div>
           </div>
@@ -87,46 +87,46 @@
       </div>
 
       <!-- Tabla de productos -->
-      <div v-if="productos.length > 0" class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div v-if="productos.length > 0" class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+            <thead class="bg-white dark:bg-slate-900">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Costo Unitario</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Venta</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Inventario</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Margen</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Distribución</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Producto</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stock</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Costo Unitario</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Precio Venta</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Valor Inventario</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Margen</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Distribución</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="producto in productos" :key="producto.id" class="hover:bg-white">
+            <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+              <tr v-for="producto in productos" :key="producto.id" class="hover:bg-white dark:bg-slate-900">
                 <td class="px-6 py-4">
                   <div class="flex items-center">
                     <div class="flex-shrink-0 h-10 w-10">
                       <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                        <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                         </svg>
                       </div>
                     </div>
                     <div class="ml-4">
-                      <div class="text-sm font-medium text-gray-900">{{ producto.nombre }}</div>
-                      <div class="text-sm text-gray-500">{{ producto.categoria }} • {{ producto.marca }}</div>
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">{{ producto.nombre }}</div>
+                      <div class="text-sm text-gray-500 dark:text-gray-400">{{ producto.categoria }} • {{ producto.marca }}</div>
                       <div class="text-xs text-gray-400">Código: {{ producto.codigo }}</div>
                     </div>
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">{{ producto.stock_total }}</div>
+                  <div class="text-sm text-gray-900 dark:text-white">{{ producto.stock_total }}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">${{ formatCurrency(producto.costo_unitario) }}</div>
+                  <div class="text-sm text-gray-900 dark:text-white">${{ formatCurrency(producto.costo_unitario) }}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">${{ formatCurrency(producto.precio_venta) }}</div>
+                  <div class="text-sm text-gray-900 dark:text-white">${{ formatCurrency(producto.precio_venta) }}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="text-sm font-medium text-green-600">${{ formatCurrency(producto.valor_total_inventario) }}</div>
@@ -144,7 +144,7 @@
                     <div v-for="dist in producto.distribucion_almacenes.slice(0, 2)" :key="dist.almacen" class="text-xs">
                       <span class="font-medium">{{ dist.almacen }}:</span> {{ dist.cantidad }} (${{ formatCurrency(dist.valor) }})
                     </div>
-                    <div v-if="producto.distribucion_almacenes.length > 2" class="text-xs text-gray-500">
+                    <div v-if="producto.distribucion_almacenes.length > 2" class="text-xs text-gray-500 dark:text-gray-400">
                       +{{ producto.distribucion_almacenes.length - 2 }} más...
                     </div>
                   </div>
@@ -156,12 +156,12 @@
       </div>
 
       <!-- Sin resultados -->
-      <div v-else class="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">
+      <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-12 text-center">
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
         </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">No hay productos con stock</h3>
-        <p class="mt-1 text-sm text-gray-500">No se encontraron productos con inventario para calcular costos.</p>
+        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No hay productos con stock</h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">No se encontraron productos con inventario para calcular costos.</p>
       </div>
     </div>
   </div>

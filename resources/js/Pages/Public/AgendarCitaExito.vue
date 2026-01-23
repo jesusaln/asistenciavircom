@@ -53,10 +53,10 @@ const copiarLink = () => {
         <main class="flex-1 flex items-center justify-center p-4">
             <div class="max-w-md w-full">
                 <!-- Success Card -->
-                <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+                <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden">
                     <!-- Header -->
                     <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-8 text-center text-white">
-                        <div class="w-20 h-20 bg-white/20 backdrop-blur rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce-slow">
+                        <div class="w-20 h-20 bg-white dark:bg-slate-900/20 backdrop-blur rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce-slow">
                             <span class="text-5xl">✅</span>
                         </div>
                         <h1 class="text-2xl font-black mb-2">¡Solicitud Recibida!</h1>
@@ -68,7 +68,7 @@ const copiarLink = () => {
                         <!-- Folio - DESTACADO -->
                         <div class="text-center p-5 bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 rounded-2xl">
                             <p class="text-sm text-orange-700 font-medium mb-1">📌 Tu número de solicitud</p>
-                            <p class="text-3xl font-black text-gray-900 tracking-wider">{{ cita?.folio || 'CITA-000' }}</p>
+                            <p class="text-3xl font-black text-gray-900 dark:text-white tracking-wider">{{ cita?.folio || 'CITA-000' }}</p>
                             <div class="mt-3 p-2 bg-orange-100 rounded-lg">
                                 <p class="text-xs text-orange-800 font-medium">
                                     ⚠️ ¡IMPORTANTE! Guarda este número para dar seguimiento a tu cita
@@ -96,8 +96,8 @@ const copiarLink = () => {
                                     <span class="text-xl">📅</span>
                                 </div>
                                 <div>
-                                    <p class="text-sm text-gray-500">Días preferidos</p>
-                                    <p class="font-semibold text-gray-900 capitalize">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Días preferidos</p>
+                                    <p class="font-semibold text-gray-900 dark:text-white capitalize">
                                         {{ diasFormateados.join(' • ') || 'Por confirmar' }}
                                     </p>
                                 </div>
@@ -108,10 +108,10 @@ const copiarLink = () => {
                                     <span class="text-xl">{{ cita?.horario_info?.emoji || '⏰' }}</span>
                                 </div>
                                 <div>
-                                    <p class="text-sm text-gray-500">Horario preferido</p>
-                                    <p class="font-semibold text-gray-900">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Horario preferido</p>
+                                    <p class="font-semibold text-gray-900 dark:text-white">
                                         {{ cita?.horario_info?.nombre || 'Por confirmar' }}
-                                        <span v-if="cita?.horario_info" class="text-gray-500 font-normal">
+                                        <span v-if="cita?.horario_info" class="text-gray-500 dark:text-gray-400 font-normal">
                                             ({{ cita.horario_info.inicio }} - {{ cita.horario_info.fin }})
                                         </span>
                                     </p>
@@ -139,14 +139,14 @@ const copiarLink = () => {
                         </div>
                         
                         <!-- Link de seguimiento -->
-                        <div class="bg-white rounded-2xl p-4">
-                            <p class="text-sm text-gray-500 mb-2">Consulta el estado de tu cita:</p>
+                        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4">
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Consulta el estado de tu cita:</p>
                             <div class="flex items-center gap-2">
                                 <input 
                                     type="text" 
                                     :value="cita?.url_seguimiento" 
                                     readonly
-                                    class="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 truncate"
+                                    class="flex-1 px-3 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg text-sm text-gray-600 dark:text-gray-300 truncate"
                                 />
                                 <button 
                                     @click="copiarLink"
@@ -178,7 +178,7 @@ const copiarLink = () => {
                 </div>
                 
                 <!-- Company Info -->
-                <div class="text-center mt-6 text-gray-500 text-sm">
+                <div class="text-center mt-6 text-gray-500 dark:text-gray-400 text-sm">
                     <p class="font-medium text-gray-700">{{ empresa?.nombre || 'Asistencia Vircom' }}</p>
                     <p>Gracias por tu confianza 🛠️</p>
                 </div>

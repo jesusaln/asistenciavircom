@@ -1,15 +1,15 @@
 <template>
   <Head title="Registrar Actividad" />
-  <div class="min-h-screen bg-white dark:bg-gray-900 py-8">
+  <div class="min-h-screen bg-white dark:bg-slate-900 dark:bg-gray-900 py-8">
     <div class="w-full px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="mb-6">
         <div class="flex items-start justify-between gap-4">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Registrar Actividad</h1>
-            <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">Captura detallada para tu bitácora. Los campos marcados con * son obligatorios.</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white dark:text-gray-100 tracking-tight">Registrar Actividad</h1>
+            <p class="mt-2 text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">Captura detallada para tu bitácora. Los campos marcados con * son obligatorios.</p>
           </div>
-          <Link :href="route('bitacora.index')" class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-600 hover:border-gray-400 transition-colors shadow-sm">
+          <Link :href="route('bitacora.index')" class="inline-flex items-center px-4 py-2 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-600 hover:border-gray-400 transition-colors shadow-sm">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
@@ -32,7 +32,7 @@
       </div>
 
       <!-- Formulario -->
-      <form @submit.prevent="submit('index')" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <form @submit.prevent="submit('index')" class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 dark:border-gray-700 p-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Título -->
           <div class="md:col-span-2">
@@ -43,7 +43,7 @@
               id="titulo"
               v-model.trim="form.titulo"
               type="text"
-              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               :class="inputError('titulo', 'dark:border-red-600 dark:bg-red-900/20')"
               placeholder="Ej. Instalación minisplit sucursal Centro"
               maxlength="150"
@@ -51,7 +51,7 @@
             />
             <div class="flex justify-between mt-1">
               <p v-if="form.errors.titulo" class="text-sm text-red-600 dark:text-red-400">{{ form.errors.titulo }}</p>
-              <span class="text-xs text-gray-400 dark:text-gray-500">{{ (form.titulo || '').length }} / 150</span>
+              <span class="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400">{{ (form.titulo || '').length }} / 150</span>
             </div>
           </div>
 
@@ -63,7 +63,7 @@
             <select
               id="user_id"
               v-model="form.user_id"
-              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               :class="inputError('user_id', 'dark:border-red-600 dark:bg-red-900/20')"
             >
               <option value="" disabled>Selecciona un empleado</option>
@@ -78,7 +78,7 @@
             <select
               id="cliente_id"
               v-model="form.cliente_id"
-              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               :class="inputError('cliente_id', 'dark:border-red-600 dark:bg-red-900/20')"
             >
               <option :value="null">— Sin cliente —</option>
@@ -91,19 +91,19 @@
           <div>
             <label for="asignado_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Asignar a
-              <span class="text-xs text-gray-500 dark:text-gray-400 ml-1">(opcional)</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 ml-1">(opcional)</span>
             </label>
             <select
               id="asignado_id"
               v-model="form.asignado_id"
-              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               :class="inputError('asignado_id', 'dark:border-red-600 dark:bg-red-900/20')"
             >
               <option :value="null">— Auto-asignar (a mí mismo) —</option>
               <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>
             </select>
             <p v-if="form.errors.asignado_id" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.errors.asignado_id }}</p>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
               <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
@@ -119,7 +119,7 @@
             <select
               id="tipo"
               v-model="form.tipo"
-              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent capitalize transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent capitalize transition-colors bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               :class="inputError('tipo', 'dark:border-red-600 dark:bg-red-900/20')"
             >
               <option value="" disabled>Selecciona un tipo</option>
@@ -136,7 +136,7 @@
             <select
               id="estado"
               v-model="form.estado"
-              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent capitalize transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent capitalize transition-colors bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               :class="inputError('estado', 'dark:border-red-600 dark:bg-red-900/20')"
             >
               <option v-for="e in estados" :key="e" :value="e">
@@ -145,7 +145,7 @@
             </select>
             <div class="mt-1 flex items-center">
               <div class="w-2 h-2 rounded-full mr-2" :class="getEstadoIndicator(form.estado)"></div>
-              <span class="text-xs text-gray-600 dark:text-gray-300">{{ getEstadoDescription(form.estado) }}</span>
+              <span class="text-xs text-gray-600 dark:text-gray-300 dark:text-gray-300">{{ getEstadoDescription(form.estado) }}</span>
             </div>
           </div>
 
@@ -156,7 +156,7 @@
                 Inicio <span class="text-red-500">*</span>
               </label>
               <div class="flex gap-2">
-                <button type="button" @click="setNow('inicio_at')" class="text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-white dark:hover:bg-gray-600 transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200">
+                <button type="button" @click="setNow('inicio_at')" class="text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-600 transition-colors bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200">
                   Ahora
                 </button>
               </div>
@@ -165,7 +165,7 @@
               id="inicio_at"
               v-model="form.inicio_at"
               type="datetime-local"
-              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               :class="inputError('inicio_at', 'dark:border-red-600 dark:bg-red-900/20')"
             />
             <p v-if="form.errors.inicio_at" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.errors.inicio_at }}</p>
@@ -176,16 +176,16 @@
             <div class="flex items-center justify-between mb-1">
               <label for="fin_at" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Fin</label>
               <div class="flex gap-1 flex-wrap">
-                <button type="button" @click="setNow('fin_at')" class="text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-white dark:hover:bg-gray-600 transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200">
+                <button type="button" @click="setNow('fin_at')" class="text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-600 transition-colors bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200">
                   Ahora
                 </button>
-                <button type="button" @click="sumarMinutos(30)" class="text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-white dark:hover:bg-gray-600 transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200">
+                <button type="button" @click="sumarMinutos(30)" class="text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-600 transition-colors bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200">
                   +30m
                 </button>
-                <button type="button" @click="sumarMinutos(60)" class="text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-white dark:hover:bg-gray-600 transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200">
+                <button type="button" @click="sumarMinutos(60)" class="text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-600 transition-colors bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200">
                   +1h
                 </button>
-                <button type="button" @click="sumarMinutos(120)" class="text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-white dark:hover:bg-gray-600 transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200">
+                <button type="button" @click="sumarMinutos(120)" class="text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-600 transition-colors bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200">
                   +2h
                 </button>
               </div>
@@ -194,11 +194,11 @@
               id="fin_at"
               v-model="form.fin_at"
               type="datetime-local"
-              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               :class="inputError('fin_at', 'dark:border-red-600 dark:bg-red-900/20')"
             />
             <p v-if="form.errors.fin_at" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.errors.fin_at }}</p>
-            <p v-if="duracionTexto" class="mt-1 text-xs text-gray-500 dark:text-gray-400 flex items-center">
+            <p v-if="duracionTexto" class="mt-1 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 flex items-center">
               <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
@@ -219,14 +219,14 @@
               id="ubicacion"
               v-model.trim="form.ubicacion"
               type="text"
-              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               :class="inputError('ubicacion', 'dark:border-red-600 dark:bg-red-900/20')"
               placeholder="Ej. Sucursal Centro, Blvd. X, #123"
               maxlength="255"
             />
             <div class="flex justify-between mt-1">
               <p v-if="form.errors.ubicacion" class="text-sm text-red-600 dark:text-red-400">{{ form.errors.ubicacion }}</p>
-              <span class="text-xs text-gray-400 dark:text-gray-500">{{ (form.ubicacion || '').length }} / 255</span>
+              <span class="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400">{{ (form.ubicacion || '').length }} / 255</span>
             </div>
           </div>
 
@@ -234,13 +234,13 @@
           <div class="md:col-span-2">
             <div class="flex items-center justify-between mb-1">
               <label for="descripcion" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Descripción</label>
-              <span class="text-xs text-gray-400 dark:text-gray-500">{{ (form.descripcion || '').length }} / 5000</span>
+              <span class="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400">{{ (form.descripcion || '').length }} / 5000</span>
             </div>
             <textarea
               id="descripcion"
               v-model.trim="form.descripcion"
               rows="5"
-              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+              class="mt-1 w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               :class="inputError('descripcion', 'dark:border-red-600 dark:bg-red-900/20')"
               placeholder="Detalle las actividades realizadas, materiales usados, pendientes, etc."
               maxlength="5000"
@@ -262,9 +262,9 @@
         </div>
 
         <!-- Actions -->
-        <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div class="mt-8 pt-6 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700">
           <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-            <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+            <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 flex items-center">
               <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
@@ -275,7 +275,7 @@
                 type="button"
                 @click="submit('stay')"
                 :disabled="form.processing"
-                class="px-5 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                class="px-5 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
               >
                 <span v-if="!form.processing">Guardar y capturar otra</span>
                 <span v-else class="inline-flex items-center">

@@ -40,14 +40,14 @@ const formatCurrency = (value) => {
 <template>
     <AppLayout title="Nuevo Traspaso">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
                 Nuevo Traspaso entre Cuentas
             </h2>
         </template>
 
         <div class="py-12">
             <div class="w-full sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
+                <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-xl sm:rounded-lg p-6">
                     <form @submit.prevent="submit">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Origen -->
@@ -100,7 +100,7 @@ const formatCurrency = (value) => {
                         </div>
 
                         <div class="flex items-center justify-end mt-4">
-                            <Link :href="route('traspasos-bancarios.index')" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
+                            <Link :href="route('traspasos-bancarios.index')" class="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:text-white mr-4">
                                 Volver al listado
                             </Link>
                             <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" :disabled="form.processing">

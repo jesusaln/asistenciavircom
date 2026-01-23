@@ -2,9 +2,9 @@
   <AppLayout>
     <div class="py-12">
       <div class="w-full sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div class="p-6 bg-white border-b border-gray-200">
-            <h1 class="text-2xl font-bold text-gray-900 mb-6">Editar Artículo KB</h1>
+        <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
+          <div class="p-6 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Editar Artículo KB</h1>
 
             <form @submit.prevent="submit" class="space-y-6">
               <div>
@@ -22,7 +22,7 @@
                     <button 
                         type="button" 
                         @click="showCategoryModal = true"
-                        class="px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 text-gray-600 border border-gray-300 transition-colors"
+                        class="px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 text-gray-600 dark:text-gray-300 border border-gray-300 transition-colors"
                         title="Nueva Categoría"
                     >
                         ❤️
@@ -33,12 +33,12 @@
               <div>
                 <label class="block text-sm font-medium text-gray-700">Contenido</label>
                 <textarea v-model="form.contenido" rows="10" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required></textarea>
-                <p class="text-xs text-gray-500 mt-1">Soporta HTML básico o Texto.</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Soporta HTML básico o Texto.</p>
               </div>
 
               <div class="flex items-center">
                  <input type="checkbox" v-model="form.es_publico" id="publico" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                 <label for="publico" class="ml-2 block text-sm text-gray-900">Es público (visible para todos)</label>
+                 <label for="publico" class="ml-2 block text-sm text-gray-900 dark:text-white">Es público (visible para todos)</label>
               </div>
 
               <div class="flex justify-end gap-2">

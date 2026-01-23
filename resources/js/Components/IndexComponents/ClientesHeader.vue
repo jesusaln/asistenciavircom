@@ -1,8 +1,8 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
+  <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-slate-800 dark:border-gray-700 overflow-hidden transition-colors">
     <!-- Header con estadísticas -->
     <div 
-      class="px-6 py-6 border-b border-gray-200/60 transition-colors" 
+      class="px-6 py-6 border-b border-gray-200 dark:border-slate-800/60 transition-colors" 
       :style="{ background: isDark ? 'linear-gradient(135deg, #1f2937 0%, #111827 100%)' : `linear-gradient(135deg, ${colors.principal}15 0%, ${colors.secundario}10 100%)` }"
     >
       <div class="flex items-center justify-between mb-6">
@@ -13,7 +13,7 @@
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight transition-colors">Clientes</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white tracking-tight transition-colors">Clientes</h1>
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-0.5 transition-colors">Gestiona todos tus clientes en un solo lugar</p>
           </div>
         </div>
@@ -43,7 +43,7 @@
             { label: 'Nuevos', value: nuevos_mes, color: colors.secundario, icon: 'M12 4v16m8-8H4' }
           ]"
           :key="idx"
-          class="bg-white/80 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 dark:border-gray-700/50 shadow-sm transition-all"
+          class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-4 border border-gray-200 dark:border-slate-800/50 dark:border-gray-700/50 shadow-sm transition-all"
         >
           <div class="flex items-center justify-between">
             <div>
@@ -61,13 +61,13 @@
     </div>
 
     <!-- Filtros y búsqueda -->
-    <div class="px-6 py-4 bg-gray-50/50 dark:bg-gray-800/40 border-b border-gray-200/60 dark:border-gray-700/40 transition-colors">
+    <div class="px-6 py-4 bg-gray-50/50 dark:bg-gray-800/40 border-b border-gray-200 dark:border-slate-800/60 dark:border-gray-700/40 transition-colors">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 gap-4">
         <!-- Búsqueda -->
         <div class="flex-1 max-w-md">
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="h-5 w-5 text-gray-400 dark:text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -75,7 +75,7 @@
               v-model="searchTerm"
               type="text"
               placeholder="Buscar cliente..."
-              class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-gray-800 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-sm"
+              class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-slate-900 dark:bg-gray-800 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-sm"
               @input="onSearchChange"
             />
           </div>
@@ -87,7 +87,7 @@
           <select
             v-model="filtroTipoPersona"
             @change="onFiltroTipoPersonaChange"
-            class="block pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 transition-all outline-none"
+            class="block pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 transition-all outline-none"
           >
             <option value="">Tipo: Todos</option>
             <option value="fisica">Física</option>
@@ -98,7 +98,7 @@
           <select
             v-model="filtroEstado"
             @change="onFiltroEstadoChange"
-            class="block pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 transition-all outline-none"
+            class="block pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 transition-all outline-none"
           >
             <option value="">Estado: Todos</option>
             <option value="1">Activos</option>
@@ -109,7 +109,7 @@
           <select
             v-model="filtroEstadoMexico"
             @change="onFiltroEstadoMexicoChange"
-            class="hidden lg:block pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 transition-all outline-none"
+            class="hidden lg:block pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-700 dark:text-gray-200 transition-all outline-none"
           >
             <option value="">Ubicación: Todo MX</option>
             <option value="CIUDAD DE MÉXICO">Ciudad de México</option>
@@ -122,7 +122,7 @@
           <select
             v-model="sortBy"
             @change="onSortChange"
-            class="block pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 transition-all outline-none"
+            class="block pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-700 dark:text-gray-200 transition-all outline-none"
           >
             <option value="created_at-desc">Recientes</option>
             <option value="nombre_razon_social-asc">Nombre A-Z</option>
@@ -131,7 +131,7 @@
           <!-- Limpiar filtros -->
           <button
             @click="onLimpiarFiltros"
-            class="p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            class="p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             title="Limpiar filtros"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

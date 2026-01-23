@@ -6,8 +6,8 @@
         <div class="mb-8">
           <div class="flex justify-between items-center">
             <div>
-              <h1 class="text-3xl font-bold text-gray-900">{{ kit.nombre }}</h1>
-              <p class="mt-2 text-sm text-gray-600">Detalles del kit y sus componentes</p>
+              <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ kit.nombre }}</h1>
+              <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">Detalles del kit y sus componentes</p>
             </div>
             <div class="flex space-x-3">
               <Link :href="`/kits/${kit.id}/edit`" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
@@ -16,7 +16,7 @@
                 </svg>
                 Editar Kit
               </Link>
-              <Link href="/kits" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+              <Link href="/kits" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path>
                 </svg>
@@ -29,7 +29,7 @@
         <!-- Kit Info Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <!-- Estado -->
-          <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="bg-white dark:bg-slate-900 overflow-hidden shadow rounded-lg">
             <div class="p-5">
               <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -41,8 +41,8 @@
                 </div>
                 <div class="ml-5 w-0 flex-1">
                   <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">Estado</dt>
-                    <dd class="text-lg font-medium text-gray-900">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Estado</dt>
+                    <dd class="text-lg font-medium text-gray-900 dark:text-white">
                       <span :class="kit.estado === 'activo' ? 'text-green-600' : 'text-red-600'">
                         {{ kit.estado === 'activo' ? 'Activo' : 'Inactivo' }}
                       </span>
@@ -54,7 +54,7 @@
           </div>
 
           <!-- Precio de Venta -->
-          <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="bg-white dark:bg-slate-900 overflow-hidden shadow rounded-lg">
             <div class="p-5">
               <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -66,8 +66,8 @@
                 </div>
                 <div class="ml-5 w-0 flex-1">
                   <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">Precio de Venta</dt>
-                    <dd class="text-lg font-medium text-gray-900">{{ formatCurrency(kit.precio_venta) }}</dd>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Precio de Venta</dt>
+                    <dd class="text-lg font-medium text-gray-900 dark:text-white">{{ formatCurrency(kit.precio_venta) }}</dd>
                   </dl>
                 </div>
               </div>
@@ -75,7 +75,7 @@
           </div>
 
           <!-- Componentes -->
-          <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="bg-white dark:bg-slate-900 overflow-hidden shadow rounded-lg">
             <div class="p-5">
               <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -87,8 +87,8 @@
                 </div>
                 <div class="ml-5 w-0 flex-1">
                   <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">Componentes</dt>
-                    <dd class="text-lg font-medium text-gray-900">{{ kit.kit_items?.length || 0 }}</dd>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Componentes</dt>
+                    <dd class="text-lg font-medium text-gray-900 dark:text-white">{{ kit.kit_items?.length || 0 }}</dd>
                   </dl>
                 </div>
               </div>
@@ -114,58 +114,58 @@
         </div>
 
         <!-- Detalles del Kit -->
-        <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8">
-          <div class="px-6 py-4 bg-white border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Información del Kit</h3>
+        <div class="bg-white dark:bg-slate-900 shadow-lg rounded-lg overflow-hidden mb-8">
+          <div class="px-6 py-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Información del Kit</h3>
           </div>
 
           <div class="px-6 py-6">
             <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
               <div>
-                <dt class="text-sm font-medium text-gray-500">Código</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ kit.codigo || 'Sin código' }}</dd>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Código</dt>
+                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ kit.codigo || 'Sin código' }}</dd>
               </div>
 
               <div>
-                <dt class="text-sm font-medium text-gray-500">Categoría</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ kit.categoria?.nombre || 'Sin categoría' }}</dd>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Categoría</dt>
+                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ kit.categoria?.nombre || 'Sin categoría' }}</dd>
               </div>
 
               <div class="md:col-span-2">
-                <dt class="text-sm font-medium text-gray-500">Descripción</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ kit.descripcion || 'Sin descripción' }}</dd>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Descripción</dt>
+                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ kit.descripcion || 'Sin descripción' }}</dd>
               </div>
 
               <div>
-                <dt class="text-sm font-medium text-gray-500">Creado</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ formatDate(kit.created_at) }}</dd>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Creado</dt>
+                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ formatDate(kit.created_at) }}</dd>
               </div>
 
               <div>
-                <dt class="text-sm font-medium text-gray-500">Última actualización</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ formatDate(kit.updated_at) }}</dd>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Última actualización</dt>
+                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ formatDate(kit.updated_at) }}</dd>
               </div>
             </dl>
           </div>
         </div>
 
         <!-- Componentes del Kit -->
-        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-          <div class="px-6 py-4 bg-white border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Componentes del Kit</h3>
-            <p class="mt-1 text-sm text-gray-600">Productos que conforman este kit</p>
+        <div class="bg-white dark:bg-slate-900 shadow-lg rounded-lg overflow-hidden">
+          <div class="px-6 py-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Componentes del Kit</h3>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Productos que conforman este kit</p>
           </div>
 
           <div class="px-6 py-6">
             <div v-if="kit.kit_items && kit.kit_items.length > 0" class="space-y-4">
               <div v-for="item in kit.kit_items" :key="item.id"
-                   class="border border-gray-200 rounded-lg p-4 hover:bg-white transition-colors">
+                   class="border border-gray-200 dark:border-slate-800 rounded-lg p-4 hover:bg-white dark:bg-slate-900 transition-colors">
                 <div class="flex justify-between items-start">
                   <div class="flex-1">
                     <div class="flex items-center space-x-3">
                       <div class="flex-shrink-0">
                         <div :class="isProducto(item) ? 'bg-gray-100' : 'bg-blue-50'" class="w-10 h-10 rounded-lg flex items-center justify-center">
-                          <svg v-if="isProducto(item)" class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg v-if="isProducto(item)" class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                           </svg>
                           <svg v-else class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,19 +175,19 @@
                       </div>
                       <div>
                         <div class="flex items-center gap-2">
-                          <h4 class="text-sm font-medium text-gray-900">{{ getItemName(item) }}</h4>
-                          <span :class="isProducto(item) ? 'bg-gray-100 text-gray-800' : 'bg-blue-100 text-blue-800'" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium">
+                          <h4 class="text-sm font-medium text-gray-900 dark:text-white">{{ getItemName(item) }}</h4>
+                          <span :class="isProducto(item) ? 'bg-gray-100 text-gray-800 dark:text-gray-100' : 'bg-blue-100 text-blue-800'" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium">
                             {{ isProducto(item) ? 'Producto' : 'Servicio' }}
                           </span>
                         </div>
-                        <p class="text-sm text-gray-500">{{ getItemCode(item) }}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ getItemCode(item) }}</p>
                       </div>
                     </div>
                   </div>
 
                   <div class="text-right">
-                    <div class="text-sm font-medium text-gray-900">Cantidad: {{ item.cantidad }}</div>
-                    <div class="text-sm text-gray-500">
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">Cantidad: {{ item.cantidad }}</div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
                       Precio unitario: {{ formatCurrency(getItemPrice(item)) }}
                     </div>
                     <div class="text-sm font-medium text-amber-600">
@@ -198,18 +198,18 @@
               </div>
 
               <!-- Total -->
-              <div class="mt-6 border-t border-gray-200 pt-4">
+              <div class="mt-6 border-t border-gray-200 dark:border-slate-800 pt-4">
                 <div class="flex justify-end">
                   <div class="text-right">
-                    <div class="text-sm text-gray-500 flex items-center justify-end gap-2">
+                    <div class="text-sm text-gray-500 dark:text-gray-400 flex items-center justify-end gap-2">
                       Costo total estimado (Tiempo Real)
                       <svg v-if="loadingCosto" class="animate-spin h-4 w-4 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
                     </div>
-                    <div class="text-lg font-bold text-gray-900">{{ formatCurrency(costoFinal) }}</div>
-                    <div class="text-sm text-gray-600 flex items-center gap-2 justify-end">
+                    <div class="text-lg font-bold text-gray-900 dark:text-white">{{ formatCurrency(costoFinal) }}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2 justify-end">
                       <span>Margen:</span>
                       <span :class="{
                         'text-green-600 font-semibold': margen >= 20,
@@ -237,8 +237,8 @@
               <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
               </svg>
-              <h3 class="mt-2 text-sm font-medium text-gray-900">No hay componentes</h3>
-              <p class="mt-1 text-sm text-gray-500">Este kit no tiene componentes configurados.</p>
+              <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No hay componentes</h3>
+              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Este kit no tiene componentes configurados.</p>
             </div>
           </div>
         </div>

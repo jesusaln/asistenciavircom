@@ -6,20 +6,20 @@
       <!-- Header -->
       <div class="flex items-center mb-8">
         <Link :href="route('cuentas-bancarias.show', { cuentas_bancaria: cuenta.id })" class="mr-4 p-2 hover:bg-gray-100 rounded-lg">
-          <FontAwesomeIcon :icon="['fas', 'arrow-left']" class="text-gray-600" />
+          <FontAwesomeIcon :icon="['fas', 'arrow-left']" class="text-gray-600 dark:text-gray-300" />
         </Link>
         <div class="flex-1">
-          <h1 class="text-3xl font-bold text-gray-900">Movimientos Bancarios</h1>
-          <p class="text-gray-600 mt-1">{{ cuenta.nombre }} • {{ cuenta.banco }}</p>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Movimientos Bancarios</h1>
+          <p class="text-gray-600 dark:text-gray-300 mt-1">{{ cuenta.nombre }} • {{ cuenta.banco }}</p>
         </div>
         <div class="text-right">
-          <p class="text-sm text-gray-500">Saldo Actual</p>
-          <p class="text-2xl font-bold text-gray-900">${{ formatMonto(cuenta.saldo_actual) }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Saldo Actual</p>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white">${{ formatMonto(cuenta.saldo_actual) }}</p>
         </div>
       </div>
 
       <!-- Filtros -->
-      <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-md p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <!-- Fecha Desde -->
           <div>
@@ -103,32 +103,32 @@
       </div>
 
       <!-- Tabla de movimientos -->
-      <div class="bg-white rounded-xl shadow-md overflow-hidden">
-        <div class="px-6 py-4 border-b bg-white flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-gray-900">Movimientos</h3>
-          <span class="text-sm text-gray-500">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-md overflow-hidden">
+        <div class="px-6 py-4 border-b bg-white dark:bg-slate-900 flex items-center justify-between">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Movimientos</h3>
+          <span class="text-sm text-gray-500 dark:text-gray-400">
             {{ movimientos.from || 0 }} - {{ movimientos.to || 0 }} de {{ movimientos.total || 0 }}
           </span>
         </div>
         
         <div v-if="movimientos.data && movimientos.data.length > 0" class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+            <thead class="bg-white dark:bg-slate-900">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Concepto</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Origen</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Monto</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Fecha</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Concepto</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Origen</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Tipo</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Monto</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Estado</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
-              <tr v-for="mov in movimientos.data" :key="mov.id" class="hover:bg-white">
-                <td class="px-6 py-4 text-sm text-gray-900">{{ formatFecha(mov.fecha) }}</td>
-                <td class="px-6 py-4 text-sm text-gray-900">
+            <tbody class="divide-y divide-gray-200 dark:divide-slate-800">
+              <tr v-for="mov in movimientos.data" :key="mov.id" class="hover:bg-white dark:bg-slate-900">
+                <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">{{ formatFecha(mov.fecha) }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
                   <div>{{ mov.concepto || '-' }}</div>
-                  <div v-if="mov.referencia" class="text-xs text-gray-500">Ref: {{ mov.referencia }}</div>
+                  <div v-if="mov.referencia" class="text-xs text-gray-500 dark:text-gray-400">Ref: {{ mov.referencia }}</div>
                 </td>
                 <td class="px-6 py-4">
                   <span :class="getOrigenClass(mov.origen_tipo)" class="px-2 py-1 rounded-full text-xs font-medium">
@@ -155,18 +155,18 @@
         
         <div v-else class="p-12 text-center">
           <FontAwesomeIcon :icon="['fas', 'receipt']" class="h-12 w-12 text-gray-300 mb-4" />
-          <p class="text-gray-500">No hay movimientos para el período seleccionado</p>
+          <p class="text-gray-500 dark:text-gray-400">No hay movimientos para el período seleccionado</p>
         </div>
 
         <!-- Paginación -->
-        <div v-if="movimientos.links && movimientos.links.length > 3" class="px-6 py-4 border-t bg-white flex items-center justify-center gap-2">
+        <div v-if="movimientos.links && movimientos.links.length > 3" class="px-6 py-4 border-t bg-white dark:bg-slate-900 flex items-center justify-center gap-2">
           <template v-for="(link, index) in movimientos.links" :key="index">
             <Link
               v-if="link.url"
               :href="link.url"
               :class="[
                 'px-3 py-1 rounded-lg text-sm',
-                link.active ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border'
+                link.active ? 'bg-blue-600 text-white' : 'bg-white dark:bg-slate-900 text-gray-700 hover:bg-gray-100 border'
               ]"
               v-html="link.label"
               preserve-scroll
@@ -220,8 +220,8 @@ const getEstadoClass = (estado) => {
   return {
     pendiente: 'bg-yellow-100 text-yellow-700',
     conciliado: 'bg-green-100 text-green-700',
-    ignorado: 'bg-gray-100 text-gray-600',
-  }[estado] || 'bg-gray-100 text-gray-600'
+    ignorado: 'bg-gray-100 text-gray-600 dark:text-gray-300',
+  }[estado] || 'bg-gray-100 text-gray-600 dark:text-gray-300'
 }
 
 const getEstadoLabel = (estado) => {
@@ -240,8 +240,8 @@ const getOrigenClass = (origen) => {
     prestamo: 'bg-emerald-100 text-emerald-700',
     traspaso: 'bg-orange-100 text-orange-700',
     pago: 'bg-pink-100 text-pink-700',
-    otro: 'bg-gray-100 text-gray-600',
-  }[origen] || 'bg-gray-100 text-gray-600'
+    otro: 'bg-gray-100 text-gray-600 dark:text-gray-300',
+  }[origen] || 'bg-gray-100 text-gray-600 dark:text-gray-300'
 }
 
 const getOrigenLabel = (origen) => {

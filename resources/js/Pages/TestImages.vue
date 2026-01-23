@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen bg-gray-100 py-12">
         <div class="w-full sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
+            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-xl sm:rounded-lg p-6">
                 <h1 class="text-2xl font-bold mb-6">Test de Carga de Imágenes</h1>
 
                 <!-- Información del servidor -->
@@ -16,13 +16,13 @@
                 <div class="mb-8">
                     <h2 class="text-lg font-semibold mb-4">Imágenes Disponibles ({{ images.length }})</h2>
 
-                    <div v-if="images.length === 0" class="text-gray-500">
+                    <div v-if="images.length === 0" class="text-gray-500 dark:text-gray-400">
                         No hay imágenes disponibles
                     </div>
 
                     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div v-for="image in images" :key="image.filename"
-                             class="border rounded-lg p-4 bg-white">
+                             class="border rounded-lg p-4 bg-white dark:bg-slate-900">
                             <div class="mb-3">
                                 <img :src="image.url"
                                      :alt="image.filename"
@@ -31,8 +31,8 @@
                                      @load="handleImageLoad">
                             </div>
                             <h3 class="font-medium text-sm">{{ image.filename }}</h3>
-                            <p class="text-xs text-gray-600">Tamaño: {{ formatFileSize(image.size) }}</p>
-                            <p class="text-xs text-gray-600">Tipo: {{ image.mime_type }}</p>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">Tamaño: {{ formatFileSize(image.size) }}</p>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">Tipo: {{ image.mime_type }}</p>
                             <p class="text-xs" :class="image.exists ? 'text-green-600' : 'text-red-600'">
                                 {{ image.exists ? '✅ Existe' : '❌ No existe' }}
                             </p>
@@ -64,7 +64,7 @@
                     <h2 class="text-lg font-semibold mb-2">Logs de Eventos</h2>
                     <div class="max-h-32 overflow-y-auto text-sm font-mono">
                         <div v-for="(log, index) in eventLogs" :key="index" class="mb-1">
-                            <span class="text-gray-600">{{ log.time }}</span>
+                            <span class="text-gray-600 dark:text-gray-300">{{ log.time }}</span>
                             <span class="ml-2" :class="log.type === 'error' ? 'text-red-600' : 'text-green-600'">
                                 {{ log.message }}
                             </span>

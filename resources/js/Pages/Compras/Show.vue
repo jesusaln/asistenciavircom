@@ -4,7 +4,7 @@
         <div class="compras-show min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
             <div class="w-full">
                 <!-- Encabezado -->
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-6">
+                <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden mb-6">
                     <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
                         <h1 class="text-xl font-bold">Compra #{{ compra.id }}</h1>
                     </div>
@@ -18,7 +18,7 @@
                                       'bg-blue-100 text-blue-800': compra.estado === 'aprobada',
                                       'bg-yellow-100 text-yellow-800': compra.estado === 'pendiente',
                                       'bg-red-100 text-red-800': compra.estado === 'rechazada' || compra.estado === 'cancelada',
-                                      'bg-gray-100 text-gray-800': compra.estado === 'borrador'
+                                      'bg-gray-100 text-gray-800 dark:text-gray-100': compra.estado === 'borrador'
                                   }">
                                 {{ compra.estado }}
                             </span>
@@ -30,28 +30,28 @@
                 </div>
 
                 <!-- Tabla de ítems -->
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-6">
+                <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden mb-6">
                     <div class="p-6">
                         <h2 class="text-lg font-semibold mb-4">Productos y Servicios</h2>
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
                             <thead>
                                 <tr>
-                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Nombre</th>
-                                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500">Cantidad</th>
-                                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500">Precio</th>
-                                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500">Descuento</th>
-                                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500">Subtotal</th>
-                                    <th class="px-4 py-2 text-center text-sm font-medium text-gray-500">Stock Antes</th>
-                                    <th class="px-4 py-2 text-center text-sm font-medium text-gray-500">Stock Después</th>
-                                    <th class="px-4 py-2 text-center text-sm font-medium text-gray-500">Diferencia</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Nombre</th>
+                                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Cantidad</th>
+                                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Precio</th>
+                                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Descuento</th>
+                                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Subtotal</th>
+                                    <th class="px-4 py-2 text-center text-sm font-medium text-gray-500 dark:text-gray-400">Stock Antes</th>
+                                    <th class="px-4 py-2 text-center text-sm font-medium text-gray-500 dark:text-gray-400">Stock Después</th>
+                                    <th class="px-4 py-2 text-center text-sm font-medium text-gray-500 dark:text-gray-400">Diferencia</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200">
+                            <tbody class="divide-y divide-gray-200 dark:divide-slate-800">
                                 <tr v-for="item in items" :key="item.id">
                                     <td class="px-4 py-3 text-sm">
                                         <div>
                                             <div class="font-medium">{{ item.nombre }}</div>
-                                            <div v-if="item.descripcion" class="text-xs text-gray-500 mt-1">{{ item.descripcion }}</div>
+                                            <div v-if="item.descripcion" class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ item.descripcion }}</div>
                                             <div v-if="item.codigo" class="text-xs text-blue-600 mt-1">Código: {{ item.codigo }}</div>
                                             <div v-if="item.categoria" class="text-xs text-green-600 mt-1">Categoría: {{ item.categoria.nombre }}</div>
                                             <div v-if="item.marca" class="text-xs text-purple-600 mt-1">Marca: {{ item.marca.nombre }}</div>
@@ -92,7 +92,7 @@
                                             :class="{
                                                 'bg-green-100 text-green-800': item.diferencia_stock > 0,
                                                 'bg-red-100 text-red-800': item.diferencia_stock < 0,
-                                                'bg-gray-100 text-gray-800': item.diferencia_stock === 0
+                                                'bg-gray-100 text-gray-800 dark:text-gray-100': item.diferencia_stock === 0
                                             }"
                                         >
                                             <svg v-if="item.diferencia_stock > 0" class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -111,7 +111,7 @@
                 </div>
 
                 <!-- Totales -->
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-6">
+                <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden mb-6">
                     <div class="p-6">
                         <div class="space-y-2 text-right">
                             <p><strong>Subtotal:</strong> ${{ subtotal.toFixed(2) }}</p>
@@ -123,16 +123,16 @@
                 </div>
 
                 <!-- Operaciones -->
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-6">
-                    <div class="border-b border-gray-200">
+                <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden mb-6">
+                    <div class="border-b border-gray-200 dark:border-slate-800">
                         <button
                             @click="accordionOpen = !accordionOpen"
-                            class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-white transition-colors"
+                            class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-white dark:bg-slate-900 transition-colors"
                         >
-                            <h3 class="text-lg font-semibold text-gray-900">Operaciones de Compra</h3>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Operaciones de Compra</h3>
                             <svg
                                 :class="accordionOpen ? 'transform rotate-180' : ''"
-                                class="w-5 h-5 text-gray-500 transition-transform"
+                                class="w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -144,42 +144,42 @@
 
                     <div v-show="accordionOpen" class="px-6 py-4">
                         <!-- Sección de Cuentas por Pagar -->
-                        <div class="border-t border-gray-200 pt-4">
+                        <div class="border-t border-gray-200 dark:border-slate-800 pt-4">
                             <div class="px-4 py-5 sm:p-0">
                                 <dl>
                                     <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-                                        <dt class="text-sm font-medium text-gray-500">
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
                                             Estado de Pago
                                         </dt>
-                                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
                                             <span v-if="compra.cuentas_por_pagar"
                                                   :class="{
                                                       'bg-red-100 text-red-800': compra.cuentas_por_pagar.estado === 'vencido',
                                                       'bg-yellow-100 text-yellow-800': compra.cuentas_por_pagar.estado === 'parcial',
                                                       'bg-green-100 text-green-800': compra.cuentas_por_pagar.estado === 'pagado',
-                                                      'bg-gray-100 text-gray-800': compra.cuentas_por_pagar.estado === 'pendiente'
+                                                      'bg-gray-100 text-gray-800 dark:text-gray-100': compra.cuentas_por_pagar.estado === 'pendiente'
                                                   }"
                                                   class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                                                 {{ compra.cuentas_por_pagar.estado }}
                                             </span>
-                                            <span v-else class="text-gray-500">No registrada</span>
+                                            <span v-else class="text-gray-500 dark:text-gray-400">No registrada</span>
                                         </dd>
                                     </div>
 
                                     <div v-if="compra.cuentas_por_pagar" class="sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-                                        <dt class="text-sm font-medium text-gray-500">
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
                                             Monto Pendiente
                                         </dt>
-                                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
                                             ${{ compra.cuentas_por_pagar.monto_pendiente.toFixed(2) }}
                                         </dd>
                                     </div>
 
                                     <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-                                        <dt class="text-sm font-medium text-gray-500">
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
                                             Acciones
                                         </dt>
-                                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
                                             <div class="flex space-x-2">
                                                 <Link v-if="!compra.cuentas_por_pagar"
                                                       :href="route('cuentas-por-pagar.create', { compra_id: compra.id })"
@@ -201,7 +201,7 @@
                 </div>
 
                 <!-- Acciones -->
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
                     <div class="p-6 flex flex-wrap gap-3">
                         <Link
                             v-if="canEdit"
@@ -223,7 +223,7 @@
 
                         <button
                             @click="mostrarVistaPrevia = true"
-                            class="bg-white0 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                            class="bg-white dark:bg-slate-9000 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                         >
                             Vista Previa
                         </button>

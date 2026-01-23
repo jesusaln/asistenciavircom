@@ -133,7 +133,7 @@ const formatCurrency = (amount) => {
 <template>
   <ClientLayout>
     <div class="w-full transition-colors duration-300">
-      <div class="bg-white dark:bg-slate-900/60 shadow-lg dark:shadow-2xl sm:rounded-2xl border border-gray-100 dark:border-white/10 dark:backdrop-blur-xl transition-all duration-300">
+      <div class="bg-white dark:bg-slate-900 dark:bg-slate-900/60 shadow-lg dark:shadow-2xl sm:rounded-2xl border border-gray-100 dark:border-white/10 dark:backdrop-blur-xl transition-all duration-300">
         <div class="px-6 py-8 sm:p-10">
           <!-- Header con icono -->
           <div class="flex items-center gap-4 mb-6">
@@ -143,8 +143,8 @@ const formatCurrency = (amount) => {
               </svg>
             </div>
             <div>
-              <h3 class="text-xl font-bold text-gray-900 dark:text-white">Crear Nuevo Ticket</h3>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Describe tu problema y nuestro equipo te atenderá lo antes posible.</p>
+              <h3 class="text-xl font-bold text-gray-900 dark:text-white dark:text-white">Crear Nuevo Ticket</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Describe tu problema y nuestro equipo te atenderá lo antes posible.</p>
             </div>
           </div>
           
@@ -158,7 +158,7 @@ const formatCurrency = (amount) => {
                 name="titulo"
                 id="titulo"
                 v-model="form.titulo"
-                class="w-full px-4 py-3 border border-gray-200 dark:border-white/10 dark:bg-slate-950/50 dark:text-white rounded-xl focus:ring-2 focus:ring-[var(--color-primary-soft)] dark:focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-all placeholder-gray-400 dark:placeholder-gray-600"
+                class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 dark:border-white/10 dark:bg-slate-950/50 dark:text-white rounded-xl focus:ring-2 focus:ring-[var(--color-primary-soft)] dark:focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-all placeholder-gray-400 dark:placeholder-gray-600"
                 placeholder="Ej: No puedo acceder al sistema"
               />
               <div v-if="form.errors.titulo" class="text-red-500 text-xs mt-1">{{ form.errors.titulo }}</div>
@@ -172,7 +172,7 @@ const formatCurrency = (amount) => {
                   id="categoria"
                   name="categoria"
                   v-model="form.categoria_id"
-                  class="w-full px-4 py-3 border border-gray-200 dark:border-white/10 dark:bg-slate-950/50 dark:text-white rounded-xl focus:ring-2 focus:ring-[var(--color-primary-soft)] dark:focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-all"
+                  class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 dark:border-white/10 dark:bg-slate-950/50 dark:text-white rounded-xl focus:ring-2 focus:ring-[var(--color-primary-soft)] dark:focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-all"
                 >
                   <option value="" disabled class="dark:bg-slate-900">Selecciona una categoría</option>
                   <option v-for="cat in categorias" :key="cat.id" :value="cat.id" class="dark:bg-slate-900">
@@ -189,7 +189,7 @@ const formatCurrency = (amount) => {
                   id="prioridad"
                   name="prioridad"
                   v-model="form.prioridad"
-                  class="w-full px-4 py-3 border border-gray-200 dark:border-white/10 dark:bg-slate-950/50 dark:text-white rounded-xl focus:ring-2 focus:ring-[var(--color-primary-soft)] dark:focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-all"
+                  class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 dark:border-white/10 dark:bg-slate-950/50 dark:text-white rounded-xl focus:ring-2 focus:ring-[var(--color-primary-soft)] dark:focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-all"
                 >
                   <option value="baja" class="dark:bg-slate-900">🟢 Baja (Consultas generales)</option>
                   <option value="media" class="dark:bg-slate-900">🟡 Media (Problemas funcionales)</option>
@@ -208,7 +208,7 @@ const formatCurrency = (amount) => {
                 name="descripcion"
                 rows="5"
                 v-model="form.descripcion"
-                class="w-full px-4 py-3 border border-gray-200 dark:border-white/10 dark:bg-slate-950/50 dark:text-white rounded-xl focus:ring-2 focus:ring-[var(--color-primary-soft)] dark:focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-all resize-none placeholder-gray-400 dark:placeholder-gray-600"
+                class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 dark:border-white/10 dark:bg-slate-950/50 dark:text-white rounded-xl focus:ring-2 focus:ring-[var(--color-primary-soft)] dark:focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-all resize-none placeholder-gray-400 dark:placeholder-gray-600"
                 placeholder="Describe tu problema con el mayor detalle posible..."
               ></textarea>
               <div v-if="form.errors.descripcion" class="text-red-500 text-xs mt-1">{{ form.errors.descripcion }}</div>
@@ -245,10 +245,10 @@ const formatCurrency = (amount) => {
     <!-- Modal Urgencia -->
     <div v-if="showUrgenciaModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="cambiarPrioridad"></div>
+            <div class="fixed inset-0 bg-gray-50 dark:bg-slate-9500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="cambiarPrioridad"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border dark:border-white/10">
-                <div class="bg-white dark:bg-slate-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div class="inline-block align-bottom bg-white dark:bg-slate-900 dark:bg-slate-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border dark:border-white/10">
+                <div class="bg-white dark:bg-slate-900 dark:bg-slate-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="sm:flex sm:items-start">
                         <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/30 sm:mx-0 sm:h-10 sm:w-10">
                             <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -256,11 +256,11 @@ const formatCurrency = (amount) => {
                             </svg>
                         </div>
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white dark:text-white" id="modal-title">
                                 ¿Es realmente una Urgencia Crítica?
                             </h3>
                             <div class="mt-2">
-                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
                                     La prioridad <strong>Urgente</strong> está reservada para casos donde la operación está totalmente detenida.
                                 </p>
                                 <div class="mt-4 bg-red-50 dark:bg-red-900/10 p-3 rounded-md border border-red-100 dark:border-red-900/20">
@@ -269,14 +269,14 @@ const formatCurrency = (amount) => {
                                         "El servidor principal está apagado y nadie en la empresa puede trabajar." o "El sistema de facturación está caído y no podemos cobrar."
                                     </p>
                                 </div>
-                                <p class="mt-4 text-sm text-gray-600 dark:text-gray-400 italic">
+                                <p class="mt-4 text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400 italic">
                                     ⚠️ <strong>Nota Importante:</strong> Un técnico analizará su solicitud. Si el reporte no cumple con los criterios de urgencia crítica, la prioridad será ajustada automáticamente a su nivel correspondiente.
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="bg-white dark:bg-slate-800 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t dark:border-white/5">
+                <div class="bg-white dark:bg-slate-900 dark:bg-slate-800 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t dark:border-white/5">
                     <button 
                         type="button" 
                         class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
@@ -286,7 +286,7 @@ const formatCurrency = (amount) => {
                     </button>
                     <button 
                         type="button" 
-                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-slate-700 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-700 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                         @click="cambiarPrioridad"
                     >
                         Cambiar Prioridad
@@ -299,13 +299,13 @@ const formatCurrency = (amount) => {
     <!-- Modal Costo Extra (Póliza Agotada) -->
     <div v-if="showCostoExtraModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="cancelarPorCosto"></div>
+            <div class="fixed inset-0 bg-gray-50 dark:bg-slate-9500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="cancelarPorCosto"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="fast-fade-in inline-block align-bottom bg-white dark:bg-slate-800 rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border dark:border-white/10">
+            <div class="fast-fade-in inline-block align-bottom bg-white dark:bg-slate-900 dark:bg-slate-800 rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border dark:border-white/10">
                 <!-- Header Amable -->
                 <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-4 sm:px-6">
                     <div class="flex items-center gap-3">
-                        <div class="bg-white/20 p-2 rounded-lg text-white">
+                        <div class="bg-white dark:bg-slate-900/20 p-2 rounded-lg text-white">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
@@ -317,7 +317,7 @@ const formatCurrency = (amount) => {
                 </div>
 
                 <div class="px-6 py-6 space-y-4">
-                    <p class="text-gray-600 dark:text-gray-300 text-base leading-relaxed">
+                    <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300 text-base leading-relaxed">
                         {{ costoExtraData.mensaje }} 
                         <span class="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded">{{ formatCurrency(costoExtraData.costo) }}</span>
                         {{ costoExtraData.tipo === 'horas' ? '/ hora extra' : '/ ticket extra' }}.
@@ -332,10 +332,10 @@ const formatCurrency = (amount) => {
                     </div>
                 </div>
 
-                <div class="bg-gray-50 dark:bg-slate-900/50 px-6 py-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 border-t dark:border-white/5">
+                <div class="bg-gray-50 dark:bg-slate-950 dark:bg-slate-900/50 px-6 py-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 border-t dark:border-white/5">
                     <button 
                         type="button" 
-                        class="w-full sm:w-auto px-4 py-2 bg-white dark:bg-slate-700 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-200 font-medium hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors"
+                        class="w-full sm:w-auto px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-700 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-200 font-medium hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-slate-600 transition-colors"
                         @click="cancelarPorCosto"
                     >
                         Cancelar

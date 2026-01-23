@@ -6,13 +6,13 @@
         <div class="mb-8">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                         <span class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white shadow-lg">
                             <FontAwesomeIcon :icon="['fas', 'scroll']" class="h-6 w-6" />
                         </span>
                         Scripts de Venta
                     </h1>
-                    <p class="mt-2 text-gray-500">
+                    <p class="mt-2 text-gray-500 dark:text-gray-400">
                         Guiones y respuestas para tu equipo de ventas
                     </p>
                 </div>
@@ -26,7 +26,7 @@
 
         <!-- Scripts por tipo -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div v-for="(label, tipoKey) in tipos" :key="tipoKey" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div v-for="(label, tipoKey) in tipos" :key="tipoKey" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div :class="getTipoHeaderColor(tipoKey)" class="px-6 py-4 border-b border-gray-100">
                     <h3 class="text-lg font-semibold text-white flex items-center gap-2">
                         <FontAwesomeIcon :icon="['fas', getTipoIcon(tipoKey)]" />
@@ -37,17 +37,17 @@
                     <div 
                         v-for="script in scriptsPorTipo(tipoKey)" 
                         :key="script.id"
-                        class="p-4 rounded-lg border border-gray-200 hover:border-purple-300 hover:bg-purple-50/30 cursor-pointer transition-colors"
+                        class="p-4 rounded-lg border border-gray-200 dark:border-slate-800 hover:border-purple-300 hover:bg-purple-50/30 cursor-pointer transition-colors"
                         @click="editarScript(script)"
                     >
                         <div class="flex items-center justify-between mb-2">
-                            <span class="font-medium text-gray-900">{{ script.nombre }}</span>
+                            <span class="font-medium text-gray-900 dark:text-white">{{ script.nombre }}</span>
                             <div class="flex items-center gap-2">
-                                <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{{ etapas[script.etapa] }}</span>
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:text-gray-300">{{ etapas[script.etapa] }}</span>
                                 <span v-if="!script.activo" class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-600">Inactivo</span>
                             </div>
                         </div>
-                        <p class="text-sm text-gray-600 line-clamp-2">{{ script.contenido }}</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">{{ script.contenido }}</p>
                     </div>
                     <div v-if="!scriptsPorTipo(tipoKey).length" class="text-center py-8 text-gray-400">
                         <p class="text-sm">Sin scripts de {{ label.toLowerCase() }}</p>
@@ -60,10 +60,10 @@
         <div v-if="showModal" class="fixed inset-0 z-50 overflow-y-auto" @click.self="showModal = false">
             <div class="flex items-center justify-center min-h-screen px-4">
                 <div class="fixed inset-0 bg-black bg-opacity-50"></div>
-                <div class="relative bg-white rounded-xl shadow-xl max-w-2xl w-full p-6 animate-scale-in">
+                <div class="relative bg-white dark:bg-slate-900 rounded-xl shadow-xl max-w-2xl w-full p-6 animate-scale-in">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl font-bold text-gray-900">{{ formScript.id ? 'Editar' : 'Nuevo' }} Script</h3>
-                        <button @click="showModal = false" class="text-gray-400 hover:text-gray-600">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ formScript.id ? 'Editar' : 'Nuevo' }} Script</h3>
+                        <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300">
                             <FontAwesomeIcon :icon="['fas', 'times']" />
                         </button>
                     </div>
@@ -91,7 +91,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Contenido del Script *</label>
                                 <textarea v-model="formScript.contenido" rows="8" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 font-mono" placeholder="Buenos días, ¿hablo con [NOMBRE]?&#10;&#10;Mi nombre es [VENDEDOR] de [EMPRESA]..."></textarea>
-                                <p class="text-xs text-gray-500 mt-1">Usa [NOMBRE], [VENDEDOR], [EMPRESA] como placeholders</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Usa [NOMBRE], [VENDEDOR], [EMPRESA] como placeholders</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Tips (opcional)</label>
@@ -159,7 +159,7 @@ const getTipoIcon = (tipo) => {
 
 const getTipoHeaderColor = (tipo) => {
     const colors = { apertura: 'bg-gradient-to-r from-blue-500 to-blue-600', seguimiento: 'bg-gradient-to-r from-yellow-500 to-orange-500', cierre: 'bg-gradient-to-r from-green-500 to-green-600', objecion: 'bg-gradient-to-r from-red-500 to-red-600', presentacion: 'bg-gradient-to-r from-purple-500 to-purple-600' };
-    return colors[tipo] || 'bg-white0';
+    return colors[tipo] || 'bg-white dark:bg-slate-9000';
 };
 
 const nuevoScript = () => {

@@ -4,7 +4,7 @@
     <label
       v-if="label && type !== 'checkbox'"
       :for="id"
-      class="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5 transition-colors"
+      class="block text-xs font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest mb-1.5 transition-colors"
     >
       {{ label }}
       <span v-if="required" class="text-red-500">*</span>
@@ -16,8 +16,8 @@
         :id="id"
         :value="props.modelValue"
         @change="onChange"
-        class="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 sm:text-sm transition-all duration-200 ease-in-out text-gray-900 dark:text-gray-100 appearance-none"
-        :class="[hasError ? 'border-red-300 dark:border-red-900/50 ring-red-50 dark:ring-red-900/10' : 'border-gray-200 dark:border-gray-700']"
+        class="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-slate-900 dark:bg-gray-800 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 sm:text-sm transition-all duration-200 ease-in-out text-gray-900 dark:text-white dark:text-gray-100 appearance-none"
+        :class="[hasError ? 'border-red-300 dark:border-red-900/50 ring-red-50 dark:ring-red-900/10' : 'border-gray-200 dark:border-slate-800 dark:border-gray-700']"
         :required="required"
         :disabled="disabled"
         :aria-invalid="hasError ? 'true' : 'false'"
@@ -47,8 +47,8 @@
       @input="onInput"
       :placeholder="placeholder"
       :rows="rows"
-      class="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 sm:text-sm transition-all duration-200 ease-in-out text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
-      :class="[hasError ? 'border-red-300 dark:border-red-900/50 ring-red-50 dark:ring-red-900/10' : 'border-gray-200 dark:border-gray-700']"
+      class="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-slate-900 dark:bg-gray-800 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 sm:text-sm transition-all duration-200 ease-in-out text-gray-900 dark:text-white dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+      :class="[hasError ? 'border-red-300 dark:border-red-900/50 ring-red-50 dark:ring-red-900/10' : 'border-gray-200 dark:border-slate-800 dark:border-gray-700']"
       :required="required"
       :disabled="disabled"
       :aria-invalid="hasError ? 'true' : 'false'"
@@ -83,8 +83,8 @@
         :value="props.modelValue"
         @input="onInput"
         :placeholder="placeholder"
-        class="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 sm:text-sm transition-all duration-200 ease-in-out text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
-        :class="[hasError ? 'border-red-300 dark:border-red-900/50 ring-red-50 dark:ring-red-900/10' : 'border-gray-200 dark:border-gray-700']"
+        class="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-slate-900 dark:bg-gray-800 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 sm:text-sm transition-all duration-200 ease-in-out text-gray-900 dark:text-white dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+        :class="[hasError ? 'border-red-300 dark:border-red-900/50 ring-red-50 dark:ring-red-900/10' : 'border-gray-200 dark:border-slate-800 dark:border-gray-700']"
         :required="required"
         :disabled="disabled"
         :min="min"
@@ -108,7 +108,7 @@
     </p>
 
     <!-- Helper text (solo si hay y no hay error) -->
-    <p v-else-if="hasHelperText" class="mt-1.5 text-[10px] font-medium text-gray-400 dark:text-gray-500 flex items-center gap-1">
+    <p v-else-if="hasHelperText" class="mt-1.5 text-[10px] font-medium text-gray-400 dark:text-gray-500 dark:text-gray-400 flex items-center gap-1">
       <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       {{ helperText }}
     </p>

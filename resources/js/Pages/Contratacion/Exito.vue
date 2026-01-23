@@ -26,11 +26,11 @@ const formatCurrency = (value) => {
 <template>
     <Head :title="pending ? 'Pago en Proceso' : '¡Contratación Exitosa!'" />
 
-    <div class="min-h-screen bg-white flex flex-col" :style="cssVars">
+    <div class="min-h-screen bg-white dark:bg-slate-900 flex flex-col" :style="cssVars">
         <PublicNavbar :empresa="empresa" />
         
         <div class="flex-grow flex items-center justify-center p-4">
-            <div class="bg-white rounded-3xl shadow-xl max-w-lg w-full overflow-hidden text-center p-8 md:p-12">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl max-w-lg w-full overflow-hidden text-center p-8 md:p-12">
                 
                 <!-- Icono de Estado -->
                 <div v-if="pending" class="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
@@ -45,17 +45,17 @@ const formatCurrency = (value) => {
                 </div>
 
                 <!-- Título y Mensaje -->
-                <h1 class="text-3xl font-extrabold text-gray-900 mb-4">
+                <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-4">
                     {{ pending ? '¡Pago en Proceso!' : '¡Gracias por tu confianza!' }}
                 </h1>
                 
-                <p class="text-gray-600 mb-8 text-lg">
+                <p class="text-gray-600 dark:text-gray-300 mb-8 text-lg">
                     <template v-if="pending">
                         Tu pago está siendo procesado.<br>
                         Te notificaremos por correo cuando se confirme.
                     </template>
                     <template v-else>
-                        Has contratado exitosamente el plan <span class="font-bold text-gray-800">{{ poliza?.nombre || plan?.nombre }}</span>.
+                        Has contratado exitosamente el plan <span class="font-bold text-gray-800 dark:text-gray-100">{{ poliza?.nombre || plan?.nombre }}</span>.
                         <br>
                         Hemos enviado los detalles de acceso y tu factura a tu correo electrónico.
                     </template>
@@ -77,12 +77,12 @@ const formatCurrency = (value) => {
                     </div>
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Plan:</span>
-                            <span class="font-bold text-gray-900">{{ poliza.nombre }}</span>
+                            <span class="text-gray-500 dark:text-gray-400">Plan:</span>
+                            <span class="font-bold text-gray-900 dark:text-white">{{ poliza.nombre }}</span>
                         </div>
                         <div v-if="poliza.fecha_inicio" class="flex justify-between">
-                            <span class="text-gray-500">Vigencia:</span>
-                            <span class="font-bold text-gray-900">
+                            <span class="text-gray-500 dark:text-gray-400">Vigencia:</span>
+                            <span class="font-bold text-gray-900 dark:text-white">
                                 {{ new Date(poliza.fecha_inicio).toLocaleDateString('es-MX') }} - {{ new Date(poliza.fecha_fin).toLocaleDateString('es-MX') }}
                             </span>
                         </div>
@@ -90,9 +90,9 @@ const formatCurrency = (value) => {
                 </div>
 
                 <!-- Resumen de Venta -->
-                <div v-if="venta" class="bg-white rounded-2xl p-6 mb-8 border border-gray-100 text-left">
+                <div v-if="venta" class="bg-white dark:bg-slate-900 rounded-2xl p-6 mb-8 border border-gray-100 text-left">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-black text-gray-900 uppercase tracking-widest text-xs">Resumen de Venta</h3>
+                        <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-widest text-xs">Resumen de Venta</h3>
                         <span 
                             :class="[
                                 'text-[10px] font-black px-2 py-1 rounded uppercase',
@@ -105,21 +105,21 @@ const formatCurrency = (value) => {
                     </div>
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Folio:</span>
-                            <span class="font-bold text-gray-900">{{ venta.folio || 'S/F' }}</span>
+                            <span class="text-gray-500 dark:text-gray-400">Folio:</span>
+                            <span class="font-bold text-gray-900 dark:text-white">{{ venta.folio || 'S/F' }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Fecha:</span>
-                            <span class="font-bold text-gray-900">{{ new Date(venta.fecha).toLocaleDateString('es-MX') }}</span>
+                            <span class="text-gray-500 dark:text-gray-400">Fecha:</span>
+                            <span class="font-bold text-gray-900 dark:text-white">{{ new Date(venta.fecha).toLocaleDateString('es-MX') }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Método:</span>
-                            <span class="font-bold text-gray-900 capitalize">
+                            <span class="text-gray-500 dark:text-gray-400">Método:</span>
+                            <span class="font-bold text-gray-900 dark:text-white capitalize">
                                 {{ venta.metodo_pago === 'tarjeta' ? '💳 Tarjeta' : venta.metodo_pago === 'paypal' ? '🅿️ PayPal' : venta.metodo_pago === 'mercadopago' ? '🤝 MercadoPago' : venta.metodo_pago }}
                             </span>
                         </div>
-                        <div class="flex justify-between border-t border-gray-200 pt-2 mt-2">
-                            <span class="text-gray-900 font-bold">Total:</span>
+                        <div class="flex justify-between border-t border-gray-200 dark:border-slate-800 pt-2 mt-2">
+                            <span class="text-gray-900 dark:text-white font-bold">Total:</span>
                             <span class="font-black text-[var(--color-primary)] text-lg">
                                 {{ formatCurrency(venta.total) }}
                             </span>
@@ -139,7 +139,7 @@ const formatCurrency = (value) => {
                         Acceder a mi Portal
                     </Link>
                     
-                    <Link href="/" class="block w-full py-3 text-gray-400 hover:text-gray-600 font-bold text-xs">
+                    <Link href="/" class="block w-full py-3 text-gray-400 hover:text-gray-600 dark:text-gray-300 font-bold text-xs">
                         Volver al Inicio
                     </Link>
                 </div>

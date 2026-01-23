@@ -26,7 +26,7 @@ const getEstadoColor = (estado) => {
     'baja': 'bg-red-100 text-red-800',
     'perdida': 'bg-red-100 text-red-800',
   }
-  return colors[estado] || 'bg-gray-100 text-gray-800'
+  return colors[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100'
 }
 </script>
 
@@ -42,45 +42,45 @@ const getEstadoColor = (estado) => {
 
   <!-- Estadísticas principales -->
   <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
-    <div class="bg-white p-6 rounded-lg shadow-sm border">
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border">
       <div class="text-3xl font-bold text-blue-600">{{ estadisticas.total_herramientas || 0 }}</div>
-      <div class="text-sm text-gray-600">Total Herramientas</div>
+      <div class="text-sm text-gray-600 dark:text-gray-300">Total Herramientas</div>
     </div>
-    <div class="bg-white p-6 rounded-lg shadow-sm border">
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border">
       <div class="text-3xl font-bold text-green-600">{{ estadisticas.herramientas_disponibles || 0 }}</div>
-      <div class="text-sm text-gray-600">Disponibles</div>
+      <div class="text-sm text-gray-600 dark:text-gray-300">Disponibles</div>
     </div>
-    <div class="bg-white p-6 rounded-lg shadow-sm border">
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border">
       <div class="text-3xl font-bold text-blue-600">{{ estadisticas.herramientas_asignadas || 0 }}</div>
-      <div class="text-sm text-gray-600">Asignadas</div>
+      <div class="text-sm text-gray-600 dark:text-gray-300">Asignadas</div>
     </div>
-    <div class="bg-white p-6 rounded-lg shadow-sm border">
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border">
       <div class="text-3xl font-bold text-yellow-600">{{ estadisticas.herramientas_mantenimiento || 0 }}</div>
-      <div class="text-sm text-gray-600">En Mantenimiento</div>
+      <div class="text-sm text-gray-600 dark:text-gray-300">En Mantenimiento</div>
     </div>
-    <div class="bg-white p-6 rounded-lg shadow-sm border">
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border">
       <div class="text-3xl font-bold text-red-600">{{ estadisticas.herramientas_baja || 0 }}</div>
-      <div class="text-sm text-gray-600">De Baja</div>
+      <div class="text-sm text-gray-600 dark:text-gray-300">De Baja</div>
     </div>
-    <div class="bg-white p-6 rounded-lg shadow-sm border">
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border">
       <div class="text-3xl font-bold text-red-600">{{ estadisticas.herramientas_perdidas || 0 }}</div>
-      <div class="text-sm text-gray-600">Perdidas</div>
+      <div class="text-sm text-gray-600 dark:text-gray-300">Perdidas</div>
     </div>
-    <div class="bg-white p-6 rounded-lg shadow-sm border">
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border">
       <div class="text-3xl font-bold text-orange-600">{{ estadisticas.herramientas_requieren_mantenimiento || 0 }}</div>
-      <div class="text-sm text-gray-600">Requieren Mant.</div>
+      <div class="text-sm text-gray-600 dark:text-gray-300">Requieren Mant.</div>
     </div>
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
     <!-- Herramientas que requieren mantenimiento urgente -->
-    <div class="bg-white rounded-lg shadow-sm border">
+    <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border">
       <div class="p-6 border-b">
         <h2 class="text-xl font-semibold text-red-600">Mantenimiento Urgente</h2>
-        <p class="text-sm text-gray-600">Herramientas que requieren mantenimiento inmediato</p>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Herramientas que requieren mantenimiento inmediato</p>
       </div>
       <div class="p-6">
-        <div v-if="mantenimiento_urgente.length === 0" class="text-center py-8 text-gray-500">
+        <div v-if="mantenimiento_urgente.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
           No hay herramientas que requieran mantenimiento urgente
         </div>
         <div v-else class="space-y-4">
@@ -92,7 +92,7 @@ const getEstadoColor = (estado) => {
             </div>
             <div class="flex-1">
               <h3 class="font-medium">{{ herramienta.nombre }}</h3>
-              <p class="text-sm text-gray-600">{{ herramienta.numero_serie }}</p>
+              <p class="text-sm text-gray-600 dark:text-gray-300">{{ herramienta.numero_serie }}</p>
               <p class="text-sm text-red-600">
                 Días desde último mantenimiento: {{ herramienta.dias_desde_ultimo_mantenimiento || 'N/A' }}
               </p>
@@ -106,13 +106,13 @@ const getEstadoColor = (estado) => {
     </div>
 
     <!-- Herramientas próximas a vencer vida útil -->
-    <div class="bg-white rounded-lg shadow-sm border">
+    <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border">
       <div class="p-6 border-b">
         <h2 class="text-xl font-semibold text-orange-600">Próximas a Vencer Vida Útil</h2>
-        <p class="text-sm text-gray-600">Herramientas que requieren atención pronto</p>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Herramientas que requieren atención pronto</p>
       </div>
       <div class="p-6">
-        <div v-if="vida_util_proxima.length === 0" class="text-center py-8 text-gray-500">
+        <div v-if="vida_util_proxima.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
           No hay herramientas próximas a vencer su vida útil
         </div>
         <div v-else class="space-y-4">
@@ -124,7 +124,7 @@ const getEstadoColor = (estado) => {
             </div>
             <div class="flex-1">
               <h3 class="font-medium">{{ herramienta.nombre }}</h3>
-              <p class="text-sm text-gray-600">{{ herramienta.numero_serie }}</p>
+              <p class="text-sm text-gray-600 dark:text-gray-300">{{ herramienta.numero_serie }}</p>
               <p class="text-sm text-orange-600">
                 Vida útil utilizada: {{ herramienta.porcentaje_vida_util || 0 }}%
               </p>
@@ -140,12 +140,12 @@ const getEstadoColor = (estado) => {
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
     <!-- Estadísticas por categoría -->
-    <div class="bg-white rounded-lg shadow-sm border">
+    <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border">
       <div class="p-6 border-b">
         <h2 class="text-xl font-semibold">Herramientas por Categoría</h2>
       </div>
       <div class="p-6">
-        <div v-if="por_categoria.length === 0" class="text-center py-8 text-gray-500">
+        <div v-if="por_categoria.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
           No hay datos de categorías disponibles
         </div>
         <div v-else class="space-y-3">
@@ -158,19 +158,19 @@ const getEstadoColor = (estado) => {
     </div>
 
     <!-- Herramientas más utilizadas -->
-    <div class="bg-white rounded-lg shadow-sm border">
+    <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border">
       <div class="p-6 border-b">
         <h2 class="text-xl font-semibold">Herramientas Más Utilizadas</h2>
       </div>
       <div class="p-6">
-        <div v-if="mas_utilizadas.length === 0" class="text-center py-8 text-gray-500">
+        <div v-if="mas_utilizadas.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
           No hay datos de uso disponibles
         </div>
         <div v-else class="space-y-3">
           <div v-for="herramienta in mas_utilizadas" :key="herramienta.id" class="flex items-center justify-between">
             <div>
               <h3 class="font-medium">{{ herramienta.nombre }}</h3>
-              <p class="text-sm text-gray-600">{{ herramienta.numero_serie }}</p>
+              <p class="text-sm text-gray-600 dark:text-gray-300">{{ herramienta.numero_serie }}</p>
             </div>
             <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">{{ herramienta.usos || 0 }} usos</span>
           </div>
@@ -180,7 +180,7 @@ const getEstadoColor = (estado) => {
   </div>
 
   <!-- Acciones rápidas -->
-  <div class="mt-8 bg-white rounded-lg shadow-sm border p-6">
+  <div class="mt-8 bg-white dark:bg-slate-900 rounded-lg shadow-sm border p-6">
     <h2 class="text-xl font-semibold mb-4">Acciones Rápidas</h2>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <Link :href="route('herramientas.create')" class="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">

@@ -102,7 +102,7 @@ const pageLinks = computed(() => props.herramientas?.links || [])
   </div>
 
   <!-- Formulario de mantenimiento masivo -->
-  <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+  <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border p-6 mb-6">
     <h2 class="text-xl font-semibold mb-4">Registrar Mantenimiento Masivo</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
       <div>
@@ -154,7 +154,7 @@ const pageLinks = computed(() => props.herramientas?.links || [])
   </div>
 
   <!-- Lista de herramientas que requieren mantenimiento -->
-  <div class="bg-white rounded-lg shadow-sm border">
+  <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border">
     <div class="p-6 border-b">
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-semibold">Herramientas que Requieren Mantenimiento</h2>
@@ -168,22 +168,22 @@ const pageLinks = computed(() => props.herramientas?.links || [])
     </div>
 
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-white">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+        <thead class="bg-white dark:bg-slate-900">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               <input type="checkbox" :checked="selectedHerramientas.length === items.length && items.length > 0" @change="seleccionarTodas" />
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Herramienta</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Último Mantenimiento</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Días Transcurridos</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Herramienta</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Categoría</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Último Mantenimiento</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Días Transcurridos</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
           </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="herramienta in items" :key="herramienta.id" class="hover:bg-white">
+        <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+          <tr v-for="herramienta in items" :key="herramienta.id" class="hover:bg-white dark:bg-slate-900">
             <td class="px-6 py-4">
               <input
                 type="checkbox"
@@ -193,15 +193,15 @@ const pageLinks = computed(() => props.herramientas?.links || [])
             </td>
             <td class="px-6 py-4">
               <div>
-                <div class="font-medium text-gray-900">{{ herramienta.nombre }}</div>
-                <div class="text-sm text-gray-500">{{ herramienta.numero_serie }}</div>
+                <div class="font-medium text-gray-900 dark:text-white">{{ herramienta.nombre }}</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">{{ herramienta.numero_serie }}</div>
               </div>
             </td>
             <td class="px-6 py-4">
-              <span class="text-sm text-gray-900">{{ herramienta.categoria_herramienta?.nombre || 'Sin categoría' }}</span>
+              <span class="text-sm text-gray-900 dark:text-white">{{ herramienta.categoria_herramienta?.nombre || 'Sin categoría' }}</span>
             </td>
             <td class="px-6 py-4">
-              <span class="text-sm text-gray-900">{{ formatDate(herramienta.fecha_ultimo_mantenimiento) }}</span>
+              <span class="text-sm text-gray-900 dark:text-white">{{ formatDate(herramienta.fecha_ultimo_mantenimiento) }}</span>
             </td>
             <td class="px-6 py-4">
               <span class="text-sm font-medium text-red-600">
@@ -227,11 +227,11 @@ const pageLinks = computed(() => props.herramientas?.links || [])
     </div>
 
     <!-- Paginación -->
-    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+    <div class="bg-white dark:bg-slate-900 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-slate-800 sm:px-6">
       <div class="flex-1 flex justify-between sm:hidden">
         <Link v-for="l in pageLinks" :key="l.url + l.label" :href="l.url || '#'" preserve-scroll :class="[
           'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
-          l.active ? 'z-10 bg-indigo-50 border-amber-500 text-amber-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'
+          l.active ? 'z-10 bg-indigo-50 border-amber-500 text-amber-600' : 'bg-white dark:bg-slate-900 border-gray-300 text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900'
         ]" v-html="l.label" />
       </div>
       <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
@@ -244,7 +244,7 @@ const pageLinks = computed(() => props.herramientas?.links || [])
           <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
             <Link v-for="l in pageLinks" :key="l.url + l.label" :href="l.url || '#'" preserve-scroll :class="[
               'relative inline-flex items-center px-2 py-2 rounded-l-md border text-sm font-medium',
-              l.active ? 'z-10 bg-indigo-50 border-amber-500 text-amber-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'
+              l.active ? 'z-10 bg-indigo-50 border-amber-500 text-amber-600' : 'bg-white dark:bg-slate-900 border-gray-300 text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900'
             ]" v-html="l.label" />
           </nav>
         </div>

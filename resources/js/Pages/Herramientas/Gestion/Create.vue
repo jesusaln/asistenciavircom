@@ -43,7 +43,7 @@ const getEstadoColor = (estado) => {
     'baja': 'bg-red-100 text-red-800',
     'perdida': 'bg-red-100 text-red-800',
   }
-  return colors[estado] || 'bg-gray-100 text-gray-800'
+  return colors[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100'
 }
 
 const submit = () => form.post(route('herramientas.gestion.asignar'))
@@ -55,7 +55,7 @@ const submit = () => form.post(route('herramientas.gestion.asignar'))
   <div class="flex items-center justify-between mb-6">
     <div>
       <h1 class="text-3xl font-bold text-slate-900">Asignar Herramientas</h1>
-      <p class="text-gray-600 mt-1">Selecciona un técnico y asigna las herramientas disponibles</p>
+      <p class="text-gray-600 dark:text-gray-300 mt-1">Selecciona un técnico y asigna las herramientas disponibles</p>
     </div>
     <div class="flex gap-3">
       <Link class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700" :href="route('herramientas.gestion.index')">
@@ -67,7 +67,7 @@ const submit = () => form.post(route('herramientas.gestion.asignar'))
     </div>
   </div>
 
-  <form @submit.prevent="submit" class="bg-white rounded-lg shadow-sm border p-6">
+  <form @submit.prevent="submit" class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border p-6">
     <!-- Selección de técnico -->
     <div class="mb-8">
       <label class="block text-lg font-medium text-gray-700 mb-3">Seleccionar Técnico</label>
@@ -81,9 +81,9 @@ const submit = () => form.post(route('herramientas.gestion.asignar'))
             class="sr-only peer"
             required
           />
-          <div class="p-4 border-2 rounded-lg cursor-pointer transition-all peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:bg-white">
-            <div class="font-medium text-gray-900">{{ tecnico.nombre_completo || tecnico.nombre }}</div>
-            <div class="text-sm text-gray-600">{{ tecnico.telefono || 'Sin teléfono' }}</div>
+          <div class="p-4 border-2 rounded-lg cursor-pointer transition-all peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:bg-white dark:bg-slate-900">
+            <div class="font-medium text-gray-900 dark:text-white">{{ tecnico.nombre_completo || tecnico.nombre }}</div>
+            <div class="text-sm text-gray-600 dark:text-gray-300">{{ tecnico.telefono || 'Sin teléfono' }}</div>
           </div>
         </label>
       </div>
@@ -132,7 +132,7 @@ const submit = () => form.post(route('herramientas.gestion.asignar'))
             v-model="form.herramientas"
             class="sr-only peer"
           />
-          <div class="p-4 border-2 rounded-lg cursor-pointer transition-all peer-checked:border-green-500 peer-checked:bg-green-50 hover:bg-white">
+          <div class="p-4 border-2 rounded-lg cursor-pointer transition-all peer-checked:border-green-500 peer-checked:bg-green-50 hover:bg-white dark:bg-slate-900">
             <div class="flex items-start gap-3">
               <img v-if="herramienta.foto" :src="`/storage/${herramienta.foto}`" alt="Foto" class="w-12 h-12 object-cover rounded" />
               <div v-else class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
@@ -141,8 +141,8 @@ const submit = () => form.post(route('herramientas.gestion.asignar'))
                 </svg>
               </div>
               <div class="flex-1">
-                <h3 class="font-medium text-gray-900">{{ herramienta.nombre }}</h3>
-                <p class="text-sm text-gray-600">Serie: {{ herramienta.numero_serie || 'N/A' }}</p>
+                <h3 class="font-medium text-gray-900 dark:text-white">{{ herramienta.nombre }}</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-300">Serie: {{ herramienta.numero_serie || 'N/A' }}</p>
                 <span :class="['text-xs px-2 py-1 rounded-full mt-1 inline-block', getEstadoColor(herramienta.estado)]">
                   {{ herramienta.estado }}
                 </span>
@@ -153,7 +153,7 @@ const submit = () => form.post(route('herramientas.gestion.asignar'))
       </div>
 
       <!-- Sin herramientas disponibles -->
-      <div v-if="herramientasFiltradas.length === 0" class="text-center py-8 text-gray-500">
+      <div v-if="herramientasFiltradas.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
         <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
         </svg>

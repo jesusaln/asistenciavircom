@@ -8,13 +8,13 @@
         
         <!-- Modal Panel -->
         <div class="flex min-h-full items-center justify-center p-4">
-          <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg transform transition-all">
+          <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg transform transition-all">
             
             <!-- Header -->
             <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-5 rounded-t-2xl">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <div class="w-12 h-12 bg-white dark:bg-slate-900/20 rounded-xl flex items-center justify-center">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
@@ -58,7 +58,7 @@
                       'flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all duration-200',
                       metodoPago === metodo.value 
                         ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-md' 
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                        : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                     ]"
                   >
                     <span class="text-xl">{{ metodo.icon }}</span>
@@ -73,7 +73,7 @@
                   Cuenta Bancaria de Origen
                   <span class="text-gray-400 font-normal">(opcional)</span>
                 </label>
-                <p class="text-xs text-gray-500 mb-3">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
                   Selecciona de qué cuenta sale el dinero para esta compra
                 </p>
                 <select
@@ -147,11 +147,11 @@
             </div>
 
             <!-- Footer -->
-            <div class="px-6 py-4 bg-gray-50 rounded-b-2xl border-t border-gray-200 flex items-center justify-end gap-3">
+            <div class="px-6 py-4 bg-gray-50 rounded-b-2xl border-t border-gray-200 dark:border-slate-800 flex items-center justify-end gap-3">
               <button
                 @click="cerrarModal"
                 type="button"
-                class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
+                class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
               >
                 Cancelar
               </button>
@@ -163,7 +163,7 @@
                   'px-6 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 flex items-center gap-2',
                   puedeConfirmar
                     ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/30'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-gray-300 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                 ]"
               >
                 <template v-if="isProcessing">

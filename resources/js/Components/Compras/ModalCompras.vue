@@ -7,7 +7,7 @@
       @click.self="$emit('close')"
     >
       <div
-        class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 outline-none"
+        class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-md p-6 outline-none"
         role="dialog"
         aria-modal="true"
         @keydown.esc.prevent="$emit('close')"

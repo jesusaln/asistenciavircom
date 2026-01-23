@@ -691,7 +691,7 @@ onMounted(async () => {
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <Link :href="route('ventas.index')" class="px-6 py-3 bg-white dark:bg-slate-900 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm">Cancelar</Link>
+                <Link :href="route('ventas.index')" class="px-6 py-3 bg-white dark:bg-slate-900 dark:bg-slate-900 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm">Cancelar</Link>
                 <button @click="abrirModalPago" class="flex items-center gap-3 px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-xl hover:shadow-indigo-500/20 transition-all transform hover:-translate-y-1 active:translate-y-0">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
                     Confirmar Venta
@@ -705,7 +705,7 @@ onMounted(async () => {
             <div class="xl:col-span-8 space-y-8">
                 
                 <!-- Datos Generales -->
-                <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+                <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
                     <div class="px-8 py-5 border-b border-slate-100 dark:border-slate-800/50 flex items-center bg-slate-50/50 dark:bg-slate-950/20">
                         <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 mr-3">
                              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
@@ -732,7 +732,7 @@ onMounted(async () => {
                 </div>
 
                 <!-- Cliente -->
-                <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+                <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
                     <div class="px-8 py-5 border-b border-slate-100 dark:border-slate-800/50 flex items-center bg-slate-50/50 dark:bg-slate-950/20">
                         <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 mr-3">
                              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
@@ -751,7 +751,7 @@ onMounted(async () => {
                 </div>
 
                 <!-- Productos -->
-                <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+                <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
                     <div class="px-8 py-5 border-b border-slate-100 dark:border-slate-800/50 flex items-center bg-slate-50/50 dark:bg-slate-950/20">
                         <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 mr-3">
                              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
@@ -786,7 +786,7 @@ onMounted(async () => {
                 </div>
 
                 <!-- Notas -->
-                 <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+                 <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
                     <div class="px-8 py-5 border-b border-slate-100 dark:border-slate-800/50 flex items-center bg-slate-50/50 dark:bg-slate-950/20">
                          <h2 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Notas Adicionales</h2>
                     </div>
@@ -798,7 +798,7 @@ onMounted(async () => {
 
             <!-- Sidebar Sticky -->
              <div class="xl:col-span-4 space-y-8">
-                 <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border-2 border-slate-100 dark:border-slate-800 overflow-hidden sticky top-6">
+                 <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-3xl shadow-2xl border-2 border-slate-100 dark:border-slate-800 overflow-hidden sticky top-6">
                      <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800/50" :style="{ background: `linear-gradient(135deg, ${colors.principal}15 0%, ${colors.secundario}05 100%)` }">
                         <h2 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Resumen</h2>
                      </div>
@@ -846,7 +846,7 @@ onMounted(async () => {
      <!-- Modal Pago -->
      <transition name="fade">
         <div v-if="showPaymentConfirmationModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in">
-             <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-800">
+             <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-800">
                  <div class="px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600">
                      <h3 class="text-lg font-bold text-white flex items-center"><span class="mr-2">💳</span> Confirmar Pago</h3>
                  </div>
@@ -879,8 +879,8 @@ onMounted(async () => {
      </transition>
      
      <!-- Otros modales (Series, Fallback, Error) -->
-     <transition name="fade"><div v-if="showErrorModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"><div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xl max-w-sm w-full"><h3 class="text-lg font-bold text-rose-600 mb-2">Error</h3><ul class="text-sm text-slate-600 dark:text-slate-300 list-disc pl-4 mb-4"><li v-for="msg in errorModalMessages" :key="msg">{{ msg }}</li></ul><button @click="closeErrorModal" class="w-full py-2 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white rounded-xl font-bold text-xs uppercase">Cerrar</button></div></div></transition>
-      <div v-if="showSeriesPicker" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"><div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"><div class="p-6 border-b border-slate-100 dark:border-slate-800"><h3 class="font-bold text-slate-900 dark:text-white">Seleccionar Series</h3><p class="text-xs text-slate-500 mt-1">Requeridas: {{ pickerRequired }} | Seleccionadas: {{ selectedSeries.length }}</p></div><div class="p-6 overflow-y-auto flex-1"><input v-model="pickerSearch" placeholder="Buscar serie..." class="w-full mb-4 px-4 py-2 rounded-xl border-2 border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm" /><div class="space-y-2"><div v-for="s in filteredPickerSeries" :key="s.id" @click="toggleSerie(s.numero_serie)" :class="{'bg-indigo-50 border-indigo-200 dark:bg-indigo-900/30 dark:border-indigo-800': selectedSeries.includes(s.numero_serie), 'border-slate-100 dark:border-slate-800': !selectedSeries.includes(s.numero_serie)}" class="p-3 rounded-xl border flex justify-between items-center cursor-pointer transition-colors"><span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ s.numero_serie }}</span><div v-if="selectedSeries.includes(s.numero_serie)" class="w-5 h-5 bg-indigo-500 rounded-full flex items-center justify-center"><svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div></div></div></div><div class="p-6 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3"><button @click="closeSeriesPicker" class="px-4 py-2 text-xs font-bold text-slate-500 uppercase">Cancelar</button><button @click="confirmSeries" :disabled="selectedSeries.length !== pickerRequired" class="px-6 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold uppercase disabled:opacity-50">Confirmar</button></div></div></div>
+     <transition name="fade"><div v-if="showErrorModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"><div class="bg-white dark:bg-slate-900 dark:bg-slate-900 p-6 rounded-2xl shadow-xl max-w-sm w-full"><h3 class="text-lg font-bold text-rose-600 mb-2">Error</h3><ul class="text-sm text-slate-600 dark:text-slate-300 list-disc pl-4 mb-4"><li v-for="msg in errorModalMessages" :key="msg">{{ msg }}</li></ul><button @click="closeErrorModal" class="w-full py-2 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white rounded-xl font-bold text-xs uppercase">Cerrar</button></div></div></transition>
+      <div v-if="showSeriesPicker" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"><div class="bg-white dark:bg-slate-900 dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"><div class="p-6 border-b border-slate-100 dark:border-slate-800"><h3 class="font-bold text-slate-900 dark:text-white">Seleccionar Series</h3><p class="text-xs text-slate-500 mt-1">Requeridas: {{ pickerRequired }} | Seleccionadas: {{ selectedSeries.length }}</p></div><div class="p-6 overflow-y-auto flex-1"><input v-model="pickerSearch" placeholder="Buscar serie..." class="w-full mb-4 px-4 py-2 rounded-xl border-2 border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm" /><div class="space-y-2"><div v-for="s in filteredPickerSeries" :key="s.id" @click="toggleSerie(s.numero_serie)" :class="{'bg-indigo-50 border-indigo-200 dark:bg-indigo-900/30 dark:border-indigo-800': selectedSeries.includes(s.numero_serie), 'border-slate-100 dark:border-slate-800': !selectedSeries.includes(s.numero_serie)}" class="p-3 rounded-xl border flex justify-between items-center cursor-pointer transition-colors"><span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ s.numero_serie }}</span><div v-if="selectedSeries.includes(s.numero_serie)" class="w-5 h-5 bg-indigo-500 rounded-full flex items-center justify-center"><svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div></div></div></div><div class="p-6 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3"><button @click="closeSeriesPicker" class="px-4 py-2 text-xs font-bold text-slate-500 uppercase">Cancelar</button><button @click="confirmSeries" :disabled="selectedSeries.length !== pickerRequired" class="px-6 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold uppercase disabled:opacity-50">Confirmar</button></div></div></div>
 
   </div>
 </template>

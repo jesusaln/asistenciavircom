@@ -120,22 +120,22 @@ const planesCalculados = computed(() => {
                     <span class="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--color-terciary)]">Pólizas Premium de Servicio</span>
                 </div>
                 
-                <h1 class="text-5xl md:text-7xl font-black text-gray-900 dark:text-white mb-8 tracking-tighter leading-[1.1] transition-colors">
+                <h1 class="text-5xl md:text-7xl font-black text-gray-900 dark:text-white dark:text-white mb-8 tracking-tighter leading-[1.1] transition-colors">
                     Seguridad y Confort <br/>
                     <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Sin Límites</span>
                 </h1>
                 
-                <p class="text-xl text-gray-500 dark:text-gray-400 font-medium mb-12 w-full leading-relaxed transition-colors">
+                <p class="text-xl text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium mb-12 w-full leading-relaxed transition-colors">
                     Protección total para sus equipos de climatización. Atención prioritaria, mantenimientos preventivos incluidos y la tranquilidad que su hogar necesita.
                 </p>
                 
                 <!-- Toggle Mensual/Anual Premium -->
-                <div class="inline-flex p-1.5 bg-white dark:bg-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none rounded-2xl border border-gray-100 dark:border-gray-700 transition-colors">
+                <div class="inline-flex p-1.5 bg-white dark:bg-slate-900 dark:bg-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none rounded-2xl border border-gray-100 dark:border-gray-700 transition-colors">
                     <button 
                         @click="periodoSeleccionado = 'mensual'"
                         :class="[
                             'px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all',
-                            periodoSeleccionado === 'mensual' ? 'bg-[var(--color-primary)] text-white shadow-lg' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+                            periodoSeleccionado === 'mensual' ? 'bg-[var(--color-primary)] text-white shadow-lg' : 'text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-300'
                         ]"
                     >
                         Mensual
@@ -144,12 +144,12 @@ const planesCalculados = computed(() => {
                         @click="periodoSeleccionado = 'anual'"
                         :class="[
                             'px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all gap-3 flex items-center',
-                            periodoSeleccionado === 'anual' ? 'bg-[var(--color-primary)] text-white shadow-lg' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+                            periodoSeleccionado === 'anual' ? 'bg-[var(--color-primary)] text-white shadow-lg' : 'text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-300'
                         ]"
                     >
                         Anual
                         <span v-if="periodoSeleccionado !== 'anual'" class="px-2 py-0.5 bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-300 rounded-full text-[8px]">-15%</span>
-                        <span v-else class="px-2 py-0.5 bg-white/20 text-white rounded-full text-[8px]">Ahorro</span>
+                        <span v-else class="px-2 py-0.5 bg-white dark:bg-slate-900/20 text-white rounded-full text-[8px]">Ahorro</span>
                     </button>
                 </div>
             </div>
@@ -162,7 +162,7 @@ const planesCalculados = computed(() => {
                     v-for="plan in planesCalculados" 
                     :key="plan.id"
                     :class="[
-                        'relative bg-white dark:bg-gray-800 p-10 rounded-[3rem] border shadow-2xl transition-all duration-500 flex flex-col group',
+                        'relative bg-white dark:bg-slate-900 dark:bg-gray-800 p-10 rounded-[3rem] border shadow-2xl transition-all duration-500 flex flex-col group',
                         plan.destacado ? 'border-[var(--color-primary)] ring-4 ring-[var(--color-primary-soft)] lg:-translate-y-4 shadow-xl' : 'border-gray-50 dark:border-gray-700 shadow-gray-100/50 dark:shadow-none hover:-translate-y-2'
                     ]"
                 >
@@ -182,26 +182,26 @@ const planesCalculados = computed(() => {
                         >
                             <font-awesome-icon :icon="getFaIcon(plan)" />
                         </div>
-                        <h2 class="text-3xl font-black text-gray-900 dark:text-white mb-2 leading-tight transition-colors">{{ plan.nombre }}</h2>
-                        <span class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] transition-colors">{{ plan.tipo_label }}</span>
+                        <h2 class="text-3xl font-black text-gray-900 dark:text-white dark:text-white mb-2 leading-tight transition-colors">{{ plan.nombre }}</h2>
+                        <span class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-[0.2em] transition-colors">{{ plan.tipo_label }}</span>
                     </div>
 
                     <!-- Precio -->
                     <div class="mb-10 text-center pt-8 border-t border-gray-50 dark:border-gray-700 transition-colors">
                         <template v-if="getPrecio(plan) > 0">
                             <div class="flex items-baseline justify-center gap-1">
-                                <span class="text-gray-400 dark:text-gray-500 text-2xl font-bold">$</span>
+                                <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400 text-2xl font-bold">$</span>
                                 <Transition mode="out-in">
-                                    <span :key="periodoSeleccionado" class="text-6xl font-black text-gray-900 dark:text-white tracking-tighter transition-colors">
+                                    <span :key="periodoSeleccionado" class="text-6xl font-black text-gray-900 dark:text-white dark:text-white tracking-tighter transition-colors">
                                         {{ formatCurrency(getPrecio(plan)).replace('$', '').replace('.00', '') }}
                                     </span>
                                 </Transition>
                             </div>
-                            <p class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-2">Pesos por mes</p>
+                            <p class="text-xs font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-2">Pesos por mes</p>
                         </template>
                         <template v-else>
                             <div class="py-2">
-                                <span class="text-4xl font-black text-gray-900 dark:text-white tracking-tighter uppercase transition-colors">Plan Empresa</span>
+                                <span class="text-4xl font-black text-gray-900 dark:text-white dark:text-white tracking-tighter uppercase transition-colors">Plan Empresa</span>
                             </div>
                             <p class="text-xs font-black text-orange-600 dark:text-orange-400 uppercase tracking-widest mt-2">Soluciones a Medida</p>
                         </template>
@@ -219,7 +219,7 @@ const planesCalculados = computed(() => {
                             <span class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold" :style="{ backgroundColor: getColorPlan(plan) }">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
                             </span>
-                            <span class="text-sm font-medium text-gray-600 dark:text-gray-300 leading-relaxed transition-colors">{{ beneficio }}</span>
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-300 dark:text-gray-300 leading-relaxed transition-colors">{{ beneficio }}</span>
                         </li>
                     </ul>
 
@@ -228,7 +228,7 @@ const planesCalculados = computed(() => {
                         v-if="getPrecio(plan) > 0"
                         :href="route('contratacion.show', plan.slug)"
                         class="w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-xl"
-                        :class="plan.destacado ? 'bg-gray-900 text-white hover:bg-black shadow-gray-200' : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 shadow-gray-100 dark:shadow-none'"
+                        :class="plan.destacado ? 'bg-gray-900 text-white hover:bg-black shadow-gray-200' : 'bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 shadow-gray-100 dark:shadow-none'"
                     >
                         Contratar Plan
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
@@ -248,8 +248,8 @@ const planesCalculados = computed(() => {
             <!-- Empty State -->
             <div v-else class="py-24 text-center">
                 <div class="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-8 text-4xl">🏷️</div>
-                <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-2 transition-colors">Próximamente estaremos listos</h3>
-                <p class="text-gray-500 dark:text-gray-400 font-medium transition-colors">Estamos preparando nuestros nuevos planes para ti.</p>
+                <h3 class="text-2xl font-black text-gray-900 dark:text-white dark:text-white mb-2 transition-colors">Próximamente estaremos listos</h3>
+                <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium transition-colors">Estamos preparando nuestros nuevos planes para ti.</p>
             </div>
         </main>
 

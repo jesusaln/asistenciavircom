@@ -594,7 +594,7 @@ const getTipoBadge = (tipo) => {
         'N': { label: 'Nómina', color: 'bg-amber-100 text-amber-700 border-amber-200' },
         'T': { label: 'Traslado', color: 'bg-indigo-100 text-indigo-700 border-indigo-200' }
     }
-    return map[tipo] || { label: 'Otro', color: 'bg-gray-100 text-gray-700 border-gray-200' }
+    return map[tipo] || { label: 'Otro', color: 'bg-gray-100 text-gray-700 border-gray-200 dark:border-slate-800' }
 }
 
 const abrirRevisor = async (descarga) => {
@@ -719,7 +719,7 @@ const getStatusBadgeClass = (status) => {
         case 'cancelado':
             return 'bg-red-50 text-red-700 border-red-100'
         default:
-            return 'bg-white text-gray-700 border-gray-100'
+            return 'bg-white dark:bg-slate-900 text-gray-700 border-gray-100'
     }
 }
 
@@ -754,7 +754,7 @@ const getTipoBadgeClass = (tipo) => {
         case 'I': return 'bg-blue-50 text-blue-700 border-blue-100'
         case 'P': return 'bg-purple-50 text-purple-700 border-purple-100'
         case 'E': return 'bg-orange-50 text-orange-700 border-orange-100'
-        default: return 'bg-white text-gray-600 border-gray-100'
+        default: return 'bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300 border-gray-100'
     }
 }
 
@@ -947,7 +947,7 @@ const reintentarDescargaManual = async (descarga) => {
         title: '¿Reintentar descarga?',
         html: `
             <div class="text-left text-sm">
-                <p class="text-gray-600 mb-3">Esto intentará nuevamente la descarga del SAT.</p>
+                <p class="text-gray-600 dark:text-gray-300 mb-3">Esto intentará nuevamente la descarga del SAT.</p>
                 <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
                     <p class="text-amber-700 text-xs">
                         ⚠️ Si el SAT sigue bloqueando, el sistema pausará de nuevo.
@@ -1043,9 +1043,9 @@ const mostrarResumenDescarga = (descarga) => {
     let html = `
         <div class="text-left">
             <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="bg-white rounded-lg p-3 text-center">
-                    <div class="text-2xl font-bold text-gray-800">${total}</div>
-                    <div class="text-xs text-gray-500 uppercase">Total procesados</div>
+                <div class="bg-white dark:bg-slate-900 rounded-lg p-3 text-center">
+                    <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">${total}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 uppercase">Total procesados</div>
                 </div>
                 <div class="bg-emerald-50 rounded-lg p-3 text-center">
                     <div class="text-2xl font-bold text-emerald-600">${nuevos}</div>
@@ -1065,10 +1065,10 @@ const mostrarResumenDescarga = (descarga) => {
     // Mostrar lista de duplicados (máximo 10)
     if (listaDuplicados.length > 0) {
         html += `
-            <div class="border-t border-gray-200 pt-3 mt-3">
+            <div class="border-t border-gray-200 dark:border-slate-800 pt-3 mt-3">
                 <p class="text-sm font-bold text-amber-700 mb-2">⚠️ CFDIs Duplicados (ya en ADD):</p>
                 <div class="max-h-32 overflow-y-auto bg-amber-50 rounded p-2">
-                    <ul class="text-xs text-gray-600 space-y-1">
+                    <ul class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
         `
         const maxDuplicados = Math.min(listaDuplicados.length, 10)
         for (let i = 0; i < maxDuplicados; i++) {
@@ -1088,10 +1088,10 @@ const mostrarResumenDescarga = (descarga) => {
     // Mostrar lista de errores
     if (listaErrores.length > 0) {
         html += `
-            <div class="border-t border-gray-200 pt-3 mt-3">
+            <div class="border-t border-gray-200 dark:border-slate-800 pt-3 mt-3">
                 <p class="text-sm font-bold text-red-700 mb-2">❌ Errores encontrados:</p>
                 <div class="max-h-32 overflow-y-auto bg-red-50 rounded p-2">
-                    <ul class="text-xs text-gray-600 space-y-1">
+                    <ul class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
         `
         const maxErrores = Math.min(listaErrores.length, 10)
         for (let i = 0; i < maxErrores; i++) {
@@ -1110,7 +1110,7 @@ const mostrarResumenDescarga = (descarga) => {
     // Mostrar nota si hay pendientes
     if (pendientes > 0) {
         html += `
-            <div class="border-t border-gray-200 pt-3 mt-3">
+            <div class="border-t border-gray-200 dark:border-slate-800 pt-3 mt-3">
                 <p class="text-sm text-orange-600">
                     📋 <strong>${pendientes}</strong> CFDIs están pendientes de importar. 
                     Usa el botón "Revisar Docs" para importarlos al ADD.
@@ -1148,14 +1148,14 @@ const previousDescargaStatuses = ref({})
 <template>
     <Head title="ADD - Administrador de Documentos Digitales" />
 
-    <div class="py-12 bg-white min-h-screen transition-colors duration-500">
+    <div class="py-12 bg-white dark:bg-slate-900 min-h-screen transition-colors duration-500">
         <div class="max-w-none w-full mx-auto px-4 sm:px-6 lg:px-8">
             
             <!-- Header -->
             <div class="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <h1 class="text-4xl font-black text-gray-900 tracking-tight mb-2">ADD</h1>
-                    <p class="text-sm text-gray-500 font-bold uppercase tracking-[0.2em] flex items-center gap-2">
+                    <h1 class="text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-2">ADD</h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 font-bold uppercase tracking-[0.2em] flex items-center gap-2">
                         <span class="w-8 h-[2px] bg-blue-600"></span>
                         Administrador de Documentos Digitales
                     </p>
@@ -1163,13 +1163,13 @@ const previousDescargaStatuses = ref({})
                 
                 <div class="flex items-center gap-3">
                     <!-- Toggle Vista -->
-                    <div class="flex bg-white rounded-2xl p-1 border border-gray-100 shadow-sm mr-2">
+                    <div class="flex bg-white dark:bg-slate-900 rounded-2xl p-1 border border-gray-100 shadow-sm mr-2">
                         <button @click="viewMode = 'table'" 
-                                :class="['p-2 rounded-xl transition-all', viewMode === 'table' ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600']">
+                                :class="['p-2 rounded-xl transition-all', viewMode === 'table' ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600 dark:text-gray-300']">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
                         </button>
                         <button @click="viewMode = 'grid'" 
-                                :class="['p-2 rounded-xl transition-all', viewMode === 'grid' ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600']">
+                                :class="['p-2 rounded-xl transition-all', viewMode === 'grid' ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600 dark:text-gray-300']">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
                         </button>
                     </div>
@@ -1186,10 +1186,10 @@ const previousDescargaStatuses = ref({})
                         Descarga masiva SAT
                     </button>
                     
-                    <div class="px-6 py-3 bg-white rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4 transition-all">
+                    <div class="px-6 py-3 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm flex items-center gap-4 transition-all">
                         <div class="text-right">
                             <p class="text-[13px] font-black text-gray-400 uppercase tracking-widest">Total Documentos</p>
-                            <p class="text-lg font-black text-gray-900 italic tabular-nums">{{ cfdis.total }}</p>
+                            <p class="text-lg font-black text-gray-900 dark:text-white italic tabular-nums">{{ cfdis.total }}</p>
                         </div>
                         <div class="w-[1px] h-8 bg-gray-100"></div>
                         <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
@@ -1200,11 +1200,11 @@ const previousDescargaStatuses = ref({})
             </div>
             <!-- Stats Dashboard -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
                     <div class="absolute right-0 top-0 w-32 h-32 bg-emerald-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
                     <div class="relative z-10">
                         <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Ingresos</p>
-                        <h3 class="text-2xl font-black text-gray-900 tracking-tight">{{ formatCurrency(stats.ingresos) }}</h3>
+                        <h3 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight">{{ formatCurrency(stats.ingresos) }}</h3>
                         <p class="text-[10px] font-bold text-emerald-500 mt-2 flex items-center gap-1">
                             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                             Facturas Emitidas
@@ -1212,11 +1212,11 @@ const previousDescargaStatuses = ref({})
                     </div>
                 </div>
 
-                <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
                     <div class="absolute right-0 top-0 w-32 h-32 bg-rose-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
                     <div class="relative z-10">
                         <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Egresos</p>
-                        <h3 class="text-2xl font-black text-gray-900 tracking-tight">{{ formatCurrency(stats.egresos) }}</h3>
+                        <h3 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight">{{ formatCurrency(stats.egresos) }}</h3>
                         <p class="text-[10px] font-bold text-rose-500 mt-2 flex items-center gap-1">
                             <span class="w-2 h-2 rounded-full bg-rose-500"></span>
                             Notas Crédito / Gastos
@@ -1224,11 +1224,11 @@ const previousDescargaStatuses = ref({})
                     </div>
                 </div>
 
-                <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
                     <div class="absolute right-0 top-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
                     <div class="relative z-10">
                         <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Pagos</p>
-                        <h3 class="text-2xl font-black text-gray-900 tracking-tight">{{ formatCurrency(stats.pagos) }}</h3>
+                        <h3 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight">{{ formatCurrency(stats.pagos) }}</h3>
                         <p class="text-[10px] font-bold text-blue-500 mt-2 flex items-center gap-1">
                             <span class="w-2 h-2 rounded-full bg-blue-500"></span>
                             Complementos Pago
@@ -1236,12 +1236,12 @@ const previousDescargaStatuses = ref({})
                     </div>
                 </div>
 
-                <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
                     <div class="absolute right-0 top-0 w-32 h-32 bg-gray-100 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
                     <div class="relative z-10">
                         <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Total Visibles</p>
-                        <h3 class="text-2xl font-black text-gray-900 tracking-tight">{{ stats.count }}</h3>
-                        <p class="text-[10px] font-bold text-gray-500 mt-2 flex items-center gap-1">
+                        <h3 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight">{{ stats.count }}</h3>
+                        <p class="text-[10px] font-bold text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
                             <span class="w-2 h-2 rounded-full bg-gray-400"></span>
                             Documentos Filtrados
                         </p>
@@ -1253,31 +1253,31 @@ const previousDescargaStatuses = ref({})
             <div class="flex gap-2 mb-6">
                 <button @click="setDireccion('')" 
                         :class="['px-5 py-2.5 rounded-xl font-bold text-sm transition-all border', 
-                                 filters.direccion === '' ? 'bg-gray-900 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-600 hover:bg-white border-gray-200']">
+                                 filters.direccion === '' ? 'bg-gray-900 text-white shadow-lg shadow-blue-500/20' : 'bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300 hover:bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800']">
                     Todos
-                    <span class="ml-2 px-2 py-0.5 rounded-lg text-xs" :class="filters.direccion === '' ? 'bg-white/20' : 'bg-gray-100'">{{ contadores.total }}</span>
+                    <span class="ml-2 px-2 py-0.5 rounded-lg text-xs" :class="filters.direccion === '' ? 'bg-white dark:bg-slate-900/20' : 'bg-gray-100'">{{ contadores.total }}</span>
                 </button>
                 <button @click="setDireccion('emitido')" 
                         :class="['px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 border', 
-                                 filters.direccion === 'emitido' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'bg-white text-gray-600 hover:bg-white border-gray-200']">
+                                 filters.direccion === 'emitido' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300 hover:bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800']">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
                     Emitidos
-                    <span class="px-2 py-0.5 rounded-lg text-xs" :class="filters.direccion === 'emitido' ? 'bg-white/20' : 'bg-gray-100'">{{ contadores.emitidos }}</span>
+                    <span class="px-2 py-0.5 rounded-lg text-xs" :class="filters.direccion === 'emitido' ? 'bg-white dark:bg-slate-900/20' : 'bg-gray-100'">{{ contadores.emitidos }}</span>
                 </button>
                 <button @click="setDireccion('recibido')" 
                         :class="['px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 border', 
-                                 filters.direccion === 'recibido' ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/20' : 'bg-white text-gray-600 hover:bg-white border-gray-200']">
+                                 filters.direccion === 'recibido' ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/20' : 'bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300 hover:bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800']">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
                     Recibidos
-                    <span class="px-2 py-0.5 rounded-lg text-xs" :class="filters.direccion === 'recibido' ? 'bg-white/20' : 'bg-gray-100'">{{ contadores.recibidos }}</span>
+                    <span class="px-2 py-0.5 rounded-lg text-xs" :class="filters.direccion === 'recibido' ? 'bg-white dark:bg-slate-900/20' : 'bg-gray-100'">{{ contadores.recibidos }}</span>
                 </button>
             </div>
 
             <!-- Descargas masivas -->
-            <div v-if="descargasItems.length" class="mb-6 bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+            <div v-if="descargasItems.length" class="mb-6 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-sm font-black text-gray-700 uppercase tracking-[0.2em]">Descargas Masivas SAT</h3>
-                    <button @click="router.reload({ preserveState: true })" class="text-xs text-gray-400 hover:text-gray-600 font-bold uppercase tracking-widest">
+                    <button @click="router.reload({ preserveState: true })" class="text-xs text-gray-400 hover:text-gray-600 dark:text-gray-300 font-bold uppercase tracking-widest">
                         Actualizar
                     </button>
                 </div>
@@ -1290,7 +1290,7 @@ const previousDescargaStatuses = ref({})
                                     ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-300 shadow-lg shadow-amber-100'
                                     : descarga.status === 'pausado'
                                         ? 'bg-gradient-to-r from-red-50 to-rose-50 border-red-300'
-                                        : 'bg-white border-gray-100']">
+                                        : 'bg-white dark:bg-slate-900 border-gray-100']">
                         <!-- Encabezado con dirección y fechas -->
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                             <div class="flex flex-col">
@@ -1314,11 +1314,11 @@ const previousDescargaStatuses = ref({})
                                                     : descarga.status }}
                                     </span>
                                     <!-- Indicador de reintentos -->
-                                    <span v-if="descarga.retry_count > 0" class="px-2 py-0.5 rounded text-[10px] font-black bg-gray-200 text-gray-600">
+                                    <span v-if="descarga.retry_count > 0" class="px-2 py-0.5 rounded text-[10px] font-black bg-gray-200 text-gray-600 dark:text-gray-300">
                                         Intento {{ descarga.retry_count }}/{{ descarga.max_retries || 3 }}
                                     </span>
                                 </div>
-                                <span class="text-sm text-gray-600 mt-1">
+                                <span class="text-sm text-gray-600 dark:text-gray-300 mt-1">
                                     📅 {{ formatDateShort(descarga.fecha_inicio) }} → {{ formatDateShort(descarga.fecha_fin) }}
                                 </span>
                             </div>
@@ -1351,7 +1351,7 @@ const previousDescargaStatuses = ref({})
                                 <p :class="['text-sm font-medium', descarga.limite_tipo === 'por_vida' ? 'text-red-800' : 'text-amber-800']">
                                     {{ descarga.mensaje_usuario || descarga.mensaje_amigable || 'Límite del SAT detectado' }}
                                 </p>
-                                <p v-if="descarga.status === 'esperando'" class="text-xs text-gray-600 mt-1">
+                                <p v-if="descarga.status === 'esperando'" class="text-xs text-gray-600 dark:text-gray-300 mt-1">
                                     El sistema reintentará automáticamente. No necesitas hacer nada.
                                 </p>
                                 <p v-else-if="descarga.status === 'pausado'" class="text-xs text-red-600 mt-1 font-medium">
@@ -1363,7 +1363,7 @@ const previousDescargaStatuses = ref({})
                         <!-- Barra de Progreso en Tiempo Real -->
                         <div v-if="descarga.total_cfdis > 0 || ['solicitando', 'pendiente', 'verificando', 'descargando'].includes(descarga.status)" 
                              class="w-full">
-                            <div class="flex justify-between text-xs font-bold text-gray-500 mb-1">
+                            <div class="flex justify-between text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
                                 <span>Progreso de Descarga</span>
                                 <span v-if="descarga.total_cfdis > 0">
                                     {{ descarga.inserted_cfdis + descarga.duplicate_cfdis }} / {{ descarga.total_cfdis }} procesados
@@ -1383,27 +1383,27 @@ const previousDescargaStatuses = ref({})
 
                         <!-- Contadores en Tiempo Real -->
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <div class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm text-center">
-                                <div class="text-2xl font-black text-gray-800">{{ descarga.total_cfdis || 0 }}</div>
+                            <div class="bg-white dark:bg-slate-900 rounded-xl p-3 border border-gray-100 shadow-sm text-center">
+                                <div class="text-2xl font-black text-gray-800 dark:text-gray-100">{{ descarga.total_cfdis || 0 }}</div>
                                 <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total</div>
                             </div>
                              <div :class="['rounded-xl p-3 border shadow-sm text-center transition-all duration-500', 
-                                         descarga.imported_cfdis > 0 ? 'bg-emerald-50 border-emerald-200 scale-105 z-10' : 'bg-white border-emerald-100']">
+                                         descarga.imported_cfdis > 0 ? 'bg-emerald-50 border-emerald-200 scale-105 z-10' : 'bg-white dark:bg-slate-900 border-emerald-100']">
                                 <div class="text-2xl font-black text-emerald-600">{{ descarga.imported_cfdis || 0 }}</div>
                                 <div class="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">Nuevos (ADD)</div>
                             </div>
                             <div :class="['rounded-xl p-3 border shadow-sm text-center transition-all duration-500',
-                                         descarga.pending_cfdis > 0 ? 'bg-orange-50 border-orange-200 animate-pulse' : 'bg-white border-gray-100']">
-                                <div :class="['text-2xl font-black', descarga.pending_cfdis > 0 ? 'text-orange-600' : 'text-gray-800']">
+                                         descarga.pending_cfdis > 0 ? 'bg-orange-50 border-orange-200 animate-pulse' : 'bg-white dark:bg-slate-900 border-gray-100']">
+                                <div :class="['text-2xl font-black', descarga.pending_cfdis > 0 ? 'text-orange-600' : 'text-gray-800 dark:text-gray-100']">
                                     {{ descarga.pending_cfdis || 0 }}
                                 </div>
                                 <div :class="['text-[10px] font-bold uppercase tracking-wider', descarga.pending_cfdis > 0 ? 'text-orange-500' : 'text-gray-400']">Pendientes</div>
                             </div>
-                            <div class="bg-white rounded-xl p-3 border border-amber-100 shadow-sm text-center">
+                            <div class="bg-white dark:bg-slate-900 rounded-xl p-3 border border-amber-100 shadow-sm text-center">
                                 <div class="text-2xl font-black text-amber-600">{{ descarga.duplicate_cfdis || 0 }}</div>
                                 <div class="text-[10px] font-bold text-amber-500 uppercase tracking-wider">Duplicados</div>
                             </div>
-                            <div class="bg-white rounded-xl p-3 border border-red-100 shadow-sm text-center">
+                            <div class="bg-white dark:bg-slate-900 rounded-xl p-3 border border-red-100 shadow-sm text-center">
                                 <div class="text-2xl font-black text-red-600">{{ descarga.error_cfdis || 0 }}</div>
                                 <div class="text-[10px] font-bold text-red-500 uppercase tracking-wider">Errores</div>
                             </div>
@@ -1468,20 +1468,20 @@ const previousDescargaStatuses = ref({})
             </div>
 
             <!-- Filtros Avanzados -->
-            <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-200 p-8 mb-10 transition-all">
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-gray-200 dark:border-slate-800 p-8 mb-10 transition-all">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                     <div class="space-y-2">
                         <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Búsqueda Inteligente</label>
                         <div class="relative group">
                             <input v-model="filters.search" placeholder="Folio, UUID..." 
-                                   class="w-full h-14 pl-12 pr-4 bg-white border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-0 transition-all placeholder:text-gray-400" />
+                                   class="w-full h-14 pl-12 pr-4 bg-white dark:bg-slate-900 border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white dark:bg-slate-900 focus:border-blue-500 focus:ring-0 transition-all placeholder:text-gray-400" />
                             <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                         </div>
                     </div>
 
                     <div class="space-y-2">
                         <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Tipo Documento</label>
-                        <select v-model="filters.tipo_comprobante" class="w-full h-14 px-5 bg-white border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-0 transition-all appearance-none">
+                        <select v-model="filters.tipo_comprobante" class="w-full h-14 px-5 bg-white dark:bg-slate-900 border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white dark:bg-slate-900 focus:border-blue-500 focus:ring-0 transition-all appearance-none">
                             <option value="">Cualquier Tipo</option>
                             <option value="I">Factura (Ingreso)</option>
                             <option value="P">Pago (Complemento)</option>
@@ -1491,7 +1491,7 @@ const previousDescargaStatuses = ref({})
 
                     <div class="space-y-2">
                         <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Estado Fiscal</label>
-                        <select v-model="filters.estatus" class="w-full h-14 px-5 bg-white border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-0 transition-all appearance-none">
+                        <select v-model="filters.estatus" class="w-full h-14 px-5 bg-white dark:bg-slate-900 border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white dark:bg-slate-900 focus:border-blue-500 focus:ring-0 transition-all appearance-none">
                             <option value="">Todos los Estados</option>
                             <option value="vigente">Vigente / Timbrado</option>
                             <option value="cancelado">Cancelado</option>
@@ -1501,8 +1501,8 @@ const previousDescargaStatuses = ref({})
                     <div class="space-y-2">
                         <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Rango de Fecha</label>
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="date" v-model="filters.fecha_inicio" class="w-full h-14 px-3 bg-white border-2 border-transparent rounded-2xl text-[11px] font-bold focus:bg-white focus:border-blue-100 focus:ring-0 transition-all" />
-                            <input type="date" v-model="filters.fecha_fin" class="w-full h-14 px-3 bg-white border-2 border-transparent rounded-2xl text-[11px] font-bold focus:bg-white focus:border-blue-100 focus:ring-0 transition-all" />
+                            <input type="date" v-model="filters.fecha_inicio" class="w-full h-14 px-3 bg-white dark:bg-slate-900 border-2 border-transparent rounded-2xl text-[11px] font-bold focus:bg-white dark:bg-slate-900 focus:border-blue-100 focus:ring-0 transition-all" />
+                            <input type="date" v-model="filters.fecha_fin" class="w-full h-14 px-3 bg-white dark:bg-slate-900 border-2 border-transparent rounded-2xl text-[11px] font-bold focus:bg-white dark:bg-slate-900 focus:border-blue-100 focus:ring-0 transition-all" />
                         </div>
                     </div>
 
@@ -1527,28 +1527,28 @@ const previousDescargaStatuses = ref({})
                         <div class="space-y-2 lg:col-span-2">
                             <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">RFC Emisor</label>
                             <input v-model="filters.rfc_emisor" placeholder="AAA010101AAA" 
-                                   class="w-full h-14 px-4 bg-white border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-0 transition-all uppercase placeholder:normal-case" />
+                                   class="w-full h-14 px-4 bg-white dark:bg-slate-900 border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white dark:bg-slate-900 focus:border-blue-500 focus:ring-0 transition-all uppercase placeholder:normal-case" />
                         </div>
                         <div class="space-y-2 lg:col-span-2">
                             <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">RFC Receptor</label>
                             <input v-model="filters.rfc_receptor" placeholder="AAA010101AAA" 
-                                   class="w-full h-14 px-4 bg-white border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-0 transition-all uppercase placeholder:normal-case" />
+                                   class="w-full h-14 px-4 bg-white dark:bg-slate-900 border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white dark:bg-slate-900 focus:border-blue-500 focus:ring-0 transition-all uppercase placeholder:normal-case" />
                         </div>
                         <div class="space-y-2">
                             <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Serie</label>
                             <input v-model="filters.serie" placeholder="A" 
-                                   class="w-full h-14 px-4 bg-white border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-0 transition-all" />
+                                   class="w-full h-14 px-4 bg-white dark:bg-slate-900 border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white dark:bg-slate-900 focus:border-blue-500 focus:ring-0 transition-all" />
                         </div>
                     </template>
                 </div>
             </div>
 
             <!-- Listado de Documentos (Tabla / Grid) -->
-            <div v-if="viewMode === 'table'" class="bg-white rounded-[2.5rem] shadow-sm border border-gray-200 transition-all overflow-hidden">
+            <div v-if="viewMode === 'table'" class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-gray-200 dark:border-slate-800 transition-all overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead>
-                            <tr class="bg-white/50 border-b border-gray-200">
+                            <tr class="bg-white dark:bg-slate-900/50 border-b border-gray-200 dark:border-slate-800">
                                 <th class="px-4 py-6 text-center">
                             <input type="checkbox" :checked="selectedIds.length === cfdiItems.length && cfdiItems.length > 0" @change="toggleSelectAll" class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer" />
                                 </th>
@@ -1596,21 +1596,21 @@ const previousDescargaStatuses = ref({})
                                     <td class="px-8 py-6">
                                         <div class="flex flex-col gap-1.5">
                                             <div class="flex items-center gap-2">
-                                                <span class="text-lg font-black text-gray-900 tracking-tight">{{ cfdi.folio }}</span>
+                                                <span class="text-lg font-black text-gray-900 dark:text-white tracking-tight">{{ cfdi.folio }}</span>
                                                 <span :class="['px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border', 
                                                     cfdi.tipo_comprobante_nombre === 'Ingreso' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
                                                     cfdi.tipo_comprobante_nombre === 'Egreso' ? 'bg-rose-50 text-rose-600 border-rose-100' :
                                                     cfdi.tipo_comprobante_nombre === 'Pago' ? 'bg-sky-50 text-sky-600 border-sky-100' :
                                                     cfdi.tipo_comprobante_nombre === 'Nómina' ? 'bg-orange-50 text-orange-600 border-orange-100' :
                                                     cfdi.tipo_comprobante_nombre === 'Traslado' ? 'bg-violet-50 text-violet-600 border-violet-100' :
-                                                    'bg-white text-gray-600 border-gray-100']"
+                                                    'bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300 border-gray-100']"
                                                     :title="cfdi.tipo_comprobante_nombre">
                                                     {{ cfdi.tipo_comprobante_nombre || cfdi.tipo_comprobante }}
                                                 </span>
                                             </div>
                                             <div class="flex items-center gap-1.5">
                                                 <svg class="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>
-                                                <span class="text-[14px] font-mono text-gray-600 group-hover:text-blue-500 transition-colors uppercase truncate max-w-[120px]" :title="cfdi.uuid">
+                                                <span class="text-[14px] font-mono text-gray-600 dark:text-gray-300 group-hover:text-blue-500 transition-colors uppercase truncate max-w-[120px]" :title="cfdi.uuid">
                                                     {{ cfdi.uuid }}
                                                 </span>
                                             </div>
@@ -1624,21 +1624,21 @@ const previousDescargaStatuses = ref({})
                                             <template v-if="cfdi.direccion === 'emitido'">
                                                 <div class="flex items-center gap-1">
                                                     <span class="text-[9px] font-black text-blue-600 uppercase">Cliente:</span>
-                                                    <span class="text-xs font-bold text-gray-900 truncate max-w-[180px]" :title="cfdi.receptor">
+                                                    <span class="text-xs font-bold text-gray-900 dark:text-white truncate max-w-[180px]" :title="cfdi.receptor">
                                                         {{ cfdi.receptor || 'Sin especificar' }}
                                                     </span>
                                                 </div>
-                                                <span class="text-[14px] font-mono text-gray-600 truncate max-w-[120px]">{{ cfdi.rfc_receptor || '' }}</span>
+                                                <span class="text-[14px] font-mono text-gray-600 dark:text-gray-300 truncate max-w-[120px]">{{ cfdi.rfc_receptor || '' }}</span>
                                             </template>
                                             <!-- Para RECIBIDOS: Mostrar emisor (tu proveedor) -->
                                             <template v-else>
                                                 <div class="flex items-center gap-1">
                                                     <span class="text-[9px] font-black text-emerald-600 uppercase">Proveedor:</span>
-                                                    <span class="text-xs font-bold text-gray-900 truncate max-w-[180px]" :title="cfdi.emisor">
+                                                    <span class="text-xs font-bold text-gray-900 dark:text-white truncate max-w-[180px]" :title="cfdi.emisor">
                                                         {{ cfdi.emisor || 'Sin especificar' }}
                                                     </span>
                                                 </div>
-                                                <span class="text-[14px] font-mono text-gray-600 truncate max-w-[120px]">{{ cfdi.rfc_emisor || '' }}</span>
+                                                <span class="text-[14px] font-mono text-gray-600 dark:text-gray-300 truncate max-w-[120px]">{{ cfdi.rfc_emisor || '' }}</span>
                                             </template>
                                          </div>
                                     </td>
@@ -1699,7 +1699,7 @@ const previousDescargaStatuses = ref({})
                                 </tr>
                                 <!-- Quick View Content -->
                                 <tr v-if="isExpanded(cfdi.id)">
-                                    <td colspan="7" class="px-8 py-6 bg-gradient-to-br from-gray-50 to-slate-50 border-t border-gray-200">
+                                    <td colspan="7" class="px-8 py-6 bg-gradient-to-br from-gray-50 to-slate-50 border-t border-gray-200 dark:border-slate-800">
                                         <div class="animate-fadeIn space-y-6">
                                             <!-- Header con UUID y Tipo -->
                                             <div class="flex items-center justify-between">
@@ -1713,7 +1713,7 @@ const previousDescargaStatuses = ref({})
                                                         'bg-gray-100 text-gray-700']">
                                                         {{ cfdi.tipo_comprobante_nombre }}
                                                     </span>
-                                                    <span class="text-xs font-mono text-gray-500">UUID: {{ cfdi.uuid }}</span>
+                                                    <span class="text-xs font-mono text-gray-500 dark:text-gray-400">UUID: {{ cfdi.uuid }}</span>
                                                 </div>
                                                 <div class="flex items-center gap-2">
                                                     <button @click.stop="verPdf(cfdi.uuid)" class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-bold hover:bg-blue-200 transition-all">PDF</button>
@@ -1726,27 +1726,27 @@ const previousDescargaStatuses = ref({})
                                                 <!-- Columna 1: Emisor y Receptor -->
                                                 <div class="space-y-4">
                                                     <!-- Emisor -->
-                                                    <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+                                                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-100 shadow-sm">
                                                         <h4 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-2 flex items-center gap-1">
                                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
                                                             Emisor
                                                         </h4>
-                                                        <p class="text-sm font-bold text-gray-900 truncate" :title="cfdi.emisor">{{ cfdi.emisor }}</p>
-                                                        <p class="text-xs font-mono text-gray-500">{{ cfdi.rfc_emisor }}</p>
+                                                        <p class="text-sm font-bold text-gray-900 dark:text-white truncate" :title="cfdi.emisor">{{ cfdi.emisor }}</p>
+                                                        <p class="text-xs font-mono text-gray-500 dark:text-gray-400">{{ cfdi.rfc_emisor }}</p>
                                                     </div>
                                                     <!-- Receptor -->
-                                                    <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+                                                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-100 shadow-sm">
                                                         <h4 class="text-[10px] font-black text-violet-600 uppercase tracking-widest mb-2 flex items-center gap-1">
                                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
                                                             Receptor
                                                         </h4>
-                                                        <p class="text-sm font-bold text-gray-900 truncate" :title="cfdi.receptor || cfdi.datos_adicionales?.receptor?.nombre">
+                                                        <p class="text-sm font-bold text-gray-900 dark:text-white truncate" :title="cfdi.receptor || cfdi.datos_adicionales?.receptor?.nombre">
                                                             {{ cfdi.receptor || cfdi.datos_adicionales?.receptor?.nombre || 'N/A' }}
                                                         </p>
-                                                        <p class="text-xs font-mono text-gray-500">{{ cfdi.rfc_receptor || cfdi.datos_adicionales?.receptor?.rfc }}</p>
+                                                        <p class="text-xs font-mono text-gray-500 dark:text-gray-400">{{ cfdi.rfc_receptor || cfdi.datos_adicionales?.receptor?.rfc }}</p>
                                                         <div class="flex gap-2 mt-2 text-[9px]">
-                                                            <span class="px-2 py-0.5 bg-gray-100 rounded text-gray-600">Uso: {{ cfdi.datos_adicionales?.receptor?.uso_cfdi || 'N/A' }}</span>
-                                                            <span class="px-2 py-0.5 bg-gray-100 rounded text-gray-600">Régimen: {{ cfdi.datos_adicionales?.receptor?.regimen_fiscal || 'N/A' }}</span>
+                                                            <span class="px-2 py-0.5 bg-gray-100 rounded text-gray-600 dark:text-gray-300">Uso: {{ cfdi.datos_adicionales?.receptor?.uso_cfdi || 'N/A' }}</span>
+                                                            <span class="px-2 py-0.5 bg-gray-100 rounded text-gray-600 dark:text-gray-300">Régimen: {{ cfdi.datos_adicionales?.receptor?.regimen_fiscal || 'N/A' }}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1766,7 +1766,7 @@ const previousDescargaStatuses = ref({})
                                                                 </span>
                                                                 <span class="text-[9px] text-rose-400">(Tipo {{ rel.tipo_relacion }})</span>
                                                             </div>
-                                                            <div v-for="(uuid, uIdx) in rel.uuids" :key="uIdx" class="bg-white p-2 rounded-lg mt-1 text-xs font-mono text-gray-600 truncate" :title="uuid">
+                                                            <div v-for="(uuid, uIdx) in rel.uuids" :key="uIdx" class="bg-white dark:bg-slate-900 p-2 rounded-lg mt-1 text-xs font-mono text-gray-600 dark:text-gray-300 truncate" :title="uuid">
                                                                 {{ uuid }}
                                                             </div>
                                                         </div>
@@ -1775,15 +1775,15 @@ const previousDescargaStatuses = ref({})
                                                     <div class="space-y-2 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
                                                         <!-- Para CFDIs de tipo Pago (P) -->
                                                         <template v-if="cfdi.tipo_comprobante === 'P' && cfdi.complementos?.pagos">
-                                                            <div v-for="(pago, idx) in cfdi.complementos.pagos" :key="idx" class="bg-white p-3 rounded-xl border border-sky-100 shadow-sm">
+                                                            <div v-for="(pago, idx) in cfdi.complementos.pagos" :key="idx" class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-sky-100 shadow-sm">
                                                                 <div class="flex items-center justify-between mb-2">
                                                                     <span class="text-[10px] font-black text-sky-600 uppercase">Pago {{ idx + 1 }}</span>
                                                                     <span class="text-sm font-black text-emerald-600">${{ Number(pago.monto).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
                                                                 </div>
-                                                                <div class="text-[10px] text-gray-500 mb-2">
+                                                                <div class="text-[10px] text-gray-500 dark:text-gray-400 mb-2">
                                                                     📅 {{ pago.fecha_pago?.split('T')[0] }} | Forma: {{ pago.forma_pago }}
                                                                 </div>
-                                                                <div v-for="(doc, dIdx) in pago.doctos_relacionados" :key="dIdx" class="bg-white p-2 rounded-lg mt-1 text-xs">
+                                                                <div v-for="(doc, dIdx) in pago.doctos_relacionados" :key="dIdx" class="bg-white dark:bg-slate-900 p-2 rounded-lg mt-1 text-xs">
                                                                     <div class="flex justify-between">
                                                                         <span class="font-bold">{{ doc.serie }}-{{ doc.folio }}</span>
                                                                         <span class="font-black text-gray-700">${{ Number(doc.imp_pagado).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
@@ -1798,22 +1798,22 @@ const previousDescargaStatuses = ref({})
                                                             <div class="bg-violet-50 p-3 rounded-xl border border-violet-200 shadow-sm mb-2">
                                                                 <div class="text-[10px] font-black text-violet-600 uppercase mb-2">👤 Empleado</div>
                                                                 <div class="grid grid-cols-2 gap-2 text-xs">
-                                                                    <div><span class="text-gray-500">No. Empleado:</span> <span class="font-bold">{{ cfdi.complementos.nomina.receptor?.num_empleado }}</span></div>
-                                                                    <div><span class="text-gray-500">Depto:</span> <span class="font-bold">{{ cfdi.complementos.nomina.receptor?.departamento || 'N/A' }}</span></div>
-                                                                    <div><span class="text-gray-500">Puesto:</span> <span class="font-bold">{{ cfdi.complementos.nomina.receptor?.puesto || 'N/A' }}</span></div>
-                                                                    <div><span class="text-gray-500">Antigüedad:</span> <span class="font-bold">{{ cfdi.complementos.nomina.receptor?.antiguedad }}</span></div>
+                                                                    <div><span class="text-gray-500 dark:text-gray-400">No. Empleado:</span> <span class="font-bold">{{ cfdi.complementos.nomina.receptor?.num_empleado }}</span></div>
+                                                                    <div><span class="text-gray-500 dark:text-gray-400">Depto:</span> <span class="font-bold">{{ cfdi.complementos.nomina.receptor?.departamento || 'N/A' }}</span></div>
+                                                                    <div><span class="text-gray-500 dark:text-gray-400">Puesto:</span> <span class="font-bold">{{ cfdi.complementos.nomina.receptor?.puesto || 'N/A' }}</span></div>
+                                                                    <div><span class="text-gray-500 dark:text-gray-400">Antigüedad:</span> <span class="font-bold">{{ cfdi.complementos.nomina.receptor?.antiguedad }}</span></div>
                                                                 </div>
-                                                                <div class="mt-2 text-[9px] text-gray-500">
+                                                                <div class="mt-2 text-[9px] text-gray-500 dark:text-gray-400">
                                                                     CURP: {{ cfdi.complementos.nomina.receptor?.curp }} | NSS: {{ cfdi.complementos.nomina.receptor?.num_seguridad_social }}
                                                                 </div>
                                                             </div>
                                                             <!-- Periodo de Pago -->
-                                                            <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm mb-2">
+                                                            <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-gray-100 shadow-sm mb-2">
                                                                 <div class="text-[10px] font-black text-gray-400 uppercase mb-2">📅 Periodo</div>
                                                                 <div class="text-xs">
                                                                     <span class="font-bold">{{ cfdi.complementos.nomina.fecha_inicial_pago }}</span> → 
                                                                     <span class="font-bold">{{ cfdi.complementos.nomina.fecha_final_pago }}</span>
-                                                                    <span class="text-gray-500 ml-2">({{ cfdi.complementos.nomina.num_dias_pagados }} días)</span>
+                                                                    <span class="text-gray-500 dark:text-gray-400 ml-2">({{ cfdi.complementos.nomina.num_dias_pagados }} días)</span>
                                                                 </div>
                                                             </div>
                                                             <!-- Percepciones -->
@@ -1852,17 +1852,17 @@ const previousDescargaStatuses = ref({})
                                                         </template>
                                                         <!-- Para otros tipos -->
                                                         <template v-else>
-                                                            <div v-for="concept in cfdi.conceptos" :key="concept.id" class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                                                            <div v-for="concept in cfdi.conceptos" :key="concept.id" class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-gray-100 shadow-sm">
                                                                 <div class="flex justify-between items-start">
                                                                     <div class="flex-1 mr-2">
-                                                                        <p class="text-xs font-bold text-gray-800 break-words leading-tight">{{ concept.descripcion }}</p>
+                                                                        <p class="text-xs font-bold text-gray-800 dark:text-gray-100 break-words leading-tight">{{ concept.descripcion }}</p>
                                                                         <div class="flex flex-wrap gap-1 mt-1">
                                                                             <span class="text-[9px] px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded">{{ concept.clave_prod_serv || 'N/A' }}</span>
-                                                                            <span class="text-[9px] px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">{{ concept.clave_unidad || 'N/A' }}</span>
+                                                                            <span class="text-[9px] px-1.5 py-0.5 bg-gray-100 text-gray-600 dark:text-gray-300 rounded">{{ concept.clave_unidad || 'N/A' }}</span>
                                                                         </div>
                                                                     </div>
                                                                     <div class="text-right flex-shrink-0">
-                                                                        <p class="text-sm font-black text-gray-800">${{ Number(concept.importe).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</p>
+                                                                        <p class="text-sm font-black text-gray-800 dark:text-gray-100">${{ Number(concept.importe).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</p>
                                                                         <p class="text-[9px] text-gray-400">{{ concept.cantidad }} × ${{ Number(concept.valor_unitario).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</p>
                                                                     </div>
                                                                 </div>
@@ -1883,9 +1883,9 @@ const previousDescargaStatuses = ref({})
                                                 <!-- Columna 3: Resumen Fiscal -->
                                                 <div class="space-y-4">
                                                     <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Resumen Fiscal</h4>
-                                                    <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm space-y-3">
+                                                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-100 shadow-sm space-y-3">
                                                         <div class="flex justify-between text-sm">
-                                                            <span class="text-gray-500">Subtotal</span>
+                                                            <span class="text-gray-500 dark:text-gray-400">Subtotal</span>
                                                             <span class="font-bold">${{ Number(cfdi.subtotal).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
                                                         </div>
                                                         <!-- IVA Trasladado -->
@@ -1904,24 +1904,24 @@ const previousDescargaStatuses = ref({})
                                                         </div>
                                                         <div class="pt-3 border-t border-gray-100 flex justify-between">
                                                             <span class="text-sm font-black text-blue-600 uppercase">Total</span>
-                                                            <span class="text-xl font-black text-gray-900">${{ Number(cfdi.total).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
+                                                            <span class="text-xl font-black text-gray-900 dark:text-white">${{ Number(cfdi.total).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
                                                         </div>
                                                     </div>
 
                                                     <!-- Datos de Timbrado -->
-                                                    <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+                                                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-100 shadow-sm">
                                                         <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Timbrado</h4>
                                                         <div class="space-y-1 text-xs">
                                                             <div class="flex justify-between">
-                                                                <span class="text-gray-500">Fecha</span>
+                                                                <span class="text-gray-500 dark:text-gray-400">Fecha</span>
                                                                 <span class="font-mono text-gray-700">{{ cfdi.fecha }}</span>
                                                             </div>
                                                             <div class="flex justify-between">
-                                                                <span class="text-gray-500">Método Pago</span>
+                                                                <span class="text-gray-500 dark:text-gray-400">Método Pago</span>
                                                                 <span class="font-bold">{{ cfdi.datos_adicionales?.metodo_pago || 'N/A' }}</span>
                                                             </div>
                                                             <div class="flex justify-between">
-                                                                <span class="text-gray-500">Forma Pago</span>
+                                                                <span class="text-gray-500 dark:text-gray-400">Forma Pago</span>
                                                                 <span class="font-bold">{{ cfdi.datos_adicionales?.forma_pago || 'N/A' }}</span>
                                                             </div>
                                                         </div>
@@ -1945,14 +1945,14 @@ const previousDescargaStatuses = ref({})
                                 <span class="text-[10px] text-gray-400 font-bold">CFDIs Marcados</span>
                             </div>
                             
-                            <div class="w-[1px] h-8 bg-white/10"></div>
+                            <div class="w-[1px] h-8 bg-white dark:bg-slate-900/10"></div>
                             
                             <div class="flex items-center gap-3">
-                                <button @click="bulkCheckSat" :disabled="isBulkProcessing" class="px-5 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2">
+                                <button @click="bulkCheckSat" :disabled="isBulkProcessing" class="px-5 py-2.5 bg-white dark:bg-slate-900/10 hover:bg-white dark:bg-slate-900/20 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                     Consultar SAT
                                 </button>
-                                <button @click="bulkSendEmail" :disabled="isBulkProcessing" class="px-5 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2">
+                                <button @click="bulkSendEmail" :disabled="isBulkProcessing" class="px-5 py-2.5 bg-white dark:bg-slate-900/10 hover:bg-white dark:bg-slate-900/20 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                                     Enviar Email
                                 </button>
@@ -1975,8 +1975,8 @@ const previousDescargaStatuses = ref({})
                 </div>
 
                 <!-- Empty State para Grid -->
-                <div v-if="cfdiItems.length === 0" class="bg-white rounded-[2rem] p-20 text-center border border-gray-100 shadow-xl shadow-blue-900/5">
-                    <div class="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 border-4 border-white shadow-inner">
+                <div v-if="cfdiItems.length === 0" class="bg-white dark:bg-slate-900 rounded-[2rem] p-20 text-center border border-gray-100 shadow-xl shadow-blue-900/5">
+                    <div class="w-24 h-24 bg-white dark:bg-slate-900 rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 border-4 border-white shadow-inner">
                         <svg class="w-10 h-10 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                     </div>
                     <h3 class="text-xl font-black text-gray-400 uppercase tracking-widest">Bóveda Vacía</h3>

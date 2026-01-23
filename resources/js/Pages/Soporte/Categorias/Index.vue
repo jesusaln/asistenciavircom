@@ -1,15 +1,15 @@
 <template>
   <AppLayout>
     <template #header>
-      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+      <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
         Soporte: Gestión de Categorías
       </h2>
     </template>
 
     <div class="py-12">
       <div class="w-full sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div class="p-6 bg-white border-b border-gray-200">
+        <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
+          <div class="p-6 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
             <!-- Botón Crear -->
             <div class="mb-6 flex justify-end">
               <button @click="openModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">
@@ -19,35 +19,35 @@
             </div>
 
             <!-- Tabla -->
-            <table class="min-w-full divide-y divide-gray-200">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
               <thead>
                 <tr>
-                   <th class="px-6 py-3 bg-white text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                   <th class="px-6 py-3 bg-white text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SLA (Horas)</th>
-                   <th class="px-6 py-3 bg-white text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Color/Icono</th>
-                   <th class="px-6 py-3 bg-white text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tickets</th>
-                   <th class="px-6 py-3 bg-white text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Consumo Póliza</th>
-                   <th class="px-6 py-3 bg-white text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Consumo Póliza</th>
-                   <th class="px-6 py-3 bg-white text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                   <th class="px-6 py-3 bg-white text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                   <th class="px-6 py-3 bg-white dark:bg-slate-900 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nombre</th>
+                   <th class="px-6 py-3 bg-white dark:bg-slate-900 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">SLA (Horas)</th>
+                   <th class="px-6 py-3 bg-white dark:bg-slate-900 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Color/Icono</th>
+                   <th class="px-6 py-3 bg-white dark:bg-slate-900 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tickets</th>
+                   <th class="px-6 py-3 bg-white dark:bg-slate-900 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Consumo Póliza</th>
+                   <th class="px-6 py-3 bg-white dark:bg-slate-900 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Consumo Póliza</th>
+                   <th class="px-6 py-3 bg-white dark:bg-slate-900 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+                   <th class="px-6 py-3 bg-white dark:bg-slate-900 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
                 </tr>
               </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
+              <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
                 <tr v-for="cat in categorias" :key="cat.id">
                    <td class="px-6 py-4">
-                      <div class="text-sm font-medium text-gray-900">{{ cat.nombre }}</div>
-                      <div class="text-sm text-gray-500">{{ cat.descripcion }}</div>
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">{{ cat.nombre }}</div>
+                      <div class="text-sm text-gray-500 dark:text-gray-400">{{ cat.descripcion }}</div>
                    </td>
-                   <td class="px-6 py-4 text-sm text-gray-500">{{ cat.sla_horas }}h</td>
+                   <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{{ cat.sla_horas }}h</td>
                    <td class="px-6 py-4">
                       <span :class="`badge bg-${cat.color}-100 text-${cat.color}-800 px-2 py-1 rounded inline-flex items-center`">
                          <font-awesome-icon :icon="cat.icono" class="mr-1" /> {{ cat.color }}
                       </span>
                    </td>
-                   <td class="px-6 py-4 text-sm text-gray-500">{{ cat.tickets_count }}</td>
-                   <td class="px-6 py-4 text-sm text-gray-500">
+                   <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{{ cat.tickets_count }}</td>
+                   <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                       <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                          :class="cat.consume_poliza ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'">
+                          :class="cat.consume_poliza ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800 dark:text-gray-100'">
                           {{ cat.consume_poliza ? 'Descuenta' : 'Sin Cargo' }}
                       </span>
                    </td>
@@ -72,7 +72,7 @@
     <!-- Modal Crear/Editar -->
     <Modal :show="showModal" @close="closeModal">
        <div class="p-6">
-           <h2 class="text-lg font-medium text-gray-900 mb-4">{{ form.id ? 'Editar' : 'Nueva' }} Categoría</h2>
+           <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">{{ form.id ? 'Editar' : 'Nueva' }} Categoría</h2>
            <form @submit.prevent="submit">
                <div class="mb-4">
                    <label class="block text-sm font-medium text-gray-700">Nombre</label>
@@ -120,7 +120,7 @@
                    </div>
                </div>
                <div class="flex justify-end mt-6">
-                   <button type="button" @click="closeModal" class="mr-3 px-4 py-2 text-gray-700 hover:text-gray-900">Cancelar</button>
+                   <button type="button" @click="closeModal" class="mr-3 px-4 py-2 text-gray-700 hover:text-gray-900 dark:text-white">Cancelar</button>
                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700" :disabled="form.processing">Guardar</button>
                </div>
            </form>

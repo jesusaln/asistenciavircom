@@ -3,15 +3,15 @@
         <div v-if="show" class="fixed inset-0 z-[70] flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" @click="emitClose"></div>
 
-            <div class="relative bg-white rounded-3xl shadow-2xl w-full w-full h-[90vh] flex flex-col overflow-hidden animate-fadeIn">
+            <div class="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full w-full h-[90vh] flex flex-col overflow-hidden animate-fadeIn">
                 <!-- Header -->
-                <div class="px-8 py-4 border-b border-gray-100 flex items-center justify-between bg-white/50">
+                <div class="px-8 py-4 border-b border-gray-100 flex items-center justify-between bg-white dark:bg-slate-900/50">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/20">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                         </div>
                         <div>
-                            <h2 class="text-xl font-black text-gray-900 leading-tight">Vista Previa CFDI</h2>
+                            <h2 class="text-xl font-black text-gray-900 dark:text-white leading-tight">Vista Previa CFDI</h2>
                             <span class="text-[10px] font-mono text-gray-400 select-all uppercase tracking-widest">{{ selectedUuid }}</span>
                         </div>
                     </div>
@@ -26,27 +26,27 @@
                             PDF
                         </button>
                         <div class="w-[1px] h-8 bg-gray-200 mx-1"></div>
-                        <button @click="emitClose" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all">
+                        <button @click="emitClose" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:text-gray-300 hover:bg-gray-100 rounded-xl transition-all">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
                     </div>
                 </div>
 
                 <!-- Tabs -->
-                <div class="px-8 bg-white border-b border-gray-100 flex gap-8">
+                <div class="px-8 bg-white dark:bg-slate-900 border-b border-gray-100 flex gap-8">
                     <button v-for="tab in tabs" :key="tab.id" 
                             @click="activeTab = tab.id"
                             :class="['py-4 text-[11px] font-black uppercase tracking-[0.2em] transition-all relative', 
-                                     activeTab === tab.id ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600']">
+                                     activeTab === tab.id ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600 dark:text-gray-300']">
                         {{ tab.label }}
                         <div v-if="activeTab === tab.id" class="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-t-full"></div>
                     </button>
                 </div>
 
-                <div class="flex-1 overflow-hidden relative bg-white flex flex-col p-8">
+                <div class="flex-1 overflow-hidden relative bg-white dark:bg-slate-900 flex flex-col p-8">
                     <div v-if="isLoadingXml" class="flex-1 flex flex-col items-center justify-center">
                         <svg class="animate-spin h-10 w-10 text-blue-600 mb-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                        <p class="text-sm font-bold text-gray-500 uppercase tracking-widest">Analizando comprobante...</p>
+                        <p class="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Analizando comprobante...</p>
                     </div>
 
                     <template v-else-if="parsedCfdiData">
@@ -59,9 +59,9 @@
                                     <span class="text-3xl font-black text-blue-700 tracking-tight">{{ formatMoney(parsedCfdiData.total) }}</span>
                                     <span class="block mt-2 text-xs font-bold text-blue-500 uppercase">{{ parsedCfdiData.moneda }}</span>
                                 </div>
-                                <div class="p-6 bg-white rounded-3xl border border-gray-200">
+                                <div class="p-6 bg-white dark:bg-slate-900 rounded-3xl border border-gray-200 dark:border-slate-800">
                                     <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Fecha Emisión</span>
-                                    <span class="text-2xl font-black text-gray-800 tracking-tight">{{ formatDate(parsedCfdiData.fecha) }}</span>
+                                    <span class="text-2xl font-black text-gray-800 dark:text-gray-100 tracking-tight">{{ formatDate(parsedCfdiData.fecha) }}</span>
                                 </div>
                                 <div class="p-6 bg-emerald-50 rounded-3xl border border-emerald-100 text-center">
                                     <span class="text-[10px] font-black text-emerald-400 uppercase tracking-widest block mb-2">Tipo de CFDI</span>
@@ -78,10 +78,10 @@
                                         <div class="w-1.5 h-4 bg-blue-600 rounded-full"></div>
                                         Datos del Emisor
                                     </h3>
-                                    <div class="p-6 bg-white border border-gray-100 rounded-3xl shadow-sm space-y-4">
+                                    <div class="p-6 bg-white dark:bg-slate-900 border border-gray-100 rounded-3xl shadow-sm space-y-4">
                                         <div>
                                             <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block">Nombre o Razón Social</span>
-                                            <span class="text-sm font-bold text-gray-900">{{ parsedCfdiData.emisor.nombre }}</span>
+                                            <span class="text-sm font-bold text-gray-900 dark:text-white">{{ parsedCfdiData.emisor.nombre }}</span>
                                         </div>
                                         <div class="grid grid-cols-2 gap-4">
                                             <div>
@@ -90,7 +90,7 @@
                                             </div>
                                             <div>
                                                 <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block">Régimen Fiscal</span>
-                                                <span class="text-sm font-bold text-gray-900">{{ parsedCfdiData.emisor.regimenFiscal }}</span>
+                                                <span class="text-sm font-bold text-gray-900 dark:text-white">{{ parsedCfdiData.emisor.regimenFiscal }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -102,10 +102,10 @@
                                         <div class="w-1.5 h-4 bg-violet-600 rounded-full"></div>
                                         Datos del Receptor
                                     </h3>
-                                    <div class="p-6 bg-white border border-gray-100 rounded-3xl shadow-sm space-y-4">
+                                    <div class="p-6 bg-white dark:bg-slate-900 border border-gray-100 rounded-3xl shadow-sm space-y-4">
                                         <div>
                                             <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block">Nombre o Razón Social</span>
-                                            <span class="text-sm font-bold text-gray-900">{{ parsedCfdiData.receptor.nombre }}</span>
+                                            <span class="text-sm font-bold text-gray-900 dark:text-white">{{ parsedCfdiData.receptor.nombre }}</span>
                                         </div>
                                         <div class="grid grid-cols-2 gap-4">
                                             <div>
@@ -114,7 +114,7 @@
                                             </div>
                                             <div>
                                                 <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block">Uso CFDI</span>
-                                                <span class="text-sm font-bold text-gray-900">{{ parsedCfdiData.receptor.usoCfdi }}</span>
+                                                <span class="text-sm font-bold text-gray-900 dark:text-white">{{ parsedCfdiData.receptor.usoCfdi }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -126,11 +126,11 @@
                         <div v-if="activeTab === 'items'" class="h-full flex flex-col">
                             <div class="flex-1 overflow-y-auto custom-scrollbar pr-4 space-y-3">
                                 <div v-for="(concepto, idx) in parsedCfdiData.conceptos" :key="idx" 
-                                     class="p-5 bg-white border border-gray-100 rounded-3xl shadow-sm hover:border-blue-200 transition-all flex justify-between items-center gap-6">
+                                     class="p-5 bg-white dark:bg-slate-900 border border-gray-100 rounded-3xl shadow-sm hover:border-blue-200 transition-all flex justify-between items-center gap-6">
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center gap-3 mb-1">
-                                            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-[10px] font-black rounded uppercase">{{ concepto.clave }}</span>
-                                            <p class="text-sm font-bold text-gray-900 whitespace-normal break-words leading-tight">{{ concepto.descripcion }}</p>
+                                            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 dark:text-gray-400 text-[10px] font-black rounded uppercase">{{ concepto.clave }}</span>
+                                            <p class="text-sm font-bold text-gray-900 dark:text-white whitespace-normal break-words leading-tight">{{ concepto.descripcion }}</p>
                                         </div>
                                         <div class="flex gap-4 text-[11px] font-bold text-gray-400">
                                             <span>CANT: {{ concepto.cantidad }}</span>
@@ -139,7 +139,7 @@
                                         </div>
                                     </div>
                                     <div class="text-right">
-                                        <span class="text-sm font-black text-gray-900 italic tracking-tight">{{ formatMoney(concepto.importe) }}</span>
+                                        <span class="text-sm font-black text-gray-900 dark:text-white italic tracking-tight">{{ formatMoney(concepto.importe) }}</span>
                                     </div>
                                 </div>
                             </div>

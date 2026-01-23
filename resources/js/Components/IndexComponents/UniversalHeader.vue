@@ -516,7 +516,7 @@ const colorClasses = {
   slate:  { text: 'text-slate-600',   bg: 'bg-slate-50',    border: 'border-slate-200',   ring: 'ring-slate-500/20' },
   indigo: { text: 'text-amber-600',  bg: 'bg-indigo-50',   border: 'border-indigo-200',  ring: 'ring-amber-500/20' },
   emerald:{ text: 'text-emerald-600', bg: 'bg-emerald-50',  border: 'border-emerald-200', ring: 'ring-emerald-500/20' },
-  gray:   { text: 'text-gray-600',    bg: 'bg-gray-50',     border: 'border-gray-200',    ring: 'ring-gray-500/20' }
+  gray:   { text: 'text-gray-600',    bg: 'bg-gray-50',     border: 'border-gray-200 dark:border-slate-800',    ring: 'ring-gray-500/20' }
 };
 const getColorClasses = (color) => colorClasses[color] || colorClasses.slate;
 
@@ -529,7 +529,7 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
 
 <template>
   <div
-    class="bg-white border border-slate-200 rounded-xl shadow-sm p-8 mb-6 transition-all duration-300 hover:shadow-lg"
+    class="bg-white dark:bg-slate-900 border border-slate-200 rounded-xl shadow-sm p-8 mb-6 transition-all duration-300 hover:shadow-lg"
     @keydown="handleKeydown"
     tabindex="-1"
   >
@@ -965,7 +965,7 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
               'border-slate-300': !isSearchFocused,
               'opacity-50 cursor-not-allowed': disabled
             }"
-            class="w-full sm:w-64 lg:w-80 pl-11 pr-20 py-3 border rounded-xl bg-white text-slate-900 placeholder-slate-400 focus:outline-none transition-all duration-200"
+            class="w-full sm:w-64 lg:w-80 pl-11 pr-20 py-3 border rounded-xl bg-white dark:bg-slate-900 text-slate-900 placeholder-slate-400 focus:outline-none transition-all duration-200"
           />
 
           <div v-if="!searchTerm && !isSearchFocused && !disabled" class="absolute inset-y-0 right-12 flex items-center pointer-events-none">
@@ -995,7 +995,7 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
             @change="$emit('update:sortBy', $event.target.value)"
             :disabled="disabled"
             :class="{ 'opacity-50 cursor-not-allowed': disabled, 'hover:bg-slate-50 cursor-pointer': !disabled }"
-            class="appearance-none w-full sm:w-auto px-4 py-3 pr-10 border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
+            class="appearance-none w-full sm:w-auto px-4 py-3 pr-10 border border-slate-300 rounded-xl bg-white dark:bg-slate-900 text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
           >
             <option v-for="option in finalConfig.sortOptions" :key="option.value" :value="option.value">
               {{ option.label }}
@@ -1020,7 +1020,7 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
               'opacity-50 cursor-not-allowed': disabled,
               'hover:bg-slate-50 cursor-pointer': !disabled
             }"
-            class="appearance-none w-full sm:w-auto px-4 py-3 pr-10 border rounded-xl bg-white text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
+            class="appearance-none w-full sm:w-auto px-4 py-3 pr-10 border rounded-xl bg-white dark:bg-slate-900 text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
           >
             <option v-for="estado in finalConfig.estados" :key="estado.value" :value="estado.value">
               {{ estado.label }}

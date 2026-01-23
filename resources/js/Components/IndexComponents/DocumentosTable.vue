@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+  <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
     <!-- Header -->
-    <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 px-6 py-4 border-b border-gray-200/60">
+    <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 px-6 py-4 border-b border-gray-200 dark:border-slate-800/60">
       <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-gray-900 tracking-tight">{{ config.titulo }}</h2>
-        <div class="text-sm text-gray-600 bg-white/70 px-3 py-1 rounded-full border border-gray-200/50">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">{{ config.titulo }}</h2>
+        <div class="text-sm text-gray-600 bg-white dark:bg-slate-900/70 px-3 py-1 rounded-full border border-gray-200 dark:border-slate-800/50">
           {{ items.length }} de {{ total }} {{ config.titulo.toLowerCase() }}
         </div>
       </div>
@@ -14,15 +14,15 @@
     <Teleport to="body">
       <div
         v-if="showTooltip && hoveredDoc"
-        class="fixed z-[9999] bg-white rounded-xl shadow-xl border border-gray-200/50 backdrop-blur-sm w-80 max-h-96 pointer-events-auto transform transition-all duration-200 ease-out"
+        class="fixed z-[9999] bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-800/50 backdrop-blur-sm w-80 max-h-96 pointer-events-auto transform transition-all duration-200 ease-out"
         :style="tooltipStyle"
         @mouseenter="clearHideTimeout"
         @mouseleave="hideProductTooltip"
       >
-        <div class="p-4 border-b border-gray-100">
+        <div class="p-4 border-b border-gray-100 dark:border-slate-800">
            <div class="flex items-center justify-between">
-             <h3 class="text-sm font-semibold text-gray-900">Productos</h3>
-             <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full font-medium">
+             <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Productos</h3>
+             <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full font-medium">
                {{ getProductosDelDoc(hoveredDoc)?.length || 0 }}
              </span>
            </div>
@@ -37,11 +37,11 @@
              >
               <div class="flex items-start justify-between">
                 <div class="flex-1 min-w-0 mr-3">
-                  <p class="text-sm font-medium text-gray-900 truncate group-hover:text-gray-800">
+                  <p class="text-sm font-medium text-gray-900 dark:text-white truncate group-hover:text-gray-800">
                     {{ producto.nombre || 'Sin nombre' }}
                   </p>
                   <div class="flex items-center mt-1.5 space-x-2 text-xs">
-                    <span class="text-gray-600 bg-white/60 px-2 py-0.5 rounded-md">
+                    <span class="text-gray-600 bg-white dark:bg-slate-900/60 px-2 py-0.5 rounded-md">
                       {{ producto.cantidad || 0 }} und
                     </span>
                     <span class="text-gray-400">•</span>
@@ -49,12 +49,12 @@
                       ${{ formatearMoneda(producto.precio || 0) }}
                     </span>
                   </div>
-                  <p v-if="producto.descripcion" class="text-xs text-gray-500 mt-1.5 line-clamp-2">
+                  <p v-if="producto.descripcion" class="text-xs text-gray-500 dark:text-gray-400 mt-1.5 line-clamp-2">
                     {{ producto.descripcion }}
                   </p>
                 </div>
                 <div class="text-right flex-shrink-0">
-                  <p class="text-sm font-semibold text-gray-900">
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">
                     ${{ formatearMoneda((producto.cantidad || 0) * (producto.precio || 0)) }}
                   </p>
                 </div>
@@ -67,7 +67,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m0 0V9a2 2 0 012-2h2m2 2v4" />
               </svg>
             </div>
-            <p class="text-sm text-gray-500">Sin productos registrados</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Sin productos registrados</p>
           </div>
         </div>
       </div>
@@ -202,7 +202,7 @@
           </tr>
         </thead>
 
-        <tbody class="bg-white divide-y divide-gray-200/40">
+        <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200/40">
           <template v-if="items.length > 0">
             <tr
               v-for="doc in items"
@@ -215,10 +215,10 @@
               <!-- Fecha -->
               <td class="px-6 py-4">
                 <div class="flex flex-col space-y-0.5">
-                  <div class="text-sm font-medium text-gray-900">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">
                     {{ formatearFecha(doc.created_at || doc.fecha) }}
                   </div>
-                  <div class="text-xs text-gray-500">
+                  <div class="text-xs text-gray-500 dark:text-gray-400">
                     {{ formatearHora(doc.created_at || doc.fecha) }}
                   </div>
                 </div>
@@ -227,10 +227,10 @@
               <!-- Cliente/Proveedor -->
               <td class="px-6 py-4">
                 <div class="flex flex-col space-y-0.5">
-                  <div class="text-sm font-medium text-gray-900 group-hover:text-gray-800">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white group-hover:text-gray-800">
                     {{ isCompra ? (doc.proveedor?.nombre_razon_social || 'Sin proveedor') : (doc.cliente?.nombre || 'Sin cliente') }}
                   </div>
-                  <div v-if="isCompra ? doc.proveedor?.email : doc.cliente?.email" class="text-xs text-gray-500 truncate max-w-48">
+                  <div v-if="isCompra ? doc.proveedor?.email : doc.cliente?.email" class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-48">
                     {{ isCompra ? doc.proveedor?.email : doc.cliente?.email }}
                   </div>
                 </div>
@@ -267,7 +267,7 @@
 
               <!-- Total -->
               <td v-if="config.mostrarTotal !== false" class="px-6 py-4">
-                <div class="text-sm font-semibold text-gray-900">
+                <div class="text-sm font-semibold text-gray-900 dark:text-white">
                   <template v-if="typeof doc.total !== 'undefined' && doc.total !== null">
                     ${{ formatearMoneda(doc.total) }}
                   </template>
@@ -319,7 +319,7 @@
                       </svg>
                       {{ doc.pagado ? 'Pagado' : 'Pendiente de Pago' }}
                     </span>
-                    <span v-if="doc.pagado && doc.metodo_pago" class="ml-2 text-xs text-gray-500">
+                    <span v-if="doc.pagado && doc.metodo_pago" class="ml-2 text-xs text-gray-500 dark:text-gray-400">
                       ({{ obtenerLabelMetodoPago(doc.metodo_pago) }})
                     </span>
                   </div>
@@ -465,7 +465,7 @@
                 </div>
                 <div class="space-y-1">
                   <p class="text-gray-700 font-medium">No hay {{ config.titulo.toLowerCase() }}</p>
-                  <p class="text-sm text-gray-500">Los documentos aparecerán aquí cuando se creen</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Los documentos aparecerán aquí cuando se creen</p>
                 </div>
               </div>
             </td>
@@ -594,7 +594,7 @@ const config = computed(() => {
         'convertida_pedido': { label: 'Convertida a Pedido', classes: 'bg-green-100 text-green-700', color: 'bg-green-400' },
         'enviado_pedido': { label: 'Enviado a Pedido', classes: 'bg-indigo-100 text-indigo-700', color: 'bg-indigo-400' },
         'cancelado': { label: 'Cancelado', classes: 'bg-red-100 text-red-700', color: 'bg-red-400' },
-        'sin_estado': { label: 'Sin Estado', classes: 'bg-gray-100 text-gray-500', color: 'bg-gray-400' }
+        'sin_estado': { label: 'Sin Estado', classes: 'bg-gray-100 text-gray-500 dark:text-gray-400', color: 'bg-gray-400' }
       }
     },
     pedidos: {
@@ -625,7 +625,7 @@ const config = computed(() => {
         'facturado': { label: 'Facturado', classes: 'bg-green-100 text-green-700', color: 'bg-green-400' },
         'pagado': { label: 'Pagado', classes: 'bg-emerald-100 text-emerald-700', color: 'bg-emerald-400' },
         'vencido': { label: 'Vencido', classes: 'bg-red-100 text-red-700', color: 'bg-red-400' },
-        'anulado': { label: 'Anulado', classes: 'bg-gray-100 text-gray-500', color: 'bg-gray-400' },
+        'anulado': { label: 'Anulado', classes: 'bg-gray-100 text-gray-500 dark:text-gray-400', color: 'bg-gray-400' },
         'cancelada': { label: 'Cancelada', classes: 'bg-red-100 text-red-700', color: 'bg-red-400' }
       }
     },
@@ -901,7 +901,7 @@ const getColspan = () => {
 
 @media (prefers-contrast: high) {
   .bg-gray-50 { background-color: #f9fafb; }
-  .border-gray-200 { border-color: #d1d5db; }
+  .border-gray-200 dark:border-slate-800 { border-color: #d1d5db; }
 }
 
 button:focus-visible { outline: 2px solid; outline-offset: 2px; }

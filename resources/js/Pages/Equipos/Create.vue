@@ -45,7 +45,7 @@ const submit = () => {
       <Link :href="route('equipos.index')" class="text-amber-600 hover:underline">Volver</Link>
     </div>
 
-    <form @submit.prevent="submit" class="bg-white rounded-xl border p-6 space-y-4">
+    <form @submit.prevent="submit" class="bg-white dark:bg-slate-900 rounded-xl border p-6 space-y-4">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium">Código *</label>

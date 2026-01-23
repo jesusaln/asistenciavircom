@@ -53,7 +53,7 @@
     <!-- Equipos agregados recientemente -->
     <div v-if="equiposRecientes.length > 0" class="mt-6">
       <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
-        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
         Agregados recientemente
@@ -75,7 +75,7 @@
     <!-- Sugerencias rápidas -->
     <div v-if="!busqueda && sugerenciasRapidas.length > 0" class="mt-6">
       <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
-        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
         </svg>
         Sugerencias rápidas
@@ -85,7 +85,7 @@
           v-for="equipo in sugerenciasRapidas"
           :key="`sugerencia-${equipo.id}`"
           @click="agregarEquipo(equipo)"
-          class="p-3 border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 cursor-pointer transition-all duration-200"
+          class="p-3 border border-gray-200 dark:border-slate-800 rounded-lg hover:border-green-300 hover:bg-green-50 cursor-pointer transition-all duration-200"
         >
           <div class="flex items-center justify-between">
             <div class="flex-1">
@@ -93,15 +93,15 @@
                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mr-2 bg-blue-100 text-blue-800">
                   E
                 </span>
-                <span class="text-sm font-medium text-gray-900">{{ equipo.nombre }}</span>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ equipo.nombre }}</span>
               </div>
-              <div class="text-xs text-gray-500 mt-1">{{ equipo.marca }} {{ equipo.modelo }}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ equipo.marca }} {{ equipo.modelo }}</div>
             </div>
             <div class="text-right">
               <div class="text-sm font-semibold text-green-600">
                 ${{ formatearPrecio(equipo.precio_renta_mensual) }}/mes
               </div>
-              <div class="text-xs text-gray-500">
+              <div class="text-xs text-gray-500 dark:text-gray-400">
                 Código: {{ equipo.codigo }}
               </div>
             </div>
@@ -114,7 +114,7 @@
     <Teleport to="#app">
       <div
         v-if="mostrarLista && itemsFiltrados.length > 0"
-        class="z-50 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-80 overflow-y-auto"
+        class="z-50 mt-1 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg shadow-lg max-h-80 overflow-y-auto"
         :style="{
           position: 'absolute',
           width: inputWidth + 'px',
@@ -123,7 +123,7 @@
         }"
       >
         <!-- Encabezados -->
-        <div class="sticky top-0 bg-gray-50 border-b border-gray-200 px-4 py-2">
+        <div class="sticky top-0 bg-gray-50 border-b border-gray-200 dark:border-slate-800 px-4 py-2">
           <div class="grid grid-cols-12 gap-2 text-xs font-medium text-gray-600">
             <div class="col-span-1">Tipo</div>
             <div class="col-span-3">Nombre</div>
@@ -138,7 +138,7 @@
         <div
           v-for="equipo in itemsFiltrados"
           :key="equipo.id"
-          class="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+          class="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 dark:border-slate-800 last:border-b-0"
         >
           <div class="grid grid-cols-12 gap-2 items-center">
             <!-- Tipo -->
@@ -152,8 +152,8 @@
             </div>
             <!-- Nombre -->
             <div class="col-span-3">
-              <div class="font-medium text-gray-900 text-sm">{{ equipo.nombre }}</div>
-              <div v-if="equipo.descripcion" class="text-xs text-gray-500 truncate">{{ equipo.descripcion }}</div>
+              <div class="font-medium text-gray-900 dark:text-white text-sm">{{ equipo.nombre }}</div>
+              <div v-if="equipo.descripcion" class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ equipo.descripcion }}</div>
             </div>
             <!-- Código -->
             <div class="col-span-2">
@@ -203,7 +203,7 @@
       </div>
 
       <!-- Sin resultados -->
-      <div v-if="busqueda && itemsFiltrados.length === 0" class="px-4 py-8 text-center text-gray-500 z-50 bg-white border border-gray-300 rounded-lg shadow-lg" :style="{
+      <div v-if="busqueda && itemsFiltrados.length === 0" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400 z-50 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg shadow-lg" :style="{
           position: 'absolute',
           width: inputWidth + 'px',
           top: inputPosition.top + inputPosition.height + 'px',

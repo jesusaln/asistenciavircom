@@ -237,10 +237,10 @@ const obtenerLabelEstado = (estado) => {
 
 <template>
   <Head title="Categorías" />
-  <div class="categorias-index min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="categorias-index min-h-screen bg-gray-50 dark:bg-slate-950 dark:bg-gray-900">
     <div class="w-full px-6 py-8">
       <!-- Header -->
-      <div class="bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl shadow-sm p-8 mb-6">
+      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl shadow-sm p-8 mb-6">
         <div class="flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">
           <!-- Izquierda -->
           <div class="flex flex-col gap-6 w-full lg:w-auto">
@@ -325,9 +325,9 @@ const obtenerLabelEstado = (estado) => {
                 @input="handleSearchChange($event.target.value)"
                 type="text"
                 :placeholder="headerConfig.searchPlaceholder"
-                class="w-full sm:w-64 lg:w-80 pl-4 pr-10 py-3 border border-slate-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-slate-900 dark:text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
+                class="w-full sm:w-64 lg:w-80 pl-4 pr-10 py-3 border border-slate-300 dark:border-gray-600 rounded-xl bg-white dark:bg-slate-900 dark:bg-gray-700 text-slate-900 dark:text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
               />
-              <svg class="absolute right-3 top-3.5 w-4 h-4 text-slate-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="absolute right-3 top-3.5 w-4 h-4 text-slate-400 dark:text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -336,7 +336,7 @@ const obtenerLabelEstado = (estado) => {
             <select
               v-model="filtroEstado"
               @change="handleEstadoChange($event.target.value)"
-              class="px-4 py-3 border border-slate-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-slate-900 dark:text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
+              class="px-4 py-3 border border-slate-300 dark:border-gray-600 rounded-xl bg-white dark:bg-slate-900 dark:bg-gray-700 text-slate-900 dark:text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
             >
               <option value="">Todos los Estados</option>
               <option value="activo">Activos</option>
@@ -347,7 +347,7 @@ const obtenerLabelEstado = (estado) => {
             <select
               v-model="sortBy"
               @change="handleSortChange($event.target.value)"
-              class="px-4 py-3 border border-slate-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-slate-900 dark:text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
+              class="px-4 py-3 border border-slate-300 dark:border-gray-600 rounded-xl bg-white dark:bg-slate-900 dark:bg-gray-700 text-slate-900 dark:text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
             >
               <option value="nombre-asc">Nombre A-Z</option>
               <option value="nombre-desc">Nombre Z-A</option>
@@ -359,25 +359,25 @@ const obtenerLabelEstado = (estado) => {
       </div>
 
       <!-- Tabla -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-white dark:bg-gray-700/50">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+            <thead class="bg-white dark:bg-slate-900 dark:bg-gray-700/50">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Categoría</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Descripción</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Estado</th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Categoría</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Descripción</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Estado</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              <tr v-for="categoria in categoriasDocumentos" :key="categoria.id" class="hover:bg-white dark:hover:bg-gray-700/50 transition-colors duration-150">
+            <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+              <tr v-for="categoria in categoriasDocumentos" :key="categoria.id" class="hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-700/50 transition-colors duration-150">
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900 dark:text-gray-100">{{ formatearFecha(categoria.fecha) }}</div>
+                  <div class="text-sm text-gray-900 dark:text-white dark:text-gray-100">{{ formatearFecha(categoria.fecha) }}</div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ categoria.titulo }}</div>
+                  <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">{{ categoria.titulo }}</div>
                 </td>
                 <td class="px-6 py-4">
                   <div class="text-sm text-gray-700 dark:text-gray-300 max-w-xs truncate">{{ categoria.raw.descripcion || 'Sin descripción' }}</div>
@@ -417,13 +417,13 @@ const obtenerLabelEstado = (estado) => {
                 <td colspan="5" class="px-6 py-16 text-center">
                   <div class="flex flex-col items-center space-y-4">
                     <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                      <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg class="w-8 h-8 text-gray-400 dark:text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                     </div>
                     <div class="space-y-1">
                       <p class="text-gray-700 dark:text-gray-300 font-medium">No hay categorías</p>
-                      <p class="text-sm text-gray-500 dark:text-gray-400">Las categorías aparecerán aquí cuando se creen</p>
+                      <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Las categorías aparecerán aquí cuando se creen</p>
                     </div>
                   </div>
                 </td>
@@ -433,7 +433,7 @@ const obtenerLabelEstado = (estado) => {
         </div>
 
         <!-- Paginación -->
-        <div v-if="paginationData.lastPage > 1" class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3 sm:px-6">
+        <div v-if="paginationData.lastPage > 1" class="bg-white dark:bg-slate-900 dark:bg-gray-800 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700 px-4 py-3 sm:px-6">
           <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-4">
               <p class="text-sm text-gray-700 dark:text-gray-300">
@@ -442,7 +442,7 @@ const obtenerLabelEstado = (estado) => {
               <select
                 :value="paginationData.perPage"
                 @change="handlePerPageChange(parseInt($event.target.value))"
-                class="border border-gray-300 dark:border-gray-600 rounded-md text-sm py-1 px-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                class="border border-gray-300 dark:border-gray-600 rounded-md text-sm py-1 px-2 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
               >
                 <option value="10">10</option>
                 <option value="15">15</option>
@@ -455,14 +455,14 @@ const obtenerLabelEstado = (estado) => {
               <button
                 v-if="paginationData.prevPageUrl"
                 @click="handlePageChange(paginationData.currentPage - 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900 dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
               </button>
 
-              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-sm font-medium text-gray-400 dark:text-gray-500">
+              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-sm font-medium text-gray-400 dark:text-gray-500 dark:text-gray-400">
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
@@ -472,7 +472,7 @@ const obtenerLabelEstado = (estado) => {
                 v-for="page in [paginationData.currentPage - 1, paginationData.currentPage, paginationData.currentPage + 1].filter(p => p > 0 && p <= paginationData.lastPage)"
                 :key="page"
                 @click="handlePageChange(page)"
-                :class="page === paginationData.currentPage ? 'bg-blue-500 text-white border-blue-500' : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'"
+                :class="page === paginationData.currentPage ? 'bg-blue-500 text-white border-blue-500' : 'bg-white dark:bg-slate-900 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600'"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               >
                 {{ page }}
@@ -481,14 +481,14 @@ const obtenerLabelEstado = (estado) => {
               <button
                 v-if="paginationData.nextPageUrl"
                 @click="handlePageChange(paginationData.currentPage + 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900 dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                 </svg>
               </button>
 
-              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-sm font-medium text-gray-400 dark:text-gray-500">
+              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-sm font-medium text-gray-400 dark:text-gray-500 dark:text-gray-400">
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                 </svg>
@@ -500,13 +500,13 @@ const obtenerLabelEstado = (estado) => {
 
       <!-- Modal mejorado -->
       <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showModal = false">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <!-- Header del modal -->
-          <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800 dark:border-gray-700">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100">
               {{ modalMode === 'details' ? 'Detalles de la Categoría' : 'Confirmar Eliminación' }}
             </h3>
-            <button @click="showModal = false" class="text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+            <button @click="showModal = false" class="text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-300 transition-colors">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -520,7 +520,7 @@ const obtenerLabelEstado = (estado) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 px-3 py-2 rounded-md">{{ selectedCategoria.nombre }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white dark:text-gray-100 bg-white dark:bg-slate-900 dark:bg-gray-700 px-3 py-2 rounded-md">{{ selectedCategoria.nombre }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Estado</label>
@@ -532,17 +532,17 @@ const obtenerLabelEstado = (estado) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Fecha de creación</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 px-3 py-2 rounded-md">{{ formatearFecha(selectedCategoria.created_at) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white dark:text-gray-100 bg-white dark:bg-slate-900 dark:bg-gray-700 px-3 py-2 rounded-md">{{ formatearFecha(selectedCategoria.created_at) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Última actualización</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 px-3 py-2 rounded-md">{{ formatearFecha(selectedCategoria.updated_at) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white dark:text-gray-100 bg-white dark:bg-slate-900 dark:bg-gray-700 px-3 py-2 rounded-md">{{ formatearFecha(selectedCategoria.updated_at) }}</p>
                     </div>
                   </div>
                 </div>
                 <div v-if="selectedCategoria.descripcion">
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Descripción</label>
-                  <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedCategoria.descripcion }}</p>
+                  <p class="mt-1 text-sm text-gray-900 dark:text-white dark:text-gray-100 bg-white dark:bg-slate-900 dark:bg-gray-700 px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedCategoria.descripcion }}</p>
                 </div>
               </div>
             </div>
@@ -554,8 +554,8 @@ const obtenerLabelEstado = (estado) => {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
                   </svg>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">¿Eliminar Categoría?</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-2">¿Eliminar Categoría?</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 mb-4">
                   ¿Estás seguro de que deseas eliminar la categoría <strong>{{ selectedCategoria?.nombre }}</strong>?
                   Esta acción no se puede deshacer.
                 </p>
@@ -564,7 +564,7 @@ const obtenerLabelEstado = (estado) => {
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700 bg-white dark:bg-slate-900 dark:bg-gray-800">
             <button @click="showModal = false" class="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors">
               {{ modalMode === 'details' ? 'Cerrar' : 'Cancelar' }}
             </button>

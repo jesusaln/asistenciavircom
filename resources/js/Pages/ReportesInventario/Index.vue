@@ -8,15 +8,15 @@
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">Reportes de Inventario</h1>
-            <p class="text-gray-600 mt-1">Análisis completo del estado de tu inventario</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Reportes de Inventario</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-1">Análisis completo del estado de tu inventario</p>
           </div>
         </div>
       </div>
 
       <!-- Estadísticas Generales -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-6">
           <div class="flex items-center">
             <div class="p-3 bg-blue-100 rounded-lg">
               <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -24,13 +24,13 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600">Total Productos</p>
-              <p class="text-2xl font-bold text-gray-900">{{ stats.total_productos }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Productos</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_productos }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-6">
           <div class="flex items-center">
             <div class="p-3 bg-green-100 rounded-lg">
               <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,13 +38,13 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600">Productos Activos</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Productos Activos</p>
               <p class="text-2xl font-bold text-green-700">{{ stats.productos_activos }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-6">
           <div class="flex items-center">
             <div class="p-3 bg-purple-100 rounded-lg">
               <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,13 +52,13 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600">Total Almacenes</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Almacenes</p>
               <p class="text-2xl font-bold text-purple-700">{{ stats.total_almacenes }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-6">
           <div class="flex items-center">
             <div class="p-3 bg-yellow-100 rounded-lg">
               <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,7 +66,7 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600">Valor Total</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Valor Total</p>
               <p class="text-2xl font-bold text-yellow-700">${{ formatCurrency(stats.valor_total_inventario) }}</p>
             </div>
           </div>
@@ -112,7 +112,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Link
           :href="route('reportes.inventario.stock-por-almacen')"
-          class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 hover:shadow-lg transition-shadow duration-200 group"
+          class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-6 hover:shadow-lg transition-shadow duration-200 group"
         >
           <div class="flex items-center mb-4">
             <div class="p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
@@ -121,8 +121,8 @@
               </svg>
             </div>
             <div class="ml-4">
-              <h3 class="text-lg font-semibold text-gray-900">Stock por Almacén</h3>
-              <p class="text-sm text-gray-600">Distribución de productos por almacén</p>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Stock por Almacén</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-300">Distribución de productos por almacén</p>
             </div>
           </div>
           <div class="flex justify-end">
@@ -134,7 +134,7 @@
 
         <Link
           :href="route('reportes.inventario.productos-bajo-stock')"
-          class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 hover:shadow-lg transition-shadow duration-200 group"
+          class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-6 hover:shadow-lg transition-shadow duration-200 group"
         >
           <div class="flex items-center mb-4">
             <div class="p-3 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
@@ -143,8 +143,8 @@
               </svg>
             </div>
             <div class="ml-4">
-              <h3 class="text-lg font-semibold text-gray-900">Productos Bajo Stock</h3>
-              <p class="text-sm text-gray-600">Productos que necesitan reposición</p>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Productos Bajo Stock</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-300">Productos que necesitan reposición</p>
             </div>
           </div>
           <div class="flex justify-end">
@@ -156,7 +156,7 @@
 
         <Link
           :href="route('reportes.inventario.movimientos-por-periodo')"
-          class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 hover:shadow-lg transition-shadow duration-200 group"
+          class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-6 hover:shadow-lg transition-shadow duration-200 group"
         >
           <div class="flex items-center mb-4">
             <div class="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
@@ -165,8 +165,8 @@
               </svg>
             </div>
             <div class="ml-4">
-              <h3 class="text-lg font-semibold text-gray-900">Movimientos por Período</h3>
-              <p class="text-sm text-gray-600">Historial de movimientos filtrado por fechas</p>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Movimientos por Período</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-300">Historial de movimientos filtrado por fechas</p>
             </div>
           </div>
           <div class="flex justify-end">
@@ -178,7 +178,7 @@
 
         <Link
           :href="route('reportes.inventario.costos')"
-          class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 hover:shadow-lg transition-shadow duration-200 group"
+          class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-6 hover:shadow-lg transition-shadow duration-200 group"
         >
           <div class="flex items-center mb-4">
             <div class="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
@@ -187,8 +187,8 @@
               </svg>
             </div>
             <div class="ml-4">
-              <h3 class="text-lg font-semibold text-gray-900">Costos de Inventario</h3>
-              <p class="text-sm text-gray-600">Valorización y análisis de costos</p>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Costos de Inventario</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-300">Valorización y análisis de costos</p>
             </div>
           </div>
           <div class="flex justify-end">

@@ -33,14 +33,14 @@
           >
             <div
               v-if="show"
-              class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full"
+              class="inline-block align-bottom bg-white dark:bg-slate-900 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full"
             >
-              <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+              <div class="bg-white dark:bg-slate-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div class="sm:flex sm:items-start">
                   <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
                     <!-- Header -->
                     <div class="flex items-center justify-between mb-6">
-                      <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                      <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
                         Crear Nuevo Cliente
                       </h3>
                       <button
@@ -56,8 +56,8 @@
                     <!-- Formulario -->
                     <form @submit.prevent="submit" class="space-y-6">
                       <!-- Información General -->
-                      <div class="border-b border-gray-200 pb-4">
-                        <h4 class="text-md font-medium text-gray-900 mb-3">Información General</h4>
+                      <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+                        <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">Información General</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label for="modal-nombre_razon_social" class="block text-sm font-medium text-gray-700">
@@ -124,8 +124,8 @@
                       </div>
 
                       <!-- Información Fiscal -->
-                      <div class="border-b border-gray-200 pb-4">
-                        <h4 class="text-md font-medium text-gray-900 mb-3">Información Fiscal</h4>
+                      <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+                        <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">Información Fiscal</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label for="modal-tipo_persona" class="block text-sm font-medium text-gray-700">
@@ -173,7 +173,7 @@
                             <div v-if="form.errors.rfc" class="mt-1 text-sm text-red-600">
                               {{ form.errors.rfc }}
                             </div>
-                            <div v-if="!form.tipo_persona" class="mt-1 text-xs text-gray-500">
+                            <div v-if="!form.tipo_persona" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                               Primero selecciona el tipo de persona
                             </div>
                           </div>
@@ -201,7 +201,7 @@
                             <div v-if="form.errors.curp" class="mt-1 text-sm text-red-600">
                               {{ form.errors.curp }}
                             </div>
-                            <div class="mt-1 text-xs text-gray-500">
+                            <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                               {{ curpHelperText }}
                             </div>
                           </div>
@@ -233,7 +233,7 @@
                             <div v-if="form.errors.regimen_fiscal" class="mt-1 text-sm text-red-600">
                               {{ form.errors.regimen_fiscal }}
                             </div>
-                            <div v-if="!form.tipo_persona" class="mt-1 text-xs text-gray-500">
+                            <div v-if="!form.tipo_persona" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                               Primero selecciona el tipo de persona
                             </div>
                           </div>
@@ -269,7 +269,7 @@
 
                       <!-- Dirección -->
                       <div>
-                        <h4 class="text-md font-medium text-gray-900 mb-3">Dirección</h4>
+                        <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">Dirección</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           <div class="md:col-span-2">
                             <label for="modal-calle" class="block text-sm font-medium text-gray-700">
@@ -362,7 +362,7 @@
                             <div v-if="form.errors.colonia" class="mt-1 text-sm text-red-600">
                               {{ form.errors.colonia }}
                             </div>
-                            <div v-if="availableColonias.length === 0" class="mt-1 text-xs text-gray-500">
+                            <div v-if="availableColonias.length === 0" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                               Primero ingresa un código postal válido para cargar las colonias disponibles
                             </div>
                           </div>
@@ -389,7 +389,7 @@
                             <div v-if="form.errors.codigo_postal" class="mt-1 text-sm text-red-600">
                               {{ form.errors.codigo_postal }}
                             </div>
-                            <div class="mt-1 text-xs text-gray-500">
+                            <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                               Al ingresar un código postal válido, se autocompletarán automáticamente el estado y municipio.
                             </div>
                           </div>
@@ -435,7 +435,7 @@
                             <div v-if="form.errors.estado" class="mt-1 text-sm text-red-600">
                               {{ form.errors.estado }}
                             </div>
-                            <div class="mt-1 text-xs text-gray-500">
+                            <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                               Opcional para clientes extranjeros
                             </div>
                           </div>
@@ -459,7 +459,7 @@
                             <div v-if="form.errors.pais" class="mt-1 text-sm text-red-600">
                               {{ form.errors.pais }}
                             </div>
-                            <div class="mt-1 text-xs text-gray-500">
+                            <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                               Código de país (2-3 letras). México por defecto, cambia para clientes extranjeros.
                             </div>
                           </div>
@@ -491,7 +491,7 @@
                   type="button"
                   @click="close"
                   :disabled="form.processing"
-                  class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white dark:bg-slate-900 text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancelar
                 </button>

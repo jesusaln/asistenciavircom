@@ -77,7 +77,7 @@ const totalVencido = (props.totales.vencido_1_30 + props.totales.vencido_31_60 +
 <template>
   <Head title="Reporte de Antigüedad de Saldos" />
 
-  <div class="min-h-screen bg-white">
+  <div class="min-h-screen bg-white dark:bg-slate-900">
     <div class="w-full px-4 sm:px-6 lg:px-8 py-8">
       
       <!-- Header -->
@@ -99,7 +99,7 @@ const totalVencido = (props.totales.vencido_1_30 + props.totales.vencido_31_60 +
       </div>
 
       <!-- Filtros -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
         <div class="flex flex-col sm:flex-row gap-4 items-end">
           <div class="w-full sm:w-auto">
             <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Corte</label>
@@ -123,22 +123,22 @@ const totalVencido = (props.totales.vencido_1_30 + props.totales.vencido_31_60 +
       <!-- Tarjetas de Resumen -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <!-- Vencido Total -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 relative overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 p-6 relative overflow-hidden">
           <div class="relative z-10">
-            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Vencido</h3>
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Vencido</h3>
             <p class="text-2xl font-bold text-red-600 mt-2">{{ formatearMoneda(totalVencido) }}</p>
             <div class="w-full bg-gray-200 h-1.5 rounded-full mt-3">
               <div class="bg-red-500 h-1.5 rounded-full" :style="`width: ${Math.min((totalVencido / totales.total) * 100, 100)}%`"></div>
             </div>
-            <p class="text-xs text-gray-500 mt-2">{{ ((totalVencido / (totales.total || 1)) * 100).toFixed(1) }}% de la deuda total</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">{{ ((totalVencido / (totales.total || 1)) * 100).toFixed(1) }}% de la deuda total</p>
           </div>
           <div class="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-red-50 to-transparent"></div>
         </div>
 
         <!-- Por Vencer (Corriente) -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 relative overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 p-6 relative overflow-hidden">
              <div class="relative z-10">
-            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Por Vencer</h3>
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Por Vencer</h3>
             <p class="text-2xl font-bold text-green-600 mt-2">{{ formatearMoneda(totales.por_vencer) }}</p>
              <div class="w-full bg-gray-200 h-1.5 rounded-full mt-3">
               <div class="bg-green-500 h-1.5 rounded-full" :style="`width: ${Math.min((totales.por_vencer / totales.total) * 100, 100)}%`"></div>
@@ -148,9 +148,9 @@ const totalVencido = (props.totales.vencido_1_30 + props.totales.vencido_31_60 +
         </div>
 
          <!-- Crítico (+90 días) -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 relative overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 p-6 relative overflow-hidden">
              <div class="relative z-10">
-            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Crítico (+90 Días)</h3>
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Crítico (+90 Días)</h3>
             <p class="text-2xl font-bold text-red-800 mt-2">{{ formatearMoneda(totales.vencido_90_mas) }}</p>
              <div class="w-full bg-gray-200 h-1.5 rounded-full mt-3">
               <div class="bg-red-800 h-1.5 rounded-full" :style="`width: ${Math.min((totales.vencido_90_mas / totales.total) * 100, 100)}%`"></div>
@@ -160,23 +160,23 @@ const totalVencido = (props.totales.vencido_1_30 + props.totales.vencido_31_60 +
         </div>
 
         <!-- Clientes con Deuda -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 p-6 flex items-center">
             <div>
-                <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Clientes con Deuda</h3>
-                <p class="text-3xl font-bold text-gray-800 mt-2">{{ reporte.length }}</p>
+                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Clientes con Deuda</h3>
+                <p class="text-3xl font-bold text-gray-800 dark:text-gray-100 mt-2">{{ reporte.length }}</p>
             </div>
         </div>
       </div>
 
       <!-- Tabla Principal -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+            <thead class="bg-white dark:bg-slate-900">
               <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Límite Crédito</th>
-                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total Deuda</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Límite Crédito</th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Deuda</th>
                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-green-600 uppercase tracking-wider bg-green-50">Por Vencer</th>
                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-yellow-600 uppercase tracking-wider bg-yellow-50">1-30 Días</th>
                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-orange-600 uppercase tracking-wider bg-orange-50">31-60 Días</th>
@@ -184,25 +184,25 @@ const totalVencido = (props.totales.vencido_1_30 + props.totales.vencido_31_60 +
                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-red-800 uppercase tracking-wider bg-red-100">+90 Días</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
               <tr v-if="reporte.length === 0">
-                <td colspan="8" class="px-6 py-10 text-center text-gray-500">
+                <td colspan="8" class="px-6 py-10 text-center text-gray-500 dark:text-gray-400">
                     No hay saldos pendientes para la fecha de corte seleccionada.
                 </td>
               </tr>
-              <tr v-for="row in reporte" :key="row.id" class="hover:bg-white transition-colors">
+              <tr v-for="row in reporte" :key="row.id" class="hover:bg-white dark:bg-slate-900 transition-colors">
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm font-medium text-gray-900">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">
                     <Link :href="route('clientes.show', row.id)" class="hover:text-blue-600 hover:underline">
                         {{ row.nombre }}
                     </Link>
                   </div>
-                  <div class="text-xs text-gray-500">{{ row.telefono }}</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">{{ row.telefono }}</div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500 dark:text-gray-400">
                   {{ formatearMoneda(row.limite_credito) }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-bold text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-bold text-gray-900 dark:text-white">
                   {{ formatearMoneda(row.total) }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-green-600 bg-green-50/50">

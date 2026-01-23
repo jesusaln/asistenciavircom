@@ -7,7 +7,7 @@
         leave-from-class="opacity-100"
         leave-to-class="opacity-0"
     >
-        <div v-if="updateAvailable" class="fixed bottom-4 right-4 z-50 max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden">
+        <div v-if="updateAvailable" class="fixed bottom-4 right-4 z-50 max-w-sm w-full bg-white dark:bg-slate-900 shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden">
             <div class="p-4">
                 <div class="flex items-start">
                     <div class="flex-shrink-0">
@@ -16,22 +16,22 @@
                         </svg>
                     </div>
                     <div class="ml-3 w-0 flex-1 pt-0.5">
-                        <p class="text-sm font-medium text-gray-900">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">
                             Nueva actualización disponible
                         </p>
-                        <p class="mt-1 text-sm text-gray-500">
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                             Una nueva versión del sistema está lista. Actualiza para ver los cambios.
                         </p>
                         <div class="mt-3 flex space-x-7">
                             <button
                                 @click="refreshPage"
-                                class="bg-white rounded-md text-sm font-medium text-amber-600 hover:text-amber-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                                class="bg-white dark:bg-slate-900 rounded-md text-sm font-medium text-amber-600 hover:text-amber-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
                             >
                                 Actualizar ahora
                             </button>
                             <button
                                 @click="dismiss"
-                                class="bg-white rounded-md text-sm font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                                class="bg-white dark:bg-slate-900 rounded-md text-sm font-medium text-gray-700 hover:text-gray-500 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
                             >
                                 Ignorar
                             </button>
@@ -40,7 +40,7 @@
                     <div class="ml-4 flex-shrink-0 flex">
                         <button
                             @click="dismiss"
-                            class="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                            class="bg-white dark:bg-slate-900 rounded-md inline-flex text-gray-400 hover:text-gray-500 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
                         >
                             <span class="sr-only">Cerrar</span>
                             <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

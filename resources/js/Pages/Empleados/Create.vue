@@ -135,24 +135,24 @@ const usuarioSeleccionado = computed(() => {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
           </svg>
         </div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Nuevo Empleado</h1>
-        <p class="text-gray-600">Registra un nuevo empleado en el sistema de RRHH</p>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Nuevo Empleado</h1>
+        <p class="text-gray-600 dark:text-gray-300">Registra un nuevo empleado en el sistema de RRHH</p>
       </div>
 
       <!-- Formulario -->
-      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
         <form @submit.prevent="submit" class="p-8 space-y-8">
 
           <!-- Selección de Usuario -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                 <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
                 Usuario del Sistema
               </h2>
-              <p class="text-sm text-gray-600 mt-1">Selecciona el usuario que será registrado como empleado</p>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Selecciona el usuario que será registrado como empleado</p>
             </div>
 
             <div>
@@ -179,8 +179,8 @@ const usuarioSeleccionado = computed(() => {
 
           <!-- Información Personal -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900">Información Personal</h2>
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información Personal</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -256,8 +256,8 @@ const usuarioSeleccionado = computed(() => {
 
           <!-- Información Laboral -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900">Información Laboral</h2>
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información Laboral</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -353,8 +353,8 @@ const usuarioSeleccionado = computed(() => {
                   />
                 </div>
                 <div class="flex items-end">
-                  <div class="w-full bg-white rounded-lg p-4 border border-blue-100 text-center">
-                    <p class="text-xs text-gray-500 uppercase tracking-wide">Horario L-V</p>
+                  <div class="w-full bg-white dark:bg-slate-900 rounded-lg p-4 border border-blue-100 text-center">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Horario L-V</p>
                     <p class="text-xl font-bold text-blue-600">{{ form.hora_entrada }} - {{ form.hora_salida }}</p>
                   </div>
                 </div>
@@ -366,7 +366,7 @@ const usuarioSeleccionado = computed(() => {
                   <div class="flex items-center">
                     <label class="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" v-model="form.trabaja_sabado" class="sr-only peer">
-                      <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:bg-slate-900 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                     </label>
                     <span class="ml-3 text-sm font-semibold text-gray-700">Trabaja los Sábados</span>
                   </div>
@@ -391,8 +391,8 @@ const usuarioSeleccionado = computed(() => {
                     />
                   </div>
                   <div class="flex items-end">
-                    <div class="w-full bg-white rounded-lg p-4 border border-blue-100 text-center">
-                      <p class="text-xs text-gray-500 uppercase tracking-wide">Horario Sábado</p>
+                    <div class="w-full bg-white dark:bg-slate-900 rounded-lg p-4 border border-blue-100 text-center">
+                      <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Horario Sábado</p>
                       <p class="text-xl font-bold text-blue-600">{{ form.hora_entrada_sabado }} - {{ form.hora_salida_sabado }}</p>
                     </div>
                   </div>
@@ -403,14 +403,14 @@ const usuarioSeleccionado = computed(() => {
 
           <!-- Información Salarial -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                 <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Información Salarial
               </h2>
-              <p class="text-sm text-gray-600 mt-1">Configura el salario y la frecuencia de pago del empleado</p>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Configura el salario y la frecuencia de pago del empleado</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -420,7 +420,7 @@ const usuarioSeleccionado = computed(() => {
                 <div class="grid grid-cols-2 gap-3">
                   <label 
                     class="relative flex items-center justify-center p-4 border-2 rounded-xl cursor-pointer transition-all"
-                    :class="form.frecuencia_pago === 'semanal' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-gray-200 hover:border-gray-300'"
+                    :class="form.frecuencia_pago === 'semanal' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-gray-200 dark:border-slate-800 hover:border-gray-300'"
                   >
                     <input type="radio" v-model="form.frecuencia_pago" value="semanal" class="sr-only" />
                     <div class="text-center">
@@ -433,7 +433,7 @@ const usuarioSeleccionado = computed(() => {
                   </label>
                   <label 
                     class="relative flex items-center justify-center p-4 border-2 rounded-xl cursor-pointer transition-all"
-                    :class="form.frecuencia_pago === 'quincenal' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-gray-200 hover:border-gray-300'"
+                    :class="form.frecuencia_pago === 'quincenal' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-gray-200 dark:border-slate-800 hover:border-gray-300'"
                   >
                     <input type="radio" v-model="form.frecuencia_pago" value="quincenal" class="sr-only" />
                     <div class="text-center">
@@ -452,7 +452,7 @@ const usuarioSeleccionado = computed(() => {
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Salario Base Mensual *</label>
                 <div class="relative">
-                  <span class="absolute left-3 top-3 text-gray-500 font-medium">$</span>
+                  <span class="absolute left-3 top-3 text-gray-500 dark:text-gray-400 font-medium">$</span>
                   <input
                     v-model="form.salario_base"
                     type="number"
@@ -462,7 +462,7 @@ const usuarioSeleccionado = computed(() => {
                     class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-lg font-semibold"
                   />
                 </div>
-                <p class="text-xs text-gray-500 mt-1">Este es el salario total mensual del empleado</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Este es el salario total mensual del empleado</p>
                 <InputError :message="form.errors.salario_base" class="mt-2" />
               </div>
             </div>
@@ -476,23 +476,23 @@ const usuarioSeleccionado = computed(() => {
                 Desglose Salarial
               </h3>
               <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white rounded-lg p-4 border border-emerald-100">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Salario Diario</p>
-                  <p class="text-xl font-bold text-gray-900">{{ formatCurrency(salarioDiario) }}</p>
+                <div class="bg-white dark:bg-slate-900 rounded-lg p-4 border border-emerald-100">
+                  <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Salario Diario</p>
+                  <p class="text-xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(salarioDiario) }}</p>
                   <p class="text-xs text-gray-400">Base / 30 días</p>
                 </div>
-                <div class="bg-white rounded-lg p-4 border border-emerald-100">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Pago {{ form.frecuencia_pago === 'semanal' ? 'Semanal' : 'Quincenal' }}</p>
+                <div class="bg-white dark:bg-slate-900 rounded-lg p-4 border border-emerald-100">
+                  <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Pago {{ form.frecuencia_pago === 'semanal' ? 'Semanal' : 'Quincenal' }}</p>
                   <p class="text-xl font-bold text-emerald-600">{{ formatCurrency(salarioPorPeriodo) }}</p>
                   <p class="text-xs text-gray-400">{{ pagosPorMes }} pagos/mes</p>
                 </div>
-                <div class="bg-white rounded-lg p-4 border border-emerald-100">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Total Mensual</p>
-                  <p class="text-xl font-bold text-gray-900">{{ formatCurrency(totalMensual) }}</p>
+                <div class="bg-white dark:bg-slate-900 rounded-lg p-4 border border-emerald-100">
+                  <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Mensual</p>
+                  <p class="text-xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(totalMensual) }}</p>
                   <p class="text-xs text-gray-400">Verificación</p>
                 </div>
-                <div class="bg-white rounded-lg p-4 border border-emerald-100">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Diferencia</p>
+                <div class="bg-white dark:bg-slate-900 rounded-lg p-4 border border-emerald-100">
+                  <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Diferencia</p>
                   <p class="text-xl font-bold text-green-600">
                     {{ formatCurrency(0) }}
                   </p>
@@ -506,8 +506,8 @@ const usuarioSeleccionado = computed(() => {
 
           <!-- Información Bancaria -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900">Información Bancaria</h2>
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información Bancaria</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -546,8 +546,8 @@ const usuarioSeleccionado = computed(() => {
 
           <!-- Contacto de Emergencia -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900">Contacto de Emergencia</h2>
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Contacto de Emergencia</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -586,17 +586,17 @@ const usuarioSeleccionado = computed(() => {
           
           <!-- Contrato Adjunto -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                 <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 Contrato Físico
               </h2>
-              <p class="text-sm text-gray-600 mt-1">Adjunta el contrato firmado en formato PDF o imagen</p>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Adjunta el contrato firmado en formato PDF o imagen</p>
             </div>
 
-            <div class="bg-white border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center transition-all hover:border-emerald-400 group">
+            <div class="bg-white dark:bg-slate-900 border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center transition-all hover:border-emerald-400 group">
               <input
                 type="file"
                 id="contrato_adjunto"
@@ -605,7 +605,7 @@ const usuarioSeleccionado = computed(() => {
                 accept=".pdf,image/*"
               />
               <label for="contrato_adjunto" class="cursor-pointer flex flex-col items-center">
-                <div class="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <div class="w-12 h-12 bg-white dark:bg-slate-900 rounded-full shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                   <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
@@ -613,7 +613,7 @@ const usuarioSeleccionado = computed(() => {
                 <span class="text-sm font-medium text-gray-700">
                   {{ form.contrato_adjunto ? form.contrato_adjunto.name : 'Seleccionar archivo' }}
                 </span>
-                <span class="text-xs text-gray-500 mt-1">PDF, JPG o PNG hasta 5MB</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400 mt-1">PDF, JPG o PNG hasta 5MB</span>
               </label>
               <button
                 v-if="form.contrato_adjunto"
@@ -639,7 +639,7 @@ const usuarioSeleccionado = computed(() => {
           </div>
 
           <!-- Botones -->
-          <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+          <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-slate-800">
             <button
               type="button"
               @click="cancelar"

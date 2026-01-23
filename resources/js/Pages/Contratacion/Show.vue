@@ -336,7 +336,7 @@ const iniciarCredito = async (polizaId) => {
 <template>
     <Head :title="`Contratar ${plan.nombre}`" />
 
-    <div class="min-h-screen bg-white flex flex-col font-sans" :style="cssVars">
+    <div class="min-h-screen bg-white dark:bg-slate-900 flex flex-col font-sans" :style="cssVars">
         <!-- Navbar / Header Corporativo -->
         <PublicNavbar :empresa="empresa" activeTab="checkout" />
 
@@ -352,16 +352,16 @@ const iniciarCredito = async (polizaId) => {
                             <span class="text-xl">👋</span>
                             <div>
                                 <p class="text-sm font-bold text-[var(--color-primary-dark)]">¿Ya eres cliente?</p>
-                                <p class="text-xs text-gray-600">Inicia sesión para autocompletar tus datos.</p>
+                                <p class="text-xs text-gray-600 dark:text-gray-300">Inicia sesión para autocompletar tus datos.</p>
                             </div>
                         </div>
-                        <a :href="route('portal.login')" class="px-4 py-2 bg-white text-[var(--color-primary)] text-xs font-black uppercase tracking-widest rounded-xl shadow-sm hover:shadow hover:-translate-y-0.5 transition-all">
+                        <a :href="route('portal.login')" class="px-4 py-2 bg-white dark:bg-slate-900 text-[var(--color-primary)] text-xs font-black uppercase tracking-widest rounded-xl shadow-sm hover:shadow hover:-translate-y-0.5 transition-all">
                             Iniciar Sesión
                         </a>
                     </div>
 
-                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-10 transition-all hover:shadow-md">
-                        <h2 class="text-2xl font-black text-gray-900 mb-8 flex items-center gap-3">
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-gray-100 p-6 md:p-10 transition-all hover:shadow-md">
+                        <h2 class="text-2xl font-black text-gray-900 dark:text-white mb-8 flex items-center gap-3">
                             <span class="w-10 h-10 rounded-xl bg-[var(--color-primary-soft)] text-[var(--color-primary)] flex items-center justify-center text-lg">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                             </span>
@@ -384,7 +384,7 @@ const iniciarCredito = async (polizaId) => {
                                     </div>
                                     <div class="md:col-span-2">
                                         <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Email de Contacto / Acceso *</label>
-                                        <input v-model="form.email" type="email" class="form-input-premium" placeholder="correo@ejemplo.com" :readonly="!!clienteData" :class="{'bg-white/50 cursor-not-allowed': !!clienteData}">
+                                        <input v-model="form.email" type="email" class="form-input-premium" placeholder="correo@ejemplo.com" :readonly="!!clienteData" :class="{'bg-white dark:bg-slate-900/50 cursor-not-allowed': !!clienteData}">
                                         <p class="text-red-500 text-[10px] mt-1 font-bold" v-if="form.errors.email">⚠️ {{ form.errors.email }}</p>
                                     </div>
                                     <div>
@@ -395,9 +395,9 @@ const iniciarCredito = async (polizaId) => {
                                     <div class="flex items-center gap-3 pt-6">
                                         <label class="relative inline-flex items-center cursor-pointer">
                                             <input type="checkbox" v-model="form.whatsapp_optin" class="sr-only peer">
-                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:bg-slate-900 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
                                         </label>
-                                        <span class="text-xs font-bold text-gray-600">Autorizo recibir WhatsApp</span>
+                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-300">Autorizo recibir WhatsApp</span>
                                     </div>
 
                                     <template v-if="!clienteData">
@@ -409,12 +409,12 @@ const iniciarCredito = async (polizaId) => {
                                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>
                                                     <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Contraseña *</label>
-                                                    <input v-model="form.password" type="password" class="form-input-premium bg-white" placeholder="Contraseña segura">
+                                                    <input v-model="form.password" type="password" class="form-input-premium bg-white dark:bg-slate-900" placeholder="Contraseña segura">
                                                     <p class="text-red-500 text-[10px] mt-1 font-bold" v-if="form.errors.password">⚠️ {{ form.errors.password }}</p>
                                                 </div>
                                                 <div>
                                                     <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Confirmar *</label>
-                                                    <input v-model="form.password_confirmation" type="password" class="form-input-premium bg-white" placeholder="Repite la contraseña">
+                                                    <input v-model="form.password_confirmation" type="password" class="form-input-premium bg-white dark:bg-slate-900" placeholder="Repite la contraseña">
                                                 </div>
                                             </div>
                                         </div>
@@ -425,7 +425,7 @@ const iniciarCredito = async (polizaId) => {
                             <!-- SECCIÓN 2: INFORMACIÓN FISCAL -->
                             <div class="md:col-span-2 border-t border-gray-50 pt-8 mt-4">
                                 <div class="flex items-center justify-between mb-8">
-                                    <h3 class="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2">
+                                    <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-[0.2em] flex items-center gap-2">
                                         <span class="w-8 h-8 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                         </span>
@@ -434,37 +434,37 @@ const iniciarCredito = async (polizaId) => {
                                     <label class="flex items-center gap-3 cursor-pointer group">
                                         <div class="relative inline-flex items-center">
                                             <input type="checkbox" v-model="form.requiere_factura" class="sr-only peer">
-                                            <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--color-primary)]"></div>
+                                            <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:bg-slate-900 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--color-primary)]"></div>
                                         </div>
-                                        <span class="text-xs font-black text-gray-400 group-hover:text-gray-600 transition-colors">¿REQUERIR FACTURA?</span>
+                                        <span class="text-xs font-black text-gray-400 group-hover:text-gray-600 dark:text-gray-300 transition-colors">¿REQUERIR FACTURA?</span>
                                     </label>
                                 </div>
 
                                 <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="transform -translate-y-4 opacity-0" enter-to-class="transform translate-y-0 opacity-100">
-                                    <div v-if="form.requiere_factura" class="grid grid-cols-1 md:grid-cols-2 gap-6 p-8 bg-white/50 rounded-[2.5rem] border border-gray-100 shadow-inner">
+                                    <div v-if="form.requiere_factura" class="grid grid-cols-1 md:grid-cols-2 gap-6 p-8 bg-white dark:bg-slate-900/50 rounded-[2.5rem] border border-gray-100 shadow-inner">
                                         
                                         <div>
                                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Tipo de Persona *</label>
-                                            <select v-model="form.tipo_persona" class="form-select-premium bg-white shadow-sm border-gray-100">
+                                            <select v-model="form.tipo_persona" class="form-select-premium bg-white dark:bg-slate-900 shadow-sm border-gray-100">
                                                 <option v-for="t in catalogos.tiposPersona" :key="t.value" :value="t.value">{{ t.label }}</option>
                                             </select>
                                         </div>
                                         
                                         <div>
                                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">RFC *</label>
-                                            <input v-model="form.rfc" type="text" class="form-input-premium bg-white shadow-sm border-gray-100 uppercase" placeholder="XXXX010101XXX" @blur="toUpper('rfc')">
+                                            <input v-model="form.rfc" type="text" class="form-input-premium bg-white dark:bg-slate-900 shadow-sm border-gray-100 uppercase" placeholder="XXXX010101XXX" @blur="toUpper('rfc')">
                                             <p class="text-red-500 text-[10px] mt-1 font-bold" v-if="form.errors.rfc">{{ form.errors.rfc }}</p>
                                         </div>
 
                                         <div class="md:col-span-2">
                                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Razón Social Fiscal *</label>
-                                            <input v-model="form.razon_social" type="text" class="form-input-premium bg-white shadow-sm border-gray-100" placeholder="Nombre completo como aparece en CSF" @blur="toUpper('razon_social')">
+                                            <input v-model="form.razon_social" type="text" class="form-input-premium bg-white dark:bg-slate-900 shadow-sm border-gray-100" placeholder="Nombre completo como aparece en CSF" @blur="toUpper('razon_social')">
                                             <p class="text-red-500 text-[10px] mt-1 font-bold" v-if="form.errors.razon_social">{{ form.errors.razon_social }}</p>
                                         </div>
 
                                         <div>
                                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Régimen Fiscal *</label>
-                                            <select v-model="form.regimen_fiscal" class="form-select-premium bg-white shadow-sm border-gray-100">
+                                            <select v-model="form.regimen_fiscal" class="form-select-premium bg-white dark:bg-slate-900 shadow-sm border-gray-100">
                                                 <option value="">Selecciona una opción...</option>
                                                 <option v-for="r in regimenesFiltrados" :key="r.clave" :value="r.clave">{{ r.clave }} - {{ r.descripcion }}</option>
                                             </select>
@@ -472,20 +472,20 @@ const iniciarCredito = async (polizaId) => {
 
                                         <div>
                                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Uso CFDI *</label>
-                                            <select v-model="form.uso_cfdi" class="form-select-premium bg-white shadow-sm border-gray-100">
+                                            <select v-model="form.uso_cfdi" class="form-select-premium bg-white dark:bg-slate-900 shadow-sm border-gray-100">
                                                 <option v-for="u in catalogos.usosCfdi" :key="u.clave" :value="u.clave">{{ u.clave }} - {{ u.descripcion }}</option>
                                             </select>
                                         </div>
 
                                         <div>
                                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">C.P. Fiscal *</label>
-                                            <input v-model="form.domicilio_fiscal_cp" type="text" class="form-input-premium bg-white shadow-sm border-gray-100" placeholder="12345" maxlength="5">
+                                            <input v-model="form.domicilio_fiscal_cp" type="text" class="form-input-premium bg-white dark:bg-slate-900 shadow-sm border-gray-100" placeholder="12345" maxlength="5">
                                             <p class="text-red-500 text-[10px] mt-1 font-bold" v-if="form.errors.domicilio_fiscal_cp">{{ form.errors.domicilio_fiscal_cp }}</p>
                                         </div>
 
                                         <div>
                                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Forma de Pago Preferida</label>
-                                            <select v-model="form.forma_pago_default" class="form-select-premium bg-white shadow-sm border-gray-100">
+                                            <select v-model="form.forma_pago_default" class="form-select-premium bg-white dark:bg-slate-900 shadow-sm border-gray-100">
                                                 <option v-for="f in catalogos.formasPago" :key="f.value" :value="f.value">{{ f.label }}</option>
                                             </select>
                                         </div>
@@ -516,7 +516,7 @@ const iniciarCredito = async (polizaId) => {
                                                 maxlength="5"
                                             >
                                             <div v-if="searchingCp" class="absolute right-3 top-1/2 -translate-y-1/2">
-                                                <div class="w-4 h-4 border-2 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
+                                                <div class="w-4 h-4 border-2 border-gray-200 dark:border-slate-800 border-t-blue-500 rounded-full animate-spin"></div>
                                             </div>
                                         </div>
                                         <p class="text-red-500 text-[10px] mt-1 font-bold" v-if="form.errors.codigo_postal">{{ form.errors.codigo_postal }}</p>
@@ -559,13 +559,13 @@ const iniciarCredito = async (polizaId) => {
                                         </div>
 
                                         <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100">
-                                            <div v-if="colonias.length > 0" class="mt-4 p-5 bg-white/80 backdrop-blur-sm rounded-[2rem] border border-gray-100 shadow-inner">
+                                            <div v-if="colonias.length > 0" class="mt-4 p-5 bg-white dark:bg-slate-900/80 backdrop-blur-sm rounded-[2rem] border border-gray-100 shadow-inner">
                                                 <div class="flex items-center justify-between mb-4">
                                                     <span class="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em]">Opciones detectadas</span>
                                                     <span class="text-[10px] text-gray-400 font-bold uppercase">{{ colonias.length }}</span>
                                                 </div>
                                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
-                                                    <button v-for="col in colonias" :key="col" type="button" @click="form.colonia = col" class="px-4 py-2 bg-white border border-gray-100 rounded-xl text-[10px] font-bold text-gray-600 text-left hover:border-blue-500 hover:text-blue-600 transition-all truncate" :title="col">
+                                                    <button v-for="col in colonias" :key="col" type="button" @click="form.colonia = col" class="px-4 py-2 bg-white dark:bg-slate-900 border border-gray-100 rounded-xl text-[10px] font-bold text-gray-600 dark:text-gray-300 text-left hover:border-blue-500 hover:text-blue-600 transition-all truncate" :title="col">
                                                         {{ col }}
                                                     </button>
                                                 </div>
@@ -576,11 +576,11 @@ const iniciarCredito = async (polizaId) => {
                             </div>
 
                             <div class="md:col-span-2 border-t border-gray-50 pt-8 mt-2">
-                                <label class="flex items-start gap-4 cursor-pointer group p-6 rounded-3xl hover:bg-white transition-colors border-2 border-dashed border-transparent hover:border-gray-200">
-                                    <input v-model="form.aceptar_terminos" type="checkbox" class="mt-1 w-6 h-6 text-[var(--color-primary)] rounded-lg border-gray-200 focus:ring-[var(--color-primary)]">
+                                <label class="flex items-start gap-4 cursor-pointer group p-6 rounded-3xl hover:bg-white dark:bg-slate-900 transition-colors border-2 border-dashed border-transparent hover:border-gray-200 dark:border-slate-800">
+                                    <input v-model="form.aceptar_terminos" type="checkbox" class="mt-1 w-6 h-6 text-[var(--color-primary)] rounded-lg border-gray-200 dark:border-slate-800 focus:ring-[var(--color-primary)]">
                                     <div class="text-sm">
-                                        <span class="font-bold text-gray-900 block text-lg mb-1">Acepto los términos y condiciones</span>
-                                        <p class="text-gray-500 font-medium">Declaro haber leído el <button type="button" @click="showTerminos = true" class="text-[var(--color-primary)] hover:underline font-black">Contrato de Prestación de Servicios</button> y estar de acuerdo con sus términos.</p>
+                                        <span class="font-bold text-gray-900 dark:text-white block text-lg mb-1">Acepto los términos y condiciones</span>
+                                        <p class="text-gray-500 dark:text-gray-400 font-medium">Declaro haber leído el <button type="button" @click="showTerminos = true" class="text-[var(--color-primary)] hover:underline font-black">Contrato de Prestación de Servicios</button> y estar de acuerdo con sus términos.</p>
                                         <p class="text-red-500 text-xs mt-2 font-bold animate-bounce" v-if="form.errors.aceptar_terminos">Debes aceptar los términos para continuar</p>
                                     </div>
                                 </label>
@@ -598,8 +598,8 @@ const iniciarCredito = async (polizaId) => {
                     </div>
 
                     <!-- Seleccion del Ciclo (Solo si NO es servicio unico) -->
-                    <div v-if="!esServicioUnico" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-10 transition-all hover:shadow-md">
-                        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                    <div v-if="!esServicioUnico" class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-gray-100 p-6 md:p-10 transition-all hover:shadow-md">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
                             <span class="w-8 h-8 rounded-lg bg-[var(--color-primary-soft)] text-[var(--color-primary)] flex items-center justify-center text-sm">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             </span>
@@ -612,18 +612,18 @@ const iniciarCredito = async (polizaId) => {
                                 @click="periodoSeleccionado = 'mensual'"
                                 :class="[
                                     'cursor-pointer border-2 rounded-2xl p-6 transition-all relative group',
-                                    periodoSeleccionado === 'mensual' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]/30' : 'border-gray-100 hover:border-gray-200 bg-white/30'
+                                    periodoSeleccionado === 'mensual' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]/30' : 'border-gray-100 hover:border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900/30'
                                 ]"
                             >
                                 <div class="flex justify-between items-center mb-1">
-                                    <span class="font-bold text-gray-900">Mensual</span>
+                                    <span class="font-bold text-gray-900 dark:text-white">Mensual</span>
                                     <div v-if="periodoSeleccionado === 'mensual'" class="w-5 h-5 rounded-full bg-[var(--color-primary)] flex items-center justify-center">
-                                        <div class="w-2 h-2 bg-white rounded-full"></div>
+                                        <div class="w-2 h-2 bg-white dark:bg-slate-900 rounded-full"></div>
                                     </div>
-                                    <div v-else class="w-5 h-5 rounded-full border-2 border-gray-200 group-hover:border-gray-300"></div>
+                                    <div v-else class="w-5 h-5 rounded-full border-2 border-gray-200 dark:border-slate-800 group-hover:border-gray-300"></div>
                                 </div>
-                                <div class="text-2xl font-black text-gray-900">{{ formatCurrency(plan.precio_mensual) }}</div>
-                                <div class="text-xs text-gray-500 font-medium">Pago mes a mes</div>
+                                <div class="text-2xl font-black text-gray-900 dark:text-white">{{ formatCurrency(plan.precio_mensual) }}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 font-medium">Pago mes a mes</div>
                             </div>
 
                             <div 
@@ -631,42 +631,42 @@ const iniciarCredito = async (polizaId) => {
                                 @click="periodoSeleccionado = 'anual'"
                                 :class="[
                                     'cursor-pointer border-2 rounded-2xl p-6 transition-all relative group',
-                                    periodoSeleccionado === 'anual' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]/30' : 'border-gray-100 hover:border-gray-200 bg-white/30'
+                                    periodoSeleccionado === 'anual' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]/30' : 'border-gray-100 hover:border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900/30'
                                 ]"
                             >
                                 <div class="absolute -top-3 right-4 bg-green-500 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg border-2 border-white uppercase">
                                     Ahorra {{ formatCurrency(plan.ahorro_anual_calculado || plan.ahorro_anual) }}
                                 </div>
                                 <div class="flex justify-between items-center mb-1">
-                                    <span class="font-bold text-gray-900">Anual</span>
+                                    <span class="font-bold text-gray-900 dark:text-white">Anual</span>
                                     <div v-if="periodoSeleccionado === 'anual'" class="w-5 h-5 rounded-full bg-[var(--color-primary)] flex items-center justify-center">
-                                        <div class="w-2 h-2 bg-white rounded-full"></div>
+                                        <div class="w-2 h-2 bg-white dark:bg-slate-900 rounded-full"></div>
                                     </div>
-                                    <div v-else class="w-5 h-5 rounded-full border-2 border-gray-200 group-hover:border-gray-300"></div>
+                                    <div v-else class="w-5 h-5 rounded-full border-2 border-gray-200 dark:border-slate-800 group-hover:border-gray-300"></div>
                                 </div>
-                                <div class="text-2xl font-black text-gray-900">{{ formatCurrency(plan.precio_anual_calculado || plan.precio_anual) }}</div>
-                                <div class="text-xs text-gray-500 font-medium">Pago unico anual (-15%)</div>
+                                <div class="text-2xl font-black text-gray-900 dark:text-white">{{ formatCurrency(plan.precio_anual_calculado || plan.precio_anual) }}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 font-medium">Pago unico anual (-15%)</div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Registro de Equipos -->
-                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-10 transition-all hover:shadow-md">
-                        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-gray-100 p-6 md:p-10 transition-all hover:shadow-md">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
                             <span class="w-8 h-8 rounded-lg bg-[var(--color-primary-soft)] text-[var(--color-primary)] flex items-center justify-center text-sm">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                             </span>
                             Equipos a Cubrir
                         </h2>
                         
-                        <div class="mb-8 p-4 bg-white rounded-2xl border border-gray-100 flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center text-xl">🛡️</div>
-                            <div class="text-sm text-gray-600">
-                                Tu plan cubre de <span class="font-bold text-gray-900">{{ plan.min_equipos || 1 }}</span> a <span class="font-bold text-gray-900">{{ plan.max_equipos || 'Ilimitados' }}</span> equipos registrados.
+                        <div class="mb-8 p-4 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-white dark:bg-slate-900 shadow-sm flex items-center justify-center text-xl">🛡️</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-300">
+                                Tu plan cubre de <span class="font-bold text-gray-900 dark:text-white">{{ plan.min_equipos || 1 }}</span> a <span class="font-bold text-gray-900 dark:text-white">{{ plan.max_equipos || 'Ilimitados' }}</span> equipos registrados.
                             </div>
                         </div>
 
-                        <div v-for="(equipo, index) in form.equipos" :key="index" class="mb-8 p-6 bg-white/30 rounded-3xl border border-gray-100 relative group">
+                        <div v-for="(equipo, index) in form.equipos" :key="index" class="mb-8 p-6 bg-white dark:bg-slate-900/30 rounded-3xl border border-gray-100 relative group">
                             <div class="flex justify-between items-center mb-6">
                                 <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest">Dispositivo #{{ index + 1 }}</h4>
                                 <button v-if="form.equipos.length > (plan.min_equipos || 1)" @click="removerEquipo(index)" type="button" class="w-8 h-8 rounded-full bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 transition-colors">✕</button>
@@ -692,7 +692,7 @@ const iniciarCredito = async (polizaId) => {
                             v-if="!plan.max_equipos || form.equipos.length < plan.max_equipos" 
                             @click="agregarEquipo" 
                             type="button" 
-                            class="w-full py-4 border-2 border-dashed border-gray-200 text-gray-400 rounded-2xl hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary-soft)]/20 transition-all font-black text-xs uppercase tracking-widest"
+                            class="w-full py-4 border-2 border-dashed border-gray-200 dark:border-slate-800 text-gray-400 rounded-2xl hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary-soft)]/20 transition-all font-black text-xs uppercase tracking-widest"
                         >
                             + Agregar Dispositivo
                         </button>
@@ -704,7 +704,7 @@ const iniciarCredito = async (polizaId) => {
                                 borderColor: 'var(--color-terciary-soft)'
                              }">
                             <div class="flex items-start gap-4 mb-6">
-                                <div class="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-2xl flex-shrink-0" :style="{ color: 'var(--color-terciary)' }">💡</div>
+                                <div class="w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 shadow-sm flex items-center justify-center text-2xl flex-shrink-0" :style="{ color: 'var(--color-terciary)' }">💡</div>
                                 <div class="text-xs leading-relaxed" :style="{ color: 'var(--color-terciary)' }">
                                     <span class="font-black uppercase tracking-widest block mb-1">Nota sobre la cobertura</span>
                                     Los beneficios de su plan (servicios o tickets) se aplican de forma <span class="font-bold underline">global a la poliza</span>.
@@ -712,20 +712,20 @@ const iniciarCredito = async (polizaId) => {
                             </div>
                             
                             <!-- Diagrama Visual -->
-                            <div class="bg-white/60 rounded-2xl p-6 border border-[var(--color-terciary-soft)]/50">
+                            <div class="bg-white dark:bg-slate-900/60 rounded-2xl p-6 border border-[var(--color-terciary-soft)]/50">
                                 <p class="text-[10px] font-black opacity-40 uppercase tracking-[0.2em] mb-4 text-center" :style="{ color: 'var(--color-terciary)' }">Ejemplo de funcionamiento</p>
                                 
                                 <div class="flex items-center justify-around gap-2">
                                     <!-- Grupo de Equipos -->
                                     <div class="flex flex-col items-center gap-2">
                                         <div class="flex -space-x-4">
-                                            <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center border-2 border-white shadow-sm" :style="{ backgroundColor: 'var(--color-terciary-soft)' }">
+                                            <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center border-2 border-white shadow-sm" :style="{ backgroundColor: 'var(--color-terciary-soft)' }">
                                                 <svg class="w-5 h-5" :style="{ color: 'var(--color-terciary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                                             </div>
-                                            <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center border-2 border-white shadow-sm" :style="{ backgroundColor: 'var(--color-terciary)' }">
+                                            <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center border-2 border-white shadow-sm" :style="{ backgroundColor: 'var(--color-terciary)' }">
                                                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                                             </div>
-                                            <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center border-2 border-white shadow-sm" :style="{ backgroundColor: 'var(--color-terciary)' }">
+                                            <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center border-2 border-white shadow-sm" :style="{ backgroundColor: 'var(--color-terciary)' }">
                                                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                                             </div>
                                         </div>
@@ -756,20 +756,20 @@ const iniciarCredito = async (polizaId) => {
 
                 <!-- Columna Derecha: Resumen -->
                 <div class="lg:col-span-1">
-                    <div class="bg-white rounded-[2.5rem] shadow-2xl shadow-gray-200/50 border border-gray-100 p-8 sticky top-24 overflow-hidden group">
+                    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl shadow-gray-200/50 border border-gray-100 p-8 sticky top-24 overflow-hidden group">
                         <!-- Glassmorphism Effect -->
                         <div class="absolute top-0 right-0 w-32 h-32 bg-[var(--color-primary)] opacity-[0.03] rounded-full -mr-16 -mt-16 blur-2xl group-hover:opacity-10 transition-opacity"></div>
                         
-                        <h3 class="text-xl font-black text-gray-900 mb-6 flex items-center justify-between">
+                        <h3 class="text-xl font-black text-gray-900 dark:text-white mb-6 flex items-center justify-between">
                             Resumen
                             <span class="text-[10px] bg-green-500 text-white px-3 py-1 rounded-full uppercase tracking-tighter">Seguro</span>
                         </h3>
                         
                         <!-- Plan Card -->
-                        <div class="flex items-center gap-4 mb-8 p-4 bg-white rounded-2xl border border-gray-100">
-                            <div class="w-14 h-14 bg-white rounded-xl shadow-sm flex items-center justify-center text-3xl border border-gray-50">{{ plan.icono_display }}</div>
+                        <div class="flex items-center gap-4 mb-8 p-4 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100">
+                            <div class="w-14 h-14 bg-white dark:bg-slate-900 rounded-xl shadow-sm flex items-center justify-center text-3xl border border-gray-50">{{ plan.icono_display }}</div>
                             <div>
-                                <div class="font-black text-gray-900 text-lg leading-tight">{{ plan.nombre }}</div>
+                                <div class="font-black text-gray-900 dark:text-white text-lg leading-tight">{{ plan.nombre }}</div>
                                 <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Poliza Seleccionada</div>
                             </div>
                         </div>
@@ -777,25 +777,25 @@ const iniciarCredito = async (polizaId) => {
                         <!-- Breakdown -->
                         <div class="space-y-4 mb-8">
                             <div class="flex justify-between items-center group/item text-sm">
-                                <span class="text-gray-400 font-bold group-hover/item:text-gray-600 transition-colors">
+                                <span class="text-gray-400 font-bold group-hover/item:text-gray-600 dark:text-gray-300 transition-colors">
                                     {{ esServicioUnico ? 'Costo del Servicio' : (periodoSeleccionado === 'mensual' ? 'Subtotal Mensual' : 'Subtotal Anual') }}
                                 </span>
-                                <span class="font-black text-gray-900">{{ formatCurrency(precioPeriodo) }}</span>
+                                <span class="font-black text-gray-900 dark:text-white">{{ formatCurrency(precioPeriodo) }}</span>
                             </div>
                             <div v-if="plan.precio_instalacion > 0" class="flex justify-between items-center group/item text-sm">
-                                <span class="text-gray-400 font-bold group-hover/item:text-gray-600 transition-colors">Activacion (Unico)</span>
-                                <span class="font-black text-gray-900">{{ formatCurrency(plan.precio_instalacion) }}</span>
+                                <span class="text-gray-400 font-bold group-hover/item:text-gray-600 dark:text-gray-300 transition-colors">Activacion (Unico)</span>
+                                <span class="font-black text-gray-900 dark:text-white">{{ formatCurrency(plan.precio_instalacion) }}</span>
                             </div>
                             <div class="flex justify-between items-center text-sm pt-4 border-t border-gray-50">
                                 <span class="text-gray-400 font-bold">IVA (16%)</span>
-                                <span class="font-black text-gray-900">{{ formatCurrency(totalPagar - (precioPeriodo + (Number(plan.precio_instalacion) || 0))) }}</span>
+                                <span class="font-black text-gray-900 dark:text-white">{{ formatCurrency(totalPagar - (precioPeriodo + (Number(plan.precio_instalacion) || 0))) }}</span>
                             </div>
                         </div>
 
                         <!-- Footer Total -->
                         <div class="mb-10 text-center p-6 bg-[var(--color-primary-soft)] rounded-3xl border border-[var(--color-primary-soft)]">
                             <span class="text-[10px] font-black text-[var(--color-primary)] uppercase tracking-[0.2em] block mb-2">Total a Invertir</span>
-                            <div class="text-4xl font-black text-gray-900 tabular-nums">{{ formatCurrency(totalPagar) }}</div>
+                            <div class="text-4xl font-black text-gray-900 dark:text-white tabular-nums">{{ formatCurrency(totalPagar) }}</div>
                             <span class="text-[10px] text-gray-400 font-bold mt-1 block">Factura inmediata</span>
                         </div>
 
@@ -828,16 +828,16 @@ const iniciarCredito = async (polizaId) => {
 
     <!-- Modal de Pago -->
     <div v-if="showPaymentModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-        <div class="bg-white rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden transform transition-all animate-fade-in-up">
-            <div class="px-8 py-6 border-b flex justify-between items-center bg-white/50">
-                <h3 class="text-xl font-black text-gray-900">Pasarela de Pago</h3>
-                <button @click="showPaymentModal = false" class="text-gray-400 hover:text-gray-900 transition-colors">✕</button>
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden transform transition-all animate-fade-in-up">
+            <div class="px-8 py-6 border-b flex justify-between items-center bg-white dark:bg-slate-900/50">
+                <h3 class="text-xl font-black text-gray-900 dark:text-white">Pasarela de Pago</h3>
+                <button @click="showPaymentModal = false" class="text-gray-400 hover:text-gray-900 dark:text-white transition-colors">✕</button>
             </div>
             
             <div class="p-8">
                 <div class="text-center mb-8">
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total a Procesar</p>
-                    <p class="text-4xl font-black text-gray-900">{{ formatCurrency(totalPagar) }}</p>
+                    <p class="text-4xl font-black text-gray-900 dark:text-white">{{ formatCurrency(totalPagar) }}</p>
                 </div>
 
                 <div class="space-y-4">
@@ -847,13 +847,13 @@ const iniciarCredito = async (polizaId) => {
                         :disabled="processing"
                         class="w-full p-6 rounded-2xl border-2 border-gray-100 flex items-center gap-4 hover:border-[#635BFF] hover:bg-[#635BFF]/5 transition-all group text-left disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <div class="w-14 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden">
+                        <div class="w-14 h-12 rounded-xl bg-white dark:bg-slate-900 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden">
                             <span v-if="processing && metodoPago === 'tarjeta'" class="animate-spin text-sm">🌀</span>
                             <!-- Logo Stripe local -->
                             <img v-else src="/images/payments/stripe-logo.svg" alt="Stripe" class="w-10 h-10 object-contain rounded">
                         </div>
                         <div class="flex-1">
-                            <div class="font-black text-gray-900">{{ processing && metodoPago === 'tarjeta' ? 'Conectando con Stripe...' : 'Tarjeta Bancaria' }}</div>
+                            <div class="font-black text-gray-900 dark:text-white">{{ processing && metodoPago === 'tarjeta' ? 'Conectando con Stripe...' : 'Tarjeta Bancaria' }}</div>
                             <div class="text-xs text-gray-400 font-bold uppercase tracking-tight flex items-center gap-2">
                                 <span>Visa</span>
                                 <span class="text-gray-300">•</span>
@@ -871,13 +871,13 @@ const iniciarCredito = async (polizaId) => {
                         :disabled="processing"
                         class="w-full p-6 rounded-2xl border-2 border-gray-100 flex items-center gap-4 hover:border-[#003087] hover:bg-[#003087]/5 transition-all group text-left disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <div class="w-14 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden">
+                        <div class="w-14 h-12 rounded-xl bg-white dark:bg-slate-900 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden">
                             <span v-if="processing && metodoPago === 'paypal'" class="animate-spin text-sm text-[#003087]">🌀</span>
                             <!-- Logo PayPal local -->
                             <img v-else src="/images/payments/paypal-logo.svg" alt="PayPal" class="w-10 h-10 object-contain rounded">
                         </div>
                         <div class="flex-1">
-                            <div class="font-black text-gray-900">{{ processing && metodoPago === 'paypal' ? 'Conectando con PayPal...' : 'PayPal' }}</div>
+                            <div class="font-black text-gray-900 dark:text-white">{{ processing && metodoPago === 'paypal' ? 'Conectando con PayPal...' : 'PayPal' }}</div>
                             <div class="text-xs text-gray-400 font-bold uppercase tracking-tight">Pago seguro internacional</div>
                         </div>
                         <div class="ml-auto opacity-0 group-hover:opacity-100 text-[#003087] transition-opacity">→</div>
@@ -889,13 +889,13 @@ const iniciarCredito = async (polizaId) => {
                         :disabled="processing"
                         class="w-full p-6 rounded-2xl border-2 border-gray-100 flex items-center gap-4 hover:border-[#00AEEF] hover:bg-[#00AEEF]/5 transition-all group text-left disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <div class="w-14 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden">
+                        <div class="w-14 h-12 rounded-xl bg-white dark:bg-slate-900 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden">
                             <span v-if="processing && metodoPago === 'mercadopago'" class="animate-spin text-sm text-[#00AEEF]">🌀</span>
                             <!-- Logo MercadoPago local -->
                             <img v-else src="/images/payments/mercadopago-logo.svg" alt="Mercado Pago" class="w-10 h-10 object-contain rounded">
                         </div>
                         <div class="flex-1">
-                            <div class="font-black text-gray-900">{{ processing && metodoPago === 'mercadopago' ? 'Conectando con Mercado Pago...' : 'Mercado Pago' }}</div>
+                            <div class="font-black text-gray-900 dark:text-white">{{ processing && metodoPago === 'mercadopago' ? 'Conectando con Mercado Pago...' : 'Mercado Pago' }}</div>
                             <div class="text-xs text-gray-400 font-bold uppercase tracking-tight">México • Efectivo, OXXO, SPEI</div>
                         </div>
                         <div class="ml-auto opacity-0 group-hover:opacity-100 text-[#00AEEF] transition-opacity">→</div>
@@ -908,14 +908,14 @@ const iniciarCredito = async (polizaId) => {
                         :disabled="processing || clienteData.credito_disponible < totalPagar"
                         class="w-full p-6 rounded-2xl border-2 flex items-center gap-4 transition-all group text-left disabled:opacity-50 disabled:cursor-not-allowed"
                         :class="clienteData.credito_disponible < totalPagar 
-                            ? 'border-gray-100 bg-white grayscale cursor-not-allowed' 
+                            ? 'border-gray-100 bg-white dark:bg-slate-900 grayscale cursor-not-allowed' 
                             : 'border-gray-100 hover:border-emerald-500 hover:bg-emerald-50'"
                     >
-                        <div class="w-14 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden px-2">
+                        <div class="w-14 h-12 rounded-xl bg-white dark:bg-slate-900 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden px-2">
                              <font-awesome-icon icon="credit-card" class="text-xl text-emerald-600" />
                         </div>
                         <div class="flex-1">
-                            <div class="font-black text-gray-900 text-sm">Crédito Comercial</div>
+                            <div class="font-black text-gray-900 dark:text-white text-sm">Crédito Comercial</div>
                             <div class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">
                                 {{ clienteData.credito_disponible < totalPagar ? 'Saldo insuficiente' : 'Pagar con mi línea de crédito' }}
                                 • Disp: {{ formatCurrency(clienteData.credito_disponible) }}
@@ -944,40 +944,40 @@ const iniciarCredito = async (polizaId) => {
 
     <!-- Modal de Terminos -->
     <div v-if="showTerminos" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-        <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-fade-in-up">
-            <div class="px-8 py-6 border-b flex justify-between items-center bg-white/50">
-                <h3 class="text-xl font-black text-gray-900 flex items-center gap-2">
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-fade-in-up">
+            <div class="px-8 py-6 border-b flex justify-between items-center bg-white dark:bg-slate-900/50">
+                <h3 class="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
                     <svg class="w-6 h-6 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     Terminos y Condiciones
                 </h3>
-                <button @click="showTerminos = false" class="text-gray-400 hover:text-gray-900 transition-colors">✕</button>
+                <button @click="showTerminos = false" class="text-gray-400 hover:text-gray-900 dark:text-white transition-colors">✕</button>
             </div>
             
-            <div class="p-8 overflow-y-auto custom-scrollbar text-sm text-gray-600 space-y-6 leading-relaxed">
+            <div class="p-8 overflow-y-auto custom-scrollbar text-sm text-gray-600 dark:text-gray-300 space-y-6 leading-relaxed">
                 <div class="p-6 bg-[var(--color-primary-soft)]/20 rounded-3xl border border-[var(--color-primary-soft)]/30">
-                    <h4 class="font-black text-gray-900 uppercase tracking-widest text-[10px] mb-2">Resumen de Contratacion</h4>
-                    <p class="text-xs">Usted esta contratando el plan <span class="font-black text-gray-900">{{ plan.nombre }}</span> en modalidad <span class="font-black text-gray-900">{{ periodoSeleccionado }}</span>. Este es un contrato de prestacion de servicios tecnologicos entre Vircom y el Cliente.</p>
+                    <h4 class="font-black text-gray-900 dark:text-white uppercase tracking-widest text-[10px] mb-2">Resumen de Contratacion</h4>
+                    <p class="text-xs">Usted esta contratando el plan <span class="font-black text-gray-900 dark:text-white">{{ plan.nombre }}</span> en modalidad <span class="font-black text-gray-900 dark:text-white">{{ periodoSeleccionado }}</span>. Este es un contrato de prestacion de servicios tecnologicos entre Vircom y el Cliente.</p>
                 </div>
 
                 <div class="space-y-4">
                     <section>
-                        <h4 class="font-black text-gray-900 mb-2">1. Objeto del Servicio</h4>
+                        <h4 class="font-black text-gray-900 dark:text-white mb-2">1. Objeto del Servicio</h4>
                         <p>Vircom se compromete a brindar soporte tecnico remoto y/o presencial segun las caracteristicas del plan seleccionado. El servicio incluye mantenimiento preventivo y correctivo de los equipos registrados.</p>
                     </section>
                     
                     <section>
-                        <h4 class="font-black text-gray-900 mb-2">2. Vigencia y Renovacion</h4>
+                        <h4 class="font-black text-gray-900 dark:text-white mb-2">2. Vigencia y Renovacion</h4>
                         <p v-if="esServicioUnico">El servicio contratado corresponde a un evento único y no genera suscripción recurrente. La garantía del servicio es de 7 días naturales.</p>
                         <p v-else>El contrato tiene una vigencia forzosa de acuerdo al periodo elegido. La renovacion sera automatica al termino del periodo salvo aviso previo de 30 dias.</p>
                     </section>
 
                     <section>
-                        <h4 class="font-black text-gray-900 mb-2">3. Responsabilidades del Cliente</h4>
+                        <h4 class="font-black text-gray-900 dark:text-white mb-2">3. Responsabilidades del Cliente</h4>
                         <p>El cliente es responsable de mantener respaldos actualizados de su informacion. Vircom no se hace responsable por perdida de datos en equipos no respaldados.</p>
                     </section>
 
                     <section>
-                        <h4 class="font-black text-gray-900 mb-2">4. Pagos y Facturacion</h4>
+                        <h4 class="font-black text-gray-900 dark:text-white mb-2">4. Pagos y Facturacion</h4>
                         <p>Los pagos deben realizarse en los primeros 5 dias naturales del periodo. La factura sera emitida automaticamente a los datos fiscales proporcionados en este formulario.</p>
                     </section>
                 </div>
@@ -987,8 +987,8 @@ const iniciarCredito = async (polizaId) => {
                 </div>
             </div>
 
-            <div class="px-8 py-6 border-t bg-white/50 flex flex-col sm:flex-row gap-3">
-                <button @click="showTerminos = false" class="w-full sm:w-1/3 py-4 text-gray-500 font-bold hover:bg-gray-100 rounded-2xl transition-all">Regresar</button>
+            <div class="px-8 py-6 border-t bg-white dark:bg-slate-900/50 flex flex-col sm:flex-row gap-3">
+                <button @click="showTerminos = false" class="w-full sm:w-1/3 py-4 text-gray-500 dark:text-gray-400 font-bold hover:bg-gray-100 rounded-2xl transition-all">Regresar</button>
                 <button 
                     @click="showTerminos = false; form.aceptar_terminos = true" 
                     class="w-full sm:w-2/3 py-4 bg-[var(--color-primary)] text-white font-black rounded-2xl shadow-xl shadow-[var(--color-primary)]/20 hover:opacity-90 active:scale-[0.98] transition-all"

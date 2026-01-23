@@ -82,12 +82,12 @@ const submit = () => {
 
     <div class="py-12">
         <div class="w-full sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                <div class="mb-6 pb-4 border-b border-gray-200">
-                    <h2 class="text-xl font-bold text-gray-800">
+            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-xl sm:rounded-lg p-6">
+                <div class="mb-6 pb-4 border-b border-gray-200 dark:border-slate-800">
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100">
                         {{ form.id ? 'Editar Datos de Empresa' : 'Registrar Nueva Empresa' }}
                     </h2>
-                    <p class="text-gray-600 text-sm mt-1">
+                    <p class="text-gray-600 dark:text-gray-300 text-sm mt-1">
                         Utiliza este formulario para {{ form.id ? 'actualizar' : 'capturar' }} la información fiscal y general de tu empresa.
                     </p>
                 </div>
@@ -228,7 +228,7 @@ const submit = () => {
 
                          <div class="mt-4 pt-4 border-t border-gray-100">
                             <InputLabel for="logo" value="Logotipo (Opcional)" />
-                            <input type="file" @input="form.logo = $event.target.files[0]" class="mt-1 block w-full text-sm text-gray-500
+                            <input type="file" @input="form.logo = $event.target.files[0]" class="mt-1 block w-full text-sm text-gray-500 dark:text-gray-400
                                 file:mr-4 file:py-2 file:px-4
                                 file:rounded-full file:border-0
                                 file:text-sm file:font-semibold
@@ -240,7 +240,7 @@ const submit = () => {
                         </div>
                     </div>
 
-                    <div class="col-span-1 md:col-span-2 flex justify-end mt-6 pt-6 border-t border-gray-200">
+                    <div class="col-span-1 md:col-span-2 flex justify-end mt-6 pt-6 border-t border-gray-200 dark:border-slate-800">
                         <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                             {{ form.id ? 'Actualizar Empresa' : 'Guardar Empresa' }}
                         </PrimaryButton>

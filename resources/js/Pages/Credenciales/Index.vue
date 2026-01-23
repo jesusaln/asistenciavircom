@@ -122,7 +122,7 @@ const getOwnerName = (item) => {
                         <font-awesome-icon icon="shield-alt" size="2x" />
                     </div>
                     <div>
-                        <h1 class="text-2xl font-black text-gray-800 uppercase tracking-tight">Bóveda de Credenciales</h1>
+                        <h1 class="text-2xl font-black text-gray-800 dark:text-gray-100 uppercase tracking-tight">Bóveda de Credenciales</h1>
                         <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Gestión centralizada de accesos seguros</p>
                     </div>
                 </div>
@@ -138,7 +138,7 @@ const getOwnerName = (item) => {
                          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-hover:text-indigo-500 transition-colors">
                             <font-awesome-icon icon="users" />
                          </div>
-                         <select v-model="clienteId" class="w-full bg-white border-gray-200 rounded-xl h-12 text-xs font-bold focus:ring-indigo-500 focus:border-indigo-500 shadow-sm pl-10 pr-8 hover:border-indigo-300 transition-all appearance-none cursor-pointer">
+                         <select v-model="clienteId" class="w-full bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 rounded-xl h-12 text-xs font-bold focus:ring-indigo-500 focus:border-indigo-500 shadow-sm pl-10 pr-8 hover:border-indigo-300 transition-all appearance-none cursor-pointer">
                             <option value="">Todos los Clientes</option>
                             <option v-for="cliente in clientes" :key="cliente.id" :value="cliente.id">
                                 {{ cliente.nombre_razon_social }}
@@ -157,7 +157,7 @@ const getOwnerName = (item) => {
                             v-model="search"
                             type="text" 
                             placeholder="Buscar credenciales..."
-                            class="pl-10 w-full bg-white border-gray-200 rounded-xl h-12 text-xs font-bold focus:ring-indigo-500 focus:border-indigo-500 shadow-sm hover:border-indigo-300 transition-all placeholder-gray-300"
+                            class="pl-10 w-full bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 rounded-xl h-12 text-xs font-bold focus:ring-indigo-500 focus:border-indigo-500 shadow-sm hover:border-indigo-300 transition-all placeholder-gray-300"
                         >
                     </div>
                 </div>
@@ -179,9 +179,9 @@ const getOwnerName = (item) => {
 
             <!-- Grid -->
             <div v-if="credenciales.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div v-for="item in credenciales.data" :key="item.id" class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden group">
+                <div v-for="item in credenciales.data" :key="item.id" class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden group">
                     <!-- Top Info/Owner -->
-                    <div class="p-4 border-b border-gray-50 bg-white/50 flex justify-between items-center">
+                    <div class="p-4 border-b border-gray-50 bg-white dark:bg-slate-900/50 flex justify-between items-center">
                         <div class="flex items-center gap-2">
                             <span class="text-[9px] font-black text-gray-400 uppercase">Vinculado a:</span>
                             <Link :href="getOwnerLink(item)" class="text-[9px] font-black text-indigo-600 hover:text-indigo-800 uppercase underline decoration-indigo-200 transition-all">
@@ -197,13 +197,13 @@ const getOwnerName = (item) => {
                                 <font-awesome-icon :icon="item.host ? 'server' : 'key'" size="lg" />
                             </div>
                             <div>
-                                <h3 class="text-sm font-black text-gray-800 uppercase tracking-tight">{{ item.nombre }}</h3>
+                                <h3 class="text-sm font-black text-gray-800 dark:text-gray-100 uppercase tracking-tight">{{ item.nombre }}</h3>
                                 <p class="text-[10px] text-gray-400 font-bold uppercase">{{ item.host || 'Acceso Local' }}</p>
                             </div>
                         </div>
 
                         <div class="space-y-3">
-                            <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100">
+                            <div class="flex items-center justify-between p-3 bg-white dark:bg-slate-900 rounded-xl border border-gray-100">
                                 <span class="text-[10px] font-black text-gray-400 uppercase">Usuario</span>
                                 <div class="flex items-center gap-2">
                                     <span class="text-xs font-bold text-gray-700">{{ item.usuario }}</span>
@@ -213,7 +213,7 @@ const getOwnerName = (item) => {
                                 </div>
                             </div>
 
-                            <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100">
+                            <div class="flex items-center justify-between p-3 bg-white dark:bg-slate-900 rounded-xl border border-gray-100">
                                 <span class="text-[10px] font-black text-gray-400 uppercase">Password</span>
                                 <div class="flex items-center gap-2">
                                     <span v-if="revealedPasswords[item.id]" class="text-xs font-mono font-black text-indigo-600 tracking-wider">
@@ -241,7 +241,7 @@ const getOwnerName = (item) => {
                         </div>
                     </div>
 
-                    <div class="px-5 py-3 border-t border-gray-50 bg-white/50 flex items-center justify-between">
+                    <div class="px-5 py-3 border-t border-gray-50 bg-white dark:bg-slate-900/50 flex items-center justify-between">
                         <span class="text-[9px] font-black text-gray-400 uppercase">
                              Actualizado {{ new Date(item.updated_at).toLocaleDateString() }}
                         </span>
@@ -254,11 +254,11 @@ const getOwnerName = (item) => {
             </div>
 
             <!-- Empty State -->
-            <div v-else class="bg-white rounded-3xl p-16 text-center shadow-sm border border-gray-100">
-                <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-6 text-gray-200">
+            <div v-else class="bg-white dark:bg-slate-900 rounded-3xl p-16 text-center shadow-sm border border-gray-100">
+                <div class="w-24 h-24 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-200">
                     <font-awesome-icon icon="search" size="4x" />
                 </div>
-                <h3 class="text-xl font-black text-gray-800 uppercase mb-2">No se encontraron credenciales</h3>
+                <h3 class="text-xl font-black text-gray-800 dark:text-gray-100 uppercase mb-2">No se encontraron credenciales</h3>
                 <p class="text-sm text-gray-400 font-medium">Prueba con otro término de búsqueda o registra nuevas credenciales en Clientes o Pólizas.</p>
             </div>
 
@@ -270,12 +270,12 @@ const getOwnerName = (item) => {
 
         <!-- Modal de Creación Global -->
         <div v-if="showingCreateModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden">
-                <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-white">
-                    <h3 class="text-sm font-black text-gray-800 uppercase tracking-widest">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden">
+                <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-white dark:bg-slate-900">
+                    <h3 class="text-sm font-black text-gray-800 dark:text-gray-100 uppercase tracking-widest">
                         Nueva Credencial Global
                     </h3>
-                    <button @click="showingCreateModal = false" class="text-gray-400 hover:text-gray-600">
+                    <button @click="showingCreateModal = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300">
                         <font-awesome-icon icon="times" />
                     </button>
                 </div>
@@ -283,20 +283,20 @@ const getOwnerName = (item) => {
                 <form @submit.prevent="submit" class="p-6">
                     <div class="space-y-6">
                         <!-- Selección de Tipo Visual -->
-                        <div class="p-4 bg-white rounded-2xl border border-gray-100">
+                        <div class="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100">
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 px-1">¿A quién pertenece esta credencial?</label>
                             
                             <!-- Toggle Tabs -->
                             <div class="flex p-1 bg-gray-200 rounded-xl mb-4">
                                 <button type="button" 
                                     @click="form.credentialable_type = 'App\\Models\\Cliente'"
-                                    :class="{'bg-white text-indigo-600 shadow-sm': form.credentialable_type === 'App\\Models\\Cliente', 'text-gray-500 hover:text-gray-700': form.credentialable_type !== 'App\\Models\\Cliente'}"
+                                    :class="{'bg-white dark:bg-slate-900 text-indigo-600 shadow-sm': form.credentialable_type === 'App\\Models\\Cliente', 'text-gray-500 dark:text-gray-400 hover:text-gray-700': form.credentialable_type !== 'App\\Models\\Cliente'}"
                                     class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all flex items-center justify-center gap-2">
                                     <font-awesome-icon icon="users" /> Cliente
                                 </button>
                                 <button type="button" 
                                     @click="form.credentialable_type = 'App\\Models\\PolizaServicio'"
-                                    :class="{'bg-white text-indigo-600 shadow-sm': form.credentialable_type === 'App\\Models\\PolizaServicio', 'text-gray-500 hover:text-gray-700': form.credentialable_type !== 'App\\Models\\PolizaServicio'}"
+                                    :class="{'bg-white dark:bg-slate-900 text-indigo-600 shadow-sm': form.credentialable_type === 'App\\Models\\PolizaServicio', 'text-gray-500 dark:text-gray-400 hover:text-gray-700': form.credentialable_type !== 'App\\Models\\PolizaServicio'}"
                                     class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all flex items-center justify-center gap-2">
                                     <font-awesome-icon icon="file-contract" /> Póliza de Servicio
                                 </button>
@@ -307,7 +307,7 @@ const getOwnerName = (item) => {
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                                     <font-awesome-icon :icon="form.credentialable_type === 'App\\Models\\Cliente' ? 'user-tie' : 'file-signature'" />
                                 </div>
-                                <select v-model="form.credentialable_id" class="w-full border-gray-200 rounded-xl h-11 pl-10 text-sm font-bold focus:ring-indigo-500 focus:border-indigo-500 bg-white" required>
+                                <select v-model="form.credentialable_id" class="w-full border-gray-200 dark:border-slate-800 rounded-xl h-11 pl-10 text-sm font-bold focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-slate-900" required>
                                     <option value="" disabled>Seleccione {{ form.credentialable_type === 'App\\Models\\Cliente' ? 'el Cliente' : 'la Póliza' }}...</option>
                                     <template v-if="form.credentialable_type === 'App\\Models\\Cliente'">
                                         <option v-for="c in clientes" :key="c.id" :value="c.id">{{ c.nombre_razon_social }}</option>
@@ -327,7 +327,7 @@ const getOwnerName = (item) => {
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                                         <font-awesome-icon icon="tag" />
                                     </div>
-                                    <input v-model="form.nombre" type="text" placeholder="Ej: Acceso Servidor SQL Producción" class="w-full border-gray-200 rounded-xl h-11 pl-10 text-sm font-bold focus:ring-indigo-500" required />
+                                    <input v-model="form.nombre" type="text" placeholder="Ej: Acceso Servidor SQL Producción" class="w-full border-gray-200 dark:border-slate-800 rounded-xl h-11 pl-10 text-sm font-bold focus:ring-indigo-500" required />
                                 </div>
                             </div>
 
@@ -338,7 +338,7 @@ const getOwnerName = (item) => {
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                                             <font-awesome-icon icon="user" />
                                         </div>
-                                        <input v-model="form.usuario" type="text" placeholder="admin" class="w-full border-gray-200 rounded-xl h-11 pl-10 text-sm font-bold focus:ring-indigo-500" required />
+                                        <input v-model="form.usuario" type="text" placeholder="admin" class="w-full border-gray-200 dark:border-slate-800 rounded-xl h-11 pl-10 text-sm font-bold focus:ring-indigo-500" required />
                                     </div>
                                 </div>
                                 <div>
@@ -347,7 +347,7 @@ const getOwnerName = (item) => {
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                                             <font-awesome-icon icon="key" />
                                         </div>
-                                        <input v-model="form.password" type="text" placeholder="••••••••" class="w-full border-gray-200 rounded-xl h-11 pl-10 text-sm font-bold focus:ring-indigo-500" required />
+                                        <input v-model="form.password" type="text" placeholder="••••••••" class="w-full border-gray-200 dark:border-slate-800 rounded-xl h-11 pl-10 text-sm font-bold focus:ring-indigo-500" required />
                                     </div>
                                 </div>
                             </div>
@@ -359,7 +359,7 @@ const getOwnerName = (item) => {
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                                             <font-awesome-icon icon="server" />
                                         </div>
-                                        <input v-model="form.host" type="text" placeholder="192.168.1.50" class="w-full border-gray-200 rounded-xl h-11 pl-10 text-sm font-bold focus:ring-indigo-500" />
+                                        <input v-model="form.host" type="text" placeholder="192.168.1.50" class="w-full border-gray-200 dark:border-slate-800 rounded-xl h-11 pl-10 text-sm font-bold focus:ring-indigo-500" />
                                     </div>
                                 </div>
                                 <div>
@@ -368,21 +368,21 @@ const getOwnerName = (item) => {
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                                             <font-awesome-icon icon="network-wired" />
                                         </div>
-                                        <input v-model="form.puerto" type="text" placeholder="1433" class="w-full border-gray-200 rounded-xl h-11 pl-10 text-sm font-bold focus:ring-indigo-500" />
+                                        <input v-model="form.puerto" type="text" placeholder="1433" class="w-full border-gray-200 dark:border-slate-800 rounded-xl h-11 pl-10 text-sm font-bold focus:ring-indigo-500" />
                                     </div>
                                 </div>
                             </div>
 
                             <div>
                                 <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Notas Adicionales</label>
-                                <textarea v-model="form.notas" rows="3" class="w-full border-gray-200 rounded-xl text-sm font-bold focus:ring-indigo-500 p-3" placeholder="Instrucciones especiales de acceso..."></textarea>
+                                <textarea v-model="form.notas" rows="3" class="w-full border-gray-200 dark:border-slate-800 rounded-xl text-sm font-bold focus:ring-indigo-500 p-3" placeholder="Instrucciones especiales de acceso..."></textarea>
                             </div>
                         </div>
                     </div>
 
                     <!-- Footer Actions -->
                     <div class="mt-8 flex gap-3 pt-6 border-t border-gray-100">
-                        <button type="button" @click="showingCreateModal = false" class="flex-1 h-12 bg-white border border-gray-200 hover:bg-white text-gray-600 rounded-xl text-xs font-black uppercase transition-all">
+                        <button type="button" @click="showingCreateModal = false" class="flex-1 h-12 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300 rounded-xl text-xs font-black uppercase transition-all">
                             Cancelar
                         </button>
                         <button type="submit" :disabled="form.processing" class="flex-1 h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black uppercase transition-all shadow-lg shadow-indigo-200 flex items-center justify-center gap-2">

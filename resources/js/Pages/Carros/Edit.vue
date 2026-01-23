@@ -4,12 +4,12 @@
     <div class="w-full">
         <!-- Título de la página -->
         <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Editar Carro</h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-2">Actualiza la información del vehículo</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white dark:text-gray-100">Editar Carro</h1>
+            <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300 mt-2">Actualiza la información del vehículo</p>
         </div>
 
         <!-- Formulario para editar un carro -->
-        <div class="bg-white dark:bg-gray-800 shadow-lg dark:shadow-none rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 shadow-lg dark:shadow-none rounded-lg p-6 border border-gray-200 dark:border-slate-800 dark:border-gray-700">
             <form @submit.prevent="submit" class="space-y-6">
                 <!-- Información básica -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -20,7 +20,7 @@
                         <input
                             v-model="form.marca"
                             type="text"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             :class="{ 'border-red-500': errors.marca }"
                             placeholder="Ej: Toyota, Ford, BMW"
                             required
@@ -35,7 +35,7 @@
                         <input
                             v-model="form.modelo"
                             type="text"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             :class="{ 'border-red-500': errors.modelo }"
                             placeholder="Ej: Corolla, Focus, X3"
                             required
@@ -54,7 +54,7 @@
                             type="number"
                             :min="1900"
                             :max="new Date().getFullYear() + 1"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             :class="{ 'border-red-500': errors.anio }"
                             placeholder="2020"
                             required
@@ -68,7 +68,7 @@
                         </label>
                         <select
                             v-model="form.color"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             :class="{ 'border-red-500': errors.color }"
                             required
                         >
@@ -102,13 +102,13 @@
                             Precio <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
-                            <span class="absolute left-3 top-2 text-gray-500 dark:text-gray-400">$</span>
+                            <span class="absolute left-3 top-2 text-gray-500 dark:text-gray-400 dark:text-gray-400">$</span>
                             <input
                                 v-model.number="form.precio"
                                 type="number"
                                 step="0.01"
                                 min="0"
-                                class="w-full pl-8 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                                class="w-full pl-8 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                                 :class="{ 'border-red-500': errors.precio }"
                                 placeholder="15000.00"
                                 required
@@ -126,7 +126,7 @@
                         <input
                             v-model="form.numero_serie"
                             type="text"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             :class="{ 'border-red-500': errors.numero_serie }"
                             placeholder="Ej: 1HGBH41JXMN109186"
                             required
@@ -140,7 +140,7 @@
                         </label>
                         <select
                             v-model="form.combustible"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             :class="{ 'border-red-500': errors.combustible }"
                             required
                         >
@@ -163,11 +163,11 @@
                                 v-model.number="form.kilometraje"
                                 type="number"
                                 min="0"
-                                class="w-full px-3 py-2 pr-12 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                                class="w-full px-3 py-2 pr-12 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                                 :class="{ 'border-red-500': errors.kilometraje }"
                                 placeholder="150000"
                             >
-                            <span class="absolute right-3 top-2 text-gray-500 dark:text-gray-400 text-sm">km</span>
+                            <span class="absolute right-3 top-2 text-gray-500 dark:text-gray-400 dark:text-gray-400 text-sm">km</span>
                         </div>
                         <p v-if="errors.kilometraje" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ errors.kilometraje }}</p>
                     </div>
@@ -177,7 +177,7 @@
                         <input
                             v-model="form.placa"
                             type="text"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 uppercase bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 uppercase bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                             :class="{ 'border-red-500': errors.placa }"
                             placeholder="ABC-1234"
                             maxlength="8"
@@ -191,7 +191,7 @@
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado</label>
                         <select
                             v-model="form.activo"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                         >
                             <option :value="true">Activo</option>
                             <option :value="false">Inactivo</option>
@@ -202,7 +202,7 @@
 
                 <!-- Sección de foto -->
                 <div class="border-t dark:border-gray-700 pt-6">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Foto del Vehículo</h3>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Foto del Vehículo</h3>
 
                     <!-- Foto actual -->
                     <div v-if="props.carro.foto && !previewImage" class="mb-4">
@@ -222,15 +222,15 @@
                             {{ props.carro.foto ? 'Cambiar Foto' : 'Subir Foto' }}
                         </label>
                         <div class="flex items-center justify-center w-full">
-                            <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg cursor-pointer bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition duration-200">
+                            <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg cursor-pointer bg-white dark:bg-slate-900 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition duration-200">
                                 <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                    <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                                     </svg>
-                                    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                                    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
                                         <span class="font-semibold">Click para subir</span> o arrastra y suelta
                                     </p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG o JPEG (MAX. 5MB)</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">PNG, JPG o JPEG (MAX. 5MB)</p>
                                 </div>
                                 <input
                                     type="file"
@@ -268,7 +268,7 @@
                     <button
                         type="button"
                         @click="goBack"
-                        class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm hover:bg-white dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200"
                     >
                         Cancelar
                     </button>

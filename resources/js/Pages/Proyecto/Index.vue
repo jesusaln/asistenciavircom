@@ -2,7 +2,7 @@
     <AppLayout title="Proyectos">
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
+                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight flex items-center">
                     <font-awesome-icon icon="folder-open" class="mr-3 text-indigo-500" />
                     Mis Proyectos
                 </h2>
@@ -21,29 +21,29 @@
                 
                 <!-- Sección: Mis Proyectos -->
                 <div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-4 border-l-4 border-indigo-500 pl-3">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 border-l-4 border-indigo-500 pl-3">
                         Proyectos Propios
                     </h3>
                     
-                    <div v-if="misProyectos.length === 0" class="text-center py-12 bg-white rounded-lg border-2 border-dashed border-gray-300">
+                    <div v-if="misProyectos.length === 0" class="text-center py-12 bg-white dark:bg-slate-900 rounded-lg border-2 border-dashed border-gray-300">
                          <font-awesome-icon icon="clipboard-list" class="text-4xl text-gray-400 mb-3" />
-                         <p class="text-gray-500">No has creado ningún proyecto aún.</p>
+                         <p class="text-gray-500 dark:text-gray-400">No has creado ningún proyecto aún.</p>
                          <button @click="openModal()" class="mt-4 text-indigo-600 hover:text-indigo-800 font-medium">Crear mi primer proyecto</button>
                     </div>
 
                     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div v-for="proyecto in misProyectos" :key="proyecto.id" 
-                            class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition-shadow duration-300 border-t-4 cursor-pointer group relative"
+                            class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition-shadow duration-300 border-t-4 cursor-pointer group relative"
                             :style="{ borderColor: proyecto.color }"
                             @click="irAProyecto(proyecto.id)"
                         >
                             <div class="p-6">
                                 <div class="flex justify-between items-start">
-                                    <h4 class="text-lg font-bold text-gray-800 mb-2 truncate pr-2 group-hover:text-indigo-600 transition-colors w-3/4">
+                                    <h4 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 truncate pr-2 group-hover:text-indigo-600 transition-colors w-3/4">
                                         {{ proyecto.nombre }}
                                     </h4>
                                     <!-- Action Buttons -->
-                                    <div class="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity absolute top-4 right-4 bg-white p-1 rounded-md shadow-sm">
+                                    <div class="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity absolute top-4 right-4 bg-white dark:bg-slate-900 p-1 rounded-md shadow-sm">
                                         <button @click.stop="openModal(proyecto)" class="p-1.5 text-gray-400 hover:text-indigo-600 rounded-full hover:bg-gray-100 transition-colors" title="Editar">
                                             <font-awesome-icon icon="pen" class="w-3 h-3" />
                                         </button>
@@ -52,10 +52,10 @@
                                         </button>
                                     </div>
                                 </div>
-                                <p class="text-gray-500 text-sm mb-4 line-clamp-2 min-h-[40px]">
+                                <p class="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-2 min-h-[40px]">
                                     {{ proyecto.descripcion || 'Sin descripción' }}
                                 </p>
-                                <div v-if="proyecto.cliente" class="flex items-center text-xs text-gray-600 mb-2">
+                                <div v-if="proyecto.cliente" class="flex items-center text-xs text-gray-600 dark:text-gray-300 mb-2">
                                     <font-awesome-icon icon="user" class="mr-1 text-gray-400" />
                                     <span class="font-medium">{{ proyecto.cliente.nombre_razon_social }}</span>
                                 </div>
@@ -70,12 +70,12 @@
 
                 <!-- Sección: Proyectos Compartidos -->
                 <div v-if="proyectosCompartidos.length > 0">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4 border-l-4 border-emerald-500 pl-3">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 border-l-4 border-emerald-500 pl-3">
                         Compartidos conmigo
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                          <div v-for="proyecto in proyectosCompartidos" :key="proyecto.id" 
-                            class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition-shadow duration-300 border-t-4 border-emerald-400 cursor-pointer group"
+                            class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition-shadow duration-300 border-t-4 border-emerald-400 cursor-pointer group"
                             @click="irAProyecto(proyecto.id)"
                         >
                             <div class="p-6 relative">
@@ -83,10 +83,10 @@
                                     {{ proyecto.pivot?.role === 'viewer' ? 'LECTOR' : 'EDITOR' }}
                                 </div>
                                 
-                                <h4 class="text-lg font-bold text-gray-800 mb-2 truncate pr-2 group-hover:text-emerald-600 transition-colors mt-2">
+                                <h4 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 truncate pr-2 group-hover:text-emerald-600 transition-colors mt-2">
                                     {{ proyecto.nombre }}
                                 </h4>
-                                <p class="text-gray-500 text-sm mb-4 line-clamp-2 min-h-[40px]">
+                                <p class="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-2 min-h-[40px]">
                                     {{ proyecto.descripcion || 'Sin descripción' }}
                                 </p>
                                 <div class="flex justify-between items-center text-xs text-gray-400 mt-4 border-t pt-4">

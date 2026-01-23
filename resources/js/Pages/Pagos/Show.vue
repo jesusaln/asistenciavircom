@@ -96,7 +96,7 @@ const getEstadoColor = (estado) => {
     'atrasado': 'bg-red-100 text-red-800',
     'parcial': 'bg-orange-100 text-orange-800'
   }
-  return colors[estado] || 'bg-gray-100 text-gray-800'
+  return colors[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100'
 }
 
 const getMetodoPagoLabel = (metodo) => {
@@ -129,14 +129,14 @@ const tieneHistorial = computed(() => {
 <template>
   <Head title="Detalles de Pago" />
 
-  <div class="pagos-show min-h-screen bg-white">
+  <div class="pagos-show min-h-screen bg-white dark:bg-slate-900">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Detalles de Pago</h1>
-            <p class="text-gray-600 mt-2">Información completa del pago del préstamo</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Detalles de Pago</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-2">Información completa del pago del préstamo</p>
           </div>
           <div class="flex items-center space-x-3">
             <Link
@@ -147,7 +147,7 @@ const tieneHistorial = computed(() => {
             </Link>
             <Link
               href="/pagos"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
             >
               ← Volver a Pagos
             </Link>
@@ -158,9 +158,9 @@ const tieneHistorial = computed(() => {
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Información principal -->
         <div class="lg:col-span-2">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-              <h2 class="text-lg font-semibold text-gray-900">Información del Pago</h2>
+          <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información del Pago</h2>
             </div>
 
             <div class="p-6">
@@ -170,15 +170,15 @@ const tieneHistorial = computed(() => {
                   <h3 class="text-sm font-medium text-gray-700 mb-3">Datos del Pago</h3>
                   <div class="space-y-2 text-sm">
                     <div class="flex justify-between">
-                      <span class="text-gray-600">Número de Pago:</span>
-                      <span class="font-semibold text-gray-900">#{{ pago.numero_pago }}</span>
+                      <span class="text-gray-600 dark:text-gray-300">Número de Pago:</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">#{{ pago.numero_pago }}</span>
                     </div>
                     <div class="flex justify-between">
-                      <span class="text-gray-600">Fecha Programada:</span>
-                      <span class="font-semibold text-gray-900">{{ formatearFecha(pago.fecha_programada) }}</span>
+                      <span class="text-gray-600 dark:text-gray-300">Fecha Programada:</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">{{ formatearFecha(pago.fecha_programada) }}</span>
                     </div>
                     <div class="flex justify-between">
-                      <span class="text-gray-600">Estado:</span>
+                      <span class="text-gray-600 dark:text-gray-300">Estado:</span>
                       <span :class="['font-semibold', getEstadoColor(pago.estado)]">
                         {{ getEstadoLabel(pago.estado) }}
                       </span>
@@ -190,15 +190,15 @@ const tieneHistorial = computed(() => {
                   <h3 class="text-sm font-medium text-gray-700 mb-3">Información Financiera</h3>
                   <div class="space-y-2 text-sm">
                     <div class="flex justify-between">
-                      <span class="text-gray-600">Monto Programado:</span>
-                      <span class="font-semibold text-gray-900">${{ formatearMoneda(pago.monto_programado) }}</span>
+                      <span class="text-gray-600 dark:text-gray-300">Monto Programado:</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">${{ formatearMoneda(pago.monto_programado) }}</span>
                     </div>
                     <div class="flex justify-between">
-                      <span class="text-gray-600">Monto Pagado:</span>
+                      <span class="text-gray-600 dark:text-gray-300">Monto Pagado:</span>
                       <span class="font-semibold text-green-600">${{ formatearMoneda(pago.monto_pagado) }}</span>
                     </div>
                     <div class="flex justify-between">
-                      <span class="text-gray-600">Monto Pendiente:</span>
+                      <span class="text-gray-600 dark:text-gray-300">Monto Pendiente:</span>
                       <span class="font-semibold text-orange-600">${{ formatearMoneda(montoPendiente) }}</span>
                     </div>
                   </div>
@@ -206,24 +206,24 @@ const tieneHistorial = computed(() => {
               </div>
 
               <!-- Información del préstamo -->
-              <div class="bg-white rounded-lg p-4 mb-6">
+              <div class="bg-white dark:bg-slate-900 rounded-lg p-4 mb-6">
                 <h3 class="text-sm font-medium text-gray-700 mb-3">Información del Préstamo</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span class="text-gray-600">Cliente:</span>
-                    <span class="font-semibold text-gray-900 ml-2">{{ pago.prestamo?.cliente?.nombre_razon_social }}</span>
+                    <span class="text-gray-600 dark:text-gray-300">Cliente:</span>
+                    <span class="font-semibold text-gray-900 dark:text-white ml-2">{{ pago.prestamo?.cliente?.nombre_razon_social }}</span>
                   </div>
                   <div>
-                    <span class="text-gray-600">Monto del préstamo:</span>
-                    <span class="font-semibold text-gray-900 ml-2">${{ formatearMoneda(pago.prestamo?.monto_prestado) }}</span>
+                    <span class="text-gray-600 dark:text-gray-300">Monto del préstamo:</span>
+                    <span class="font-semibold text-gray-900 dark:text-white ml-2">${{ formatearMoneda(pago.prestamo?.monto_prestado) }}</span>
                   </div>
                   <div>
-                    <span class="text-gray-600">Progreso del préstamo:</span>
-                    <span class="font-semibold text-gray-900 ml-2">{{ pago.prestamo?.progreso }}%</span>
+                    <span class="text-gray-600 dark:text-gray-300">Progreso del préstamo:</span>
+                    <span class="font-semibold text-gray-900 dark:text-white ml-2">{{ pago.prestamo?.progreso }}%</span>
                   </div>
                   <div>
-                    <span class="text-gray-600">Pagos realizados:</span>
-                    <span class="font-semibold text-gray-900 ml-2">{{ pago.prestamo?.pagos_realizados }} / {{ pago.prestamo?.numero_pagos }}</span>
+                    <span class="text-gray-600 dark:text-gray-300">Pagos realizados:</span>
+                    <span class="font-semibold text-gray-900 dark:text-white ml-2">{{ pago.prestamo?.pagos_realizados }} / {{ pago.prestamo?.numero_pagos }}</span>
                   </div>
                 </div>
               </div>
@@ -249,14 +249,14 @@ const tieneHistorial = computed(() => {
         <!-- Panel lateral -->
         <div class="lg:col-span-1">
           <!-- Progreso del pago -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-            <div class="px-6 py-4 border-b border-gray-200">
-              <h3 class="text-lg font-semibold text-gray-900">Progreso del Pago</h3>
+          <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Progreso del Pago</h3>
             </div>
 
             <div class="p-6">
               <div class="text-center mb-4">
-                <div class="text-3xl font-bold text-gray-900 mb-2">{{ progreso }}%</div>
+                <div class="text-3xl font-bold text-gray-900 dark:text-white mb-2">{{ progreso }}%</div>
                 <div class="w-full bg-gray-200 rounded-full h-2">
                   <div
                     class="h-2 rounded-full transition-all duration-300"
@@ -264,7 +264,7 @@ const tieneHistorial = computed(() => {
                     :style="{ width: progreso + '%' }"
                   ></div>
                 </div>
-                <div class="text-sm text-gray-600 mt-2">
+                <div class="text-sm text-gray-600 dark:text-gray-300 mt-2">
                   ${{ formatearMoneda(pago.monto_pagado) }} de ${{ formatearMoneda(pago.monto_programado) }}
                 </div>
               </div>
@@ -272,19 +272,19 @@ const tieneHistorial = computed(() => {
               <!-- Información de estado -->
               <div class="space-y-3">
                 <div class="flex justify-between items-center">
-                  <span class="text-sm text-gray-600">Estado:</span>
+                  <span class="text-sm text-gray-600 dark:text-gray-300">Estado:</span>
                   <span :class="['text-sm font-medium', getEstadoColor(pago.estado)]">
                     {{ getEstadoLabel(pago.estado) }}
                   </span>
                 </div>
 
                 <div v-if="pago.dias_atraso > 0" class="flex justify-between items-center">
-                  <span class="text-sm text-gray-600">Días de atraso:</span>
+                  <span class="text-sm text-gray-600 dark:text-gray-300">Días de atraso:</span>
                   <span class="text-sm font-medium text-red-600">{{ pago.dias_atraso }} días</span>
                 </div>
 
                 <div class="flex justify-between items-center">
-                  <span class="text-sm text-gray-600">Pendiente:</span>
+                  <span class="text-sm text-gray-600 dark:text-gray-300">Pendiente:</span>
                   <span class="text-sm font-medium text-orange-600">${{ formatearMoneda(montoPendiente) }}</span>
                 </div>
               </div>
@@ -292,10 +292,10 @@ const tieneHistorial = computed(() => {
           </div>
 
           <!-- Historial de pagos (si existe) -->
-          <div v-if="tieneHistorial" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-              <h3 class="text-lg font-semibold text-gray-900">Historial de Pagos</h3>
-              <p class="text-sm text-gray-600 mt-1">{{ pago.historial_pagos.length }} pago(s) registrado(s)</p>
+          <div v-if="tieneHistorial" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Historial de Pagos</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">{{ pago.historial_pagos.length }} pago(s) registrado(s)</p>
             </div>
 
             <div class="p-6">
@@ -303,19 +303,19 @@ const tieneHistorial = computed(() => {
                 <div
                   v-for="historial in pago.historial_pagos"
                   :key="historial.id"
-                  class="border border-gray-200 rounded-lg p-3"
+                  class="border border-gray-200 dark:border-slate-800 rounded-lg p-3"
                 >
                   <div class="flex justify-between items-start mb-2">
                     <div>
-                      <div class="font-medium text-gray-900">${{ formatearMoneda(historial.monto_pagado) }}</div>
-                      <div class="text-xs text-gray-500">{{ formatearFecha(historial.fecha_pago) }}</div>
+                      <div class="font-medium text-gray-900 dark:text-white">${{ formatearMoneda(historial.monto_pagado) }}</div>
+                      <div class="text-xs text-gray-500 dark:text-gray-400">{{ formatearFecha(historial.fecha_pago) }}</div>
                     </div>
                     <div class="text-right">
-                      <div class="text-xs text-gray-600">{{ getMetodoPagoLabel(historial.metodo_pago) }}</div>
-                      <div v-if="historial.referencia" class="text-xs text-gray-500">{{ historial.referencia }}</div>
+                      <div class="text-xs text-gray-600 dark:text-gray-300">{{ getMetodoPagoLabel(historial.metodo_pago) }}</div>
+                      <div v-if="historial.referencia" class="text-xs text-gray-500 dark:text-gray-400">{{ historial.referencia }}</div>
                     </div>
                   </div>
-                  <div v-if="historial.notas" class="text-xs text-gray-600 mt-2 p-2 bg-white rounded">
+                  <div v-if="historial.notas" class="text-xs text-gray-600 dark:text-gray-300 mt-2 p-2 bg-white dark:bg-slate-900 rounded">
                     {{ historial.notas }}
                   </div>
                 </div>

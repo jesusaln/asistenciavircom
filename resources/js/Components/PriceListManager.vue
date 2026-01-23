@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-white shadow-sm rounded-lg p-6 mt-6">
+  <div class="bg-white dark:bg-slate-900 shadow-sm rounded-lg p-6 mt-6">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-medium text-gray-900">Precios por Lista</h2>
+      <h2 class="text-lg font-medium text-gray-900 dark:text-white">Precios por Lista</h2>
       <button
         v-if="hasChanges"
         @click="savePrices"
@@ -31,20 +31,20 @@
       <div
         v-for="lista in priceLists"
         :key="lista.id"
-        class="flex items-center gap-4 p-4 border border-gray-200 rounded-md hover:bg-gray-50"
+        class="flex items-center gap-4 p-4 border border-gray-200 dark:border-slate-800 rounded-md hover:bg-gray-50"
       >
         <div class="flex-1">
           <label :for="`price-${lista.id}`" class="block text-sm font-medium text-gray-700">
             {{ lista.nombre }}
           </label>
-          <p v-if="lista.descripcion" class="text-xs text-gray-500 mt-1">
+          <p v-if="lista.descripcion" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
             {{ lista.descripcion }}
           </p>
         </div>
         
         <div class="w-48">
           <div class="relative">
-            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 dark:text-gray-400">
               $
             </span>
             <input
@@ -58,7 +58,7 @@
               class="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
             />
           </div>
-          <p class="text-xs text-gray-500 mt-1">
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
             <span v-if="prices[lista.id]">
               {{ formatCurrency(prices[lista.id]) }}
             </span>

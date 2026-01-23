@@ -317,7 +317,7 @@ const obtenerLabelCondicion = (condicion) => {
 
 <template>
   <Head title="Equipos" />
-  <div class="equipos-index min-h-screen bg-white">
+  <div class="equipos-index min-h-screen bg-white dark:bg-slate-900">
     <div class="w-full px-6 py-8">
       <!-- Header específico de equipos -->
       <EquiposHeader
@@ -339,28 +339,28 @@ const obtenerLabelCondicion = (condicion) => {
       />
 
       <!-- Tabla -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+            <thead class="bg-white dark:bg-slate-900">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Equipo</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Código</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Precio Renta</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Condición</th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Equipo</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Código</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Precio Renta</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Estado</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Condición</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="equipo in equiposDocumentos" :key="equipo.id" class="hover:bg-white transition-colors duration-150">
+            <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+              <tr v-for="equipo in equiposDocumentos" :key="equipo.id" class="hover:bg-white dark:bg-slate-900 transition-colors duration-150">
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">{{ formatearFecha(equipo.fecha) }}</div>
+                  <div class="text-sm text-gray-900 dark:text-white">{{ formatearFecha(equipo.fecha) }}</div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-gray-900">{{ equipo.titulo }}</div>
-                  <div class="text-sm text-gray-500">{{ equipo.subtitulo }}</div>
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{ equipo.titulo }}</div>
+                  <div class="text-sm text-gray-500 dark:text-gray-400">{{ equipo.subtitulo }}</div>
                 </td>
                 <td class="px-6 py-4">
                   <div class="text-sm text-gray-700">{{ equipo.raw.codigo }}</div>
@@ -414,7 +414,7 @@ const obtenerLabelCondicion = (condicion) => {
                     </div>
                     <div class="space-y-1">
                       <p class="text-gray-700 font-medium">No hay equipos</p>
-                      <p class="text-sm text-gray-500">Los equipos aparecerán aquí cuando se creen</p>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Los equipos aparecerán aquí cuando se creen</p>
                     </div>
                   </div>
                 </td>
@@ -424,7 +424,7 @@ const obtenerLabelCondicion = (condicion) => {
         </div>
 
         <!-- Paginación -->
-        <div v-if="paginationData.lastPage > 1" class="bg-white border-t border-gray-200 px-4 py-3 sm:px-6">
+        <div v-if="paginationData.lastPage > 1" class="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 px-4 py-3 sm:px-6">
           <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-4">
               <p class="text-sm text-gray-700">
@@ -433,7 +433,7 @@ const obtenerLabelCondicion = (condicion) => {
               <select
                 :value="paginationData.perPage"
                 @change="handlePerPageChange(parseInt($event.target.value))"
-                class="border border-gray-300 rounded-md text-sm py-1 px-2 bg-white"
+                class="border border-gray-300 rounded-md text-sm py-1 px-2 bg-white dark:bg-slate-900"
               >
                 <option value="10">10</option>
                 <option value="15">15</option>
@@ -446,7 +446,7 @@ const obtenerLabelCondicion = (condicion) => {
               <button
                 v-if="paginationData.prevPageUrl"
                 @click="handlePageChange(paginationData.currentPage - 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white dark:bg-slate-900 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -463,7 +463,7 @@ const obtenerLabelCondicion = (condicion) => {
                 v-for="page in [paginationData.currentPage - 1, paginationData.currentPage, paginationData.currentPage + 1].filter(p => p > 0 && p <= paginationData.lastPage)"
                 :key="page"
                 @click="handlePageChange(page)"
-                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'"
+                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white dark:bg-slate-900 border-gray-300 text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900'"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               >
                 {{ page }}
@@ -472,7 +472,7 @@ const obtenerLabelCondicion = (condicion) => {
               <button
                 v-if="paginationData.nextPageUrl"
                 @click="handlePageChange(paginationData.currentPage + 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white dark:bg-slate-900 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -491,13 +491,13 @@ const obtenerLabelCondicion = (condicion) => {
 
       <!-- Modal mejorado -->
       <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showModal = false">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <!-- Header del modal -->
-          <div class="flex items-center justify-between p-6 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">
+          <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">
               {{ modalMode === 'details' ? 'Detalles del Equipo' : 'Confirmar Eliminación' }}
             </h3>
-            <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 transition-colors">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -511,19 +511,19 @@ const obtenerLabelCondicion = (condicion) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Nombre</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEquipo.nombre }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ selectedEquipo.nombre }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Código</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEquipo.codigo }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ selectedEquipo.codigo }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Marca</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEquipo.marca || 'N/A' }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ selectedEquipo.marca || 'N/A' }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Modelo</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEquipo.modelo || 'N/A' }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ selectedEquipo.modelo || 'N/A' }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Estado</label>
@@ -541,29 +541,29 @@ const obtenerLabelCondicion = (condicion) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Precio Renta Mensual</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(selectedEquipo.precio_renta_mensual) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">${{ formatNumber(selectedEquipo.precio_renta_mensual) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Precio Compra</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEquipo.precio_compra ? '$' + formatNumber(selectedEquipo.precio_compra) : 'N/A' }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ selectedEquipo.precio_compra ? '$' + formatNumber(selectedEquipo.precio_compra) : 'N/A' }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Fecha de Adquisición</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEquipo.fecha_adquisicion ? formatearFecha(selectedEquipo.fecha_adquisicion) : 'N/A' }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ selectedEquipo.fecha_adquisicion ? formatearFecha(selectedEquipo.fecha_adquisicion) : 'N/A' }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Fecha de Creación</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedEquipo.created_at) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ formatearFecha(selectedEquipo.created_at) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Última Actualización</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedEquipo.updated_at) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ formatearFecha(selectedEquipo.updated_at) }}</p>
                     </div>
                   </div>
                 </div>
                 <div v-if="selectedEquipo.descripcion">
                   <label class="block text-sm font-medium text-gray-700">Descripción</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedEquipo.descripcion }}</p>
+                  <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedEquipo.descripcion }}</p>
                 </div>
               </div>
             </div>
@@ -575,8 +575,8 @@ const obtenerLabelCondicion = (condicion) => {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
                   </svg>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">¿Eliminar Equipo?</h3>
-                <p class="text-sm text-gray-500 mb-4">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">¿Eliminar Equipo?</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
                   ¿Estás seguro de que deseas eliminar el equipo <strong>{{ selectedEquipo?.nombre }}</strong>?
                   Esta acción no se puede deshacer.
                 </p>
@@ -585,7 +585,7 @@ const obtenerLabelCondicion = (condicion) => {
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
             <button @click="showModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
               {{ modalMode === 'details' ? 'Cerrar' : 'Cancelar' }}
             </button>

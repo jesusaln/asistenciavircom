@@ -2,12 +2,12 @@
     <AppLayout title="Reporte de Pagos Recibidos">
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
                     Reporte de Pagos Recibidos
                 </h2>
                 <Link
                     :href="route('entregas-dinero.index')"
-                    class="bg-white0 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                    class="bg-white dark:bg-slate-9000 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
                 >
                     ← Volver a Entregas
                 </Link>
@@ -15,7 +15,7 @@
         </template>
 
         <!-- Filtros -->
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
+        <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg mb-6">
             <div class="p-6">
                 <form @submit.prevent="applyFilters" class="grid grid-cols-1 md:grid-cols-5 gap-4">
                     <div>
@@ -76,7 +76,7 @@
 
         <!-- Estadísticas -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
@@ -85,10 +85,10 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <dt class="text-sm font-medium text-gray-500 truncate">
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
                                 Total Recibido
                             </dt>
-                            <dd class="text-lg font-semibold text-gray-900">
+                            <dd class="text-lg font-semibold text-gray-900 dark:text-white">
                                 {{ formatCurrency(stats.total_recibido) }}
                             </dd>
                         </div>
@@ -96,7 +96,7 @@
                 </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
@@ -105,10 +105,10 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <dt class="text-sm font-medium text-gray-500 truncate">
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
                                 Entregas
                             </dt>
-                            <dd class="text-lg font-semibold text-gray-900">
+                            <dd class="text-lg font-semibold text-gray-900 dark:text-white">
                                 {{ stats.cantidad_entregas }}
                             </dd>
                         </div>
@@ -116,7 +116,7 @@
                 </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
@@ -125,10 +125,10 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <dt class="text-sm font-medium text-gray-500 truncate">
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
                                 Usuarios
                             </dt>
-                            <dd class="text-lg font-semibold text-gray-900">
+                            <dd class="text-lg font-semibold text-gray-900 dark:text-white">
                                 {{ stats.usuarios_unicos }}
                             </dd>
                         </div>
@@ -136,7 +136,7 @@
                 </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
@@ -145,10 +145,10 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <dt class="text-sm font-medium text-gray-500 truncate">
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
                                 Responsables
                             </dt>
-                            <dd class="text-lg font-semibold text-gray-900">
+                            <dd class="text-lg font-semibold text-gray-900 dark:text-white">
                                 {{ stats.responsables_unicos }}
                             </dd>
                         </div>
@@ -159,45 +159,45 @@
 
         <!-- Resumen por Método de Pago -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="px-6 py-4 bg-white border-b border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900">Resumen por Método de Pago en Entrega</h3>
+            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="px-6 py-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Resumen por Método de Pago en Entrega</h3>
                 </div>
                 <div class="p-6">
                     <div class="space-y-4">
-                        <div v-for="metodo in resumenMetodos" :key="metodo.metodo" class="flex items-center justify-between p-4 bg-white rounded-lg">
+                        <div v-for="metodo in resumenMetodos" :key="metodo.metodo" class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-lg">
                             <div>
-                                <div class="font-medium text-gray-900">{{ metodo.label }}</div>
-                                <div class="text-sm text-gray-500">{{ metodo.cantidad }} entregas</div>
+                                <div class="font-medium text-gray-900 dark:text-white">{{ metodo.label }}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ metodo.cantidad }} entregas</div>
                             </div>
                             <div class="text-right">
-                                <div class="font-bold text-lg text-gray-900">{{ formatCurrency(metodo.total) }}</div>
+                                <div class="font-bold text-lg text-gray-900 dark:text-white">{{ formatCurrency(metodo.total) }}</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="px-6 py-4 bg-white border-b border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900">Desglose de Montos</h3>
+            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="px-6 py-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Desglose de Montos</h3>
                 </div>
                 <div class="p-6">
                     <div class="space-y-4">
                         <div class="flex items-center justify-between">
-                            <span class="text-gray-600">Efectivo en Entrega:</span>
+                            <span class="text-gray-600 dark:text-gray-300">Efectivo en Entrega:</span>
                             <span class="font-semibold">{{ formatCurrency(metodoEntregaStats.efectivo || 0) }}</span>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-gray-600">Cheques en Entrega:</span>
+                            <span class="text-gray-600 dark:text-gray-300">Cheques en Entrega:</span>
                             <span class="font-semibold">{{ formatCurrency(metodoEntregaStats.cheque || 0) }}</span>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-gray-600">Tarjetas en Entrega:</span>
+                            <span class="text-gray-600 dark:text-gray-300">Tarjetas en Entrega:</span>
                             <span class="font-semibold">{{ formatCurrency(metodoEntregaStats.tarjeta || 0) }}</span>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-gray-600">Mixto en Entrega:</span>
+                            <span class="text-gray-600 dark:text-gray-300">Mixto en Entrega:</span>
                             <span class="font-semibold">{{ formatCurrency(metodoEntregaStats.mixto || 0) }}</span>
                         </div>
                         <hr class="my-2">
@@ -211,55 +211,55 @@
         </div>
 
         <!-- Tabla Detallada -->
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="px-6 py-4 bg-white border-b border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900">Detalle de Pagos Recibidos</h3>
+        <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="px-6 py-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Detalle de Pagos Recibidos</h3>
             </div>
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-white">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                    <thead class="bg-white dark:bg-slate-900">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Fecha Entrega
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Usuario
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Recibido Por
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Método de Pago Original
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Método de Pago Entrega
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Origen
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Monto
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Notas
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Entregado Responsable
                             </th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Acciones
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
                         <tr v-for="entrega in entregas" :key="entrega.id">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                 {{ formatearFecha(entrega.fecha_entrega) }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                 {{ entrega.usuario?.name }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                 {{ entrega.recibidoPor?.name }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -272,21 +272,21 @@
                                     {{ getMetodoPagoEntregaLabel(entrega) }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                 <span v-if="entrega.tipo_origen === 'venta'" class="text-green-600">
                                     Venta #{{ getVentaNumero(entrega) }}
                                 </span>
                                 <span v-else-if="entrega.tipo_origen === 'cobranza'" class="text-blue-600">
                                     Cobranza #{{ entrega.id_origen }}
                                 </span>
-                                <span v-else class="text-gray-600">
+                                <span v-else class="text-gray-600 dark:text-gray-300">
                                     Manual
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 dark:text-white">
                                 {{ formatCurrency(entrega.total) }}
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">
                                 {{ entrega.notas_recibido || entrega.notas || '-' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -299,10 +299,10 @@
                                 <span v-else class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                     Pendiente
                                 </span>
-                                <div v-if="entrega.fecha_entregado_responsable" class="text-xs text-gray-500 mt-1">
+                                <div v-if="entrega.fecha_entregado_responsable" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                     {{ formatearFecha(entrega.fecha_entregado_responsable) }}
                                 </div>
-                                <div v-if="entrega.responsable_organizacion" class="text-xs text-gray-500">
+                                <div v-if="entrega.responsable_organizacion" class="text-xs text-gray-500 dark:text-gray-400">
                                     {{ entrega.responsable_organizacion }}
                                 </div>
                             </td>
@@ -317,7 +317,7 @@
                                     </svg>
                                     Entregar
                                 </button>
-                                <span v-else class="text-sm text-gray-500">
+                                <span v-else class="text-sm text-gray-500 dark:text-gray-400">
                                     Entregado
                                 </span>
                             </td>
@@ -387,7 +387,7 @@ const getMetodoPagoClass = (entrega) => {
         'tarjeta': 'bg-purple-100 text-purple-800',
         'mixto': 'bg-orange-100 text-orange-800'
     };
-    return classes[metodo] || 'bg-gray-100 text-gray-800';
+    return classes[metodo] || 'bg-gray-100 text-gray-800 dark:text-gray-100';
 };
 
 const getMetodoPagoEntregaLabel = (entrega) => {
@@ -411,7 +411,7 @@ const getMetodoPagoEntregaClass = (entrega) => {
         'tarjeta': 'bg-purple-100 text-purple-800',
         'mixto': 'bg-orange-100 text-orange-800'
     };
-    return classes[metodo] || 'bg-gray-100 text-gray-800';
+    return classes[metodo] || 'bg-gray-100 text-gray-800 dark:text-gray-100';
 };
 
 const getVentaNumero = (entrega) => {

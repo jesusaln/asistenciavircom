@@ -1,6 +1,6 @@
 <template>
   <div
-   class="reporte-w-full w-full bg-white rounded-xl shadow-lg border border-gray-00 p-8
+   class="reporte-w-full w-full bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-gray-00 p-8
          print:border-0 print:shadow-none print:rounded-none print:p-0 print:mx-0"
   >
     <!-- Encabezado -->
@@ -35,10 +35,10 @@
 
         <!-- Info empresa -->
         <div class="flex-1">
-          <h1 class="text-3xl font-black text-gray-900 uppercase tracking-tight leading-tight mb-2">
+          <h1 class="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight leading-tight mb-2">
             {{ empresa.nombre || 'Nombre de la Empresa' }}
           </h1>
-          <div class="space-y-0.5 text-sm text-gray-600">
+          <div class="space-y-0.5 text-sm text-gray-600 dark:text-gray-300">
             <p class="flex items-center gap-2">
               <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -83,14 +83,14 @@
       </div>
 
       <!-- Datos reporte -->
-      <div class="text-right bg-gradient-to-br from-gray-50 to-gray-100 px-6 py-4 rounded-lg border-2 border-gray-200 shadow-sm">
-        <h2 class="text-xl font-black text-gray-900 uppercase tracking-tight mb-1">
+      <div class="text-right bg-gradient-to-br from-gray-50 to-gray-100 px-6 py-4 rounded-lg border-2 border-gray-200 dark:border-slate-800 shadow-sm">
+        <h2 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-1">
           Reporte de Asignación
         </h2>
-        <h3 class="text-base text-gray-600 font-semibold mb-3">
+        <h3 class="text-base text-gray-600 dark:text-gray-300 font-semibold mb-3">
           Herramientas y Equipos
         </h3>
-        <div class="text-xs text-gray-500 pt-2 border-t border-gray-300">
+        <div class="text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-300">
           <p class="font-medium">Fecha de Emisión:</p>
           <p class="font-mono">
             {{ formatearFecha(new Date()) }}
@@ -103,7 +103,7 @@
     <div class="grid grid-cols-2 gap-6 mb-10 print:gap-4 print:mb-8">
       <!-- Datos técnico -->
       <div class="border-2 border-gray-300 rounded-lg p-5 bg-gradient-to-br from-white to-gray-50 shadow-sm">
-        <div class="flex items-center gap-2 mb-4 pb-3 border-b-2 border-gray-200">
+        <div class="flex items-center gap-2 mb-4 pb-3 border-b-2 border-gray-200 dark:border-slate-800">
           <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
@@ -112,35 +112,35 @@
               d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
             />
           </svg>
-          <h3 class="text-sm font-black text-gray-800 uppercase tracking-wide">
+          <h3 class="text-sm font-black text-gray-800 dark:text-gray-100 uppercase tracking-wide">
             Datos del Técnico
           </h3>
         </div>
         <div class="space-y-2.5 text-sm">
           <div class="flex">
-            <span class="font-bold text-gray-600 w-28 flex-shrink-0">Nombre:</span>
-            <span class="text-gray-900 font-semibold">
+            <span class="font-bold text-gray-600 dark:text-gray-300 w-28 flex-shrink-0">Nombre:</span>
+            <span class="text-gray-900 dark:text-white font-semibold">
               {{ tecnico.nombre_completo }}
             </span>
           </div>
 
           <div class="flex">
-            <span class="font-bold text-gray-600 w-28 flex-shrink-0">ID Empleado:</span>
-            <span class="text-gray-900 font-mono">
+            <span class="font-bold text-gray-600 dark:text-gray-300 w-28 flex-shrink-0">ID Empleado:</span>
+            <span class="text-gray-900 dark:text-white font-mono">
               {{ tecnico.id }}
             </span>
           </div>
 
           <div class="flex">
-            <span class="font-bold text-gray-600 w-28 flex-shrink-0">Email:</span>
-            <span class="text-gray-900">
+            <span class="font-bold text-gray-600 dark:text-gray-300 w-28 flex-shrink-0">Email:</span>
+            <span class="text-gray-900 dark:text-white">
               {{ tecnico.email || 'N/A' }}
             </span>
           </div>
 
           <div class="flex">
-            <span class="font-bold text-gray-600 w-28 flex-shrink-0">Teléfono:</span>
-            <span class="text-gray-900">
+            <span class="font-bold text-gray-600 dark:text-gray-300 w-28 flex-shrink-0">Teléfono:</span>
+            <span class="text-gray-900 dark:text-white">
               {{ tecnico.telefono || 'N/A' }}
             </span>
           </div>
@@ -158,23 +158,23 @@
               d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
             />
           </svg>
-          <h3 class="text-sm font-black text-gray-800 uppercase tracking-wide">
+          <h3 class="text-sm font-black text-gray-800 dark:text-gray-100 uppercase tracking-wide">
             Resumen de Inventario
           </h3>
         </div>
 
         <div class="grid grid-cols-2 gap-4 mb-4">
-          <div class="bg-white rounded-lg p-3 border border-gray-200">
-            <p class="text-gray-500 text-xs uppercase font-bold mb-1">
+          <div class="bg-white dark:bg-slate-900 rounded-lg p-3 border border-gray-200 dark:border-slate-800">
+            <p class="text-gray-500 dark:text-gray-400 text-xs uppercase font-bold mb-1">
               Total Herramientas
             </p>
-            <p class="text-3xl font-black text-gray-900">
+            <p class="text-3xl font-black text-gray-900 dark:text-white">
               {{ estadisticas.total_herramientas }}
             </p>
           </div>
 
-          <div class="bg-white rounded-lg p-3 border border-gray-200">
-            <p class="text-gray-500 text-xs uppercase font-bold mb-1">
+          <div class="bg-white dark:bg-slate-900 rounded-lg p-3 border border-gray-200 dark:border-slate-800">
+            <p class="text-gray-500 dark:text-gray-400 text-xs uppercase font-bold mb-1">
               Valor Total
             </p>
             <p class="text-2xl font-black text-green-700">
@@ -224,7 +224,7 @@
             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
           />
         </svg>
-        <h3 class="text-base font-black text-gray-800 uppercase tracking-wide">
+        <h3 class="text-base font-black text-gray-800 dark:text-gray-100 uppercase tracking-wide">
           Inventario Asignado
         </h3>
       </div>
@@ -241,22 +241,22 @@
             <th class="border border-gray-400 px-3 py-3 text-left font-bold">Observaciones</th>
           </tr>
         </thead>
-        <tbody class="bg-white">
+        <tbody class="bg-white dark:bg-slate-900">
           <tr
             v-for="(herramienta, index) in herramientas"
             :key="herramienta.id"
-            :class="{'bg-white print:bg-white': index % 2 !== 0}"
+            :class="{'bg-white dark:bg-slate-900 print:bg-white dark:bg-slate-900': index % 2 !== 0}"
             class="hover:bg-blue-50 transition-colors"
           >
-            <td class="border border-gray-300 px-3 py-3 text-center text-gray-600 font-mono font-semibold">
+            <td class="border border-gray-300 px-3 py-3 text-center text-gray-600 dark:text-gray-300 font-mono font-semibold">
               {{ herramienta.id }}
             </td>
             <td class="border border-gray-300 px-3 py-3">
-              <div class="font-bold text-gray-900 leading-tight">
+              <div class="font-bold text-gray-900 dark:text-white leading-tight">
                 {{ herramienta.nombre }}
               </div>
               <div
-                class="text-xs text-gray-500 font-mono mt-1 bg-gray-100 px-2 py-0.5 rounded inline-block"
+                class="text-xs text-gray-500 dark:text-gray-400 font-mono mt-1 bg-gray-100 px-2 py-0.5 rounded inline-block"
               >
                 SN: {{ herramienta.numero_serie }}
               </div>
@@ -269,13 +269,13 @@
                 :class="[
                   'inline-block px-3 py-1 text-xs font-black rounded-full border-2',
                   getEstadoColor(herramienta.estado),
-                  'print:bg-white print:text-black print:border-gray-500'
+                  'print:bg-white dark:bg-slate-900 print:text-black print:border-gray-500'
                 ]"
               >
                 {{ getEstadoLabel(herramienta.estado) }}
               </span>
             </td>
-            <td class="border border-gray-300 px-3 py-3 text-right text-gray-900 font-bold font-mono">
+            <td class="border border-gray-300 px-3 py-3 text-right text-gray-900 dark:text-white font-bold font-mono">
               ${{ herramienta.costo_reemplazo?.toLocaleString('es-MX', { minimumFractionDigits: 2 }) || '0.00' }}
             </td>
             <td class="border border-gray-300 px-3 py-3 text-center text-gray-700 font-medium">
@@ -308,7 +308,7 @@
                 </svg>
                 Vida Útil &gt; 80%
               </div>
-              <div class="text-gray-600 leading-tight">
+              <div class="text-gray-600 dark:text-gray-300 leading-tight">
                 {{ herramienta.descripcion || 'Sin observaciones adicionales.' }}
               </div>
             </td>
@@ -319,7 +319,7 @@
       <!-- Sin herramientas -->
       <div
         v-if="herramientas.length === 0"
-        class="text-center py-12 border-2 border-t-0 border-gray-300 text-gray-500 italic bg-white"
+        class="text-center py-12 border-2 border-t-0 border-gray-300 text-gray-500 dark:text-gray-400 italic bg-white dark:bg-slate-900"
       >
         <svg class="w-16 h-16 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -336,9 +336,9 @@
     </div>
 
     <!-- Declaración de responsabilidad -->
-    <div class="mb-10 text-xs text-gray-700 leading-relaxed bg-white border-2 border-gray-300 rounded-lg p-5">
+    <div class="mb-10 text-xs text-gray-700 leading-relaxed bg-white dark:bg-slate-900 border-2 border-gray-300 rounded-lg p-5">
       <div class="flex items-start gap-2 mb-2">
-        <svg class="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-5 h-5 text-gray-600 dark:text-gray-300 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -346,7 +346,7 @@
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
           />
         </svg>
-        <p class="font-black uppercase tracking-wide text-gray-800">
+        <p class="font-black uppercase tracking-wide text-gray-800 dark:text-gray-100">
           Términos y Condiciones de Uso
         </p>
       </div>
@@ -368,10 +368,10 @@
             Firma
           </span>
         </div>
-        <p class="font-black text-gray-900 text-lg mb-1">
+        <p class="font-black text-gray-900 dark:text-white text-lg mb-1">
           {{ tecnico.nombre_completo }}
         </p>
-        <p class="text-xs text-gray-600 uppercase font-bold tracking-wide bg-gray-100 inline-block px-4 py-1 rounded">
+        <p class="text-xs text-gray-600 dark:text-gray-300 uppercase font-bold tracking-wide bg-gray-100 inline-block px-4 py-1 rounded">
           Técnico Responsable
         </p>
       </div>
@@ -383,17 +383,17 @@
             Firma y Sello
           </span>
         </div>
-        <p class="font-black text-gray-900 text-lg mb-1">
+        <p class="font-black text-gray-900 dark:text-white text-lg mb-1">
           AUTORIZADO POR
         </p>
-        <p class="text-xs text-gray-600 uppercase font-bold tracking-wide bg-gray-100 inline-block px-4 py-1 rounded">
+        <p class="text-xs text-gray-600 dark:text-gray-300 uppercase font-bold tracking-wide bg-gray-100 inline-block px-4 py-1 rounded">
           Supervisor / Gerente
         </p>
       </div>
     </div>
 
     <!-- Pie de página -->
-    <div class="mt-8 pt-4 border-t-2 border-gray-300 flex justify-between text-[10px] text-gray-500">
+    <div class="mt-8 pt-4 border-t-2 border-gray-300 flex justify-between text-[10px] text-gray-500 dark:text-gray-400">
       <p class="flex items-center gap-1">
         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
           <path
@@ -411,7 +411,7 @@
 
     <!-- Botones de acción (solo visibles en pantalla) -->
     <div
-      class="mt-8 flex justify-center gap-4 print:hidden sticky bottom-0 bg-white/95 backdrop-blur p-4 border-t border-gray-200 shadow-lg z-40 -mx-8 -mb-8"
+      class="mt-8 flex justify-center gap-4 print:hidden sticky bottom-0 bg-white dark:bg-slate-900/95 backdrop-blur p-4 border-t border-gray-200 dark:border-slate-800 shadow-lg z-40 -mx-8 -mb-8"
     >
       <button
         @click="imprimirReporte"
@@ -538,7 +538,7 @@ const getEstadoColor = (estado) => {
     baja: 'bg-red-100 text-red-800',
     perdida: 'bg-red-100 text-red-800',
   }
-  return colors[estado] || 'bg-gray-100 text-gray-800'
+  return colors[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100'
 }
 
 const getEstadoLabel = (estado) => {
@@ -560,7 +560,7 @@ const getCondicionColor = (condicion) => {
     mala: 'bg-red-100 text-red-800',
     critica: 'bg-red-100 text-red-800',
   }
-  return colors[condicion] || 'bg-gray-100 text-gray-800'
+  return colors[condicion] || 'bg-gray-100 text-gray-800 dark:text-gray-100'
 }
 
 const imprimirReporte = () => {
@@ -639,7 +639,7 @@ const formatearFecha = (fecha) => {
     background-color: #f3f4f6 !important;
   }
 
-  .bg-white {
+  .bg-white dark:bg-slate-900 {
     background-color: #f9fafb !important;
   }
 

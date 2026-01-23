@@ -6,7 +6,7 @@
 
       <!-- Modal -->
       <div class="flex min-h-full items-center justify-center p-4">
-        <div class="relative w-full max-w-4xl bg-white rounded-xl shadow-2xl transform transition-all">
+        <div class="relative w-full max-w-4xl bg-white dark:bg-slate-900 rounded-xl shadow-2xl transform transition-all">
           <!-- Header -->
           <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-4 rounded-t-xl">
             <div class="flex items-center justify-between">
@@ -32,7 +32,7 @@
               </span>
               <div class="flex space-x-3 text-xs">
                 <span class="text-green-600 font-medium">✓ {{ bulkResults.success.length }} importadas</span>
-                <span class="text-gray-500">○ {{ bulkResults.skipped.length }} omitidas</span>
+                <span class="text-gray-500 dark:text-gray-400">○ {{ bulkResults.skipped.length }} omitidas</span>
                 <span class="text-red-600">✗ {{ bulkResults.errors.length }} errores</span>
               </div>
             </div>
@@ -54,8 +54,8 @@
                 :class="[
                   'w-full rounded-lg py-2.5 text-sm font-medium leading-5 ring-white ring-opacity-60 ring-offset-2 ring-offset-emerald-400 focus:outline-none focus:ring-2',
                   activeTab === tab
-                    ? 'bg-white text-emerald-700 shadow'
-                    : 'text-gray-500 hover:bg-white/[0.12] hover:text-emerald-600'
+                    ? 'bg-white dark:bg-slate-900 text-emerald-700 shadow'
+                    : 'text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900/[0.12] hover:text-emerald-600'
                 ]"
               >
                 {{ tab === 'upload' ? 'Subir Archivo XML' : 'Seleccionar Recibido' }}
@@ -85,7 +85,7 @@
                 <p class="text-lg font-medium text-gray-700 mb-2">
                   Arrastra tu archivo XML aquí
                 </p>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
                   o haz clic para seleccionar
                 </p>
                 <p class="text-xs text-gray-400 mt-2">
@@ -113,7 +113,7 @@
                         placeholder="Buscar por serie, folio, RFC o nombre..." 
                         class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
                     />
-                    <div class="flex items-center space-x-2 bg-gray-50 px-3 rounded-lg border border-gray-200">
+                    <div class="flex items-center space-x-2 bg-gray-50 px-3 rounded-lg border border-gray-200 dark:border-slate-800">
                       <input 
                         id="showImported" 
                         type="checkbox" 
@@ -126,14 +126,14 @@
                     </div>
                  </div>
 
-                 <div class="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm h-96 overflow-y-auto">
+                 <div class="overflow-hidden bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg shadow-sm h-96 overflow-y-auto">
                     <div v-if="loadingCfdis" class="flex justify-center items-center h-full">
                         <svg class="animate-spin h-8 w-8 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                     </div>
-                    <div v-else-if="receivedCfdis.length === 0" class="flex flex-col justify-center items-center h-full text-gray-500 p-4 text-center">
+                    <div v-else-if="receivedCfdis.length === 0" class="flex flex-col justify-center items-center h-full text-gray-500 dark:text-gray-400 p-4 text-center">
                         <svg class="w-12 h-12 mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -152,14 +152,14 @@
                                         title="Seleccionar todos"
                                     />
                                 </th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Folio</th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Emisor</th>
-                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                                <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fecha</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Folio</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Emisor</th>
+                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total</th>
+                                <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acción</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200">
                             <tr v-for="cfdi in displayedCfdis" :key="cfdi.id" class="hover:bg-gray-50 transition-colors" :class="{ 'bg-emerald-50': selectedCfdis.includes(cfdi.id), 'bg-gray-50 opacity-75': cfdi.importado }">
                                 <td class="px-2 py-2 text-center">
                                     <input 
@@ -170,13 +170,13 @@
                                         class="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                     />
                                 </td>
-                                <td class="px-4 py-2 whitespace-nowrap text-xs text-gray-900">{{ formatDate(cfdi.fecha) }}</td>
-                                <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                                <td class="px-4 py-2 whitespace-nowrap text-xs text-gray-900 dark:text-white">{{ formatDate(cfdi.fecha) }}</td>
+                                <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                                     {{ cfdi.serie }}{{ cfdi.folio }}
                                 </td>
                                 <td class="px-4 py-2 text-xs text-gray-700">
-                                    <div class="font-medium text-gray-900">{{ cfdi.emisor_nombre }}</div>
-                                    <div class="text-gray-500">{{ cfdi.emisor_rfc }}</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">{{ cfdi.emisor_nombre }}</div>
+                                    <div class="text-gray-500 dark:text-gray-400">{{ cfdi.emisor_rfc }}</div>
                                 </td>
                                 <td class="px-4 py-2 whitespace-nowrap text-sm text-right font-medium text-emerald-600">
                                     ${{ formatMoney(cfdi.total) }}
@@ -234,7 +234,7 @@
                     <!-- Selected Products Preview & Resolution -->
                     <div v-if="selectedProducts.length > 0" class="mt-6 border-t pt-4">
                         <div class="flex justify-between items-center mb-3">
-                            <h4 class="text-sm font-medium text-gray-900">
+                            <h4 class="text-sm font-medium text-gray-900 dark:text-white">
                                 Validación de Productos ({{ selectedProducts.length }})
                             </h4>
                             <div class="flex space-x-2 text-xs">
@@ -260,19 +260,19 @@
                             </div>
                         </div>
 
-                        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm max-h-80 overflow-y-auto">
+                        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg overflow-hidden shadow-sm max-h-80 overflow-y-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50 sticky top-0 z-10">
                                     <tr>
-                                        <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                                        <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CFDI</th>
-                                        <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
-                                        <th scope="col" class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Cant</th>
-                                        <th scope="col" class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                                        <th scope="col" class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
+                                        <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+                                        <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">CFDI</th>
+                                        <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Descripción</th>
+                                        <th scope="col" class="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cant</th>
+                                        <th scope="col" class="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total</th>
+                                        <th scope="col" class="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acción</th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
+                                <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200">
                                     <tr v-for="(prod, idx) in selectedProducts" :key="idx" class="hover:bg-gray-50 text-xs text-gray-700">
                                         <td class="px-3 py-2 whitespace-nowrap">
                                             <span v-if="prod.producto_id" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
@@ -284,17 +284,17 @@
                                                 Nuevo
                                             </span>
                                         </td>
-                                        <td class="px-3 py-2 whitespace-nowrap text-gray-500" :title="prod.cfdi_uuid">
+                                        <td class="px-3 py-2 whitespace-nowrap text-gray-500 dark:text-gray-400" :title="prod.cfdi_uuid">
                                             {{ prod.cfdi_folio }}
                                         </td>
                                         <td class="px-3 py-2">
-                                            <div class="text-gray-900 truncate max-w-xs font-medium" :title="prod.descripcion">{{ prod.descripcion }}</div>
-                                            <div class="text-[10px] text-gray-500 font-mono mt-0.5">{{ prod.no_identificacion || 'S/N' }}</div>
+                                            <div class="text-gray-900 dark:text-white truncate max-w-xs font-medium" :title="prod.descripcion">{{ prod.descripcion }}</div>
+                                            <div class="text-[10px] text-gray-500 dark:text-gray-400 font-mono mt-0.5">{{ prod.no_identificacion || 'S/N' }}</div>
                                             <div v-if="prod.producto_nombre" class="text-[10px] text-green-600 truncate max-w-xs">
                                                 Link: {{ prod.producto_nombre }}
                                             </div>
                                         </td>
-                                        <td class="px-3 py-2 whitespace-nowrap text-right text-gray-900">{{ prod.cantidad }}</td>
+                                        <td class="px-3 py-2 whitespace-nowrap text-right text-gray-900 dark:text-white">{{ prod.cantidad }}</td>
                                         <td class="px-3 py-2 whitespace-nowrap text-right font-medium text-emerald-600">${{ formatMoney(prod.importe) }}</td>
                                         <td class="px-3 py-2 whitespace-nowrap text-center">
                                             <button 
@@ -340,23 +340,23 @@
               <!-- Info del CFDI -->
               <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                 <div class="bg-gray-50 rounded-lg p-3">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Folio</p>
-                  <p class="font-semibold text-gray-900">{{ cfdiData.serie }}{{ cfdiData.folio }}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Folio</p>
+                  <p class="font-semibold text-gray-900 dark:text-white">{{ cfdiData.serie }}{{ cfdiData.folio }}</p>
                 </div>
                 <div class="bg-gray-50 rounded-lg p-3">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Fecha</p>
-                  <p class="font-semibold text-gray-900">{{ formatDate(cfdiData.fecha) }}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Fecha</p>
+                  <p class="font-semibold text-gray-900 dark:text-white">{{ formatDate(cfdiData.fecha) }}</p>
                 </div>
                 <div class="bg-gray-50 rounded-lg p-3">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Subtotal</p>
-                  <p class="font-semibold text-gray-900">${{ formatMoney(cfdiData.subtotal) }}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Subtotal</p>
+                  <p class="font-semibold text-gray-900 dark:text-white">${{ formatMoney(cfdiData.subtotal) }}</p>
                 </div>
                 <div class="bg-gray-50 rounded-lg p-3">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">IVA (16%)</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">IVA (16%)</p>
                   <p class="font-semibold text-blue-600">${{ formatMoney(cfdiData.impuestos?.total_impuestos_trasladados || 0) }}</p>
                 </div>
                 <div class="bg-gray-50 rounded-lg p-3">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Total</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total</p>
                   <p class="font-semibold text-emerald-600">${{ formatMoney(cfdiData.total) }}</p>
                 </div>
               </div>
@@ -374,7 +374,7 @@
                 <div class="flex items-start justify-between gap-4">
                   <div class="flex-1">
                     <p class="text-xs text-blue-600 uppercase tracking-wide font-medium mb-2">Proveedor (Emisor)</p>
-                    <p class="font-semibold text-gray-900 text-lg">{{ cfdiData.emisor?.nombre }}</p>
+                    <p class="font-semibold text-gray-900 dark:text-white text-lg">{{ cfdiData.emisor?.nombre }}</p>
                     <div class="mt-2 space-y-1">
                       <p class="text-sm text-gray-600">
                         <span class="font-medium">RFC:</span> {{ cfdiData.emisor?.rfc }}
@@ -403,8 +403,8 @@
                       <span class="text-sm font-medium">Proveedor no registrado</span>
                     </div>
                     
-                    <div class="w-full space-y-2 bg-white p-3 rounded-lg border border-gray-200">
-                      <p class="text-xs text-gray-500 mb-2">Datos adicionales (opcionales):</p>
+                    <div class="w-full space-y-2 bg-white dark:bg-slate-900 p-3 rounded-lg border border-gray-200 dark:border-slate-800">
+                      <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Datos adicionales (opcionales):</p>
                         <input 
                             v-model="newProviderEmail" 
                             type="email" 
@@ -519,11 +519,11 @@
               </div>
 
               <!-- Tabla de conceptos -->
-              <div class="border border-gray-200 rounded-lg overflow-hidden mb-6">
+              <div class="border border-gray-200 dark:border-slate-800 rounded-lg overflow-hidden mb-6">
                 <table class="min-w-full divide-y divide-gray-200">
                   <thead class="bg-gray-50">
                     <tr>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                         <span class="flex items-center group relative cursor-help">
                           Estado
                           <svg class="w-4 h-4 ml-1 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
@@ -538,16 +538,16 @@
                           </div>
                         </span>
                       </th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Código</th>
-                      <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Clave SAT</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
-                      <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase">Unidad</th>
-                      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Cantidad</th>
-                      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Precio</th>
-                      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Importe</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Código</th>
+                      <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Clave SAT</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Descripción</th>
+                      <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Unidad</th>
+                      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Cantidad</th>
+                      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Precio</th>
+                      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Importe</th>
                     </tr>
                   </thead>
-                  <tbody class="bg-white divide-y divide-gray-200">
+                  <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200">
                     <tr v-for="(concepto, index) in cfdiData.conceptos" :key="index" class="hover:bg-gray-50">
                       <td class="px-4 py-3 whitespace-nowrap">
                         <div class="flex flex-col space-y-1">
@@ -610,7 +610,7 @@
                           </div>
                         </div>
                       </td>
-                      <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                      <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         <div class="flex flex-col">
                           <span :class="{'text-blue-600 font-mono text-xs italic': /^\d{4,8}-\d{1,4}-\d{3,6}$/.test(concepto.no_identificacion?.trim())}">
                             {{ concepto.no_identificacion || '-' }}
@@ -626,7 +626,7 @@
                         </span>
                         <span v-else class="text-gray-400">-</span>
                       </td>
-                      <td class="px-4 py-3 text-sm text-gray-900">
+                      <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
                         <div>{{ concepto.descripcion }}</div>
                         <div v-if="concepto.producto_nombre" class="text-xs text-green-600 mt-1">
                           → {{ concepto.producto_nombre }}
@@ -637,13 +637,13 @@
                           {{ concepto.unidad || concepto.clave_unidad || 'PZA' }}
                         </span>
                       </td>
-                      <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-right">
+                      <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
                         {{ concepto.cantidad }}
                       </td>
-                      <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-right">
+                      <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
                         ${{ formatMoney(concepto.valor_unitario) }}
                       </td>
-                      <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
+                      <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right font-medium">
                         ${{ formatMoney(concepto.importe) }}
                       </td>
                     </tr>
@@ -674,7 +674,7 @@
               <button
                 v-if="cfdiData && !bulkReviewMode"
                 @click="resetUpload"
-                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Subir otro archivo
               </button>
@@ -682,7 +682,7 @@
               <button
                 v-if="bulkReviewMode"
                 @click="cancelBulkReview"
-                class="px-4 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
+                class="px-4 py-2 text-sm font-medium text-red-600 bg-white dark:bg-slate-900 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
               >
                 Cancelar Todo
               </button>
@@ -692,7 +692,7 @@
               <button
                 v-if="!bulkReviewMode"
                 @click="close"
-                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Cancelar
               </button>
@@ -729,7 +729,7 @@
     <div v-if="showProductModal" class="fixed inset-0 z-[60] overflow-y-auto">
       <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" @click="showProductModal = false"></div>
       <div class="flex min-h-full items-center justify-center p-4">
-        <div class="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl transform transition-all">
+        <div class="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-xl shadow-2xl transform transition-all">
           <div class="bg-emerald-600 px-6 py-4 rounded-t-xl flex justify-between items-center">
             <h3 class="text-lg font-semibold text-white">Agregar Producto</h3>
             <button @click="showProductModal = false" class="text-white hover:text-gray-200">
@@ -820,7 +820,7 @@
                 <div>
                   <label class="block text-sm font-medium text-gray-700">Stock Inicial</label>
                   <input v-model.number="productForm.stock" type="number" step="1" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" />
-                  <p class="text-xs text-gray-500 mt-1">Cantidad del XML: {{ currentConcept?.cantidad }}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Cantidad del XML: {{ currentConcept?.cantidad }}</p>
                 </div>
 
                 <!-- Campos SAT -->
@@ -849,7 +849,7 @@
                 
                  <div class="flex items-center mt-2">
                   <input v-model="productForm.requiere_serie" id="requiere_serie" type="checkbox" class="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded">
-                  <label for="requiere_serie" class="ml-2 block text-sm text-gray-900">
+                  <label for="requiere_serie" class="ml-2 block text-sm text-gray-900 dark:text-white">
                     Requiere número de serie
                   </label>
                 </div>
@@ -899,7 +899,7 @@
                     <div 
                       v-for="(serial, idx) in productSerials" 
                       :key="idx"
-                      class="flex items-center justify-between bg-white px-3 py-1.5 rounded border border-gray-200 text-sm"
+                      class="flex items-center justify-between bg-white dark:bg-slate-900 px-3 py-1.5 rounded border border-gray-200 dark:border-slate-800 text-sm"
                     >
                       <span class="font-mono text-gray-700">{{ serial }}</span>
                       <button 
@@ -922,7 +922,7 @@
               </div>
 
                <div class="mt-6 flex justify-end space-x-3">
-                <button type="button" @click="showProductModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancelar</button>
+                <button type="button" @click="showProductModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg hover:bg-gray-50">Cancelar</button>
                 <button 
                   type="submit" 
                   :disabled="savingProduct"
@@ -942,7 +942,7 @@
     <div v-if="showCategoriaModal" class="fixed inset-0 z-[70] overflow-y-auto">
       <div class="fixed inset-0 bg-black bg-opacity-50" @click="showCategoriaModal = false"></div>
       <div class="flex min-h-full items-center justify-center p-4">
-        <div class="relative w-full max-w-md bg-white rounded-xl shadow-2xl">
+        <div class="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-xl shadow-2xl">
           <div class="bg-blue-600 px-6 py-4 rounded-t-xl flex justify-between items-center">
             <h3 class="text-lg font-semibold text-white">Nueva Categoría</h3>
             <button @click="showCategoriaModal = false" class="text-white hover:text-gray-200">
@@ -964,7 +964,7 @@
                 </div>
               </div>
               <div class="mt-6 flex justify-end space-x-3">
-                <button type="button" @click="showCategoriaModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancelar</button>
+                <button type="button" @click="showCategoriaModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg hover:bg-gray-50">Cancelar</button>
                 <button type="submit" :disabled="savingCategoria" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">
                   {{ savingCategoria ? 'Guardando...' : 'Guardar' }}
                 </button>
@@ -979,7 +979,7 @@
     <div v-if="showMarcaModal" class="fixed inset-0 z-[70] overflow-y-auto">
       <div class="fixed inset-0 bg-black bg-opacity-50" @click="showMarcaModal = false"></div>
       <div class="flex min-h-full items-center justify-center p-4">
-        <div class="relative w-full max-w-md bg-white rounded-xl shadow-2xl">
+        <div class="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-xl shadow-2xl">
           <div class="bg-purple-600 px-6 py-4 rounded-t-xl flex justify-between items-center">
             <h3 class="text-lg font-semibold text-white">Nueva Marca</h3>
             <button @click="showMarcaModal = false" class="text-white hover:text-gray-200">
@@ -1001,7 +1001,7 @@
                 </div>
               </div>
               <div class="mt-6 flex justify-end space-x-3">
-                <button type="button" @click="showMarcaModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancelar</button>
+                <button type="button" @click="showMarcaModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg hover:bg-gray-50">Cancelar</button>
                 <button type="submit" :disabled="savingMarca" class="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 disabled:opacity-50">
                   {{ savingMarca ? 'Guardando...' : 'Guardar' }}
                 </button>
@@ -1016,7 +1016,7 @@
     <div v-if="showSerialModal" class="fixed inset-0 z-[70] overflow-y-auto">
       <div class="fixed inset-0 bg-black bg-opacity-50" @click="closeSerialModal(false)"></div>
       <div class="flex min-h-full items-center justify-center p-4">
-        <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full">
+        <div class="relative bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-md w-full">
           <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-t-lg flex justify-between items-center">
             <h3 class="text-lg font-semibold text-white">Capturar Series</h3>
             <button @click="closeSerialModal(false)" class="text-white hover:text-gray-200">
@@ -1028,8 +1028,8 @@
           <div class="p-6">
             <!-- Info del producto -->
             <div v-if="serialModalIndex !== null && cfdiData?.conceptos?.[serialModalIndex]" class="mb-4 p-3 bg-gray-50 rounded-lg">
-              <p class="text-sm font-medium text-gray-900">{{ cfdiData.conceptos[serialModalIndex].descripcion }}</p>
-              <p class="text-xs text-gray-500 mt-1">
+              <p class="text-sm font-medium text-gray-900 dark:text-white">{{ cfdiData.conceptos[serialModalIndex].descripcion }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Cantidad: {{ cfdiData.conceptos[serialModalIndex].cantidad }} | 
                 Series capturadas: {{ currentSerials.length }}/{{ cfdiData.conceptos[serialModalIndex].cantidad }}
               </p>
@@ -1071,7 +1071,7 @@
             <div class="flex justify-end space-x-3">
               <button 
                 @click="closeSerialModal(false)" 
-                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Cancelar
               </button>

@@ -44,13 +44,13 @@ const prioridadColores = {
     <AppLayout title="Dashboard de Soporte">
         <Head title="Dashboard de Soporte" />
 
-        <div class="py-6 min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+        <div class="py-6 min-h-screen bg-gray-50 dark:bg-slate-950 dark:bg-gray-900 transition-colors duration-300">
             <div class="w-full px-4 sm:px-6 lg:px-8">
                 <!-- Header -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Dashboard de Soporte</h1>
-                        <p class="text-gray-600 dark:text-gray-400">Métricas y rendimiento del equipo</p>
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white">Dashboard de Soporte</h1>
+                        <p class="text-gray-600 dark:text-gray-300 dark:text-gray-400">Métricas y rendimiento del equipo</p>
                     </div>
                     <div class="flex gap-2 flex-wrap">
                         <a 
@@ -72,33 +72,33 @@ const prioridadColores = {
 
                 <!-- Stats principales -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 transition-colors">
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl p-5 shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 transition-colors">
                         <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ stats.total_abiertos }}</div>
-                        <div class="text-sm text-gray-500 dark:text-gray-400">Tickets Abiertos</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Tickets Abiertos</div>
                     </div>
-                    <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 transition-colors">
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl p-5 shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 transition-colors">
                         <div class="text-3xl font-bold text-red-600 dark:text-red-400">{{ stats.urgentes }}</div>
-                        <div class="text-sm text-gray-500 dark:text-gray-400">Urgentes</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Urgentes</div>
                     </div>
-                    <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 transition-colors">
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl p-5 shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 transition-colors">
                         <div class="text-3xl font-bold text-orange-600 dark:text-orange-400">{{ stats.vencidos }}</div>
-                        <div class="text-sm text-gray-500 dark:text-gray-400">SLA Vencido</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">SLA Vencido</div>
                     </div>
-                    <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 transition-colors">
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl p-5 shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 transition-colors">
                         <div class="text-3xl font-bold text-green-600 dark:text-green-400">{{ stats.resueltos_hoy }}</div>
-                        <div class="text-sm text-gray-500 dark:text-gray-400">Resueltos Hoy</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Resueltos Hoy</div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     <!-- Por Estado -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 p-6 transition-colors">
-                        <h3 class="font-semibold text-gray-900 dark:text-white mb-4">Tickets por Estado</h3>
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 p-6 transition-colors">
+                        <h3 class="font-semibold text-gray-900 dark:text-white dark:text-white mb-4">Tickets por Estado</h3>
                         <div class="space-y-3">
                             <div v-for="(total, estado) in porEstado" :key="estado" class="flex items-center gap-3">
                                 <div class="w-3 h-3 rounded-full" :style="{ backgroundColor: estadoColores[estado] }"></div>
                                 <span class="flex-1 text-sm text-gray-700 dark:text-gray-300 capitalize">{{ estado.replace('_', ' ') }}</span>
-                                <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ total }}</span>
+                                <span class="text-sm font-semibold text-gray-900 dark:text-white dark:text-white">{{ total }}</span>
                                 <div class="w-24 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                                     <div 
                                         class="h-full rounded-full" 
@@ -113,13 +113,13 @@ const prioridadColores = {
                     </div>
 
                     <!-- Por Prioridad -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 p-6 transition-colors">
-                        <h3 class="font-semibold text-gray-900 dark:text-white mb-4">Tickets Abiertos por Prioridad</h3>
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 p-6 transition-colors">
+                        <h3 class="font-semibold text-gray-900 dark:text-white dark:text-white mb-4">Tickets Abiertos por Prioridad</h3>
                         <div class="space-y-3">
                             <div v-for="(total, prioridad) in porPrioridad" :key="prioridad" class="flex items-center gap-3">
                                 <div class="w-3 h-3 rounded-full" :style="{ backgroundColor: prioridadColores[prioridad] }"></div>
                                 <span class="flex-1 text-sm text-gray-700 dark:text-gray-300 capitalize">{{ prioridad }}</span>
-                                <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ total }}</span>
+                                <span class="text-sm font-semibold text-gray-900 dark:text-white dark:text-white">{{ total }}</span>
                                 <div class="w-24 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                                     <div 
                                         class="h-full rounded-full" 
@@ -143,13 +143,13 @@ const prioridadColores = {
                     </div>
 
                     <!-- Cumplimiento SLA -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 p-6 transition-colors">
-                        <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Cumplimiento SLA</h3>
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 p-6 transition-colors">
+                        <h3 class="font-semibold text-gray-900 dark:text-white dark:text-white mb-2">Cumplimiento SLA</h3>
                         <div class="flex items-end gap-2">
                             <div class="text-4xl font-bold" :class="cumplimientoSla >= 90 ? 'text-green-600 dark:text-green-400' : cumplimientoSla >= 70 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'">
                                 {{ cumplimientoSla }}%
                             </div>
-                            <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">Últimos 30 días</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 mb-1">Últimos 30 días</div>
                         </div>
                         <div class="mt-3 h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                             <div 
@@ -161,8 +161,8 @@ const prioridadColores = {
                     </div>
 
                     <!-- Por Técnico -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 p-6 transition-colors">
-                        <h3 class="font-semibold text-gray-900 dark:text-white mb-4">Tickets por Técnico</h3>
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 p-6 transition-colors">
+                        <h3 class="font-semibold text-gray-900 dark:text-white dark:text-white mb-4">Tickets por Técnico</h3>
                         <div class="space-y-2">
                             <div v-for="item in porTecnico" :key="item.asignado_id || 'sin'" class="flex items-center justify-between py-1">
                                 <span class="text-sm text-gray-700 dark:text-gray-300">{{ item.asignado?.name || 'Sin asignar' }}</span>
@@ -176,8 +176,8 @@ const prioridadColores = {
                 </div>
 
                 <!-- Tickets últimos 7 días -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 p-6 mt-6 transition-colors">
-                    <h3 class="font-semibold text-gray-900 dark:text-white mb-4">Tickets Creados (Últimos 7 días)</h3>
+                <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 p-6 mt-6 transition-colors">
+                    <h3 class="font-semibold text-gray-900 dark:text-white dark:text-white mb-4">Tickets Creados (Últimos 7 días)</h3>
                     <div class="flex items-end gap-2 h-32">
                         <div 
                             v-for="dia in ticketsUltimos7Dias" 
@@ -195,7 +195,7 @@ const prioridadColores = {
                                     {{ dia.total }} tickets
                                 </div>
                             </div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-2">{{ new Date(dia.fecha).toLocaleDateString('es-MX', { weekday: 'short' }) }}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-2">{{ new Date(dia.fecha).toLocaleDateString('es-MX', { weekday: 'short' }) }}</div>
                             <div class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ dia.total }}</div>
                         </div>
                     </div>
@@ -204,10 +204,10 @@ const prioridadColores = {
                 <!-- NUEVO: Sección de Horas Trabajadas -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                     <!-- Horas por Técnico (30 días) -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 p-6 transition-colors">
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 p-6 transition-colors">
                         <div class="flex items-center gap-2 mb-4">
                             <span class="text-2xl">⏱️</span>
-                            <h3 class="font-semibold text-gray-900 dark:text-white">Horas Trabajadas por Técnico</h3>
+                            <h3 class="font-semibold text-gray-900 dark:text-white dark:text-white">Horas Trabajadas por Técnico</h3>
                             <span class="text-xs text-gray-400 ml-auto">Últimos 30 días</span>
                         </div>
                         <div v-if="horasPorTecnico && horasPorTecnico.length > 0" class="space-y-3">
@@ -217,8 +217,8 @@ const prioridadColores = {
                                         {{ item.asignado?.name?.charAt(0) || '?' }}
                                     </div>
                                     <div>
-                                        <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.asignado?.name || 'Sin asignar' }}</div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ item.total_tickets }} tickets</div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-white">{{ item.asignado?.name || 'Sin asignar' }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">{{ item.total_tickets }} tickets</div>
                                     </div>
                                 </div>
                                 <div class="text-right">
@@ -234,18 +234,18 @@ const prioridadColores = {
                     </div>
 
                     <!-- Horas por Póliza (Mes actual) -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 p-6 transition-colors">
+                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700/50 p-6 transition-colors">
                         <div class="flex items-center gap-2 mb-4">
                             <span class="text-2xl">🛡️</span>
-                            <h3 class="font-semibold text-gray-900 dark:text-white">Consumo de Horas por Póliza</h3>
+                            <h3 class="font-semibold text-gray-900 dark:text-white dark:text-white">Consumo de Horas por Póliza</h3>
                             <span class="text-xs text-gray-400 ml-auto">Mes actual</span>
                         </div>
                         <div v-if="horasPorPoliza && horasPorPoliza.length > 0" class="space-y-3">
-                            <div v-for="item in horasPorPoliza" :key="item.poliza_id" class="p-3 rounded-lg border transition-colors" :class="item.poliza?.horas_incluidas_mensual && Number(item.total_horas) > item.poliza.horas_incluidas_mensual ? 'border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800' : 'border-gray-100 bg-white dark:bg-gray-700/30 dark:border-gray-600'">
+                            <div v-for="item in horasPorPoliza" :key="item.poliza_id" class="p-3 rounded-lg border transition-colors" :class="item.poliza?.horas_incluidas_mensual && Number(item.total_horas) > item.poliza.horas_incluidas_mensual ? 'border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800' : 'border-gray-100 bg-white dark:bg-slate-900 dark:bg-gray-700/30 dark:border-gray-600'">
                                 <div class="flex justify-between items-start mb-2">
                                     <div>
-                                        <div class="text-sm font-bold text-gray-900 dark:text-white">{{ item.poliza?.nombre || 'Póliza' }}</div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ item.poliza?.folio }}</div>
+                                        <div class="text-sm font-bold text-gray-900 dark:text-white dark:text-white">{{ item.poliza?.nombre || 'Póliza' }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 font-mono">{{ item.poliza?.folio }}</div>
                                         <div class="text-xs text-gray-400">{{ item.poliza?.cliente?.nombre_razon_social }}</div>
                                     </div>
                                     <div class="text-right">
@@ -293,10 +293,10 @@ const prioridadColores = {
 
         <!-- Modal de Gestión de Categorías -->
         <Modal :show="showCategoryModal" @close="showCategoryModal = false" maxWidth="4xl">
-            <div class="p-6 bg-white dark:bg-gray-800 dark:text-gray-100 transition-colors">
+            <div class="p-6 bg-white dark:bg-slate-900 dark:bg-gray-800 dark:text-gray-100 transition-colors">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100">Gestión de Categorías</h2>
-                    <button @click="showCategoryModal = false" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 dark:text-gray-100">Gestión de Categorías</h2>
+                    <button @click="showCategoryModal = false" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
                         <font-awesome-icon icon="times" class="w-5 h-5" />
                     </button>
                 </div>

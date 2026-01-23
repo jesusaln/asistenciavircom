@@ -1,31 +1,31 @@
 <template>
     <DialogModal :show="show" @close="close" maxWidth="md">
         <template #content>
-            <div class="bg-white dark:bg-slate-950 rounded-3xl shadow-xl w-full overflow-hidden border border-gray-100 dark:border-slate-800 transform transition-all">
-                <div class="px-8 py-6 bg-white dark:bg-slate-900 border-b border-gray-50 dark:border-slate-800 flex justify-between items-center">
-                    <h3 class="font-black uppercase tracking-[0.15em] text-sm text-gray-900 dark:text-white">Registrar Cobro</h3>
-                    <button @click="close" class="text-gray-300 dark:text-slate-600 hover:text-gray-900 dark:hover:text-white transition-colors">
+            <div class="bg-white dark:bg-slate-900 dark:bg-slate-950 rounded-3xl shadow-xl w-full overflow-hidden border border-gray-100 dark:border-slate-800 transform transition-all">
+                <div class="px-8 py-6 bg-white dark:bg-slate-900 dark:bg-slate-900 border-b border-gray-50 dark:border-slate-800 flex justify-between items-center">
+                    <h3 class="font-black uppercase tracking-[0.15em] text-sm text-gray-900 dark:text-white dark:text-white">Registrar Cobro</h3>
+                    <button @click="close" class="text-gray-300 dark:text-slate-600 hover:text-gray-900 dark:text-white dark:hover:text-white transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                 </div>
 
                 <div class="p-8 space-y-6 dark:bg-slate-900/50">
                     <div v-if="cuenta" class="mb-4">
-                        <p class="text-xs text-gray-500 dark:text-slate-500 font-bold uppercase tracking-widest">{{ cuenta.cobrable?.cliente?.nombre_razon_social || 'Cliente' }}</p>
-                        <p class="text-lg font-black text-gray-800 dark:text-white">Saldo Pendiente: {{ formatCurrency(cuenta.monto_pendiente) }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-slate-500 font-bold uppercase tracking-widest">{{ cuenta.cobrable?.cliente?.nombre_razon_social || 'Cliente' }}</p>
+                        <p class="text-lg font-black text-gray-800 dark:text-gray-100 dark:text-white">Saldo Pendiente: {{ formatCurrency(cuenta.monto_pendiente) }}</p>
                     </div>
 
-                    <div class="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">
+                    <div class="p-6 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">
                         <label class="block text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-3">Monto del Abono</label>
                         <div class="relative">
                             <span class="absolute left-0 top-1/2 -translate-y-1/2 text-2xl font-black text-gray-300 dark:text-slate-700">$</span>
-                            <input v-model="form.monto" type="number" step="0.01" class="w-full pl-6 py-2 bg-transparent border-0 rounded-none text-3xl font-black text-gray-900 dark:text-white focus:ring-0 placeholder:text-gray-100 dark:placeholder:text-slate-800" placeholder="0.00" />
+                            <input v-model="form.monto" type="number" step="0.01" class="w-full pl-6 py-2 bg-transparent border-0 rounded-none text-3xl font-black text-gray-900 dark:text-white dark:text-white focus:ring-0 placeholder:text-gray-100 dark:placeholder:text-slate-800" placeholder="0.00" />
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-2">Método de Pago</label>
-                        <select v-model="form.metodo_pago" class="w-full py-4 px-5 bg-white dark:bg-slate-900 border-2 border-gray-100 dark:border-slate-800 rounded-2xl font-bold text-gray-900 dark:text-white focus:border-gray-900 dark:focus:border-slate-600 focus:ring-0 transition-all">
+                        <select v-model="form.metodo_pago" class="w-full py-4 px-5 bg-white dark:bg-slate-900 dark:bg-slate-900 border-2 border-gray-100 dark:border-slate-800 rounded-2xl font-bold text-gray-900 dark:text-white dark:text-white focus:border-gray-900 dark:focus:border-slate-600 focus:ring-0 transition-all">
                             <option value="">Seleccionar...</option>
                             <option value="efectivo">Efectivo</option>
                             <option value="transferencia">Transferencia</option>
@@ -46,7 +46,7 @@
                             ⚠️ No hay cuentas registradas. Para métodos bancarios, regístrelas en Finanzas.
                         </div>
                         
-                        <select v-else v-model="form.cuenta_bancaria_id" class="w-full py-4 px-5 bg-white dark:bg-slate-900 border-2 border-gray-100 dark:border-slate-800 rounded-2xl font-bold text-gray-900 dark:text-white focus:border-gray-900 dark:focus:border-slate-600 focus:ring-0 transition-all">
+                        <select v-else v-model="form.cuenta_bancaria_id" class="w-full py-4 px-5 bg-white dark:bg-slate-900 dark:bg-slate-900 border-2 border-gray-100 dark:border-slate-800 rounded-2xl font-bold text-gray-900 dark:text-white dark:text-white focus:border-gray-900 dark:focus:border-slate-600 focus:ring-0 transition-all">
                             <option value="">{{ requiresBankAccount ? 'Seleccionar Banco (Requerido)...' : 'Seleccionar Banco (Opcional)...' }}</option>
                             <option v-for="cb in cuentasBancarias" :key="cb.id" :value="cb.id">{{ cb.banco }} - {{ cb.nombre }}</option>
                         </select>
@@ -54,16 +54,16 @@
 
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-2">Notas / Referencia</label>
-                        <textarea v-model="form.notas" rows="2" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border-2 border-gray-100 dark:border-slate-800 rounded-2xl font-bold text-gray-900 dark:text-white focus:border-gray-900 dark:focus:border-slate-600 focus:ring-0 transition-all" placeholder="Ej: Pago de factura..."></textarea>
+                        <textarea v-model="form.notas" rows="2" class="w-full px-5 py-4 bg-white dark:bg-slate-900 dark:bg-slate-900 border-2 border-gray-100 dark:border-slate-800 rounded-2xl font-bold text-gray-900 dark:text-white dark:text-white focus:border-gray-900 dark:focus:border-slate-600 focus:ring-0 transition-all" placeholder="Ej: Pago de factura..."></textarea>
                     </div>
                 </div>
 
-                <div class="px-8 py-6 bg-white/50 dark:bg-slate-950 border-t border-gray-100 dark:border-slate-800 flex flex-col gap-3">
-                    <button @click="confirmarPago" :disabled="!canConfirmPayment || processing" class="w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-gray-200 dark:shadow-none disabled:opacity-50 flex items-center justify-center gap-3 active:scale-[0.98] transition-all">
+                <div class="px-8 py-6 bg-white dark:bg-slate-900/50 dark:bg-slate-950 border-t border-gray-100 dark:border-slate-800 flex flex-col gap-3">
+                    <button @click="confirmarPago" :disabled="!canConfirmPayment || processing" class="w-full py-4 bg-gray-900 dark:bg-white dark:bg-slate-900 text-white dark:text-slate-900 rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-gray-200 dark:shadow-none disabled:opacity-50 flex items-center justify-center gap-3 active:scale-[0.98] transition-all">
                         <span v-if="processing" class="w-4 h-4 border-2 border-white/30 border-t-white dark:border-slate-400/30 dark:border-t-slate-900 rounded-full animate-spin"></span>
                         {{ processing ? 'Procesando...' : 'Confirmar Cobro' }}
                     </button>
-                    <button @click="close" class="w-full py-3 font-black text-gray-400 dark:text-slate-500 hover:text-gray-900 dark:hover:text-white uppercase text-[10px] tracking-widest transition-colors">Cancelar</button>
+                    <button @click="close" class="w-full py-3 font-black text-gray-400 dark:text-slate-500 hover:text-gray-900 dark:text-white dark:hover:text-white uppercase text-[10px] tracking-widest transition-colors">Cancelar</button>
                 </div>
             </div>
         </template>

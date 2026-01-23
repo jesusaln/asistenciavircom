@@ -2,7 +2,7 @@
   <div class="productos-seleccionados">
     <!-- Lista de productos seleccionados -->
     <div v-if="selectedProducts.length > 0" class="mt-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
         <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
@@ -16,7 +16,7 @@
         <div
           v-for="entry in selectedProducts"
           :key="`${entry.tipo}-${entry.id}`"
-          class="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-all duration-200"
+          class="bg-gradient-to-r from-gray-50 to-white border border-gray-200 dark:border-slate-800 rounded-xl p-6 hover:shadow-md transition-all duration-200"
         >
           <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <!-- Información del producto -->
@@ -32,7 +32,7 @@
                     </span>
                   </div>
 
-                  <h4 class="text-lg font-semibold text-gray-900 mb-1">
+                  <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">
                     {{ getItemInfo(entry).nombre }}
                   </h4>
 
@@ -42,7 +42,7 @@
 
                  <div class="space-y-1">
   <!-- Precio de venta -->
-  <div class="flex items-center text-sm text-gray-500">
+  <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
     </svg>
@@ -159,7 +159,7 @@
                   >
                     Capturar series ({{ serialCount(entry) }}/{{ quantities[`${entry.tipo}-${entry.id}`] || 1 }})
                   </button>
-                  <span class="text-xs text-gray-500 truncate">
+                  <span class="text-xs text-gray-500 dark:text-gray-400 truncate">
                     {{ getSerialsString(entry) || 'Sin series capturadas' }}
                   </span>
                 </div>
@@ -172,7 +172,7 @@
                   class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 resize-y"
                 ></textarea>
 
-                <p class="mt-1 text-xs text-gray-500">
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Puedes usar el botón “Capturar series” o pegar valores separados por coma o por línea. Debes ingresar exactamente {{ quantities[`${entry.tipo}-${entry.id}`] || 1 }} series únicas.
                 </p>
               </div>
@@ -187,7 +187,7 @@
           </div>
 
           <!-- Información adicional del item (descuento aplicado) -->
-          <div v-if="(discounts[`${entry.tipo}-${entry.id}`] || 0) > 0" class="mt-4 pt-4 border-t border-gray-200">
+          <div v-if="(discounts[`${entry.tipo}-${entry.id}`] || 0) > 0" class="mt-4 pt-4 border-t border-gray-200 dark:border-slate-800">
             <div class="grid grid-cols-2 gap-4 text-sm">
               <div class="text-gray-600">
                 <span class="font-medium">Subtotal sin descuento:</span>
@@ -208,16 +208,16 @@
       <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
       </svg>
-      <p class="text-gray-500 text-lg font-medium">No hay productos seleccionados</p>
+      <p class="text-gray-500 dark:text-gray-400 text-lg font-medium">No hay productos seleccionados</p>
       <p class="text-gray-400 text-sm mt-1">Busca y agrega productos para comenzar</p>
     </div>
 
     <!-- Modal para editar precio con historial -->
     <div v-if="showEditPriceModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <!-- Header del modal -->
-        <div class="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 class="text-lg font-medium text-gray-900">
+        <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white">
             Editar Precio - {{ productoSeleccionado?.nombre }}
           </h3>
           <button @click="closeEditPriceModal" class="text-gray-400 hover:text-gray-600 transition-colors">
@@ -242,7 +242,7 @@
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700">Precio Actual</label>
-                  <p class="text-lg font-semibold text-gray-900">${{ productoSeleccionado?.precio_compra?.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00' }}</p>
+                  <p class="text-lg font-semibold text-gray-900 dark:text-white">${{ productoSeleccionado?.precio_compra?.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00' }}</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700">Precio en Orden</label>
@@ -265,7 +265,7 @@
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Ingresa el nuevo precio"
               />
-              <p class="mt-1 text-sm text-gray-500">
+              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Este precio se aplicará tanto a la orden de compra como al producto en el catálogo
               </p>
             </div>
@@ -286,21 +286,21 @@
 
             <!-- Historial de precios (últimos 5 cambios) -->
             <div v-if="historialPrecios.length > 0" class="mb-6">
-              <h4 class="text-md font-medium text-gray-900 mb-3">Historial de Precios</h4>
+              <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">Historial de Precios</h4>
               <div class="space-y-2 max-h-40 overflow-y-auto">
                 <div v-for="registro in historialPrecios.slice(0, 5)" :key="registro.id" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div>
-                    <div class="text-sm font-medium text-gray-900">
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">
                       ${{ registro.precio_compra_anterior?.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }} →
                       ${{ registro.precio_compra_nuevo?.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                     </div>
-                    <div class="text-xs text-gray-500">{{ registro.fecha }}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ registro.fecha }}</div>
                   </div>
                   <div class="text-right">
                     <div class="text-sm font-medium" :class="registro.cambio_compra >= 0 ? 'text-green-600' : 'text-red-600'">
                       {{ registro.cambio_compra >= 0 ? '+' : '' }}${{ registro.cambio_compra?.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                     </div>
-                    <div class="text-xs text-gray-500">{{ registro.tipo_cambio }}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ registro.tipo_cambio }}</div>
                   </div>
                 </div>
               </div>
@@ -309,7 +309,7 @@
         </div>
 
         <!-- Footer del modal -->
-        <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+        <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-gray-50">
           <button @click="closeEditPriceModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
             Cancelar
           </button>

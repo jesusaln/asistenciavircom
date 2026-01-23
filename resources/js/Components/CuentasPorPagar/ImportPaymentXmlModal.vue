@@ -283,7 +283,7 @@ const formatDate = (dateStr) => {
 
 <template>
   <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
       <!-- Header -->
       <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-4 flex justify-between items-center">
         <h2 class="text-xl font-semibold">
@@ -297,14 +297,14 @@ const formatDate = (dateStr) => {
         <!-- Step: Select Source -->
         <div v-if="step === 'source'" class="space-y-4">
           <!-- Tabs -->
-          <div class="flex border-b border-gray-200">
+          <div class="flex border-b border-gray-200 dark:border-slate-800">
             <button
               @click="sourceTab = 'select'"
               :class="[
                 'px-4 py-2 font-medium text-sm border-b-2 transition-colors',
                 sourceTab === 'select'
                   ? 'border-orange-500 text-orange-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'
               ]"
             >
               📋 Seleccionar CFDI Existente
@@ -315,7 +315,7 @@ const formatDate = (dateStr) => {
                 'px-4 py-2 font-medium text-sm border-b-2 transition-colors',
                 sourceTab === 'upload'
                   ? 'border-orange-500 text-orange-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'
               ]"
             >
               📤 Subir Archivo XML
@@ -344,11 +344,11 @@ const formatDate = (dateStr) => {
             
             <!-- CFDI List -->
             <div class="border rounded-lg overflow-hidden max-h-80 overflow-y-auto">
-              <div v-if="loadingCfdis" class="p-8 text-center text-gray-500">
+              <div v-if="loadingCfdis" class="p-8 text-center text-gray-500 dark:text-gray-400">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto mb-2"></div>
                 Cargando CFDIs...
               </div>
-              <div v-else-if="paymentCfdis.length === 0" class="p-8 text-center text-gray-500">
+              <div v-else-if="paymentCfdis.length === 0" class="p-8 text-center text-gray-500 dark:text-gray-400">
                 <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
@@ -357,22 +357,22 @@ const formatDate = (dateStr) => {
               <table v-else class="w-full text-sm">
                 <thead class="bg-gray-50 sticky top-0">
                   <tr>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Emisor</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">UUID</th>
-                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Monto</th>
-                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Docs</th>
-                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Acción</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Fecha</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Emisor</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">UUID</th>
+                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Monto</th>
+                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Docs</th>
+                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Acción</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                   <tr v-for="cfdi in paymentCfdis" :key="cfdi.id" class="hover:bg-orange-50 transition-colors">
                     <td class="px-4 py-3 whitespace-nowrap">{{ formatDate(cfdi.fecha_emision) }}</td>
                     <td class="px-4 py-3">
-                      <div class="font-medium text-gray-900 truncate max-w-48">{{ cfdi.nombre_emisor }}</div>
-                      <div class="text-xs text-gray-500">{{ cfdi.rfc_emisor }}</div>
+                      <div class="font-medium text-gray-900 dark:text-white truncate max-w-48">{{ cfdi.nombre_emisor }}</div>
+                      <div class="text-xs text-gray-500 dark:text-gray-400">{{ cfdi.rfc_emisor }}</div>
                     </td>
-                    <td class="px-4 py-3 font-mono text-xs text-gray-500">{{ cfdi.uuid?.slice(0, 8) }}...</td>
+                    <td class="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">{{ cfdi.uuid?.slice(0, 8) }}...</td>
                     <td class="px-4 py-3 text-right font-medium text-green-600">{{ formatCurrency(cfdi.total) }}</td>
                     <td class="px-4 py-3 text-center">
                       <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{{ cfdi.num_documentos || 0 }}</span>
@@ -418,7 +418,7 @@ const formatDate = (dateStr) => {
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                 </svg>
                 <p class="text-lg text-gray-600 mb-2">Arrastra y suelta tu archivo XML aquí</p>
-                <p class="text-sm text-gray-500">o haz clic para seleccionar</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">o haz clic para seleccionar</p>
               </div>
               <input type="file" ref="fileInput" class="hidden" accept=".xml" @change="handleFileSelect">
             </div>
@@ -474,13 +474,13 @@ const formatDate = (dateStr) => {
           </div>
 
           <!-- Otras Cuentas List -->
-          <div v-if="mostrarOtrasCuentas && otrasCuentas.length > 0" class="bg-gray-50 border border-gray-200 rounded-lg p-4 mt-2">
-             <h4 class="text-xs font-bold text-gray-500 uppercase mb-3 text-center">Otras Facturas Pendientes de este Proveedor</h4>
+          <div v-if="mostrarOtrasCuentas && otrasCuentas.length > 0" class="bg-gray-50 border border-gray-200 dark:border-slate-800 rounded-lg p-4 mt-2">
+             <h4 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-3 text-center">Otras Facturas Pendientes de este Proveedor</h4>
              <div class="space-y-2 max-h-48 overflow-y-auto pr-2">
-                <div v-for="cuenta in otrasCuentas" :key="cuenta.id" class="flex items-center justify-between text-sm bg-white p-3 rounded border border-gray-100 shadow-sm transition-all hover:border-indigo-200">
+                <div v-for="cuenta in otrasCuentas" :key="cuenta.id" class="flex items-center justify-between text-sm bg-white dark:bg-slate-900 p-3 rounded border border-gray-100 dark:border-slate-800 shadow-sm transition-all hover:border-indigo-200">
                    <div class="flex flex-col">
                       <span class="font-bold text-gray-800">{{ cuenta.numero_compra }}</span>
-                      <span class="text-xs text-gray-500">Vence: {{ cuenta.fecha_vencimiento }}</span>
+                      <span class="text-xs text-gray-500 dark:text-gray-400">Vence: {{ cuenta.fecha_vencimiento }}</span>
                    </div>
                    <div class="flex items-center space-x-4">
                       <div class="text-right">
@@ -632,7 +632,7 @@ const formatDate = (dateStr) => {
               'px-6 py-2 rounded-md font-medium',
               canApply
                 ? 'bg-orange-600 text-white hover:bg-orange-700'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-gray-300 text-gray-500 dark:text-gray-400 cursor-not-allowed'
             ]"
           >
             <span v-if="applying" class="flex items-center">

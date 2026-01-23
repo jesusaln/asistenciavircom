@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-none border border-gray-100 dark:border-gray-700 overflow-hidden">
+  <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-none border border-gray-100 dark:border-slate-800 dark:border-gray-700 overflow-hidden">
     <!-- Header con estadísticas -->
-    <div class="px-6 py-6 border-b border-gray-200/60">
+    <div class="px-6 py-6 border-b border-gray-200 dark:border-slate-800/60">
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Almacenes</h1>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Almacenes</h1>
           <p class="text-sm text-gray-600 mt-1">Gestiona todos tus almacenes en un solo lugar</p>
         </div>
         <button
@@ -20,11 +20,11 @@
 
       <!-- Estadísticas -->
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Total</p>
-              <p class="text-2xl font-bold text-gray-900">{{ total }}</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total }}</p>
             </div>
             <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
               <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -34,7 +34,7 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Activos</p>
@@ -48,7 +48,7 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Inactivos</p>
@@ -62,7 +62,7 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Con Responsable</p>
@@ -76,7 +76,7 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Con Teléfono</p>
@@ -93,7 +93,7 @@
     </div>
 
     <!-- Filtros y búsqueda -->
-    <div class="px-6 py-4 bg-gray-50/50 border-b border-gray-200/60">
+    <div class="px-6 py-4 bg-gray-50/50 border-b border-gray-200 dark:border-slate-800/60">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
         <!-- Búsqueda -->
         <div class="flex-1 max-w-md">
@@ -107,7 +107,7 @@
               v-model="searchTerm"
               type="text"
               placeholder="Buscar por nombre, dirección, responsable..."
-              class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white dark:bg-slate-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
               @input="onSearchChange"
             />
           </div>
@@ -119,7 +119,7 @@
           <select
             v-model="filtroEstado"
             @change="onFiltroEstadoChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-900"
           >
             <option value="">Todos los Estados</option>
             <option value="activo">Activos</option>
@@ -130,7 +130,7 @@
           <select
             v-model="filtroTipo"
             @change="onFiltroTipoChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-900"
           >
             <option value="">Todos los Tipos</option>
             <option value="con_responsable">Con Responsable</option>
@@ -143,7 +143,7 @@
           <select
             v-model="sortBy"
             @change="onSortChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-900"
           >
             <option value="nombre-asc">Nombre (A-Z)</option>
             <option value="nombre-desc">Nombre (Z-A)</option>
@@ -154,7 +154,7 @@
           <!-- Limpiar filtros -->
           <button
             @click="onLimpiarFiltros"
-            class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
           >
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

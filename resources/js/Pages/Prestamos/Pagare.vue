@@ -658,7 +658,7 @@ const generarContenidoPagare = (tamano = 'carta') => {
 <template>
   <Head title="Pagaré del Préstamo" />
 
-  <div class="pagare-page min-h-screen bg-white">
+  <div class="pagare-page min-h-screen bg-white dark:bg-slate-900">
     <div class="w-full px-6 py-8">
       <!-- Header mejorado -->
       <div class="mb-8">
@@ -699,7 +699,7 @@ const generarContenidoPagare = (tamano = 'carta') => {
               <select
                 v-model="tamanoSeleccionado"
                 @change="generarPDF(tamanoSeleccionado)"
-                class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               >
                 <option value="carta">Carta (8.5" × 11")</option>
                 <option value="oficio">Oficio (8.5" × 13")</option>
@@ -720,7 +720,7 @@ const generarContenidoPagare = (tamano = 'carta') => {
             </button>
             <button
               @click="validarDatos"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-white transition-colors"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 transition-colors"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -732,7 +732,7 @@ const generarContenidoPagare = (tamano = 'carta') => {
           <div class="flex items-center gap-2">
             <Link
               :href="`/prestamos/${prestamo.id}`"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-white transition-colors"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 transition-colors"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -742,7 +742,7 @@ const generarContenidoPagare = (tamano = 'carta') => {
             </Link>
             <Link
               href="/prestamos"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-white transition-colors"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 transition-colors"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -754,12 +754,12 @@ const generarContenidoPagare = (tamano = 'carta') => {
       </div>
 
       <!-- Vista previa mejorada -->
-      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-        <div class="px-8 py-6 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+        <div class="px-8 py-6 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 dark:border-slate-800">
           <div class="flex items-center justify-between">
             <div>
-              <h2 class="text-2xl font-bold text-gray-900 mb-2">Vista Previa del Documento</h2>
-              <p class="text-gray-600">
+              <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Vista Previa del Documento</h2>
+              <p class="text-gray-600 dark:text-gray-300">
                 Versión preliminar del pagaré oficial • El PDF final incluye formato A4 profesional
               </p>
             </div>
@@ -770,7 +770,7 @@ const generarContenidoPagare = (tamano = 'carta') => {
                 </svg>
                 Documento Legal
               </span>
-              <span class="text-sm text-gray-500">Versión {{ DOCUMENTO_INFO.version }}</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">Versión {{ DOCUMENTO_INFO.version }}</span>
             </div>
           </div>
         </div>
@@ -784,18 +784,18 @@ const generarContenidoPagare = (tamano = 'carta') => {
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
               </div>
-              <h1 class="text-3xl font-extrabold text-gray-900 mb-2">{{ DOCUMENTO_INFO.titulo }}</h1>
-              <p class="text-gray-600">{{ DOCUMENTO_INFO.subtitulo }}</p>
+              <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-2">{{ DOCUMENTO_INFO.titulo }}</h1>
+              <p class="text-gray-600 dark:text-gray-300">{{ DOCUMENTO_INFO.subtitulo }}</p>
               <div class="flex items-center justify-center gap-2 mt-3">
-                <span class="text-sm text-gray-500">{{ empresa.direccion }}</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">{{ empresa.direccion }}</span>
                 <span class="text-gray-300">•</span>
-                <span class="text-sm text-gray-500">{{ formatearFechaFlex(fecha_actual) }}</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">{{ formatearFechaFlex(fecha_actual) }}</span>
               </div>
             </div>
 
             <!-- Información del contrato -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div class="bg-white rounded-xl p-6 border border-gray-200">
+              <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-gray-200 dark:border-slate-800">
                 <div class="flex items-center mb-3">
                   <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
                     <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -803,14 +803,14 @@ const generarContenidoPagare = (tamano = 'carta') => {
                     </svg>
                   </div>
                   <div>
-                    <div class="text-sm font-medium text-gray-900">Referencia</div>
-                    <div class="text-xs text-gray-500">Número de contrato</div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">Referencia</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">Número de contrato</div>
                   </div>
                 </div>
-                <div class="text-lg font-bold text-gray-900">{{ formatearNumeroContrato() }}</div>
+                <div class="text-lg font-bold text-gray-900 dark:text-white">{{ formatearNumeroContrato() }}</div>
               </div>
 
-              <div class="bg-white rounded-xl p-6 border border-gray-200">
+              <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-gray-200 dark:border-slate-800">
                 <div class="flex items-center mb-3">
                   <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
                     <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -818,14 +818,14 @@ const generarContenidoPagare = (tamano = 'carta') => {
                     </svg>
                   </div>
                   <div>
-                    <div class="text-sm font-medium text-gray-900">Fecha de Inicio</div>
-                    <div class="text-xs text-gray-500">Primer pago</div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">Fecha de Inicio</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">Primer pago</div>
                   </div>
                 </div>
-                <div class="text-lg font-bold text-gray-900">{{ fechaPrimerPago }}</div>
+                <div class="text-lg font-bold text-gray-900 dark:text-white">{{ fechaPrimerPago }}</div>
               </div>
 
-              <div class="bg-white rounded-xl p-6 border border-gray-200">
+              <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-gray-200 dark:border-slate-800">
                 <div class="flex items-center mb-3">
                   <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
                     <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -833,11 +833,11 @@ const generarContenidoPagare = (tamano = 'carta') => {
                     </svg>
                   </div>
                   <div>
-                    <div class="text-sm font-medium text-gray-900">Lugar de Pago</div>
-                    <div class="text-xs text-gray-500">Jurisdicción</div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">Lugar de Pago</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">Jurisdicción</div>
                   </div>
                 </div>
-                <div class="text-lg font-bold text-gray-900">{{ empresa.direccion }}</div>
+                <div class="text-lg font-bold text-gray-900 dark:text-white">{{ empresa.direccion }}</div>
               </div>
             </div>
 
@@ -890,9 +890,9 @@ const generarContenidoPagare = (tamano = 'carta') => {
 
             <!-- Información de las partes -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div class="bg-white rounded-xl p-6 border border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-gray-200 dark:border-slate-800">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                   </svg>
                   Información del Deudor
@@ -900,22 +900,22 @@ const generarContenidoPagare = (tamano = 'carta') => {
                 <div class="space-y-3">
                   <div>
                     <div class="text-sm font-medium text-gray-700">Nombre completo</div>
-                    <div class="text-lg font-bold text-gray-900">{{ cliente.nombre_razon_social }}</div>
+                    <div class="text-lg font-bold text-gray-900 dark:text-white">{{ cliente.nombre_razon_social }}</div>
                   </div>
                   <div>
                     <div class="text-sm font-medium text-gray-700">Domicilio</div>
-                    <div class="text-sm font-medium text-gray-900">{{ cliente.direccion_completa || 'Domicilio no especificado' }}</div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ cliente.direccion_completa || 'Domicilio no especificado' }}</div>
                   </div>
                   <div>
                     <div class="text-sm font-medium text-gray-700">Fecha de Vencimiento</div>
-                    <div class="text-lg font-bold text-gray-900">{{ fechaVencimiento }}</div>
+                    <div class="text-lg font-bold text-gray-900 dark:text-white">{{ fechaVencimiento }}</div>
                   </div>
                 </div>
               </div>
 
-              <div class="bg-white rounded-xl p-6 border border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-gray-200 dark:border-slate-800">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                   </svg>
                   Información del Acreedor
@@ -923,11 +923,11 @@ const generarContenidoPagare = (tamano = 'carta') => {
                 <div class="space-y-3">
                   <div>
                     <div class="text-sm font-medium text-gray-700">Beneficiario</div>
-                    <div class="text-lg font-bold text-gray-900">{{ empresa.nombre }}</div>
+                    <div class="text-lg font-bold text-gray-900 dark:text-white">{{ empresa.nombre }}</div>
                   </div>
                   <div>
                     <div class="text-sm font-medium text-gray-700">Lugar de Pago</div>
-                    <div class="text-lg font-bold text-gray-900">{{ empresa.direccion }}</div>
+                    <div class="text-lg font-bold text-gray-900 dark:text-white">{{ empresa.direccion }}</div>
                   </div>
                 </div>
               </div>
@@ -935,19 +935,19 @@ const generarContenidoPagare = (tamano = 'carta') => {
 
             <!-- Texto legal mejorado -->
             <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-8">
-              <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                 <svg class="w-5 h-5 mr-2 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                 </svg>
                 Compromiso de Pago
               </h3>
-              <p class="text-gray-800 leading-relaxed mb-4">
+              <p class="text-gray-800 dark:text-gray-100 leading-relaxed mb-4">
                 Yo, <strong>{{ cliente.nombre_razon_social }}</strong>, con domicilio en <strong>{{ cliente.direccion_completa || 'Domicilio no especificado' }}</strong>,
                 me obligo incondicionalmente a pagar a la orden de <strong>{{ empresa.nombre }}</strong> la cantidad
                 de <strong>{{ formatearMoneda(prestamo.monto_prestado) }}</strong> (${{ monto_letras }}), más intereses ordinarios a razón de <strong>{{ tasa_mensual.toFixed(2) }}%</strong> mensual,
                 pagaderos mensualmente junto con cada exhibición de capital.
               </p>
-              <p class="text-gray-800 leading-relaxed">
+              <p class="text-gray-800 dark:text-gray-100 leading-relaxed">
                 Los pagos se realizarán mensualmente a partir del <strong>{{ fechaPrimerPago }}</strong>,
                 hasta completar un total de <strong>{{ prestamo.numero_pagos }}</strong> pagos,
                 conforme al plan de pagos establecido.
@@ -956,15 +956,15 @@ const generarContenidoPagare = (tamano = 'carta') => {
 
             <!-- Firmas visuales mejoradas -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-              <div class="text-center p-6 bg-white rounded-xl border-2 border-dashed border-gray-300">
+              <div class="text-center p-6 bg-white dark:bg-slate-900 rounded-xl border-2 border-dashed border-gray-300">
                 <div class="w-3/4 mx-auto h-16 border-b-2 border-gray-700 mb-4"></div>
-                <div class="text-lg font-semibold text-gray-900">{{ cliente.nombre_razon_social }}</div>
-                <div class="text-sm text-gray-600">Deudor(a) — Firma autógrafa</div>
+                <div class="text-lg font-semibold text-gray-900 dark:text-white">{{ cliente.nombre_razon_social }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-300">Deudor(a) — Firma autógrafa</div>
               </div>
-              <div class="text-center p-6 bg-white rounded-xl border-2 border-dashed border-gray-300">
+              <div class="text-center p-6 bg-white dark:bg-slate-900 rounded-xl border-2 border-dashed border-gray-300">
                 <div class="w-3/4 mx-auto h-16 border-b-2 border-gray-700 mb-4"></div>
-                <div class="text-lg font-semibold text-gray-900">{{ empresa.nombre_comercial }}  {{ empresa.nombre }}</div>
-                <div class="text-sm text-gray-600">Acreedor — Representante legal</div>
+                <div class="text-lg font-semibold text-gray-900 dark:text-white">{{ empresa.nombre_comercial }}  {{ empresa.nombre }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-300">Acreedor — Representante legal</div>
               </div>
             </div>
 
@@ -989,8 +989,8 @@ const generarContenidoPagare = (tamano = 'carta') => {
             </div>
 
             <!-- Footer de la vista previa -->
-            <div class="text-center mt-8 pt-6 border-t border-gray-200">
-              <p class="text-sm text-gray-500">
+            <div class="text-center mt-8 pt-6 border-t border-gray-200 dark:border-slate-800">
+              <p class="text-sm text-gray-500 dark:text-gray-400">
                 Esta es una vista previa • El documento PDF oficial incluye formato A4 con encabezado y pie de página profesionales
               </p>
               <p class="text-xs text-gray-400 mt-2">
@@ -1003,14 +1003,14 @@ const generarContenidoPagare = (tamano = 'carta') => {
 
       <!-- Navegación inferior mejorada -->
       <div class="flex justify-center mt-8">
-        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-gray-100 p-6">
           <div class="flex flex-col items-center gap-4">
             <!-- Selector de tamaño para el botón inferior -->
             <div class="flex items-center gap-3">
               <label class="text-sm font-medium text-gray-700">Tamaño:</label>
               <select
                 v-model="tamanoSeleccionado"
-                class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               >
                 <option value="carta">📄 Carta (8.5" × 11")</option>
                 <option value="oficio">📃 Oficio (8.5" × 13")</option>
@@ -1027,9 +1027,9 @@ const generarContenidoPagare = (tamano = 'carta') => {
               </svg>
               Generar Documento PDF Oficial
             </button>
-            <div class="text-center text-gray-600">
+            <div class="text-center text-gray-600 dark:text-gray-300">
               <div class="font-medium">Documento profesional listo para impresión</div>
-              <div class="text-sm text-gray-500">Tamaño seleccionado: {{ tamanosPapel[tamanoSeleccionado]?.nombre }} • Diseño ejecutivo</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">Tamaño seleccionado: {{ tamanosPapel[tamanoSeleccionado]?.nombre }} • Diseño ejecutivo</div>
             </div>
           </div>
         </div>

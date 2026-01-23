@@ -162,7 +162,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::post('/tareas', [CrmController::class, 'crearTarea'])->name('crm.tarea.crear');
         Route::patch('/tareas/{tarea}/completar', [CrmController::class, 'completarTarea'])->name('crm.tarea.completar');
 
-        Route::middleware('role:admin|super-admin')->group(function () {
+        Route::middleware('can:configure crm')->group(function () {
             Route::get('/scripts', [CrmController::class, 'scripts'])->name('crm.scripts');
             Route::post('/scripts', [CrmController::class, 'guardarScript'])->name('crm.script.guardar');
             Route::delete('/scripts/{script}', [CrmController::class, 'eliminarScript'])->name('crm.script.eliminar');
@@ -193,11 +193,11 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
         Route::prefix('kb')->group(function () {
             Route::get('/', [KnowledgeBaseController::class, 'index'])->name('soporte.kb.index');
-            Route::get('/crear', [KnowledgeBaseController::class, 'create'])->name('soporte.kb.create')->middleware('role:admin|super-admin');
+            Route::get('/crear', [KnowledgeBaseController::class, 'create'])->name('soporte.kb.create')->middleware('can:manage knowledge_base');
             Route::post('/', [KnowledgeBaseController::class, 'store'])->name('soporte.kb.store')->middleware('can:create soporte');
             Route::get('/{articulo}', [KnowledgeBaseController::class, 'show'])->name('soporte.kb.show');
-            Route::get('/{articulo}/editar', [KnowledgeBaseController::class, 'edit'])->name('soporte.kb.edit')->middleware('role:admin|super-admin');
-            Route::put('/{articulo}', [KnowledgeBaseController::class, 'update'])->name('soporte.kb.update')->middleware('role:admin|super-admin');
+            Route::get('/{articulo}/editar', [KnowledgeBaseController::class, 'edit'])->name('soporte.kb.edit')->middleware('can:manage knowledge_base');
+            Route::put('/{articulo}', [KnowledgeBaseController::class, 'update'])->name('soporte.kb.update')->middleware('can:manage knowledge_base');
             Route::delete('/{articulo}', [KnowledgeBaseController::class, 'destroy'])->name('soporte.kb.destroy')->middleware('role:admin|super-admin');
             Route::post('/{articulo}/votar', [KnowledgeBaseController::class, 'votar'])->name('soporte.kb.votar');
         });
@@ -220,7 +220,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::get('/clientes/validar-email', [ClienteController::class, 'validarEmail'])->name('clientes.validarEmail')->middleware('role:ventas|admin|super-admin');
     Route::post('/clientes/search', [ClienteController::class, 'search'])->name('clientes.search')->middleware('role:ventas|admin|super-admin');
     Route::get('/clientes/stats', [ClienteController::class, 'stats'])->name('clientes.stats')->middleware('role:ventas|admin|super-admin');
-    Route::post('/clientes/{cliente}/approve', [ClienteController::class, 'approve'])->name('clientes.approve')->middleware('role:ventas|admin|super-admin');
+    Route::post('/clientes/{cliente}/approve', [ClienteController::class, 'approve'])->name('clientes.approve')->middleware('can:approve clientes');
     Route::put('/clientes/{cliente}/toggle', [ClienteController::class, 'toggle'])->name('clientes.toggle')->middleware('role:ventas|admin|super-admin');
 
     // Recursos Principales
@@ -240,7 +240,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::resource('pagos', PagoPrestamoController::class)->names('pagos')->middleware('can:view pagos');
 
     Route::get('/productos/ajax-catalogs', [ProductoController::class, 'getCatalogs'])->name('productos.ajax-catalogs');
-    Route::get('/productos/{producto}/series', [ProductoController::class, 'series'])->name('productos.series')->middleware('role:admin|editor|ventas|super-admin');
+    Route::get('/productos/{producto}/series', [ProductoController::class, 'series'])->name('productos.series')->middleware('can:view product_series');
     Route::resource('productos', ProductoController::class)->names('productos')->middleware('can:view productos');
     Route::post('/productos/validate-stock', [ProductoController::class, 'validateStock'])->name('productos.validateStock');
     Route::post('/productos/recalcular-precios', [ProductoController::class, 'recalcularPrecios'])->name('productos.recalcular-precios');
@@ -410,11 +410,11 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::resource('citas', CitaController::class)->names('citas')->middleware('role:ventas|admin|super-admin');
     Route::get('/mi-agenda', [CitaController::class, 'miAgenda'])->name('citas.mi-agenda')->middleware('role:ventas|admin|super-admin|tecnico');
 
-    Route::get('/disponibilidad-tecnicos', [DisponibilidadTecnicoController::class, 'index'])->name('disponibilidad-tecnicos.index')->middleware('role:admin|super-admin');
-    Route::resource('carros', CarroController::class)->names('carros')->middleware('role:admin|editor|super-admin');
-    Route::resource('mantenimientos', MantenimientoController::class)->names('mantenimientos')->middleware('role:admin|editor|super-admin');
-    Route::resource('equipos', EquipoController::class)->middleware('role:admin|editor|super-admin');
-    Route::resource('rentas', RentasController::class)->middleware('role:admin|editor|super-admin');
+    Route::get('/disponibilidad-tecnicos', [DisponibilidadTecnicoController::class, 'index'])->name('disponibilidad-tecnicos.index')->middleware('can:view tecnicos');
+    Route::resource('carros', CarroController::class)->names('carros')->middleware('can:view vehicles');
+    Route::resource('mantenimientos', MantenimientoController::class)->names('mantenimientos')->middleware('can:view mantenimientos');
+    Route::resource('equipos', EquipoController::class)->middleware('can:view equipos');
+    Route::resource('rentas', RentasController::class)->middleware('can:view rentas');
     Route::get('/rentas/{renta}/contrato', [RentasContratoController::class, 'contratoPDF'])->name('rentas.contrato');
     // Dashboard Técnico de Mantenimientos (Pólizas)
     Route::prefix('tecnico/mantenimientos')->name('admin.mantenimientos.tecnico.')->group(function () {
@@ -430,23 +430,23 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::get('/polizas-servicio/{polizaServicio}/pdf-contrato', [PolizaServicioPDFController::class, 'contrato'])->name('polizas-servicio.pdf-contrato');
     Route::post('/polizas-servicio/{polizaServicio}/generar-cobro', [PolizaServicioController::class, 'generarCobro'])->name('polizas-servicio.generar-cobro');
     Route::post('/polizas-servicio/{polizaServicio}/enviar-recordatorio', [PolizaServicioController::class, 'enviarRecordatorioRenovacion'])->name('polizas-servicio.enviar-recordatorio');
-    Route::resource('polizas-servicio', PolizaServicioController::class)->middleware('role:admin|editor|super-admin');
-    Route::resource('planes-poliza', PlanPolizaController::class)->middleware('role:admin|editor|super-admin');
-    Route::put('/planes-poliza/{planes_poliza}/toggle-destacado', [PlanPolizaController::class, 'toggleDestacado'])->name('planes-poliza.toggle-destacado');
+    Route::resource('polizas-servicio', PolizaServicioController::class)->middleware('can:view polizas');
+    Route::resource('planes-poliza', PlanPolizaController::class)->middleware('can:manage planes');
+    Route::put('/planes-poliza/{planes_poliza}/toggle-destacado', [PlanPolizaController::class, 'toggleDestacado'])->name('planes-poliza.toggle-destacado')->middleware('can:manage planes');
 
-    Route::resource('planes-renta', PlanRentaController::class)->middleware('role:admin|editor|super-admin');
-    Route::put('/planes-renta/{planes_renta}/toggle', [PlanRentaController::class, 'toggle'])->name('planes-renta.toggle');
+    Route::resource('planes-renta', PlanRentaController::class)->middleware('can:manage planes');
+    Route::put('/planes-renta/{planes_renta}/toggle', [PlanRentaController::class, 'toggle'])->name('planes-renta.toggle')->middleware('can:manage planes');
 
-    Route::resource('entregas-dinero', EntregaDineroController::class)->middleware('role:admin|ventas|super-admin');
-    Route::post('/entregas-dinero/{id}/marcar-recibido', [EntregaDineroController::class, 'marcarRecibido'])->name('entregas-dinero.marcar-recibido')->middleware('role:admin|super-admin');
+    Route::resource('entregas-dinero', EntregaDineroController::class)->middleware('can:view entregas_dinero');
+    Route::post('/entregas-dinero/{id}/marcar-recibido', [EntregaDineroController::class, 'marcarRecibido'])->name('entregas-dinero.marcar-recibido')->middleware('can:manage entregas_dinero');
     Route::resource('bitacora', BitacoraActividadController::class)->names('bitacora');
 
     // Empresas
-    Route::get('/empresas', [EmpresasController::class, 'index'])->name('empresas.index')->middleware('role:admin|super-admin');
-    Route::post('/empresas', [EmpresasController::class, 'store'])->name('empresas.store')->middleware('role:admin|super-admin');
+    Route::get('/empresas', [EmpresasController::class, 'index'])->name('empresas.index')->middleware('can:view companies');
+    Route::post('/empresas', [EmpresasController::class, 'store'])->name('empresas.store')->middleware('can:manage companies');
 
     // Configuración Empresa
-    Route::prefix('empresa')->name('empresa-configuracion.')->middleware('role:admin|super-admin')->group(function () {
+    Route::prefix('empresa')->name('empresa-configuracion.')->middleware('can:manage companies')->group(function () {
         Route::get('/configuracion', [EmpresaConfiguracionController::class, 'index'])->name('index');
         Route::get('/configuracion/api', [EmpresaConfiguracionController::class, 'getConfig'])->name('api');
         Route::put('/configuracion/general', [GeneralConfigController::class, 'update'])->name('general.update');

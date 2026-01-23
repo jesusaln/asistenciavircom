@@ -139,8 +139,8 @@ const padZero = (num) => String(num).padStart(2, '0');
                     <!-- Badge animado -->
                     <div class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] rounded-full mb-4 animate-bounce-gentle">
                         <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white dark:bg-slate-900 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-white dark:bg-slate-900"></span>
                         </span>
                         <span class="text-white text-xs font-black uppercase tracking-wider">{{ titulo }}</span>
                     </div>
@@ -166,7 +166,7 @@ const padZero = (num) => String(num).padStart(2, '0');
                     
                     <!-- Precios -->
                     <div class="flex items-center justify-center lg:justify-start gap-4 mb-2">
-                        <span class="text-gray-500 line-through text-lg">${{ formatPrice(1500) }}</span>
+                        <span class="text-gray-500 dark:text-gray-400 line-through text-lg">${{ formatPrice(1500) }}</span>
                         <div class="flex flex-col items-start leading-none">
                             <span class="text-3xl lg:text-4xl font-black text-white">${{ formatPrice(1299) }} <span class="text-lg font-bold text-gray-400">/ mes</span></span>
                         </div>
@@ -178,7 +178,7 @@ const padZero = (num) => String(num).padStart(2, '0');
                         <p class="text-green-400 text-sm font-semibold">
                             Ahorras $201 mensuales en tu renta
                         </p>
-                        <p class="text-[10px] text-gray-500 italic">* Aplica restricciones</p>
+                        <p class="text-[10px] text-gray-500 dark:text-gray-400 italic">* Aplica restricciones</p>
                     </div>
                 </div>
                 
@@ -191,7 +191,7 @@ const padZero = (num) => String(num).padStart(2, '0');
                     <div class="flex items-center gap-2 lg:gap-3">
                         <!-- Horas -->
                         <div class="flex flex-col items-center">
-                            <div class="w-16 h-16 lg:w-20 lg:h-20 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20">
+                            <div class="w-16 h-16 lg:w-20 lg:h-20 bg-white dark:bg-slate-900/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20">
                                 <span class="text-2xl lg:text-3xl font-black text-white tabular-nums">
                                     {{ padZero(timeLeft.hours) }}
                                 </span>
@@ -203,7 +203,7 @@ const padZero = (num) => String(num).padStart(2, '0');
                         
                         <!-- Minutos -->
                         <div class="flex flex-col items-center">
-                            <div class="w-16 h-16 lg:w-20 lg:h-20 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20">
+                            <div class="w-16 h-16 lg:w-20 lg:h-20 bg-white dark:bg-slate-900/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20">
                                 <span class="text-2xl lg:text-3xl font-black text-white tabular-nums">
                                     {{ padZero(timeLeft.minutes) }}
                                 </span>
@@ -242,7 +242,7 @@ const padZero = (num) => String(num).padStart(2, '0');
                         </span>
                     </a>
                     
-                    <p class="text-[10px] text-gray-500">
+                    <p class="text-[10px] text-gray-500 dark:text-gray-400">
                         *Oferta válida hasta agotar existencias
                     </p>
                 </div>

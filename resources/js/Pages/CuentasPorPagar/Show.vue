@@ -2,7 +2,7 @@
     <AppLayout title="Detalles de Cuenta por Pagar">
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
                     Detalles de Cuenta por Pagar
                 </h2>
                 <div class="flex space-x-2">
@@ -14,7 +14,7 @@
                     </Link>
                     <Link
                         :href="route('cuentas-por-pagar.index')"
-                        class="bg-white0 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                        class="bg-white dark:bg-slate-9000 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
                     >
                         Volver
                     </Link>
@@ -24,36 +24,36 @@
 
         <div class="py-12">
             <div class="w-full sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 bg-white border-b border-gray-200">
+                <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
                         <!-- Información General -->
                         <div class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Información General</h3>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Información General</h3>
                             <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
                                 <div>
-                                    <dt class="text-sm font-medium text-gray-500">ID de Cuenta</dt>
-                                    <dd class="mt-1 text-sm text-gray-900">#{{ cuenta.id }}</dd>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">ID de Cuenta</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">#{{ cuenta.id }}</dd>
                                 </div>
                                 <div>
-                                    <dt class="text-sm font-medium text-gray-500">Estado</dt>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Estado</dt>
                                     <dd class="mt-1">
                                         <span :class="{
                                             'bg-red-100 text-red-800': estadoCuenta === 'vencido',
                                             'bg-yellow-100 text-yellow-800': estadoCuenta === 'parcial',
                                             'bg-green-100 text-green-800': estadoCuenta === 'pagado',
-                                            'bg-gray-100 text-gray-800': estadoCuenta === 'pendiente'
+                                            'bg-gray-100 text-gray-800 dark:text-gray-100': estadoCuenta === 'pendiente'
                                         }" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                                             {{ estadoCuenta }}
                                         </span>
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt class="text-sm font-medium text-gray-500">Fecha de Creación</dt>
-                                    <dd class="mt-1 text-sm text-gray-900">{{ new Date(cuenta.created_at).toLocaleDateString() }}</dd>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de Creación</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ new Date(cuenta.created_at).toLocaleDateString() }}</dd>
                                 </div>
                                 <div>
-                                    <dt class="text-sm font-medium text-gray-500">Fecha de Vencimiento</dt>
-                                    <dd class="mt-1 text-sm text-gray-900">
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de Vencimiento</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">
                                         {{ cuenta.fecha_vencimiento ? new Date(cuenta.fecha_vencimiento).toLocaleDateString() : 'No especificada' }}
                                     </dd>
                                 </div>
@@ -62,70 +62,70 @@
 
                         <!-- Información de la Compra -->
                         <div class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Información de la Compra</h3>
-                            <div v-if="cuenta.compra" class="bg-white p-4 rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Información de la Compra</h3>
+                            <div v-if="cuenta.compra" class="bg-white dark:bg-slate-900 p-4 rounded-lg">
                                 <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
                                     <div>
-                                        <dt class="text-sm font-medium text-gray-500">Número de Compra</dt>
-                                        <dd class="mt-1 text-sm text-gray-900">
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Número de Compra</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">
                                             <Link :href="route('compras.show', cuenta.compra.id)" class="text-blue-600 hover:text-blue-800">
                                                 {{ cuenta.compra.numero_compra }}
                                             </Link>
                                         </dd>
                                     </div>
                                     <div>
-                                        <dt class="text-sm font-medium text-gray-500">Proveedor</dt>
-                                        <dd class="mt-1 text-sm text-gray-900">{{ cuenta.compra.proveedor?.nombre_razon_social || 'Sin proveedor' }}</dd>
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Proveedor</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ cuenta.compra.proveedor?.nombre_razon_social || 'Sin proveedor' }}</dd>
                                     </div>
                                     <div>
-                                        <dt class="text-sm font-medium text-gray-500">Total de la Compra</dt>
-                                        <dd class="mt-1 text-sm text-gray-900">{{ cuenta.compra ? formatCurrency(cuenta.compra.total) : 'N/A' }}</dd>
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Total de la Compra</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ cuenta.compra ? formatCurrency(cuenta.compra.total) : 'N/A' }}</dd>
                                     </div>
                                     <div>
-                                        <dt class="text-sm font-medium text-gray-500">Estado de la Compra</dt>
-                                        <dd class="mt-1 text-sm text-gray-900">{{ cuenta.compra.estado || 'N/A' }}</dd>
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Estado de la Compra</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ cuenta.compra.estado || 'N/A' }}</dd>
                                     </div>
                                 </dl>
                             </div>
-                            <div v-else class="bg-white p-4 rounded-lg text-gray-600">
+                            <div v-else class="bg-white dark:bg-slate-900 p-4 rounded-lg text-gray-600 dark:text-gray-300">
                                 Sin compra asociada
                             </div>
                         </div>
 
                         <!-- Información del CFDI (XML) -->
                         <div class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Datos del CFDI (Factura XML)</h3>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Datos del CFDI (Factura XML)</h3>
                             <div v-if="cuenta.cfdi || cuenta.compra?.cfdi_uuid" class="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
                                 <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
                                     <div class="md:col-span-2">
                                         <dt class="text-sm font-medium text-indigo-600">UUID (Folio Fiscal)</dt>
-                                        <dd class="mt-1 text-sm font-mono text-gray-900 break-all select-all">
+                                        <dd class="mt-1 text-sm font-mono text-gray-900 dark:text-white break-all select-all">
                                             {{ cuenta.cfdi?.uuid || cuenta.compra?.cfdi_uuid }}
                                         </dd>
                                     </div>
                                     <div>
                                         <dt class="text-sm font-medium text-indigo-600">Serie y Folio</dt>
-                                        <dd class="mt-1 text-sm text-gray-900">
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">
                                             {{ (cuenta.cfdi?.serie || cuenta.compra?.cfdi_serie || '') + (cuenta.cfdi?.folio || cuenta.compra?.cfdi_folio || 'S/N') }}
                                         </dd>
                                     </div>
                                     <div>
                                         <dt class="text-sm font-medium text-indigo-600">Fecha de Emisión</dt>
-                                        <dd class="mt-1 text-sm text-gray-900">
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">
                                             {{ cuenta.cfdi?.fecha_emision ? new Date(cuenta.cfdi.fecha_emision).toLocaleString() : (cuenta.compra?.cfdi_fecha ? new Date(cuenta.compra.cfdi_fecha).toLocaleString() : 'N/A') }}
                                         </dd>
                                     </div>
                                     <div>
                                         <dt class="text-sm font-medium text-indigo-600">RFC Emisor</dt>
-                                        <dd class="mt-1 text-sm text-gray-900">{{ cuenta.cfdi?.rfc_emisor || cuenta.compra?.cfdi_emisor_rfc || 'N/A' }}</dd>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ cuenta.cfdi?.rfc_emisor || cuenta.compra?.cfdi_emisor_rfc || 'N/A' }}</dd>
                                     </div>
                                     <div>
                                         <dt class="text-sm font-medium text-indigo-600">Nombre Emisor</dt>
-                                        <dd class="mt-1 text-sm text-gray-900">{{ cuenta.cfdi?.nombre_emisor || cuenta.compra?.cfdi_emisor_nombre || 'N/A' }}</dd>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ cuenta.cfdi?.nombre_emisor || cuenta.compra?.cfdi_emisor_nombre || 'N/A' }}</dd>
                                     </div>
                                     <div>
                                         <dt class="text-sm font-medium text-indigo-600">Total XML</dt>
-                                        <dd class="mt-1 text-sm font-bold text-gray-900">
+                                        <dd class="mt-1 text-sm font-bold text-gray-900 dark:text-white">
                                             {{ formatCurrency(cuenta.cfdi?.total || cuenta.compra?.cfdi_total || 0) }}
                                         </dd>
                                     </div>
@@ -140,14 +140,14 @@
                                     </div>
                                 </dl>
                             </div>
-                            <div v-else class="bg-white p-4 rounded-lg text-gray-500 italic">
+                            <div v-else class="bg-white dark:bg-slate-900 p-4 rounded-lg text-gray-500 dark:text-gray-400 italic">
                                 No hay información de CFDI vinculada directamente.
                             </div>
                         </div>
 
                         <!-- Estado de Pagos -->
                         <div class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Estado de Pagos</h3>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Estado de Pagos</h3>
                             <div class="bg-blue-50 p-4 rounded-lg">
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div class="text-center">
@@ -166,7 +166,7 @@
 
                                 <!-- Barra de progreso -->
                                 <div class="mt-4">
-                                    <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                    <div class="flex justify-between text-sm text-gray-600 dark:text-gray-300 mb-1">
                                         <span>Progreso de Pago</span>
                                         <span>{{ pagoProgress }}%</span>
                                     </div>
@@ -182,11 +182,11 @@
 
                         <!-- Información de Pago (si está pagada) -->
                         <div v-if="cuenta.pagado" class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Información de Pago</h3>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Información de Pago</h3>
                             <div class="bg-green-50 p-4 rounded-lg">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
                                     <div>
-                                        <dt class="text-sm font-medium text-gray-500">Estado de Pago</dt>
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Estado de Pago</dt>
                                         <dd class="mt-1">
                                             <span class="bg-green-100 text-green-800 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                                                 Pagado
@@ -194,7 +194,7 @@
                                         </dd>
                                     </div>
                                     <div>
-                                        <dt class="text-sm font-medium text-gray-500">Método de Pago</dt>
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Método de Pago</dt>
                                         <dd class="mt-1">
                                             <span :class="getMetodoPagoClass(cuenta.metodo_pago)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                                                 {{ getMetodoPagoLabel(cuenta.metodo_pago) }}
@@ -202,24 +202,24 @@
                                         </dd>
                                     </div>
                                     <div>
-                                        <dt class="text-sm font-medium text-gray-500">Fecha de Pago</dt>
-                                        <dd class="mt-1 text-sm text-gray-900">{{ new Date(cuenta.fecha_pago).toLocaleDateString() }}</dd>
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de Pago</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ new Date(cuenta.fecha_pago).toLocaleDateString() }}</dd>
                                     </div>
                                     <div>
-                                        <dt class="text-sm font-medium text-gray-500">Pagado Por</dt>
-                                        <dd class="mt-1 text-sm text-gray-900">{{ cuenta.pagado_por_usuario?.name || 'Usuario no encontrado' }}</dd>
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Pagado Por</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ cuenta.pagado_por_usuario?.name || 'Usuario no encontrado' }}</dd>
                                     </div>
                                 </div>
                                 <div v-if="cuenta.notas_pago" class="mt-4">
-                                    <dt class="text-sm font-medium text-gray-500">Notas de Pago</dt>
-                                    <dd class="mt-1 text-sm text-gray-700 bg-white p-3 rounded border">{{ cuenta.notas_pago }}</dd>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Notas de Pago</dt>
+                                    <dd class="mt-1 text-sm text-gray-700 bg-white dark:bg-slate-900 p-3 rounded border">{{ cuenta.notas_pago }}</dd>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Notas -->
                         <div v-if="cuenta.notas" class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Notas</h3>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Notas</h3>
                             <div class="bg-yellow-50 p-4 rounded-lg">
                                 <p class="text-sm text-gray-700 whitespace-pre-line">{{ cuenta.notas }}</p>
                             </div>
@@ -227,21 +227,21 @@
 
                         <!-- Historial de Pagos -->
                         <div class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Gestión de Pagos</h3>
-                            <div class="bg-white p-4 rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Gestión de Pagos</h3>
+                            <div class="bg-white dark:bg-slate-900 p-4 rounded-lg">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     <!-- Información de pagos -->
                                     <div class="space-y-2">
                                         <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600">Total de la cuenta:</span>
+                                            <span class="text-sm text-gray-600 dark:text-gray-300">Total de la cuenta:</span>
                                             <span class="font-semibold">{{ formatCurrency(cuenta.monto_total) }}</span>
                                         </div>
                                         <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600">Pagado hasta ahora:</span>
+                                            <span class="text-sm text-gray-600 dark:text-gray-300">Pagado hasta ahora:</span>
                                             <span class="font-semibold text-green-600">{{ formatCurrency(cuenta.monto_pagado) }}</span>
                                         </div>
                                         <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600">Pendiente:</span>
+                                            <span class="text-sm text-gray-600 dark:text-gray-300">Pendiente:</span>
                                             <span class="font-semibold text-red-600">{{ formatCurrency(cuenta.monto_pendiente) }}</span>
                                         </div>
                                     </div>
@@ -277,8 +277,8 @@
                                 </div>
 
                                 <!-- Información adicional -->
-                                <div class="border-t border-gray-200 pt-4">
-                                    <p class="text-xs text-gray-500 mb-2">
+                                <div class="border-t border-gray-200 dark:border-slate-800 pt-4">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
                                         <strong>Nota:</strong> Los pagos parciales se registran en el historial de notas.
                                         Para ver el historial detallado, edita la cuenta.
                                     </p>
@@ -298,11 +298,11 @@
 
         <!-- Modal para Marcar como Pagado -->
         <div v-if="showPagoModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showPagoModal = false">
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
                 <!-- Header del modal -->
-                <div class="flex items-center justify-between p-6 border-b border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900">Marcar Cuenta como Pagada</h3>
-                    <button @click="showPagoModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Marcar Cuenta como Pagada</h3>
+                    <button @click="showPagoModal = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -312,18 +312,18 @@
                 <div class="p-6">
                     <div class="space-y-4">
                         <!-- Información de la cuenta -->
-                        <div class="bg-white p-4 rounded-lg">
+                        <div class="bg-white dark:bg-slate-900 p-4 rounded-lg">
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-sm font-medium text-gray-700">Cuenta:</span>
-                                <span class="text-sm text-gray-900">#{{ cuenta.id }}</span>
+                                <span class="text-sm text-gray-900 dark:text-white">#{{ cuenta.id }}</span>
                             </div>
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-sm font-medium text-gray-700">Proveedor:</span>
-                                <span class="text-sm text-gray-900">{{ cuenta.compra?.proveedor?.nombre_razon_social || 'Sin compra asociada' }}</span>
+                                <span class="text-sm text-gray-900 dark:text-white">{{ cuenta.compra?.proveedor?.nombre_razon_social || 'Sin compra asociada' }}</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-sm font-medium text-gray-700">Monto Total:</span>
-                                <span class="text-lg font-bold text-gray-900">{{ formatCurrency(cuenta.monto_total) }}</span>
+                                <span class="text-lg font-bold text-gray-900 dark:text-white">{{ formatCurrency(cuenta.monto_total) }}</span>
                             </div>
                         </div>
 
@@ -356,7 +356,7 @@
                                     {{ cuenta.nombre }} - {{ cuenta.banco }}
                                 </option>
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">¿De qué cuenta salió el pago?</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">¿De qué cuenta salió el pago?</p>
                         </div>
 
                         <!-- Notas de Pago -->
@@ -373,7 +373,7 @@
                 </div>
 
                 <!-- Footer del modal -->
-                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                     <button @click="showPagoModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
                         Cancelar
                     </button>
@@ -390,11 +390,11 @@
 
         <!-- Modal para Pago Parcial -->
         <div v-if="showPagoParcialModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showPagoParcialModal = false">
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
                 <!-- Header del modal -->
-                <div class="flex items-center justify-between p-6 border-b border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900">Registrar Pago Parcial</h3>
-                    <button @click="showPagoParcialModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Registrar Pago Parcial</h3>
+                    <button @click="showPagoParcialModal = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -404,18 +404,18 @@
                 <div class="p-6">
                     <div class="space-y-4">
                         <!-- Información de la cuenta -->
-                        <div class="bg-white p-4 rounded-lg">
+                        <div class="bg-white dark:bg-slate-900 p-4 rounded-lg">
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-sm font-medium text-gray-700">Cuenta:</span>
-                                <span class="text-sm text-gray-900">#{{ cuenta.id }}</span>
+                                <span class="text-sm text-gray-900 dark:text-white">#{{ cuenta.id }}</span>
                             </div>
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-sm font-medium text-gray-700">Proveedor:</span>
-                                <span class="text-sm text-gray-900">{{ cuenta.compra?.proveedor?.nombre_razon_social || 'Sin compra asociada' }}</span>
+                                <span class="text-sm text-gray-900 dark:text-white">{{ cuenta.compra?.proveedor?.nombre_razon_social || 'Sin compra asociada' }}</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-sm font-medium text-gray-700">Monto Total:</span>
-                                <span class="text-lg font-bold text-gray-900">{{ formatCurrency(cuenta.monto_total) }}</span>
+                                <span class="text-lg font-bold text-gray-900 dark:text-white">{{ formatCurrency(cuenta.monto_total) }}</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-sm font-medium text-gray-700">Pendiente:</span>
@@ -435,7 +435,7 @@
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 placeholder="0.00"
                             />
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Máximo: {{ formatCurrency(cuenta.monto_pendiente) }}
                             </p>
                         </div>
@@ -468,7 +468,7 @@
                 </div>
 
                 <!-- Footer del modal -->
-                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                     <button @click="showPagoParcialModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
                         Cancelar
                     </button>
@@ -572,9 +572,9 @@ const getMetodoPagoClass = (metodo) => {
         'transferencia': 'bg-blue-100 text-blue-800',
         'cheque': 'bg-purple-100 text-purple-800',
         'tarjeta': 'bg-orange-100 text-orange-800',
-        'otros': 'bg-gray-100 text-gray-800'
+        'otros': 'bg-gray-100 text-gray-800 dark:text-gray-100'
     };
-    return clases[metodo] || 'bg-gray-100 text-gray-800';
+    return clases[metodo] || 'bg-gray-100 text-gray-800 dark:text-gray-100';
 };
 
 const confirmarPago = async () => {

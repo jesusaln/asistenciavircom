@@ -2,7 +2,7 @@
     <AppLayout title="Detalles de Cuenta por Cobrar">
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
                     Detalles de Cuenta por Cobrar
                 </h2>
                 <div class="flex space-x-2">
@@ -14,7 +14,7 @@
                     </Link>
                     <Link
                         :href="route('cuentas-por-cobrar.index')"
-                        class="bg-white0 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                        class="bg-white dark:bg-slate-9000 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
                     >
                         Volver
                     </Link>
@@ -24,36 +24,36 @@
 
         <div class="py-12">
             <div class="w-full sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 bg-white border-b border-gray-200">
+                <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
                         <!-- Información General -->
                         <div class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Información General</h3>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Información General</h3>
                             <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
                                 <div>
-                                    <dt class="text-sm font-medium text-gray-500">ID de Cuenta</dt>
-                                    <dd class="mt-1 text-sm text-gray-900">#{{ cuenta.id }}</dd>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">ID de Cuenta</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">#{{ cuenta.id }}</dd>
                                 </div>
                                 <div>
-                                    <dt class="text-sm font-medium text-gray-500">Estado</dt>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Estado</dt>
                                     <dd class="mt-1">
                                         <span :class="{
                                             'bg-red-100 text-red-800': cuenta.estado === 'vencido',
                                             'bg-yellow-100 text-yellow-800': cuenta.estado === 'parcial',
                                             'bg-green-100 text-green-800': cuenta.estado === 'pagado',
-                                            'bg-gray-100 text-gray-800': cuenta.estado === 'pendiente'
+                                            'bg-gray-100 text-gray-800 dark:text-gray-100': cuenta.estado === 'pendiente'
                                         }" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                                             {{ cuenta.estado }}
                                         </span>
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt class="text-sm font-medium text-gray-500">Fecha de Creación</dt>
-                                    <dd class="mt-1 text-sm text-gray-900">{{ new Date(cuenta.created_at).toLocaleDateString() }}</dd>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de Creación</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ new Date(cuenta.created_at).toLocaleDateString() }}</dd>
                                 </div>
                                 <div>
-                                    <dt class="text-sm font-medium text-gray-500">Fecha de Vencimiento</dt>
-                                    <dd class="mt-1 text-sm text-gray-900">
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de Vencimiento</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">
                                         {{ cuenta.fecha_vencimiento ? new Date(cuenta.fecha_vencimiento).toLocaleDateString() : 'No especificada' }}
                                     </dd>
                                 </div>
@@ -62,12 +62,12 @@
 
                         <!-- Información de Origen -->
                         <div class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Información de Origen</h3>
-                            <div class="bg-white p-4 rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Información de Origen</h3>
+                            <div class="bg-white dark:bg-slate-900 p-4 rounded-lg">
                                 <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
                                     <div>
-                                        <dt class="text-sm font-medium text-gray-500">Referencia</dt>
-                                        <dd class="mt-1 text-sm text-gray-900">
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Referencia</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">
                                             <template v-if="cuenta.cobrable_type && cuenta.cobrable_type.includes('Venta')">
                                                 <Link :href="route('ventas.show', cuenta.cobrable?.id)" class="text-blue-600 hover:text-blue-800">
                                                     Venta #{{ cuenta.cobrable?.numero_venta || '??' }}
@@ -77,7 +77,7 @@
                                                 <Link :href="route('rentas.show', cuenta.cobrable?.id)" class="text-blue-600 hover:text-blue-800">
                                                     Renta #{{ cuenta.cobrable?.numero_contrato || '??' }}
                                                 </Link>
-                                                <div class="text-xs text-gray-500 mt-1">{{ cuenta.notas }}</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ cuenta.notas }}</div>
                                             </template>
                                             <template v-else>
                                                 {{ cuenta.venta?.numero_venta || 'N/A' }}
@@ -85,16 +85,16 @@
                                         </dd>
                                     </div>
                                     <div>
-                                        <dt class="text-sm font-medium text-gray-500">Cliente</dt>
-                                        <dd class="mt-1 text-sm text-gray-900">{{ cuenta.cobrable?.cliente?.nombre_razon_social || cuenta.venta?.cliente?.nombre_razon_social || 'Cliente no disponible' }}</dd>
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Cliente</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ cuenta.cobrable?.cliente?.nombre_razon_social || cuenta.venta?.cliente?.nombre_razon_social || 'Cliente no disponible' }}</dd>
                                     </div>
                                     <div>
-                                        <dt class="text-sm font-medium text-gray-500">Total Original</dt>
-                                        <dd class="mt-1 text-sm text-gray-900">{{ cuenta.cobrable_type && cuenta.cobrable_type.includes('Venta') ? formatCurrency(cuenta.cobrable.total) : formatCurrency(cuenta.monto_total) }}</dd>
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Original</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ cuenta.cobrable_type && cuenta.cobrable_type.includes('Venta') ? formatCurrency(cuenta.cobrable.total) : formatCurrency(cuenta.monto_total) }}</dd>
                                     </div>
                                     <div>
-                                        <dt class="text-sm font-medium text-gray-500">Estado de Origen</dt>
-                                        <dd class="mt-1 text-sm text-gray-900">{{ cuenta.cobrable?.estado || cuenta.venta?.estado }}</dd>
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Estado de Origen</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ cuenta.cobrable?.estado || cuenta.venta?.estado }}</dd>
                                     </div>
                                 </dl>
                             </div>
@@ -102,42 +102,42 @@
 
                         <!-- Detalles de Artículos (Productos o Equipos) -->
                         <div class="mb-6" v-if="(cuenta.cobrable_type && cuenta.cobrable_type.includes('Venta') && cuenta.cobrable?.items?.length) || (cuenta.cobrable_type && cuenta.cobrable_type.includes('Renta') && cuenta.cobrable?.equipos?.length)">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
                                 {{ cuenta.cobrable_type.includes('Venta') ? 'Productos Vendidos' : 'Equipos en Renta' }}
                             </h3>
-                            <div class="bg-white border rounded-lg overflow-hidden">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-white">
+                            <div class="bg-white dark:bg-slate-900 border rounded-lg overflow-hidden">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                                    <thead class="bg-white dark:bg-slate-900">
                                         <tr>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                                 Descripción
                                             </th>
-                                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                                 {{ cuenta.cobrable_type.includes('Venta') ? 'Cantidad' : 'Serie' }}
                                             </th>
-                                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                                 {{ cuenta.cobrable_type.includes('Venta') ? 'Precio Unit.' : 'Precio Mensual' }}
                                             </th>
-                                            <th scope="col" v-if="cuenta.cobrable_type.includes('Venta')" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th scope="col" v-if="cuenta.cobrable_type.includes('Venta')" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                                 Subtotal
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
+                                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
                                         <!-- Iteración para Ventas -->
                                         <template v-if="cuenta.cobrable_type.includes('Venta')">
                                             <tr v-for="item in cuenta.cobrable.items" :key="item.id">
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                                     {{ item.ventable?.nombre || 'Producto desconocido' }}
-                                                    <div v-if="item.notas" class="text-xs text-gray-500">{{ item.notas }}</div>
+                                                    <div v-if="item.notas" class="text-xs text-gray-500 dark:text-gray-400">{{ item.notas }}</div>
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
                                                     {{ item.cantidad }}
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
                                                     {{ formatCurrency(item.precio_unitario) }}
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right font-medium">
                                                     {{ formatCurrency(item.subtotal) }}
                                                 </td>
                                             </tr>
@@ -145,14 +145,14 @@
                                         <!-- Iteración para Rentas -->
                                         <template v-else-if="cuenta.cobrable_type.includes('Renta')">
                                             <tr v-for="equipo in cuenta.cobrable.equipos" :key="equipo.id">
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                                     {{ equipo.nombre }}
-                                                    <div class="text-xs text-gray-500">{{ equipo.modelo }}</div>
+                                                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ equipo.modelo }}</div>
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
                                                     {{ equipo.serie || 'S/N' }}
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
                                                     {{ formatCurrency(equipo.pivot?.precio_mensual || 0) }}
                                                 </td>
                                             </tr>
@@ -164,7 +164,7 @@
 
                         <!-- Estado de Cobros -->
                         <div class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Estado de Cobros</h3>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Estado de Cobros</h3>
                             <div class="bg-green-50 p-4 rounded-lg">
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div class="text-center">
@@ -183,7 +183,7 @@
 
                                 <!-- Barra de progreso -->
                                 <div class="mt-4">
-                                    <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                    <div class="flex justify-between text-sm text-gray-600 dark:text-gray-300 mb-1">
                                         <span>Progreso de Cobro</span>
                                         <span>{{ pagoProgress }}%</span>
                                     </div>
@@ -199,11 +199,11 @@
 
                         <!-- Información de Cobro (si está pagada) -->
                         <div v-if="cuenta.estado === 'pagado'" class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Información de Cobro</h3>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Información de Cobro</h3>
                             <div class="bg-green-50 p-4 rounded-lg">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
                                     <div>
-                                        <dt class="text-sm font-medium text-gray-500">Estado de Cobro</dt>
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Estado de Cobro</dt>
                                         <dd class="mt-1">
                                             <span class="bg-green-100 text-green-800 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                                                 Cobrado
@@ -211,30 +211,30 @@
                                         </dd>
                                     </div>
                                     <div>
-                                        <dt class="text-sm font-medium text-gray-500">Método de Cobro</dt>
-                                        <dd class="mt-1 text-sm text-gray-900">
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Método de Cobro</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">
                                             {{ getMetodoPagoLabel(cuenta.venta?.metodo_pago) }}
                                         </dd>
                                     </div>
                                     <div>
-                                        <dt class="text-sm font-medium text-gray-500">Fecha de Cobro</dt>
-                                        <dd class="mt-1 text-sm text-gray-900">{{ cuenta.venta?.fecha_pago ? new Date(cuenta.venta.fecha_pago).toLocaleDateString() : 'N/A' }}</dd>
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de Cobro</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ cuenta.venta?.fecha_pago ? new Date(cuenta.venta.fecha_pago).toLocaleDateString() : 'N/A' }}</dd>
                                     </div>
                                     <div>
-                                        <dt class="text-sm font-medium text-gray-500">Cobrado Por</dt>
-                                        <dd class="mt-1 text-sm text-gray-900">{{ cuenta.venta?.pagado_por_usuario?.name || 'Usuario no encontrado' }}</dd>
+                                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Cobrado Por</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ cuenta.venta?.pagado_por_usuario?.name || 'Usuario no encontrado' }}</dd>
                                     </div>
                                 </div>
                                 <div v-if="cuenta.venta?.notas_pago" class="mt-4">
-                                    <dt class="text-sm font-medium text-gray-500">Notas de Cobro</dt>
-                                    <dd class="mt-1 text-sm text-gray-700 bg-white p-3 rounded border">{{ cuenta.venta.notas_pago }}</dd>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Notas de Cobro</dt>
+                                    <dd class="mt-1 text-sm text-gray-700 bg-white dark:bg-slate-900 p-3 rounded border">{{ cuenta.venta.notas_pago }}</dd>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Notas -->
                         <div v-if="cuenta.notas" class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Notas</h3>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Notas</h3>
                             <div class="bg-yellow-50 p-4 rounded-lg">
                                 <p class="text-sm text-gray-700 whitespace-pre-line">{{ cuenta.notas }}</p>
                             </div>
@@ -242,21 +242,21 @@
 
                         <!-- Gestión de Cobros -->
                         <div class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Gestión de Cobros</h3>
-                            <div class="bg-white p-4 rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Gestión de Cobros</h3>
+                            <div class="bg-white dark:bg-slate-900 p-4 rounded-lg">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     <!-- Información de cobros -->
                                     <div class="space-y-2">
                                         <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600">Total de la cuenta:</span>
+                                            <span class="text-sm text-gray-600 dark:text-gray-300">Total de la cuenta:</span>
                                             <span class="font-semibold">{{ formatCurrency(cuenta.monto_total) }}</span>
                                         </div>
                                         <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600">Cobrado hasta ahora:</span>
+                                            <span class="text-sm text-gray-600 dark:text-gray-300">Cobrado hasta ahora:</span>
                                             <span class="font-semibold text-green-600">{{ formatCurrency(cuenta.monto_pagado) }}</span>
                                         </div>
                                         <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600">Pendiente:</span>
+                                            <span class="text-sm text-gray-600 dark:text-gray-300">Pendiente:</span>
                                             <span class="font-semibold text-red-600">{{ formatCurrency(cuenta.monto_pendiente) }}</span>
                                         </div>
                                     </div>
@@ -286,8 +286,8 @@
                                 </div>
 
                                 <!-- Información adicional -->
-                                <div class="border-t border-gray-200 pt-4">
-                                    <p class="text-xs text-gray-500 mb-2">
+                                <div class="border-t border-gray-200 dark:border-slate-800 pt-4">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
                                         <strong>Nota:</strong> Los cobros parciales se registran en el historial de notas.
                                         Para ver el historial detallado, edita la cuenta.
                                     </p>
@@ -307,10 +307,10 @@
 
         <!-- Modal para Cobro Parcial -->
         <div v-if="showCobroParcialModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showCobroParcialModal = false">
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-                <div class="flex items-center justify-between p-6 border-b border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900">Registrar Cobro Parcial</h3>
-                    <button @click="showCobroParcialModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Registrar Cobro Parcial</h3>
+                    <button @click="showCobroParcialModal = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -319,18 +319,18 @@
 
                 <div class="p-6">
                     <div class="space-y-4">
-                        <div class="bg-white p-4 rounded-lg">
+                        <div class="bg-white dark:bg-slate-900 p-4 rounded-lg">
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-sm font-medium text-gray-700">Cuenta:</span>
-                                <span class="text-sm text-gray-900">#{{ cuenta.id }}</span>
+                                <span class="text-sm text-gray-900 dark:text-white">#{{ cuenta.id }}</span>
                             </div>
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-sm font-medium text-gray-700">Cliente:</span>
-                                <span class="text-sm text-gray-900">{{ cuenta.venta?.cliente?.nombre_razon_social || cuenta.cobrable?.cliente?.nombre_razon_social || 'Cliente no disponible' }}</span>
+                                <span class="text-sm text-gray-900 dark:text-white">{{ cuenta.venta?.cliente?.nombre_razon_social || cuenta.cobrable?.cliente?.nombre_razon_social || 'Cliente no disponible' }}</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-sm font-medium text-gray-700">Monto Total:</span>
-                                <span class="text-lg font-bold text-gray-900">{{ formatCurrency(cuenta.monto_total) }}</span>
+                                <span class="text-lg font-bold text-gray-900 dark:text-white">{{ formatCurrency(cuenta.monto_total) }}</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-sm font-medium text-gray-700">Pendiente:</span>
@@ -386,7 +386,7 @@
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 placeholder="0.00"
                             />
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Máximo: {{ formatCurrency(cuenta.monto_pendiente) }}
                             </p>
                         </div>
@@ -403,7 +403,7 @@
                     </div>
                 </div>
 
-                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                     <button @click="showCobroParcialModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
                         Cancelar
                     </button>
@@ -420,10 +420,10 @@
 
         <!-- Modal para Marcar como Cobrado -->
         <div v-if="showCobroModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showCobroModal = false">
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-                <div class="flex items-center justify-between p-6 border-b border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900">Marcar Cuenta como Cobrada</h3>
-                    <button @click="showCobroModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Marcar Cuenta como Cobrada</h3>
+                    <button @click="showCobroModal = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -432,18 +432,18 @@
 
                 <div class="p-6">
                     <div class="space-y-4">
-                        <div class="bg-white p-4 rounded-lg">
+                        <div class="bg-white dark:bg-slate-900 p-4 rounded-lg">
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-sm font-medium text-gray-700">Cuenta:</span>
-                                <span class="text-sm text-gray-900">#{{ cuenta.id }}</span>
+                                <span class="text-sm text-gray-900 dark:text-white">#{{ cuenta.id }}</span>
                             </div>
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-sm font-medium text-gray-700">Cliente:</span>
-                                <span class="text-sm text-gray-900">{{ cuenta.venta?.cliente?.nombre_razon_social || cuenta.cobrable?.cliente?.nombre_razon_social || 'Cliente no disponible' }}</span>
+                                <span class="text-sm text-gray-900 dark:text-white">{{ cuenta.venta?.cliente?.nombre_razon_social || cuenta.cobrable?.cliente?.nombre_razon_social || 'Cliente no disponible' }}</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-sm font-medium text-gray-700">Monto Total:</span>
-                                <span class="text-lg font-bold text-gray-900">{{ formatCurrency(cuenta.monto_total) }}</span>
+                                <span class="text-lg font-bold text-gray-900 dark:text-white">{{ formatCurrency(cuenta.monto_total) }}</span>
                             </div>
                         </div>
 
@@ -496,7 +496,7 @@
                     </div>
                 </div>
 
-                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                     <button @click="showCobroModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
                         Cancelar
                     </button>

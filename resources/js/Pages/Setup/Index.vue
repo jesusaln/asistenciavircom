@@ -235,7 +235,7 @@ const triggerBackupInput = () => {
             <h1 class="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                 Asistente de Instalación
             </h1>
-            <p class="text-gray-500 mt-2">Configura tu sistema en unos simples pasos</p>
+            <p class="text-gray-500 dark:text-gray-400 mt-2">Configura tu sistema en unos simples pasos</p>
         </div>
 
         <!-- Stepper Visual -->
@@ -261,7 +261,7 @@ const triggerBackupInput = () => {
                         <span v-else>{{ step.icon }}</span>
                     </div>
                     <span class="mt-2 text-xs font-medium transition-colors"
-                          :class="currentStep >= step.num ? 'text-white' : 'text-gray-500'">
+                          :class="currentStep >= step.num ? 'text-white' : 'text-gray-500 dark:text-gray-400'">
                         {{ step.title }}
                     </span>
                 </div>
@@ -325,7 +325,7 @@ const triggerBackupInput = () => {
                                 <TextInput id="password" v-model="form.password" type="password" 
                                            class="mt-2 block w-full bg-gray-700/50 border-gray-600" 
                                            placeholder="••••••••" required />
-                                <p class="text-xs text-gray-500 mt-1">Mínimo 8 caracteres</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Mínimo 8 caracteres</p>
                                 <InputError :message="form.errors.password" class="mt-2" />
                             </div>
                             <div>
@@ -458,7 +458,7 @@ const triggerBackupInput = () => {
                                         <p class="text-sm text-gray-400">
                                             <span class="font-semibold text-blue-400">Click para subir</span> o arrastra aquí
                                         </p>
-                                        <p class="text-xs text-gray-500 mt-1">PNG, JPG (max. 2MB)</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">PNG, JPG (max. 2MB)</p>
                                     </div>
                                     <input id="empresa_logo" type="file" class="hidden" @input="form.empresa_logo = $event.target.files[0]" accept="image/*" />
                                 </label>
@@ -487,7 +487,7 @@ const triggerBackupInput = () => {
 
                         <div class="space-y-4">
                             <h3 class="text-gray-400 font-medium text-sm uppercase tracking-wider">Retenciones (Opcional)</h3>
-                            <p class="text-xs text-gray-500">Activa solo si tu empresa aplica retenciones de impuestos.</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Activa solo si tu empresa aplica retenciones de impuestos.</p>
 
                             <!-- ISR Switch -->
                             <div class="flex items-center justify-between bg-gray-700/30 p-4 rounded-xl hover:bg-gray-700/50 transition-colors">
@@ -495,12 +495,12 @@ const triggerBackupInput = () => {
                                     <span class="text-2xl">💰</span>
                                     <div>
                                         <span class="text-gray-200 font-medium">ISR (Impuesto Sobre Renta)</span>
-                                        <p class="text-xs text-gray-500">Para reportes y cálculos</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Para reportes y cálculos</p>
                                     </div>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" v-model="form.enable_isr" class="sr-only peer">
-                                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white dark:bg-slate-900 after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                                 </label>
                             </div>
 
@@ -511,12 +511,12 @@ const triggerBackupInput = () => {
                                         <span class="text-2xl">📉</span>
                                         <div>
                                             <span class="text-gray-200 font-medium">Retención de IVA</span>
-                                            <p class="text-xs text-gray-500">Se aplica a ciertos servicios</p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Se aplica a ciertos servicios</p>
                                         </div>
                                     </div>
                                     <label class="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" v-model="form.enable_retencion_iva" class="sr-only peer">
-                                        <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                        <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white dark:bg-slate-900 after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                                     </label>
                                 </div>
                                 <div v-if="form.enable_retencion_iva" class="mt-4 pl-11 animate-slide-down">
@@ -533,12 +533,12 @@ const triggerBackupInput = () => {
                                         <span class="text-2xl">📈</span>
                                         <div>
                                             <span class="text-gray-200 font-medium">Retención de ISR</span>
-                                            <p class="text-xs text-gray-500">Para honorarios y servicios profesionales</p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Para honorarios y servicios profesionales</p>
                                         </div>
                                     </div>
                                     <label class="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" v-model="form.enable_retencion_isr" class="sr-only peer">
-                                        <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                        <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white dark:bg-slate-900 after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                                     </label>
                                 </div>
                                 <div v-if="form.enable_retencion_isr" class="mt-4 pl-11 animate-slide-down">
@@ -637,7 +637,7 @@ const triggerBackupInput = () => {
                             <button v-if="backupFile && !isRestoring" 
                                     type="button"
                                     @click="triggerBackupInput"
-                                    class="text-xs text-gray-500 hover:text-gray-400 underline">
+                                    class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-400 underline">
                                 Cambiar archivo
                             </button>
                             
@@ -670,7 +670,7 @@ const triggerBackupInput = () => {
         </div>
 
         <!-- Footer -->
-        <p class="mt-8 text-gray-600 text-sm">
+        <p class="mt-8 text-gray-600 dark:text-gray-300 text-sm">
             Versión 2.0 • Sistema ERP
         </p>
     </div>

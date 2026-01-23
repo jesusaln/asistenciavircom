@@ -96,15 +96,15 @@ const getRoleColorClass = (roleName) => {
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
               <Link :href="route('roles.index')" 
-                    class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-white transition-colors">
+                    class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg hover:bg-white dark:bg-slate-900 transition-colors">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
                 Volver
               </Link>
               <div>
-                <h1 class="text-2xl font-bold text-gray-900">Gestión del Rol</h1>
-                <p class="text-sm text-gray-600">Administra los usuarios asignados a este rol</p>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión del Rol</h1>
+                <p class="text-sm text-gray-600 dark:text-gray-300">Administra los usuarios asignados a este rol</p>
               </div>
             </div>
             <Link :href="route('roles.edit', role.id)" 
@@ -118,10 +118,10 @@ const getRoleColorClass = (roleName) => {
         </div>
 
         <!-- Role Card -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
           <div :class="['px-8 py-6 bg-gradient-to-r text-white', getRoleColorClass(role.name)]">
             <div class="flex items-center space-x-4">
-              <div class="p-3 bg-white/20 rounded-xl">
+              <div class="p-3 bg-white dark:bg-slate-900/20 rounded-xl">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                 </svg>
@@ -134,8 +134,8 @@ const getRoleColorClass = (roleName) => {
           </div>
 
           <!-- Stats -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-8 bg-white">
-            <div class="bg-white rounded-xl p-4 border border-gray-100">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-8 bg-white dark:bg-slate-900">
+            <div class="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-100">
               <div class="flex items-center space-x-3">
                 <div class="p-2 bg-blue-100 rounded-lg">
                   <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,12 +143,12 @@ const getRoleColorClass = (roleName) => {
                   </svg>
                 </div>
                 <div>
-                  <p class="text-2xl font-bold text-gray-900">{{ role.users_count }}</p>
-                  <p class="text-sm text-gray-500">Usuarios asignados</p>
+                  <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ role.users_count }}</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Usuarios asignados</p>
                 </div>
               </div>
             </div>
-            <div class="bg-white rounded-xl p-4 border border-gray-100">
+            <div class="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-100">
               <div class="flex items-center space-x-3">
                 <div class="p-2 bg-green-100 rounded-lg">
                   <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,12 +156,12 @@ const getRoleColorClass = (roleName) => {
                   </svg>
                 </div>
                 <div>
-                  <p class="text-2xl font-bold text-gray-900">{{ role.permissions_count }}</p>
-                  <p class="text-sm text-gray-500">Permisos</p>
+                  <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ role.permissions_count }}</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Permisos</p>
                 </div>
               </div>
             </div>
-            <div class="bg-white rounded-xl p-4 border border-gray-100">
+            <div class="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-100">
               <div class="flex items-center space-x-3">
                 <div class="p-2 bg-purple-100 rounded-lg">
                   <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -169,8 +169,8 @@ const getRoleColorClass = (roleName) => {
                   </svg>
                 </div>
                 <div>
-                  <p class="text-sm font-medium text-gray-900">{{ new Date(role.created_at).toLocaleDateString('es-MX') }}</p>
-                  <p class="text-sm text-gray-500">Fecha de creación</p>
+                  <p class="text-sm font-medium text-gray-900 dark:text-white">{{ new Date(role.created_at).toLocaleDateString('es-MX') }}</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Fecha de creación</p>
                 </div>
               </div>
             </div>
@@ -178,11 +178,11 @@ const getRoleColorClass = (roleName) => {
         </div>
 
         <!-- Users Section -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
             <div>
-              <h3 class="text-lg font-semibold text-gray-900">Usuarios con este rol</h3>
-              <p class="text-sm text-gray-500">Gestiona qué usuarios tienen asignado este rol</p>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Usuarios con este rol</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Gestiona qué usuarios tienen asignado este rol</p>
             </div>
             <button 
               @click="showAddUserModal = true"
@@ -198,14 +198,14 @@ const getRoleColorClass = (roleName) => {
           <!-- Users List -->
           <div v-if="role.users.length > 0" class="divide-y divide-gray-100">
             <div v-for="user in role.users" :key="user.id" 
-                 class="px-6 py-4 flex items-center justify-between hover:bg-white transition-colors">
+                 class="px-6 py-4 flex items-center justify-between hover:bg-white dark:bg-slate-900 transition-colors">
               <div class="flex items-center space-x-4">
                 <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
                   {{ user.name.charAt(0).toUpperCase() }}
                 </div>
                 <div>
-                  <p class="font-medium text-gray-900">{{ user.name }}</p>
-                  <p class="text-sm text-gray-500">{{ user.email }}</p>
+                  <p class="font-medium text-gray-900 dark:text-white">{{ user.name }}</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">{{ user.email }}</p>
                 </div>
               </div>
               <button 
@@ -226,8 +226,8 @@ const getRoleColorClass = (roleName) => {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13-1.268a2 2 0 100-4 2 2 0 000 4z"/>
               </svg>
             </div>
-            <h4 class="text-lg font-medium text-gray-900 mb-1">Sin usuarios asignados</h4>
-            <p class="text-gray-500 mb-4">No hay usuarios con este rol actualmente</p>
+            <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-1">Sin usuarios asignados</h4>
+            <p class="text-gray-500 dark:text-gray-400 mb-4">No hay usuarios con este rol actualmente</p>
             <button 
               @click="showAddUserModal = true"
               :disabled="availableUsers.length === 0"
@@ -241,10 +241,10 @@ const getRoleColorClass = (roleName) => {
         </div>
 
         <!-- Permissions Preview -->
-        <div class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">Permisos del rol</h3>
-            <p class="text-sm text-gray-500">Los usuarios con este rol tienen los siguientes permisos</p>
+        <div class="mt-8 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Permisos del rol</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Los usuarios con este rol tienen los siguientes permisos</p>
           </div>
           <div class="p-6">
             <div v-if="role.permissions.length > 0" class="flex flex-wrap gap-2">
@@ -253,7 +253,7 @@ const getRoleColorClass = (roleName) => {
                 {{ permission }}
               </span>
             </div>
-            <p v-else class="text-gray-500 text-center py-4">No hay permisos asignados a este rol</p>
+            <p v-else class="text-gray-500 dark:text-gray-400 text-center py-4">No hay permisos asignados a este rol</p>
           </div>
         </div>
       </div>
@@ -261,10 +261,10 @@ const getRoleColorClass = (roleName) => {
 
     <!-- Add User Modal -->
     <div v-if="showAddUserModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showAddUserModal = false">
-      <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-gray-900">Agregar usuario al rol</h3>
-          <button @click="showAddUserModal = false" class="text-gray-400 hover:text-gray-600">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Agregar usuario al rol</h3>
+          <button @click="showAddUserModal = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
@@ -283,9 +283,9 @@ const getRoleColorClass = (roleName) => {
             Todos los usuarios ya tienen este rol asignado.
           </p>
         </div>
-        <div class="px-6 py-4 bg-white flex justify-end space-x-3">
+        <div class="px-6 py-4 bg-white dark:bg-slate-900 flex justify-end space-x-3">
           <button @click="showAddUserModal = false" 
-                  class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-white transition-colors">
+                  class="px-4 py-2 text-gray-700 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg hover:bg-white dark:bg-slate-900 transition-colors">
             Cancelar
           </button>
           <button @click="addUser" 

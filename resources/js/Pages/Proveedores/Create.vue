@@ -1,11 +1,11 @@
 <template>
   <div class="w-full p-6">
-    <div class="bg-white rounded-lg shadow-lg p-8">
+    <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg p-8">
       <div class="flex items-center justify-between mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">Crear Proveedor</h1>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Crear Proveedor</h1>
         <div class="flex items-center space-x-2">
           <div class="w-3 h-3 rounded-full" :class="formValid ? 'bg-green-500' : 'bg-red-500'"></div>
-          <span class="text-sm text-gray-600">{{ formValid ? 'Formulario válido' : 'Revisar campos' }}</span>
+          <span class="text-sm text-gray-600 dark:text-gray-300">{{ formValid ? 'Formulario válido' : 'Revisar campos' }}</span>
         </div>
       </div>
 
@@ -26,8 +26,8 @@
 
       <form @submit.prevent="submit" class="space-y-8">
         <!-- Información General -->
-        <div class="border-b border-gray-200 pb-8">
-          <h2 class="text-xl font-semibold text-gray-900 mb-4">Información General</h2>
+        <div class="border-b border-gray-200 dark:border-slate-800 pb-8">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Información General</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             <!-- Nombre/Razón Social -->
@@ -76,7 +76,7 @@
             <div>
               <label for="rfc" class="block text-sm font-medium text-gray-700 mb-2">
                 RFC *
-                <span class="text-xs text-gray-500">
+                <span class="text-xs text-gray-500 dark:text-gray-400">
                   ({{ form.tipo_persona === 'fisica' ? '13 caracteres' : form.tipo_persona === 'moral' ? '12 caracteres' : 'Selecciona tipo de persona' }})
                 </span>
               </label>
@@ -108,8 +108,8 @@
         </div>
 
         <!-- Información Fiscal -->
-        <div class="border-b border-gray-200 pb-8">
-          <h2 class="text-xl font-semibold text-gray-900 mb-4">Información Fiscal</h2>
+        <div class="border-b border-gray-200 dark:border-slate-800 pb-8">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Información Fiscal</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             <!-- Régimen Fiscal -->
@@ -139,8 +139,8 @@
         </div>
 
         <!-- Información de Contacto -->
-        <div class="border-b border-gray-200 pb-8">
-          <h2 class="text-xl font-semibold text-gray-900 mb-4">Información de Contacto</h2>
+        <div class="border-b border-gray-200 dark:border-slate-800 pb-8">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Información de Contacto</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             <!-- Email -->
@@ -174,7 +174,7 @@
             <div>
               <label for="telefono" class="block text-sm font-medium text-gray-700 mb-2">
                 Teléfono
-                <span class="text-xs text-gray-500">(10 dígitos)</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">(10 dígitos)</span>
               </label>
               <div class="relative">
                 <input
@@ -203,7 +203,7 @@
 
         <!-- Dirección -->
         <div class="pb-8">
-          <h2 class="text-xl font-semibold text-gray-900 mb-4">Dirección</h2>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Dirección</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
             <!-- Calle -->
@@ -301,7 +301,7 @@
                 v-model="form.municipio"
                 type="text"
                 id="municipio"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-gray-600"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300"
                 readonly
               />
             </div>
@@ -315,7 +315,7 @@
                 v-model="form.estado"
                 type="text"
                 id="estado"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-gray-600"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300"
                 readonly
               />
             </div>
@@ -329,7 +329,7 @@
                 v-model="form.pais"
                 type="text"
                 id="pais"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-gray-600"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300"
                 readonly
               />
             </div>
@@ -337,11 +337,11 @@
         </div>
 
         <!-- Botones de acción -->
-        <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+        <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-slate-800">
           <button
             type="button"
             @click="resetForm"
-            class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
           >
             Limpiar Formulario
           </button>
@@ -374,13 +374,13 @@
     <!-- Modal de Vista Previa -->
     <div v-if="showPreview" class="fixed inset-0 z-50 overflow-y-auto">
       <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 transition-opacity bg-white0 bg-opacity-75" @click="showPreview = false"></div>
+        <div class="fixed inset-0 transition-opacity bg-white dark:bg-slate-9000 bg-opacity-75" @click="showPreview = false"></div>
 
-        <div class="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
-          <div class="px-6 py-4 bg-white">
+        <div class="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white dark:bg-slate-900 rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+          <div class="px-6 py-4 bg-white dark:bg-slate-900">
             <div class="flex items-center justify-between">
-              <h3 class="text-lg font-medium text-gray-900">Vista Previa del Proveedor</h3>
-              <button @click="showPreview = false" class="text-gray-400 hover:text-gray-600">
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white">Vista Previa del Proveedor</h3>
+              <button @click="showPreview = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -399,7 +399,7 @@
 
               <div class="pt-4 border-t">
                 <strong>Dirección:</strong>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-gray-600 dark:text-gray-300">
                   {{ [form.calle, form.numero_exterior, form.numero_interior].filter(Boolean).join(' ') || 'No especificada' }}<br>
                   {{ form.colonia }}, {{ form.municipio }}<br>
                   {{ form.estado }}, {{ form.pais }} {{ form.codigo_postal }}

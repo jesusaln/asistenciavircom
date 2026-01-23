@@ -6,18 +6,18 @@
         <div class="mb-8">
           <div class="flex justify-between items-center">
             <div>
-              <h1 class="text-3xl font-bold text-gray-900">Editar Kit</h1>
-              <p class="mt-2 text-sm text-gray-600">Modifica la información del kit y sus componentes</p>
+              <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Editar Kit</h1>
+              <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">Modifica la información del kit y sus componentes</p>
             </div>
             <div class="flex space-x-3">
-              <Link :href="`/kits/${kit.id}`" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+              <Link :href="`/kits/${kit.id}`" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                 </svg>
                 Ver Kit
               </Link>
-              <Link href="/kits" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+              <Link href="/kits" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path>
                 </svg>
@@ -28,11 +28,11 @@
         </div>
 
         <!-- Form -->
-        <form @submit.prevent="submitForm" class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <form @submit.prevent="submitForm" class="bg-white dark:bg-slate-900 shadow-lg rounded-lg overflow-hidden">
           <!-- Información Básica del Kit -->
-          <div class="px-6 py-4 bg-white border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Información del Kit</h3>
-            <p class="mt-1 text-sm text-gray-600">Modifica el nombre, precio y detalles básicos del kit</p>
+          <div class="px-6 py-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Información del Kit</h3>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Modifica el nombre, precio y detalles básicos del kit</p>
           </div>
 
           <div class="px-6 py-6 space-y-6">
@@ -70,7 +70,7 @@
                 <label for="precio_venta" class="block text-sm font-medium text-gray-700">Precio de Venta *</label>
                 <div class="mt-1 relative rounded-md shadow-sm">
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span class="text-gray-500 sm:text-sm">$</span>
+                    <span class="text-gray-500 dark:text-gray-400 sm:text-sm">$</span>
                   </div>
                   <input v-model.number="form.precio_venta" type="number" step="0.01" min="0" id="precio_venta"
                          class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
@@ -92,11 +92,11 @@
           </div>
 
           <!-- Componentes del Kit -->
-          <div class="px-6 py-4 bg-white border-b border-gray-200">
+          <div class="px-6 py-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
             <div class="flex justify-between items-center">
               <div>
-                <h3 class="text-lg font-medium text-gray-900">Componentes del Kit</h3>
-                <p class="mt-1 text-sm text-gray-600">Modifica los productos y/o servicios que conforman este kit</p>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Componentes del Kit</h3>
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Modifica los productos y/o servicios que conforman este kit</p>
               </div>
               <button type="button" @click="addComponent"
                       class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
@@ -112,9 +112,9 @@
             <!-- Lista de Componentes -->
             <div class="space-y-4">
               <div v-for="(componente, index) in form.componentes" :key="index"
-                   class="bg-white border border-gray-200 rounded-lg p-4">
+                   class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-4">
                 <div class="flex justify-between items-start mb-4">
-                  <h4 class="text-sm font-medium text-gray-900">Componente #{{ index + 1 }}</h4>
+                  <h4 class="text-sm font-medium text-gray-900 dark:text-white">Componente #{{ index + 1 }}</h4>
                   <button type="button" @click="removeComponent(index)"
                           class="text-red-600 hover:text-red-800 p-1">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,7 +178,7 @@
                     <label class="block text-sm font-medium text-gray-700">Precio Unitario</label>
                     <div class="mt-1 relative rounded-md shadow-sm">
                       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span class="text-gray-500 sm:text-sm">$</span>
+                        <span class="text-gray-500 dark:text-gray-400 sm:text-sm">$</span>
                       </div>
                       <input v-model.number="componente.precio_unitario" type="number" step="0.01" min="0"
                              @input="calculateCosts"
@@ -220,8 +220,8 @@
           </div>
 
           <!-- Actions -->
-          <div class="px-6 py-4 bg-white border-t border-gray-200 flex justify-end space-x-3">
-            <Link href="/kits" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+          <div class="px-6 py-4 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 flex justify-end space-x-3">
+            <Link href="/kits" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
               Cancelar
             </Link>
             <button type="submit" :disabled="loading"
@@ -242,10 +242,10 @@
 
     <!-- Modal Seleccionar Series -->
     <div v-if="showSeriesPicker" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="closeSeriesPicker">
-      <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl">
-        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-gray-900">Seleccionar series: {{ pickerProducto?.nombre || '' }}</h3>
-          <button @click="closeSeriesPicker" class="text-gray-400 hover:text-gray-600 transition-colors">
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-2xl">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Seleccionar series: {{ pickerProducto?.nombre || '' }}</h3>
+          <button @click="closeSeriesPicker" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
@@ -255,35 +255,35 @@
           </div>
           <div class="mb-3 grid grid-cols-1 md:grid-cols-2 gap-3">
             <input v-model.trim="pickerSearch" type="text" placeholder="Buscar número de serie" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" />
-            <div class="text-xs text-gray-500 self-center">
+            <div class="text-xs text-gray-500 dark:text-gray-400 self-center">
               <span class="inline-block px-2 py-1 bg-emerald-100 text-emerald-700 rounded">En stock: {{ pickerSeries.length }}</span>
             </div>
           </div>
-          <div class="max-h-72 overflow-y-auto border border-gray-200 rounded-lg">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-white">
+          <div class="max-h-72 overflow-y-auto border border-gray-200 dark:border-slate-800 rounded-lg">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+              <thead class="bg-white dark:bg-slate-900">
                 <tr>
-                  <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Sel</th>
-                  <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Número de serie</th>
-                  <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Almacén</th>
+                  <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-300">Sel</th>
+                  <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-300">Número de serie</th>
+                  <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-300">Almacén</th>
                 </tr>
               </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
+              <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
                 <tr v-for="s in filteredPickerSeries" :key="s.id">
                   <td class="px-4 py-2 text-sm">
                     <input type="checkbox" :checked="selectedSeries.includes(s.numero_serie)" @change="toggleSerie(s.numero_serie)" :disabled="!selectedSeries.includes(s.numero_serie) && selectedSeries.length >= pickerRequired" />
                   </td>
-                  <td class="px-4 py-2 text-sm font-medium text-gray-900">{{ s.numero_serie }}</td>
+                  <td class="px-4 py-2 text-sm font-medium text-gray-900 dark:text-white">{{ s.numero_serie }}</td>
                   <td class="px-4 py-2 text-sm text-gray-700">{{ nombreAlmacen(s.almacen_id) }}</td>
                 </tr>
                 <tr v-if="filteredPickerSeries.length === 0">
-                  <td colspan="3" class="px-4 py-6 text-center text-sm text-gray-500">Sin series disponibles</td>
+                  <td colspan="3" class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">Sin series disponibles</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
-        <div class="px-6 py-4 border-t border-gray-200 bg-white text-right">
+        <div class="px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-right">
           <button @click="closeSeriesPicker" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors mr-2">Cancelar</button>
           <button @click="confirmSeries" :disabled="selectedSeries.length !== pickerRequired" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">Usar {{ selectedSeries.length }}/{{ pickerRequired }} series</button>
         </div>

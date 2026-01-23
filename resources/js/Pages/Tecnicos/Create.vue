@@ -2,7 +2,7 @@
   <Head title="Crear Técnicos" />
   <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
     <!-- Header Section -->
-    <div class="relative overflow-hidden bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-lg">
+    <div class="relative overflow-hidden bg-white dark:bg-slate-900/80 backdrop-blur-md border-b border-gray-200 dark:border-slate-800/50 shadow-lg">
       <div class="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-indigo-600/10"></div>
       <div class="relative w-full px-4 py-8">
         <div class="flex items-center justify-between">
@@ -16,7 +16,7 @@
               <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
                 Crear Técnico
               </h1>
-              <p class="text-gray-600 mt-1">Registra un nuevo técnico en el sistema</p>
+              <p class="text-gray-600 dark:text-gray-300 mt-1">Registra un nuevo técnico en el sistema</p>
             </div>
           </div>
           <div class="flex items-center space-x-3">
@@ -33,9 +33,9 @@
 
     <div class="w-full px-4 py-8">
       <!-- Form Container -->
-      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-gray-200/50">
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-200/50">
-          <h2 class="text-xl font-semibold text-gray-800 flex items-center space-x-2">
+      <div class="bg-white dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-slate-800/50">
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-200 dark:border-slate-800/50">
+          <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 flex items-center space-x-2">
             <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
@@ -59,7 +59,7 @@
             <!-- Nombre -->
             <div class="space-y-2">
               <label for="nombre" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
-                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
                 <span>Nombre *</span>
@@ -69,7 +69,7 @@
                   v-model="form.nombre"
                   type="text"
                   id="nombre"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md"
                   :class="{ 'border-red-300 focus:ring-red-500': form.errors.nombre }"
                   @blur="convertirAMayusculas('nombre')"
                   placeholder="Ingresa el nombre"
@@ -87,7 +87,7 @@
             <!-- Apellido -->
             <div class="space-y-2">
               <label for="apellido" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
-                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
                 <span>Apellido *</span>
@@ -97,7 +97,7 @@
                   v-model="form.apellido"
                   type="text"
                   id="apellido"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md"
                   :class="{ 'border-red-300 focus:ring-red-500': form.errors.apellido }"
                   @blur="convertirAMayusculas('apellido')"
                   placeholder="Ingresa el apellido"
@@ -115,7 +115,7 @@
             <!-- Email -->
             <div class="space-y-2">
               <label for="email" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
-                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                 </svg>
                 <span>Email *</span>
@@ -125,7 +125,7 @@
                   v-model="form.email"
                   type="email"
                   id="email"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md"
                   :class="{ 'border-red-300 focus:ring-red-500': form.errors.email }"
                   placeholder="correo@ejemplo.com"
                   required
@@ -142,7 +142,7 @@
             <!-- Teléfono -->
             <div class="space-y-2">
               <label for="telefono" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
-                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
                 <span>Teléfono</span>
@@ -153,7 +153,7 @@
                   type="text"
                   id="telefono"
                   maxlength="10"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md"
                   :class="{ 'border-red-300 focus:ring-red-500': form.errors.telefono }"
                   @input="validarTelefono"
                   placeholder="1234567890"
@@ -173,7 +173,7 @@
             <!-- Dirección -->
             <div class="md:col-span-2 space-y-2">
               <label for="direccion" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
-                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
@@ -184,7 +184,7 @@
                   v-model="form.direccion"
                   type="text"
                   id="direccion"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md"
                   :class="{ 'border-red-300 focus:ring-red-500': form.errors.direccion }"
                   @blur="convertirAMayusculas('direccion')"
                   placeholder="Ingresa la dirección completa"
@@ -201,7 +201,7 @@
             <!-- Usuario Asignado -->
             <div class="md:col-span-2 space-y-2">
               <label for="user_id" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
-                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
                 <span>Usuario Asignado</span>
@@ -210,7 +210,7 @@
                 <select
                   v-model="form.user_id"
                   id="user_id"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md"
                   :class="{ 'border-red-300 focus:ring-red-500': form.errors.user_id }"
                 >
                   <option value="">Sin usuario asignado</option>
@@ -229,8 +229,8 @@
           </div>
 
           <!-- Configuración de Márgenes y Comisiones -->
-          <div class="border-b border-gray-200 pb-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+          <div class="border-b border-gray-200 dark:border-slate-800 pb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
               <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
               </svg>
@@ -241,7 +241,7 @@
               <!-- Margen Venta Productos -->
               <div class="space-y-2">
                 <label for="margen_venta_productos" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
-                  <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                   </svg>
                   <span>Margen Productos (%)</span>
@@ -254,7 +254,7 @@
                     step="0.01"
                     min="0"
                     max="100"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md"
                     :class="{ 'border-red-300 focus:ring-red-500': form.errors.margen_venta_productos }"
                     placeholder="0.00"
                   />
@@ -270,7 +270,7 @@
               <!-- Margen Venta Servicios -->
               <div class="space-y-2">
                 <label for="margen_venta_servicios" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
-                  <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <span>Margen Servicios (%)</span>
@@ -283,7 +283,7 @@
                     step="0.01"
                     min="0"
                     max="100"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md"
                     :class="{ 'border-red-300 focus:ring-red-500': form.errors.margen_venta_servicios }"
                     placeholder="0.00"
                   />
@@ -299,7 +299,7 @@
               <!-- Comisión Instalación -->
               <div class="space-y-2">
                 <label for="comision_instalacion" class="block text-sm font-semibold text-gray-700 flex items-center space-x-2">
-                  <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                   </svg>
                   <span>Comisión Instalación ($)</span>
@@ -311,7 +311,7 @@
                     id="comision_instalacion"
                     step="0.01"
                     min="0"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md"
                     :class="{ 'border-red-300 focus:ring-red-500': form.errors.comision_instalacion }"
                     placeholder="0.00"
                   />
@@ -327,7 +327,7 @@
           </div>
 
           <!-- Action Buttons -->
-          <div class="flex items-center justify-end space-x-4 mt-12 pt-6 border-t border-gray-200">
+          <div class="flex items-center justify-end space-x-4 mt-12 pt-6 border-t border-gray-200 dark:border-slate-800">
             <Link :href="route('tecnicos.index')" class="flex items-center space-x-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-200 hover:scale-105">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -352,9 +352,9 @@
       </div>
 
       <!-- Form Preview Card -->
-      <div v-if="hasFormData" class="mt-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-gray-200/50">
-        <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-gray-200/50">
-          <h3 class="text-lg font-semibold text-gray-800 flex items-center space-x-2">
+      <div v-if="hasFormData" class="mt-8 bg-white dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-slate-800/50">
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-gray-200 dark:border-slate-800/50">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 flex items-center space-x-2">
             <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -368,8 +368,8 @@
               {{ getInitials() }}
             </div>
             <div class="flex-1">
-              <h4 class="text-xl font-semibold text-gray-900">{{ form.nombre }} {{ form.apellido }}</h4>
-              <div class="mt-2 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+              <h4 class="text-xl font-semibold text-gray-900 dark:text-white">{{ form.nombre }} {{ form.apellido }}</h4>
+              <div class="mt-2 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-300">
                 <div v-if="form.email" class="flex items-center space-x-2">
                   <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />

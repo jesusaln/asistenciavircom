@@ -5,14 +5,14 @@
     <div class="mb-8">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">Editar Proveedor</h1>
-          <p class="text-sm text-gray-600 mt-1">
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Editar Proveedor</h1>
+          <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
             Actualiza la información del proveedor {{ props.proveedor.nombre_razon_social }}
           </p>
         </div>
         <button
           @click="$inertia.visit(route('proveedores.index'))"
-          class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
@@ -23,8 +23,8 @@
     </div>
 
     <!-- Main Form Card -->
-    <div class="bg-white shadow-xl rounded-lg overflow-hidden">
-      <form @submit.prevent="submit" class="divide-y divide-gray-200">
+    <div class="bg-white dark:bg-slate-900 shadow-xl rounded-lg overflow-hidden">
+      <form @submit.prevent="submit" class="divide-y divide-gray-200 dark:divide-slate-800">
 
         <!-- Global Error Display -->
         <div v-if="Object.keys(form.errors).length" class="bg-red-50 border-l-4 border-red-400 p-4">
@@ -49,7 +49,7 @@
 
         <!-- Section 1: Información General -->
         <div class="px-6 py-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-6 flex items-center">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-6 flex items-center">
             <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
             </svg>
@@ -113,7 +113,7 @@
             <div>
               <label for="rfc" class="block text-sm font-medium text-gray-700 mb-2">
                 RFC *
-                <span class="text-xs text-gray-500">
+                <span class="text-xs text-gray-500 dark:text-gray-400">
                   ({{ form.tipo_persona === 'fisica' ? '13 caracteres' : form.tipo_persona === 'moral' ? '12 caracteres' : '' }})
                 </span>
               </label>
@@ -151,7 +151,7 @@
 
         <!-- Section 2: Información Fiscal -->
         <div class="px-6 py-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-6 flex items-center">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-6 flex items-center">
             <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
@@ -217,7 +217,7 @@
 
         <!-- Section 3: Información de Contacto -->
         <div class="px-6 py-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-6 flex items-center">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-6 flex items-center">
             <svg class="w-5 h-5 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
             </svg>
@@ -262,7 +262,7 @@
             <div>
               <label for="telefono" class="block text-sm font-medium text-gray-700 mb-2">
                 Teléfono *
-                <span class="text-xs text-gray-500">(10 dígitos)</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">(10 dígitos)</span>
               </label>
               <input
                 v-model="form.telefono"
@@ -284,7 +284,7 @@
                 <p v-if="form.errors.telefono" class="text-sm text-red-600">
                   {{ form.errors.telefono }}
                 </p>
-                <span class="text-xs text-gray-500">
+                <span class="text-xs text-gray-500 dark:text-gray-400">
                   {{ form.telefono?.length || 0 }}/10 dígitos
                 </span>
               </div>
@@ -294,7 +294,7 @@
 
         <!-- Section 4: Dirección -->
         <div class="px-6 py-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-6 flex items-center">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-6 flex items-center">
             <svg class="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -400,7 +400,7 @@
                 v-model="form.municipio"
                 type="text"
                 id="municipio"
-                class="block w-full rounded-md border-gray-300 shadow-sm bg-white text-gray-600"
+                class="block w-full rounded-md border-gray-300 shadow-sm bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300"
                 readonly
                 placeholder="Se autocompleta"
               />
@@ -415,7 +415,7 @@
                 v-model="form.estado"
                 type="text"
                 id="estado"
-                class="block w-full rounded-md border-gray-300 shadow-sm bg-white text-gray-600"
+                class="block w-full rounded-md border-gray-300 shadow-sm bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300"
                 readonly
                 placeholder="Se autocompleta"
               />
@@ -430,7 +430,7 @@
                 v-model="form.pais"
                 type="text"
                 id="pais"
-                class="block w-full rounded-md border-gray-300 shadow-sm bg-white text-gray-600"
+                class="block w-full rounded-md border-gray-300 shadow-sm bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300"
                 readonly
                 placeholder="Se autocompleta"
               />
@@ -439,15 +439,15 @@
         </div>
 
         <!-- Form Actions -->
-        <div class="px-6 py-4 bg-white flex items-center justify-between">
-          <div class="text-sm text-gray-500">
+        <div class="px-6 py-4 bg-white dark:bg-slate-900 flex items-center justify-between">
+          <div class="text-sm text-gray-500 dark:text-gray-400">
             Los campos marcados con * son obligatorios
           </div>
           <div class="flex space-x-3">
             <button
               type="button"
               @click="resetForm"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
               :disabled="form.processing"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

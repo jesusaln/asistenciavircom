@@ -6,7 +6,7 @@
         <div class="mb-8">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                         <span class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white shadow-lg">
                             <FontAwesomeIcon :icon="['fas', 'tasks']" class="h-6 w-6" />
                         </span>
@@ -29,26 +29,26 @@
 
         <!-- Stats -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div @click="filtrar('pendientes')" :class="filtros.filtro === 'pendientes' ? 'ring-2 ring-amber-500' : ''" class="bg-white p-4 rounded-xl shadow-sm border cursor-pointer hover:border-amber-300 transition-colors">
-                <p class="text-sm text-gray-500">Pendientes</p>
-                <p class="text-2xl font-bold text-gray-900">{{ stats.pendientes }}</p>
+            <div @click="filtrar('pendientes')" :class="filtros.filtro === 'pendientes' ? 'ring-2 ring-amber-500' : ''" class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border cursor-pointer hover:border-amber-300 transition-colors">
+                <p class="text-sm text-gray-500 dark:text-gray-400">Pendientes</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.pendientes }}</p>
             </div>
-            <div @click="filtrar('hoy')" :class="filtros.filtro === 'hoy' ? 'ring-2 ring-amber-500' : ''" class="bg-white p-4 rounded-xl shadow-sm border cursor-pointer hover:border-amber-300 transition-colors">
-                <p class="text-sm text-gray-500">Para Hoy</p>
+            <div @click="filtrar('hoy')" :class="filtros.filtro === 'hoy' ? 'ring-2 ring-amber-500' : ''" class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border cursor-pointer hover:border-amber-300 transition-colors">
+                <p class="text-sm text-gray-500 dark:text-gray-400">Para Hoy</p>
                 <p class="text-2xl font-bold text-blue-600">{{ stats.hoy }}</p>
             </div>
-            <div @click="filtrar('vencidas')" :class="filtros.filtro === 'vencidas' ? 'ring-2 ring-amber-500' : ''" class="bg-white p-4 rounded-xl shadow-sm border cursor-pointer hover:border-amber-300 transition-colors">
-                <p class="text-sm text-gray-500">Vencidas</p>
+            <div @click="filtrar('vencidas')" :class="filtros.filtro === 'vencidas' ? 'ring-2 ring-amber-500' : ''" class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border cursor-pointer hover:border-amber-300 transition-colors">
+                <p class="text-sm text-gray-500 dark:text-gray-400">Vencidas</p>
                 <p class="text-2xl font-bold text-red-600">{{ stats.vencidas }}</p>
             </div>
-            <div @click="filtrar('completadas')" :class="filtros.filtro === 'completadas' ? 'ring-2 ring-amber-500' : ''" class="bg-white p-4 rounded-xl shadow-sm border cursor-pointer hover:border-amber-300 transition-colors">
-                <p class="text-sm text-gray-500">Completadas (semana)</p>
+            <div @click="filtrar('completadas')" :class="filtros.filtro === 'completadas' ? 'ring-2 ring-amber-500' : ''" class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border cursor-pointer hover:border-amber-300 transition-colors">
+                <p class="text-sm text-gray-500 dark:text-gray-400">Completadas (semana)</p>
                 <p class="text-2xl font-bold text-green-600">{{ stats.completadas_semana }}</p>
             </div>
         </div>
 
         <!-- Lista de tareas -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="divide-y divide-gray-100">
                 <div v-if="!tareas.data.length" class="px-6 py-12 text-center text-gray-400">
                     <FontAwesomeIcon :icon="['fas', 'check-circle']" class="h-12 w-12 mb-4" />
@@ -57,7 +57,7 @@
                 <div 
                     v-for="tarea in tareas.data" 
                     :key="tarea.id"
-                    class="px-6 py-4 flex items-center gap-4 hover:bg-white transition-colors"
+                    class="px-6 py-4 flex items-center gap-4 hover:bg-white dark:bg-slate-900 transition-colors"
                     :class="tarea.completada_at ? 'opacity-60' : ''"
                 >
                     <!-- Checkbox / Completar -->
@@ -77,12 +77,12 @@
 
                     <!-- Info -->
                     <div class="flex-1 min-w-0">
-                        <p class="font-medium text-gray-900" :class="tarea.completada_at ? 'line-through' : ''">{{ tarea.titulo }}</p>
+                        <p class="font-medium text-gray-900 dark:text-white" :class="tarea.completada_at ? 'line-through' : ''">{{ tarea.titulo }}</p>
                         <div class="flex items-center gap-3 mt-1">
                             <Link v-if="tarea.prospecto" :href="`/crm/prospectos/${tarea.prospecto.id}`" class="text-sm text-blue-600 hover:underline">
                                 {{ tarea.prospecto.nombre }}
                             </Link>
-                            <span v-if="tarea.descripcion" class="text-sm text-gray-500 truncate">{{ tarea.descripcion }}</span>
+                            <span v-if="tarea.descripcion" class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ tarea.descripcion }}</span>
                         </div>
                     </div>
 
@@ -93,7 +93,7 @@
 
                     <!-- Fecha -->
                     <div class="text-right">
-                        <p :class="esFechaVencida(tarea.fecha_limite) && !tarea.completada_at ? 'text-red-500 font-medium' : 'text-gray-500'" class="text-sm">
+                        <p :class="esFechaVencida(tarea.fecha_limite) && !tarea.completada_at ? 'text-red-500 font-medium' : 'text-gray-500 dark:text-gray-400'" class="text-sm">
                             {{ formatFecha(tarea.fecha_limite) }}
                         </p>
                     </div>
@@ -117,10 +117,10 @@
         <div v-if="showModalNueva" class="fixed inset-0 z-50 overflow-y-auto" @click.self="showModalNueva = false">
             <div class="flex items-center justify-center min-h-screen px-4">
                 <div class="fixed inset-0 bg-black bg-opacity-50"></div>
-                <div class="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6 animate-scale-in">
+                <div class="relative bg-white dark:bg-slate-900 rounded-xl shadow-xl max-w-lg w-full p-6 animate-scale-in">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl font-bold text-gray-900">Nueva Tarea</h3>
-                        <button @click="showModalNueva = false" class="text-gray-400 hover:text-gray-600">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Nueva Tarea</h3>
+                        <button @click="showModalNueva = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300">
                             <FontAwesomeIcon :icon="['fas', 'times']" />
                         </button>
                     </div>
@@ -216,8 +216,8 @@ const getTareaIcon = (tipo) => {
 };
 
 const getTareaIconColor = (tipo) => {
-    const colors = { llamar: 'bg-blue-100 text-blue-600', enviar_cotizacion: 'bg-purple-100 text-purple-600', seguimiento: 'bg-yellow-100 text-yellow-600', visita: 'bg-green-100 text-green-600', reunion: 'bg-orange-100 text-orange-600', otro: 'bg-gray-100 text-gray-600' };
-    return colors[tipo] || 'bg-gray-100 text-gray-600';
+    const colors = { llamar: 'bg-blue-100 text-blue-600', enviar_cotizacion: 'bg-purple-100 text-purple-600', seguimiento: 'bg-yellow-100 text-yellow-600', visita: 'bg-green-100 text-green-600', reunion: 'bg-orange-100 text-orange-600', otro: 'bg-gray-100 text-gray-600 dark:text-gray-300' };
+    return colors[tipo] || 'bg-gray-100 text-gray-600 dark:text-gray-300';
 };
 
 const getPrioridadColor = (prioridad) => {

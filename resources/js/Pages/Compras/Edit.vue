@@ -31,7 +31,7 @@
 
       <form @submit.prevent="actualizarCompra" class="space-y-8">
         <!-- Información General -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,12 +57,12 @@
                   id="numero_compra"
                   v-model="form.numero_compra"
                   type="text"
-                  class="w-full bg-gray-100 text-gray-600 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3"
+                  class="w-full bg-gray-100 text-gray-600 dark:text-gray-300 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3"
                   readonly
                   required
                 />
               </div>
-              <p class="mt-1 text-xs text-gray-500">
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 El número de compra no puede modificarse
               </p>
             </div>
@@ -83,12 +83,12 @@
                   id="fecha_compra"
                   v-model="form.fecha_compra"
                   type="date"
-                  class="w-full bg-gray-100 text-gray-600 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3"
+                  class="w-full bg-gray-100 text-gray-600 dark:text-gray-300 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3"
                   readonly
                   required
                 />
               </div>
-              <p class="mt-1 text-xs text-gray-500">
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 La fecha original se mantiene
               </p>
             </div>
@@ -186,7 +186,7 @@
                   </div>
                 </div>
               </div>
-              <p class="mt-1 text-xs text-gray-500">
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Selecciona de qué cuenta sale el dinero para esta compra
               </p>
             </div>
@@ -194,7 +194,7 @@
         </div>
 
         <!-- Proveedor -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -204,16 +204,16 @@
             </h2>
           </div>
           <div class="p-6">
-            <div class="bg-white border border-gray-200 rounded-lg p-4">
+            <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-4">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-sm font-medium text-gray-900">
+                  <p class="text-sm font-medium text-gray-900 dark:text-white">
                     {{ proveedorSeleccionado?.nombre_razon_social || 'Sin proveedor' }}
                   </p>
-                  <p class="text-xs text-gray-500 mt-1">
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     RFC: {{ proveedorSeleccionado?.rfc || 'N/A' }}
                   </p>
-                  <p class="text-xs text-gray-500">
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
                     Email: {{ proveedorSeleccionado?.email || 'N/A' }}
                   </p>
                 </div>
@@ -225,14 +225,14 @@
                 </span>
               </div>
             </div>
-            <p class="mt-2 text-xs text-gray-500">
+            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
               El proveedor no puede cambiarse después de crear la compra
             </p>
           </div>
         </div>
 
         <!-- Almacén de Recepción -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -242,13 +242,13 @@
             </h2>
           </div>
           <div class="p-6">
-            <div class="bg-white border border-gray-200 rounded-lg p-4">
+            <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-4">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-sm font-medium text-gray-900">
+                  <p class="text-sm font-medium text-gray-900 dark:text-white">
                     {{ almacenNombre }}
                   </p>
-                  <p class="text-xs text-gray-500 mt-1">
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     Los productos se recibieron en este almacén
                   </p>
                 </div>
@@ -260,14 +260,14 @@
                 </span>
               </div>
             </div>
-            <p class="mt-2 text-xs text-gray-500">
+            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
               El almacén no puede cambiarse porque el inventario ya fue ajustado
             </p>
           </div>
         </div>
 
         <!-- Productos Disponibles -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -277,11 +277,11 @@
             </h2>
           </div>
           <div class="p-6">
-            <div class="mb-6 text-sm text-gray-600">
+            <div class="mb-6 text-sm text-gray-600 dark:text-gray-300">
               Usa el buscador para agregar más productos o modifica los existentes.
             </div>
 
-            <div class="pt-2 border-t border-gray-200">
+            <div class="pt-2 border-t border-gray-200 dark:border-slate-800">
               <BuscarProducto
                 ref="buscarProductoRef"
                 :productos="props.productos"
@@ -309,17 +309,17 @@
 
             <!-- Modal para capturar series -->
             <div v-if="showSerialsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+              <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-md mx-4">
                 <div class="p-6">
-                  <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                     Capturar Series - {{ currentSerialProduct?.nombre }}
                   </h3>
 
                   <div class="mb-4">
-                    <p class="text-sm text-gray-600">
+                    <p class="text-sm text-gray-600 dark:text-gray-300">
                       Cantidad: {{ currentSerialQty }} unidades
                     </p>
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       Debe capturar exactamente {{ currentSerialQty }} series únicas
                     </p>
                   </div>
@@ -330,7 +330,7 @@
                       :key="index"
                       class="flex items-center space-x-2"
                     >
-                      <span class="text-sm font-medium text-gray-500 w-6">{{ index + 1 }}.</span>
+                      <span class="text-sm font-medium text-gray-500 dark:text-gray-400 w-6">{{ index + 1 }}.</span>
                       <input
                         v-model="serialsForEntry[index]"
                         type="text"
@@ -362,7 +362,7 @@
         </div>
 
         <!-- Notas -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -382,7 +382,7 @@
         </div>
 
         <!-- Descuento General -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -406,7 +406,7 @@
                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder="0.00"
                 />
-                <p class="mt-1 text-xs text-gray-500">
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Este descuento se aplica al subtotal después de los descuentos por item
                 </p>
               </div>

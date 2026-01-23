@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="mb-6">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Resumen de Ventas</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Resumen de Ventas</h3>
             <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div class="bg-blue-50 p-4 rounded-lg">
                     <div class="text-2xl font-bold text-blue-600">{{ formatCurrency(corteFiltrado) }}</div>
@@ -43,30 +43,30 @@
         </div>
 
         <div class="overflow-x-auto mt-6">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-white">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                <thead class="bg-white dark:bg-slate-900">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">N° Venta</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IVA</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Costo</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilidad</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fecha</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">N° Venta</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Subtotal</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">IVA</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Costo</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Utilidad</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
                     <template v-for="venta in ventasFiltradas" :key="venta.id">
-                    <tr class="hover:bg-white">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatDate(venta.created_at) }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ venta.cliente?.nombre_razon_social || 'N/A' }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">{{ venta.numero_venta || venta.id }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatCurrency((venta.total - venta.iva) || 0) }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatCurrency(venta.iva) }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ formatCurrency(venta.total) }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatCurrency(venta.costo_total) }}</td>
+                    <tr class="hover:bg-white dark:bg-slate-900">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ formatDate(venta.created_at) }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ venta.cliente?.nombre_razon_social || 'N/A' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-white">{{ venta.numero_venta || venta.id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ formatCurrency((venta.total - venta.iva) || 0) }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ formatCurrency(venta.iva) }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(venta.total) }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ formatCurrency(venta.costo_total) }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" :class="calculateProfit(venta) >= 0 ? 'text-green-600' : 'text-red-600'">
                             {{ formatCurrency(calculateProfit(venta)) }}
                         </td>
@@ -75,7 +75,7 @@
                                 'bg-green-100 text-green-800': venta.pagado && venta.estado === 'aprobada',
                                 'bg-blue-100 text-blue-800': venta.estado === 'aprobada' && !venta.pagado,
                                 'bg-yellow-100 text-yellow-800': venta.estado === 'pendiente',
-                                'bg-gray-100 text-gray-800': venta.estado === 'borrador',
+                                'bg-gray-100 text-gray-800 dark:text-gray-100': venta.estado === 'borrador',
                                 'bg-red-100 text-red-800': venta.estado === 'cancelada'
                             }" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                                 {{ venta.pagado ? 'Pagada' : 'Pendiente' }} - {{ venta.estado || 'Borrador' }}
@@ -88,25 +88,25 @@
                             </button>
                         </td>
                     </tr>
-                    <tr v-if="expandedVentas[venta.id]" class="bg-white">
+                    <tr v-if="expandedVentas[venta.id]" class="bg-white dark:bg-slate-900">
                         <td colspan="9" class="px-6 py-4">
                             <div class="text-sm text-gray-700 font-medium mb-2">Detalle de productos y costos</div>
                             <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800 text-sm">
                                     <thead class="bg-gray-100">
                                         <tr>
-                                            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Tipo</th>
-                                            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Nombre</th>
-                                            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-500 uppercase">Cant.</th>
-                                            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-500 uppercase">Precio Venta</th>
-                                            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-500 uppercase">Costo Unitario</th>
-                                            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-500 uppercase">Costo Total</th>
+                                            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Tipo</th>
+                                            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Nombre</th>
+                                            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Cant.</th>
+                                            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Precio Venta</th>
+                                            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Costo Unitario</th>
+                                            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Costo Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
+                                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
                                         <tr v-for="item in (venta.items || [])" :key="item.id">
-                                            <td class="px-4 py-2 whitespace-nowrap text-gray-600">{{ item.ventable_type?.includes('Producto') ? 'Producto' : 'Servicio' }}</td>
-                                            <td class="px-4 py-2 whitespace-nowrap text-gray-900">
+                                            <td class="px-4 py-2 whitespace-nowrap text-gray-600 dark:text-gray-300">{{ item.ventable_type?.includes('Producto') ? 'Producto' : 'Servicio' }}</td>
+                                            <td class="px-4 py-2 whitespace-nowrap text-gray-900 dark:text-white">
                                                 {{ item.ventable?.nombre || 'N/A' }}
                                             </td>
                                             <td class="px-4 py-2 whitespace-nowrap text-right">{{ item.cantidad || 0 }}</td>
@@ -125,18 +125,18 @@
                     </tr>
                     </template>
                     <tr v-if="ventasFiltradas.length === 0">
-                        <td colspan="9" class="px-6 py-12 text-center text-gray-500">
+                        <td colspan="9" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                             No hay ventas en el período seleccionado
                         </td>
                     </tr>
                 </tbody>
                 <tfoot class="bg-gray-100 font-bold border-t-2 border-gray-300">
                     <tr>
-                        <td colspan="3" class="px-6 py-4 text-right text-gray-900">Totales:</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-900">{{ formatCurrency(totales.subtotal) }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-900">{{ formatCurrency(totales.iva) }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-900">{{ formatCurrency(totales.total) }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-900">{{ formatCurrency(totales.costo) }}</td>
+                        <td colspan="3" class="px-6 py-4 text-right text-gray-900 dark:text-white">Totales:</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white">{{ formatCurrency(totales.subtotal) }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white">{{ formatCurrency(totales.iva) }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white">{{ formatCurrency(totales.total) }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white">{{ formatCurrency(totales.costo) }}</td>
                         <td class="px-6 py-4 whitespace-nowrap" :class="totales.utilidad >= 0 ? 'text-green-600' : 'text-red-600'">
                             {{ formatCurrency(totales.utilidad) }}
                         </td>
@@ -149,33 +149,33 @@
         <!-- Resumen adicional -->
         <div v-if="ventasFiltradas.length > 0" class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Ventas por estado -->
-            <div class="bg-white p-6 rounded-lg">
-                <h4 class="text-md font-medium text-gray-900 mb-4">Ventas por Estado</h4>
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-lg">
+                <h4 class="text-md font-medium text-gray-900 dark:text-white mb-4">Ventas por Estado</h4>
                 <div class="space-y-3">
                     <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">Pagadas y Aprobadas:</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-300">Pagadas y Aprobadas:</span>
                         <span class="font-medium">{{ ventasPagadasYAprobadas }}</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">Pendientes de Pago:</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-300">Pendientes de Pago:</span>
                         <span class="font-medium">{{ ventasPendientesPago }}</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">En Borrador:</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-300">En Borrador:</span>
                         <span class="font-medium">{{ ventasBorrador }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- Top clientes -->
-            <div class="bg-white p-6 rounded-lg">
-                <h4 class="text-md font-medium text-gray-900 mb-4">Top Clientes</h4>
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-lg">
+                <h4 class="text-md font-medium text-gray-900 dark:text-white mb-4">Top Clientes</h4>
                 <div class="space-y-3">
                     <div v-for="cliente in topClientes" :key="cliente.nombre" class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600 truncate mr-2">{{ cliente.nombre }}:</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-300 truncate mr-2">{{ cliente.nombre }}:</span>
                         <span class="font-medium">{{ formatCurrency(cliente.total) }}</span>
                     </div>
-                    <div v-if="topClientes.length === 0" class="text-sm text-gray-500 text-center">
+                    <div v-if="topClientes.length === 0" class="text-sm text-gray-500 dark:text-gray-400 text-center">
                         No hay datos de clientes
                     </div>
                 </div>

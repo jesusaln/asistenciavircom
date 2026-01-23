@@ -10,14 +10,14 @@
         <!-- Content -->
         <div class="flex-1 min-w-0">
             <!-- Label -->
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate transition-colors">
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 truncate transition-colors">
                 {{ label }}
             </p>
             
             <!-- Value -->
             <div class="mt-1 flex items-baseline gap-2">
                 <p :class="valueClasses">
-                    <span v-if="prefix" class="text-lg font-medium text-gray-500 dark:text-gray-400 transition-colors">{{ prefix }}</span>
+                    <span v-if="prefix" class="text-lg font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">{{ prefix }}</span>
                     {{ formattedValue }}
                 </p>
                 
@@ -34,7 +34,7 @@
             </div>
             
             <!-- Description -->
-            <p v-if="description" class="mt-1 text-xs text-gray-400 dark:text-gray-500 transition-colors">
+            <p v-if="description" class="mt-1 text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 transition-colors">
                 {{ description }}
             </p>
         </div>
@@ -115,7 +115,7 @@ const formattedValue = computed(() => {
 
 // Card container classes
 const cardClasses = computed(() => [
-    'relative bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors',
+    'relative bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 dark:border-gray-700 overflow-hidden transition-colors',
     'flex items-start gap-4',
     props.compact ? 'p-4' : 'p-6',
     props.href ? 'hover:shadow-md hover:border-amber-200 transition-all duration-200 cursor-pointer' : '',
@@ -143,7 +143,7 @@ const valueClasses = computed(() => [
     props.variant === 'warning' ? 'text-yellow-600 dark:text-yellow-400' :
     props.variant === 'info' ? 'text-blue-600 dark:text-blue-400' :
     props.variant === 'primary' ? 'text-amber-600 dark:text-amber-400' :
-    'text-gray-900 dark:text-white'
+    'text-gray-900 dark:text-white dark:text-white'
 ]);
 
 // Trend indicator classes

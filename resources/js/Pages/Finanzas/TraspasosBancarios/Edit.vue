@@ -38,28 +38,28 @@ const formatDate = (dateString) => {
 
     <AppLayout title="Editar Traspaso">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
                 Editar Traspaso entre Cuentas #{{ traspaso.id }}
             </h2>
         </template>
 
         <div class="py-12">
             <div class="w-full sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                    <div class="mb-8 p-4 bg-white rounded-lg border border-gray-200">
+                <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-xl sm:rounded-lg p-6">
+                    <div class="mb-8 p-4 bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
-                                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1">Cuenta Origen</span>
-                                <p class="text-sm font-bold text-gray-900">{{ traspaso.origen.banco }} - {{ traspaso.origen.nombre }}</p>
+                                <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Cuenta Origen</span>
+                                <p class="text-sm font-bold text-gray-900 dark:text-white">{{ traspaso.origen.banco }} - {{ traspaso.origen.nombre }}</p>
                             </div>
                             <div>
-                                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1">Cuenta Destino</span>
-                                <p class="text-sm font-bold text-gray-900">{{ traspaso.destino.banco }} - {{ traspaso.destino.nombre }}</p>
+                                <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Cuenta Destino</span>
+                                <p class="text-sm font-bold text-gray-900 dark:text-white">{{ traspaso.destino.banco }} - {{ traspaso.destino.nombre }}</p>
                             </div>
                             <div>
-                                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1">Monto y Fecha</span>
-                                <p class="text-sm font-bold text-gray-900">{{ formatCurrency(traspaso.monto) }}</p>
-                                <p class="text-xs text-gray-500">{{ formatDate(traspaso.fecha) }}</p>
+                                <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Monto y Fecha</span>
+                                <p class="text-sm font-bold text-gray-900 dark:text-white">{{ formatCurrency(traspaso.monto) }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ formatDate(traspaso.fecha) }}</p>
                             </div>
                         </div>
                         <div class="mt-4 p-2 bg-amber-50 rounded border border-amber-200 flex items-center">
@@ -86,7 +86,7 @@ const formatDate = (dateString) => {
                         </div>
 
                         <div class="flex items-center justify-end mt-8 pt-6 border-t border-gray-100">
-                            <Link :href="route('traspasos-bancarios.index')" class="text-sm text-gray-600 hover:text-gray-900 mr-6">
+                            <Link :href="route('traspasos-bancarios.index')" class="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:text-white mr-6">
                                 Cancelar
                             </Link>
                             <button type="submit" class="inline-flex items-center px-6 py-2 bg-indigo-600 border border-transparent rounded-lg font-semibold text-sm text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition disabled:opacity-25 shadow-md shadow-indigo-100" :disabled="form.processing">

@@ -27,9 +27,9 @@ const getEstadoBadge = (estado) => {
         activa: 'bg-green-100 text-green-800 border-green-200',
         inactiva: 'bg-yellow-100 text-yellow-800 border-yellow-200',
         vencida: 'bg-red-100 text-red-800 border-red-200',
-        cancelada: 'bg-gray-100 text-gray-800 border-gray-200',
+        cancelada: 'bg-gray-100 text-gray-800 dark:text-gray-100 border-gray-200 dark:border-slate-800',
     };
-    return colores[estado] || 'bg-gray-100 text-gray-800';
+    return colores[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100';
 };
 
 const getEstadoCobroBadge = (estado) => {
@@ -38,9 +38,9 @@ const getEstadoCobroBadge = (estado) => {
         pendiente: 'bg-yellow-100 text-yellow-800 border-yellow-200',
         parcial: 'bg-blue-100 text-blue-800 border-blue-200',
         vencido: 'bg-red-100 text-red-800 border-red-200',
-        cancelada: 'bg-gray-100 text-gray-800 border-gray-200',
+        cancelada: 'bg-gray-100 text-gray-800 dark:text-gray-100 border-gray-200 dark:border-slate-800',
     };
-    return colores[estado] || 'bg-gray-100 text-gray-800';
+    return colores[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100';
 };
 
 // Acciones Rápidas
@@ -89,8 +89,8 @@ const getSaludPoliza = () => {
                                     {{ poliza.estado?.toUpperCase() || 'PÓLIZA' }}
                                 </span>
                             </div>
-                            <h1 class="text-3xl font-bold text-gray-900 mt-1">{{ poliza.nombre }}</h1>
-                            <p class="text-gray-500">{{ poliza.cliente?.nombre_razon_social }}</p>
+                            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mt-1">{{ poliza.nombre }}</h1>
+                            <p class="text-gray-500 dark:text-gray-400">{{ poliza.cliente?.nombre_razon_social }}</p>
                         </div>
                         <div class="flex gap-2 flex-wrap">
                             <!-- Indicador de Salud -->
@@ -113,7 +113,7 @@ const getSaludPoliza = () => {
                             <Link v-if="poliza.horas_incluidas_mensual" :href="route('polizas-servicio.historial', poliza.id)" class="px-4 py-2 bg-purple-100 border border-purple-300 rounded-lg hover:bg-purple-200 font-semibold text-purple-700">
                                 📊 Historial
                             </Link>
-                            <Link :href="route('polizas-servicio.edit', poliza.id)" class="px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-white font-semibold text-gray-700">
+                            <Link :href="route('polizas-servicio.edit', poliza.id)" class="px-4 py-2 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg shadow-sm hover:bg-white dark:bg-slate-900 font-semibold text-gray-700">
                                 ⚙️ Editar
                             </Link>
                         </div>
@@ -121,7 +121,7 @@ const getSaludPoliza = () => {
                 </div>
 
                 <!-- Header Modal -->
-                <div v-if="isModal" class="p-6 border-b bg-white/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div v-if="isModal" class="p-6 border-b bg-white dark:bg-slate-900/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <div class="flex items-center gap-3">
                             <span class="font-mono text-lg font-bold text-blue-600">{{ poliza.folio }}</span>
@@ -129,17 +129,17 @@ const getSaludPoliza = () => {
                                 {{ poliza.estado?.toUpperCase() || 'PÓLIZA' }}
                             </span>
                         </div>
-                        <h1 class="text-xl font-bold text-gray-900">{{ poliza.nombre }}</h1>
-                        <p class="text-sm text-gray-500 font-medium">{{ poliza.cliente?.nombre_razon_social }}</p>
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ poliza.nombre }}</h1>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">{{ poliza.cliente?.nombre_razon_social }}</p>
                     </div>
                     <div class="flex gap-2">
                         <a :href="route('polizas-servicio.pdf-beneficios', poliza.id)" target="_blank" class="p-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors border border-green-200" title="Ver PDF de Beneficios">
                             📄 Beneficios
                         </a>
-                        <a :href="route('polizas-servicio.pdf-contrato', poliza.id)" target="_blank" class="p-2 bg-white text-gray-700 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200" title="Ver PDF Contrato">
+                        <a :href="route('polizas-servicio.pdf-contrato', poliza.id)" target="_blank" class="p-2 bg-white dark:bg-slate-900 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 dark:border-slate-800" title="Ver PDF Contrato">
                             📝 Contrato
                         </a>
-                        <Link :href="route('polizas-servicio.edit', poliza.id)" class="p-2 bg-white text-gray-700 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200" title="Editar Póliza">
+                        <Link :href="route('polizas-servicio.edit', poliza.id)" class="p-2 bg-white dark:bg-slate-900 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 dark:border-slate-800" title="Editar Póliza">
                             ⚙️ Editar
                         </Link>
                     </div>
@@ -149,8 +149,8 @@ const getSaludPoliza = () => {
                     <!-- Columna Principal -->
                     <div class="lg:col-span-2 space-y-6">
                         <!-- Detalles y Alcance -->
-                        <div class="bg-white rounded-xl shadow-sm p-6">
-                            <h3 class="font-bold text-gray-900 mb-4 border-b pb-2 flex items-center gap-2">
+                        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
+                            <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b pb-2 flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
@@ -163,28 +163,28 @@ const getSaludPoliza = () => {
                         </div>
 
                         <!-- Servicios Incluidos -->
-                        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden">
                             <div class="px-6 py-4 border-b">
-                                <h3 class="font-bold text-gray-900 flex items-center gap-2">
+                                <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                     </svg>
                                     Servicios Cubiertos del Catálogo
                                 </h3>
                             </div>
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-white text-xs font-bold text-gray-500 uppercase">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                                <thead class="bg-white dark:bg-slate-900 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">
                                     <tr>
                                         <th class="px-6 py-3 text-left">Servicio</th>
                                         <th class="px-6 py-3 text-center">Cant. Mensual</th>
                                         <th class="px-6 py-3 text-right">Precio Acordado</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-200">
+                                <tbody class="divide-y divide-gray-200 dark:divide-slate-800">
                                     <tr v-for="servicio in poliza.servicios" :key="servicio.id">
-                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ servicio.nombre }}</td>
-                                        <td class="px-6 py-4 text-center text-sm text-gray-600">{{ servicio.pivot.cantidad }}</td>
-                                        <td class="px-6 py-4 text-right text-sm font-mono text-gray-900">
+                                        <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{{ servicio.nombre }}</td>
+                                        <td class="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-300">{{ servicio.pivot.cantidad }}</td>
+                                        <td class="px-6 py-4 text-right text-sm font-mono text-gray-900 dark:text-white">
                                             {{ servicio.pivot.precio_especial ? formatCurrency(servicio.pivot.precio_especial) : '-' }}
                                         </td>
                                     </tr>
@@ -198,17 +198,17 @@ const getSaludPoliza = () => {
                         </div>
 
                         <!-- Historial de Facturación y Cobros -->
-                        <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-blue-100">
+                        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden border border-blue-100">
                             <div class="px-6 py-4 border-b bg-blue-50/50">
-                                <h3 class="font-bold text-gray-900 flex items-center gap-2">
+                                <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                                     </svg>
                                     Historial de Facturación y Cobros
                                 </h3>
                             </div>
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-white text-xs font-bold text-gray-500 uppercase">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                                <thead class="bg-white dark:bg-slate-900 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">
                                     <tr>
                                         <th class="px-6 py-3 text-left">Fecha</th>
                                         <th class="px-6 py-3 text-left">Concepto</th>
@@ -216,19 +216,19 @@ const getSaludPoliza = () => {
                                         <th class="px-6 py-3 text-right">Monto</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-200">
-                                    <tr v-for="cobro in poliza.cuentas_por_cobrar" :key="cobro.id" class="hover:bg-white">
-                                        <td class="px-6 py-4 text-xs font-medium text-gray-600">{{ formatDate(cobro.created_at) }}</td>
-                                        <td class="px-6 py-4 text-sm text-gray-900">
+                                <tbody class="divide-y divide-gray-200 dark:divide-slate-800">
+                                    <tr v-for="cobro in poliza.cuentas_por_cobrar" :key="cobro.id" class="hover:bg-white dark:bg-slate-900">
+                                        <td class="px-6 py-4 text-xs font-medium text-gray-600 dark:text-gray-300">{{ formatDate(cobro.created_at) }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
                                             <div class="font-medium">Mensualidad Póliza</div>
-                                            <div class="text-[10px] text-gray-500 truncate max-w-xs">{{ cobro.notas }}</div>
+                                            <div class="text-[10px] text-gray-500 dark:text-gray-400 truncate max-w-xs">{{ cobro.notas }}</div>
                                         </td>
                                         <td class="px-6 py-4 text-center">
                                             <span :class="['px-2 py-0.5 text-[9px] font-black rounded uppercase border', getEstadoCobroBadge(cobro.estado)]">
                                                 {{ cobro.estado }}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 text-right text-sm font-bold text-gray-900">
+                                        <td class="px-6 py-4 text-right text-sm font-bold text-gray-900 dark:text-white">
                                             {{ formatCurrency(cobro.monto_total) }}
                                         </td>
                                     </tr>
@@ -242,9 +242,9 @@ const getSaludPoliza = () => {
                         </div>
 
                         <!-- Historial de Servicios (Tickets) -->
-                        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden">
                             <div class="px-6 py-4 border-b flex justify-between items-center">
-                                <h3 class="font-bold text-gray-900 flex items-center gap-2">
+                                <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
@@ -254,8 +254,8 @@ const getSaludPoliza = () => {
                                     + Reportar Servicio
                                 </Link>
                             </div>
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-white text-xs font-bold text-gray-500 uppercase">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                                <thead class="bg-white dark:bg-slate-900 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">
                                     <tr>
                                         <th class="px-6 py-3 text-left">Folio</th>
                                         <th class="px-6 py-3 text-left">Título / Asunto</th>
@@ -263,16 +263,16 @@ const getSaludPoliza = () => {
                                         <th class="px-6 py-3 text-right">Fecha</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-200">
-                                    <tr v-for="ticket in poliza.tickets" :key="ticket.id" class="hover:bg-white cursor-pointer" @click="router.visit(route('soporte.show', ticket.id))">
+                                <tbody class="divide-y divide-gray-200 dark:divide-slate-800">
+                                    <tr v-for="ticket in poliza.tickets" :key="ticket.id" class="hover:bg-white dark:bg-slate-900 cursor-pointer" @click="router.visit(route('soporte.show', ticket.id))">
                                         <td class="px-6 py-4 font-mono text-xs font-bold text-blue-600">{{ ticket.numero }}</td>
-                                        <td class="px-6 py-4 text-sm text-gray-900 truncate max-w-xs">{{ ticket.titulo }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900 dark:text-white truncate max-w-xs">{{ ticket.titulo }}</td>
                                         <td class="px-6 py-4">
                                             <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-gray-100 text-gray-700 uppercase">
                                                 {{ ticket.estado }}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 text-right text-xs text-gray-500">
+                                        <td class="px-6 py-4 text-right text-xs text-gray-500 dark:text-gray-400">
                                             {{ formatDate(ticket.created_at) }}
                                         </td>
                                     </tr>
@@ -421,7 +421,7 @@ const getSaludPoliza = () => {
                                            poliza.dias_para_vencer === 1 ? '¡Vence mañana!' :
                                            `Vence en ${poliza.dias_para_vencer} días` }}
                                     </div>
-                                    <div class="text-xs text-gray-600">
+                                    <div class="text-xs text-gray-600 dark:text-gray-300">
                                         {{ formatDate(poliza.fecha_fin) }}
                                     </div>
                                 </div>
@@ -429,26 +429,26 @@ const getSaludPoliza = () => {
                         </div>
 
                         <!-- Detalles Técnicos Sidebar -->
-                        <div class="bg-white rounded-xl shadow-sm p-4">
-                            <h3 class="font-bold text-gray-900 mb-3 text-sm">Información del Contrato</h3>
+                        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4">
+                            <h3 class="font-bold text-gray-900 dark:text-white mb-3 text-sm">Información del Contrato</h3>
                             <dl class="space-y-3 text-sm">
                                 <div class="flex justify-between">
-                                    <dt class="text-gray-500 font-medium">Fecha Inicio</dt>
-                                    <dd class="text-gray-900 font-bold">{{ formatDate(poliza.fecha_inicio) }}</dd>
+                                    <dt class="text-gray-500 dark:text-gray-400 font-medium">Fecha Inicio</dt>
+                                    <dd class="text-gray-900 dark:text-white font-bold">{{ formatDate(poliza.fecha_inicio) }}</dd>
                                 </div>
                                 <div class="flex justify-between">
-                                    <dt class="text-gray-500 font-medium">Vence</dt>
-                                    <dd class="text-gray-900 font-bold">{{ formatDate(poliza.fecha_fin) }}</dd>
+                                    <dt class="text-gray-500 dark:text-gray-400 font-medium">Vence</dt>
+                                    <dd class="text-gray-900 dark:text-white font-bold">{{ formatDate(poliza.fecha_fin) }}</dd>
                                 </div>
                                 <div class="flex justify-between">
-                                    <dt class="text-gray-500 font-medium">Renovación</dt>
-                                    <dd class="text-gray-900">
+                                    <dt class="text-gray-500 dark:text-gray-400 font-medium">Renovación</dt>
+                                    <dd class="text-gray-900 dark:text-white">
                                         <span v-if="poliza.renovacion_automatica" class="text-green-600 font-bold">Automatica</span>
-                                        <span v-else class="text-gray-500">Manual</span>
+                                        <span v-else class="text-gray-500 dark:text-gray-400">Manual</span>
                                     </dd>
                                 </div>
                                 <div class="pt-2 border-t flex justify-between items-center">
-                                    <dt class="text-gray-500 font-medium">SLA Respuesta</dt>
+                                    <dt class="text-gray-500 dark:text-gray-400 font-medium">SLA Respuesta</dt>
                                     <dd class="text-blue-700 font-black px-2 py-0.5 bg-blue-50 rounded">
                                         {{ poliza.sla_horas_respuesta ? poliza.sla_horas_respuesta + ' Horas' : 'Sin definir' }}
                                     </dd>
@@ -457,17 +457,17 @@ const getSaludPoliza = () => {
                         </div>
 
                         <!-- Equipos Vinculados -->
-                        <div class="bg-white rounded-xl shadow-sm p-4">
-                            <h3 class="font-bold text-gray-900 mb-3 text-sm flex items-center gap-2">
+                        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4">
+                            <h3 class="font-bold text-gray-900 dark:text-white mb-3 text-sm flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
                                 </svg>
                                 Equipos Cubiertos ({{ poliza.equipos.length }})
                             </h3>
                             <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                                <div v-for="equipo in poliza.equipos" :key="equipo.id" class="p-2 bg-white rounded border text-xs">
-                                    <div class="font-bold text-gray-800">{{ equipo.nombre }}</div>
-                                    <div class="text-gray-500 font-mono">S/N: {{ equipo.serie }}</div>
+                                <div v-for="equipo in poliza.equipos" :key="equipo.id" class="p-2 bg-white dark:bg-slate-900 rounded border text-xs">
+                                    <div class="font-bold text-gray-800 dark:text-gray-100">{{ equipo.nombre }}</div>
+                                    <div class="text-gray-500 dark:text-gray-400 font-mono">S/N: {{ equipo.serie }}</div>
                                 </div>
                                 <div v-if="poliza.equipos.length === 0" class="text-center py-4 text-gray-400 text-xs italic">
                                     No hay equipos específicos listados.

@@ -52,7 +52,7 @@ const getEstadoColor = (estado) => {
     'baja': 'bg-red-100 text-red-800',
     'perdida': 'bg-red-100 text-red-800',
   }
-  return colors[estado] || 'bg-gray-100 text-gray-800'
+  return colors[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100'
 }
 
 const submit = () => form.put(route('herramientas.gestion.update', props.tecnico.id))
@@ -101,7 +101,7 @@ const reasignarHerramienta = () => {
   <div class="flex items-center justify-between mb-6">
     <div>
       <h1 class="text-3xl font-bold text-slate-900">Gestión de Herramientas</h1>
-      <p class="text-gray-600 mt-1">Administrar herramientas de {{ props.tecnico.nombre_completo || props.tecnico.nombre }}</p>
+      <p class="text-gray-600 dark:text-gray-300 mt-1">Administrar herramientas de {{ props.tecnico.nombre_completo || props.tecnico.nombre }}</p>
     </div>
     <div class="flex gap-3">
       <Link class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700" :href="route('herramientas.gestion.index')">
@@ -126,14 +126,14 @@ const reasignarHerramienta = () => {
   </div>
 
   <!-- Información del técnico -->
-  <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+  <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border p-6 mb-6">
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="text-xl font-semibold text-gray-900">{{ props.tecnico.nombre_completo || props.tecnico.nombre }}</h2>
-        <p class="text-gray-600">{{ props.tecnico.email || 'Sin email' }} • {{ props.tecnico.telefono || 'Sin teléfono' }}</p>
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ props.tecnico.nombre_completo || props.tecnico.nombre }}</h2>
+        <p class="text-gray-600 dark:text-gray-300">{{ props.tecnico.email || 'Sin email' }} • {{ props.tecnico.telefono || 'Sin teléfono' }}</p>
       </div>
       <div class="text-right">
-        <div class="text-sm text-gray-500">Herramientas asignadas</div>
+        <div class="text-sm text-gray-500 dark:text-gray-400">Herramientas asignadas</div>
         <div class="text-3xl font-bold text-blue-600">{{ form.asignadas.length }}</div>
       </div>
     </div>
@@ -141,7 +141,7 @@ const reasignarHerramienta = () => {
 
   <form @submit.prevent="submit" class="grid lg:grid-cols-2 gap-6">
     <!-- Herramientas asignadas -->
-    <div class="bg-white rounded-lg shadow-sm border">
+    <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border">
       <div class="p-6 border-b">
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-medium text-gray-700">Herramientas Asignadas</h3>
@@ -152,16 +152,16 @@ const reasignarHerramienta = () => {
               placeholder="Buscar..."
               class="border rounded px-3 py-2 text-sm"
             />
-            <span class="text-sm text-gray-600">{{ herramientasAsignadasFiltradas.length }} de {{ props.asignadas.length }}</span>
+            <span class="text-sm text-gray-600 dark:text-gray-300">{{ herramientasAsignadasFiltradas.length }} de {{ props.asignadas.length }}</span>
           </div>
         </div>
       </div>
       <div class="p-6">
-        <div v-if="herramientasAsignadasFiltradas.length === 0" class="text-center py-8 text-gray-500">
+        <div v-if="herramientasAsignadasFiltradas.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
           <p>No hay herramientas asignadas que coincidan con la búsqueda</p>
         </div>
         <div class="space-y-3 max-h-96 overflow-y-auto">
-          <label v-for="herramienta in herramientasAsignadasFiltradas" :key="`a-${herramienta.id}`" class="flex items-center gap-3 p-3 border rounded-lg hover:bg-white">
+          <label v-for="herramienta in herramientasAsignadasFiltradas" :key="`a-${herramienta.id}`" class="flex items-center gap-3 p-3 border rounded-lg hover:bg-white dark:bg-slate-900">
             <input
               type="checkbox"
               :value="herramienta.id"
@@ -175,8 +175,8 @@ const reasignarHerramienta = () => {
               </svg>
             </div>
             <div class="flex-1">
-              <h4 class="font-medium text-gray-900">{{ herramienta.nombre }}</h4>
-              <p class="text-sm text-gray-600">Serie: {{ herramienta.numero_serie || 'N/A' }}</p>
+              <h4 class="font-medium text-gray-900 dark:text-white">{{ herramienta.nombre }}</h4>
+              <p class="text-sm text-gray-600 dark:text-gray-300">Serie: {{ herramienta.numero_serie || 'N/A' }}</p>
               <span :class="['text-xs px-2 py-1 rounded-full', getEstadoColor(herramienta.estado)]">
                 {{ herramienta.estado }}
               </span>
@@ -193,7 +193,7 @@ const reasignarHerramienta = () => {
     </div>
 
     <!-- Herramientas disponibles -->
-    <div class="bg-white rounded-lg shadow-sm border">
+    <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border">
       <div class="p-6 border-b">
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-medium text-gray-700">Herramientas Disponibles</h3>
@@ -204,16 +204,16 @@ const reasignarHerramienta = () => {
               placeholder="Buscar..."
               class="border rounded px-3 py-2 text-sm"
             />
-            <span class="text-sm text-gray-600">{{ herramientasDisponiblesFiltradas.length }} disponible{{ herramientasDisponiblesFiltradas.length !== 1 ? 's' : '' }}</span>
+            <span class="text-sm text-gray-600 dark:text-gray-300">{{ herramientasDisponiblesFiltradas.length }} disponible{{ herramientasDisponiblesFiltradas.length !== 1 ? 's' : '' }}</span>
           </div>
         </div>
       </div>
       <div class="p-6">
-        <div v-if="herramientasDisponiblesFiltradas.length === 0" class="text-center py-8 text-gray-500">
+        <div v-if="herramientasDisponiblesFiltradas.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
           <p>No hay herramientas disponibles que coincidan con la búsqueda</p>
         </div>
         <div class="space-y-3 max-h-96 overflow-y-auto">
-          <label v-for="herramienta in herramientasDisponiblesFiltradas" :key="`d-${herramienta.id}`" class="flex items-center gap-3 p-3 border rounded-lg hover:bg-white">
+          <label v-for="herramienta in herramientasDisponiblesFiltradas" :key="`d-${herramienta.id}`" class="flex items-center gap-3 p-3 border rounded-lg hover:bg-white dark:bg-slate-900">
             <input
               type="checkbox"
               :value="herramienta.id"
@@ -227,8 +227,8 @@ const reasignarHerramienta = () => {
               </svg>
             </div>
             <div class="flex-1">
-              <h4 class="font-medium text-gray-900">{{ herramienta.nombre }}</h4>
-              <p class="text-sm text-gray-600">Serie: {{ herramienta.numero_serie || 'N/A' }}</p>
+              <h4 class="font-medium text-gray-900 dark:text-white">{{ herramienta.nombre }}</h4>
+              <p class="text-sm text-gray-600 dark:text-gray-300">Serie: {{ herramienta.numero_serie || 'N/A' }}</p>
               <span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800">
                 Disponible
               </span>
@@ -239,9 +239,9 @@ const reasignarHerramienta = () => {
     </div>
 
     <!-- Acciones -->
-    <div class="lg:col-span-2 bg-white rounded-lg shadow-sm border p-6">
+    <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-lg shadow-sm border p-6">
       <div class="flex items-center justify-between">
-        <div class="text-sm text-gray-600">
+        <div class="text-sm text-gray-600 dark:text-gray-300">
           {{ form.asignadas.length }} herramienta{{ form.asignadas.length !== 1 ? 's' : '' }} seleccionada{{ form.asignadas.length !== 1 ? 's' : '' }} para asignar
         </div>
         <div class="flex gap-3">
@@ -262,21 +262,21 @@ const reasignarHerramienta = () => {
 
   <!-- Modal de Reasignación -->
   <div v-if="showReasignarForm" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-    <div class="bg-white w-full max-w-md rounded-lg shadow-lg">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-lg shadow-lg">
       <div class="flex items-center justify-between px-6 py-4 border-b">
         <h2 class="text-lg font-semibold">Reasignar Herramienta</h2>
-        <button @click="cerrarModalReasignacion" class="text-gray-500 hover:text-gray-700">✕</button>
+        <button @click="cerrarModalReasignacion" class="text-gray-500 dark:text-gray-400 hover:text-gray-700">✕</button>
       </div>
       <div class="p-6">
         <div v-if="herramientaAReasignar" class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Herramienta</label>
             <p class="text-lg font-medium">{{ herramientaAReasignar.nombre }}</p>
-            <p class="text-sm text-gray-600">Serie: {{ herramientaAReasignar.numero_serie || 'N/A' }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-300">Serie: {{ herramientaAReasignar.numero_serie || 'N/A' }}</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Técnico Actual</label>
-            <p class="text-gray-900">{{ props.tecnico.nombre_completo || props.tecnico.nombre }}</p>
+            <p class="text-gray-900 dark:text-white">{{ props.tecnico.nombre_completo || props.tecnico.nombre }}</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Nuevo Técnico</label>

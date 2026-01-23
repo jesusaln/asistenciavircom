@@ -130,7 +130,7 @@ const close = () => {
                 <div class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" @click="close"></div>
                 
                 <!-- Modal -->
-                <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg transform transition-all">
+                <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg transform transition-all">
                     
                     <!-- Header -->
                     <div class="bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-4 rounded-t-2xl">
@@ -193,7 +193,7 @@ const close = () => {
                                             'px-3 py-2 rounded-lg text-sm font-medium border-2 transition-all',
                                             form.fecha_confirmada === dia
                                                 ? 'border-orange-500 bg-orange-100 text-orange-800'
-                                                : 'border-gray-200 bg-white text-gray-700 hover:border-orange-300'
+                                                : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-700 hover:border-orange-300'
                                         ]"
                                     >
                                         {{ formatDate(dia) }}
@@ -210,7 +210,7 @@ const close = () => {
                                     v-model="form.fecha_confirmada"
                                     type="date"
                                     :min="new Date().toISOString().split('T')[0]"
-                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-0 transition-colors"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 dark:border-slate-800 rounded-xl focus:border-orange-500 focus:ring-0 transition-colors"
                                     :class="{ 'border-red-400': form.errors.fecha_confirmada }"
                                     required
                                 />
@@ -229,7 +229,7 @@ const close = () => {
                                 </label>
                                 <select
                                     v-model="form.hora_confirmada"
-                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-0 transition-colors appearance-none bg-white"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 dark:border-slate-800 rounded-xl focus:border-orange-500 focus:ring-0 transition-colors appearance-none bg-white dark:bg-slate-900"
                                     :class="{ 'border-red-400': form.errors.hora_confirmada }"
                                     required
                                 >
@@ -258,7 +258,7 @@ const close = () => {
                                             'p-3 rounded-xl border-2 text-sm font-medium transition-all text-left',
                                             form.tecnico_id === tec.id
                                                 ? 'border-orange-500 bg-orange-50'
-                                                : 'border-gray-200 hover:border-orange-300'
+                                                : 'border-gray-200 dark:border-slate-800 hover:border-orange-300'
                                         ]"
                                     >
                                         <div class="flex items-center gap-2">
@@ -268,7 +268,7 @@ const close = () => {
                                             ></span>
                                             <span class="truncate">{{ tec.name }}</span>
                                         </div>
-                                        <p v-if="tec.telefono" class="text-xs text-gray-500 mt-1 ml-5">
+                                        <p v-if="tec.telefono" class="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-5">
                                             📱 {{ tec.telefono }}
                                         </p>
                                     </button>
@@ -290,7 +290,7 @@ const close = () => {
                                     <div 
                                         v-for="citaExis in citasTecnicoFecha" 
                                         :key="citaExis.id"
-                                        class="flex items-center justify-between text-sm bg-white rounded-lg px-3 py-2"
+                                        class="flex items-center justify-between text-sm bg-white dark:bg-slate-900 rounded-lg px-3 py-2"
                                     >
                                         <span class="font-medium text-gray-700">
                                             {{ formatHoraDisplay(citaExis.hora_confirmada || (citaExis.fecha_hora ? citaExis.fecha_hora.split('T')[1]?.substring(0, 5) : '')) }}

@@ -50,7 +50,7 @@ const openWhatsApp = (agent) => {
     <div class="fixed bottom-6 right-6 z-[100] flex flex-col items-end">
         <!-- Menu -->
         <Transition name="pop">
-            <div v-if="isOpen" class="mb-4 w-72 bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
+            <div v-if="isOpen" class="mb-4 w-72 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-slate-800 overflow-hidden">
                 <!-- Header -->
                 <div class="bg-gradient-to-br from-[#25D366] to-[#128C7E] p-6 text-white text-center">
                     <p class="text-xs uppercase tracking-widest font-bold opacity-80 mb-1">Centro de Atención</p>
@@ -64,14 +64,14 @@ const openWhatsApp = (agent) => {
                         v-for="agent in agents" 
                         :key="agent.id"
                         @click="openWhatsApp(agent)"
-                        class="w-full flex items-center gap-4 p-3 rounded-2xl hover:bg-white hover:shadow-md transition-all duration-300 group mb-1 border border-transparent hover:border-gray-100"
+                        class="w-full flex items-center gap-4 p-3 rounded-2xl hover:bg-white dark:bg-slate-900 hover:shadow-md transition-all duration-300 group mb-1 border border-transparent hover:border-gray-100 dark:border-slate-800"
                     >
                         <div :class="agent.color" class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-sm group-hover:scale-110 transition-transform">
                             {{ agent.icon }}
                         </div>
                         <div class="text-left">
-                            <p class="font-bold text-gray-900 text-sm">{{ agent.name }}</p>
-                            <p class="text-[10px] text-gray-500 uppercase tracking-tight">{{ agent.role }}</p>
+                            <p class="font-bold text-gray-900 dark:text-white text-sm">{{ agent.name }}</p>
+                            <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-tight">{{ agent.role }}</p>
                         </div>
                         <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
                             <svg class="w-4 h-4 text-[#25D366]" fill="currentColor" viewBox="0 0 24 24">
@@ -82,7 +82,7 @@ const openWhatsApp = (agent) => {
                 </div>
 
                 <!-- Footer -->
-                <div class="p-3 text-center border-t border-gray-100">
+                <div class="p-3 text-center border-t border-gray-100 dark:border-slate-800">
                     <p class="text-[10px] text-gray-400">Atención inmediata vía WhatsApp</p>
                 </div>
             </div>

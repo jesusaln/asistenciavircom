@@ -344,18 +344,18 @@ const opcionesNumeroPagos = Array.from({ length: 60 }, (_, i) => ({
 <template>
   <Head title="Crear Préstamo" />
 
-  <div class="prestamos-create min-h-screen bg-white">
+  <div class="prestamos-create min-h-screen bg-white dark:bg-slate-900">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Crear Nuevo Préstamo</h1>
-            <p class="text-gray-600 mt-2">Configure los términos del préstamo y calcule automáticamente los pagos</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Crear Nuevo Préstamo</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-2">Configure los términos del préstamo y calcule automáticamente los pagos</p>
           </div>
           <Link
             href="/prestamos"
-            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
           >
             ← Volver a Préstamos
           </Link>
@@ -365,9 +365,9 @@ const opcionesNumeroPagos = Array.from({ length: 60 }, (_, i) => ({
       <div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
         <!-- Formulario principal -->
         <div class="xl:col-span-3">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-              <h2 class="text-lg font-semibold text-gray-900">Información del Préstamo</h2>
+          <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información del Préstamo</h2>
             </div>
 
             <form @submit.prevent="submitForm" class="p-6 space-y-6">
@@ -402,7 +402,7 @@ const opcionesNumeroPagos = Array.from({ length: 60 }, (_, i) => ({
                   </label>
                   <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span class="text-gray-500 sm:text-sm">$</span>
+                      <span class="text-gray-500 dark:text-gray-400 sm:text-sm">$</span>
                     </div>
                     <input
                       id="monto_prestado"
@@ -436,11 +436,11 @@ const opcionesNumeroPagos = Array.from({ length: 60 }, (_, i) => ({
                       :class="{ 'border-red-300': errors.tasa_interes_mensual }"
                     />
                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <span class="text-gray-500 sm:text-sm">%</span>
+                      <span class="text-gray-500 dark:text-gray-400 sm:text-sm">%</span>
                     </div>
                   </div>
                   <p v-if="errors.tasa_interes_mensual" class="mt-1 text-sm text-red-600">{{ errors.tasa_interes_mensual }}</p>
-                  <p class="mt-1 text-xs text-gray-500">Tasa de interés que se aplicará cada mes</p>
+                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Tasa de interés que se aplicará cada mes</p>
                 </div>
 
                 <!-- Número de pagos -->
@@ -522,10 +522,10 @@ const opcionesNumeroPagos = Array.from({ length: 60 }, (_, i) => ({
               </div>
 
               <!-- Botones de acción -->
-              <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
+              <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-slate-800">
                 <Link
                   href="/prestamos"
-                  class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                  class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
                 >
                   ❌ Cancelar
                 </Link>
@@ -550,12 +550,12 @@ const opcionesNumeroPagos = Array.from({ length: 60 }, (_, i) => ({
 
         <!-- Panel de cálculos -->
         <div class="xl:col-span-1">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-8">
-            <div class="px-6 py-4 border-b border-gray-200">
+          <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-8">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
               <div class="flex items-center justify-between">
                 <div>
-                  <h3 class="text-lg font-semibold text-gray-900">Cálculo de Pagos</h3>
-                  <p class="text-sm text-gray-600 mt-1">Se actualiza automáticamente</p>
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Cálculo de Pagos</h3>
+                  <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Se actualiza automáticamente</p>
                 </div>
                 <button
                   @click="calcularPagos"
@@ -571,8 +571,8 @@ const opcionesNumeroPagos = Array.from({ length: 60 }, (_, i) => ({
             <div class="p-6">
               <div v-if="calculando" class="text-center py-8">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto"></div>
-                <p class="text-sm text-gray-600 mt-2">Calculando pagos...</p>
-                <p class="text-xs text-gray-500 mt-1">Procesando fórmula de amortización</p>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">Calculando pagos...</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Procesando fórmula de amortización</p>
               </div>
 
               <div v-else-if="form.monto_prestado > 0 && form.numero_pagos > 0">
@@ -594,17 +594,17 @@ const opcionesNumeroPagos = Array.from({ length: 60 }, (_, i) => ({
                   </div>
 
                   <!-- Total a pagar -->
-                  <div class="flex justify-between items-center py-3 border-b-2 border-gray-200">
+                  <div class="flex justify-between items-center py-3 border-b-2 border-gray-200 dark:border-slate-800">
                     <span class="text-sm font-medium text-gray-700">Total a Pagar:</span>
-                    <span class="text-xl font-bold text-gray-900">
+                    <span class="text-xl font-bold text-gray-900 dark:text-white">
                       ${{ formatearMoneda(calculos.total_pagar) }}
                     </span>
                   </div>
 
                   <!-- Información adicional -->
-                  <div class="bg-white rounded-lg p-4 mt-4">
-                    <h4 class="text-sm font-medium text-gray-900 mb-2">Detalles del Préstamo</h4>
-                    <div class="space-y-2 text-sm text-gray-600">
+                  <div class="bg-white dark:bg-slate-900 rounded-lg p-4 mt-4">
+                    <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Detalles del Préstamo</h4>
+                    <div class="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                       <div class="flex justify-between">
                         <span>Capital:</span>
                         <span>${{ formatearMoneda(form.monto_prestado) }}</span>
@@ -628,11 +628,11 @@ const opcionesNumeroPagos = Array.from({ length: 60 }, (_, i) => ({
                     </div>
 
                     <!-- Información del cálculo -->
-                    <div class="mt-3 pt-3 border-t border-gray-200">
-                      <div class="text-xs text-gray-500 mb-2">
+                    <div class="mt-3 pt-3 border-t border-gray-200 dark:border-slate-800">
+                      <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
                         <strong>Tipo de cálculo:</strong> Amortización francesa con interés compuesto
                       </div>
-                      <div class="text-xs text-gray-500 space-y-1">
+                      <div class="text-xs text-gray-500 dark:text-gray-400 space-y-1">
                         <div>
                           Tasa mensual directa: {{ form.tasa_interes_mensual }}%
                         </div>
@@ -672,7 +672,7 @@ const opcionesNumeroPagos = Array.from({ length: 60 }, (_, i) => ({
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <p class="text-sm text-gray-500">Complete los datos para ver el cálculo</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Complete los datos para ver el cálculo</p>
               </div>
             </div>
           </div>

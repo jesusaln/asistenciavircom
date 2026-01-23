@@ -1,6 +1,6 @@
 <template>
     <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div class="bg-white rounded-lg p-6 w-full max-w-md">
+      <div class="bg-white dark:bg-slate-900 rounded-lg p-6 w-full max-w-md">
         <h2 class="text-xl font-semibold mb-4">Detalles del Técnico</h2>
 
         <!-- Detalles del técnico -->

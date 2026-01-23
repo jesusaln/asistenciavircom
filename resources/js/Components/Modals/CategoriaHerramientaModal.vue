@@ -1,9 +1,9 @@
 <template>
   <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
       <!-- Header -->
       <div class="flex items-center justify-between p-6 border-b">
-        <h3 class="text-xl font-semibold text-gray-900">Gestión de Categorías</h3>
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Gestión de Categorías</h3>
         <button @click="closeModal" class="text-gray-400 hover:text-gray-600">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -13,7 +13,7 @@
 
       <!-- Formulario de categoría -->
       <div class="p-6 border-b">
-        <h4 class="text-lg font-medium text-gray-900 mb-4">
+        <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
           {{ editingCategoria ? 'Editar Categoría' : 'Crear Nueva Categoría' }}
         </h4>
         <form @submit.prevent="submitCategoria" class="space-y-4">
@@ -74,18 +74,18 @@
 
       <!-- Lista de categorías existentes -->
       <div class="p-6">
-        <h4 class="text-lg font-medium text-gray-900 mb-4">Categorías Existentes</h4>
-        <div v-if="categorias.length === 0" class="text-center py-8 text-gray-500">
+        <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Categorías Existentes</h4>
+        <div v-if="categorias.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
           No hay categorías creadas aún
         </div>
         <div v-else class="space-y-3 max-h-96 overflow-y-auto">
           <div
             v-for="categoria in categorias"
             :key="categoria.id"
-            class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+            class="flex items-center justify-between p-3 border border-gray-200 dark:border-slate-800 rounded-lg hover:bg-gray-50"
           >
             <div class="flex-1">
-              <div class="font-medium text-gray-900">{{ categoria.nombre }}</div>
+              <div class="font-medium text-gray-900 dark:text-white">{{ categoria.nombre }}</div>
               <div v-if="categoria.descripcion" class="text-sm text-gray-600">{{ categoria.descripcion }}</div>
             </div>
             <div class="flex items-center space-x-2">

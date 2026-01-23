@@ -182,15 +182,15 @@ const handleCategoriaUpdated = (categoria) => {
   </div>
 
   <!-- Indicador de carga mientras se inicializa el formulario -->
-  <div v-if="!isDataReady" class="bg-white shadow rounded p-6 text-center">
+  <div v-if="!isDataReady" class="bg-white dark:bg-slate-900 shadow rounded p-6 text-center">
     <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-    <p class="mt-2 text-gray-600">Cargando formulario...</p>
+    <p class="mt-2 text-gray-600 dark:text-gray-300">Cargando formulario...</p>
   </div>
 
-  <form v-if="isDataReady" @submit.prevent="submit" class="bg-white shadow-lg rounded-lg p-8 space-y-8 w-full">
+  <form v-if="isDataReady" @submit.prevent="submit" class="bg-white dark:bg-slate-900 shadow-lg rounded-lg p-8 space-y-8 w-full">
     <!-- Información básica -->
-    <div class="border-b border-gray-200 pb-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Información Básica</h2>
+    <div class="border-b border-gray-200 dark:border-slate-800 pb-6">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Información Básica</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -227,8 +227,8 @@ const handleCategoriaUpdated = (categoria) => {
     </div>
 
     <!-- Categorización y estado -->
-    <div class="border-b border-gray-200 pb-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Categorización y Estado</h2>
+    <div class="border-b border-gray-200 dark:border-slate-800 pb-6">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Categorización y Estado</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
@@ -241,7 +241,7 @@ const handleCategoriaUpdated = (categoria) => {
               Gestionar
             </button>
           </div>
-          <p v-if="!categoriasList.length" class="text-xs text-gray-500 mt-1">No hay categorías. Usa "Gestionar" para crear una nueva.</p>
+          <p v-if="!categoriasList.length" class="text-xs text-gray-500 dark:text-gray-400 mt-1">No hay categorías. Usa "Gestionar" para crear una nueva.</p>
           <div v-if="form.errors.categoria_id" class="mt-1 text-sm text-red-600">{{ form.errors.categoria_id }}</div>
         </div>
 
@@ -260,8 +260,8 @@ const handleCategoriaUpdated = (categoria) => {
     </div>
 
     <!-- Información técnica -->
-    <div class="border-b border-gray-200 pb-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Información Técnica</h2>
+    <div class="border-b border-gray-200 dark:border-slate-800 pb-6">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Información Técnica</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Vida útil (meses)</label>
@@ -316,8 +316,8 @@ const handleCategoriaUpdated = (categoria) => {
     </div>
 
     <!-- Descripción y foto -->
-    <div class="border-b border-gray-200 pb-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Descripción y Documentación</h2>
+    <div class="border-b border-gray-200 dark:border-slate-800 pb-6">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Descripción y Documentación</h2>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
@@ -335,7 +335,7 @@ const handleCategoriaUpdated = (categoria) => {
           <div class="flex flex-col items-center space-y-4">
             <!-- Vista previa de imagen actual -->
             <div v-if="fotoPreview" class="relative">
-              <img :src="fotoPreview" class="w-48 h-48 object-cover rounded-lg border-2 border-gray-200" />
+              <img :src="fotoPreview" class="w-48 h-48 object-cover rounded-lg border-2 border-gray-200 dark:border-slate-800" />
               <button
                 @click="removeImage"
                 class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
@@ -346,7 +346,7 @@ const handleCategoriaUpdated = (categoria) => {
             </div>
 
             <!-- Área de carga de imagen -->
-            <div v-else class="w-48 h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-500 hover:border-gray-400 transition-colors">
+            <div v-else class="w-48 h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 hover:border-gray-400 transition-colors">
               <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
               </svg>
@@ -376,7 +376,7 @@ const handleCategoriaUpdated = (categoria) => {
     <div class="flex justify-end space-x-4 pt-6">
       <Link
         :href="route('herramientas.index')"
-        class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-white transition-colors duration-200"
+        class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-white dark:bg-slate-900 transition-colors duration-200"
       >
         Cancelar
       </Link>

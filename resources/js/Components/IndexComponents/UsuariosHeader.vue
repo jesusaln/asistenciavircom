@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+  <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-gray-100 dark:border-slate-800 overflow-hidden">
     <!-- Header con estadísticas -->
-    <div class="px-6 py-6 border-b border-gray-200/60" :style="{ background: `linear-gradient(135deg, ${colors.principal}15 0%, ${colors.secundario}10 100%)` }">
+    <div class="px-6 py-6 border-b border-gray-200 dark:border-slate-800/60" :style="{ background: `linear-gradient(135deg, ${colors.principal}15 0%, ${colors.secundario}10 100%)` }">
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
@@ -10,7 +10,7 @@
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Usuarios</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Usuarios</h1>
             <p class="text-sm text-gray-600 mt-0.5">Gestiona todos los usuarios del sistema</p>
           </div>
         </div>
@@ -29,7 +29,7 @@
 
       <!-- Estadísticas -->
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 shadow-sm">
+        <div class="bg-white dark:bg-slate-900/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200 dark:border-slate-800/50 shadow-sm">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Total</p>
@@ -43,7 +43,7 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Activos</p>
@@ -57,7 +57,7 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Inactivos</p>
@@ -71,7 +71,7 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Administradores</p>
@@ -85,7 +85,7 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Con 2FA</p>
@@ -102,7 +102,7 @@
     </div>
 
     <!-- Filtros y búsqueda -->
-    <div class="px-6 py-4 bg-gray-50/50 border-b border-gray-200/60">
+    <div class="px-6 py-4 bg-gray-50/50 border-b border-gray-200 dark:border-slate-800/60">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
         <!-- Búsqueda -->
         <div class="flex-1 max-w-md">
@@ -116,7 +116,7 @@
               v-model="searchTerm"
               type="text"
               placeholder="Buscar por nombre, email o rol..."
-              class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white dark:bg-slate-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
               @input="onSearchChange"
             />
           </div>
@@ -128,7 +128,7 @@
           <select
             v-model="filtroEstado"
             @change="onFiltroEstadoChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-900"
           >
             <option value="">Todos los Estados</option>
             <option value="activo">Activos</option>
@@ -139,7 +139,7 @@
           <select
             v-model="filtroRol"
             @change="onFiltroRolChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-900"
           >
             <option value="">Todos los Roles</option>
             <option value="admin">Administrador</option>
@@ -153,7 +153,7 @@
           <select
             v-model="filtroVerificacion"
             @change="onFiltroVerificacionChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-900"
           >
             <option value="">Todas las Verificaciones</option>
             <option value="verificado">Verificado</option>
@@ -166,7 +166,7 @@
           <select
             v-model="sortBy"
             @change="onSortChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-900"
           >
             <option value="created_at-desc">Fecha (Más reciente)</option>
             <option value="created_at-asc">Fecha (Más antiguo)</option>
@@ -179,7 +179,7 @@
           <!-- Limpiar filtros -->
           <button
             @click="onLimpiarFiltros"
-            class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
           >
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

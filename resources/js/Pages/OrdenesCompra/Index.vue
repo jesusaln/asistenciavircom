@@ -783,7 +783,7 @@ const colorClasses = {
   slate:  { text: 'text-slate-600',   bg: 'bg-slate-50',    border: 'border-slate-200',   ring: 'ring-slate-500/20' },
   indigo: { text: 'text-amber-600',  bg: 'bg-indigo-50',   border: 'border-indigo-200',  ring: 'ring-amber-500/20' },
   emerald:{ text: 'text-emerald-600', bg: 'bg-emerald-50',  border: 'border-emerald-200', ring: 'ring-emerald-500/20' },
-  gray:   { text: 'text-gray-600',    bg: 'bg-white',     border: 'border-gray-200',    ring: 'ring-gray-500/20' }
+  gray:   { text: 'text-gray-600 dark:text-gray-300',    bg: 'bg-white dark:bg-slate-900',     border: 'border-gray-200 dark:border-slate-800',    ring: 'ring-gray-500/20' }
 }
 
 const getColorClasses = (color) => colorClasses[color] || colorClasses.slate
@@ -949,7 +949,7 @@ const configEstados = {
   'borrador': {
     label: 'Borrador',
     classes: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300',
-    color: 'bg-gray-400 dark:bg-gray-500'
+    color: 'bg-gray-400 dark:bg-gray-50 dark:bg-slate-9500'
   },
   'pendiente': {
     label: 'Pendiente',
@@ -1155,7 +1155,7 @@ const validarEstado = (estado) => {
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
   </component>
 
-  <div class="ordenes-compra-index min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="ordenes-compra-index min-h-screen bg-gray-50 dark:bg-slate-950 dark:bg-gray-900">
     <!-- Contenido principal -->
     <div class="w-full px-6 py-8">
       <!-- Header específico de órdenes de compra -->
@@ -1176,7 +1176,7 @@ const validarEstado = (estado) => {
       />
 
       <!-- Información de paginación -->
-      <div class="flex justify-between items-center mb-4 text-sm text-gray-600 dark:text-gray-400">
+      <div class="flex justify-between items-center mb-4 text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400">
         <div>
           Mostrando {{ props.pagination.from || 0 }} -
           {{ props.pagination.to || 0 }}
@@ -1187,7 +1187,7 @@ const validarEstado = (estado) => {
           <select
             :value="props.pagination.per_page || 10"
             @change="changePerPage"
-            class="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm bg-white dark:bg-gray-700 dark:text-gray-200"
+            class="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 dark:text-gray-200"
           >
             <option value="10">10</option>
             <option value="25">25</option>
@@ -1199,12 +1199,12 @@ const validarEstado = (estado) => {
 
       <!-- Tabla de documentos -->
       <div class="mt-6">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
           <!-- Header -->
-          <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-700/50 dark:to-gray-800/50 px-6 py-4 border-b border-gray-200/60 dark:border-gray-700">
+          <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-700/50 dark:to-gray-800/50 px-6 py-4 border-b border-gray-200 dark:border-slate-800/60 dark:border-gray-700">
             <div class="flex items-center justify-between">
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 tracking-tight">Órdenes de Compra</h2>
-              <div class="text-sm text-gray-600 dark:text-gray-300 bg-white/70 dark:bg-gray-700/50 px-3 py-1 rounded-full border border-gray-200/50 dark:border-gray-600">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white dark:text-gray-100 tracking-tight">Órdenes de Compra</h2>
+              <div class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300 bg-white dark:bg-slate-900/70 dark:bg-gray-700/50 px-3 py-1 rounded-full border border-gray-200 dark:border-slate-800/50 dark:border-gray-600">
                 {{ items.length }} de {{ props.pagination.total || 0 }} órdenes de compra
               </div>
             </div>
@@ -1212,12 +1212,12 @@ const validarEstado = (estado) => {
 
           <!-- Table -->
           <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200/60 dark:divide-gray-700">
-              <thead class="bg-gray-50/60 dark:bg-gray-700/60">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800/60 dark:divide-gray-700">
+              <thead class="bg-gray-50 dark:bg-slate-950/60 dark:bg-gray-700/60">
                 <tr>
                   <!-- Fecha -->
                   <th
-                    class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700 transition-colors duration-150"
+                    class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700 transition-colors duration-150"
                     @click="onSort('fecha')"
                   >
                     <div class="flex items-center space-x-1">
@@ -1236,7 +1236,7 @@ const validarEstado = (estado) => {
 
                   <!-- Proveedor -->
                   <th
-                    class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700 transition-colors duration-150"
+                    class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700 transition-colors duration-150"
                     @click="onSort('proveedor')"
                   >
                     <div class="flex items-center space-x-1">
@@ -1255,7 +1255,7 @@ const validarEstado = (estado) => {
 
                   <!-- N° Orden -->
                   <th
-                    class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700 transition-colors duration-150"
+                    class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700 transition-colors duration-150"
                     @click="onSort('numero_orden')"
                   >
                     <div class="flex items-center space-x-1">
@@ -1274,7 +1274,7 @@ const validarEstado = (estado) => {
 
                   <!-- Total -->
                   <th
-                    class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700 transition-colors duration-150"
+                    class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700 transition-colors duration-150"
                     @click="onSort('total')"
                   >
                     <div class="flex items-center space-x-1">
@@ -1293,14 +1293,14 @@ const validarEstado = (estado) => {
 
                   <!-- Productos -->
                   <th
-                    class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider"
+                    class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider"
                   >
                     Productos
                   </th>
 
                   <!-- Estado -->
                   <th
-                    class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700 transition-colors duration-150"
+                    class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700 transition-colors duration-150"
                     @click="onSort('estado')"
                   >
                     <div class="flex items-center space-x-1">
@@ -1318,29 +1318,29 @@ const validarEstado = (estado) => {
                   </th>
 
                   <!-- Acciones -->
-                  <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                  <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">
                     Acciones
                   </th>
                 </tr>
               </thead>
 
-              <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200/40 dark:divide-gray-700/40">
+              <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-slate-800/40 dark:divide-gray-700/40">
                 <template v-if="items.length > 0">
                   <tr
                     v-for="doc in items"
                     :key="doc.id"
                     :class="[
-                      'group hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-150 hover:shadow-sm',
+                      'group hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700/50 transition-all duration-150 hover:shadow-sm',
                       doc.estado === 'cancelada' ? 'opacity-50' : ''
                     ]"
                   >
                     <!-- Fecha -->
                     <td class="px-6 py-4">
                       <div class="flex flex-col space-y-0.5">
-                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">
                           {{ formatearFecha(doc.created_at || doc.fecha) }}
                         </div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                        <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
                           {{ formatearHora(doc.created_at || doc.fecha) }}
                         </div>
                       </div>
@@ -1349,10 +1349,10 @@ const validarEstado = (estado) => {
                     <!-- Proveedor -->
                     <td class="px-6 py-4">
                       <div class="flex flex-col space-y-0.5">
-                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-gray-800 dark:group-hover:text-gray-200">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100 group-hover:text-gray-800 dark:text-gray-100 dark:group-hover:text-gray-200">
                           {{ doc.proveedor?.nombre_razon_social || 'Sin proveedor' }}
                         </div>
-                        <div v-if="doc.proveedor?.email" class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-48">
+                        <div v-if="doc.proveedor?.email" class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 truncate max-w-48">
                           {{ doc.proveedor?.email }}
                         </div>
                       </div>
@@ -1367,7 +1367,7 @@ const validarEstado = (estado) => {
 
                     <!-- Total -->
                     <td class="px-6 py-4">
-                      <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      <div class="text-sm font-semibold text-gray-900 dark:text-white dark:text-gray-100">
                         <template v-if="typeof doc.total !== 'undefined' && doc.total !== null">
                           ${{ formatearMoneda(doc.total) }}
                         </template>
@@ -1382,7 +1382,7 @@ const validarEstado = (estado) => {
                       @mouseleave="hideProductTooltip"
                       @mousemove="getProductosDelDoc(doc)?.length ? updateTooltipPosition($event) : null"
                     >
-                      <div class="flex items-center text-sm text-gray-600 dark:text-gray-300" :class="getProductosDelDoc(doc)?.length ? 'cursor-help hover:text-gray-800 dark:hover:text-gray-200 transition-colors duration-150' : 'opacity-60'">
+                      <div class="flex items-center text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300" :class="getProductosDelDoc(doc)?.length ? 'cursor-help hover:text-gray-800 dark:text-gray-100 dark:hover:text-gray-200 transition-colors duration-150' : 'opacity-60'">
                         <div class="w-8 h-8 bg-blue-50 dark:bg-blue-900/40 rounded-lg flex items-center justify-center mr-2 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/60 transition-colors duration-150">
                           <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
@@ -1394,7 +1394,7 @@ const validarEstado = (estado) => {
                           </svg>
                         </div>
                         <span class="font-medium">{{ getProductosDelDoc(doc)?.length || 0 }}</span>
-                        <span class="text-gray-400 dark:text-gray-500 ml-1">items</span>
+                        <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400 ml-1">items</span>
                       </div>
                     </td>
 
@@ -1492,13 +1492,13 @@ const validarEstado = (estado) => {
                   <td :colspan="7" class="px-6 py-16 text-center">
                     <div class="flex flex-col items-center space-y-4">
                       <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                        <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="w-8 h-8 text-gray-400 dark:text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                       </div>
                       <div class="space-y-1">
                         <p class="text-gray-700 dark:text-gray-300 font-medium">No hay órdenes de compra</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Los documentos aparecerán aquí cuando se creen</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Los documentos aparecerán aquí cuando se creen</p>
                       </div>
                     </div>
                   </td>
@@ -1514,7 +1514,7 @@ const validarEstado = (estado) => {
         <button
           @click="prevPage"
           :disabled="props.pagination.current_page === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Anterior
         </button>
@@ -1524,11 +1524,11 @@ const validarEstado = (estado) => {
           <template v-if="!visiblePages.includes(1) && props.pagination.last_page > 7">
             <button
               @click="goToPage(1)"
-              class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600"
+              class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600"
             >
               1
             </button>
-            <span class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">...</span>
+            <span class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">...</span>
           </template>
 
           <!-- Páginas visibles -->
@@ -1540,7 +1540,7 @@ const validarEstado = (estado) => {
               'px-3 py-2 text-sm font-medium border border-gray-300 dark:border-gray-600 rounded-md',
               page === props.pagination.current_page
                 ? 'bg-blue-500 text-white border-blue-500'
-                : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
+                : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-900 dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600'
             ]"
           >
             {{ page }}
@@ -1548,10 +1548,10 @@ const validarEstado = (estado) => {
 
           <!-- Última página (solo si no está en visiblePages) -->
           <template v-if="!visiblePages.includes(props.pagination.last_page) && props.pagination.last_page > 7">
-            <span class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">...</span>
+            <span class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">...</span>
             <button
               @click="goToPage(props.pagination.last_page)"
-              class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600"
+              class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600"
             >
               {{ props.pagination.last_page }}
             </button>
@@ -1561,7 +1561,7 @@ const validarEstado = (estado) => {
         <button
           @click="nextPage"
           :disabled="props.pagination.current_page === props.pagination.last_page"
-          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Siguiente
         </button>
@@ -1580,7 +1580,7 @@ const validarEstado = (estado) => {
             'max-w-md': modalMode === 'confirm' || modalMode === 'confirm-duplicate',
             'w-full': modalMode === 'details'
           }"
-          class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-h-[90vh] overflow-y-auto p-6 outline-none"
+          class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-lg shadow-xl w-full max-h-[90vh] overflow-y-auto p-6 outline-none"
           role="dialog"
           aria-modal="true"
           :aria-label="`Modal de Orden de Compra`"
@@ -1600,16 +1600,16 @@ const validarEstado = (estado) => {
                 />
               </svg>
             </div>
-            <h3 class="text-lg font-medium mb-2 text-gray-900 dark:text-gray-100">
+            <h3 class="text-lg font-medium mb-2 text-gray-900 dark:text-white dark:text-gray-100">
               ¿Eliminar orden de compra?
             </h3>
-            <p class="text-gray-600 dark:text-gray-400 mb-6">
+            <p class="text-gray-600 dark:text-gray-300 dark:text-gray-400 mb-6">
               Esta acción no se puede deshacer.
             </p>
             <div class="flex gap-3">
               <button
                 @click="onCancel"
-                class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors"
+                class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-9500 transition-colors"
               >
                 Cancelar
               </button>
@@ -1624,39 +1624,39 @@ const validarEstado = (estado) => {
 
           <!-- Modo: Detalles -->
           <div v-else-if="modalMode === 'details'" class="space-y-4">
-            <h3 class="text-lg font-medium mb-1 flex items-center gap-2 text-gray-900 dark:text-gray-100">
+            <h3 class="text-lg font-medium mb-1 flex items-center gap-2 text-gray-900 dark:text-white dark:text-gray-100">
               Detalles de Orden de Compra
-              <span v-if="fila?.id" class="text-sm text-gray-500 dark:text-gray-400">#{{ fila.id }}</span>
+              <span v-if="fila?.id" class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">#{{ fila.id }}</span>
             </h3>
 
             <!-- Auditoría -->
-            <div v-if="auditoriaForModal" class="mt-2 p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
-              <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3">Auditoría</h4>
+            <div v-if="auditoriaForModal" class="mt-2 p-4 bg-white dark:bg-slate-900 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-slate-800 dark:border-gray-600">
+              <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100 dark:text-gray-100 mb-3">Auditoría</h4>
               <div class="grid md:grid-cols-3 gap-3 text-sm">
                 <div>
-                  <span class="text-gray-500 dark:text-gray-400">Creado por:</span>
-                  <div class="font-medium text-gray-900 dark:text-gray-100">
+                  <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400">Creado por:</span>
+                  <div class="font-medium text-gray-900 dark:text-white dark:text-gray-100">
                     {{ auditoriaForModal.creado_por || '—' }}
                   </div>
-                  <div class="text-gray-500 dark:text-gray-400">
+                  <div class="text-gray-500 dark:text-gray-400 dark:text-gray-400">
                     {{ formatearFecha(auditoriaForModal.creado_en) || '—' }}
                   </div>
                 </div>
                 <div>
-                  <span class="text-gray-500 dark:text-gray-400">Actualizado por:</span>
-                  <div class="font-medium text-gray-900 dark:text-gray-100">
+                  <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400">Actualizado por:</span>
+                  <div class="font-medium text-gray-900 dark:text-white dark:text-gray-100">
                     {{ auditoriaForModal.actualizado_por || '—' }}
                   </div>
-                  <div class="text-gray-500 dark:text-gray-400">
+                  <div class="text-gray-500 dark:text-gray-400 dark:text-gray-400">
                     {{ formatearFecha(auditoriaForModal.actualizado_en) || '—' }}
                   </div>
                 </div>
                 <div v-if="auditoriaForModal.eliminado_en">
-                  <span class="text-gray-500 dark:text-gray-400">Eliminado por:</span>
-                  <div class="font-medium text-gray-900 dark:text-gray-100">
+                  <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400">Eliminado por:</span>
+                  <div class="font-medium text-gray-900 dark:text-white dark:text-gray-100">
                     {{ auditoriaForModal.eliminado_por || '—' }}
                   </div>
-                  <div class="text-gray-500 dark:text-gray-400">
+                  <div class="text-gray-500 dark:text-gray-400 dark:text-gray-400">
                     {{ formatearFecha(auditoriaForModal.eliminado_en) || '—' }}
                   </div>
                 </div>
@@ -1668,20 +1668,20 @@ const validarEstado = (estado) => {
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <!-- Columna izquierda -->
                 <div>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                     <strong>Proveedor:</strong> {{ fila.proveedor?.nombre_razon_social || 'Sin proveedor' }}
                   </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-300" v-if="fila.proveedor?.email">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300" v-if="fila.proveedor?.email">
                     <strong>Email:</strong> {{ fila.proveedor.email }}
                   </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-300" v-if="fila.proveedor?.telefono">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300" v-if="fila.proveedor?.telefono">
                     <strong>Teléfono:</strong> {{ fila.proveedor.telefono }}
                   </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                     <strong>Fecha de creación:</strong>
                     {{ formatearFecha(fila.created_at) }}
                   </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                     <strong>Estado:</strong>
                     <span
                       :class="obtenerClasesEstado(fila.estado)"
@@ -1698,16 +1698,16 @@ const validarEstado = (estado) => {
 
                 <!-- Columna derecha -->
                 <div>
-                  <p v-if="fila.numero_orden" class="text-sm text-gray-600 dark:text-gray-300">
+                  <p v-if="fila.numero_orden" class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                     <strong>N° Orden:</strong>
                     {{ fila.numero_orden }}
                   </p>
 
-                  <p v-if="isNumber(fila.total)" class="text-sm text-gray-600 dark:text-gray-300">
+                  <p v-if="isNumber(fila.total)" class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                     <strong>Total:</strong> ${{ formatearMoneda(fila.total) }}
                   </p>
 
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                     <strong>Productos:</strong>
                     {{ fila.productos?.length || 0 }} items
                   </p>
@@ -1716,37 +1716,37 @@ const validarEstado = (estado) => {
 
               <!-- Tabla de productos mejorada -->
               <div v-if="getProductosDelDoc(fila)?.length" class="mt-4">
-                <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Productos</h4>
+                <h4 class="text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-2">Productos</h4>
                 <div class="overflow-x-auto">
-                  <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead class="bg-gray-50 dark:bg-gray-700/50">
+                  <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50">
                       <tr>
-                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">
                           Nombre
                         </th>
-                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">
                           Cantidad
                         </th>
-                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">
                           Precio
                         </th>
-                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">
                           Subtotal
                         </th>
                       </tr>
                     </thead>
-                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
                       <tr v-for="(producto, index) in getProductosDelDoc(fila)" :key="producto.id || `${producto.nombre}-${index}`">
-                        <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-100">
+                        <td class="px-4 py-2 text-sm text-gray-900 dark:text-white dark:text-gray-100">
                           {{ producto.nombre || 'Sin nombre' }}
                         </td>
-                        <td class="px-4 py-2 text-sm text-gray-600 dark:text-gray-300">
+                        <td class="px-4 py-2 text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                           {{ producto.cantidad || 0 }}
                         </td>
-                        <td class="px-4 py-2 text-sm text-gray-600 dark:text-gray-300">
+                        <td class="px-4 py-2 text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                           ${{ formatearMoneda(obtenerPrecio(producto)) }}
                         </td>
-                        <td class="px-4 py-2 text-sm text-gray-600 dark:text-gray-300">
+                        <td class="px-4 py-2 text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
                           ${{ formatearMoneda((producto.cantidad || 0) * obtenerPrecio(producto)) }}
                         </td>
                       </tr>
@@ -1754,36 +1754,36 @@ const validarEstado = (estado) => {
                   </table>
                 </div>
               </div>
-              <p v-else class="text-sm text-gray-600 dark:text-gray-300">No hay productos asociados.</p>
+              <p v-else class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">No hay productos asociados.</p>
 
               <!-- Totales para órdenes de compra -->
-              <div v-if="fila.productos?.length" class="mt-4 p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
-                <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">Resumen de Orden de Compra</h4>
+              <div v-if="fila.productos?.length" class="mt-4 p-4 bg-white dark:bg-slate-900 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-slate-800 dark:border-gray-600">
+                <h4 class="text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-3">Resumen de Orden de Compra</h4>
                 <div class="space-y-2 text-sm">
                   <div class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-300">Subtotal:</span>
-                    <span class="font-medium text-gray-900 dark:text-gray-100">${{ formatearMoneda(fila.subtotal || 0) }}</span>
+                    <span class="text-gray-600 dark:text-gray-300 dark:text-gray-300">Subtotal:</span>
+                    <span class="font-medium text-gray-900 dark:text-white dark:text-gray-100">${{ formatearMoneda(fila.subtotal || 0) }}</span>
                   </div>
                   <div v-if="(fila.descuento_items || 0) > 0" class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-300">Descuentos por Items:</span>
+                    <span class="text-gray-600 dark:text-gray-300 dark:text-gray-300">Descuentos por Items:</span>
                     <span class="font-medium text-red-600 dark:text-red-400">-${{ formatearMoneda(fila.descuento_items || 0) }}</span>
                   </div>
                   <div v-if="(fila.descuento_general || 0) > 0" class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-300">Descuento General:</span>
+                    <span class="text-gray-600 dark:text-gray-300 dark:text-gray-300">Descuento General:</span>
                     <span class="font-medium text-red-600 dark:text-red-400">-${{ formatearMoneda(fila.descuento_general || 0) }}</span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-300">IVA (16%):</span>
-                    <span class="font-medium text-gray-900 dark:text-gray-100">${{ formatearMoneda(fila.iva || 0) }}</span>
+                    <span class="text-gray-600 dark:text-gray-300 dark:text-gray-300">IVA (16%):</span>
+                    <span class="font-medium text-gray-900 dark:text-white dark:text-gray-100">${{ formatearMoneda(fila.iva || 0) }}</span>
                   </div>
                   <div class="flex justify-between border-t border-gray-300 dark:border-gray-600 pt-2">
-                    <span class="text-gray-900 dark:text-gray-100 font-semibold">Total:</span>
-                    <span class="text-gray-900 dark:text-gray-100 font-bold">${{ formatearMoneda(fila.total || 0) }}</span>
+                    <span class="text-gray-900 dark:text-white dark:text-gray-100 font-semibold">Total:</span>
+                    <span class="text-gray-900 dark:text-white dark:text-gray-100 font-bold">${{ formatearMoneda(fila.total || 0) }}</span>
                   </div>
                 </div>
               </div>
             </div>
-            <div v-else class="text-sm text-gray-600 dark:text-gray-300">No hay datos disponibles.</div>
+            <div v-else class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">No hay datos disponibles.</div>
 
             <!-- Botones de acción simplificados -->
             <div class="flex flex-wrap justify-end gap-2 mt-6">
@@ -1836,7 +1836,7 @@ const validarEstado = (estado) => {
               <!-- Cerrar -->
               <button
                 @click="onClose"
-                class="px-3 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors text-sm"
+                class="px-3 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-9500 transition-colors text-sm"
               >
                 Cerrar
               </button>
@@ -1850,15 +1850,15 @@ const validarEstado = (estado) => {
     <Teleport to="body">
       <div
         v-if="showTooltip && hoveredDoc"
-        class="fixed z-[9999] bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700 backdrop-blur-sm w-80 max-h-96 pointer-events-auto transform transition-all duration-200 ease-out"
+        class="fixed z-[9999] bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-slate-800/50 dark:border-gray-700 backdrop-blur-sm w-80 max-h-96 pointer-events-auto transform transition-all duration-200 ease-out"
         :style="tooltipStyle"
         @mouseenter="clearHideTimeout"
         @mouseleave="hideProductTooltip"
       >
         <div class="p-4 border-b border-gray-100 dark:border-gray-700">
           <div class="flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">Productos</h3>
-            <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full font-medium">
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-white dark:text-gray-100">Productos</h3>
+            <span class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full font-medium">
               {{ getProductosDelDoc(hoveredDoc)?.length || 0 }}
             </span>
           </div>
@@ -1869,28 +1869,28 @@ const validarEstado = (estado) => {
             <div
               v-for="(producto, index) in getProductosDelDoc(hoveredDoc)"
               :key="index"
-              class="group p-3 bg-white/70 dark:bg-gray-800/70 rounded-lg hover:bg-gray-100/70 dark:hover:bg-gray-700/70 hover:shadow-sm transition-all duration-150"
+              class="group p-3 bg-white dark:bg-slate-900/70 dark:bg-gray-800/70 rounded-lg hover:bg-gray-100/70 dark:hover:bg-gray-700/70 hover:shadow-sm transition-all duration-150"
             >
               <div class="flex items-start justify-between">
                 <div class="flex-1 min-w-0 mr-3">
-                  <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate group-hover:text-gray-800 dark:group-hover:text-gray-200">
+                  <p class="text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100 truncate group-hover:text-gray-800 dark:text-gray-100 dark:group-hover:text-gray-200">
                     {{ producto.nombre || 'Sin nombre' }}
                   </p>
                   <div class="flex items-center mt-1.5 space-x-2 text-xs">
-                    <span class="text-gray-600 dark:text-gray-300 bg-white/60 dark:bg-gray-700/60 px-2 py-0.5 rounded-md">
+                    <span class="text-gray-600 dark:text-gray-300 dark:text-gray-300 bg-white dark:bg-slate-900/60 dark:bg-gray-700/60 px-2 py-0.5 rounded-md">
                       {{ producto.cantidad || 0 }} und
                     </span>
-                    <span class="text-gray-400 dark:text-gray-500">•</span>
-                    <span class="text-gray-600 dark:text-gray-300">
+                    <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400">•</span>
+                    <span class="text-gray-600 dark:text-gray-300 dark:text-gray-300">
                       ${{ formatearMoneda(producto.precio || 0) }}
                     </span>
                   </div>
-                  <p v-if="producto.descripcion" class="text-xs text-gray-500 dark:text-gray-400 mt-1.5 line-clamp-2">
+                  <p v-if="producto.descripcion" class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1.5 line-clamp-2">
                     {{ producto.descripcion }}
                   </p>
                 </div>
                 <div class="text-right flex-shrink-0">
-                  <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white dark:text-gray-100">
                     ${{ formatearMoneda((producto.cantidad || 0) * (producto.precio || 0)) }}
                   </p>
                 </div>
@@ -1899,11 +1899,11 @@ const validarEstado = (estado) => {
           </div>
           <div v-else class="text-center py-8">
             <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-              <svg class="w-6 h-6 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="w-6 h-6 text-gray-400 dark:text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m0 0V9a2 2 0 012-2h2m2 2v4" />
               </svg>
             </div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Sin productos registrados</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Sin productos registrados</p>
           </div>
         </div>
       </div>
@@ -1913,23 +1913,23 @@ const validarEstado = (estado) => {
     <Teleport to="body">
       <div v-if="showSeriesModal" class="fixed inset-0 z-[100] flex items-center justify-center">
         <div class="absolute inset-0 bg-black/50" @click="closeSeriesModal" />
-        <div class="relative bg-white dark:bg-gray-800 w-full max-w-3xl mx-4 rounded-xl shadow-xl p-6 modal-enter-active">
+        <div class="relative bg-white dark:bg-slate-900 dark:bg-gray-800 w-full max-w-3xl mx-4 rounded-xl shadow-xl p-6 modal-enter-active">
           <div class="flex items-start justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Captura de series</h3>
-            <button @click="closeSeriesModal" class="text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white dark:text-gray-100">Captura de series</h3>
+            <button @click="closeSeriesModal" class="text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-300">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
 
-          <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+          <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300 mb-4">
             Algunos productos requieren registrar números de serie antes de convertir la orden. Ingresa exactamente la cantidad requerida.
           </p>
 
           <!-- Selector de Almacén -->
           <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-800/50 rounded-lg">
-            <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+            <label class="block text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-2">
               <span class="flex items-center">
                 <svg class="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -1947,15 +1947,15 @@ const validarEstado = (estado) => {
                 {{ almacen.nombre }}
               </option>
             </select>
-            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Selecciona el almacén donde se recibirá la mercancía</p>
+            <p class="text-xs text-gray-600 dark:text-gray-300 dark:text-gray-400 mt-1">Selecciona el almacén donde se recibirá la mercancía</p>
           </div>
 
           <div class="space-y-6 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
-            <div v-for="p in seriesProductos" :key="p.id" class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+            <div v-for="p in seriesProductos" :key="p.id" class="border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-lg p-4">
               <div class="flex items-center justify-between mb-3">
                 <div>
-                  <p class="font-medium text-gray-900 dark:text-gray-100">{{ p.nombre }}</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">Series requeridas: {{ p.cantidad }}</p>
+                  <p class="font-medium text-gray-900 dark:text-white dark:text-gray-100">{{ p.nombre }}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">Series requeridas: {{ p.cantidad }}</p>
                 </div>
                 <button
                   class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
@@ -1978,7 +1978,7 @@ const validarEstado = (estado) => {
           </div>
 
           <div class="mt-6 flex items-center justify-end space-x-3">
-            <button @click="closeSeriesModal" class="px-4 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-700">Cancelar</button>
+            <button @click="closeSeriesModal" class="px-4 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-700">Cancelar</button>
             <button @click="submitSeriesConversion" class="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700">Convertir con series</button>
           </div>
         </div>
@@ -1987,7 +1987,7 @@ const validarEstado = (estado) => {
 
     <!-- Loading overlay -->
     <div v-if="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-6 rounded-lg shadow-lg">
         <div class="flex items-center space-x-3">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 dark:border-blue-400"></div>
           <span class="text-gray-700 dark:text-gray-200">Procesando...</span>
@@ -2060,14 +2060,14 @@ const validarEstado = (estado) => {
 }
 
 @media (prefers-contrast: high) {
-  .border-gray-200 { border-color: #d1d5db; }
-  .dark .border-gray-200 { border-color: #4b5563; } /* Added for high contrast in dark mode */
+  .border-gray-200 dark:border-slate-800 { border-color: #d1d5db; }
+  .dark .border-gray-200 dark:border-slate-800 { border-color: #4b5563; } /* Added for high contrast in dark mode */
 }
 
 button:focus-visible { outline: 2px solid; outline-offset: 2px; }
 
 @media (hover: none) {
-  .hover\:bg-white:hover { background-color: transparent; }
+  .hover\:bg-white dark:bg-slate-900:hover { background-color: transparent; }
   .group:hover { transform: none; }
 }
 

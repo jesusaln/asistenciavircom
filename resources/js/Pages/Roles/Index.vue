@@ -37,8 +37,8 @@ const confirmarEliminacion = (id, name) => {
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
           <div>
-            <h2 class="text-2xl font-bold text-gray-900">Gestión de Roles y Permisos</h2>
-            <p class="text-sm text-gray-600">Administra los roles de usuario y sus niveles de acceso</p>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Roles y Permisos</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-300">Administra los roles de usuario y sus niveles de acceso</p>
           </div>
           <Link v-if="$can('create roles')" :href="route('roles.create')" 
                 class="inline-flex items-center px-4 py-2 bg-purple-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-purple-700 active:bg-purple-900 focus:outline-none focus:border-purple-900 focus:ring focus:ring-purple-300 disabled:opacity-25 transition">
@@ -50,17 +50,17 @@ const confirmarEliminacion = (id, name) => {
         </div>
 
         <!-- Tabla -->
-        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
+        <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-xl sm:rounded-lg">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+            <thead class="bg-white dark:bg-slate-900">
               <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Rol
                 </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Permisos
                 </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Creado
                 </th>
                 <th scope="col" class="relative px-6 py-3">
@@ -68,8 +68,8 @@ const confirmarEliminacion = (id, name) => {
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="role in roles" :key="role.id" class="hover:bg-white">
+            <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+              <tr v-for="role in roles" :key="role.id" class="hover:bg-white dark:bg-slate-900">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
                     <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-purple-100 text-purple-600">
@@ -78,7 +78,7 @@ const confirmarEliminacion = (id, name) => {
                       </svg>
                     </div>
                     <div class="ml-4">
-                      <div class="text-sm font-medium text-gray-900 capitalize">{{ role.name }}</div>
+                      <div class="text-sm font-medium text-gray-900 dark:text-white capitalize">{{ role.name }}</div>
                     </div>
                   </div>
                 </td>
@@ -87,7 +87,7 @@ const confirmarEliminacion = (id, name) => {
                     {{ role.permissions_count }} permisos asignados
                   </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {{ new Date(role.created_at).toLocaleDateString() }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">

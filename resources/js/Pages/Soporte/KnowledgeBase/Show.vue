@@ -2,20 +2,20 @@
   <AppLayout>
     <div class="py-12">
       <div class="w-full sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div class="p-6 bg-white border-b border-gray-200">
-            <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ articulo.titulo }}</h1>
+        <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
+          <div class="p-6 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">{{ articulo.titulo }}</h1>
             
-            <div class="flex items-center text-sm text-gray-500 mb-6 space-x-4">
+            <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-6 space-x-4">
                <span>Categoría: {{ articulo.categoria?.nombre }}</span>
                <span>Autor: {{ articulo.autor?.name }}</span>
                <span>Actualizado: {{ new Date(articulo.updated_at).toLocaleDateString() }}</span>
             </div>
 
-            <div class="prose max-w-none text-gray-800" v-html="articulo.contenido"></div>
+            <div class="prose max-w-none text-gray-800 dark:text-gray-100" v-html="articulo.contenido"></div>
 
-            <div class="mt-8 pt-6 border-t border-gray-200">
-               <h3 class="text-lg font-medium text-gray-900">¿Fue útil este artículo?</h3>
+            <div class="mt-8 pt-6 border-t border-gray-200 dark:border-slate-800">
+               <h3 class="text-lg font-medium text-gray-900 dark:text-white">¿Fue útil este artículo?</h3>
                <div class="mt-2 flex space-x-4">
                   <button @click="votar(true)" class="text-green-600 hover:text-green-800">👍 Sí ({{ articulo.votos_positivos }})</button>
                   <button @click="votar(false)" class="text-red-600 hover:text-red-800">👎 No ({{ articulo.votos_negativos }})</button>

@@ -6,7 +6,7 @@
                     <Link :href="route('proyectos.index')" class="text-indigo-500 hover:text-indigo-700 mr-4 text-sm font-bold">
                         <font-awesome-icon icon="arrow-left" class="mr-1" /> Volver
                     </Link>
-                    <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center border-l-2 pl-4 border-gray-300">
+                    <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight flex items-center border-l-2 pl-4 border-gray-300">
                         <span class="w-4 h-4 rounded-full mr-3 block" :style="{ backgroundColor: proyecto.color }"></span>
                         {{ proyecto.nombre }}
                     </h2>
@@ -15,7 +15,7 @@
                     <button 
                          v-if="isOwner"
                          @click="showingShareModal = true"
-                         class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
+                         class="inline-flex items-center px-4 py-2 bg-white dark:bg-slate-900 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
                     >
                         <font-awesome-icon icon="users" class="mr-2 text-indigo-500" />
                         Compartir
@@ -24,7 +24,7 @@
                     <button 
                          v-if="isOwner"
                          @click="confirmDeleteProject"
-                         class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-red-600 uppercase tracking-widest shadow-sm hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
+                         class="inline-flex items-center px-4 py-2 bg-white dark:bg-slate-900 border border-gray-300 rounded-md font-semibold text-xs text-red-600 uppercase tracking-widest shadow-sm hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
                          title="Eliminar Proyecto"
                     >
                         <font-awesome-icon icon="trash-can" />
@@ -48,7 +48,7 @@
                 </div>
             </div>
             <!-- Lista de Miembros -->
-            <div class="mt-2 flex items-center text-xs text-gray-500 ml-20">
+            <div class="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400 ml-20">
                 <span class="mr-2 font-bold">Miembros:</span>
                 <div class="flex -space-x-2 overflow-hidden">
                     <div class="relative inline-block h-6 w-6 rounded-full ring-2 ring-white bg-indigo-100 flex items-center justify-center text-[10px] font-bold text-indigo-800" title="Dueño">
@@ -71,7 +71,7 @@
                             <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center">
                                 <span :class="getStatusColor(status)" class="w-2 h-2 rounded-full mr-2"></span>
                                 {{ getStatusLabel(status) }}
-                                <span class="ml-2 bg-gray-200 text-gray-600 text-xs px-2 py-0.5 rounded-full">{{ tasks ? tasks.length : 0 }}</span>
+                                <span class="ml-2 bg-gray-200 text-gray-600 dark:text-gray-300 text-xs px-2 py-0.5 rounded-full">{{ tasks ? tasks.length : 0 }}</span>
                             </h3>
                         </div>
 
@@ -90,7 +90,7 @@
                         >
                             <template #item="{ element: tarea }">
                                 <div 
-                                    class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing group relative"
+                                    class="bg-white dark:bg-slate-900 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing group relative"
                                     @click="editTarea(tarea)"
                                 >
                                     <div class="flex justify-between items-start mb-2">
@@ -103,10 +103,10 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <h4 class="text-sm font-semibold text-gray-900 mb-1 group-hover:text-amber-600 transition-colors">
+                                    <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-amber-600 transition-colors">
                                         {{ tarea.titulo }}
                                     </h4>
-                                    <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
                                         {{ tarea.descripcion || 'Sin descripción' }}
                                     </p>
                                     
@@ -125,38 +125,38 @@
 
             <!-- Cost Summary Panel -->
             <div class="mt-6 px-4">
-                <div class="bg-white rounded-lg shadow border border-gray-200">
-                    <div class="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
-                        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                <div class="bg-white dark:bg-slate-900 rounded-lg shadow border border-gray-200 dark:border-slate-800">
+                    <div class="px-4 py-3 border-b border-gray-200 dark:border-slate-800 flex justify-between items-center">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                             <font-awesome-icon icon="receipt" class="text-amber-500 mr-2" />
                             Resumen de Costos
                         </h3>
                         <div class="flex items-center space-x-4">
-                            <span class="text-2xl font-bold text-gray-900">{{ formatCurrency(totalGastos) }}</span>
+                            <span class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(totalGastos) }}</span>
                             <button @click="showingGastoModal = true" class="bg-amber-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-amber-700">
                                 <font-awesome-icon icon="plus" class="mr-1" /> Agregar
                             </button>
                         </div>
                     </div>
                     <div v-if="gastos && gastos.length > 0" class="max-h-64 overflow-y-auto overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
                             <thead>
-                                <tr class="bg-white">
-                                    <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase w-20">Fecha</th>
-                                    <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase w-32">Categoría</th>
-                                    <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
-                                    <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Proveedor</th>
-                                    <th class="px-2 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28">Monto</th>
-                                    <th class="px-2 py-2 text-center text-xs font-medium text-gray-500 uppercase w-20">Acciones</th>
+                                <tr class="bg-white dark:bg-slate-900">
+                                    <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-20">Fecha</th>
+                                    <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-32">Categoría</th>
+                                    <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Descripción</th>
+                                    <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Proveedor</th>
+                                    <th class="px-2 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-28">Monto</th>
+                                    <th class="px-2 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-20">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <tr v-for="gasto in gastos" :key="gasto.id" class="hover:bg-white">
-                                    <td class="px-2 py-2 text-xs text-gray-500">{{ formatDateShort(gasto.fecha_compra) }}</td>
-                                    <td class="px-2 py-2 text-xs text-gray-900">{{ gasto.categoria_gasto?.nombre || '-' }}</td>
-                                    <td class="px-2 py-2 text-xs text-gray-500 max-w-xs truncate" :title="gasto.notas">{{ gasto.notas || '-' }}</td>
-                                    <td class="px-2 py-2 text-xs text-gray-500">{{ gasto.proveedor?.nombre_razon_social || 'Sin proveedor' }}</td>
-                                    <td class="px-2 py-2 text-xs text-gray-900 text-right font-medium">{{ formatCurrency(gasto.total) }}</td>
+                            <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+                                <tr v-for="gasto in gastos" :key="gasto.id" class="hover:bg-white dark:bg-slate-900">
+                                    <td class="px-2 py-2 text-xs text-gray-500 dark:text-gray-400">{{ formatDateShort(gasto.fecha_compra) }}</td>
+                                    <td class="px-2 py-2 text-xs text-gray-900 dark:text-white">{{ gasto.categoria_gasto?.nombre || '-' }}</td>
+                                    <td class="px-2 py-2 text-xs text-gray-500 dark:text-gray-400 max-w-xs truncate" :title="gasto.notas">{{ gasto.notas || '-' }}</td>
+                                    <td class="px-2 py-2 text-xs text-gray-500 dark:text-gray-400">{{ gasto.proveedor?.nombre_razon_social || 'Sin proveedor' }}</td>
+                                    <td class="px-2 py-2 text-xs text-gray-900 dark:text-white text-right font-medium">{{ formatCurrency(gasto.total) }}</td>
                                     <td class="px-2 py-2 text-center">
                                         <div class="flex justify-center space-x-1">
                                             <button @click="removeGasto(gasto.id)" class="text-red-500 hover:text-red-700" title="Eliminar">
@@ -168,7 +168,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <div v-else class="px-4 py-8 text-center text-gray-500">
+                    <div v-else class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                         <font-awesome-icon icon="folder-open" class="text-gray-300 text-3xl mb-2" />
                         <p class="text-sm">No hay gastos asociados a este proyecto</p>
                         <button @click="showingGastoModal = true" class="mt-2 text-amber-600 hover:text-amber-800 font-medium text-sm">
@@ -180,39 +180,39 @@
 
             <!-- Products Panel -->
             <div class="mt-6 px-4">
-                <div class="bg-white rounded-lg shadow border border-gray-200">
-                    <div class="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
-                        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                <div class="bg-white dark:bg-slate-900 rounded-lg shadow border border-gray-200 dark:border-slate-800">
+                    <div class="px-4 py-3 border-b border-gray-200 dark:border-slate-800 flex justify-between items-center">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                             <font-awesome-icon icon="boxes-stacked" class="text-indigo-500 mr-2" />
                             Productos del Proyecto
                         </h3>
                         <div class="flex items-center space-x-4">
-                            <span class="text-2xl font-bold text-gray-900">{{ formatCurrency(totalProductos) }}</span>
+                            <span class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(totalProductos) }}</span>
                             <button @click="showingProductModal = true" class="bg-indigo-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-indigo-700">
                                 <font-awesome-icon icon="plus" class="mr-1" /> Agregar
                             </button>
                         </div>
                     </div>
                     <div v-if="productosProyecto && productosProyecto.length > 0" class="max-h-64 overflow-y-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-white sticky top-0">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                            <thead class="bg-white dark:bg-slate-900 sticky top-0">
                                 <tr>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Producto</th>
-                                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Cantidad</th>
-                                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Precio Unit.</th>
-                                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Subtotal</th>
-                                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Producto</th>
+                                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Cantidad</th>
+                                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Precio Unit.</th>
+                                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Subtotal</th>
+                                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <tr v-for="prod in productosProyecto" :key="prod.id" class="hover:bg-white">
-                                    <td class="px-4 py-2 text-sm text-gray-900">
+                            <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+                                <tr v-for="prod in productosProyecto" :key="prod.id" class="hover:bg-white dark:bg-slate-900">
+                                    <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">
                                         <div class="font-medium">{{ prod.nombre }}</div>
-                                        <div class="text-xs text-gray-500">{{ prod.codigo }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ prod.codigo }}</div>
                                     </td>
-                                    <td class="px-4 py-2 text-sm text-gray-900 text-center">{{ prod.pivot.cantidad }}</td>
-                                    <td class="px-4 py-2 text-sm text-gray-900 text-right">{{ formatCurrency(prod.pivot.precio_unitario) }}</td>
-                                    <td class="px-4 py-2 text-sm text-gray-900 text-right font-medium">{{ formatCurrency(prod.pivot.cantidad * prod.pivot.precio_unitario) }}</td>
+                                    <td class="px-4 py-2 text-sm text-gray-900 dark:text-white text-center">{{ prod.pivot.cantidad }}</td>
+                                    <td class="px-4 py-2 text-sm text-gray-900 dark:text-white text-right">{{ formatCurrency(prod.pivot.precio_unitario) }}</td>
+                                    <td class="px-4 py-2 text-sm text-gray-900 dark:text-white text-right font-medium">{{ formatCurrency(prod.pivot.cantidad * prod.pivot.precio_unitario) }}</td>
                                     <td class="px-4 py-2 text-center">
                                         <button @click="removeProducto(prod.id)" class="text-red-500 hover:text-red-700" title="Eliminar">
                                             <font-awesome-icon icon="trash-can" />
@@ -222,7 +222,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <div v-else class="px-4 py-8 text-center text-gray-500">
+                    <div v-else class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                         <font-awesome-icon icon="boxes-stacked" class="text-gray-300 text-3xl mb-2" />
                         <p class="text-sm">No hay productos asignados a este proyecto</p>
                         <button @click="showingProductModal = true" class="mt-2 text-indigo-600 hover:text-indigo-800 font-medium text-sm">
@@ -239,7 +239,7 @@
              <template #content>
                  <div class="space-y-6">
                      <div>
-                         <h4 class="text-sm font-medium text-gray-900">Agregar Colaborador</h4>
+                         <h4 class="text-sm font-medium text-gray-900 dark:text-white">Agregar Colaborador</h4>
                          <div class="flex mt-2 space-x-2">
                              <select v-model="shareForm.user_id" class="flex-1 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                  <option value="">Seleccionar usuario...</option>
@@ -259,16 +259,16 @@
                      </div>
 
                      <div v-if="members.length > 0">
-                         <h4 class="text-sm font-medium text-gray-900 mb-2">Miembros Actuales</h4>
-                         <ul class="divide-y divide-gray-200 border rounded-md">
+                         <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Miembros Actuales</h4>
+                         <ul class="divide-y divide-gray-200 dark:divide-slate-800 border rounded-md">
                              <li v-for="member in members" :key="member.id" class="px-4 py-3 flex justify-between items-center text-sm">
                                  <div class="flex items-center">
                                       <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold mr-3">
                                           {{ member.name.charAt(0) }}
                                       </div>
                                       <div>
-                                          <div class="font-medium text-gray-900">{{ member.name }}</div>
-                                          <div class="text-gray-500 text-xs">{{ member.email }}</div>
+                                          <div class="font-medium text-gray-900 dark:text-white">{{ member.name }}</div>
+                                          <div class="text-gray-500 dark:text-gray-400 text-xs">{{ member.email }}</div>
                                       </div>
                                  </div>
                                  <div class="flex items-center space-x-3">
@@ -432,7 +432,7 @@
                             </button>
                         </div>
                         <!-- Search results -->
-                        <div v-else-if="productoBusqueda.length >= 2 && productosFiltrados.length > 0" class="mt-1 border border-gray-300 rounded-md max-h-48 overflow-y-auto bg-white shadow-lg">
+                        <div v-else-if="productoBusqueda.length >= 2 && productosFiltrados.length > 0" class="mt-1 border border-gray-300 rounded-md max-h-48 overflow-y-auto bg-white dark:bg-slate-900 shadow-lg">
                             <button 
                                 v-for="prod in productosFiltrados" 
                                 :key="prod.id" 
@@ -440,11 +440,11 @@
                                 type="button"
                                 class="w-full px-4 py-2 text-left hover:bg-indigo-50 border-b border-gray-100 last:border-b-0"
                             >
-                                <div class="font-medium text-gray-900">{{ prod.nombre }}</div>
-                                <div class="text-sm text-gray-500">{{ prod.codigo }} - {{ formatCurrency(prod.precio_venta) }}</div>
+                                <div class="font-medium text-gray-900 dark:text-white">{{ prod.nombre }}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ prod.codigo }} - {{ formatCurrency(prod.precio_venta) }}</div>
                             </button>
                         </div>
-                        <div v-else-if="productoBusqueda.length >= 2 && productosFiltrados.length === 0" class="mt-1 p-3 text-center text-gray-500 text-sm">
+                        <div v-else-if="productoBusqueda.length >= 2 && productosFiltrados.length === 0" class="mt-1 p-3 text-center text-gray-500 dark:text-gray-400 text-sm">
                             No se encontraron productos
                         </div>
                         <InputError :message="productoForm.errors.producto_id" class="mt-1" />

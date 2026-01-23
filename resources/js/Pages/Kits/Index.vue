@@ -6,8 +6,8 @@
         <div class="mb-8">
           <div class="flex justify-between items-center">
             <div>
-              <h1 class="text-3xl font-bold text-gray-900">Kits de Productos</h1>
-              <p class="mt-2 text-sm text-gray-600">Gestiona los kits compuestos por múltiples productos</p>
+              <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Kits de Productos</h1>
+              <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">Gestiona los kits compuestos por múltiples productos</p>
             </div>
             <Link href="/kits/create" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -20,7 +20,7 @@
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="bg-white dark:bg-slate-900 overflow-hidden shadow rounded-lg">
             <div class="p-5">
               <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -30,15 +30,15 @@
                 </div>
                 <div class="ml-5 w-0 flex-1">
                   <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">Total Kits</dt>
-                    <dd class="text-lg font-semibold text-gray-900">{{ stats.totalKits }}</dd>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Total Kits</dt>
+                    <dd class="text-lg font-semibold text-gray-900 dark:text-white">{{ stats.totalKits }}</dd>
                   </dl>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="bg-white dark:bg-slate-900 overflow-hidden shadow rounded-lg">
             <div class="p-5">
               <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -48,15 +48,15 @@
                 </div>
                 <div class="ml-5 w-0 flex-1">
                   <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">Kits Activos</dt>
-                    <dd class="text-lg font-semibold text-gray-900">{{ stats.kitsActivos }}</dd>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Kits Activos</dt>
+                    <dd class="text-lg font-semibold text-gray-900 dark:text-white">{{ stats.kitsActivos }}</dd>
                   </dl>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="bg-white dark:bg-slate-900 overflow-hidden shadow rounded-lg">
             <div class="p-5">
               <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -66,8 +66,8 @@
                 </div>
                 <div class="ml-5 w-0 flex-1">
                   <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">Valor Total</dt>
-                    <dd class="text-lg font-semibold text-gray-900">{{ formatCurrency(stats.valorTotal) }}</dd>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Valor Total</dt>
+                    <dd class="text-lg font-semibold text-gray-900 dark:text-white">{{ formatCurrency(stats.valorTotal) }}</dd>
                   </dl>
                 </div>
               </div>
@@ -76,7 +76,7 @@
         </div>
 
         <!-- Search and Filters -->
-        <div class="bg-white shadow rounded-lg mb-6">
+        <div class="bg-white dark:bg-slate-900 shadow rounded-lg mb-6">
           <div class="p-6">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-3 md:space-y-0">
               <div class="flex-1 max-w-lg">
@@ -88,12 +88,12 @@
                     </svg>
                   </div>
                   <input v-model="searchQuery" @input="debouncedSearch" type="text" id="search"
-                         class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
+                         class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white dark:bg-slate-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
                          placeholder="Buscar por nombre, código o descripción...">
                 </div>
               </div>
               <button v-if="searchQuery" @click="clearSearch"
-                      class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+                      class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
                 <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
@@ -104,35 +104,35 @@
         </div>
 
         <!-- Kits Table -->
-        <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 shadow rounded-lg overflow-hidden">
           <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-white">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+              <thead class="bg-white dark:bg-slate-900">
                 <tr>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Código
                   </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Nombre
                   </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Componentes
                   </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Precio
                   </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Estado
                   </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Fecha
                   </th>
-                  <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
+              <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
                 <tr v-if="loading">
                   <td colspan="7" class="px-6 py-12 text-center">
                     <div class="flex justify-center">
@@ -144,35 +144,35 @@
                   </td>
                 </tr>
                 <tr v-else-if="kits.length === 0">
-                  <td colspan="7" class="px-6 py-12 text-center text-sm text-gray-500">
+                  <td colspan="7" class="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
                     No se encontraron kits
                   </td>
                 </tr>
-                <tr v-else v-for="kit in kits" :key="kit.id" class="hover:bg-white">
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <tr v-else v-for="kit in kits" :key="kit.id" class="hover:bg-white dark:bg-slate-900">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                     {{ kit.codigo }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">{{ kit.nombre }}</div>
-                    <div v-if="kit.descripcion" class="text-sm text-gray-500 truncate max-w-xs">{{ kit.descripcion }}</div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ kit.nombre }}</div>
+                    <div v-if="kit.descripcion" class="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">{{ kit.descripcion }}</div>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                       {{ kit.componentes_count }} productos
                     </span>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {{ formatCurrency(kit.precio_venta) }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span :class="[
                       'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                      kit.estado === 'activo' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                      kit.estado === 'activo' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800 dark:text-gray-100'
                     ]">
                       {{ kit.estado === 'activo' ? 'Activo' : 'Inactivo' }}
                     </span>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     {{ kit.created_at }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -201,14 +201,14 @@
           </div>
 
           <!-- Pagination -->
-          <div v-if="pagination.last_page > 1" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+          <div v-if="pagination.last_page > 1" class="bg-white dark:bg-slate-900 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-slate-800 sm:px-6">
             <div class="flex-1 flex justify-between sm:hidden">
               <button @click="changePage(pagination.current_page - 1)" :disabled="pagination.current_page === 1"
-                      class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed">
+                      class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed">
                 Anterior
               </button>
               <button @click="changePage(pagination.current_page + 1)" :disabled="pagination.current_page === pagination.last_page"
-                      class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed">
+                      class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed">
                 Siguiente
               </button>
             </div>
@@ -227,7 +227,7 @@
               <div>
                 <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                   <button @click="changePage(pagination.current_page - 1)" :disabled="pagination.current_page === 1"
-                          class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed">
+                          class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white dark:bg-slate-900 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed">
                     <span class="sr-only">Anterior</span>
                     <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -238,12 +238,12 @@
                             'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
                             page === pagination.current_page
                               ? 'z-10 bg-indigo-50 border-amber-500 text-amber-600'
-                              : 'bg-white border-gray-300 text-gray-500 hover:bg-white'
+                              : 'bg-white dark:bg-slate-900 border-gray-300 text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900'
                           ]">
                     {{ page }}
                   </button>
                   <button @click="changePage(pagination.current_page + 1)" :disabled="pagination.current_page === pagination.last_page"
-                          class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed">
+                          class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white dark:bg-slate-900 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed">
                     <span class="sr-only">Siguiente</span>
                     <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -260,14 +260,14 @@
       <div v-if="showModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
           <!-- Background overlay -->
-          <div class="fixed inset-0 bg-white0 bg-opacity-75 transition-opacity" @click="closeModal"></div>
+          <div class="fixed inset-0 bg-white dark:bg-slate-9000 bg-opacity-75 transition-opacity" @click="closeModal"></div>
 
           <!-- Modal panel -->
-          <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:w-full sm:w-full">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="inline-block align-bottom bg-white dark:bg-slate-900 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:w-full sm:w-full">
+            <div class="bg-white dark:bg-slate-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
               <div class="flex justify-between items-start mb-4">
-                <h3 class="text-2xl font-bold text-gray-900" id="modal-title">Detalles del Kit</h3>
-                <button @click="closeModal" class="text-gray-400 hover:text-gray-500">
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white" id="modal-title">Detalles del Kit</h3>
+                <button @click="closeModal" class="text-gray-400 hover:text-gray-500 dark:text-gray-400">
                   <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                   </svg>
@@ -283,26 +283,26 @@
 
               <div v-else-if="selectedKit" class="space-y-6">
                 <!-- Información Básica -->
-                <div class="bg-white rounded-lg p-4">
+                <div class="bg-white dark:bg-slate-900 rounded-lg p-4">
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label class="block text-sm font-medium text-gray-500">Código</label>
-                      <p class="mt-1 text-lg font-semibold text-gray-900">{{ selectedKit.codigo }}</p>
+                      <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Código</label>
+                      <p class="mt-1 text-lg font-semibold text-gray-900 dark:text-white">{{ selectedKit.codigo }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-500">Nombre</label>
-                      <p class="mt-1 text-lg font-semibold text-gray-900">{{ selectedKit.nombre }}</p>
+                      <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Nombre</label>
+                      <p class="mt-1 text-lg font-semibold text-gray-900 dark:text-white">{{ selectedKit.nombre }}</p>
                     </div>
                     <div class="md:col-span-2" v-if="selectedKit.descripcion">
-                      <label class="block text-sm font-medium text-gray-500">Descripción</label>
-                      <p class="mt-1 text-gray-900">{{ selectedKit.descripcion }}</p>
+                      <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Descripción</label>
+                      <p class="mt-1 text-gray-900 dark:text-white">{{ selectedKit.descripcion }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-500">Precio de Venta</label>
+                      <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Precio de Venta</label>
                       <p class="mt-1 text-lg font-semibold text-green-600">{{ formatCurrency(selectedKit.precio_venta) }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-500">Costo Estimado</label>
+                      <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Costo Estimado</label>
                       <p class="mt-1 text-lg font-semibold text-blue-600">{{ formatCurrency(selectedKit.costo_estimado) }}</p>
                     </div>
                   </div>
@@ -310,25 +310,25 @@
 
                 <!-- Componentes del Kit -->
                 <div>
-                  <h4 class="text-lg font-medium text-gray-900 mb-3">Componentes ({{ selectedKit.kit_items?.length || 0 }})</h4>
+                  <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Componentes ({{ selectedKit.kit_items?.length || 0 }})</h4>
                   <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                      <thead class="bg-white">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                      <thead class="bg-white dark:bg-slate-900">
                         <tr>
-                          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Código</th>
-                          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Producto</th>
-                          <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Cantidad</th>
-                          <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Precio Unit.</th>
-                          <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Subtotal</th>
+                          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Código</th>
+                          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Producto</th>
+                          <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Cantidad</th>
+                          <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Precio Unit.</th>
+                          <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Subtotal</th>
                         </tr>
                       </thead>
-                      <tbody class="bg-white divide-y divide-gray-200">
+                      <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
                         <tr v-for="item in selectedKit.kit_items" :key="item.id">
-                          <td class="px-4 py-3 text-sm text-gray-900">{{ item.producto?.codigo || 'N/A' }}</td>
-                          <td class="px-4 py-3 text-sm text-gray-900">{{ item.producto?.nombre || 'Producto sin nombre' }}</td>
-                          <td class="px-4 py-3 text-sm text-center text-gray-900">{{ item.cantidad }}</td>
-                          <td class="px-4 py-3 text-sm text-right text-gray-900">{{ formatCurrency(item.precio_unitario) }}</td>
-                          <td class="px-4 py-3 text-sm text-right font-medium text-gray-900">{{ formatCurrency(item.precio_unitario * item.cantidad) }}</td>
+                          <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ item.producto?.codigo || 'N/A' }}</td>
+                          <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ item.producto?.nombre || 'Producto sin nombre' }}</td>
+                          <td class="px-4 py-3 text-sm text-center text-gray-900 dark:text-white">{{ item.cantidad }}</td>
+                          <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white">{{ formatCurrency(item.precio_unitario) }}</td>
+                          <td class="px-4 py-3 text-sm text-right font-medium text-gray-900 dark:text-white">{{ formatCurrency(item.precio_unitario * item.cantidad) }}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -350,11 +350,11 @@
               </div>
             </div>
 
-            <div class="bg-white px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <div class="bg-white dark:bg-slate-900 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
               <Link :href="`/kits/${selectedKit?.id}/edit`" v-if="selectedKit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-amber-500 text-base font-medium text-white hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:ml-3 sm:w-auto sm:text-sm">
                 Editar Kit
               </Link>
-              <button @click="closeModal" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:mt-0 sm:w-auto sm:text-sm">
+              <button @click="closeModal" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white dark:bg-slate-900 text-base font-medium text-gray-700 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:mt-0 sm:w-auto sm:text-sm">
                 Cerrar
               </button>
             </div>

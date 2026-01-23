@@ -159,14 +159,14 @@ const goToPage = (page) => {
 <template>
   <Head title="Empleados - RRHH" />
 
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="min-h-screen bg-gray-50 dark:bg-slate-950 dark:bg-gray-900">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Recursos Humanos</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Gestión de empleados y datos laborales</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white dark:text-gray-100">Recursos Humanos</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Gestión de empleados y datos laborales</p>
           </div>
           <button
             @click="crearEmpleado"
@@ -182,7 +182,7 @@ const goToPage = (page) => {
 
       <!-- Estadísticas -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
           <div class="flex items-center">
             <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center">
               <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,13 +190,13 @@ const goToPage = (page) => {
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Empleados</p>
-              <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ estadisticas.total }}</p>
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400">Total Empleados</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white dark:text-gray-100">{{ estadisticas.total }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
           <div class="flex items-center">
             <div class="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center">
               <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -204,27 +204,27 @@ const goToPage = (page) => {
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Activos</p>
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400">Activos</p>
               <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ estadisticas.activos }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
           <div class="flex items-center">
             <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-              <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-6 h-6 text-gray-600 dark:text-gray-300 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Inactivos</p>
-              <p class="text-2xl font-bold text-gray-600 dark:text-gray-300">{{ estadisticas.inactivos }}</p>
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400">Inactivos</p>
+              <p class="text-2xl font-bold text-gray-600 dark:text-gray-300 dark:text-gray-300">{{ estadisticas.inactivos }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
           <div class="flex items-center">
             <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center">
               <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -232,14 +232,14 @@ const goToPage = (page) => {
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Departamentos</p>
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400">Departamentos</p>
               <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ Object.keys(estadisticas.por_departamento || {}).length }}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 mb-6">
+      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div class="md:col-span-2">
             <div class="relative">
@@ -248,9 +248,9 @@ const goToPage = (page) => {
                 @keyup.enter="handleSearch"
                 type="text"
                 placeholder="Buscar por nombre, número, RFC..."
-                class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
-              <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400 dark:text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -259,7 +259,7 @@ const goToPage = (page) => {
           <select
             v-model="filtroDepartamento"
             @change="aplicarFiltros"
-            class="border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500"
+            class="border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 focus:ring-2 focus:ring-emerald-500"
           >
             <option value="">Todos los departamentos</option>
             <option v-for="dep in departamentos" :key="dep" :value="dep">{{ dep }}</option>
@@ -268,7 +268,7 @@ const goToPage = (page) => {
           <select
             v-model="filtroTipoContrato"
             @change="aplicarFiltros"
-            class="border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500"
+            class="border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 focus:ring-2 focus:ring-emerald-500"
           >
             <option value="">Tipo de contrato</option>
             <option v-for="tipo in tiposContrato" :key="tipo.value" :value="tipo.value">{{ tipo.label }}</option>
@@ -276,7 +276,7 @@ const goToPage = (page) => {
 
           <button
             @click="limpiarFiltros"
-            class="px-4 py-2 text-gray-600 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors border border-gray-300 dark:border-gray-600"
+            class="px-4 py-2 text-gray-600 dark:text-gray-300 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors border border-gray-300 dark:border-gray-600"
           >
             Limpiar filtros
           </button>
@@ -284,34 +284,34 @@ const goToPage = (page) => {
       </div>
 
       <!-- Tabla -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-        <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-700/50 dark:to-gray-800/50 px-6 py-4 border-b border-gray-200/60 dark:border-gray-700">
+      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-700/50 dark:to-gray-800/50 px-6 py-4 border-b border-gray-200 dark:border-slate-800/60 dark:border-gray-700">
           <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Lista de Empleados</h2>
-            <div class="text-sm text-gray-600 dark:text-gray-300 bg-white/70 dark:bg-gray-700/50 px-3 py-1 rounded-full border border-gray-200/50 dark:border-gray-600">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white dark:text-gray-100">Lista de Empleados</h2>
+            <div class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300 bg-white dark:bg-slate-900/70 dark:bg-gray-700/50 px-3 py-1 rounded-full border border-gray-200 dark:border-slate-800/50 dark:border-gray-600">
               {{ paginationData.from }} - {{ paginationData.to }} de {{ paginationData.total }}
             </div>
           </div>
         </div>
 
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200/60 dark:divide-gray-700">
-            <thead class="bg-gray-50/60 dark:bg-gray-700/60">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800/60 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-slate-950/60 dark:bg-gray-700/60">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Empleado</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Puesto</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Departamento</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Contratación</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Salario</th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Empleado</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Puesto</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Departamento</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Contratación</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Salario</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
 
-            <tbody class="bg-white divide-y divide-gray-200/40">
+            <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800/40">
               <tr
                 v-for="empleado in empleados.data"
                 :key="empleado.id"
-                class="group hover:bg-white/60 transition-all duration-150"
+                class="group hover:bg-white dark:bg-slate-900/60 transition-all duration-150"
               >
                 <td class="px-6 py-4">
                   <div class="flex items-center">
@@ -319,15 +319,15 @@ const goToPage = (page) => {
                       {{ empleado.user?.name?.charAt(0) || '?' }}
                     </div>
                     <div class="ml-3">
-                      <div class="text-sm font-medium text-gray-900">{{ empleado.user?.name || 'Sin nombre' }}</div>
-                      <div class="text-xs text-gray-500">{{ empleado.numero_empleado || '—' }}</div>
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">{{ empleado.user?.name || 'Sin nombre' }}</div>
+                      <div class="text-xs text-gray-500 dark:text-gray-400">{{ empleado.numero_empleado || '—' }}</div>
                     </div>
                   </div>
                 </td>
 
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">{{ empleado.puesto || '—' }}</div>
-                  <div class="text-xs text-gray-500">{{ empleado.tipo_contrato_formateado || empleado.tipo_contrato }}</div>
+                  <div class="text-sm text-gray-900 dark:text-white">{{ empleado.puesto || '—' }}</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">{{ empleado.tipo_contrato_formateado || empleado.tipo_contrato }}</div>
                 </td>
 
                 <td class="px-6 py-4">
@@ -337,13 +337,13 @@ const goToPage = (page) => {
                 </td>
 
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">{{ formatearFecha(empleado.fecha_contratacion) }}</div>
-                  <div v-if="empleado.antiguedad_formateada" class="text-xs text-gray-500">{{ empleado.antiguedad_formateada }}</div>
+                  <div class="text-sm text-gray-900 dark:text-white">{{ formatearFecha(empleado.fecha_contratacion) }}</div>
+                  <div v-if="empleado.antiguedad_formateada" class="text-xs text-gray-500 dark:text-gray-400">{{ empleado.antiguedad_formateada }}</div>
                 </td>
 
                 <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-gray-900">{{ formatearMoneda(empleado.salario_base) }}</div>
-                  <div class="text-xs text-gray-500">mensual</div>
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{ formatearMoneda(empleado.salario_base) }}</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">mensual</div>
                 </td>
 
                 <td class="px-6 py-4">
@@ -426,7 +426,7 @@ const goToPage = (page) => {
                     </div>
                     <div class="space-y-1">
                       <p class="text-gray-700 font-medium">No hay empleados</p>
-                      <p class="text-sm text-gray-500">Agrega tu primer empleado para comenzar</p>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Agrega tu primer empleado para comenzar</p>
                     </div>
                     <button @click="crearEmpleado" class="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
                       Agregar Empleado
@@ -439,7 +439,7 @@ const goToPage = (page) => {
         </div>
 
         <!-- Paginación -->
-        <div v-if="paginationData.last_page > 1" class="px-6 py-4 border-t border-gray-200 flex justify-center">
+        <div v-if="paginationData.last_page > 1" class="px-6 py-4 border-t border-gray-200 dark:border-slate-800 flex justify-center">
           <div class="flex space-x-1">
             <button
               v-for="p in [paginationData.current_page - 1, paginationData.current_page, paginationData.current_page + 1].filter(x => x > 0 && x <= paginationData.last_page)"
@@ -449,7 +449,7 @@ const goToPage = (page) => {
                 'px-3 py-2 text-sm font-medium border rounded-md',
                 p === paginationData.current_page
                   ? 'bg-emerald-500 text-white border-emerald-500'
-                  : 'text-gray-700 bg-white hover:bg-white border-gray-300'
+                  : 'text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 border-gray-300'
               ]"
             >
               {{ p }}

@@ -2,9 +2,9 @@
   <Teleport to="body">
     <Transition name="modal">
       <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" @click.self="closeModal">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden" role="dialog" aria-modal="true">
+        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden" role="dialog" aria-modal="true">
           <!-- Header del modal -->
-          <div class="flex justify-between items-center p-6 border-b border-gray-200 bg-gray-50">
+          <div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-slate-800 bg-gray-50">
             <h2 class="text-2xl font-semibold text-gray-800">Detalles del Servicio</h2>
             <button @click="closeModal" class="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-200" aria-label="Cerrar modal">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,7 +75,7 @@
                         <span v-if="isUpdating" class="animate-spin">⏳</span>
                         <span v-else>{{ localEstado === 'activo' ? '✓ Activo' : '✗ Inactivo' }}</span>
                       </button>
-                      <span class="text-xs text-gray-500">Click para cambiar</span>
+                      <span class="text-xs text-gray-500 dark:text-gray-400">Click para cambiar</span>
                     </div>
                   </div>
                 </div>
@@ -84,7 +84,7 @@
           </div>
 
           <!-- Footer del modal -->
-          <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+          <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 dark:border-slate-800">
             <div class="flex justify-end space-x-3">
               <button @click="closeModal" class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
                 Cerrar
@@ -185,13 +185,13 @@ onMounted(() => {
   opacity: 0;
 }
 
-.modal-enter-active .bg-white,
-.modal-leave-active .bg-white {
+.modal-enter-active .bg-white dark:bg-slate-900,
+.modal-leave-active .bg-white dark:bg-slate-900 {
   transition: transform 0.3s ease;
 }
 
-.modal-enter-from .bg-white,
-.modal-leave-to .bg-white {
+.modal-enter-from .bg-white dark:bg-slate-900,
+.modal-leave-to .bg-white dark:bg-slate-900 {
   transform: scale(0.95);
 }
 </style>

@@ -84,17 +84,17 @@ const submit = () => {
 <template>
   <AppLayout title="Crear Nuevo Rol">
     <template #header>
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
             Crear Nuevo Rol
         </h2>
     </template>
 
     <div class="py-12">
       <div class="w-full sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
+        <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-xl sm:rounded-lg p-6">
           <div class="mb-8 border-b pb-4">
-            <h2 class="text-2xl font-bold text-gray-900">Crear Nuevo Rol</h2>
-            <p class="text-sm text-gray-600">Define el nombre del rol y gestiona los niveles de acceso de forma detallada.</p>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Crear Nuevo Rol</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-300">Define el nombre del rol y gestiona los niveles de acceso de forma detallada.</p>
           </div>
 
           <form @submit.prevent="submit">
@@ -108,32 +108,32 @@ const submit = () => {
             <!-- Matriz de Permisos -->
             <div class="mb-8">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-gray-900">Configuración de Accesos (Matriz)</h3>
-                <div class="text-xs text-gray-500 italic">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Configuración de Accesos (Matriz)</h3>
+                <div class="text-xs text-gray-500 dark:text-gray-400 italic">
                     Haz clic en los encabezados para seleccionar/deseleccionar filas o columnas completas.
                 </div>
               </div>
               
-              <div class="overflow-x-auto border border-gray-200 rounded-xl shadow-sm">
-                <table class="min-w-full divide-y divide-gray-200">
-                  <thead class="bg-white">
+              <div class="overflow-x-auto border border-gray-200 dark:border-slate-800 rounded-xl shadow-sm">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                  <thead class="bg-white dark:bg-slate-900">
                     <tr>
-                      <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider sticky left-0 bg-white z-10">
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider sticky left-0 bg-white dark:bg-slate-900 z-10">
                         Módulo / Funcionalidad
                       </th>
-                      <th v-for="action in actions" :key="action" scope="col" class="px-3 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors" @click="toggleColumn(action)">
+                      <th v-for="action in actions" :key="action" scope="col" class="px-3 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors" @click="toggleColumn(action)">
                         <div class="flex flex-col items-center gap-1">
                             <span :class="{'text-purple-600': isColumnSelected(action)}">{{ actionLabels[action] }}</span>
-                            <div class="w-3 h-3 rounded-full border border-gray-300 transition-colors" :class="isColumnSelected(action) ? 'bg-purple-600 border-purple-600' : 'bg-white'"></div>
+                            <div class="w-3 h-3 rounded-full border border-gray-300 transition-colors" :class="isColumnSelected(action) ? 'bg-purple-600 border-purple-600' : 'bg-white dark:bg-slate-900'"></div>
                         </div>
                       </th>
                     </tr>
                   </thead>
-                  <tbody class="bg-white divide-y divide-gray-200">
-                    <tr v-for="group in permissionGroups" :key="group.module" class="hover:bg-white transition-colors">
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-white group-hover:bg-white z-10 flex items-center justify-between cursor-pointer" @click="toggleRow(group)">
+                  <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+                    <tr v-for="group in permissionGroups" :key="group.module" class="hover:bg-white dark:bg-slate-900 transition-colors">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white sticky left-0 bg-white dark:bg-slate-900 group-hover:bg-white dark:bg-slate-900 z-10 flex items-center justify-between cursor-pointer" @click="toggleRow(group)">
                         <span>{{ group.label }}</span>
-                        <div class="w-3 h-3 rounded-md border border-gray-300 transition-colors" :class="isRowSelected(group) ? 'bg-purple-600 border-purple-600' : 'bg-white'"></div>
+                        <div class="w-3 h-3 rounded-md border border-gray-300 transition-colors" :class="isRowSelected(group) ? 'bg-purple-600 border-purple-600' : 'bg-white dark:bg-slate-900'"></div>
                       </td>
                       <td v-for="action in actions" :key="action" class="px-3 py-4 whitespace-nowrap text-center">
                         <div v-if="group.permissions[action]" class="flex justify-center">
@@ -151,8 +151,8 @@ const submit = () => {
             </div>
 
             <!-- Acciones -->
-            <div class="flex items-center justify-end mt-8 pt-6 border-t border-gray-200">
-              <Link :href="route('roles.index')" class="px-4 py-2 text-sm font-semibold text-gray-600 hover:text-gray-900 mr-4 transition-colors">
+            <div class="flex items-center justify-end mt-8 pt-6 border-t border-gray-200 dark:border-slate-800">
+              <Link :href="route('roles.index')" class="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:text-white mr-4 transition-colors">
                 Cancelar
               </Link>
               <button type="submit" 

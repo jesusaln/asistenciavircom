@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
+  <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-slate-800 dark:border-gray-700 overflow-hidden transition-colors">
     <!-- Header con estadísticas -->
-    <div class="px-6 py-6 border-b border-gray-200/60 dark:border-gray-700/50 transition-colors" :style="headerStyle">
+    <div class="px-6 py-6 border-b border-gray-200 dark:border-slate-800/60 dark:border-gray-700/50 transition-colors" :style="headerStyle">
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight transition-colors">Citas</h1>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white tracking-tight transition-colors">Citas</h1>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 transition-colors">Gestiona todas tus citas en un solo lugar</p>
         </div>
         <button
@@ -21,11 +21,11 @@
 
       <!-- Estadísticas -->
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 dark:border-gray-700/50 shadow-sm transition-colors">
+        <div class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200 dark:border-slate-800/50 dark:border-gray-700/50 shadow-sm transition-colors">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Total</p>
-              <p class="text-2xl font-bold text-gray-900 dark:text-gray-100 transition-colors">{{ total }}</p>
+              <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Total</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white dark:text-gray-100 transition-colors">{{ total }}</p>
             </div>
             <div class="w-10 h-10 bg-blue-100/50 dark:bg-blue-900/30 rounded-xl flex items-center justify-center transition-colors">
               <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,10 +35,10 @@
           </div>
         </div>
 
-        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 dark:border-gray-700/50 shadow-sm transition-colors">
+        <div class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200 dark:border-slate-800/50 dark:border-gray-700/50 shadow-sm transition-colors">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Pendientes</p>
+              <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Pendientes</p>
               <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400 transition-colors">{{ pendientes }}</p>
             </div>
             <div class="w-10 h-10 bg-yellow-100/50 dark:bg-yellow-900/30 rounded-xl flex items-center justify-center transition-colors">
@@ -49,10 +49,10 @@
           </div>
         </div>
 
-        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 dark:border-gray-700/50 shadow-sm transition-colors">
+        <div class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200 dark:border-slate-800/50 dark:border-gray-700/50 shadow-sm transition-colors">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">En Proceso</p>
+              <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">En Proceso</p>
               <p class="text-2xl font-bold text-blue-600 dark:text-blue-400 transition-colors">{{ enProceso }}</p>
             </div>
             <div class="w-10 h-10 bg-blue-100/50 dark:bg-blue-900/30 rounded-xl flex items-center justify-center transition-colors">
@@ -63,10 +63,10 @@
           </div>
         </div>
 
-        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 dark:border-gray-700/50 shadow-sm transition-colors">
+        <div class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200 dark:border-slate-800/50 dark:border-gray-700/50 shadow-sm transition-colors">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Hechas</p>
+              <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Hechas</p>
               <p class="text-2xl font-bold text-green-600 dark:text-green-400 transition-colors">{{ completadas }}</p>
             </div>
             <div class="w-10 h-10 bg-green-100/50 dark:bg-green-900/30 rounded-xl flex items-center justify-center transition-colors">
@@ -77,10 +77,10 @@
           </div>
         </div>
 
-        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 dark:border-gray-700/50 shadow-sm transition-colors">
+        <div class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200 dark:border-slate-800/50 dark:border-gray-700/50 shadow-sm transition-colors">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Canceladas</p>
+              <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Canceladas</p>
               <p class="text-2xl font-bold text-red-600 dark:text-red-400 transition-colors">{{ canceladas }}</p>
             </div>
             <div class="w-10 h-10 bg-red-100/50 dark:bg-red-900/30 rounded-xl flex items-center justify-center transition-colors">
@@ -94,7 +94,7 @@
     </div>
 
     <!-- Filtros y búsqueda -->
-    <div class="px-6 py-4 bg-gray-50/50 dark:bg-gray-900/30 border-b border-gray-200/60 dark:border-gray-700 transition-colors">
+    <div class="px-6 py-4 bg-gray-50/50 dark:bg-gray-900/30 border-b border-gray-200 dark:border-slate-800/60 dark:border-gray-700 transition-colors">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 gap-4">
         <!-- Búsqueda -->
         <div class="flex-1">
@@ -108,7 +108,7 @@
               v-model="searchTerm"
               type="text"
               placeholder="Buscar por cliente, técnico o problema..."
-              class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl leading-5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-blue-500/30 transition-all text-sm"
+              class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl leading-5 bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-900 dark:text-white dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-blue-500/30 transition-all text-sm"
               @input="onSearchChange"
             />
           </div>
@@ -117,11 +117,11 @@
         <!-- Filtros -->
         <div class="flex flex-wrap items-center gap-3">
           <!-- Toggle Vista -->
-          <div class="flex bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl p-1 transition-colors">
+          <div class="flex bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl p-1 transition-colors">
             <button
               @click="viewMode = 'table'"
               :class="['px-3 py-1.5 rounded-lg flex items-center gap-2 text-xs font-bold transition-all shadow-sm', 
-                       viewMode === 'table' ? 'bg-blue-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700']"
+                       viewMode === 'table' ? 'bg-blue-600 text-white' : 'text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700']"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -131,7 +131,7 @@
             <button
               @click="viewMode = 'calendar'"
               :class="['px-3 py-1.5 rounded-lg flex items-center gap-2 text-xs font-bold transition-all shadow-sm', 
-                       viewMode === 'calendar' ? 'bg-blue-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700']"
+                       viewMode === 'calendar' ? 'bg-blue-600 text-white' : 'text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700']"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -144,7 +144,7 @@
           <select
             v-model="filtroEstadoCita"
             @change="onFiltroEstadoCitaChange"
-            class="block w-40 pl-3 pr-10 py-2.5 text-sm border border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-blue-500/30 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all outline-none"
+            class="block w-40 pl-3 pr-10 py-2.5 text-sm border border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-blue-500/30 bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-900 dark:text-white dark:text-gray-100 transition-all outline-none"
           >
             <option value="">Todos los Estados</option>
             <option value="pendiente">Pendiente</option>
@@ -157,7 +157,7 @@
           <select
             v-model="sortBy"
             @change="onSortChange"
-            class="block w-44 pl-3 pr-10 py-2.5 text-sm border border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-blue-500/30 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all outline-none"
+            class="block w-44 pl-3 pr-10 py-2.5 text-sm border border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-blue-500/30 bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-900 dark:text-white dark:text-gray-100 transition-all outline-none"
           >
             <option value="created_at-desc">Fecha (Reciente)</option>
             <option value="created_at-asc">Fecha (Antiguo)</option>
@@ -168,7 +168,7 @@
           <!-- Limpiar filtros -->
           <button
             @click="onLimpiarFiltros"
-            class="inline-flex items-center px-4 py-2.5 border border-gray-300 dark:border-gray-700 text-sm font-bold rounded-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-blue-500 transition-all shadow-sm active:scale-95"
+            class="inline-flex items-center px-4 py-2.5 border border-gray-300 dark:border-gray-700 text-sm font-bold rounded-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-900 dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-blue-500 transition-all shadow-sm active:scale-95"
           >
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

@@ -26,12 +26,12 @@ useDarkMode(empresaData.value);
 </script>
 
 <template>
-    <div class="min-h-screen bg-white dark:bg-gray-900 flex flex-col font-sans transition-colors duration-300">
+    <div class="min-h-screen bg-white dark:bg-slate-900 dark:bg-gray-900 flex flex-col font-sans transition-colors duration-300">
         <!-- Reutilizamos el Navbar Público para consistencia total -->
         <PublicNavbar :empresa="empresaData" activeTab="soporte" />
 
         <!-- Sub-Header del Portal -->
-        <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm transition-colors">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm transition-colors">
             <div class="w-full px-4 h-16 flex items-center justify-between">
                 <div class="flex gap-8">
                     <Link 
@@ -40,7 +40,7 @@ useDarkMode(empresaData.value);
                             'text-sm font-bold uppercase tracking-widest pb-5 mt-5 transition-all outline-none',
                             ($page.component === 'Portal/Dashboard' || $page.component.startsWith('Portal/Polizas/'))
                                 ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' 
-                                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+                                : 'text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-300'
                         ]"
                     >
                         Mis Servicios
@@ -51,7 +51,7 @@ useDarkMode(empresaData.value);
                             'text-sm font-bold uppercase tracking-widest pb-5 mt-5 transition-all outline-none',
                             $page.component === 'Portal/CreateTicket' 
                                 ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' 
-                                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+                                : 'text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-300'
                         ]"
                     >
                         Solicitar Soporte
@@ -62,7 +62,7 @@ useDarkMode(empresaData.value);
                             'text-sm font-bold uppercase tracking-widest pb-5 mt-5 transition-all outline-none',
                             ($page.component === 'Portal/Credito/Index' || $page.component === 'Portal/Credito/FirmarSolicitud')
                                 ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' 
-                                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+                                : 'text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-300'
                         ]"
                     >
                         Línea de Crédito
@@ -73,7 +73,7 @@ useDarkMode(empresaData.value);
                             'text-sm font-bold uppercase tracking-widest pb-5 mt-5 transition-all outline-none',
                             ($page.component === 'Portal/Rentas/Index' || $page.component === 'Portal/Rentas/Firmar')
                                 ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' 
-                                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+                                : 'text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-300'
                         ]"
                     >
                         Mis Rentas

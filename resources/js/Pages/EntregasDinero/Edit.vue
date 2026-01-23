@@ -73,14 +73,14 @@ const submit = () => {
 <template>
   <Head title="Editar Entrega de Dinero" />
 
-  <div class="entregas-dinero-edit min-h-screen bg-white">
+  <div class="entregas-dinero-edit min-h-screen bg-white dark:bg-slate-900">
     <div class="w-full px-6 py-8">
       <!-- Header -->
-      <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-8 mb-6">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 rounded-xl shadow-sm p-8 mb-6">
         <div class="flex items-center gap-3 mb-6">
           <button
             @click="router.visit(route('entregas-dinero.index'))"
-            class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+            class="p-2 bg-gray-100 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -93,9 +93,9 @@ const submit = () => {
           Actualiza los montos y notas de la entrega seleccionada. Abajo puedes ver la nota original registrada.
         </p>
 
-        <div v-if="props.entrega.notas" class="mb-6 bg-white border border-gray-200 rounded-lg p-4">
-          <p class="text-xs font-semibold text-gray-500 uppercase">Nota registrada</p>
-          <p class="text-sm text-gray-800 mt-1">{{ props.entrega.notas }}</p>
+        <div v-if="props.entrega.notas" class="mb-6 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-4">
+          <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Nota registrada</p>
+          <p class="text-sm text-gray-800 dark:text-gray-100 mt-1">{{ props.entrega.notas }}</p>
         </div>
 
         <!-- Formulario -->
@@ -198,7 +198,7 @@ const submit = () => {
           </div>
 
           <!-- Botones -->
-          <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
+          <div class="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-slate-800">
             <button
               type="button"
               @click="router.visit(route('entregas-dinero.index'))"

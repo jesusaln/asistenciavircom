@@ -128,18 +128,18 @@ const formatearMoneda = (num) => {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
           </svg>
         </div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Nueva Nómina</h1>
-        <p class="text-gray-600">Genera una nómina para un empleado</p>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Nueva Nómina</h1>
+        <p class="text-gray-600 dark:text-gray-300">Genera una nómina para un empleado</p>
       </div>
 
       <!-- Formulario -->
-      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
         <form @submit.prevent="submit" class="p-8 space-y-8">
 
           <!-- Selección de Empleado -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900">Empleado y Período</h2>
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Empleado y Período</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -225,8 +225,8 @@ const formatearMoneda = (num) => {
 
           <!-- Horas Extra -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900">Horas Extra</h2>
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Horas Extra</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -244,7 +244,7 @@ const formatearMoneda = (num) => {
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Monto Horas Extra</label>
                 <div class="relative">
-                  <span class="absolute left-3 top-3 text-gray-500">$</span>
+                  <span class="absolute left-3 top-3 text-gray-500 dark:text-gray-400">$</span>
                   <input
                     v-model="form.monto_horas_extra"
                     type="number"
@@ -259,9 +259,9 @@ const formatearMoneda = (num) => {
 
           <!-- Conceptos Adicionales -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
+            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
               <div class="flex items-center justify-between">
-                <h2 class="text-lg font-semibold text-gray-900">Conceptos Adicionales</h2>
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Conceptos Adicionales</h2>
                 <div class="space-x-2">
                   <button type="button" @click="agregarConcepto('percepcion')" class="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200">
                     + Percepción
@@ -271,7 +271,7 @@ const formatearMoneda = (num) => {
                   </button>
                 </div>
               </div>
-              <p class="text-sm text-gray-500 mt-1">El sueldo base y deducciones por préstamos se agregan automáticamente</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">El sueldo base y deducciones por préstamos se agregan automáticamente</p>
             </div>
 
             <div v-if="form.conceptos.length" class="space-y-4">
@@ -293,7 +293,7 @@ const formatearMoneda = (num) => {
 
                 <div class="grid grid-cols-3 gap-4">
                   <div class="col-span-2">
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Concepto</label>
+                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Concepto</label>
                     <input
                       v-model="concepto.concepto"
                       type="text"
@@ -302,7 +302,7 @@ const formatearMoneda = (num) => {
                     />
                   </div>
                   <div>
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Monto</label>
+                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Monto</label>
                     <input
                       v-model="concepto.monto"
                       type="number"
@@ -315,7 +315,7 @@ const formatearMoneda = (num) => {
               </div>
             </div>
 
-            <div v-else class="text-center py-8 text-gray-500 bg-white rounded-lg">
+            <div v-else class="text-center py-8 text-gray-500 dark:text-gray-400 bg-white dark:bg-slate-900 rounded-lg">
               <p class="text-sm">No hay conceptos adicionales</p>
               <p class="text-xs mt-1">El sueldo base se agregará automáticamente</p>
             </div>
@@ -333,7 +333,7 @@ const formatearMoneda = (num) => {
           </div>
 
           <!-- Botones -->
-          <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+          <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-slate-800">
             <button type="button" @click="cancelar" class="px-6 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
               Cancelar
             </button>

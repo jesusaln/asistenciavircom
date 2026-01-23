@@ -44,15 +44,15 @@ const diasFormateados = computed(() => {
     
     <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100" :style="cssVars">
         <!-- Header -->
-        <header class="bg-white shadow-sm">
+        <header class="bg-white dark:bg-slate-900 shadow-sm">
             <div class="w-full px-4 py-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-[var(--color-primary)] flex items-center justify-center text-white font-bold">
                         {{ empresa?.nombre?.charAt(0) || 'C' }}
                     </div>
                     <div>
-                        <h1 class="font-bold text-gray-900">{{ empresa?.nombre || 'Asistencia Vircom' }}</h1>
-                        <p class="text-xs text-gray-500">Seguimiento de tu cita</p>
+                        <h1 class="font-bold text-gray-900 dark:text-white">{{ empresa?.nombre || 'Asistencia Vircom' }}</h1>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Seguimiento de tu cita</p>
                     </div>
                 </div>
             </div>
@@ -60,7 +60,7 @@ const diasFormateados = computed(() => {
 
         <main class="w-full px-4 py-6 space-y-6">
             <!-- Estado Principal -->
-            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-lg overflow-hidden">
                 <div 
                     :class="`bg-${estadoInfo.color}-500 p-6 text-center text-white`"
                     :style="{ backgroundColor: estadoInfo.color === 'yellow' ? '#EAB308' : 
@@ -111,34 +111,34 @@ const diasFormateados = computed(() => {
                     </div>
                     
                     <!-- Técnico asignado -->
-                    <div v-if="cita?.tecnico" class="flex items-center gap-3 p-4 bg-white rounded-xl">
+                    <div v-if="cita?.tecnico" class="flex items-center gap-3 p-4 bg-white dark:bg-slate-900 rounded-xl">
                         <div class="w-12 h-12 bg-[var(--color-primary)] rounded-full flex items-center justify-center text-white font-bold text-lg">
                             {{ cita.tecnico.nombre?.charAt(0) || '?' }}
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500">Técnico asignado</p>
-                            <p class="font-bold text-gray-900">{{ cita.tecnico.nombre }}</p>
-                            <p v-if="cita.tecnico.telefono" class="text-sm text-gray-500">📱 {{ cita.tecnico.telefono }}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Técnico asignado</p>
+                            <p class="font-bold text-gray-900 dark:text-white">{{ cita.tecnico.nombre }}</p>
+                            <p v-if="cita.tecnico.telefono" class="text-sm text-gray-500 dark:text-gray-400">📱 {{ cita.tecnico.telefono }}</p>
                         </div>
                     </div>
                     
                     <!-- Dirección -->
-                    <div class="p-4 bg-white rounded-xl">
-                        <p class="text-sm text-gray-500 mb-1">📍 Dirección del servicio</p>
-                        <p class="font-medium text-gray-900">{{ cita?.direccion_completa }}</p>
-                        <p v-if="cita?.direccion_referencias" class="text-sm text-gray-500 italic mt-1">
+                    <div class="p-4 bg-white dark:bg-slate-900 rounded-xl">
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">📍 Dirección del servicio</p>
+                        <p class="font-medium text-gray-900 dark:text-white">{{ cita?.direccion_completa }}</p>
+                        <p v-if="cita?.direccion_referencias" class="text-sm text-gray-500 dark:text-gray-400 italic mt-1">
                             "{{ cita.direccion_referencias }}"
                         </p>
                     </div>
                     
                     <!-- Servicio -->
-                    <div class="p-4 bg-white rounded-xl">
-                        <p class="text-sm text-gray-500 mb-1">🔧 Servicio solicitado</p>
-                        <p class="font-medium text-gray-900 capitalize">{{ cita?.tipo_servicio }} - {{ cita?.tipo_equipo }}</p>
-                        <p v-if="cita?.nombre_tienda" class="text-sm text-gray-500">
+                    <div class="p-4 bg-white dark:bg-slate-900 rounded-xl">
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">🔧 Servicio solicitado</p>
+                        <p class="font-medium text-gray-900 dark:text-white capitalize">{{ cita?.tipo_servicio }} - {{ cita?.tipo_equipo }}</p>
+                        <p v-if="cita?.nombre_tienda" class="text-sm text-gray-500 dark:text-gray-400">
                             🏪 Comprado en {{ cita.nombre_tienda }}
                         </p>
-                        <p v-if="cita?.descripcion" class="text-sm text-gray-600 mt-2">
+                        <p v-if="cita?.descripcion" class="text-sm text-gray-600 dark:text-gray-300 mt-2">
                             {{ cita.descripcion }}
                         </p>
                     </div>
@@ -146,9 +146,9 @@ const diasFormateados = computed(() => {
             </div>
 
             <!-- Estado de Cuenta (Cargos) -->
-            <div v-if="cargos && cargos.items.length > 0" class="bg-white rounded-2xl shadow-lg p-6">
+            <div v-if="cargos && cargos.items.length > 0" class="bg-white dark:bg-slate-900 rounded-2xl shadow-lg p-6">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-bold text-gray-900">💰 Estado de Cuenta</h3>
+                    <h3 class="font-bold text-gray-900 dark:text-white">💰 Estado de Cuenta</h3>
                     <span 
                         :class="[
                             'px-3 py-1 rounded-full text-xs font-bold uppercase',
@@ -161,7 +161,7 @@ const diasFormateados = computed(() => {
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
-                        <thead class="bg-white text-gray-600 font-medium">
+                        <thead class="bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300 font-medium">
                             <tr>
                                 <th class="px-3 py-2 text-left">Concepto</th>
                                 <th class="px-3 py-2 text-center">Cant.</th>
@@ -170,16 +170,16 @@ const diasFormateados = computed(() => {
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             <tr v-for="(item, index) in cargos.items" :key="index">
-                                <td class="px-3 py-2 text-gray-900">{{ item.nombre }}</td>
-                                <td class="px-3 py-2 text-center text-gray-500">{{ item.cantidad }}</td>
-                                <td class="px-3 py-2 text-right text-gray-900 font-medium">
+                                <td class="px-3 py-2 text-gray-900 dark:text-white">{{ item.nombre }}</td>
+                                <td class="px-3 py-2 text-center text-gray-500 dark:text-gray-400">{{ item.cantidad }}</td>
+                                <td class="px-3 py-2 text-right text-gray-900 dark:text-white font-medium">
                                     ${{ Number(item.subtotal).toLocaleString('es-MX', {minimumFractionDigits: 2}) }}
                                 </td>
                             </tr>
                         </tbody>
-                        <tfoot class="border-t border-gray-200">
+                        <tfoot class="border-t border-gray-200 dark:border-slate-800">
                             <tr>
-                                <td colspan="2" class="px-3 py-3 text-right font-bold text-gray-900">Total a Pagar:</td>
+                                <td colspan="2" class="px-3 py-3 text-right font-bold text-gray-900 dark:text-white">Total a Pagar:</td>
                                 <td class="px-3 py-3 text-right font-bold text-blue-600 text-lg">
                                     ${{ Number(cargos.total).toLocaleString('es-MX', {minimumFractionDigits: 2}) }}
                                 </td>
@@ -189,18 +189,18 @@ const diasFormateados = computed(() => {
                 </div>
 
                 <div v-if="cargos.estado_pago !== 'pagado'" class="mt-4">
-                    <button disabled class="w-full py-3 bg-gray-200 text-gray-500 font-bold rounded-xl cursor-not-allowed">
+                    <button disabled class="w-full py-3 bg-gray-200 text-gray-500 dark:text-gray-400 font-bold rounded-xl cursor-not-allowed">
                         💳 Pagar Ahora (Próximamente)
                     </button>
-                    <p class="text-xs text-center text-gray-500 mt-2">
+                    <p class="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
                         Fecha límite de pago: {{ cargos.fecha_vencimiento || 'Inmediato' }}
                     </p>
                 </div>
             </div>
 
             <!-- Timeline -->
-            <div class="bg-white rounded-2xl shadow-lg p-6">
-                <h3 class="font-bold text-gray-900 mb-4">📋 Estado de tu solicitud</h3>
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-lg p-6">
+                <h3 class="font-bold text-gray-900 dark:text-white mb-4">📋 Estado de tu solicitud</h3>
                 
                 <div class="relative">
                     <!-- Línea vertical -->
@@ -224,10 +224,10 @@ const diasFormateados = computed(() => {
                             
                             <!-- Contenido -->
                             <div class="flex-1 pb-4">
-                                <p :class="['font-medium', step.completado ? 'text-gray-900' : 'text-gray-400']">
+                                <p :class="['font-medium', step.completado ? 'text-gray-900 dark:text-white' : 'text-gray-400']">
                                     {{ step.nombre }}
                                 </p>
-                                <p v-if="step.fecha" class="text-sm text-gray-500">
+                                <p v-if="step.fecha" class="text-sm text-gray-500 dark:text-gray-400">
                                     {{ step.fecha }}
                                 </p>
                             </div>
@@ -253,7 +253,7 @@ const diasFormateados = computed(() => {
                 <a 
                     v-if="empresa?.telefono"
                     :href="`tel:${empresa.telefono}`"
-                    class="flex items-center justify-center gap-2 w-full py-3 border-2 border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-white transition-colors"
+                    class="flex items-center justify-center gap-2 w-full py-3 border-2 border-gray-200 dark:border-slate-800 text-gray-700 font-medium rounded-xl hover:bg-white dark:bg-slate-900 transition-colors"
                 >
                     📞 Llamar: {{ empresa.telefono }}
                 </a>

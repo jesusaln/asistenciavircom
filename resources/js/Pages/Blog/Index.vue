@@ -32,17 +32,17 @@ const formatDate = (date) => {
         <meta name="description" :content="`Mantente informado con el Blog de ${props.empresa?.nombre_empresa || 'Asistencia Vircom'}. Noticias sobre seguridad electrónica, tutoriales de tecnología y novedades para tu empresa en ${props.empresa?.ciudad || 'Hermosillo'}.`" />
     </Head>
     
-    <div :style="cssVars" class="min-h-screen bg-white dark:bg-gray-900 flex flex-col font-sans">
+    <div :style="cssVars" class="min-h-screen bg-white dark:bg-slate-900 dark:bg-gray-900 flex flex-col font-sans">
         <PublicNavbar :empresa="empresa" />
 
         <main class="flex-grow">
             <!-- Header -->
-            <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 py-16">
+            <header class="bg-white dark:bg-slate-900 dark:bg-gray-800 border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 py-16">
                 <div class="w-full px-4 text-center">
-                    <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-gray-100 mb-4">
+                    <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white dark:text-gray-100 mb-4">
                         Nuestro <span class="text-[var(--color-primary)]">Blog</span>
                     </h1>
-                    <p class="text-lg text-gray-600 dark:text-gray-300 w-full">
+                    <p class="text-lg text-gray-600 dark:text-gray-300 dark:text-gray-300 w-full">
                         Explora las últimas tendencias en seguridad electrónica, soporte técnico y soluciones de redes para tu negocio.
                     </p>
                 </div>
@@ -51,12 +51,12 @@ const formatDate = (date) => {
             <!-- Articles Grid -->
             <div class="w-full px-4 py-12">
                 <div v-if="posts.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <article v-for="post in posts.data" :key="post.id" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+                    <article v-for="post in posts.data" :key="post.id" class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
                         <Link :href="route('public.blog.show', post.slug)" class="block">
                             <!-- Imagen -->
                             <div class="relative h-48 overflow-hidden bg-gray-200 dark:bg-gray-700">
                                 <img v-if="post.imagen_portada_url" :src="post.imagen_portada_url" :alt="post.titulo" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                                <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 text-gray-400 dark:text-gray-500">
+                                <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 text-gray-400 dark:text-gray-500 dark:text-gray-400">
                                     <FontAwesomeIcon icon="newspaper" size="3x" />
                                 </div>
                                 <div class="absolute top-4 left-4">
@@ -68,14 +68,14 @@ const formatDate = (date) => {
 
                             <!-- Contenido -->
                             <div class="p-6">
-                                <div class="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500 mb-3">
+                                <div class="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 mb-3">
                                     <FontAwesomeIcon icon="calendar" />
                                     {{ formatDate(post.publicado_at) }}
                                 </div>
-                                <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3 line-clamp-2 group-hover:text-[var(--color-primary)] transition-colors">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white dark:text-gray-100 mb-3 line-clamp-2 group-hover:text-[var(--color-primary)] transition-colors">
                                     {{ post.titulo }}
                                 </h3>
-                                <p class="text-gray-600 dark:text-gray-300 text-sm line-clamp-3 mb-4 leading-relaxed">
+                                <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300 text-sm line-clamp-3 mb-4 leading-relaxed">
                                     {{ post.resumen }}
                                 </p>
                                 <div class="flex items-center text-[var(--color-primary)] font-bold text-sm">
@@ -89,11 +89,11 @@ const formatDate = (date) => {
 
                 <!-- Empty State -->
                 <div v-else class="py-24 text-center">
-                    <div class="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300 dark:text-gray-600 text-4xl">
+                    <div class="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300 dark:text-gray-600 dark:text-gray-300 text-4xl">
                         <FontAwesomeIcon icon="inbox" />
                     </div>
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Aún no hay artículos</h2>
-                    <p class="text-gray-500 dark:text-gray-400">Vuelve pronto para descubrir nuevo contenido.</p>
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-gray-100 mb-2">Aún no hay artículos</h2>
+                    <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400">Vuelve pronto para descubrir nuevo contenido.</p>
                 </div>
 
                 <!-- Pagination -->
@@ -104,7 +104,7 @@ const formatDate = (date) => {
                               v-html="link.label"
                               :class="[
                                   'px-4 py-2 rounded-lg text-sm font-medium transition-colors border',
-                                  link.active ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-200 border-gray-200 dark:border-gray-600 hover:bg-white dark:hover:bg-gray-600',
+                                  link.active ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]' : 'bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-600 dark:text-gray-300 dark:text-gray-200 border-gray-200 dark:border-slate-800 dark:border-gray-600 hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-600',
                                   !link.url ? 'opacity-50 cursor-not-allowed' : ''
                               ]"
                         />

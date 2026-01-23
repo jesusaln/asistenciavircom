@@ -69,7 +69,7 @@ const getTipoAlertaColor = (tipo) => {
     herramientas_perdidas: 'bg-red-100 border-red-500 text-red-800',
     herramientas_sin_categoria: 'bg-blue-100 border-blue-500 text-blue-800',
   }
-  return colors[tipo] || 'bg-gray-100 border-gray-500 text-gray-800'
+  return colors[tipo] || 'bg-gray-100 border-gray-500 text-gray-800 dark:text-gray-100'
 }
 
 const getTipoAlertaIcon = (tipo) => {
@@ -111,36 +111,36 @@ const getTotalAlertas = () => {
 
   <!-- Resumen de alertas -->
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-red-500">
+    <div class="bg-white dark:bg-slate-900 p-4 rounded-lg shadow-sm border-l-4 border-red-500">
       <div class="text-2xl font-bold text-red-600">{{ alertas.mantenimiento_urgente.length }}</div>
-      <div class="text-sm text-gray-600">Mant. Urgente</div>
+      <div class="text-sm text-gray-600 dark:text-gray-300">Mant. Urgente</div>
     </div>
-    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-orange-500">
+    <div class="bg-white dark:bg-slate-900 p-4 rounded-lg shadow-sm border-l-4 border-orange-500">
       <div class="text-2xl font-bold text-orange-600">{{ alertas.mantenimiento_proximo.length }}</div>
-      <div class="text-sm text-gray-600">Mant. Próximo</div>
+      <div class="text-sm text-gray-600 dark:text-gray-300">Mant. Próximo</div>
     </div>
-    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-red-500">
+    <div class="bg-white dark:bg-slate-900 p-4 rounded-lg shadow-sm border-l-4 border-red-500">
       <div class="text-2xl font-bold text-red-600">{{ alertas.vida_util_vencida.length }}</div>
-      <div class="text-sm text-gray-600">Vida Útil Vencida</div>
+      <div class="text-sm text-gray-600 dark:text-gray-300">Vida Útil Vencida</div>
     </div>
-    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-yellow-500">
+    <div class="bg-white dark:bg-slate-900 p-4 rounded-lg shadow-sm border-l-4 border-yellow-500">
       <div class="text-2xl font-bold text-yellow-600">{{ alertas.vida_util_proxima.length }}</div>
-      <div class="text-sm text-gray-600">Vida Útil Próxima</div>
+      <div class="text-sm text-gray-600 dark:text-gray-300">Vida Útil Próxima</div>
     </div>
-    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-red-500">
+    <div class="bg-white dark:bg-slate-900 p-4 rounded-lg shadow-sm border-l-4 border-red-500">
       <div class="text-2xl font-bold text-red-600">{{ alertas.herramientas_perdidas.length }}</div>
-      <div class="text-sm text-gray-600">Perdidas</div>
+      <div class="text-sm text-gray-600 dark:text-gray-300">Perdidas</div>
     </div>
-    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
+    <div class="bg-white dark:bg-slate-900 p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
       <div class="text-2xl font-bold text-blue-600">{{ alertas.herramientas_sin_categoria.length }}</div>
-      <div class="text-sm text-gray-600">Sin Categoría</div>
+      <div class="text-sm text-gray-600 dark:text-gray-300">Sin Categoría</div>
     </div>
   </div>
 
   <!-- Lista de alertas por tipo -->
   <div class="space-y-6">
     <!-- Mantenimiento Urgente -->
-    <div v-if="alertas.mantenimiento_urgente.length > 0" class="bg-white rounded-lg shadow-sm border">
+    <div v-if="alertas.mantenimiento_urgente.length > 0" class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border">
       <div class="p-6 border-b border-red-200">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
@@ -182,7 +182,7 @@ const getTotalAlertas = () => {
     </div>
 
     <!-- Mantenimiento Próximo -->
-    <div v-if="alertas.mantenimiento_proximo.length > 0" class="bg-white rounded-lg shadow-sm border">
+    <div v-if="alertas.mantenimiento_proximo.length > 0" class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border">
       <div class="p-6 border-b border-orange-200">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
@@ -221,7 +221,7 @@ const getTotalAlertas = () => {
     </div>
 
     <!-- Vida útil próxima a vencer -->
-    <div v-if="alertas.vida_util_proxima.length > 0" class="bg-white rounded-lg shadow-sm border">
+    <div v-if="alertas.vida_util_proxima.length > 0" class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border">
       <div class="p-6 border-b border-yellow-200">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
@@ -260,7 +260,7 @@ const getTotalAlertas = () => {
     </div>
 
     <!-- Herramientas perdidas -->
-    <div v-if="alertas.herramientas_perdidas.length > 0" class="bg-white rounded-lg shadow-sm border">
+    <div v-if="alertas.herramientas_perdidas.length > 0" class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border">
       <div class="p-6 border-b border-red-200">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
@@ -295,7 +295,7 @@ const getTotalAlertas = () => {
     </div>
 
     <!-- Herramientas sin categoría -->
-    <div v-if="alertas.herramientas_sin_categoria.length > 0" class="bg-white rounded-lg shadow-sm border">
+    <div v-if="alertas.herramientas_sin_categoria.length > 0" class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border">
       <div class="p-6 border-b border-blue-200">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -331,12 +331,12 @@ const getTotalAlertas = () => {
   </div>
 
   <!-- Sin alertas -->
-  <div v-if="getTotalAlertas() === 0" class="bg-white rounded-lg shadow-sm border p-12 text-center">
+  <div v-if="getTotalAlertas() === 0" class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border p-12 text-center">
     <svg class="w-16 h-16 text-green-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
     </svg>
-    <h2 class="text-xl font-semibold text-gray-900 mb-2">¡Todo en orden!</h2>
-    <p class="text-gray-600">No hay alertas pendientes en este momento.</p>
+    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">¡Todo en orden!</h2>
+    <p class="text-gray-600 dark:text-gray-300">No hay alertas pendientes en este momento.</p>
   </div>
 </template>
 

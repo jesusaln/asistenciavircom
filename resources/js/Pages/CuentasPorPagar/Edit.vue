@@ -2,12 +2,12 @@
     <AppLayout title="Editar Cuenta por Pagar">
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
                     Editar Cuenta por Pagar
                 </h2>
                 <Link
                     :href="route('cuentas-por-pagar.index')"
-                    class="bg-white0 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                    class="bg-white dark:bg-slate-9000 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
                 >
                     Cancelar
                 </Link>
@@ -16,24 +16,24 @@
 
         <div class="py-12">
             <div class="w-full sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 bg-white border-b border-gray-200">
+                <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
                         <!-- Información de la Compra -->
                         <div class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Información de la Compra</h3>
-                            <div class="bg-white p-4 rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Información de la Compra</h3>
+                            <div class="bg-white dark:bg-slate-900 p-4 rounded-lg">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Número de Compra</label>
-                                        <p class="mt-1 text-sm text-gray-900">{{ cuenta.compra?.numero_compra || 'N/A' }}</p>
+                                        <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ cuenta.compra?.numero_compra || 'N/A' }}</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Proveedor</label>
-                                        <p class="mt-1 text-sm text-gray-900">{{ cuenta.compra?.proveedor?.nombre_razon_social || 'N/A' }}</p>
+                                        <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ cuenta.compra?.proveedor?.nombre_razon_social || 'N/A' }}</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Total de la Compra</label>
-                                        <p class="mt-1 text-sm text-gray-900">{{ cuenta.compra ? formatCurrency(cuenta.compra.total) : 'N/A' }}</p>
+                                        <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ cuenta.compra ? formatCurrency(cuenta.compra.total) : 'N/A' }}</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Estado Actual</label>
@@ -41,7 +41,7 @@
                                             'bg-red-100 text-red-800': cuenta.estado === 'vencido',
                                             'bg-yellow-100 text-yellow-800': cuenta.estado === 'parcial',
                                             'bg-green-100 text-green-800': cuenta.estado === 'pagado',
-                                            'bg-gray-100 text-gray-800': cuenta.estado === 'pendiente'
+                                            'bg-gray-100 text-gray-800 dark:text-gray-100': cuenta.estado === 'pendiente'
                                         }" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                                             {{ cuenta.estado }}
                                         </span>
@@ -52,7 +52,7 @@
 
                         <!-- Información de Pagos -->
                         <div class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Estado de Pagos</h3>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Estado de Pagos</h3>
                             <div class="bg-blue-50 p-4 rounded-lg">
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
@@ -74,7 +74,7 @@
                         <form @submit.prevent="submit">
                             <!-- Registrar Pago -->
                             <div class="mb-6">
-                                <h3 class="text-lg font-medium text-gray-900 mb-4">Registrar Nuevo Pago</h3>
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Registrar Nuevo Pago</h3>
                                 <div class="bg-green-50 p-4 rounded-lg">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
@@ -128,8 +128,8 @@
 
                             <!-- Editar Información -->
                             <div class="mb-6">
-                                <h3 class="text-lg font-medium text-gray-900 mb-4">Editar Información</h3>
-                                <div class="bg-white p-4 rounded-lg">
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Editar Información</h3>
+                                <div class="bg-white dark:bg-slate-900 p-4 rounded-lg">
                                     <!-- Fecha de Vencimiento -->
                                     <div class="mb-4">
                                         <label for="fecha_vencimiento" class="block text-sm font-medium text-gray-700">
@@ -171,7 +171,7 @@
                             <div class="flex items-center justify-end">
                                 <Link
                                     :href="route('cuentas-por-pagar.show', cuenta.id)"
-                                    class="mr-4 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                                    class="mr-4 bg-gray-300 hover:bg-gray-400 text-gray-800 dark:text-gray-100 font-bold py-2 px-4 rounded"
                                 >
                                     Ver Detalles
                                 </Link>

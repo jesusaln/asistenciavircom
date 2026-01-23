@@ -197,18 +197,18 @@ const opcionesPlantilla = [
 <template>
   <Head title="Configuración de WhatsApp" />
 
-  <div class="whatsapp-config min-h-screen bg-white">
+  <div class="whatsapp-config min-h-screen bg-white dark:bg-slate-900">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Configuración de WhatsApp Business</h1>
-            <p class="text-gray-600 mt-2">Configure la integración con WhatsApp Business API para envío de recordatorios automáticos</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Configuración de WhatsApp Business</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-2">Configure la integración con WhatsApp Business API para envío de recordatorios automáticos</p>
           </div>
           <router-link
             :to="route('empresa-configuracion.index')"
-            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
           >
             ← Volver a Configuración
           </router-link>
@@ -217,9 +217,9 @@ const opcionesPlantilla = [
 
       <div class="grid grid-cols-1 gap-8">
         <!-- Formulario principal -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-semibold text-gray-900">Configuración de WhatsApp</h2>
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Configuración de WhatsApp</h2>
           </div>
 
           <form @submit.prevent="submitForm" class="p-6 space-y-6">
@@ -236,15 +236,15 @@ const opcionesPlantilla = [
                   Habilitar WhatsApp Business
                 </label>
               </div>
-              <p class="mt-1 text-sm text-gray-500">
+              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Active esta opción para habilitar el envío automático de recordatorios por WhatsApp
               </p>
             </div>
 
             <!-- Información de la API -->
             <div v-if="form.whatsapp_enabled" class="space-y-6">
-              <div class="border-t border-gray-200 pt-6">
-                <h3 class="text-md font-medium text-gray-900 mb-4">Configuración de la API</h3>
+              <div class="border-t border-gray-200 dark:border-slate-800 pt-6">
+                <h3 class="text-md font-medium text-gray-900 dark:text-white mb-4">Configuración de la API</h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <!-- Business Account ID -->
@@ -261,7 +261,7 @@ const opcionesPlantilla = [
                       :class="{ 'border-red-300': errors.whatsapp_business_account_id }"
                     />
                     <p v-if="errors.whatsapp_business_account_id" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_business_account_id }}</p>
-                    <p class="mt-1 text-xs text-gray-500">Obtenible en Facebook Business Manager</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Obtenible en Facebook Business Manager</p>
                   </div>
 
                   <!-- Phone Number ID -->
@@ -278,7 +278,7 @@ const opcionesPlantilla = [
                       :class="{ 'border-red-300': errors.whatsapp_phone_number_id }"
                     />
                     <p v-if="errors.whatsapp_phone_number_id" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_phone_number_id }}</p>
-                    <p class="mt-1 text-xs text-gray-500">ID del número de WhatsApp Business</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">ID del número de WhatsApp Business</p>
                   </div>
 
                   <!-- Número de teléfono -->
@@ -295,7 +295,7 @@ const opcionesPlantilla = [
                       :class="{ 'border-red-300': errors.whatsapp_sender_phone }"
                     />
                     <p v-if="errors.whatsapp_sender_phone" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_sender_phone }}</p>
-                    <p class="mt-1 text-xs text-gray-500">Formato E.164 con código de país</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Formato E.164 con código de país</p>
                   </div>
 
                   <!-- Idioma por defecto -->
@@ -317,8 +317,8 @@ const opcionesPlantilla = [
               </div>
 
               <!-- Credenciales de seguridad -->
-              <div class="border-t border-gray-200 pt-6">
-                <h3 class="text-md font-medium text-gray-900 mb-4">Credenciales de Seguridad</h3>
+              <div class="border-t border-gray-200 dark:border-slate-800 pt-6">
+                <h3 class="text-md font-medium text-gray-900 dark:text-white mb-4">Credenciales de Seguridad</h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <!-- Access Token -->
@@ -335,7 +335,7 @@ const opcionesPlantilla = [
                       :class="{ 'border-red-300': errors.whatsapp_access_token }"
                     ></textarea>
                     <p v-if="errors.whatsapp_access_token" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_access_token }}</p>
-                    <p class="mt-1 text-xs text-gray-500">Token de acceso permanente de Facebook</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Token de acceso permanente de Facebook</p>
                   </div>
 
                   <!-- App Secret -->
@@ -352,7 +352,7 @@ const opcionesPlantilla = [
                       :class="{ 'border-red-300': errors.whatsapp_app_secret }"
                     ></textarea>
                     <p v-if="errors.whatsapp_app_secret" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_app_secret }}</p>
-                    <p class="mt-1 text-xs text-gray-500">Secreto de la aplicación de Facebook</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Secreto de la aplicación de Facebook</p>
                   </div>
 
                   <!-- Webhook Verify Token -->
@@ -378,7 +378,7 @@ const opcionesPlantilla = [
                       </button>
                     </div>
                     <p v-if="errors.whatsapp_webhook_verify_token" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_webhook_verify_token }}</p>
-                    <p class="mt-1 text-xs text-gray-500">Token personalizado para verificar webhooks</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Token personalizado para verificar webhooks</p>
                   </div>
 
                   <!-- Plantilla de recordatorio -->
@@ -398,7 +398,7 @@ const opcionesPlantilla = [
                       </option>
                     </select>
                     <p v-if="errors.whatsapp_template_payment_reminder" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_template_payment_reminder }}</p>
-                    <p class="mt-1 text-xs text-gray-500">Plantilla aprobada por Meta para recordatorios</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Plantilla aprobada por Meta para recordatorios</p>
                   </div>
                 </div>
               </div>
@@ -416,7 +416,7 @@ const opcionesPlantilla = [
             </div>
 
             <!-- Botones de acción -->
-            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-slate-800">
               <button
                 v-if="form.whatsapp_enabled"
                 type="button"
@@ -438,7 +438,7 @@ const opcionesPlantilla = [
                 <button
                   type="button"
                   @click="$inertia.get(route('empresa-configuracion.index'))"
-                  class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                  class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
                 >
                   ❌ Cancelar
                 </button>

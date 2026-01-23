@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-800 overflow-hidden transition-all duration-300">
+  <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-800 dark:border-slate-800 overflow-hidden transition-all duration-300">
     <div class="overflow-x-auto">
       <table class="w-full border-collapse">
         <thead class="bg-gray-50/50 dark:bg-slate-950/50">
@@ -9,7 +9,7 @@
             </th>
             <th class="px-6 py-5 text-left cursor-pointer group" @click="emitSort('cliente')">
               <div class="flex items-center space-x-2">
-                <span class="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-[0.2em] group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Cliente</span>
+                <span class="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-[0.2em] group-hover:text-gray-900 dark:text-white dark:group-hover:text-white transition-colors">Cliente</span>
                 <svg v-if="sortBy.startsWith('cliente')" class="w-3 h-3 text-emerald-500" :class="{ 'rotate-180': sortBy.endsWith('desc') }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
@@ -20,7 +20,7 @@
             </th>
             <th class="px-6 py-5 text-right cursor-pointer group" @click="emitSort('total')">
               <div class="flex items-center justify-end space-x-2">
-                <span class="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-[0.2em] group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Total</span>
+                <span class="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-[0.2em] group-hover:text-gray-900 dark:text-white dark:group-hover:text-white transition-colors">Total</span>
                 <svg v-if="sortBy.startsWith('total')" class="w-3 h-3 text-emerald-500" :class="{ 'rotate-180': sortBy.endsWith('desc') }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
@@ -40,7 +40,7 @@
             <!-- Fecha -->
             <td class="px-6 py-5">
               <div class="flex flex-col">
-                <span class="text-xs font-black text-gray-900 dark:text-white uppercase">{{ formatearFecha(documento.fecha || documento.created_at) }}</span>
+                <span class="text-xs font-black text-gray-900 dark:text-white dark:text-white uppercase">{{ formatearFecha(documento.fecha || documento.created_at) }}</span>
                 <span class="text-[9px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mt-0.5">{{ formatearHora(documento.created_at) }}</span>
               </div>
             </td>
@@ -52,7 +52,7 @@
                   {{ (documento.cliente?.nombre || documento.cliente?.nombre_razon_social || '?').substring(0, 2).toUpperCase() }}
                 </div>
                 <div class="flex flex-col max-w-[200px]">
-                  <span class="text-xs font-black text-gray-900 dark:text-white uppercase truncate">{{ documento.cliente?.nombre || documento.cliente?.nombre_razon_social || 'Desconocido' }}</span>
+                  <span class="text-xs font-black text-gray-900 dark:text-white dark:text-white uppercase truncate">{{ documento.cliente?.nombre || documento.cliente?.nombre_razon_social || 'Desconocido' }}</span>
                   <span v-if="documento.vendedor" class="text-[9px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mt-0.5">Vendedor: {{ documento.vendedor.name }}</span>
                 </div>
               </div>
@@ -68,7 +68,7 @@
             <!-- Total -->
             <td class="px-6 py-5 text-right">
               <div class="flex flex-col items-end">
-                <span class="text-xs font-black text-gray-900 dark:text-white">${{ formatearMoneda(documento.total) }}</span>
+                <span class="text-xs font-black text-gray-900 dark:text-white dark:text-white">${{ formatearMoneda(documento.total) }}</span>
                 <span class="text-[9px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mt-0.5 italic">{{ documento.moneda || 'MXN' }}</span>
               </div>
             </td>
@@ -178,7 +178,7 @@ const emit = defineEmits([
 
 // Configuración de estados
 const estadosConfig = {
-  'borrador': { label: 'Borrador', classes: 'text-gray-500 border-gray-200 dark:text-slate-400 dark:border-slate-700' },
+  'borrador': { label: 'Borrador', classes: 'text-gray-500 dark:text-gray-400 border-gray-200 dark:border-slate-800 dark:text-slate-400 dark:border-slate-700' },
   'pendiente': { label: 'Pendiente', classes: 'text-amber-600 border-amber-200 dark:text-amber-400 dark:border-amber-800/50' },
   'aprobada': { label: 'Aprobada', classes: 'text-emerald-600 border-emerald-200 dark:text-emerald-400 dark:border-emerald-800/50' },
   'cancelada': { label: 'Cancelada', classes: 'text-red-600 border-red-200 dark:text-red-400 dark:border-red-800/50' }
@@ -194,7 +194,7 @@ const determinarEstadoCorrecto = (doc) => {
 
 const obtenerClasesEstado = (doc) => {
   const estado = determinarEstadoCorrecto(doc)
-  return estadosConfig[estado]?.classes || 'text-gray-400 border-gray-100'
+  return estadosConfig[estado]?.classes || 'text-gray-400 border-gray-100 dark:border-slate-800'
 }
 
 const obtenerLabelEstado = (doc) => {

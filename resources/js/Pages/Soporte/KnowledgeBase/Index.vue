@@ -2,10 +2,10 @@
   <AppLayout>
     <div class="py-12">
       <div class="w-full sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div class="p-6 bg-white border-b border-gray-200">
+        <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
+          <div class="p-6 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
             <div class="flex justify-between items-center mb-6">
-              <h1 class="text-2xl font-bold text-gray-800">Base de Conocimiento</h1>
+              <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Base de Conocimiento</h1>
               <Link
                 v-if="$can('create kb') || $can('admin') || $can('super-admin')"
                 :href="route('soporte.kb.create')"
@@ -31,15 +31,15 @@
                     <h3 class="font-bold text-lg mb-2 text-indigo-600">
                         <Link :href="route('soporte.kb.show', { articulo: articulo.id })">{{ articulo.titulo }}</Link>
                     </h3>
-                    <p class="text-gray-600 text-sm mb-4 line-clamp-3">{{ articulo.resumen || 'Sin resumen' }}</p>
-                    <div class="flex justify-between text-xs text-gray-500">
+                    <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3">{{ articulo.resumen || 'Sin resumen' }}</p>
+                    <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                         <span>{{ articulo.categoria?.nombre || 'General' }}</span>
                         <span>{{ new Date(articulo.created_at).toLocaleDateString() }}</span>
                     </div>
                 </div>
             </div>
             
-            <div v-if="articulos.data.length === 0" class="text-center py-12 text-gray-500">
+            <div v-if="articulos.data.length === 0" class="text-center py-12 text-gray-500 dark:text-gray-400">
                 No se encontraron artículos.
             </div>
 

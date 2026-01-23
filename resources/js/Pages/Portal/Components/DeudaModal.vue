@@ -31,7 +31,7 @@ const facturasVencidas = computed(() => {
 
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-            <div class="relative inline-block align-bottom bg-white rounded-[2rem] text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+            <div class="relative inline-block align-bottom bg-white dark:bg-slate-900 rounded-[2rem] text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
                 
                 <!-- Header Alerta -->
                 <div class="bg-red-50 p-6 border-b border-red-100 flex items-center gap-4">
@@ -39,7 +39,7 @@ const facturasVencidas = computed(() => {
                         <font-awesome-icon icon="exclamation-triangle" />
                     </div>
                     <div>
-                        <h3 class="text-lg leading-6 font-black text-gray-900 uppercase tracking-tight" id="modal-title">
+                        <h3 class="text-lg leading-6 font-black text-gray-900 dark:text-white uppercase tracking-tight" id="modal-title">
                             Saldo Pendiente
                         </h3>
                         <p class="text-sm text-red-600 font-bold mt-1">
@@ -50,27 +50,27 @@ const facturasVencidas = computed(() => {
 
                 <!-- Body -->
                 <div class="px-6 py-6">
-                    <p class="text-sm text-gray-500 mb-6">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
                         Estimado cliente, hemos detectado facturas pendientes en su cuenta. Para evitar interrupciones en su servicio, le invitamos a regularizar su saldo.
                     </p>
 
                     <!-- Resumen Deuda -->
-                    <div class="bg-white rounded-2xl p-6 mb-6 border border-gray-100">
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 mb-6 border border-gray-100">
                         <div class="flex justify-between items-end mb-4">
                             <span class="text-xs font-black text-gray-400 uppercase tracking-widest">Total a Pagar</span>
-                            <span class="text-3xl font-black text-gray-900 text-right">
+                            <span class="text-3xl font-black text-gray-900 dark:text-white text-right">
                                 ${{ Number(totalDeuda).toLocaleString('es-MX', {minimumFractionDigits: 2}) }}
                             </span>
                         </div>
                         
                         <!-- Lista mini -->
                         <div class="space-y-3 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
-                            <div v-for="venta in facturasVencidas" :key="venta.id" class="flex justify-between items-center text-sm border-b border-gray-200 pb-2 last:border-0 last:pb-0">
+                            <div v-for="venta in facturasVencidas" :key="venta.id" class="flex justify-between items-center text-sm border-b border-gray-200 dark:border-slate-800 pb-2 last:border-0 last:pb-0">
                                 <div>
                                     <p class="font-bold text-gray-700 font-mono">#{{ venta.folio || venta.numero_venta || venta.id }}</p>
                                     <p class="text-[10px] text-gray-400 truncate w-32">{{ venta.fecha }}</p>
                                 </div>
-                                <span class="font-bold text-gray-900">
+                                <span class="font-bold text-gray-900 dark:text-white">
                                     ${{ Number(venta.monto_pendiente || venta.total).toLocaleString('es-MX', {minimumFractionDigits: 2}) }}
                                 </span>
                             </div>
@@ -85,7 +85,7 @@ const facturasVencidas = computed(() => {
                         </button>
                     </div>
                     <button type="button" 
-                        class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-300 shadow-sm px-4 py-3 bg-white text-base font-bold text-gray-500 hover:text-gray-700 hover:bg-white focus:outline-none sm:text-xs uppercase tracking-widest transition-all"
+                        class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-300 shadow-sm px-4 py-3 bg-white dark:bg-slate-900 text-base font-bold text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:bg-white dark:bg-slate-900 focus:outline-none sm:text-xs uppercase tracking-widest transition-all"
                         @click="emit('close')">
                         Recordar en otro momento
                     </button>

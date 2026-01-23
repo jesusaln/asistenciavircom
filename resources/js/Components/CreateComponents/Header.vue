@@ -4,7 +4,7 @@
       <!-- Left: title + description -->
       <div class="min-w-0">
         <div class="flex items-center gap-3 flex-wrap">
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-white truncate">
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white dark:text-white truncate">
             {{ finalTitle }}
           </h1>
 
@@ -53,7 +53,7 @@
         <Link
           v-if="showBack"
           :href="backUrl"
-          class="inline-flex items-center px-4 py-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-lg text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:border-gray-400 dark:hover:border-slate-700 transition-all duration-200 shadow-sm"
+          class="inline-flex items-center px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-lg text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:border-gray-400 dark:hover:border-slate-700 transition-all duration-200 shadow-sm"
         >
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

@@ -21,7 +21,7 @@ const getStatusClasses = (estado) => {
         'entregado': 'bg-emerald-50 text-emerald-600 border-emerald-100',
         'cancelado': 'bg-red-50 text-red-600 border-red-100',
     };
-    return maps[estado] || 'bg-white text-gray-500 border-gray-100';
+    return maps[estado] || 'bg-white dark:bg-slate-900 text-gray-500 dark:text-gray-400 border-gray-100';
 };
 </script>
 
@@ -34,21 +34,21 @@ const getStatusClasses = (estado) => {
                 <Link :href="route('portal.dashboard')" class="text-xs uppercase tracking-widest font-bold text-gray-400 hover:text-[var(--color-primary)] mb-4 inline-block transition-colors">
                     ← Volver al Panel
                 </Link>
-                <h1 class="text-3xl font-black text-gray-900 tracking-tight">Mis Pedidos Online</h1>
-                <p class="text-gray-500 font-medium">Consulte el estado de sus compras y envíos.</p>
+                <h1 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Mis Pedidos Online</h1>
+                <p class="text-gray-500 dark:text-gray-400 font-medium">Consulte el estado de sus compras y envíos.</p>
             </div>
 
             <div class="space-y-6">
                 <div v-for="pedido in pedidos" :key="pedido.id" 
-                     class="bg-white rounded-[2rem] p-8 shadow-xl shadow-gray-200/50 border border-gray-100 group hover:border-[var(--color-primary)] transition-all">
+                     class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 shadow-xl shadow-gray-200/50 border border-gray-100 group hover:border-[var(--color-primary)] transition-all">
                     <div class="flex flex-col md:flex-row justify-between items-center gap-6">
                         <div class="flex items-center gap-6">
                             <div class="w-16 h-16 bg-[var(--color-primary-soft)] rounded-2xl flex items-center justify-center text-[var(--color-primary)] text-2xl">
                                 <font-awesome-icon icon="box" />
                             </div>
                             <div>
-                                <h3 class="text-xl font-black text-gray-900 group-hover:text-[var(--color-primary)] transition-colors">Pedido #{{ pedido.numero_pedido || pedido.id }}</h3>
-                                <p class="text-sm font-bold text-gray-500">{{ formatDate(pedido.fecha_pedido || pedido.created_at) }}</p>
+                                <h3 class="text-xl font-black text-gray-900 dark:text-white group-hover:text-[var(--color-primary)] transition-colors">Pedido #{{ pedido.numero_pedido || pedido.id }}</h3>
+                                <p class="text-sm font-bold text-gray-500 dark:text-gray-400">{{ formatDate(pedido.fecha_pedido || pedido.created_at) }}</p>
                             </div>
                         </div>
                         
@@ -58,7 +58,7 @@ const getStatusClasses = (estado) => {
                             >
                                 {{ pedido.estado }}
                             </span>
-                            <p class="text-lg font-black text-gray-900">${{ Number(pedido.total).toLocaleString('es-MX', {minimumFractionDigits: 2}) }}</p>
+                            <p class="text-lg font-black text-gray-900 dark:text-white">${{ Number(pedido.total).toLocaleString('es-MX', {minimumFractionDigits: 2}) }}</p>
                         </div>
                         
                         <div class="flex gap-4">
@@ -69,12 +69,12 @@ const getStatusClasses = (estado) => {
                     </div>
                 </div>
 
-                <div v-if="pedidos.length === 0" class="py-20 bg-white rounded-[2rem] border-2 border-dashed border-gray-100 text-center">
-                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                <div v-if="pedidos.length === 0" class="py-20 bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-dashed border-gray-100 text-center">
+                    <div class="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
                         <font-awesome-icon icon="shopping-cart" size="lg" />
                     </div>
-                    <h3 class="text-lg font-black text-gray-900 mb-1">No hay pedidos</h3>
-                    <p class="text-gray-500 font-medium text-sm">Aún no ha realizado compras en nuestra tienda en línea.</p>
+                    <h3 class="text-lg font-black text-gray-900 dark:text-white mb-1">No hay pedidos</h3>
+                    <p class="text-gray-500 dark:text-gray-400 font-medium text-sm">Aún no ha realizado compras en nuestra tienda en línea.</p>
                     <a :href="route('catalogo.index')" class="mt-6 inline-block px-8 py-4 bg-[var(--color-primary)] text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:shadow-xl transition-all">Ir a la Tienda</a>
                 </div>
             </div>

@@ -515,7 +515,7 @@ const handleConfirm = () => {
 <template>
   <Head title="Compras" />
 
-  <div class="compras-index min-h-screen bg-white">
+  <div class="compras-index min-h-screen bg-white dark:bg-slate-900">
     <!-- Contenido principal -->
     <div class="w-full px-6 py-8">
       <!-- Header específico de compras -->
@@ -539,7 +539,7 @@ const handleConfirm = () => {
       />
 
       <!-- Información de paginación -->
-      <div class="flex justify-between items-center mb-4 text-sm text-gray-600">
+      <div class="flex justify-between items-center mb-4 text-sm text-gray-600 dark:text-gray-300">
         <div>
           Mostrando {{ props.pagination.from }} -
           {{ props.pagination.to }}
@@ -582,7 +582,7 @@ const handleConfirm = () => {
         <button
           @click="prevPage"
           :disabled="currentPage === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-slate-900 border border-gray-300 rounded-md hover:bg-white dark:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Anterior
         </button>
@@ -592,11 +592,11 @@ const handleConfirm = () => {
           <template v-if="!visiblePages.includes(1) && totalPages > 7">
             <button
               @click="goToPage(1)"
-              class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white"
+              class="px-3 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 border border-gray-300 rounded-md hover:bg-white dark:bg-slate-900"
             >
               1
             </button>
-            <span class="px-3 py-2 text-sm text-gray-500">...</span>
+            <span class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">...</span>
           </template>
 
           <!-- Páginas visibles -->
@@ -608,7 +608,7 @@ const handleConfirm = () => {
               'px-3 py-2 text-sm font-medium border border-gray-300 rounded-md',
               page === currentPage
                 ? 'bg-blue-500 text-white border-blue-500'
-                : 'text-gray-700 bg-white hover:bg-white'
+                : 'text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900'
             ]"
           >
             {{ page }}
@@ -616,10 +616,10 @@ const handleConfirm = () => {
 
           <!-- Última página (solo si no está en visiblePages) -->
           <template v-if="!visiblePages.includes(totalPages) && totalPages > 7">
-            <span class="px-3 py-2 text-sm text-gray-500">...</span>
+            <span class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">...</span>
             <button
               @click="goToPage(totalPages)"
-              class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white"
+              class="px-3 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 border border-gray-300 rounded-md hover:bg-white dark:bg-slate-900"
             >
               {{ totalPages }}
             </button>
@@ -629,7 +629,7 @@ const handleConfirm = () => {
         <button
           @click="nextPage"
           :disabled="currentPage === totalPages"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-slate-900 border border-gray-300 rounded-md hover:bg-white dark:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Siguiente
         </button>
@@ -667,7 +667,7 @@ const handleConfirm = () => {
 
     <!-- Loading overlay -->
     <div v-if="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white p-6 rounded-lg shadow-lg">
+      <div class="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-lg">
         <div class="flex items-center space-x-3">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
           <span class="text-gray-700">Procesando...</span>

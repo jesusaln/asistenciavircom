@@ -1,17 +1,17 @@
 <template>
   <div class="space-y-6">
     <header class="mb-6">
-      <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 flex items-center">
+      <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 dark:text-gray-100 flex items-center">
         <FontAwesomeIcon icon="globe" class="mr-3 text-blue-600 dark:text-blue-400" />
         Configuración de Red y Dominio
       </h2>
-      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
         Configure el dominio, direcciones IP y certificados SSL de su sistema.
       </p>
     </header>
 
     <!-- Dominio Principal -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-slate-800 dark:border-gray-700">
       <h3 class="text-md font-semibold text-gray-700 dark:text-gray-100 mb-4 flex items-center">
         <FontAwesomeIcon icon="server" class="mr-2 text-indigo-500 dark:text-indigo-400" />
         Configuración de Dominio
@@ -26,9 +26,9 @@
             v-model="form.dominio_principal"
             type="text"
             placeholder="ej: admin.climasdeldesierto.com"
-            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           />
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Dominio principal del sistema</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">Dominio principal del sistema</p>
         </div>
 
         <div>
@@ -39,9 +39,9 @@
             v-model="form.dominio_secundario"
             type="text"
             placeholder="ej: www.climasdeldesierto.com"
-            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           />
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Dominio alternativo o secundario</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">Dominio alternativo o secundario</p>
         </div>
 
         <div>
@@ -52,9 +52,9 @@
             v-model="form.app_url"
             type="text"
             placeholder="ej: https://admin.climasdeldesierto.com"
-            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           />
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">URL base completa (con https://)</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">URL base completa (con https://)</p>
         </div>
 
         <div class="flex items-center">
@@ -64,7 +64,7 @@
               type="checkbox"
               class="sr-only peer"
             />
-            <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white dark:bg-slate-900 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
             <span class="ms-3 text-sm font-medium text-gray-700 dark:text-gray-300">Forzar HTTPS</span>
           </label>
         </div>
@@ -72,7 +72,7 @@
     </div>
 
     <!-- Direcciones IP -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-slate-800 dark:border-gray-700">
       <h3 class="text-md font-semibold text-gray-700 dark:text-gray-100 mb-4 flex items-center">
         <FontAwesomeIcon icon="network-wired" class="mr-2 text-green-500 dark:text-green-400" />
         Direcciones IP del Servidor
@@ -87,9 +87,9 @@
             v-model="form.servidor_ipv4"
             type="text"
             placeholder="ej: 192.168.1.100"
-            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           />
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Dirección IPv4 del servidor</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">Dirección IPv4 del servidor</p>
         </div>
 
         <div>
@@ -100,15 +100,15 @@
             v-model="form.servidor_ipv6"
             type="text"
             placeholder="ej: 2001:0db8:85a3:0000:0000:8a2e:0370:7334"
-            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           />
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Dirección IPv6 del servidor (opcional)</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">Dirección IPv6 del servidor (opcional)</p>
         </div>
       </div>
     </div>
 
     <!-- Configuración SSL -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-slate-800 dark:border-gray-700">
       <h3 class="text-md font-semibold text-gray-700 dark:text-gray-100 mb-4 flex items-center">
         <FontAwesomeIcon icon="lock" class="mr-2 text-yellow-500 dark:text-yellow-400" />
         Certificado SSL
@@ -122,7 +122,7 @@
               type="checkbox"
               class="sr-only peer"
             />
-            <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+            <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white dark:bg-slate-900 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
             <span class="ms-3 text-sm font-medium text-gray-700 dark:text-gray-300">SSL Habilitado</span>
           </label>
           <span v-if="form.ssl_enabled" class="ml-4 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300">
@@ -137,7 +137,7 @@
           </label>
           <select
             v-model="form.ssl_proveedor"
-            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           >
             <option value="">Seleccionar...</option>
             <option value="lets_encrypt">Let's Encrypt</option>
@@ -158,7 +158,7 @@
           <input
             v-model="form.ssl_fecha_expiracion"
             type="date"
-            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           />
           <p v-if="diasParaExpirar !== null" class="text-xs mt-1" :class="diasParaExpirarClass">
             <FontAwesomeIcon :icon="diasParaExpirar <= 30 ? 'exclamation-triangle' : 'calendar'" class="mr-1" />
@@ -174,7 +174,7 @@
             v-model="form.ssl_certificado_path"
             type="text"
             placeholder="ej: /etc/ssl/certs/domain.crt"
-            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           />
         </div>
 
@@ -186,7 +186,7 @@
             v-model="form.ssl_key_path"
             type="text"
             placeholder="ej: /etc/ssl/private/domain.key"
-            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           />
         </div>
 
@@ -198,9 +198,9 @@
             v-model="form.ssl_ca_bundle_path"
             type="text"
             placeholder="ej: /etc/ssl/certs/ca-bundle.crt"
-            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           />
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Archivo de cadena de certificados (opcional)</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">Archivo de cadena de certificados (opcional)</p>
         </div>
       </div>
     </div>
@@ -230,7 +230,7 @@
               type="checkbox"
               class="sr-only peer"
             />
-            <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+            <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white dark:bg-slate-900 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
             <span class="ms-3 text-sm font-medium text-gray-700 dark:text-gray-300">Habilitar ZeroTier</span>
           </label>
           <span v-if="form.zerotier_enabled" class="ml-4 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-300">
@@ -248,9 +248,9 @@
             type="text"
             placeholder="ej: a1b2c3d4e5f6g7h8"
             maxlength="16"
-            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-orange-500 focus:ring-orange-500 font-mono tracking-wider bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-orange-500 focus:ring-orange-500 font-mono tracking-wider bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           />
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">ID de 16 caracteres de tu red ZeroTier</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">ID de 16 caracteres de tu red ZeroTier</p>
         </div>
 
         <div>
@@ -261,9 +261,9 @@
             v-model="form.zerotier_ip"
             type="text"
             placeholder="ej: 10.147.20.100"
-            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-orange-500 focus:ring-orange-500 font-mono bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-orange-500 focus:ring-orange-500 font-mono bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           />
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">IP asignada a este servidor en la red ZeroTier</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">IP asignada a este servidor en la red ZeroTier</p>
         </div>
 
         <div>
@@ -275,9 +275,9 @@
             type="text"
             placeholder="ej: abc123def4"
             maxlength="10"
-            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-orange-500 focus:ring-orange-500 font-mono bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-orange-500 focus:ring-orange-500 font-mono bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           />
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Identificador del nodo ZeroTier</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">Identificador del nodo ZeroTier</p>
         </div>
 
         <div>
@@ -289,7 +289,7 @@
               :value="zerotierUrl"
               type="text"
               readonly
-              class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 shadow-sm font-mono text-sm text-gray-900 dark:text-gray-200"
+              class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 shadow-sm font-mono text-sm text-gray-900 dark:text-white dark:text-gray-200"
             />
             <button 
               v-if="zerotierUrl"
@@ -311,7 +311,7 @@
             v-model="form.zerotier_notas"
             rows="2"
             placeholder="Notas adicionales sobre la configuración de ZeroTier..."
-            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
           ></textarea>
         </div>
       </div>
@@ -354,7 +354,7 @@ const diasParaExpirar = computed(() => {
 })
 
 const diasParaExpirarClass = computed(() => {
-  if (diasParaExpirar.value === null) return 'text-gray-500'
+  if (diasParaExpirar.value === null) return 'text-gray-500 dark:text-gray-400'
   if (diasParaExpirar.value <= 0) return 'text-red-600 font-semibold'
   if (diasParaExpirar.value <= 30) return 'text-yellow-600'
   return 'text-green-600'

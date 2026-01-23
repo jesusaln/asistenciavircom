@@ -19,7 +19,7 @@
         <!-- Contenido para admins -->
         <div v-if="isAdmin" class="space-y-8">
             <!-- FIEL (e.firma) -->
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
+            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-lg shadow-sm">
                 <div class="bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-4 rounded-t-lg">
                     <h3 class="text-lg font-semibold text-white flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,21 +46,21 @@
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div>
-                                <span class="text-gray-500 dark:text-gray-400">No. Serie:</span>
-                                <p class="font-mono text-xs text-gray-900 dark:text-gray-100">{{ fielInfo.serial?.substring(0, 20) }}...</p>
+                                <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400">No. Serie:</span>
+                                <p class="font-mono text-xs text-gray-900 dark:text-white dark:text-gray-100">{{ fielInfo.serial?.substring(0, 20) }}...</p>
                             </div>
                             <div>
-                                <span class="text-gray-500 dark:text-gray-400">Válido desde:</span>
-                                <p class="text-gray-900 dark:text-gray-100">{{ fielInfo.valid_from }}</p>
+                                <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400">Válido desde:</span>
+                                <p class="text-gray-900 dark:text-white dark:text-gray-100">{{ fielInfo.valid_from }}</p>
                             </div>
                             <div>
-                                <span class="text-gray-500 dark:text-gray-400">Válido hasta:</span>
+                                <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400">Válido hasta:</span>
                                 <p :class="fielInfo.vigente ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
                                     {{ fielInfo.valid_to }}
                                 </p>
                             </div>
                             <div>
-                                <span class="text-gray-500 dark:text-gray-400">Estado:</span>
+                                <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400">Estado:</span>
                                 <span v-if="fielInfo.vigente" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300">
                                     ✓ Vigente
                                 </span>
@@ -89,7 +89,7 @@
                                     type="file" 
                                     @change="e => fielForm.fiel_cer = e.target.files[0]"
                                     accept=".cer"
-                                    class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-900/40 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/60"
+                                    class="block w-full text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-900/40 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/60"
                                 />
                                 <p v-if="errors.fiel_cer" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.fiel_cer }}</p>
                             </div>
@@ -101,7 +101,7 @@
                                     type="file" 
                                     @change="e => fielForm.fiel_key = e.target.files[0]"
                                     accept=".key"
-                                    class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-900/40 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/60"
+                                    class="block w-full text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-900/40 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/60"
                                 />
                                 <p v-if="errors.fiel_key" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.fiel_key }}</p>
                             </div>
@@ -113,7 +113,7 @@
                             <input 
                                 type="password" 
                                 v-model="fielForm.fiel_password"
-                                class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                                class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                                 placeholder="••••••••"
                             />
                             <p v-if="errors.fiel_password" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.fiel_password }}</p>
@@ -134,7 +134,7 @@
             </div>
 
             <!-- CSD (Certificado de Sello Digital) -->
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
+            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-lg shadow-sm">
                 <div class="bg-gradient-to-r from-purple-600 to-purple-800 px-6 py-4 rounded-t-lg">
                     <h3 class="text-lg font-semibold text-white flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,21 +161,21 @@
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div>
-                                <span class="text-gray-500 dark:text-gray-400">No. Serie:</span>
-                                <p class="font-mono text-xs text-gray-900 dark:text-gray-100">{{ csdInfo.serial?.substring(0, 20) }}...</p>
+                                <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400">No. Serie:</span>
+                                <p class="font-mono text-xs text-gray-900 dark:text-white dark:text-gray-100">{{ csdInfo.serial?.substring(0, 20) }}...</p>
                             </div>
                             <div>
-                                <span class="text-gray-500 dark:text-gray-400">Válido desde:</span>
-                                <p class="text-gray-900 dark:text-gray-100">{{ csdInfo.valid_from }}</p>
+                                <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400">Válido desde:</span>
+                                <p class="text-gray-900 dark:text-white dark:text-gray-100">{{ csdInfo.valid_from }}</p>
                             </div>
                             <div>
-                                <span class="text-gray-500 dark:text-gray-400">Válido hasta:</span>
+                                <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400">Válido hasta:</span>
                                 <p :class="csdInfo.vigente ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
                                     {{ csdInfo.valid_to }}
                                 </p>
                             </div>
                             <div>
-                                <span class="text-gray-500 dark:text-gray-400">Estado:</span>
+                                <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400">Estado:</span>
                                 <span v-if="csdInfo.vigente" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300">
                                     ✓ Vigente
                                 </span>
@@ -204,7 +204,7 @@
                                     type="file" 
                                     @change="e => csdForm.csd_cer = e.target.files[0]"
                                     accept=".cer"
-                                    class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 dark:file:bg-purple-900/40 file:text-purple-700 dark:file:text-purple-300 hover:file:bg-purple-100 dark:hover:file:bg-purple-900/60"
+                                    class="block w-full text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 dark:file:bg-purple-900/40 file:text-purple-700 dark:file:text-purple-300 hover:file:bg-purple-100 dark:hover:file:bg-purple-900/60"
                                 />
                                 <p v-if="errors.csd_cer" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.csd_cer }}</p>
                             </div>
@@ -216,7 +216,7 @@
                                     type="file" 
                                     @change="e => csdForm.csd_key = e.target.files[0]"
                                     accept=".key"
-                                    class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 dark:file:bg-purple-900/40 file:text-purple-700 dark:file:text-purple-300 hover:file:bg-purple-100 dark:hover:file:bg-purple-900/60"
+                                    class="block w-full text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 dark:file:bg-purple-900/40 file:text-purple-700 dark:file:text-purple-300 hover:file:bg-purple-100 dark:hover:file:bg-purple-900/60"
                                 />
                                 <p v-if="errors.csd_key" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.csd_key }}</p>
                             </div>
@@ -228,7 +228,7 @@
                             <input 
                                 type="password" 
                                 v-model="csdForm.csd_password"
-                                class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                                class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
                                 placeholder="••••••••"
                             />
                             <p v-if="errors.csd_password" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.csd_password }}</p>
@@ -249,7 +249,7 @@
             </div>
 
             <!-- PAC (Proveedor de Timbrado) -->
-            <div class="bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg shadow-sm">
                 <div class="bg-gradient-to-r from-green-600 to-green-800 px-6 py-4 rounded-t-lg">
                     <h3 class="text-lg font-semibold text-white flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -278,11 +278,11 @@
                         <!-- Detalle de conexión -->
                         <div class="text-sm space-y-3">
                             <div>
-                                <span class="text-gray-500 text-xs uppercase font-semibold">URL del PAC:</span>
-                                <p class="font-mono text-xs truncate bg-white p-2 rounded border border-green-100 mt-1">{{ pacInfo.base_url }}</p>
+                                <span class="text-gray-500 dark:text-gray-400 text-xs uppercase font-semibold">URL del PAC:</span>
+                                <p class="font-mono text-xs truncate bg-white dark:bg-slate-900 p-2 rounded border border-green-100 mt-1">{{ pacInfo.base_url }}</p>
                             </div>
                             <div class="flex items-center gap-2 border-t border-green-100 pt-3">
-                                <span class="text-gray-500 text-xs font-medium">Modo actual:</span>
+                                <span class="text-gray-500 dark:text-gray-400 text-xs font-medium">Modo actual:</span>
                                 <span v-if="pacInfo.produccion" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 shadow-sm">
                                     <span class="mr-1">🚀</span> Producción
                                 </span>
@@ -316,20 +316,20 @@
                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
                                 placeholder="https://api.proveedor.com/v1/"
                             />
-                            <p class="mt-1 text-xs text-gray-500">Ejemplo para FacturaLO Plus: https://app.facturaloplus.com/api/v1/</p>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Ejemplo para FacturaLO Plus: https://app.facturaloplus.com/api/v1/</p>
                             <p class="mt-1 text-xs text-amber-600 font-medium">* Si dejas este campo vacío, se usará la URL automática según el modo (Pruebas/Producción).</p>
                         </div>
                         
                         <!-- Toggle Producción -->
-                        <div class="bg-white p-4 rounded-lg border border-gray-200">
+                        <div class="bg-white dark:bg-slate-900 p-4 rounded-lg border border-gray-200 dark:border-slate-800">
                             <div class="flex items-center justify-between">
                                 <div class="flex flex-col">
-                                    <span class="text-sm font-semibold text-gray-900">Modo de Operación</span>
-                                    <span class="text-xs text-gray-500">Cambia entre el entorno de pruebas y producción del PAC.</span>
+                                    <span class="text-sm font-semibold text-gray-900 dark:text-white">Modo de Operación</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">Cambia entre el entorno de pruebas y producción del PAC.</span>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" v-model="pacForm.pac_produccion" class="sr-only peer">
-                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:bg-slate-900 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
                                     <span class="ml-3 text-sm font-medium" :class="pacForm.pac_produccion ? 'text-green-700' : 'text-amber-600'">
                                         {{ pacForm.pac_produccion ? '🚀 Producción' : '🧪 Pruebas' }}
                                     </span>
@@ -346,7 +346,7 @@
                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
                                 placeholder="••••••••"
                             />
-                            <p class="mt-1 text-xs text-gray-500">Tu clave de API proporcionada por el PAC</p>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Tu clave de API proporcionada por el PAC</p>
                         </div>
                         <div class="flex gap-3">
                             <button 
@@ -364,7 +364,7 @@
                                 type="button"
                                 @click="probarConexionPac"
                                 :disabled="loadingPacTest || !pacForm.pac_base_url || !pacForm.pac_apikey"
-                                class="inline-flex items-center px-4 py-2 border border-green-300 text-sm font-medium rounded-md text-green-700 bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                                class="inline-flex items-center px-4 py-2 border border-green-300 text-sm font-medium rounded-md text-green-700 bg-white dark:bg-slate-900 hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
                             >
                                 <svg v-if="loadingPacTest" class="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -381,9 +381,9 @@
             </div>
 
             <!-- Información de seguridad -->
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                <h4 class="font-medium text-gray-900 dark:text-gray-100 mb-2">🔒 Información de Seguridad</h4>
-                <ul class="text-sm text-gray-600 dark:text-gray-300 space-y-1">
+            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-lg p-4">
+                <h4 class="font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-2">🔒 Información de Seguridad</h4>
+                <ul class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300 space-y-1">
                     <li>• Los archivos .key y las contraseñas se almacenan <strong>encriptados</strong> en el servidor.</li>
                     <li>• Los certificados se guardan en un directorio privado no accesible desde internet.</li>
                     <li>• Solo los administradores pueden ver y modificar esta configuración.</li>

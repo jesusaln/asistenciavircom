@@ -77,7 +77,7 @@ const submit = () => {
         <Head title="Editar Gasto" />
 
         <template #header>
-            <div class="rounded-xl border border-gray-200/60 overflow-hidden" :style="cssVars">
+            <div class="rounded-xl border border-gray-200 dark:border-slate-800/60 overflow-hidden" :style="cssVars">
                 <div class="px-6 py-6 text-white" :style="headerGradientStyle">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
@@ -92,7 +92,7 @@ const submit = () => {
                             </div>
                         </div>
                         <Link :href="route('gastos.index')"
-                            class="inline-flex items-center px-4 py-2 text-xs font-semibold uppercase tracking-widest rounded-lg bg-white/10 text-white hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/70 focus:ring-offset-2 focus:ring-offset-transparent transition">
+                            class="inline-flex items-center px-4 py-2 text-xs font-semibold uppercase tracking-widest rounded-lg bg-white dark:bg-slate-900/10 text-white hover:bg-white dark:bg-slate-900/20 focus:outline-none focus:ring-2 focus:ring-white/70 focus:ring-offset-2 focus:ring-offset-transparent transition">
                             <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                             </svg>
@@ -105,7 +105,7 @@ const submit = () => {
 
         <div class="py-6" :style="cssVars">
             <div class="w-full sm:px-6 lg:px-8">
-                <form @submit.prevent="submit" class="bg-white shadow rounded-lg p-6">
+                <form @submit.prevent="submit" class="bg-white dark:bg-slate-900 shadow rounded-lg p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Categoría -->
                         <div>
@@ -132,7 +132,7 @@ const submit = () => {
                                 Monto <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
-                                <span class="absolute left-3 top-2 text-gray-500">$</span>
+                                <span class="absolute left-3 top-2 text-gray-500 dark:text-gray-400">$</span>
                                 <input type="number" v-model="form.monto" step="0.01" min="0.01"
                                     class="w-full pl-8 border-gray-300 rounded-md shadow-sm focus:ring-2 focus:border-transparent"
                                     :style="focusRingStyle"
@@ -210,12 +210,12 @@ const submit = () => {
                     </div>
 
                     <!-- Preview del monto -->
-                    <div v-if="form.monto" class="mt-6 p-4 bg-white rounded-lg">
+                    <div v-if="form.monto" class="mt-6 p-4 bg-white dark:bg-slate-900 rounded-lg">
                         <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Total del gasto:</span>
-                            <span class="text-2xl font-bold text-gray-900">{{ formatCurrency(form.monto) }}</span>
+                            <span class="text-gray-600 dark:text-gray-300">Total del gasto:</span>
+                            <span class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(form.monto) }}</span>
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">El IVA se calcula automáticamente</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">El IVA se calcula automáticamente</p>
                     </div>
 
                     <!-- Botones -->

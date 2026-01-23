@@ -236,7 +236,7 @@ const decrementar = () => {
 <template>
     <Head :title="`${producto.nombre} - ${empresaData?.nombre_empresa || 'Tienda'}`" />
     
-    <div class="min-h-screen bg-white dark:bg-gray-900" :style="cssVars">
+    <div class="min-h-screen bg-white dark:bg-slate-900 dark:bg-gray-900" :style="cssVars">
         <!-- Widget Flotante de WhatsApp -->
         <WhatsAppWidget :whatsapp="empresaData?.whatsapp" :empresaNombre="empresaData?.nombre || empresaData?.nombre_empresa" />
 
@@ -249,7 +249,7 @@ const decrementar = () => {
                 
                 <!-- Image Section con efecto cristal -->
                 <div class="relative">
-                    <div class="aspect-square rounded-2xl overflow-hidden bg-white dark:bg-gray-800 relative group">
+                    <div class="aspect-square rounded-2xl overflow-hidden bg-white dark:bg-slate-900 dark:bg-gray-800 relative group">
                         <!-- Efecto cristal/glassmorphism -->
                         <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none z-10"></div>
                         <div class="absolute -inset-4 bg-[var(--color-primary)]/5 blur-3xl rounded-full"></div>
@@ -259,7 +259,7 @@ const decrementar = () => {
                              :alt="producto.nombre"
                              class="w-full h-full object-contain relative z-0 group-hover:scale-105 transition-transform duration-500 p-8" />
                         <div v-else class="w-full h-full flex items-center justify-center">
-                            <svg class="w-24 h-24 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-24 h-24 text-gray-300 dark:text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                         </div>
@@ -267,7 +267,7 @@ const decrementar = () => {
                         <!-- Badges sobre la imagen -->
                         <div class="absolute top-4 left-4 flex flex-col gap-2 z-20">
                             <span v-if="producto.categoria" 
-                                  class="px-3 py-1 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full text-xs font-medium text-gray-700 dark:text-gray-200 border border-gray-100 dark:border-gray-700">
+                                  class="px-3 py-1 bg-white dark:bg-slate-900/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full text-xs font-medium text-gray-700 dark:text-gray-200 border border-gray-100 dark:border-gray-700">
                                 {{ producto.categoria.nombre }}
                             </span>
                         </div>
@@ -298,7 +298,7 @@ const decrementar = () => {
                         <button v-for="(img, idx) in producto.imagenes" :key="idx"
                                 @click="mainImage = img"
                                 :class="[
-                                    'w-20 h-20 rounded-xl bg-white dark:bg-gray-800 flex-shrink-0 border-2 transition-all p-2',
+                                    'w-20 h-20 rounded-xl bg-white dark:bg-slate-900 dark:bg-gray-800 flex-shrink-0 border-2 transition-all p-2',
                                     (mainImage === img || (!mainImage && img === producto.imagen)) ? 'border-[var(--color-primary)]' : 'border-transparent dark:border-gray-700'
                                 ]">
                             <img :src="getImageUrl(img)" class="w-full h-full object-contain" />
@@ -309,30 +309,30 @@ const decrementar = () => {
                 <!-- Content Section -->
                 <div class="flex flex-col justify-center">
                     <!-- Breadcrumb -->
-                    <div class="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500 mb-4">
-                        <Link :href="route('catalogo.index')" class="hover:text-gray-600 dark:hover:text-gray-300 transition-colors">Tienda</Link>
+                    <div class="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500 dark:text-gray-400 mb-4">
+                        <Link :href="route('catalogo.index')" class="hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-300 transition-colors">Tienda</Link>
                         <span>/</span>
-                        <span v-if="producto.categoria" class="text-gray-600 dark:text-gray-300">{{ producto.categoria.nombre }}</span>
+                        <span v-if="producto.categoria" class="text-gray-600 dark:text-gray-300 dark:text-gray-300">{{ producto.categoria.nombre }}</span>
                     </div>
                     
                     <!-- Title -->
-                    <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2 leading-tight">
+                    <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white dark:text-gray-100 mb-2 leading-tight">
                         {{ producto.nombre }}
                     </h1>
 
                     <!-- Brand -->
-                    <p v-if="producto.marca" class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                    <p v-if="producto.marca" class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 mb-6">
                         Marca: <span class="font-bold text-gray-700 dark:text-gray-200">{{ producto.marca.nombre }}</span>
                     </p>
 
                     <!-- Price con IVA -->
-                    <div class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 inline-block align-self-start">
+                    <div class="mb-8 p-6 bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 inline-block align-self-start">
                         <div class="flex items-baseline gap-3">
                             <span class="text-4xl font-black" style="color: var(--color-primary);">
                                 {{ formatCurrency(producto.precio_con_iva) }}
                             </span>
                         </div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">IVA incluido</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium mt-1">IVA incluido</p>
                         <div v-if="producto.origen === 'CVA'" class="mt-3 flex items-center gap-2 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-xl border border-blue-100 dark:border-blue-700">
                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                              <span class="text-xs font-bold uppercase tracking-tight">Envío de 2 a 4 días hábiles</span>
@@ -341,8 +341,8 @@ const decrementar = () => {
 
                     <!-- Description -->
                     <div class="mb-8">
-                        <h3 class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-3">Descripción</h3>
-                        <p class="text-gray-600 dark:text-gray-300 leading-relaxed text-lg whitespace-pre-line">
+                        <h3 class="text-xs font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-[0.2em] mb-3">Descripción</h3>
+                        <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300 leading-relaxed text-lg whitespace-pre-line">
                             {{ producto.descripcion || 'Sin descripción disponible actualmente.' }}
                         </p>
                     </div>
@@ -357,16 +357,16 @@ const decrementar = () => {
 
                     <!-- Especificaciones Técnicas Estructuradas (CVA Style) -->
                     <div v-if="Object.keys(parsedSpecs).length > 0" class="mb-8">
-                        <h3 class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-3">Especificaciones Técnicas</h3>
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden shadow-sm">
+                        <h3 class="text-xs font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-[0.2em] mb-3">Especificaciones Técnicas</h3>
+                        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden shadow-sm">
                             <table class="w-full text-sm">
                                 <tbody>
                                     <tr v-for="(value, key) in parsedSpecs" :key="key" 
-                                        class="border-b border-gray-50 dark:border-gray-700 last:border-0 hover:bg-white/50 dark:hover:bg-gray-700/50 transition-colors">
-                                        <td class="py-3 px-4 font-semibold text-gray-700 dark:text-gray-200 bg-white/70 dark:bg-gray-800/70 w-1/3 align-top">
+                                        class="border-b border-gray-50 dark:border-gray-700 last:border-0 hover:bg-white dark:bg-slate-900/50 dark:hover:bg-gray-700/50 transition-colors">
+                                        <td class="py-3 px-4 font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-900/70 dark:bg-gray-800/70 w-1/3 align-top">
                                             {{ key }}
                                         </td>
-                                        <td class="py-3 px-4 text-gray-600 dark:text-gray-300">
+                                        <td class="py-3 px-4 text-gray-600 dark:text-gray-300 dark:text-gray-300">
                                             <!-- Si el valor es un array, mostramos cada item -->
                                             <template v-if="Array.isArray(value)">
                                                 <span v-for="(v, i) in value" :key="i" class="block">{{ v }}</span>
@@ -381,9 +381,9 @@ const decrementar = () => {
 
                     <!-- Ficha Técnica Texto (Fallback si no hay especificaciones estructuradas) -->
                     <div v-else-if="producto.ficha_tecnica" class="mb-8">
-                        <h3 class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-3">Especificaciones Técnicas</h3>
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm">
-                            <p class="text-gray-600 dark:text-gray-300 leading-relaxed text-sm whitespace-pre-line">
+                        <h3 class="text-xs font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-[0.2em] mb-3">Especificaciones Técnicas</h3>
+                        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm">
+                            <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300 leading-relaxed text-sm whitespace-pre-line">
                                 {{ producto.ficha_tecnica }}
                             </p>
                         </div>
@@ -391,29 +391,29 @@ const decrementar = () => {
 
                     <!-- Product Details -->
                     <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm">
-                            <span class="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-bold tracking-wider">Código de producto</span>
-                            <p class="text-sm font-bold text-gray-900 dark:text-gray-100 mt-1">{{ producto.codigo || 'N/A' }}</p>
+                        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm">
+                            <span class="text-[10px] text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider">Código de producto</span>
+                            <p class="text-sm font-bold text-gray-900 dark:text-white dark:text-gray-100 mt-1">{{ producto.codigo || 'N/A' }}</p>
                         </div>
-                        <div v-if="producto.garantia" class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm">
-                            <span class="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-bold tracking-wider">Garantía</span>
-                            <p class="text-sm font-bold text-gray-900 dark:text-gray-100 mt-1">{{ producto.garantia }}</p>
+                        <div v-if="producto.garantia" class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm">
+                            <span class="text-[10px] text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider">Garantía</span>
+                            <p class="text-sm font-bold text-gray-900 dark:text-white dark:text-gray-100 mt-1">{{ producto.garantia }}</p>
                         </div>
-                        <div v-else class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm">
-                            <span class="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-bold tracking-wider">Presentación</span>
-                            <p class="text-sm font-bold text-gray-900 dark:text-gray-100 mt-1">{{ producto.unidad_medida || 'PZA' }}</p>
+                        <div v-else class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm">
+                            <span class="text-[10px] text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider">Presentación</span>
+                            <p class="text-sm font-bold text-gray-900 dark:text-white dark:text-gray-100 mt-1">{{ producto.unidad_medida || 'PZA' }}</p>
                         </div>
                     </div>
 
                     <!-- Disponibilidad por Sucursal -->
                     <div v-if="producto.stock_desglose && Object.keys(producto.stock_desglose).length > 0" class="mb-8">
-                        <h4 class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Stock para Entrega Inmediata:</h4>
+                        <h4 class="text-xs font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Stock para Entrega Inmediata:</h4>
                         <div class="flex flex-wrap gap-2">
                             <div v-for="(qty, branch) in producto.stock_desglose" :key="branch" 
                                 class="px-3 py-1 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-700 rounded-lg flex items-center gap-2">
                                 <span class="w-2 h-2 rounded-full bg-green-500 dark:bg-green-400"></span>
-                                <span class="text-xs text-gray-600 dark:text-gray-300 font-medium">{{ branch }}:</span>
-                                <span class="text-xs font-bold text-gray-900 dark:text-gray-100">{{ qty }}</span>
+                                <span class="text-xs text-gray-600 dark:text-gray-300 dark:text-gray-300 font-medium">{{ branch }}:</span>
+                                <span class="text-xs font-bold text-gray-900 dark:text-white dark:text-gray-100">{{ qty }}</span>
                             </div>
                         </div>
                     </div>
@@ -439,16 +439,16 @@ const decrementar = () => {
                             <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
                                 <button 
                                     @click="decrementar"
-                                    class="w-10 h-10 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-600 rounded-lg transition-all shadow-sm disabled:opacity-30"
+                                    class="w-10 h-10 flex items-center justify-center text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-600 rounded-lg transition-all shadow-sm disabled:opacity-30"
                                     :disabled="cantidad <= 1">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 12H4" />
                                     </svg>
                                 </button>
-                                <span class="w-12 text-center font-black text-gray-900 dark:text-gray-100">{{ cantidad }}</span>
+                                <span class="w-12 text-center font-black text-gray-900 dark:text-white dark:text-gray-100">{{ cantidad }}</span>
                                 <button 
                                     @click="incrementar"
-                                    class="w-10 h-10 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-600 rounded-lg transition-all shadow-sm disabled:opacity-30"
+                                    class="w-10 h-10 flex items-center justify-center text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-600 rounded-lg transition-all shadow-sm disabled:opacity-30"
                                     :disabled="cantidad >= Math.max(producto.stock, producto.en_transito || 0)">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
@@ -528,7 +528,7 @@ const decrementar = () => {
             <!-- Related Products -->
             <div v-if="relacionados?.length" class="mt-20">
                 <div class="flex items-center justify-between mb-8">
-                    <h2 class="text-2xl font-black text-gray-900">Productos Relacionados</h2>
+                    <h2 class="text-2xl font-black text-gray-900 dark:text-white">Productos Relacionados</h2>
                     <Link :href="route('catalogo.index')" class="text-sm font-bold uppercase tracking-widest hover:underline" style="color: var(--color-primary);">
                         Explorar más productos
                     </Link>
@@ -536,8 +536,8 @@ const decrementar = () => {
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                     <Link v-for="rel in relacionados" :key="rel.id"
                           :href="route('catalogo.show', rel.id)"
-                          class="group bg-white rounded-3xl overflow-hidden border border-gray-100 hover:shadow-2xl hover:border-white transition-all duration-500">
-                        <div class="aspect-square bg-white overflow-hidden relative">
+                          class="group bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-gray-100 hover:shadow-2xl hover:border-white transition-all duration-500">
+                        <div class="aspect-square bg-white dark:bg-slate-900 overflow-hidden relative">
                             <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none z-10"></div>
                             <img v-if="getImageUrl(rel)" 
                                  :src="getImageUrl(rel)" 
@@ -554,7 +554,7 @@ const decrementar = () => {
                             </div>
                         </div>
                         <div class="p-5">
-                            <h3 class="font-bold text-gray-900 text-sm line-clamp-2 group-hover:text-[var(--color-primary)] transition-colors mb-2">
+                            <h3 class="font-bold text-gray-900 dark:text-white text-sm line-clamp-2 group-hover:text-[var(--color-primary)] transition-colors mb-2">
                                 {{ rel.nombre }}
                             </h3>
                             <div class="flex items-center justify-between">
@@ -577,10 +577,10 @@ const decrementar = () => {
     <Teleport to="body">
         <Transition name="fade">
             <div v-if="showCedisModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-bounce-in">
+                <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-bounce-in">
                     <!-- Header con icono -->
                     <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-center">
-                        <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <div class="w-16 h-16 bg-white dark:bg-slate-900/20 rounded-full flex items-center justify-center mx-auto mb-3">
                             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20" />
                             </svg>
@@ -590,7 +590,7 @@ const decrementar = () => {
                     
                     <!-- Contenido -->
                     <div class="p-6">
-                        <p class="text-gray-600 dark:text-gray-300 text-center mb-4">
+                        <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300 text-center mb-4">
                             Este producto <strong>no está disponible para entrega inmediata</strong> actualmente, 
                             pero lo podemos traer para ti.
                         </p>
@@ -605,14 +605,14 @@ const decrementar = () => {
                             </div>
                         </div>
                         
-                        <p class="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">
+                        <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 text-center mb-6">
                             ¿Deseas agregarlo a tu carrito de todas formas?
                         </p>
                         
                         <!-- Botones -->
                         <div class="flex gap-3">
                             <button @click="showCedisModal = false"
-                                    class="flex-1 py-3 px-4 border-2 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 font-semibold rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-colors">
+                                    class="flex-1 py-3 px-4 border-2 border-gray-200 dark:border-slate-800 dark:border-gray-700 text-gray-600 dark:text-gray-300 dark:text-gray-300 font-semibold rounded-xl hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-700 transition-colors">
                                 Cancelar
                             </button>
                             <button @click="confirmAddToCart"

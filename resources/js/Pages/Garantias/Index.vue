@@ -13,7 +13,7 @@
                         <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
                             Garantías
                         </h1>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm">Gestión de series vendidas y garantías</p>
+                        <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 text-sm">Gestión de series vendidas y garantías</p>
                     </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
@@ -24,13 +24,13 @@
                             v-model="searchTerm" 
                             type="text" 
                             placeholder="Buscar serie..." 
-                            class="pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 w-48 bg-white/80 dark:bg-gray-800 dark:text-white backdrop-blur-sm transition-colors"
+                            class="pl-10 pr-4 py-2.5 border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 w-48 bg-white dark:bg-slate-900/80 dark:bg-gray-800 dark:text-white backdrop-blur-sm transition-colors"
                             @keyup.enter="aplicarFiltros"
                         />
                     </div>
                     <Link 
                         href="/garantias/buscar-serie" 
-                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-medium rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-all"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-medium rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-all"
                     >
                         <FontAwesomeIcon :icon="['fas', 'barcode']" />
                         Buscar Serie
@@ -48,46 +48,46 @@
 
         <!-- Stats Cards Premium -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
+            <div class="bg-white dark:bg-slate-900/70 dark:bg-gray-800/70 backdrop-blur-sm p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
                 <div class="flex items-center gap-4">
                     <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30">
                         <FontAwesomeIcon :icon="['fas', 'boxes']" class="h-5 w-5" />
                     </div>
                     <div>
-                        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Series</p>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ seriesVendidas.total }}</p>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wide">Total Series</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white">{{ seriesVendidas.total }}</p>
                     </div>
                 </div>
             </div>
-            <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
+            <div class="bg-white dark:bg-slate-900/70 dark:bg-gray-800/70 backdrop-blur-sm p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
                 <div class="flex items-center gap-4">
                     <div class="p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/30">
                         <FontAwesomeIcon :icon="['fas', 'check-circle']" class="h-5 w-5" />
                     </div>
                     <div>
-                        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Vigentes</p>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wide">Vigentes</p>
                         <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ stats.vigentes }}</p>
                     </div>
                 </div>
             </div>
-            <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
+            <div class="bg-white dark:bg-slate-900/70 dark:bg-gray-800/70 backdrop-blur-sm p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
                 <div class="flex items-center gap-4">
                     <div class="p-3 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/30">
                         <FontAwesomeIcon :icon="['fas', 'exclamation-triangle']" class="h-5 w-5" />
                     </div>
                     <div>
-                        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Vencidas</p>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wide">Vencidas</p>
                         <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ stats.vencidas }}</p>
                     </div>
                 </div>
             </div>
-            <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
+            <div class="bg-white dark:bg-slate-900/70 dark:bg-gray-800/70 backdrop-blur-sm p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
                 <div class="flex items-center gap-4">
                     <div class="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/30">
                         <FontAwesomeIcon :icon="['fas', 'calendar-check']" class="h-5 w-5" />
                     </div>
                     <div>
-                        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Con Cita</p>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wide">Con Cita</p>
                         <p class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ stats.conCita }}</p>
                     </div>
                 </div>
@@ -95,46 +95,46 @@
         </div>
 
         <!-- Filtros Expandibles -->
-        <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm mb-6 overflow-hidden transition-colors">
-            <button @click="showFilters = !showFilters" class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/50 dark:hover:bg-gray-700/50 transition-colors">
+        <div class="bg-white dark:bg-slate-900/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm mb-6 overflow-hidden transition-colors">
+            <button @click="showFilters = !showFilters" class="w-full px-5 py-4 flex items-center justify-between hover:bg-white dark:bg-slate-900/50 dark:hover:bg-gray-700/50 transition-colors">
                 <div class="flex items-center gap-3">
-                    <FontAwesomeIcon :icon="['fas', 'filter']" class="text-gray-400 dark:text-gray-500" />
+                    <FontAwesomeIcon :icon="['fas', 'filter']" class="text-gray-400 dark:text-gray-500 dark:text-gray-400" />
                     <span class="font-medium text-gray-700 dark:text-gray-300">Filtros Avanzados</span>
                     <span v-if="activeFiltersCount" class="px-2 py-0.5 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 text-xs font-bold rounded-full">
                         {{ activeFiltersCount }} activos
                     </span>
                 </div>
-                <FontAwesomeIcon :icon="['fas', showFilters ? 'chevron-up' : 'chevron-down']" class="text-gray-400 dark:text-gray-500" />
+                <FontAwesomeIcon :icon="['fas', showFilters ? 'chevron-up' : 'chevron-down']" class="text-gray-400 dark:text-gray-500 dark:text-gray-400" />
             </button>
             <div v-show="showFilters" class="px-5 pb-5 border-t border-gray-100 dark:border-gray-700">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Estado Serie</label>
-                        <select v-model="filterEstado" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 dark:text-white transition-colors">
+                        <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 dark:text-gray-400 mb-1">Estado Serie</label>
+                        <select v-model="filterEstado" class="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-slate-900 dark:bg-gray-700 dark:text-white transition-colors">
                             <option value="">Todos</option>
                             <option value="vendido">Vendido</option>
                             <option value="en_stock">En Stock</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Garantía</label>
-                        <select v-model="filterGarantia" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 dark:text-white transition-colors">
+                        <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 dark:text-gray-400 mb-1">Garantía</label>
+                        <select v-model="filterGarantia" class="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-slate-900 dark:bg-gray-700 dark:text-white transition-colors">
                             <option value="">Todas</option>
                             <option value="vigente">Vigente</option>
                             <option value="vencida">Vencida</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Desde</label>
-                        <input v-model="filterDesde" type="date" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 dark:text-white transition-colors" />
+                        <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 dark:text-gray-400 mb-1">Desde</label>
+                        <input v-model="filterDesde" type="date" class="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-slate-900 dark:bg-gray-700 dark:text-white transition-colors" />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Hasta</label>
-                        <input v-model="filterHasta" type="date" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 dark:text-white transition-colors" />
+                        <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 dark:text-gray-400 mb-1">Hasta</label>
+                        <input v-model="filterHasta" type="date" class="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-slate-900 dark:bg-gray-700 dark:text-white transition-colors" />
                     </div>
                 </div>
                 <div class="flex justify-end gap-3 mt-4">
-                    <button @click="limpiarFiltros" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium">
+                    <button @click="limpiarFiltros" class="px-4 py-2 text-gray-600 dark:text-gray-300 dark:text-gray-400 hover:text-gray-800 dark:text-gray-100 dark:hover:text-gray-200 font-medium">
                         Limpiar
                     </button>
                     <button @click="aplicarFiltros" class="px-4 py-2 bg-orange-500 text-white rounded-xl hover:bg-orange-600 font-medium">
@@ -146,26 +146,26 @@
         </div>
 
         <!-- Tabla Premium -->
-        <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden transition-colors">
+        <div class="bg-white dark:bg-slate-900/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden transition-colors">
             <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                <h3 class="font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                <h3 class="font-bold text-gray-800 dark:text-gray-100 dark:text-white flex items-center gap-2">
                     <FontAwesomeIcon :icon="['fas', 'list']" class="text-orange-500" />
                     Series Vendidas
                 </h3>
-                <span class="text-sm text-gray-500 dark:text-gray-400">{{ seriesVendidas.from }}-{{ seriesVendidas.to }} de {{ seriesVendidas.total }}</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">{{ seriesVendidas.from }}-{{ seriesVendidas.to }} de {{ seriesVendidas.total }}</span>
             </div>
             
             <div class="overflow-x-auto">
                 <table class="w-full">
-                    <thead class="bg-white/80 dark:bg-gray-800/80">
+                    <thead class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/80">
                         <tr>
-                            <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Serie</th>
-                            <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Producto</th>
-                            <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
-                            <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Venta</th>
-                            <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Garantía</th>
-                            <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
-                            <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
+                            <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">Serie</th>
+                            <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">Producto</th>
+                            <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
+                            <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">Venta</th>
+                            <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">Garantía</th>
+                            <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+                            <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -176,24 +176,24 @@
                                         <FontAwesomeIcon :icon="['fas', 'barcode']" />
                                     </div>
                                     <div>
-                                        <p class="font-semibold text-gray-900 dark:text-white">{{ serie.numero_serie }}</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ serie.almacen_nombre || 'Sin almacén' }}</p>
+                                        <p class="font-semibold text-gray-900 dark:text-white dark:text-white">{{ serie.numero_serie }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">{{ serie.almacen_nombre || 'Sin almacén' }}</p>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-5 py-4">
-                                <p class="font-medium text-gray-900 dark:text-white truncate max-w-[200px]">{{ serie.producto_nombre }}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ serie.producto_codigo }}</p>
+                                <p class="font-medium text-gray-900 dark:text-white dark:text-white truncate max-w-[200px]">{{ serie.producto_nombre }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">{{ serie.producto_codigo }}</p>
                             </td>
                             <td class="px-5 py-4">
-                                <p class="font-medium text-gray-900 dark:text-white truncate max-w-[180px]">{{ serie.cliente_nombre }}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ serie.cliente_email }}</p>
+                                <p class="font-medium text-gray-900 dark:text-white dark:text-white truncate max-w-[180px]">{{ serie.cliente_nombre }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">{{ serie.cliente_email }}</p>
                             </td>
                             <td class="px-5 py-4">
                                 <Link :href="`/ventas/${serie.venta_id}`" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium">
                                     #{{ serie.numero_venta }}
                                 </Link>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ formatFecha(serie.venta_fecha) }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">{{ formatFecha(serie.venta_fecha) }}</p>
                             </td>
                             <td class="px-5 py-4 text-center">
                                 <div v-if="serie.cita_id" class="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded-lg text-xs font-semibold">
@@ -255,9 +255,9 @@
                         <!-- Empty state -->
                         <tr v-if="!seriesVendidas.data?.length">
                             <td colspan="7" class="px-5 py-16 text-center">
-                                <FontAwesomeIcon :icon="['fas', 'box-open']" class="h-12 w-12 text-gray-300 dark:text-gray-600 mb-4" />
-                                <p class="text-gray-500 dark:text-gray-400 font-medium">No se encontraron series</p>
-                                <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">Intenta ajustar los filtros</p>
+                                <FontAwesomeIcon :icon="['fas', 'box-open']" class="h-12 w-12 text-gray-300 dark:text-gray-600 dark:text-gray-300 mb-4" />
+                                <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium">No se encontraron series</p>
+                                <p class="text-sm text-gray-400 dark:text-gray-500 dark:text-gray-400 mt-1">Intenta ajustar los filtros</p>
                             </td>
                         </tr>
                     </tbody>
@@ -265,8 +265,8 @@
             </div>
 
             <!-- Paginación Premium -->
-            <div class="px-5 py-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between bg-white/50 dark:bg-gray-700/50">
-                <p class="text-sm text-gray-600 dark:text-gray-400">
+            <div class="px-5 py-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-slate-900/50 dark:bg-gray-700/50">
+                <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400">
                     Mostrando <span class="font-semibold">{{ seriesVendidas.from || 0 }}</span> a 
                     <span class="font-semibold">{{ seriesVendidas.to || 0 }}</span> de 
                     <span class="font-semibold">{{ seriesVendidas.total }}</span> resultados
@@ -275,7 +275,7 @@
                     <Link 
                         v-if="seriesVendidas.prev_page_url"
                         :href="seriesVendidas.prev_page_url"
-                        class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500 transition-all shadow-sm"
+                        class="px-4 py-2 bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500 transition-all shadow-sm"
                     >
                         <FontAwesomeIcon :icon="['fas', 'chevron-left']" class="mr-1" />
                         Anterior
@@ -283,7 +283,7 @@
                     <Link 
                         v-if="seriesVendidas.next_page_url"
                         :href="seriesVendidas.next_page_url"
-                        class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500 transition-all shadow-sm"
+                        class="px-4 py-2 bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500 transition-all shadow-sm"
                     >
                         Siguiente
                         <FontAwesomeIcon :icon="['fas', 'chevron-right']" class="ml-1" />

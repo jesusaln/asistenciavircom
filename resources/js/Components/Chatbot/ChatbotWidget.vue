@@ -92,12 +92,12 @@ const formatTime = () => {
             leave-from-class="opacity-100 translate-y-0 scale-100"
             leave-to-class="opacity-0 translate-y-10 scale-95"
         >
-            <div v-if="isOpen" class="bg-white dark:bg-gray-800 w-[350px] sm:w-[380px] h-[500px] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-100 dark:border-gray-700 mb-4">
+            <div v-if="isOpen" class="bg-white dark:bg-slate-900 dark:bg-gray-800 w-[350px] sm:w-[380px] h-[500px] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-100 dark:border-slate-800 dark:border-gray-700 mb-4">
                 
                 <!-- Header -->
                 <div class="p-4 flex justify-between items-center shadow-sm" :style="{ backgroundColor: primaryColor }">
                     <div class="flex items-center gap-3">
-                        <div class="bg-white p-1.5 rounded-full shadow-sm">
+                        <div class="bg-white dark:bg-slate-900 p-1.5 rounded-full shadow-sm">
                             <!-- Icono de Robot o Logo -->
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>
@@ -129,7 +129,7 @@ const formatTime = () => {
                             :class="[
                                 msg.role === 'user' 
                                     ? 'bg-indigo-600 text-white rounded-br-none' 
-                                    : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-bl-none border border-gray-100 dark:border-gray-600'
+                                    : 'bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-bl-none border border-gray-100 dark:border-slate-800 dark:border-gray-600'
                             ]"
                             :style="msg.role === 'user' ? { backgroundColor: primaryColor } : {}"
                         >
@@ -140,7 +140,7 @@ const formatTime = () => {
 
                     <!-- Typing Indicator -->
                     <div v-if="isLoading" class="flex justify-start w-full">
-                        <div class="bg-white dark:bg-gray-700 rounded-2xl rounded-bl-none p-4 shadow-sm border border-gray-100 dark:border-gray-600 flex gap-1 items-center h-10">
+                        <div class="bg-white dark:bg-slate-900 dark:bg-gray-700 rounded-2xl rounded-bl-none p-4 shadow-sm border border-gray-100 dark:border-slate-800 dark:border-gray-600 flex gap-1 items-center h-10">
                             <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
                             <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
                             <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
@@ -149,7 +149,7 @@ const formatTime = () => {
                 </div>
 
                 <!-- Input Area -->
-                <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
+                <div class="p-4 bg-white dark:bg-slate-900 dark:bg-gray-800 border-t border-gray-100 dark:border-slate-800 dark:border-gray-700">
                     <form @submit.prevent="sendMessage" class="relative items-end w-full flex gap-2">
                         <input 
                             v-model="inputMessage"

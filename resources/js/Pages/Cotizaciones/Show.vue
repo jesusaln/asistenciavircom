@@ -81,7 +81,7 @@ const mostrarVistaPrevia = ref(false);
         <div class="cotizaciones-show min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-6">
             <div class="w-full">
                 <!-- Encabezado -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden mb-6">
+                <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm overflow-hidden mb-6">
                     <div class="px-6 py-4 text-white" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
                         <h1 class="text-xl font-bold">Cotización #{{ cotizacion.numero_cotizacion || cotizacion.id }}</h1>
                         <p class="text-sm opacity-90 mt-1">{{ cotizacion.fecha_cotizacion ? new Date(cotizacion.fecha_cotizacion).toLocaleDateString('es-MX') : '' }}</p>
@@ -89,8 +89,8 @@ const mostrarVistaPrevia = ref(false);
                     <div class="p-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
-                                <p class="text-gray-700 dark:text-gray-200"><strong>Cliente:</strong> <span class="text-gray-900 dark:text-gray-100">{{ cotizacion.cliente.nombre_razon_social }}</span></p>
-                                <p v-if="cotizacion.cliente.email" class="text-gray-700 dark:text-gray-200"><strong>Email:</strong> <span class="text-gray-900 dark:text-gray-100">{{ cotizacion.cliente.email }}</span></p>
+                                <p class="text-gray-700 dark:text-gray-200"><strong>Cliente:</strong> <span class="text-gray-900 dark:text-white dark:text-gray-100">{{ cotizacion.cliente.nombre_razon_social }}</span></p>
+                                <p v-if="cotizacion.cliente.email" class="text-gray-700 dark:text-gray-200"><strong>Email:</strong> <span class="text-gray-900 dark:text-white dark:text-gray-100">{{ cotizacion.cliente.email }}</span></p>
                             </div>
                             <div>
                                 <p class="text-gray-700 dark:text-gray-200">
@@ -100,36 +100,36 @@ const mostrarVistaPrevia = ref(false);
                                               'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300': cotizacion.estado === 'aprobada',
                                               'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300': cotizacion.estado === 'pendiente',
                                               'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300': cotizacion.estado === 'rechazada',
-                                              'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200': cotizacion.estado === 'borrador'
+                                              'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 dark:text-gray-200': cotizacion.estado === 'borrador'
                                           }">
                                         {{ cotizacion.estado }}
                                     </span>
                                 </p>
-                                <p class="text-xl text-gray-900 dark:text-gray-100"><strong>Total:</strong> ${{ Number(total).toFixed(2) }}</p>
+                                <p class="text-xl text-gray-900 dark:text-white dark:text-gray-100"><strong>Total:</strong> ${{ Number(total).toFixed(2) }}</p>
                             </div>
                         </div>
-                        <p v-if="cotizacion.notas" class="mt-2 text-gray-600 dark:text-gray-300">
+                        <p v-if="cotizacion.notas" class="mt-2 text-gray-600 dark:text-gray-300 dark:text-gray-300">
                             <strong>Notas:</strong> {{ cotizacion.notas }}
                         </p>
                     </div>
                 </div>
 
                 <!-- Tabla de ítems -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden mb-6">
+                <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm overflow-hidden mb-6">
                     <div class="p-6">
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Productos y Servicios</h2>
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white dark:text-gray-100 mb-4">Productos y Servicios</h2>
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
                             <thead>
                                 <tr>
-                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Nombre</th>
-                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Tipo</th>
-                                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Cantidad</th>
-                                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Precio</th>
-                                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Descuento</th>
-                                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Subtotal</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400">Nombre</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400">Tipo</th>
+                                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400">Cantidad</th>
+                                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400">Precio</th>
+                                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400">Descuento</th>
+                                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400">Subtotal</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            <tbody class="divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
                                 <tr v-for="item in items" :key="item.id">
                                     <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">{{ item.nombre }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-200 capitalize">{{ item.tipo }}</td>
@@ -146,22 +146,22 @@ const mostrarVistaPrevia = ref(false);
                 </div>
 
                 <!-- Totales -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden mb-6">
+                <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm overflow-hidden mb-6">
                     <div class="p-6">
                         <div class="space-y-2 text-right">
-                            <p class="text-gray-700 dark:text-gray-200"><strong>Subtotal:</strong> <span class="text-gray-900 dark:text-gray-100">${{ Number(subtotal).toFixed(2) }}</span></p>
-                            <p v-if="descuentoItems > 0" class="text-gray-700 dark:text-gray-200"><strong>Descuentos por ítem:</strong> <span class="text-gray-900 dark:text-gray-100">${{ Number(descuentoItems).toFixed(2) }}</span></p>
-                            <p v-if="descuentoGeneral > 0" class="text-gray-700 dark:text-gray-200"><strong>Descuento general:</strong> <span class="text-gray-900 dark:text-gray-100">${{ Number(descuentoGeneral).toFixed(2) }}</span></p>
-                            <p class="text-gray-700 dark:text-gray-200"><strong>Subtotal con descuentos:</strong> <span class="text-gray-900 dark:text-gray-100">${{ Number(subtotalConDescuentos).toFixed(2) }}</span></p>
-                            <p class="text-gray-700 dark:text-gray-200"><strong>IVA ({{ ivaPorcentaje }}%):</strong> <span class="text-gray-900 dark:text-gray-100">${{ Number(iva).toFixed(2) }}</span></p>
-                            <p v-if="isr > 0" class="text-orange-600 dark:text-orange-400"><strong>Retención ISR ({{ isrPorcentaje }}%):</strong> -<span class="text-gray-900 dark:text-gray-100">${{ Number(isr).toFixed(2) }}</span></p>
-                            <p class="text-xl text-gray-900 dark:text-gray-100"><strong>Total:</strong> <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">${{ Number(total).toFixed(2) }}</span></p>
+                            <p class="text-gray-700 dark:text-gray-200"><strong>Subtotal:</strong> <span class="text-gray-900 dark:text-white dark:text-gray-100">${{ Number(subtotal).toFixed(2) }}</span></p>
+                            <p v-if="descuentoItems > 0" class="text-gray-700 dark:text-gray-200"><strong>Descuentos por ítem:</strong> <span class="text-gray-900 dark:text-white dark:text-gray-100">${{ Number(descuentoItems).toFixed(2) }}</span></p>
+                            <p v-if="descuentoGeneral > 0" class="text-gray-700 dark:text-gray-200"><strong>Descuento general:</strong> <span class="text-gray-900 dark:text-white dark:text-gray-100">${{ Number(descuentoGeneral).toFixed(2) }}</span></p>
+                            <p class="text-gray-700 dark:text-gray-200"><strong>Subtotal con descuentos:</strong> <span class="text-gray-900 dark:text-white dark:text-gray-100">${{ Number(subtotalConDescuentos).toFixed(2) }}</span></p>
+                            <p class="text-gray-700 dark:text-gray-200"><strong>IVA ({{ ivaPorcentaje }}%):</strong> <span class="text-gray-900 dark:text-white dark:text-gray-100">${{ Number(iva).toFixed(2) }}</span></p>
+                            <p v-if="isr > 0" class="text-orange-600 dark:text-orange-400"><strong>Retención ISR ({{ isrPorcentaje }}%):</strong> -<span class="text-gray-900 dark:text-white dark:text-gray-100">${{ Number(isr).toFixed(2) }}</span></p>
+                            <p class="text-xl text-gray-900 dark:text-white dark:text-gray-100"><strong>Total:</strong> <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">${{ Number(total).toFixed(2) }}</span></p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Acciones -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 shadow-sm overflow-hidden">
                     <div class="p-6 flex flex-wrap gap-3">
                         <button
                             v-if="canConvert"
@@ -208,7 +208,7 @@ const mostrarVistaPrevia = ref(false);
 
                         <button
                             @click="mostrarVistaPrevia = true"
-                            class="bg-white dark:bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                            class="bg-white dark:bg-slate-900 dark:bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                         >
                             Vista Previa
                         </button>

@@ -617,7 +617,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
 <template>
   <Head title="Clientes" />
 
-  <div class="clientes-index min-h-screen bg-white dark:bg-gray-900 transition-colors" :style="cssVars">
+  <div class="clientes-index min-h-screen bg-white dark:bg-slate-900 dark:bg-gray-900 transition-colors" :style="cssVars">
     <!-- Contenido principal -->
     <div class="w-full px-4 lg:px-8 py-8 transition-all">
       <!-- Header específico de clientes -->
@@ -639,7 +639,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
       />
 
       <!-- Información de paginación -->
-      <div class="flex justify-between items-center mb-4 text-sm text-gray-600 dark:text-gray-400 transition-colors">
+      <div class="flex justify-between items-center mb-4 text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400 transition-colors">
         <div>
           Mostrando {{ paginationData.from }} - {{ paginationData.to }} de {{ paginationData.total }} clientes
         </div>
@@ -661,14 +661,14 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
 
       <!-- Tabla de clientes -->
       <div class="mt-6">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
           <!-- Header con gradiente de empresa -->
           <div 
-            class="px-6 py-4 border-b border-gray-200/60 transition-colors" 
+            class="px-6 py-4 border-b border-gray-200 dark:border-slate-800/60 transition-colors" 
             :style="{ background: isDark ? 'linear-gradient(135deg, #1f2937 0%, #111827 100%)' : `linear-gradient(135deg, ${colors.principal}15 0%, ${colors.secundario}10 100%)` }"
           >
             <div class="flex items-center justify-between">
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-tight flex items-center gap-2 transition-colors">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white dark:text-white tracking-tight flex items-center gap-2 transition-colors">
                 <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: colors.principal }"></span>
                 Clientes
               </h2>
@@ -680,32 +680,32 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
 
           <!-- Table -->
           <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200/60">
-              <thead class="bg-white/60 dark:bg-gray-900/60 transition-colors">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800/60">
+              <thead class="bg-white dark:bg-slate-900/60 dark:bg-gray-900/60 transition-colors">
                 <tr>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Fecha</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Email</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Teléfono</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Estado</th>
-                  <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-400 uppercase tracking-wider">Fecha</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-400 uppercase tracking-wider">Email</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-400 uppercase tracking-wider">Teléfono</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+                  <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
                 </tr>
               </thead>
 
-              <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200/40 dark:divide-gray-700/40 transition-colors">
+              <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-slate-800/40 dark:divide-gray-700/40 transition-colors">
                 <template v-if="items.length > 0">
                   <tr
                     v-for="cliente in items"
                     :key="cliente.id"
-                    class="group hover:bg-white/60 dark:hover:bg-gray-700/40 transition-all duration-150 hover:shadow-sm"
+                    class="group hover:bg-white dark:bg-slate-900/60 dark:hover:bg-gray-700/40 transition-all duration-150 hover:shadow-sm"
                   >
                     <!-- Fecha -->
                     <td class="px-6 py-4">
                       <div class="flex flex-col space-y-0.5">
-                        <div class="text-sm font-medium text-gray-900 dark:text-white transition-colors">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-white transition-colors">
                           {{ formatearFecha(cliente.created_at || cliente.fecha) }}
                         </div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400 transition-colors">
+                        <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">
                           {{ formatearHora(cliente.created_at || cliente.fecha) }}
                         </div>
                       </div>
@@ -714,7 +714,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                     <!-- Cliente -->
                     <td class="px-6 py-4">
                       <div class="flex flex-col space-y-0.5">
-                        <div class="text-sm font-medium text-gray-900 dark:text-white group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-white group-hover:text-gray-800 dark:text-gray-100 dark:group-hover:text-gray-200 transition-colors">
                           {{ cliente.nombre_razon_social || 'Sin nombre' }}
                         </div>
                       </div>
@@ -827,13 +827,13 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                   <td :colspan="6" class="px-6 py-16 text-center">
                     <div class="flex flex-col items-center space-y-4">
                       <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center transition-colors">
-                        <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="w-8 h-8 text-gray-400 dark:text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                       </div>
                       <div class="space-y-1">
                         <p class="text-gray-700 dark:text-gray-300 font-medium transition-colors">No hay clientes</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 transition-colors">Los clientes aparecerán aquí cuando se creen</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">Los clientes aparecerán aquí cuando se creen</p>
                       </div>
                     </div>
                   </td>
@@ -849,7 +849,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
         <button
           @click="prevPage"
           :disabled="paginationData.current_page === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           Anterior
         </button>
@@ -863,7 +863,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
               'px-3 py-2 text-sm font-medium border rounded-md transition-all duration-200',
               page === paginationData.current_page
                 ? 'text-white shadow-md'
-                : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-700'
+                : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-900 dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-700'
             ]"
             :style="page === paginationData.current_page ? { backgroundColor: colors.principal, borderColor: colors.principal } : {}"
           >
@@ -874,7 +874,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
         <button
           @click="nextPage"
           :disabled="paginationData.current_page === paginationData.last_page"
-          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           Siguiente
         </button>
@@ -889,7 +889,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
         @click.self="onClose"
       >
         <div
-          class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 outline-none transition-colors"
+          class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 outline-none transition-colors"
           role="dialog"
           aria-modal="true"
           :aria-label="`Modal de Cliente`"
@@ -912,7 +912,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
             <h3 class="text-lg font-medium mb-2">
               ¿Eliminar cliente?
             </h3>
-            <p class="text-gray-600 mb-6">
+            <p class="text-gray-600 dark:text-gray-300 mb-6">
               Esta acción no se puede deshacer.
             </p>
             <div class="flex gap-3">
@@ -935,23 +935,23 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
           <div v-else-if="modalMode === 'details'" class="space-y-4">
             <h3 class="text-lg font-medium mb-1 flex items-center gap-2">
               Detalles de Cliente
-              <span v-if="selectedCliente?.id" class="text-sm text-gray-500">#{{ selectedCliente.id }}</span>
+              <span v-if="selectedCliente?.id" class="text-sm text-gray-500 dark:text-gray-400">#{{ selectedCliente.id }}</span>
             </h3>
 
             <div v-if="selectedCliente" class="space-y-4">
               <!-- Información general -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-gray-600 dark:text-gray-300">
                     <strong>Nombre:</strong> {{ selectedCliente.nombre_razon_social || 'Sin nombre' }}
                   </p>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-gray-600 dark:text-gray-300">
                     <strong>Email:</strong> {{ selectedCliente.email || 'N/A' }}
                   </p>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-gray-600 dark:text-gray-300">
                     <strong>RFC:</strong> {{ selectedCliente.rfc || 'N/A' }}
                   </p>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-gray-600 dark:text-gray-300">
                     <strong>Estado:</strong>
                     <span
                       :class="obtenerClasesEstado(selectedCliente.activo ? 'activo' : 'inactivo')"
@@ -963,45 +963,45 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                 </div>
 
                 <div>
-                  <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400 transition-colors">
                     <strong class="dark:text-white">Teléfono:</strong> {{ selectedCliente.telefono || 'N/A' }}
                   </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors">
+                  <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400 transition-colors">
                     <strong class="dark:text-white">Fecha de creación:</strong> {{ formatearFecha(selectedCliente.created_at) }}
                   </p>
                 </div>
               </div>
 
               <!-- Dirección -->
-              <div class="pt-4 border-t border-gray-200 dark:border-gray-700 transition-colors">
-                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center transition-colors">
-                  <svg class="w-4 h-4 mr-2 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="pt-4 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700 transition-colors">
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-white dark:text-white mb-3 flex items-center transition-colors">
+                  <svg class="w-4 h-4 mr-2 text-gray-600 dark:text-gray-300 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   Dirección
                 </h4>
                 
-                <div v-if="selectedCliente.calle || selectedCliente.colonia || selectedCliente.codigo_postal" class="bg-white dark:bg-gray-900/50 rounded-lg p-4 space-y-2 transition-colors">
+                <div v-if="selectedCliente.calle || selectedCliente.colonia || selectedCliente.codigo_postal" class="bg-white dark:bg-slate-900 dark:bg-gray-900/50 rounded-lg p-4 space-y-2 transition-colors">
                   <p class="text-sm text-gray-700 dark:text-gray-300">
-                    <strong class="text-gray-900 dark:text-white">Calle:</strong> {{ selectedCliente.calle || 'N/A' }}
+                    <strong class="text-gray-900 dark:text-white dark:text-white">Calle:</strong> {{ selectedCliente.calle || 'N/A' }}
                     <span v-if="selectedCliente.numero_exterior"> #{{ selectedCliente.numero_exterior }}</span>
                     <span v-if="selectedCliente.numero_interior"> Int. {{ selectedCliente.numero_interior }}</span>
                   </p>
                   <p class="text-sm text-gray-700 dark:text-gray-300">
-                    <strong class="text-gray-900 dark:text-white">Colonia:</strong> {{ selectedCliente.colonia || 'N/A' }}
+                    <strong class="text-gray-900 dark:text-white dark:text-white">Colonia:</strong> {{ selectedCliente.colonia || 'N/A' }}
                   </p>
                   <p class="text-sm text-gray-700 dark:text-gray-300">
-                    <strong class="text-gray-900 dark:text-white">CP:</strong> {{ selectedCliente.codigo_postal || 'N/A' }}
+                    <strong class="text-gray-900 dark:text-white dark:text-white">CP:</strong> {{ selectedCliente.codigo_postal || 'N/A' }}
                   </p>
                   <p class="text-sm text-gray-700 dark:text-gray-300">
-                    <strong class="text-gray-900 dark:text-white">Municipio:</strong> {{ selectedCliente.municipio || 'N/A' }}
+                    <strong class="text-gray-900 dark:text-white dark:text-white">Municipio:</strong> {{ selectedCliente.municipio || 'N/A' }}
                   </p>
                   <p class="text-sm text-gray-700 dark:text-gray-300">
-                    <strong class="text-gray-900 dark:text-white">Estado:</strong> {{ selectedCliente.estado || 'N/A' }}
+                    <strong class="text-gray-900 dark:text-white dark:text-white">Estado:</strong> {{ selectedCliente.estado || 'N/A' }}
                   </p>
                   <p class="text-sm text-gray-700 dark:text-gray-300">
-                    <strong class="text-gray-900 dark:text-white">País:</strong> {{ selectedCliente.pais || 'MX' }}
+                    <strong class="text-gray-900 dark:text-white dark:text-white">País:</strong> {{ selectedCliente.pais || 'MX' }}
                   </p>
                 </div>
                 
@@ -1018,10 +1018,10 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
             </div>
 
             <!-- Botones de acción -->
-            <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+            <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-slate-800">
               <button
                 @click="onClose"
-                class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:ring-offset-1"
+                class="inline-flex items-center px-4 py-2 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:ring-offset-1"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1059,7 +1059,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
 
     <!-- Loading overlay -->
     <div v-if="loading" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 transition-all">
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl transition-colors">
+      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-6 rounded-xl shadow-xl transition-colors">
         <div class="flex items-center space-x-3">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2" :style="{ borderColor: colors.principal }"></div>
           <span class="text-gray-700 dark:text-gray-200 font-medium transition-colors">Procesando...</span>

@@ -641,7 +641,7 @@ const faltanSeriesParaProducto = (producto) => {
 <template>
 <div>
     <Head title="Productos" />
-    <div class="productos-index min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="productos-index min-h-screen bg-gray-50 dark:bg-slate-950 dark:bg-gray-900">
     <div class="w-full px-6 py-8">
       <!-- Header específico de productos -->
       <ProductosHeader
@@ -662,30 +662,30 @@ const faltanSeriesParaProducto = (producto) => {
       />
 
       <!-- Tabla -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-700/50">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Producto</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Código</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">SAT</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Precio</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Stock</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Estado</th>
-                <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">En Inicio</th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Producto</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Código</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">SAT</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Precio</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Stock</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Estado</th>
+                <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">En Inicio</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              <tr v-for="producto in productosDocumentos" :key="producto.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">
+            <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+              <tr v-for="producto in productosDocumentos" :key="producto.id" class="hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700/50 transition-colors duration-150">
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900 dark:text-gray-100">{{ formatearFecha(producto.fecha) }}</div>
+                  <div class="text-sm text-gray-900 dark:text-white dark:text-gray-100">{{ formatearFecha(producto.fecha) }}</div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ producto.titulo }}</div>
-                  <div class="text-sm text-gray-500 dark:text-gray-400">{{ producto.subtitulo }}</div>
+                  <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">{{ producto.titulo }}</div>
+                  <div class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">{{ producto.subtitulo }}</div>
                 </td>
                 <td class="px-6 py-4">
                   <div class="text-sm text-gray-700 dark:text-gray-300">{{ producto.raw.codigo || 'N/A' }}</div>
@@ -720,7 +720,7 @@ const faltanSeriesParaProducto = (producto) => {
                   <button
                     @click="toggleDestacado(producto.id)"
                     class="transition-all duration-300 transform hover:scale-125"
-                    :class="producto.raw.destacado ? 'text-amber-500 scale-110' : 'text-gray-300 dark:text-gray-600 hover:text-amber-300 dark:hover:text-amber-500'"
+                    :class="producto.raw.destacado ? 'text-amber-500 scale-110' : 'text-gray-300 dark:text-gray-600 dark:text-gray-300 hover:text-amber-300 dark:hover:text-amber-500'"
                     :title="producto.raw.destacado ? 'Quitar del inicio' : 'Mostrar en el inicio'"
                   >
                     <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
@@ -772,13 +772,13 @@ const faltanSeriesParaProducto = (producto) => {
                 <td colspan="8" class="px-6 py-16 text-center">
                   <div class="flex flex-col items-center space-y-4">
                     <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                      <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg class="w-8 h-8 text-gray-400 dark:text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                     </div>
                     <div class="space-y-1">
                       <p class="text-gray-700 dark:text-gray-300 font-medium">No hay productos</p>
-                      <p class="text-sm text-gray-500 dark:text-gray-400">Los productos aparecerán aquí cuando se creen</p>
+                      <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Los productos aparecerán aquí cuando se creen</p>
                     </div>
                   </div>
                 </td>
@@ -788,7 +788,7 @@ const faltanSeriesParaProducto = (producto) => {
         </div>
 
         <!-- Paginación -->
-        <div v-if="paginationData.lastPage > 1" class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3 sm:px-6">
+        <div v-if="paginationData.lastPage > 1" class="bg-white dark:bg-slate-900 dark:bg-gray-800 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700 px-4 py-3 sm:px-6">
           <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-4">
               <p class="text-sm text-gray-700 dark:text-gray-300">
@@ -797,7 +797,7 @@ const faltanSeriesParaProducto = (producto) => {
               <select
                 :value="paginationData.perPage"
                 @change="handlePerPageChange(parseInt($event.target.value))"
-                class="border border-gray-300 dark:border-gray-600 rounded-md text-sm py-1 px-2 bg-white dark:bg-gray-700 dark:text-gray-200"
+                class="border border-gray-300 dark:border-gray-600 rounded-md text-sm py-1 px-2 bg-white dark:bg-slate-900 dark:bg-gray-700 dark:text-gray-200"
               >
                 <option value="10">10</option>
                 <option value="15">15</option>
@@ -810,7 +810,7 @@ const faltanSeriesParaProducto = (producto) => {
               <button
                 v-if="paginationData.prevPageUrl"
                 @click="handlePageChange(paginationData.currentPage - 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900 dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -827,7 +827,7 @@ const faltanSeriesParaProducto = (producto) => {
                 v-for="page in [paginationData.currentPage - 1, paginationData.currentPage, paginationData.currentPage + 1].filter(p => p > 0 && p <= paginationData.lastPage)"
                 :key="page"
                 @click="handlePageChange(page)"
-                :class="page === paginationData.currentPage ? 'bg-blue-50 dark:bg-blue-500/50 border-blue-500 text-blue-600 dark:text-white' : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'"
+                :class="page === paginationData.currentPage ? 'bg-blue-50 dark:bg-blue-500/50 border-blue-500 text-blue-600 dark:text-white' : 'bg-white dark:bg-slate-900 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600'"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               >
                 {{ page }}
@@ -836,7 +836,7 @@ const faltanSeriesParaProducto = (producto) => {
               <button
                 v-if="paginationData.nextPageUrl"
                 @click="handlePageChange(paginationData.currentPage + 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900 dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -855,13 +855,13 @@ const faltanSeriesParaProducto = (producto) => {
 
       <!-- Modal mejorado -->
       <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showModal = false">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <!-- Header del modal -->
-          <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800 dark:border-gray-700">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100">
               {{ modalMode === 'details' ? 'Detalles del Producto' : 'Confirmar Eliminación' }}
             </h3>
-            <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+            <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-300 transition-colors">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -875,19 +875,19 @@ const faltanSeriesParaProducto = (producto) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-md">{{ selectedProducto.nombre }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white dark:text-gray-100 bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50 px-3 py-2 rounded-md">{{ selectedProducto.nombre }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Código</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-md">{{ selectedProducto.codigo || 'N/A' }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white dark:text-gray-100 bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50 px-3 py-2 rounded-md">{{ selectedProducto.codigo || 'N/A' }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Precio Venta</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-md">${{ formatNumber(selectedProducto.precio_venta || 0) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white dark:text-gray-100 bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50 px-3 py-2 rounded-md">${{ formatNumber(selectedProducto.precio_venta || 0) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Stock</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-md">{{ selectedProducto.stock || 0 }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white dark:text-gray-100 bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50 px-3 py-2 rounded-md">{{ selectedProducto.stock || 0 }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Estado</label>
@@ -899,17 +899,17 @@ const faltanSeriesParaProducto = (producto) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Fecha de Creación</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-md">{{ formatearFecha(selectedProducto.created_at) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white dark:text-gray-100 bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50 px-3 py-2 rounded-md">{{ formatearFecha(selectedProducto.created_at) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Última Actualización</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-md">{{ formatearFecha(selectedProducto.updated_at) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-white dark:text-gray-100 bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50 px-3 py-2 rounded-md">{{ formatearFecha(selectedProducto.updated_at) }}</p>
                     </div>
                   </div>
                 </div>
                 <div v-if="selectedProducto.descripcion">
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Descripción</label>
-                  <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedProducto.descripcion }}</p>
+                  <p class="mt-1 text-sm text-gray-900 dark:text-white dark:text-gray-100 bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50 px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedProducto.descripcion }}</p>
                 </div>
               </div>
             </div>
@@ -921,8 +921,8 @@ const faltanSeriesParaProducto = (producto) => {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
                   </svg>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">¿Eliminar Producto?</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-2">¿Eliminar Producto?</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 mb-4">
                   ¿Estás seguro de que deseas eliminar el producto <strong>{{ selectedProducto?.nombre }}</strong>?
                   Esta acción no se puede deshacer.
                 </p>
@@ -932,21 +932,21 @@ const faltanSeriesParaProducto = (producto) => {
 
           <div class="mt-6">
             <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Listado de series vendidas</h4>
-            <div class="max-h-64 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg">
-              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-700/50">
+            <div class="max-h-64 overflow-y-auto border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-lg">
+              <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50">
                   <tr>
-                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-300">#</th>
-                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-300">Número de serie</th>
+                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300">#</th>
+                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300">Número de serie</th>
                   </tr>
                 </thead>
-                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
                   <tr v-for="(s, idx) in pagedVendidas" :key="s.id">
                     <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">{{ (seriesPage.vendidas - 1) * seriesPerPage.vendidas + idx + 1 }}</td>
-                    <td class="px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-100">{{ s.numero_serie }}</td>
+                    <td class="px-4 py-2 text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">{{ s.numero_serie }}</td>
                   </tr>
                   <tr v-if="filteredVendidas.length === 0">
-                    <td colspan="2" class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">Sin series vendidas</td>
+                    <td colspan="2" class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Sin series vendidas</td>
                   </tr>
                 </tbody>
               </table>
@@ -954,8 +954,8 @@ const faltanSeriesParaProducto = (producto) => {
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-            <button @click="showModal = false" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700 bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50">
+            <button @click="showModal = false" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-9500 transition-colors">
               {{ modalMode === 'details' ? 'Cerrar' : 'Cancelar' }}
             </button>
             <div v-if="modalMode === 'details'" class="flex gap-2">
@@ -975,32 +975,32 @@ const faltanSeriesParaProducto = (producto) => {
 
       <!-- Modal SAT -->
       <div v-if="showSatModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="closeSatModal">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-xl overflow-hidden">
-          <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-xl overflow-hidden">
+          <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800 dark:border-gray-700">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100">
               Clave SAT del producto: {{ satTarget?.nombre || '' }}
             </h3>
-            <button @click="closeSatModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+            <button @click="closeSatModal" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-300 transition-colors">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
           <div class="p-6 space-y-4">
-            <p class="text-sm text-gray-600 dark:text-gray-400">
+            <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400">
               Se usa el nombre para sugerir la primera coincidencia del catalogo SAT.
             </p>
-            <div v-if="satSuggesting" class="text-xs text-gray-500 dark:text-gray-400">Buscando sugerencia...</div>
+            <div v-if="satSuggesting" class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">Buscando sugerencia...</div>
             <SatClaveProdServSearch
               v-model="satForm.sat_clave_prod_serv"
               :initial-description="satClaveDescription"
             />
-            <div v-if="satSuggestion" class="text-xs text-gray-500 dark:text-gray-400">
+            <div v-if="satSuggestion" class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
               Sugerencia aplicada: {{ satSuggestion.clave }} - {{ satSuggestion.descripcion }}
             </div>
           </div>
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-            <button @click="closeSatModal" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700 bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50">
+            <button @click="closeSatModal" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-9500 transition-colors">
               Cancelar
             </button>
             <button @click="saveSatClave" :disabled="satSaving" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">
@@ -1012,13 +1012,13 @@ const faltanSeriesParaProducto = (producto) => {
 
       <!-- Modal de Detalle de Stock -->
       <div v-if="showStockModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showStockModal = false">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <!-- Header del modal -->
-          <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800 dark:border-gray-700">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100">
               Detalle de Stock: {{ stockDetalle?.producto?.nombre }}
             </h3>
-            <button @click="showStockModal = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+            <button @click="showStockModal = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-300 transition-colors">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -1028,48 +1028,48 @@ const faltanSeriesParaProducto = (producto) => {
           <div class="p-6">
             <div v-if="loadingStock" class="flex items-center justify-center py-8">
               <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <span class="ml-3 text-gray-600 dark:text-gray-300">Cargando...</span>
+              <span class="ml-3 text-gray-600 dark:text-gray-300 dark:text-gray-300">Cargando...</span>
             </div>
 
             <div v-else-if="stockDetalle">
               <!-- Información del producto -->
-              <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 mb-6">
+              <div class="bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50 rounded-lg p-4 mb-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                   <div>
                     <span class="font-medium text-gray-700 dark:text-gray-300">Producto:</span>
-                    <span class="ml-2 text-gray-900 dark:text-gray-100">{{ stockDetalle.producto.nombre }}</span>
+                    <span class="ml-2 text-gray-900 dark:text-white dark:text-gray-100">{{ stockDetalle.producto.nombre }}</span>
                   </div>
                   <div>
                     <span class="font-medium text-gray-700 dark:text-gray-300">Código:</span>
-                    <span class="ml-2 text-gray-900 dark:text-gray-100">{{ stockDetalle.producto.codigo || 'N/A' }}</span>
+                    <span class="ml-2 text-gray-900 dark:text-white dark:text-gray-100">{{ stockDetalle.producto.codigo || 'N/A' }}</span>
                   </div>
                   <div>
                     <span class="font-medium text-gray-700 dark:text-gray-300">Stock Total:</span>
-                    <span class="ml-2 text-gray-900 dark:text-gray-100 font-semibold">{{ stockDetalle.producto.stock_total }}</span>
+                    <span class="ml-2 text-gray-900 dark:text-white dark:text-gray-100 font-semibold">{{ stockDetalle.producto.stock_total }}</span>
                   </div>
                 </div>
               </div>
 
               <!-- Tabla de stock por almacén -->
               <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead class="bg-gray-50 dark:bg-gray-700/50">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+                  <thead class="bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50">
                     <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">
                         Almacén
                       </th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">
                         Cantidad Disponible
                       </th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">
                         Stock Mínimo
                       </th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">
                         Estado
                       </th>
                     </tr>
                   </thead>
-                  <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
                     <tr v-for="stock in stockDetalle.stock_por_almacen" :key="stock.almacen_id">
                       <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
@@ -1081,14 +1081,14 @@ const faltanSeriesParaProducto = (producto) => {
                             </div>
                           </div>
                           <div class="ml-4">
-                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">
                               {{ stock.almacen_nombre }}
                             </div>
                           </div>
                         </div>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ stock.cantidad }}</span>
+                        <span class="text-sm font-semibold text-gray-900 dark:text-white dark:text-gray-100">{{ stock.cantidad }}</span>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap">
                         <span class="text-sm text-gray-700 dark:text-gray-300">{{ stock.stock_minimo }}</span>
@@ -1105,7 +1105,7 @@ const faltanSeriesParaProducto = (producto) => {
                     <tr v-if="stockDetalle.stock_por_almacen.length === 0">
                       <td colspan="4" class="px-6 py-8 text-center">
                         <div class="flex flex-col items-center space-y-2">
-                         <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <svg class="w-8 h-8 text-gray-400 dark:text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m8-5v2m0 0v2m0-2h2m-2 0h-2"/>
                          </svg>
                        </div>
@@ -1118,8 +1118,8 @@ const faltanSeriesParaProducto = (producto) => {
          </div>
 
          <!-- Footer del modal -->
-         <div class="flex justify-end px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-           <button @click="showStockModal = false" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
+         <div class="flex justify-end px-6 py-4 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700 bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50">
+           <button @click="showStockModal = false" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-9500 transition-colors">
              Cerrar
            </button>
          </div>
@@ -1130,15 +1130,15 @@ const faltanSeriesParaProducto = (producto) => {
 
  <!-- Modal Series -->
  <div v-if="showSeriesModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showSeriesModal = false">
-   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
-     <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
-       <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Series del Producto: {{ seriesDetalle?.producto?.nombre || '' }}</h3>
-       <button @click="showSeriesModal = false" class="text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+   <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+     <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
+       <h3 class="text-lg font-semibold text-gray-900 dark:text-white dark:text-gray-100">Series del Producto: {{ seriesDetalle?.producto?.nombre || '' }}</h3>
+       <button @click="showSeriesModal = false" class="text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-300 transition-colors">
          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
        </button>
      </div>
      <div class="flex-1 overflow-y-auto p-6">
-       <div v-if="!seriesDetalle"><p class="text-sm text-gray-500 dark:text-gray-400">Cargando...</p></div>
+       <div v-if="!seriesDetalle"><p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Cargando...</p></div>
         <div v-else>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
            <div>
@@ -1164,19 +1164,19 @@ const faltanSeriesParaProducto = (producto) => {
                  'text-emerald-800 dark:text-emerald-200'
                ]">{{ seriesDetalle.counts.en_stock }}</div>
              </div>
-           <div class="p-3 bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg">
+           <div class="p-3 bg-white dark:bg-slate-900 dark:bg-gray-700/50 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg">
              <div class="text-xs text-gray-700 dark:text-gray-300">Series vendidas</div>
-             <div class="text-2xl font-semibold text-gray-800 dark:text-gray-100">{{ seriesDetalle.counts.vendido }}</div>
+             <div class="text-2xl font-semibold text-gray-800 dark:text-gray-100 dark:text-gray-100">{{ seriesDetalle.counts.vendido }}</div>
            </div>
          </div>
 
 
           <div>
             <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Listado de series en stock ({{ filteredEnStock.length }} total)</h4>
-            <div class="overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg" style="max-height: calc(100vh - 500px); min-height: 200px;">
+            <div class="overflow-y-auto border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-lg" style="max-height: calc(100vh - 500px); min-height: 200px;">
               <!-- Agrupar por almacén -->
               <div v-if="seriesEnStockPorAlmacen.length > 0">
-                <div v-for="(grupo, grupoIdx) in seriesEnStockPorAlmacen" :key="grupoIdx" class="border-b border-gray-200 dark:border-gray-700 last:border-b-0">
+                <div v-for="(grupo, grupoIdx) in seriesEnStockPorAlmacen" :key="grupoIdx" class="border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 last:border-b-0">
                   <!-- Header del grupo (almacén) -->
                   <div class="bg-blue-50 dark:bg-blue-900/30 px-4 py-3 border-b border-blue-100 dark:border-blue-800/50">
                     <div class="flex items-center justify-between">
@@ -1191,18 +1191,18 @@ const faltanSeriesParaProducto = (producto) => {
                   </div>
                   
                   <!-- Series del almacén -->
-                  <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead class="bg-gray-50 dark:bg-gray-700/50">
+                  <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50">
                       <tr>
-                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-300">#</th>
-                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-300">Número de serie</th>
-                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-300">Acciones</th>
+                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300">#</th>
+                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300">Número de serie</th>
+                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-300">Acciones</th>
                       </tr>
                     </thead>
-                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                      <tr v-for="(s, idx) in grupo.series" :key="s.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
+                      <tr v-for="(s, idx) in grupo.series" :key="s.id" class="hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700/50">
                         <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">{{ idx + 1 }}</td>
-                        <td class="px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+                        <td class="px-4 py-2 text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">
                           <template v-if="editSerie.rowId === s.id">
                             <input v-model.trim="editSerie.value" type="text" class="w-full border border-emerald-300 dark:border-emerald-600 dark:bg-gray-700 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
                           </template>
@@ -1228,18 +1228,18 @@ const faltanSeriesParaProducto = (producto) => {
               <!-- Sin series -->
               <div v-else class="px-4 py-8 text-center">
                 <div class="flex flex-col items-center space-y-2">
-                  <svg class="w-12 h-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-12 h-12 text-gray-400 dark:text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
                   </svg>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Sin series en stock</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Sin series en stock</p>
                 </div>
               </div>
             </div>
           </div>
        </div>
      </div>
-     <div class="px-6 py-4 border-t bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-700 text-right flex-shrink-0">
-       <button @click="showSeriesModal = false" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">Cerrar</button>
+     <div class="px-6 py-4 border-t bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50 border-gray-200 dark:border-slate-800 dark:border-gray-700 text-right flex-shrink-0">
+       <button @click="showSeriesModal = false" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-9500 transition-colors">Cerrar</button>
      </div>
    </div>
  </div>
