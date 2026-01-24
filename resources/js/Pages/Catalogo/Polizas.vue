@@ -89,8 +89,10 @@ const planesCalculados = computed(() => {
                  precio_anual: precioAnual,
                  ahorro_anual: ahorro
              };
-        }
         return plan;
+    });
+});
+
 const simulador = ref({
     pcs: 5,
     addons: {
