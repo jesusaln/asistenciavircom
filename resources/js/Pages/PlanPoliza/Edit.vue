@@ -45,6 +45,23 @@ const form = useForm({
     clausulas: props.plan?.clausulas || '',
     terminos_pago: props.plan?.terminos_pago || '',
     servicios_elegibles: props.serviciosElegiblesIds || [],
+
+    // Nuevos Campos Financieros y Cobranza
+    moneda: props.plan?.moneda || 'MXN',
+    precio_trimestral: props.plan?.precio_trimestral || null,
+    precio_semestral: props.plan?.precio_semestral || null,
+    iva_tasa: props.plan?.iva_tasa || 16,
+    iva_incluido: props.plan?.iva_incluido ?? false,
+    limit_dia_pago: props.plan?.limit_dia_pago || 5,
+    dias_gracia_cobranza: props.plan?.dias_gracia_cobranza || 3,
+    recargo_pago_tardio: props.plan?.recargo_pago_tardio || 0,
+    tipo_recargo: props.plan?.tipo_recargo || 'fijo',
+    limite_usuarios_soporte: props.plan?.limite_usuarios_soporte || null,
+    limite_ubicaciones: props.plan?.limite_ubicaciones || 1,
+    soporte_remoto_ilimitado: props.plan?.soporte_remoto_ilimitado ?? true,
+    soporte_presencial_incluido: props.plan?.soporte_presencial_incluido ?? false,
+    requiere_orden_compra: props.plan?.requiere_orden_compra ?? false,
+    metodo_pago_sugerido: props.plan?.metodo_pago_sugerido || '',
 });
 
 const nuevoBeneficio = ref('');
@@ -92,6 +109,88 @@ const submit = () => {
 };
 
 const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '💎', '🚀', '⚡', '🏆', '🔒', '📊'];
+
+// Smart Pricing Wizard (MEJORA SOLICITADA)
+const wizard = ref({
+    show: false,
+    num_pcs: form.max_equipos || 5,
+    selected_servicios: [], // IDs de servicios seleccionados
+    descuento_preferencial: 20, // % de descuento sobre el precio base
+});
+
+const costoSimuladoBase = computed(() => {
+    let base = 1500;
+    if (wizard.value.num_pcs > 5) {
+        let p = wizard.value.num_pcs > 20 ? 200 : 250;
+        base = wizard.value.num_pcs * p;
+    }
+    return base;
+});
+
+const adicionalesWizard = computed(() => {
+    let add = 0;
+    props.servicios.forEach(s => {
+        if (wizard.value.selected_servicios.includes(s.id) && parseFloat(s.precio) > 800) {
+            add += Math.round(parseFloat(s.precio) * 0.7);
+        }
+    });
+    return add;
+});
+
+const calculateWizard = () => {
+    // Lógica Base por PCs
+    let precioBase = 1500;
+    let horas = 3;
+    
+    if (wizard.value.num_pcs > 5) {
+        let precioPorPC = 250;
+        if (wizard.value.num_pcs > 20) precioPorPC = 200;
+        precioBase = wizard.value.num_pcs * precioPorPC;
+        horas = Math.ceil(wizard.value.num_pcs / 2);
+    }
+    
+    // Sumar valor de servicios especiales (ej. si un servicio es muy caro, sube la base)
+    let adicionales = 0;
+    const serviciosSeleccionados = props.servicios.filter(s => wizard.value.selected_servicios.includes(s.id));
+    
+    // Generar Beneficios y Precios Preferenciales
+    const nuevosBeneficios = [
+        `${horas} Horas de Soporte Incluidas`,
+        `Soporte para ${wizard.value.num_pcs} Equipos`
+    ];
+
+    serviciosSeleccionados.forEach(s => {
+        const precioNormal = parseFloat(s.precio);
+        const precioPlan = Math.round(precioNormal * (1 - (wizard.value.descuento_preferencial / 100)));
+        
+        nuevosBeneficios.push(`Tarifa Pref. ${s.nombre}: $${precioPlan} (Desc. ${wizard.value.descuento_preferencial}%)`);
+        
+        // LÓGICA DE PROTECCIÓN (MEJORA SOLICITADA):
+        // Si el servicio es caro (> 800), es una "Especialidad".
+        // Le preguntamos al usuario si desea subir la mensualidad o dejarlo como cobro extra preferente.
+        // Por ahora, para asegurar rentabilidad, sumamos el 50% de su valor a la mensualidad si se incluye.
+        if (precioNormal > 800) {
+            adicionales += Math.round(precioNormal * 0.7); // Sargo de seguridad
+        }
+    });
+
+    // Filtro de Seguridad: Si es Póliza Mini, limitamos los servicios que consumen horas
+    if (wizard.value.num_pcs <= 5) {
+        // Solo dejamos como "Elegibles" los servicios baratos (< 800)
+        form.servicios_elegibles = serviciosSeleccionados
+            .filter(s => parseFloat(s.precio) <= 800)
+            .map(s => s.id);
+    } else {
+        form.servicios_elegibles = [...wizard.value.selected_servicios];
+    }
+    
+    // Usar el precio preferencial del primer servicio seleccionado como "General"
+    if (serviciosSeleccionados.length > 0) {
+        form.costo_hora_extra = Math.round(parseFloat(serviciosSeleccionados[0].precio) * (1 - (wizard.value.descuento_preferencial / 100)));
+    }
+
+    wizard.value.show = false;
+};
 </script>
 
 <template>
@@ -101,14 +200,118 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
         <div class="py-6">
             <div class="w-full px-4 sm:px-6 lg:px-8">
                 <!-- Header -->
-                <div class="mb-6">
-                    <Link :href="route('planes-poliza.index')" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm mb-2 inline-block font-semibold">
-                        ← Volver al listado
-                    </Link>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white">
-                        {{ isEditing ? `Editar: ${plan.nombre}` : 'Crear Nuevo Plan de Póliza' }}
-                    </h1>
+                <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <Link :href="route('planes-poliza.index')" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm mb-2 inline-block font-semibold">
+                            ← Volver al listado
+                        </Link>
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white">
+                            {{ isEditing ? `Editar: ${plan.nombre}` : 'Crear Nuevo Plan de Póliza' }}
+                        </h1>
+                    </div>
+                    <button 
+                        @click="wizard.show = !wizard.show"
+                        type="button"
+                        class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition-all flex items-center gap-2"
+                    >
+                        <span class="text-lg">⚡</span>
+                        {{ wizard.show ? 'Cerrar Asistente' : 'Asistente de Precios Pro' }}
+                    </button>
                 </div>
+
+                <!-- WIZARD: ASISTENTE DE PRECIOS INTELIGENTE (MEJORA SOLICITADA) -->
+                <Transition
+                    enter-active-class="transition duration-300 ease-out"
+                    enter-from-class="transform scale-95 opacity-0"
+                    enter-to-class="transform scale-100 opacity-100"
+                    leave-active-class="transition duration-200 ease-in"
+                    leave-from-class="transform scale-100 opacity-100"
+                    leave-to-class="transform scale-95 opacity-0"
+                >
+                    <div v-if="wizard.show" class="mb-8 bg-gradient-to-br from-indigo-600 to-blue-700 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+                        
+                        <div class="relative z-10">
+                            <h2 class="text-2xl font-black mb-2 flex items-center gap-2">
+                                <span class="bg-white/20 p-2 rounded-lg">🧙‍♂️</span>
+                                Asistente de Configuración de Póliza
+                            </h2>
+                            <p class="text-indigo-100 text-sm mb-8">El asistente calculará el precio, horas y beneficios basándose en tus costos reales por hora.</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                <div class="space-y-4">
+                                    <label class="block text-[10px] font-black uppercase tracking-widest text-indigo-200">Configuración Comercial</label>
+                                    <div class="space-y-3">
+                                        <div class="bg-white/10 p-3 rounded-xl border border-indigo-400/30">
+                                            <p class="text-[9px] uppercase font-bold opacity-70">Descuento en Horas Extras (%)</p>
+                                            <div class="flex items-center gap-2">
+                                                <input v-model.number="wizard.descuento_preferencial" type="number" class="w-full bg-transparent border-none text-xl font-black focus:ring-0 p-0" />
+                                                <span class="font-black">%</span>
+                                            </div>
+                                        </div>
+                                        <div class="bg-indigo-900/40 p-3 rounded-xl">
+                                            <p class="text-[10px] uppercase font-bold text-indigo-200 mb-2">Resumen de Equipos</p>
+                                            <input type="range" v-model="wizard.num_pcs" min="1" max="100" class="w-full accent-white" />
+                                            <p class="text-3xl font-black text-center mt-1">{{ wizard.num_pcs }} <span class="text-xs">PCs</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="md:col-span-2 space-y-4">
+                                    <label class="block text-[10px] font-black uppercase tracking-widest text-indigo-200">Servicios/Especialidades a Incluir</label>
+                                    <div class="bg-white/10 rounded-2xl p-4 max-h-64 overflow-y-auto border border-white/10">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-white">
+                                            <label v-for="servicio in servicios" :key="servicio.id" 
+                                                   class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/10 cursor-pointer transition-colors"
+                                                   :class="{'bg-white/20': wizard.selected_servicios.includes(servicio.id)}">
+                                                <input type="checkbox" :value="servicio.id" v-model="wizard.selected_servicios" class="w-5 h-5 rounded border-white/30 bg-transparent text-indigo-500">
+                                                <div class="flex-grow">
+                                                    <p class="text-xs font-bold leading-none mb-1">{{ servicio.nombre }}</p>
+                                                    <p class="text-[9px] opacity-60">Base: ${{ servicio.precio }} / Pref: ${{ Math.round(servicio.precio * (1 - (wizard.descuento_preferencial/100))) }}</p>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-indigo-900/40 p-5 rounded-2xl border border-white/10">
+                                        <p class="text-[10px] font-black uppercase mb-4 text-emerald-300">Resumen de Rentabilidad</p>
+                                        <div class="space-y-2 text-xs">
+                                            <div class="flex justify-between">
+                                                <span>Base por PCs ({{wizard.num_pcs}}):</span>
+                                                <span class="font-bold">${{ costoSimuladoBase }}</span>
+                                            </div>
+                                            <div class="flex justify-between text-amber-300">
+                                                <span>Cargos Especialidad:</span>
+                                                <span class="font-bold">+${{ adicionalesWizard }}</span>
+                                            </div>
+                                            <div class="border-t border-white/10 pt-2 flex justify-between text-lg font-black text-white">
+                                                <span>Total Sugerido:</span>
+                                                <span>${{ costoSimuladoBase + adicionalesWizard }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex gap-4">
+                                        <button 
+                                            type="button"
+                                            @click="calculateWizard"
+                                            class="flex-grow py-4 bg-emerald-400 hover:bg-emerald-500 text-emerald-950 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl transition-all"
+                                        >
+                                            ✨ Aplicar y Proteger Rentabilidad
+                                        </button>
+                                        <button 
+                                            type="button" 
+                                            @click="wizard.show = false"
+                                            class="px-6 py-4 bg-white/10 hover:bg-white/20 rounded-2xl text-xs font-black uppercase"
+                                        >
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Transition>
 
                 <form @submit.prevent="submit" class="space-y-6">
                     <!-- Información Básica -->
@@ -175,58 +378,146 @@ const iconosDisponibles = ['🛡️', '🔧', '🛠️', '✅', '⭐', '🎯', '
                         </div>
                     </div>
 
-                    <!-- Precios -->
-                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
-                        <h3 class="font-bold text-gray-900 dark:text-white dark:text-white mb-4 border-b border-gray-200 dark:border-slate-800 dark:border-gray-600 pb-2">💰 Precios</h3>
+                    <!-- Precios y Estructura Financiera -->
+                    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-slate-800">
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-slate-800 pb-2 flex items-center gap-2">
+                            <span class="text-xl">💰</span> Precios y Estructura Financiera
+                        </h3>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Precio Mensual *</label>
-                                <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
-                                    <input 
-                                        v-model.number="form.precio_mensual" 
-                                        type="number" 
-                                        step="0.01"
-                                        min="0"
-                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
-                                    />
+                                <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Moneda</label>
+                                <select v-model="form.moneda" class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 rounded-lg bg-gray-50 dark:bg-slate-950 text-sm font-bold">
+                                    <option value="MXN">Pesos (MXN)</option>
+                                    <option value="USD">Dólares (USD)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">IVA (%)</label>
+                                <input v-model.number="form.iva_tasa" type="number" step="0.01" class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 rounded-lg bg-gray-50 dark:bg-slate-950 text-sm" />
+                            </div>
+
+                            <div class="md:col-span-2 flex items-center gap-4 pt-4">
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" v-model="form.iva_incluido" class="w-5 h-5 rounded text-blue-600">
+                                    <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Precio incluye impuestos</span>
+                                </label>
+                            </div>
+
+                            <div class="border-t border-gray-50 dark:border-slate-800 md:col-span-4 pt-4">
+                                <p class="text-xs font-bold text-blue-600 uppercase mb-4">Modalidades de Pago</p>
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 mb-1">Pago Mensual</label>
+                                        <div class="relative">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                                            <input v-model.number="form.precio_mensual" type="number" step="0.01" class="w-full pl-8 py-2 border border-gray-200 dark:border-slate-800 rounded-lg" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 mb-1">Pago Trimestral</label>
+                                        <div class="relative">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                                            <input v-model.number="form.precio_trimestral" type="number" step="0.01" class="w-full pl-8 py-2 border border-gray-200 dark:border-slate-800 rounded-lg" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 mb-1">Pago Semestral</label>
+                                        <div class="relative">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                                            <input v-model.number="form.precio_semestral" type="number" step="0.01" class="w-full pl-8 py-2 border border-gray-200 dark:border-slate-800 rounded-lg" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 mb-1">Pago Anual</label>
+                                        <div class="relative">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                                            <input v-model.number="form.precio_anual" type="number" step="0.01" class="w-full pl-8 py-2 border border-gray-200 dark:border-slate-800 rounded-lg" />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Cobranza y Facturación -->
+                    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-slate-800">
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-slate-800 pb-2 flex items-center gap-2">
+                            <span class="text-xl">💳</span> Cobranza y Facturación
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Precio Anual (con descuento)</label>
-                                <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
-                                    <input 
-                                        v-model.number="form.precio_anual" 
-                                        type="number" 
-                                        step="0.01"
-                                        min="0"
-                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
-                                        placeholder="Opcional"
-                                    />
-                                </div>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Si se define, se mostrará el ahorro</p>
+                                <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Límite Día de Pago</label>
+                                <input v-model.number="form.limit_dia_pago" type="number" min="1" max="31" class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 rounded-lg" placeholder="Ej: 5" />
+                                <p class="text-[10px] text-gray-400 mt-1">Día del mes para recibir el pago.</p>
                             </div>
+
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Costo de Activación</label>
-                                <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
-                                    <input 
-                                        v-model.number="form.precio_instalacion" 
-                                        type="number" 
-                                        step="0.01"
-                                        min="0"
-                                        class="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
-                                    />
+                                <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Días de Gracia</label>
+                                <input v-model.number="form.dias_gracia_cobranza" type="number" min="0" class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 rounded-lg" placeholder="Ej: 3" />
+                                <p class="text-[10px] text-gray-400 mt-1">Días antes de marcar la cuenta en riesgo.</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Recargo por Mora</label>
+                                <div class="flex gap-2">
+                                    <input v-model.number="form.recargo_pago_tardio" type="number" step="0.01" class="flex-1 px-4 py-2 border border-gray-200 dark:border-slate-800 rounded-lg" />
+                                    <select v-model="form.tipo_recargo" class="px-2 border border-gray-200 dark:border-slate-800 rounded-lg text-xs font-bold">
+                                        <option value="fijo">$</option>
+                                        <option value="porcentaje">%</option>
+                                    </select>
                                 </div>
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Método de Pago Sugerido</label>
+                                <input v-model="form.metodo_pago_sugerido" type="text" class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 rounded-lg" placeholder="Ej: Transferencia SPEI, Domiciliación..." />
+                            </div>
+
+                            <div class="flex items-center pt-4">
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" v-model="form.requiere_orden_compra" class="w-5 h-5 rounded text-blue-600">
+                                    <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Requiere Orden de Compra</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Límites de Servicio y Cobertura -->
+                    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-slate-800">
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-slate-800 pb-2 flex items-center gap-2">
+                            <span class="text-xl">📍</span> Límites de Servicio y Cobertura
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div>
+                                <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Usuarios Soporte</label>
+                                <input v-model.number="form.limite_usuarios_soporte" type="number" min="1" class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 rounded-lg" placeholder="Ej: 50" />
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Ubicaciones/Sedes</label>
+                                <input v-model.number="form.limite_ubicaciones" type="number" min="1" class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 rounded-lg" placeholder="Ej: 1" />
+                            </div>
+
+                            <div class="lg:col-span-2 space-y-3">
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" v-model="form.soporte_remoto_ilimitado" class="w-5 h-5 rounded text-blue-600">
+                                    <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Soporte Remoto Ilimitado</span>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" v-model="form.soporte_presencial_incluido" class="w-5 h-5 rounded text-indigo-600">
+                                    <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Incluye Soporte Presencial</span>
+                                </label>
                             </div>
                         </div>
                     </div>
 
                     <!-- Características del Servicio -->
                     <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-none p-6 border border-gray-100 dark:border-gray-700">
-                        <h3 class="font-bold text-gray-900 dark:text-white dark:text-white mb-4 border-b border-gray-200 dark:border-slate-800 dark:border-gray-600 pb-2">⚙️ Configuración del Servicio</h3>
+                        <h3 class="font-bold text-gray-900 dark:text-white dark:text-white mb-4 border-b border-gray-200 dark:border-slate-800 dark:border-gray-600 pb-2">⚙️ Consumibles Técnicos</h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div>

@@ -265,7 +265,7 @@ class Prestamo extends Model implements AuditableContract
         }
 
         $this->pagos_pendientes = max(0, $this->numero_pagos - $this->pagos_realizados);
-        $this->monto_pendiente = max(0, $this->monto_total_pagar - $this->monto_pagado);
+        $this->setAttribute('monto_pendiente', max(0, $this->monto_total_pagar - $this->monto_pagado));
 
         $this->save();
     }
@@ -317,7 +317,7 @@ class Prestamo extends Model implements AuditableContract
 
             $fechaProgramada = match ($this->frecuencia_pago) {
                 'semanal' => $fechaActual->copy()->addWeeks($i - 1),
-                'quincenal' => $fechaActual->copy()->addWeeks(($i - 1) * 2),
+                'quincenal' => $fechaActual->copy()->addDays(($i - 1) * 15),
                 'mensual' => $fechaActual->copy()->addMonths($i - 1),
                 default => $fechaActual->copy()->addMonths($i - 1),
             };

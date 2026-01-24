@@ -236,6 +236,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::post('clientes/{cliente}/documentos', [ClienteDocumentoController::class, 'store'])->name('clientes.documentos.store');
     Route::delete('clientes/documentos/{documento}', [ClienteDocumentoController::class, 'destroy'])->name('clientes.documentos.destroy');
     Route::get('clientes/{cliente}/contrato-credito', [ClienteCreditoPDFController::class, 'contrato'])->name('clientes.contrato-credito');
+    // Prestamos
+    Route::post('/prestamos/calcular-pagos', [PrestamoController::class, 'calcularPagos'])->name('prestamos.calcular-pagos');
     Route::resource('prestamos', PrestamoController::class)->names('prestamos')->middleware('role:ventas|admin|super-admin');
     Route::resource('pagos', PagoPrestamoController::class)->names('pagos')->middleware('can:view pagos');
 
@@ -255,6 +257,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     });
 
     // Gestión de Blog
+    Route::post('gestion-blog/{blog}/send-newsletter', [App\Http\Controllers\Admin\BlogPostController::class, 'sendNewsletter'])->name('admin.blog.send-newsletter');
+    Route::post('gestion-blog/{blog}/send-test', [App\Http\Controllers\Admin\BlogPostController::class, 'sendTestNewsletter'])->name('admin.blog.send-test');
     Route::resource('gestion-blog', App\Http\Controllers\Admin\BlogPostController::class)->names('admin.blog');
 
     Route::resource('proveedores', ProveedorController::class)->names('proveedores')->middleware('can:view proveedores');
@@ -458,6 +462,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::put('/configuracion/correo', [EmailConfigController::class, 'update'])->name('correo.update');
         Route::get('/folios/config', [FolioConfigController::class, 'index'])->name('folios.config.index');
         Route::put('/configuracion/tienda', [TiendaConfigController::class, 'update'])->name('tienda.update');
+        Route::post('/configuracion/tienda/sync-monedero', [TiendaConfigController::class, 'syncMonedero'])->name('tienda.sync-monedero');
         Route::put('/configuracion/whatsapp', [EmpresaWhatsAppController::class, 'update'])->name('whatsapp.update');
         Route::get('/configuracion/logs', [SistemaConfigController::class, 'getLogs'])->name('sistema.logs');
         Route::post('/configuracion/logs/clear', [SistemaConfigController::class, 'clearLogs'])->name('sistema.logs.clear');

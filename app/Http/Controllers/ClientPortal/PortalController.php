@@ -22,6 +22,7 @@ use App\Models\CuentasPorCobrar;
 use App\Models\Renta;
 use App\Models\Cita;
 use App\Models\Pedido;
+use App\Models\PolizaCargo;
 use Inertia\Inertia;
 
 class PortalController extends Controller
@@ -157,7 +158,7 @@ class PortalController extends Controller
                 'estado' => $c->estado,
             ]);
 
-        // Próxima CxC a vencer (solo la más próxima, no todas las futuras)
+        // Próxima CxC a vencer
         $proximaCxc = CuentasPorCobrar::where('cliente_id', $cliente->id)
             ->whereIn('estado', ['pendiente'])
             ->where('monto_pendiente', '>', 0)
@@ -174,12 +175,27 @@ class PortalController extends Controller
                     'folio' => 'CXC-' . str_pad($proximaCxc->id, 5, '0', STR_PAD_LEFT),
                     'total' => $proximaCxc->monto_pendiente,
                     'fecha_vencimiento' => $proximaCxc->fecha_vencimiento,
-                    'estado' => 'proximo', // Marcar como próximo para diferenciarlo en el frontend
+                    'estado' => 'proximo',
                 ]
             ]);
         }
 
-        return $ventasVencidas->concat($cxcVencidas)->concat($proximoPago)->sortBy('fecha_vencimiento')->values();
+        // Cargos de Póliza (PolizaCargo) pendientes o vencidos
+        $cargosPendientes = PolizaCargo::whereHas('poliza', fn($q) => $q->where('cliente_id', $cliente->id))
+            ->whereIn('estado', ['pendiente', 'vencido'])
+            ->orderBy('fecha_vencimiento')
+            ->get()
+            ->map(fn($c) => [
+                'id' => $c->id,
+                'tipo' => 'cargo_poliza',
+                'folio' => 'POL-' . str_pad($c->id, 5, '0', STR_PAD_LEFT),
+                'total' => $c->total,
+                'fecha_vencimiento' => $c->fecha_vencimiento,
+                'estado' => $c->estado,
+                'concepto' => $c->concepto,
+            ]);
+
+        return $ventasVencidas->concat($cxcVencidas)->concat($cargosPendientes)->concat($proximoPago)->sortBy('fecha_vencimiento')->values();
     }
 
     private function getDashboardRentas($cliente)
@@ -409,6 +425,9 @@ class PortalController extends Controller
             },
             'cuentasPorCobrar' => function ($q) {
                 $q->orderByDesc('created_at')->limit(12);
+            },
+            'cargos' => function ($q) {
+                $q->latest()->limit(12);
             },
             // Cargar configuración de mantenimientos y próximas ejecuciones
             'mantenimientos' => function ($q) {

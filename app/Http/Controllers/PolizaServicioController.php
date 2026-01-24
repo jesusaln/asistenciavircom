@@ -108,6 +108,9 @@ class PolizaServicioController extends Controller
             'cuentasPorCobrar' => function ($q) {
                 $q->latest()->take(10);
             },
+            'cargos' => function ($q) {
+                $q->latest()->take(12);
+            },
             'credenciales'
         ]);
 

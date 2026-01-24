@@ -60,6 +60,7 @@ class User extends Authenticatable
         'comision_instalacion',
         // Campos unificados de Empleado (RRHH)
         'salario_base',
+        'costo_hora_interno',
         'tipo_jornada',
         'horas_jornada',
         'hora_entrada',
@@ -119,6 +120,7 @@ class User extends Authenticatable
             'fecha_contratacion' => 'date:Y-m-d',
             'salario' => 'decimal:2',
             'salario_base' => 'decimal:2',
+            'costo_hora_interno' => 'decimal:2',
             'es_empleado' => 'boolean',
             'activo' => 'boolean',
             // Campos unificados

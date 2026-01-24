@@ -155,6 +155,42 @@
               </div>
             </div>
 
+            <!-- Costo Interno (Technical) -->
+            <div class="space-y-6 border-t pt-6">
+              <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+                  <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Información Financiera / Técnica
+                  </h2>
+                  <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Define el costo real de la hora técnica para cálculos de rentabilidad.</p>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="form-group">
+                    <label for="costo_hora_interno" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Costo Interno por Hora (Técnico)
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">$</span>
+                        </div>
+                        <input
+                            v-model="form.costo_hora_interno"
+                            type="number"
+                            step="0.01"
+                            id="costo_hora_interno"
+                            class="block w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900"
+                            placeholder="0.00"
+                        />
+                    </div>
+                    <InputError class="mt-2" :message="form.errors.costo_hora_interno" />
+                    <p class="text-[10px] text-gray-500 mt-1 italic">Este valor se utiliza para calcular el margen de utilidad real en las pólizas de servicio.</p>
+                  </div>
+              </div>
+            </div>
+
             <!-- Asignación de Roles -->
             <div class="space-y-6 border-t pt-6">
               <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
@@ -398,6 +434,7 @@ const form = useForm({
   password_confirmation: '',
   almacen_venta_id: null,
   almacen_compra_id: null,
+  costo_hora_interno: 0,
 });
 
 // Instancia de Notyf para notificaciones

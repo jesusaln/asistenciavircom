@@ -4,6 +4,7 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
 use App\Models\Venta;
+use App\Models\PolizaCargo;
 use App\Enums\EstadoVenta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -39,8 +40,6 @@ class PortalPaymentController extends Controller
 
             // Items
             $items = [];
-            // Aquí asumimos que venta->items tiene items con descripción y precio
-            // Si la estructura es compleja, simplificamos a un solo item "Pago de Venta #Folio"
 
             $item = new \MercadoPago\Item();
             $item->title = "Pago de Nota de Venta #" . ($venta->numero_venta ?? $venta->id);
@@ -64,13 +63,7 @@ class PortalPaymentController extends Controller
                 'email' => $cliente->email,
             ];
 
-            // Referencia externa: Prefijo VENTA_ para distinguir de pedidos online si usan el mismo webhook,
-            // pero usaremos webhook dedicado idealmente.
             $preference->external_reference = 'VENTA_' . $venta->id;
-
-            // Usamos un webhook específico para portal si es posible, o el general con lógica de detección
-            // Por simplicidad en este sprint, notificaremos al webhook general y ahí filtraremos,
-            // o crearemos una ruta dedicada y la pasamos aquí.
             $preference->notification_url = route('portal.pagos.mercadopago.webhook');
 
             $preference->save();
@@ -78,7 +71,6 @@ class PortalPaymentController extends Controller
             return response()->json([
                 'success' => true,
                 'init_point' => $preference->init_point,
-                // init_point redirige al checkout de MP
                 'sandbox_init_point' => $preference->sandbox_init_point,
             ]);
 
@@ -88,6 +80,56 @@ class PortalPaymentController extends Controller
                 'success' => false,
                 'message' => 'Error al iniciar pasarela: ' . $e->getMessage(),
             ], 500);
+        }
+    }
+
+    /**
+     * Crear preferencia de pago para un Cargo de Póliza
+     */
+    public function createForCargo(Request $request)
+    {
+        $validated = $request->validate([
+            'cargo_id' => 'required|exists:poliza_cargos,id',
+        ]);
+
+        $cliente = Auth::guard('client')->user();
+        $cargo = PolizaCargo::whereHas('poliza', function ($q) use ($cliente) {
+            $q->where('cliente_id', $cliente->id);
+        })->findOrFail($validated['cargo_id']);
+
+        if ($cargo->estado === 'pagado') {
+            return response()->json(['success' => false, 'message' => 'Este cargo ya fue pagado.'], 400);
+        }
+
+        try {
+            \MercadoPago\SDK::setAccessToken(config('services.mercadopago.access_token'));
+            $preference = new \MercadoPago\Preference();
+
+            $item = new \MercadoPago\Item();
+            $item->title = $cargo->concepto;
+            $item->quantity = 1;
+            $item->unit_price = floatval($cargo->total);
+            $item->currency_id = $cargo->moneda ?: 'MXN';
+
+            $preference->items = [$item];
+            $preference->external_reference = 'CARGO_' . $cargo->id;
+            $preference->notification_url = route('portal.pagos.mercadopago.webhook');
+
+            $preference->back_urls = [
+                'success' => route('portal.polizas.show', [$cargo->poliza_id, 'pago' => 'success']),
+                'failure' => route('portal.polizas.show', [$cargo->poliza_id, 'pago' => 'failure']),
+            ];
+            $preference->auto_return = 'approved';
+
+            $preference->save();
+
+            return response()->json([
+                'success' => true,
+                'init_point' => $preference->init_point,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Portal MP Cargo error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Error al procesar pago.'], 500);
         }
     }
 
@@ -106,6 +148,7 @@ class PortalPaymentController extends Controller
 
                 if ($payment && $payment->status === 'approved') {
                     $ref = $payment->external_reference;
+
                     if (str_starts_with($ref, 'VENTA_')) {
                         $ventaId = str_replace('VENTA_', '', $ref);
                         $venta = Venta::find($ventaId);
@@ -114,17 +157,35 @@ class PortalPaymentController extends Controller
                             $venta->estado = EstadoVenta::Pagado;
                             $venta->pagado = true;
                             $venta->fecha_pago = now();
-                            $venta->metodo_pago = 'mercadopago'; // o tarjeta
+                            $venta->metodo_pago = 'mercadopago';
                             $venta->notas_pago = "Pagado vía MercadoPago ID: " . $payment->id;
                             $venta->save();
 
-                            // Actualizar saldo crédito si aplica? No, esto es pago directo.
-                            // Pero si había CXC
                             if ($venta->cuentaPorCobrar) {
                                 $venta->cuentaPorCobrar->update([
                                     'monto_pendiente' => 0,
                                     'estado' => 'pagado'
                                 ]);
+                            }
+                        }
+                    } elseif (str_starts_with($ref, 'CARGO_')) {
+                        $cargoId = str_replace('CARGO_', '', $ref);
+                        $cargo = PolizaCargo::find($cargoId);
+
+                        if ($cargo && $cargo->estado !== 'pagado') {
+                            $cargo->update([
+                                'estado' => 'pagado',
+                                'fecha_pago' => now(),
+                                'metodo_pago' => 'mercadopago',
+                                'referencia_pago' => $payment->id,
+                                'notas' => ($cargo->notas ? $cargo->notas . "\n" : "") . "Pagado vía MercadoPago ID: " . $payment->id
+                            ]);
+
+                            if ($cargo->poliza && $cargo->poliza->estado === 'vencida_en_gracia') {
+                                $otrosVencidos = $cargo->poliza->cargos()->vencidos()->where('id', '!=', $cargo->id)->count();
+                                if ($otrosVencidos === 0) {
+                                    $cargo->poliza->update(['estado' => 'activa']);
+                                }
                             }
                         }
                     }

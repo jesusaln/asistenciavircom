@@ -197,9 +197,20 @@ class PedidoOnline extends Model
             }
 
             if (!empty($itemsCVA)) {
+                // Limpiar las claves para CVA (quitar prefijo CVA- si existe)
+                $itemsCVAFormateados = [];
+                foreach ($itemsCVA as $item) {
+                    $clave = $item['id'] ?? $item['producto_id'];
+                    $claveLimpia = str_replace('CVA-', '', $clave);
+                    $itemsCVAFormateados[] = [
+                        'clave' => $claveLimpia,
+                        'cantidad' => $item['cantidad'],
+                    ];
+                }
+
                 $serviceCva = app(\App\Services\CVAService::class);
                 $orderData = [
-                    'productos' => $itemsCVA,
+                    'productos' => $itemsCVAFormateados,
                 ];
 
                 if ($this->tipo_entrega === 'domicilio') {
@@ -219,16 +230,80 @@ class PedidoOnline extends Model
                 $cvaResult = $serviceCva->createOrder($orderData);
 
                 if ($cvaResult['success']) {
+                    $cvaPedidoId = $cvaResult['data']['pedido'] ?? null;
+                    $cvaTotal = (float) ($cvaResult['data']['total'] ?? 0);
+
                     $this->update([
-                        'cva_pedido_id' => $cvaResult['data']['pedido'] ?? null,
-                        'notas' => ($this->notas ? $this->notas . " " : "") . "[DETALLE CVA: " . ($cvaResult['data']['pedido'] ?? 'ORDEN CREADA') . "]"
+                        'cva_pedido_id' => $cvaPedidoId,
+                        'notas' => ($this->notas ? $this->notas . " " : "") . "[DETALLE CVA: " . ($cvaPedidoId ?? 'ORDEN CREADA') . "]"
                     ]);
 
                     $this->registrarEvento(
                         'ENVIO_CVA',
-                        "Pedido enviado a CVA exitosamente. ID: " . ($cvaResult['data']['pedido'] ?? 'N/A'),
+                        "Pedido enviado a CVA exitosamente. ID: " . ($cvaPedidoId ?? 'N/A'),
                         $cvaResult['data'] ?? []
                     );
+
+                    // --- NUEVA LÓGICA: CUENTAS POR PAGAR Y PAGO AUTOMÁTICO ---
+                    try {
+                        // 1. Asegurar que existe el proveedor CVA
+                        $proveedor = \App\Models\Proveedor::firstOrCreate(
+                            ['rfc' => 'CVO000522HU6'], // RFC Real de CVA (Comercializadora de Valor Agregado)
+                            [
+                                'nombre_razon_social' => 'COMERCIALIZADORA DE VALOR AGREGADO SA DE CV',
+                                'nombre_corto' => 'CVA',
+                                'email' => 'ventas@grupocva.com',
+                                'activo' => true
+                            ]
+                        );
+
+                        // 2. Crear Cuenta por Pagar (CXP)
+                        $cxp = \App\Models\CuentasPorPagar::create([
+                            'empresa_id' => $this->empresa_id,
+                            'proveedor_id' => $proveedor->id,
+                            'monto_total' => $cvaTotal,
+                            'monto_pendiente' => $cvaTotal,
+                            'fecha_vencimiento' => now()->addDays(2), // CVA suele dar poco tiempo o es contado
+                            'estado' => 'pendiente',
+                            'notas' => "Compra automatizada desde Pedido Online: {$this->numero_pedido} (CVA Ref: {$cvaPedidoId})",
+                        ]);
+
+                        // 3. Intento de Pago Automático (si está activo)
+                        $config = \App\Models\EmpresaConfiguracion::getConfig($this->empresa_id);
+                        if ($config && $config->cva_auto_pago && $cvaPedidoId && $cvaTotal > 0) {
+                            $payResult = $serviceCva->payOrderWithMonedero($cvaPedidoId, $cvaTotal);
+
+                            if ($payResult['success']) {
+                                // Marcar CXP como pagada
+                                $cxp->update([
+                                    'pagado' => true,
+                                    'estado' => 'pagado',
+                                    'monto_pagado' => $cvaTotal,
+                                    'monto_pendiente' => 0,
+                                    'fecha_pago' => now(),
+                                    'metodo_pago' => 'monedero_cva',
+                                    'notas' => $cxp->notas . "\n[PAGO AUTOMÁTICO EXITOSO]"
+                                ]);
+
+                                $this->registrarEvento(
+                                    'PAGO_CVA_AUTO',
+                                    "Pago automático a CVA realizado con éxito vía Monedero. Monto: {$cvaTotal}",
+                                    $payResult['data'] ?? []
+                                );
+
+                                \Log::info("Pago automático CVA exitoso para pedido {$this->numero_pedido}");
+                            } else {
+                                $this->registrarEvento(
+                                    'PAGO_CVA_ERROR',
+                                    "Error al realizar pago automático a CVA: " . ($payResult['error'] ?? 'Desconocido'),
+                                    $payResult
+                                );
+                                \Log::error("Error en pago automático CVA para pedido {$this->numero_pedido}: " . ($payResult['error'] ?? 'N/A'));
+                            }
+                        }
+                    } catch (\Exception $ecxp) {
+                        \Log::error("Error en registro CXP / Pago CVA para pedido {$this->numero_pedido}: " . $ecxp->getMessage());
+                    }
 
                     \Log::info("Pedido {$this->numero_pedido} enviado a CVA tras pago confirmado");
                 } else {
@@ -273,5 +348,31 @@ class PedidoOnline extends Model
             'cancelado' => 'Cancelado',
             default => ucfirst($this->estado),
         };
+    }
+
+    /**
+     * Obtener la URL de rastreo según la paquetería
+     */
+    public function getTrackingUrlAttribute(): ?string
+    {
+        if (!$this->guia_envio)
+            return null;
+
+        $paqueteria = strtoupper($this->paqueteria ?? '');
+
+        if (str_contains($paqueteria, 'PAQUETEXPRESS')) {
+            return "https://www.paquetexpress.com.mx/seguimiento-de-envio?rastreo={$this->guia_envio}";
+        }
+        if (str_contains($paqueteria, 'ESTAFETA')) {
+            return "https://www.estafeta.com/Herramientas/Rastreo?waybill={$this->guia_envio}";
+        }
+        if (str_contains($paqueteria, 'FEDEX')) {
+            return "https://www.fedex.com/fedextrack/?trknbr={$this->guia_envio}";
+        }
+        if (str_contains($paqueteria, 'DHL')) {
+            return "https://www.dhl.com/mx-es/home/rastreo.html?tracking_number={$this->guia_envio}";
+        }
+
+        return null;
     }
 }

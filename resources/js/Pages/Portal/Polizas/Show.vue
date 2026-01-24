@@ -253,6 +253,25 @@ const enviarSolicitud = () => {
         },
     });
 };
+
+// --- PAGOS (SMART BILLING) ---
+const procesandoPagoId = ref(null);
+const pagarCargo = async (cargoId) => {
+    procesandoPagoId.value = cargoId;
+    try {
+        const response = await axios.post(route('portal.pagos.cargo.mercadopago'), { cargo_id: cargoId });
+        if (response.data.success && response.data.init_point) {
+            window.location.href = response.data.init_point;
+        } else {
+            alert('No se pudo iniciar el proceso de pago. Intenta de nuevo.');
+        }
+    } catch (error) {
+        console.error('Error al pagar:', error);
+        alert('Hubo un error al conectar con la pasarela de pagos.');
+    } finally {
+        procesandoPagoId.value = null;
+    }
+};
 </script>
 
 <template>
@@ -498,13 +517,84 @@ const enviarSolicitud = () => {
                                         <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest">{{ formatDate(ticket.created_at) }} • {{ ticket.categoria?.nombre || 'Soporte' }}</p>
                                     </div>
                                 </div>
-                                <Link :href="route('portal.tickets.show', ticket.id)" class="px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-800 text-gray-600 dark:text-gray-300 dark:text-gray-300 border border-gray-100 dark:border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-slate-700 transition-all">
+                                <Link :href="route('portal.tickets.show', ticket.id)" class="px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-800 text-gray-600 dark:text-gray-300 dark:text-gray-300 border border-gray-100 dark:border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800/50 transition-all">
                                     Ver Detalle
                                 </Link>
                             </div>
                         </div>
                         <div v-else class="text-center py-8">
                             <p class="text-sm font-medium text-gray-400 italic">No se han registrado consumos de tickets en el periodo actual.</p>
+                        </div>
+                    </div>
+
+                    <!-- FASE SMART BILLING: Historial de Cargos y Pagos -->
+                    <div class="bg-white dark:bg-slate-900 dark:bg-slate-900/60 rounded-[2rem] shadow-xl dark:shadow-2xl shadow-gray-200/50 dark:shadow-black/50 border border-blue-100 dark:border-blue-900/30 p-8 dark:backdrop-blur-xl transition-all">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-tight flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm">
+                                    <font-awesome-icon icon="credit-card" />
+                                </div>
+                                Estado de Cuenta y Pagos
+                            </h3>
+                            <span class="bg-blue-600 text-white text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest animate-pulse">
+                                Pago Online Habilitado
+                            </span>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="border-b border-gray-50 dark:border-white/5">
+                                    <tr>
+                                        <th class="pb-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Concepto</th>
+                                        <th class="pb-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center">Estado</th>
+                                        <th class="pb-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-right">Monto</th>
+                                        <th class="pb-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-right">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-50 dark:divide-white/5">
+                                    <tr v-for="cargo in poliza.cargos" :key="cargo.id" class="group">
+                                        <td class="py-4">
+                                            <p class="text-sm font-bold text-gray-900 dark:text-white">{{ cargo.concepto }}</p>
+                                            <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-widest">Vence: {{ formatDate(cargo.fecha_vencimiento) }}</p>
+                                        </td>
+                                        <td class="py-4 text-center">
+                                            <span 
+                                                class="px-2 py-0.5 text-[9px] font-black rounded uppercase border-2"
+                                                :class="{
+                                                    'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800/30': cargo.estado === 'pagado',
+                                                    'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-800/30': cargo.estado === 'pendiente',
+                                                    'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border-red-100 dark:border-red-800/30': cargo.estado === 'vencido',
+                                                }"
+                                            >
+                                                {{ cargo.estado }}
+                                            </span>
+                                        </td>
+                                        <td class="py-4 text-right">
+                                            <p class="text-sm font-black text-gray-900 dark:text-white">{{ formatCurrency(cargo.total) }}</p>
+                                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest">{{ cargo.moneda }}</p>
+                                        </td>
+                                        <td class="py-4 text-right">
+                                            <button 
+                                                v-if="cargo.estado !== 'pagado'"
+                                                @click="pagarCargo(cargo.id)"
+                                                :disabled="procesandoPagoId === cargo.id"
+                                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-200 dark:shadow-none disabled:opacity-50"
+                                            >
+                                                <font-awesome-icon :icon="procesandoPagoId === cargo.id ? 'spinner' : 'credit-card'" :spin="procesandoPagoId === cargo.id" class="mr-1" />
+                                                {{ procesandoPagoId === cargo.id ? 'Iniciando...' : 'Pagar' }}
+                                            </button>
+                                            <div v-else class="text-emerald-500 text-[10px] font-black uppercase tracking-widest">
+                                                ✓ Recibo Listo
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="!poliza.cargos || poliza.cargos.length === 0">
+                                        <td colspan="4" class="py-8 text-center text-gray-400 text-xs italic">
+                                            No hay cargos pendientes en este periodo.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 

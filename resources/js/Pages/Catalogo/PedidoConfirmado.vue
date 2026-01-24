@@ -109,6 +109,48 @@ const handleWhatsAppClick = () => {
                 
                 <!-- Columna: Pasos a seguir -->
                 <div class="space-y-6">
+                    <!-- Widget de Rastreo (Solo si está enviado) -->
+                    <div v-if="pedido.guia_envio" class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2rem] p-8 text-white shadow-xl shadow-blue-500/20 relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
+                        <div class="absolute -right-4 -bottom-4 opacity-10">
+                            <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M20 8l-3 5H7l-3-5M2 4h20l-1 2H3L2 4zm5 10v6h10v-6H7z"/></svg>
+                        </div>
+                        
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="p-2 bg-white/20 rounded-xl">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                </div>
+                                <h3 class="text-lg font-black uppercase tracking-tight">¡Tu paquete está en camino!</h3>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                                <div>
+                                    <p class="text-xs font-bold text-blue-100 uppercase mb-1">Paquetería</p>
+                                    <p class="text-xl font-black uppercase">{{ pedido.paqueteria || 'Mensajería' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-blue-100 uppercase mb-1">Número de Guía</p>
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-xl font-black tracking-widest">{{ pedido.guia_envio }}</p>
+                                        <button @click="() => { navigator.clipboard.writeText(pedido.guia_envio); }" title="Copiar guía" class="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-8">
+                                <a v-if="pedido.tracking_url" :href="pedido.tracking_url" target="_blank" class="flex items-center justify-center gap-3 w-full py-4 bg-white text-blue-700 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-blue-50 transition-all shadow-lg">
+                                    Rastrear Paquete
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                </a>
+                                <div v-else class="text-center py-2 px-4 bg-white/10 rounded-xl text-xs font-bold border border-white/20">
+                                    El rastreo estará disponible en breve en el portal del proveedor.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-[2rem] p-8 shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden">
                         <div class="absolute top-0 right-0 p-4 opacity-5">
                             <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>

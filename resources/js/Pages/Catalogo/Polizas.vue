@@ -91,7 +91,50 @@ const planesCalculados = computed(() => {
              };
         }
         return plan;
+const simulador = ref({
+    pcs: 5,
+    addons: {
+        'CONTPAQi': false,
+        'Servidores': false,
+        'CCTV': false,
+        'Redes': false
+    },
+    addonsConfig: {
+        'CONTPAQi': 850,
+        'Servidores': 1200,
+        'CCTV': 600,
+        'Redes': 750
+    }
+});
+
+const toggleAddon = (name) => {
+    simulador.value.addons[name] = !simulador.value.addons[name];
+};
+
+const costoSimulado = computed(() => {
+    let base = 1500;
+    const pcs = simulador.value.pcs;
+    
+    if (pcs > 5) {
+        let pcPrice = 250;
+        if (pcs > 20) pcPrice = 200;
+        base = pcs * pcPrice;
+    }
+    
+    let totalAddons = 0;
+    Object.keys(simulador.value.addons).forEach(key => {
+        if (simulador.value.addons[key]) {
+            totalAddons += simulador.value.addonsConfig[key];
+        }
     });
+    
+    return base + totalAddons;
+});
+
+const horasSimuladas = computed(() => {
+    const pcs = simulador.value.pcs;
+    if (pcs <= 5) return 3;
+    return Math.ceil(pcs / 2);
 });
 </script>
 
@@ -252,6 +295,151 @@ const planesCalculados = computed(() => {
                 <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium transition-colors">Estamos preparando nuestros nuevos planes para ti.</p>
             </div>
         </main>
+
+        <!-- SECCIÓN: ¿POR QUÉ UNA PÓLIZA? (MEJORA SOLICITADA) -->
+        <section class="w-full px-4 py-24 bg-white dark:bg-slate-900 transition-colors">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-5xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">¿Por qué contratar una Póliza?</h2>
+                    <p class="text-lg text-gray-500 dark:text-gray-400 font-medium max-w-3xl mx-auto">
+                        Invertir en una póliza no es un gasto, es blindar la productividad de su hogar o negocio.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Ventaja 1 -->
+                    <div class="p-8 rounded-[2rem] bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all group">
+                        <div class="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                            <font-awesome-icon icon="clock-rotate-left" />
+                        </div>
+                        <h4 class="text-xl font-black text-gray-900 dark:text-white mb-3 tracking-tight">Atención Prioritaria</h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
+                            Olvídese de las filas. Su solicitud entra directamente a nuestra línea de **Soporte VIP**, garantizando tiempos de respuesta mínimos.
+                        </p>
+                    </div>
+
+                    <!-- Ventaja 2 -->
+                    <div class="p-8 rounded-[2rem] bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all group">
+                        <div class="w-14 h-14 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                            <font-awesome-icon icon="hand-holding-dollar" />
+                        </div>
+                        <h4 class="text-xl font-black text-gray-900 dark:text-white mb-3 tracking-tight">Deducción de Impuestos</h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
+                            En México, las pólizas de mantenimiento son **100% deducibles de ISR** para empresas y personas físicas con actividad empresarial.
+                        </p>
+                    </div>
+
+                    <!-- Ventaja 3 -->
+                    <div class="p-8 rounded-[2rem] bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all group">
+                        <div class="w-14 h-14 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                            <font-awesome-icon icon="shield-check" />
+                        </div>
+                        <h4 class="text-xl font-black text-gray-900 dark:text-white mb-3 tracking-tight">Prevención vs Crisis</h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
+                            Es **70% más barato** mantener un equipo que repararlo de emergencia. Evite paros operativos costosos.
+                        </p>
+                    </div>
+
+                    <!-- Ventaja 4 -->
+                    <div class="p-8 rounded-[2rem] bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all group">
+                        <div class="w-14 h-14 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                            <font-awesome-icon icon="tags" />
+                        </div>
+                        <h4 class="text-xl font-black text-gray-900 dark:text-white mb-3 tracking-tight">Precios Preferenciales</h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
+                            Como cliente de póliza, accede a **tarifas especiales** en refacciones y servicios no incluidos en su plan original.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: SIMULADOR DE PÓLIZA (MEJORA SOLICITADA) -->
+        <section class="w-full px-4 py-24 bg-gradient-to-br from-gray-900 to-black text-white relative overflow-hidden">
+            <!-- Partículas de fondo -->
+            <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-[var(--color-primary)] opacity-10 blur-[150px] -z-0"></div>
+            
+            <div class="max-w-6xl mx-auto relative z-10">
+                <div class="grid lg:grid-cols-2 gap-16 items-center">
+                    <div>
+                        <h2 class="text-4xl md:text-6xl font-black mb-8 tracking-tighter leading-tight">
+                            Configure su Póliza <br/>
+                            <span class="text-[var(--color-primary)]">a la Medida</span>
+                        </h2>
+                        <p class="text-xl text-gray-400 font-medium mb-12 leading-relaxed">
+                            Deje de adivinar. Use nuestro simulador inteligente para calcular la inversión exacta según las necesidades de su infraestructura.
+                        </p>
+                        
+                        <div class="space-y-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-xl">✔️</div>
+                                <div>
+                                    <p class="font-bold">Precios Transparentes</p>
+                                    <p class="text-sm text-gray-400">Sin cargos ocultos ni sorpresas mensuales.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-xl">📈</div>
+                                <div>
+                                    <p class="font-bold">Escalabilidad Real</p>
+                                    <p class="text-sm text-gray-400">Pague solo por los equipos que realmente necesita proteger.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CALCULADORA INTERACTIVA -->
+                    <div class="bg-white dark:bg-gray-900 rounded-[3rem] p-10 text-gray-900 dark:text-white shadow-2xl">
+                        <div class="space-y-8">
+                            <!-- Input de PCs -->
+                            <div>
+                                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 block font-mono">Número de Computadoras</label>
+                                <div class="flex items-center gap-6">
+                                    <input type="range" v-model="simulador.pcs" min="1" max="50" class="flex-grow h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)]" />
+                                    <span class="text-4xl font-black w-20 text-center text-[var(--color-primary)]">{{ simulador.pcs }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Checkboxes de Servicios -->
+                            <div>
+                                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 block font-mono">Servicios Adicionales</label>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <button 
+                                        v-for="(costo, serv) in simulador.addonsConfig" 
+                                        :key="serv"
+                                        @click="toggleAddon(serv)"
+                                        :class="[
+                                            'px-4 py-3 rounded-2xl border-2 text-[10px] font-black uppercase tracking-widest transition-all',
+                                            simulador.addons[serv] ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-lg' : 'border-gray-50 dark:border-gray-800 text-gray-400 hover:border-gray-200'
+                                        ]"
+                                    >
+                                        {{ serv }}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Resultado -->
+                            <div class="pt-8 border-t border-gray-50 dark:border-gray-800">
+                                <div class="flex justify-between items-end">
+                                    <div>
+                                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Inversión Estimada</p>
+                                        <p class="text-5xl font-black text-[var(--color-primary)] tracking-tighter">{{ formatCurrency(costoSimulado) }}</p>
+                                        <p class="text-[10px] font-bold text-gray-400 mt-2 uppercase">* Mensual + IVA</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-xs font-black text-emerald-500 uppercase tracking-widest">{{ horasSimuladas }} Horas Incluidas</p>
+                                        <p class="text-[9px] text-gray-400 font-bold">Hora Extra: $500</p>
+                                    </div>
+                                </div>
+                                <button class="w-full mt-8 py-5 bg-gray-900 dark:bg-white dark:text-gray-900 text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl hover:opacity-95 transition-all transform hover:-translate-y-1">
+                                    Solicitar Cotización Formal
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- Footer -->
         <PublicFooter :empresa="empresaData" />

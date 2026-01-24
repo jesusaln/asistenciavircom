@@ -361,6 +361,34 @@
         </div>
 
         <!-- ========================================= -->
+        <!-- 📝 Blog -->
+        <!-- ========================================= -->
+        <div v-if="$can('view configuracion_empresa') || isAdmin" class="mb-4">
+          <div
+            @click="toggleAccordion('blog')"
+            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-gray-700/50 rounded-md transition-colors duration-200"
+          >
+            <div class="flex items-center gap-2">
+              <FontAwesomeIcon icon="blog" class="w-4 h-4 text-sky-400" />
+              <span>Blog</span>
+            </div>
+            <FontAwesomeIcon
+              icon="chevron-right"
+              class="w-3 h-3 transition-transform duration-200"
+              :class="accordionStates.blog ? 'rotate-90' : ''"
+            />
+          </div>
+          <div :class="['accordion-content', { 'accordion-open': accordionStates.blog }]">
+            <NavLink :href="routeOr('/admin/blog')" icon="cog" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Administrador de Blog' : null">
+              Administrador de Blog
+            </NavLink>
+            <NavLink href="/blog" icon="globe" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Ver Blog Público' : null">
+              Ver Blog Público
+            </NavLink>
+          </div>
+        </div>
+
+        <!-- ========================================= -->
         <!-- ⚙️ Configuración -->
         <!-- ========================================= -->
         <div v-if="$can('view usuarios') || $can('view roles') || $can('view bitacora') || $can('view categorias') || $can('view marcas') || $can('view servicios') || $can('manage-backups') || $can('view configuracion_empresa')" class="mb-4">
@@ -402,9 +430,6 @@
             </NavLink>
             <NavLink v-if="$can('view configuracion_empresa')" href="/empresa/landing-content" icon="palette" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Contenido de Landing' : null">
               Contenido de Landing
-            </NavLink>
-            <NavLink v-if="$can('view configuracion_empresa')" :href="routeOr('/admin/blog')" icon="blog" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Blog' : null">
-              Blog
             </NavLink>
             <NavLink v-if="$can('manage-backups')" :href="routeOr('/backup')" icon="database" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Copia de Seguridad' : null">
               Copia de Seguridad
@@ -592,6 +617,7 @@ const getInitialAccordionState = () => {
     rrhh: false,
     configuracion: false,
     reportes: false,
+    blog: false,
   };
   
   // Intentar restaurar estado desde sessionStorage
@@ -655,9 +681,12 @@ const getInitialAccordionState = () => {
   else if (path.startsWith('/usuarios') || path.startsWith('/roles') || path.startsWith('/bitacora') || 
            path.startsWith('/categorias') || path.startsWith('/marcas') || path.startsWith('/servicios') || 
            path.startsWith('/backup') || path.startsWith('/empresa/configuracion') || 
-           path.startsWith('/empresa/landing-content') || path.startsWith('/admin/blog') || 
-           path.startsWith('/gestion-blog')) {
+           path.startsWith('/empresa/landing-content')) {
     currentSection = 'configuracion';
+  }
+  // Blog
+  else if (path.startsWith('/admin/blog') || path.startsWith('/gestion-blog') || path.startsWith('/blog')) {
+    currentSection = 'blog';
   }
   // Reportes
   else if (path.startsWith('/reportes') || path.startsWith('/cfdi') || path === '/finanzas') {

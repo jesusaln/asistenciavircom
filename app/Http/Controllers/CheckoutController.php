@@ -478,6 +478,9 @@ class CheckoutController extends Controller
                 'estado' => $pedido->estado,
                 'estado_label' => $pedido->estado_label,
                 'estado_color' => $pedido->estado_color,
+                'guia_envio' => $pedido->guia_envio,
+                'paqueteria' => $pedido->paqueteria,
+                'tracking_url' => $pedido->tracking_url,
                 'created_at' => $pedido->created_at->format('d/m/Y H:i'),
             ],
             'empresa' => $empresa ? [

@@ -107,6 +107,23 @@ const payWithMercadoPago = async (ventaId) => {
     }
 };
 
+const payingCargoMP = ref({});
+const payCargoWithMP = async (cargoId) => {
+    try {
+        payingCargoMP.value[cargoId] = true;
+        const response = await axios.post(route('portal.pagos.cargo.mercadopago'), { cargo_id: cargoId });
+        if (response.data.success && response.data.init_point) {
+            window.location.href = response.data.init_point;
+        } else {
+            window.$toast.error(response.data.message || 'No se pudo iniciar el pago.');
+        }
+    } catch (error) {
+        window.$toast.error('Error al conectar con la pasarela.');
+    } finally {
+        payingCargoMP.value[cargoId] = false;
+    }
+};
+
 
 const payWithCredit = async (ventaId) => {
     const confirmed = await confirmModal.value.show();
@@ -1038,9 +1055,13 @@ const toggleIncluirFinalizados = () => {
                                                 <td class="px-8 py-4">
                                                     <span 
                                                         class="px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest transition-colors"
-                                                        :class="pago.tipo === 'venta' ? 'bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400' : 'bg-purple-50 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400'"
+                                                        :class="{
+                                                            'bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400': pago.tipo === 'venta',
+                                                            'bg-purple-50 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400': pago.tipo === 'cxc',
+                                                            'bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400': pago.tipo === 'cargo_poliza'
+                                                        }"
                                                     >
-                                                        {{ pago.tipo === 'venta' ? 'Venta' : 'Servicio' }}
+                                                        {{ pago.tipo === 'venta' ? 'Venta' : (pago.tipo === 'cargo_poliza' ? 'Póliza' : 'Servicio') }}
                                                     </span>
                                                 </td>
                                                 <td class="px-8 py-4 font-mono text-xs font-bold text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">#{{ pago.folio }}</td>
@@ -1061,14 +1082,14 @@ const toggleIncluirFinalizados = () => {
                                                             {{ payingWithCredit[pago.id] ? '...' : '💳 Crédito' }}
                                                         </button>
                                                         
-                                                        <!-- Botón MercadoPago (solo ventas) -->
-                                                        <button v-if="pago.tipo === 'venta'"
-                                                                @click="payWithMercadoPago(pago.id)"
-                                                                :disabled="payingWithMP[pago.id]"
+                                                        <!-- Botón MercadoPago (Ventas y Cargos de Póliza) -->
+                                                        <button v-if="pago.tipo === 'venta' || pago.tipo === 'cargo_poliza'"
+                                                                @click="pago.tipo === 'cargo_poliza' ? payCargoWithMP(pago.id) : payWithMercadoPago(pago.id)"
+                                                                :disabled="payingWithMP[pago.id] || payingCargoMP[pago.id]"
                                                                 class="px-3 py-1 bg-blue-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all disabled:opacity-50 flex items-center gap-1 shadow-sm"
                                                                 title="Pagar Online">
-                                                            <font-awesome-icon :icon="payingWithMP[pago.id] ? 'spinner' : 'credit-card'" :spin="payingWithMP[pago.id]" />
-                                                            {{ payingWithMP[pago.id] ? '...' : 'Pagar' }}
+                                                            <font-awesome-icon :icon="(payingWithMP[pago.id] || payingCargoMP[pago.id]) ? 'spinner' : 'credit-card'" :spin="payingWithMP[pago.id] || payingCargoMP[pago.id]" />
+                                                            {{ (payingWithMP[pago.id] || payingCargoMP[pago.id]) ? '...' : 'Pagar' }}
                                                         </button>
 
                                                         <!-- Para CxC: Mostrar botón de contacto -->

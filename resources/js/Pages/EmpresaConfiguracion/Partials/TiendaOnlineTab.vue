@@ -352,38 +352,177 @@
                         </div>
                     </div>
                     
-                    <!-- Márgenes de Utilidad Escalonados -->
-                    <div class="md:col-span-2 mt-4">
-                        <div class="flex items-center justify-between mb-3">
-                            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">
-                                📊 Márgenes de Utilidad por Rango de Precio
-                            </label>
-                            <button type="button" @click="resetToDefaultTiers" 
-                                    class="text-xs px-3 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/60 transition-colors">
-                                Usar Recomendados
-                            </button>
-                        </div>
-                        <div class="bg-white dark:bg-slate-900 dark:bg-gray-700/50 rounded-xl p-4 border border-gray-200 dark:border-slate-800 dark:border-gray-600">
-                            <div class="space-y-3">
-                                <div v-for="(tier, index) in utilityTiers" :key="index" 
-                                     class="grid grid-cols-3 gap-3 items-center">
-                                    <div class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300">
-                                        Hasta ${{ tier.max.toLocaleString() }}
+                    <!-- Motor de Tipo de Cambio (USD/MXN) -->
+                    <div class="md:col-span-2 mb-4">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <!-- Tipo de Cambio Card -->
+                            <div class="p-6 bg-blue-600 rounded-[2rem] text-white shadow-xl shadow-blue-500/20 relative overflow-hidden">
+                                <div class="absolute -right-4 -bottom-4 opacity-10">
+                                    <FontAwesomeIcon icon="coins" class="w-32 h-32" />
+                                </div>
+                                
+                                <div class="relative z-10">
+                                    <div class="flex items-center justify-between mb-6">
+                                        <div class="flex items-center gap-3">
+                                            <div class="p-2 bg-white/20 rounded-xl">
+                                                <FontAwesomeIcon icon="dollar-sign" />
+                                            </div>
+                                            <h3 class="text-sm font-black uppercase tracking-tight">Tipo de Cambio</h3>
+                                        </div>
+                                        <label class="flex items-center gap-2 cursor-pointer bg-white/10 px-3 py-1 rounded-full hover:bg-white/20 transition-colors">
+                                            <span class="text-[9px] font-black uppercase">Auto</span>
+                                            <input type="checkbox" v-model="form.cva_tipo_cambio_auto" class="rounded border-none text-blue-500 focus:ring-0">
+                                        </label>
                                     </div>
-                                    <div class="relative">
-                                        <input type="number" v-model.number="tier.percent" 
-                                               min="0" max="200" step="1"
-                                               class="w-full pr-8 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900 dark:bg-gray-800 text-center font-semibold" />
-                                        <span class="absolute inset-y-0 right-3 flex items-center text-gray-400 text-sm">%</span>
+
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="bg-white/10 p-3 rounded-2xl border border-white/10">
+                                            <p class="text-[9px] font-black uppercase text-blue-100 mb-1">Base (CVA)</p>
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-lg font-black">$</span>
+                                                <input type="number" v-model.number="form.cva_tipo_cambio" step="0.0001" 
+                                                       class="w-full bg-transparent border-none p-0 text-lg font-black focus:ring-0 placeholder-blue-300"
+                                                       :disabled="form.cva_tipo_cambio_auto" />
+                                            </div>
+                                        </div>
+
+                                        <div class="bg-white p-3 rounded-2xl shadow-inner flex flex-col justify-center">
+                                            <p class="text-[9px] font-black uppercase text-blue-600 mb-1">Con Buffer</p>
+                                            <p class="text-xl font-black text-blue-900 line-clamp-1">
+                                                ${{ ((form.cva_tipo_cambio || 0) * (1 + (form.cva_tipo_cambio_buffer || 0)/100)).toFixed(3) }}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div class="text-xs text-gray-400">
-                                        Precio $100 → ${{ Math.round(100 * (1 + tier.percent/100)) }}
+                                    <div class="mt-4 flex items-center justify-between">
+                                        <p class="text-[8px] text-blue-200 uppercase" v-if="form.cva_tipo_cambio_last_update">
+                                            Actualizado: {{ new Date(form.cva_tipo_cambio_last_update).toLocaleTimeString() }}
+                                        </p>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-[9px] font-black uppercase text-blue-100">Buffer</span>
+                                            <input type="number" v-model.number="form.cva_tipo_cambio_buffer" step="0.1" 
+                                                   class="w-12 bg-white/10 border-none rounded-lg py-0.5 text-center text-xs font-black focus:ring-0" />
+                                            <span class="text-xs font-black">%</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <p class="text-[10px] text-gray-400 mt-3 italic">
-                                💡 Márgenes recomendados: 40% para accesorios, 18% para laptops, 10% para equipos enterprise.
-                            </p>
+
+                            <!-- Pago Automático / Monedero Card -->
+                            <div class="p-6 bg-slate-900 rounded-[2rem] text-white shadow-xl shadow-slate-900/20 relative overflow-hidden border border-slate-800">
+                                <div class="absolute -right-4 -bottom-4 opacity-10">
+                                    <FontAwesomeIcon icon="wallet" class="w-32 h-32 text-slate-400" />
+                                </div>
+                                
+                                <div class="relative z-10 h-full flex flex-col">
+                                    <div class="flex items-center justify-between mb-6">
+                                        <div class="flex items-center gap-3">
+                                            <div class="p-2 bg-slate-800 rounded-xl">
+                                                <FontAwesomeIcon icon="robot" class="text-cyan-400" />
+                                            </div>
+                                            <h3 class="text-sm font-black uppercase tracking-tight text-white">Pagos Automáticos</h3>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" v-model="form.cva_auto_pago" class="sr-only peer">
+                                            <div class="w-10 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-500"></div>
+                                        </label>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 gap-4 flex-1">
+                                        <div class="bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50 flex items-center justify-between group">
+                                            <div>
+                                                <p class="text-[9px] font-black uppercase text-slate-400 mb-1">Saldo Monedero CVA</p>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-2xl font-black text-cyan-400">${{ parseFloat(form.cva_monedero_balance || 0).toLocaleString('es-MX', {minimumFractionDigits: 2}) }}</span>
+                                                    <span class="text-xs font-bold text-slate-500 uppercase">MXN</span>
+                                                </div>
+                                            </div>
+                                            <button type="button" @click="syncMonedero" 
+                                                    :disabled="syncingMonedero"
+                                                    class="p-3 bg-slate-700 rounded-xl hover:bg-slate-600 transition-all active:scale-95 disabled:opacity-50 group-hover:shadow-[0_0_15px_-3px_rgba(34,211,238,0.3)]">
+                                                <FontAwesomeIcon icon="sync-alt" :pulse="syncingMonedero" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <p class="text-[8px] text-slate-500 uppercase flex items-center gap-1">
+                                            <FontAwesomeIcon icon="clock" class="text-[7px]" />
+                                            Última sincronización: {{ form.cva_monedero_last_update ? new Date(form.cva_monedero_last_update).toLocaleString() : 'Nunca' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Motor de Precios Inteligente -->
+                    <div class="md:col-span-2 mt-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-900 dark:text-white dark:text-gray-100">
+                                    📊 Motor de Precios Inteligente
+                                </label>
+                                <p class="text-[11px] text-gray-500 dark:text-gray-400">Define cuánto quieres ganar según el costo del equipo</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="button" @click="resetToDefaultTiers" 
+                                        class="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-200 transition-colors">
+                                    Restablecer
+                                </button>
+                                <button type="button" @click="addTier" 
+                                        class="text-xs px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-bold flex items-center gap-1">
+                                    <FontAwesomeIcon icon="plus" class="text-[10px]" />
+                                    Nuevo Rango
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-gray-100 dark:border-gray-800">
+                            <!-- Header de tabla manual -->
+                            <div class="grid grid-cols-12 gap-4 mb-3 px-4">
+                                <div class="col-span-5 text-[10px] font-black uppercase text-gray-400">Precio de Costo Hasta</div>
+                                <div class="col-span-4 text-[10px] font-black uppercase text-gray-400 text-center">Utilidad (%)</div>
+                                <div class="col-span-3"></div>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <div v-for="(tier, index) in utilityTiers" :key="index" 
+                                     class="grid grid-cols-12 gap-3 items-center group animate-in fade-in slide-in-from-right-2" 
+                                     :style="{ animationDelay: (index * 50) + 'ms' }">
+                                    
+                                    <!-- Input de Monto Máximo -->
+                                    <div class="col-span-5 relative">
+                                        <span class="absolute inset-y-0 left-3 flex items-center text-gray-400 text-xs">$</span>
+                                        <input type="number" v-model.number="tier.max" 
+                                               class="w-full pl-7 pr-3 py-2.5 text-sm font-bold rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900 dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 transition-all" />
+                                    </div>
+
+                                    <!-- Input de Porcentaje -->
+                                    <div class="col-span-4 relative">
+                                        <input type="number" v-model.number="tier.percent" 
+                                               class="w-full pr-8 py-2.5 text-sm font-black text-center rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900 dark:bg-gray-800 text-blue-600 dark:text-blue-400 focus:ring-2 focus:ring-blue-500 transition-all" />
+                                        <span class="absolute inset-y-0 right-3 flex items-center text-gray-400 text-sm">%</span>
+                                    </div>
+
+                                    <!-- Botón Eliminar -->
+                                    <div class="col-span-3 flex justify-end">
+                                        <button type="button" @click="removeTier(index)" 
+                                                class="w-10 h-10 flex items-center justify-center rounded-xl text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all">
+                                            <FontAwesomeIcon icon="trash" class="text-xs" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div v-if="utilityTiers.length === 0" class="text-center py-8">
+                                <p class="text-sm text-gray-400 italic">No hay rangos definidos. Se usará el 15% global.</p>
+                            </div>
+
+                            <div class="mt-6 pt-6 border-t border-gray-200/50 dark:border-gray-800/50">
+                                <p class="text-[10px] text-gray-400 leading-relaxed">
+                                    <FontAwesomeIcon icon="lightbulb" class="text-amber-500 mr-1" />
+                                    <b>Tip:</b> Ordena tus rangos de menor a mayor precio. El sistema buscará el primer rango que cubra el costo del producto. Si un producto supera el último rango, se usará el margen del último nivel.
+                                </p>
+                            </div>
                         </div>
                     </div>
                     
@@ -445,6 +584,22 @@ const defaultTiers = [
 
 // Estado reactivo para los tiers
 const utilityTiers = ref([...defaultTiers])
+const syncingMonedero = ref(false)
+
+const syncMonedero = async () => {
+    syncingMonedero.value = true
+    try {
+        const response = await axios.post(route('empresa-configuracion.tienda.sync-monedero'))
+        if (response.data.success) {
+            props.form.cva_monedero_balance = response.data.balance
+            props.form.cva_monedero_last_update = response.data.last_update
+        }
+    } catch (error) {
+        console.error('Error syncing monedero:', error)
+    } finally {
+        syncingMonedero.value = false
+    }
+}
 
 // Cargar tiers desde form si existen, o inicializar con defaults
 onMounted(() => {
@@ -464,6 +619,32 @@ watch(utilityTiers, (newTiers) => {
 
 // Resetear a valores recomendados
 const resetToDefaultTiers = () => {
-    utilityTiers.value = [...defaultTiers]
+    utilityTiers.value = [...defaultTiers.map(t => ({...t}))]
 }
+
+// Añadir un nuevo nivel
+const addTier = () => {
+    const lastTier = utilityTiers.value[utilityTiers.value.length - 1]
+    const nextMax = lastTier ? lastTier.max * 2 : 1000
+    utilityTiers.value.push({ max: nextMax, percent: 10 })
+    // Ordenar automáticamente por precio máximo
+    sortTiers()
+}
+
+// Eliminar un nivel
+const removeTier = (index) => {
+    utilityTiers.value.splice(index, 1)
+}
+
+// Ordenar niveles
+const sortTiers = () => {
+    utilityTiers.value.sort((a, b) => a.max - b.max)
+}
+
+// Monitorear cambios en los valores para ordenar
+watch(utilityTiers, () => {
+    // Solo ordenar si el último cambio fue en un campo 'max'
+    // Para simplificar, ordenamos siempre que algo cambie profundamente
+    sortTiers()
+}, { deep: true })
 </script>

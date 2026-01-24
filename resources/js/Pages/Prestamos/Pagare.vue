@@ -338,9 +338,9 @@ const generarContenidoPagare = (tamano = 'carta') => {
      header {
        position: fixed;
        top: 0; left: 0; right: 0;
-       height: 3mm;
-       padding-top: 0.2mm;
-       /* border-bottom: 1px solid var(--border); */
+       height: 20mm;
+       padding-top: 5mm;
+       border-bottom: 1px solid #eee;
      }
     .h-inner {
       display: grid;
@@ -349,41 +349,43 @@ const generarContenidoPagare = (tamano = 'carta') => {
       align-items: center;
     }
     .brand {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       letter-spacing: .3px;
       color: var(--accent);
       text-transform: uppercase;
     }
     .folio {
-      padding: 6px 10px;
-      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border: 2px solid var(--border);
       border-radius: 4px;
-      font-weight: 700;
+      font-weight: 800;
+      font-size: 12px;
     }
     .h-meta {
-      margin-top: 0.2mm;
+      margin-top: 1mm;
       color: var(--muted);
       font-size: 8px;
+      max-width: 140mm;
     }
 
     footer {
       position: fixed;
       bottom: 0; left: 0; right: 0;
-      height: 5mm;
+      height: 18mm;
       border-top: 1px solid var(--border);
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: space-between;
-      padding: 0 1mm;
+      padding: 2mm 1mm;
       color: var(--muted);
-      font-size: 4px;
+      font-size: 7px;
     }
-    .foot-left { max-width: 70%; }
+    .foot-left { max-width: 70%; text-align: left; }
     .foot-right { text-align: right; }
 
     /* Empuje del contenido para no solaparse con header/footer */
-     .page-wrap { padding: 5mm 0 4mm; }
+     .page-wrap { padding: 22mm 0 20mm; }
 
     /* ======== TÍTULO Y LUGAR/FECHA ======== */
      .title {
@@ -658,378 +660,248 @@ const generarContenidoPagare = (tamano = 'carta') => {
 <template>
   <Head title="Pagaré del Préstamo" />
 
-  <div class="pagare-page min-h-screen bg-white dark:bg-slate-900">
+  <div class="pagare-page min-h-screen bg-white dark:bg-slate-950 transition-colors duration-300">
     <div class="w-full px-6 py-8">
-      <!-- Header mejorado -->
+      <!-- Header Premium -->
       <div class="mb-8">
-        <div class="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-6 text-white">
-          <div class="flex items-center justify-between">
+        <div class="bg-gradient-to-br from-slate-900 to-slate-950 rounded-2xl p-8 border border-slate-800 shadow-2xl relative overflow-hidden">
+          <!-- Decoración de fondo -->
+          <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
+          
+          <div class="relative flex flex-col lg:flex-row lg:items-center justify-between gap-8">
             <div>
-              <h1 class="text-3xl font-bold tracking-tight mb-2">Pagaré Digital</h1>
-              <p class="text-gray-300 text-lg">Documento legal de obligación financiera</p>
-              <div class="flex items-center gap-4 mt-3">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-300 border border-green-400/30">
-                  ✅ Documento Válido
+              <div class="flex items-center gap-3 mb-4">
+                 <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                 </div>
+                 <h1 class="text-3xl font-black text-white tracking-tight">Instrumento Jurídico</h1>
+              </div>
+              <p class="text-slate-400 text-lg font-medium max-w-xl">Pagaré Digital constitutivo de obligación financiera exigible por la vía ejecutiva mercantil.</p>
+              
+              <div class="flex flex-wrap items-center gap-4 mt-6">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  Documento Certificado
                 </span>
-                <span class="text-sm text-gray-300">
-                  Referencia: {{ formatearNumeroContrato() }}
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                  Folio: {{ formatearNumeroContrato() }}
                 </span>
               </div>
             </div>
-            <div class="hidden md:flex items-center gap-3">
-              <div class="text-center">
-                <div class="text-2xl font-bold">{{ prestamo.numero_pagos }}</div>
-                <div class="text-xs text-gray-300 uppercase tracking-wide">Pagos</div>
-              </div>
-              <div class="w-px h-12 bg-gray-600"></div>
-              <div class="text-center">
-                <div class="text-2xl font-bold text-green-400">{{ formatearMoneda(prestamo.monto_prestado) }}</div>
-                <div class="text-xs text-gray-300 uppercase tracking-wide">Monto Total</div>
-              </div>
+
+            <div class="flex items-stretch gap-4">
+               <div class="bg-slate-900/50 backdrop-blur-sm rounded-2xl p-5 border border-slate-800 flex flex-col justify-center min-w-[140px]">
+                  <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Amortizaciones</p>
+                  <p class="text-2xl font-black text-white">{{ prestamo.numero_pagos }} cuotas</p>
+               </div>
+               <div class="bg-blue-600 rounded-2xl p-5 shadow-lg shadow-blue-600/20 flex flex-col justify-center min-w-[180px]">
+                  <p class="text-[10px] font-black text-blue-100/60 uppercase tracking-widest mb-1">Vencimiento Total</p>
+                  <p class="text-xl font-black text-white tracking-tight">${{ formatearMoneda(prestamo.monto_prestado) }}</p>
+               </div>
             </div>
           </div>
         </div>
 
-        <!-- Selector de tamaño de papel y acciones -->
-        <div class="flex flex-wrap items-center justify-between gap-4 mt-4">
-          <div class="flex items-center gap-3">
-            <!-- Selector de tamaño de papel -->
-            <div class="flex items-center gap-2">
-              <label class="text-sm font-medium text-gray-700">Tamaño de papel:</label>
-              <select
-                v-model="tamanoSeleccionado"
-                @change="generarPDF(tamanoSeleccionado)"
-                class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              >
-                <option value="carta">Carta (8.5" × 11")</option>
-                <option value="oficio">Oficio (8.5" × 13")</option>
-                <option value="a4">A4 (210mm × 297mm)</option>
-              </select>
+        <div class="flex flex-wrap items-center justify-between gap-6 mt-6">
+          <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center gap-3 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
+                <label class="text-xs font-black text-gray-500 dark:text-slate-500 uppercase tracking-widest pl-2">Papel:</label>
+                <select
+                  v-model="tamanoSeleccionado"
+                  class="bg-transparent border-none focus:ring-0 text-sm font-bold text-gray-700 dark:text-slate-300 cursor-pointer"
+                >
+                  <option value="carta">Carta (US Legal)</option>
+                  <option value="oficio">Oficio (Folio)</option>
+                  <option value="a4">A4 (ISO)</option>
+                </select>
             </div>
 
-            <div class="w-px h-8 bg-gray-300"></div>
-
             <button
-              @click="generarPDF(tamanoSeleccionado)"
-              class="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+               @click="generarPDF(tamanoSeleccionado)"
+               class="inline-flex items-center px-8 py-4 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-blue-700 hover:scale-[1.02] active:scale-95 shadow-xl shadow-blue-600/20 transition-all duration-300"
             >
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-              </svg>
-              Generar PDF
-            </button>
-            <button
-              @click="validarDatos"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 transition-colors"
-            >
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              Validar Datos
+              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+              Imprimir Documento
             </button>
           </div>
 
-          <div class="flex items-center gap-2">
-            <Link
+          <div class="flex items-center gap-3">
+             <Link
               :href="`/prestamos/${prestamo.id}`"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 transition-colors"
+              class="px-6 py-4 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-gray-700 dark:text-slate-300 text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-all"
             >
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-              </svg>
-              Ver Préstamo
-            </Link>
-            <Link
-              href="/prestamos"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 transition-colors"
-            >
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-              </svg>
-              Volver a Préstamos
+              Cerrar Vista
             </Link>
           </div>
         </div>
       </div>
 
       <!-- Vista previa mejorada -->
-      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-        <div class="px-8 py-6 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 dark:border-slate-800">
-          <div class="flex items-center justify-between">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-slate-800/60 overflow-hidden transition-all duration-300 mt-12">
+        <div class="px-8 py-8 bg-gradient-to-br from-gray-50 to-white dark:from-slate-900 dark:to-slate-950 border-b border-gray-200 dark:border-slate-800/60">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Vista Previa del Documento</h2>
-              <p class="text-gray-600 dark:text-gray-300">
-                Versión preliminar del pagaré oficial • El PDF final incluye formato A4 profesional
+              <h2 class="text-2xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">Vista Previa del Título</h2>
+              <p class="text-gray-500 dark:text-slate-400 font-medium text-sm">
+                Versión digital para validación de datos previo a impresión oficial.
               </p>
             </div>
-            <div class="hidden md:flex items-center gap-2">
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                </svg>
-                Documento Legal
+            <div class="flex items-center gap-3">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                Título de Crédito
               </span>
-              <span class="text-sm text-gray-500 dark:text-gray-400">Versión {{ DOCUMENTO_INFO.version }}</span>
+              <span class="text-xs font-black text-slate-500 uppercase tracking-widest leading-none">V{{ DOCUMENTO_INFO.version }}</span>
             </div>
           </div>
         </div>
 
-        <div class="p-8">
-          <div class="max-w-[900px] mx-auto">
+        <div class="p-8 lg:p-12">
+          <div class="max-w-[850px] mx-auto">
             <!-- Encabezado del documento -->
-            <div class="text-center mb-8">
-              <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="text-center mb-16">
+              <div class="inline-flex items-center justify-center w-20 h-20 bg-emerald-500/10 rounded-3xl mb-8 border border-emerald-500/20 shadow-inner">
+                <svg class="w-10 h-10 text-emerald-600 dark:text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
               </div>
-              <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-2">{{ DOCUMENTO_INFO.titulo }}</h1>
-              <p class="text-gray-600 dark:text-gray-300">{{ DOCUMENTO_INFO.subtitulo }}</p>
-              <div class="flex items-center justify-center gap-2 mt-3">
-                <span class="text-sm text-gray-500 dark:text-gray-400">{{ empresa.direccion }}</span>
-                <span class="text-gray-300">•</span>
-                <span class="text-sm text-gray-500 dark:text-gray-400">{{ formatearFechaFlex(fecha_actual) }}</span>
+              <h1 class="text-5xl font-black text-gray-900 dark:text-white mb-3 tracking-tighter uppercase">{{ DOCUMENTO_INFO.titulo }}</h1>
+              <p class="text-slate-400 dark:text-slate-500 font-black uppercase tracking-[0.3em] text-[10px]">{{ DOCUMENTO_INFO.subtitulo }}</p>
+              
+              <div class="flex items-center justify-center flex-wrap gap-4 mt-8">
+                <div class="px-4 py-2 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-800 text-sm font-bold text-slate-600 dark:text-slate-400">
+                   {{ empresa.direccion }}
+                </div>
+                <div class="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse"></div>
+                <div class="px-4 py-2 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 text-sm font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">
+                   {{ formatearFechaFlex(fecha_actual) }}
+                </div>
               </div>
             </div>
 
             <!-- Información del contrato -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-gray-200 dark:border-slate-800">
-                <div class="flex items-center mb-3">
-                  <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                    </svg>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+              <div class="bg-slate-50 dark:bg-slate-950/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800/60 transition-all hover:bg-white dark:hover:bg-slate-950 hover:shadow-xl hover:shadow-black/5 group">
+                <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Referencia Única</p>
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                   </div>
-                  <div>
-                    <div class="text-sm font-medium text-gray-900 dark:text-white">Referencia</div>
-                    <div class="text-xs text-gray-500 dark:text-gray-400">Número de contrato</div>
-                  </div>
+                  <div class="text-xl font-black text-slate-900 dark:text-white tracking-tight">{{ formatearNumeroContrato() }}</div>
                 </div>
-                <div class="text-lg font-bold text-gray-900 dark:text-white">{{ formatearNumeroContrato() }}</div>
               </div>
 
-              <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-gray-200 dark:border-slate-800">
-                <div class="flex items-center mb-3">
-                  <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 9l6-6m0 0v6m0-6h-6"></path>
-                    </svg>
+              <div class="bg-slate-50 dark:bg-slate-950/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800/60 transition-all hover:bg-white dark:hover:bg-slate-950 hover:shadow-xl hover:shadow-black/5 group">
+                <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Apertura Legal</p>
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 bg-emerald-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-emerald-600/20 group-hover:scale-110 transition-transform">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 9l6-6m0 0v6m0-6h-6"></path></svg>
                   </div>
-                  <div>
-                    <div class="text-sm font-medium text-gray-900 dark:text-white">Fecha de Inicio</div>
-                    <div class="text-xs text-gray-500 dark:text-gray-400">Primer pago</div>
-                  </div>
+                  <div class="text-xl font-black text-slate-900 dark:text-white tracking-tight">{{ fechaPrimerPago }}</div>
                 </div>
-                <div class="text-lg font-bold text-gray-900 dark:text-white">{{ fechaPrimerPago }}</div>
               </div>
 
-              <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-gray-200 dark:border-slate-800">
-                <div class="flex items-center mb-3">
-                  <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                    <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <div class="text-sm font-medium text-gray-900 dark:text-white">Lugar de Pago</div>
-                    <div class="text-xs text-gray-500 dark:text-gray-400">Jurisdicción</div>
-                  </div>
-                </div>
-                <div class="text-lg font-bold text-gray-900 dark:text-white">{{ empresa.direccion }}</div>
+              <div class="bg-slate-50 dark:bg-slate-950/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800/60 transition-all hover:bg-white dark:hover:bg-slate-950 hover:shadow-xl hover:shadow-black/5 group">
+                <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Sede de Pago</p>
+                <p class="text-sm font-black text-slate-900 dark:text-white leading-tight break-words uppercase tracking-tight">{{ empresa.direccion }}</p>
               </div>
             </div>
 
             <!-- Resumen financiero mejorado -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200 text-center">
-                <div class="text-green-600 mb-2">
-                  <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                  </svg>
-                </div>
-                <div class="text-xs text-green-700 uppercase tracking-wide font-semibold mb-1">Monto Total</div>
-                <div class="text-2xl font-extrabold text-green-800">{{ formatearMoneda(prestamo.monto_prestado) }}</div>
-                <div class="text-xs text-green-600">{{ monto_letras }}</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+              <div class="bg-blue-600 rounded-3xl p-6 text-white shadow-2xl shadow-blue-600/20 relative overflow-hidden group">
+                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform"></div>
+                <p class="text-[10px] font-black text-blue-100/60 uppercase tracking-widest mb-1 relative z-10">Monto del Crédito</p>
+                <div class="text-2xl font-black tracking-tight mb-2 relative z-10">{{ formatearMoneda(prestamo.monto_prestado) }}</div>
+                <div class="text-[9px] font-bold text-blue-100/80 italic leading-tight uppercase tracking-tight relative z-10 line-clamp-2">{{ monto_letras }}</div>
               </div>
 
-              <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200 text-center">
-                <div class="text-blue-600 mb-2">
-                  <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                  </svg>
-                </div>
-                <div class="text-xs text-blue-700 uppercase tracking-wide font-semibold mb-1">Tasa Mensual</div>
-                <div class="text-2xl font-extrabold text-blue-800">{{ tasa_mensual.toFixed(2) }}%</div>
-                <div class="text-xs text-blue-600">Interés ordinario</div>
+              <div class="bg-slate-900 rounded-3xl p-6 text-white border border-slate-800 relative group">
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Carga Ordinaria</p>
+                <div class="text-2xl font-black tracking-tight mb-2 group-hover:text-blue-400 transition-colors">{{ tasa_mensual.toFixed(2) }}%</div>
+                <div class="text-[9px] font-bold text-slate-500 italic uppercase">Tasa Mensual Fija</div>
               </div>
 
-              <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200 text-center">
-                <div class="text-purple-600 mb-2">
-                  <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                </div>
-                <div class="text-xs text-purple-700 uppercase tracking-wide font-semibold mb-1">Pago Mensual</div>
-                <div class="text-2xl font-extrabold text-purple-800">{{ formatearMoneda(prestamo.pago_periodico) }}</div>
-                <div class="text-xs text-purple-600">{{ pago_mensual_letras }}</div>
+              <div class="bg-slate-50 dark:bg-slate-950 rounded-3xl p-6 border border-slate-100 dark:border-slate-800">
+                <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Amortización</p>
+                <div class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ formatearMoneda(prestamo.pago_periodico) }}</div>
+                <div class="text-[9px] font-bold text-slate-400 italic uppercase">{{ (prestamo.frecuencia_pago || 'Mensual').toUpperCase() }}</div>
               </div>
 
-              <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200 text-center">
-                <div class="text-orange-600 mb-2">
-                  <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                  </svg>
-                </div>
-                <div class="text-xs text-orange-700 uppercase tracking-wide font-semibold mb-1">Total de Pagos</div>
-                <div class="text-2xl font-extrabold text-orange-800">{{ prestamo.numero_pagos }}</div>
-                <div class="text-xs text-orange-600">Mensualidades</div>
+              <div class="bg-slate-50 dark:bg-slate-950 rounded-3xl p-6 border border-slate-100 dark:border-slate-800">
+                <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Plazo Pactado</p>
+                <div class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ prestamo.numero_pagos }} cuotas</div>
+                <div class="text-[9px] font-bold text-slate-400 italic uppercase">Vencimiento: {{ fechaVencimiento }}</div>
               </div>
             </div>
 
-            <!-- Información de las partes -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-gray-200 dark:border-slate-800">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                  <svg class="w-5 h-5 mr-2 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                  </svg>
-                  Información del Deudor
-                </h3>
-                <div class="space-y-3">
-                  <div>
-                    <div class="text-sm font-medium text-gray-700">Nombre completo</div>
-                    <div class="text-lg font-bold text-gray-900 dark:text-white">{{ cliente.nombre_razon_social }}</div>
-                  </div>
-                  <div>
-                    <div class="text-sm font-medium text-gray-700">Domicilio</div>
-                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ cliente.direccion_completa || 'Domicilio no especificado' }}</div>
-                  </div>
-                  <div>
-                    <div class="text-sm font-medium text-gray-700">Fecha de Vencimiento</div>
-                    <div class="text-lg font-bold text-gray-900 dark:text-white">{{ fechaVencimiento }}</div>
-                  </div>
+            <!-- Texto legal interactivo -->
+            <div class="bg-amber-500/5 dark:bg-amber-500/5 border border-amber-500/20 rounded-3xl p-8 mb-12 relative overflow-hidden">
+               <div class="absolute top-0 right-0 p-4 opacity-10">
+                  <svg class="w-24 h-24 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A10.003 10.003 0 0012 3c1.268 0 2.39.234 3.41.659m-4.74 11.57a2 2 0 104 0 2 2 0 00-4 0z"></path></svg>
+               </div>
+               <h3 class="text-sm font-black text-amber-700 dark:text-amber-500 uppercase tracking-[0.2em] mb-4">Declaración de Obligación</h3>
+               <div class="space-y-4 text-slate-700 dark:text-slate-300 text-sm font-medium leading-relaxed max-w-2xl">
+                  <p>
+                    Yo, <span class="font-black text-slate-900 dark:text-white underline decoration-amber-500/30 decoration-2 underline-offset-4">{{ cliente.nombre_razon_social }}</span>, 
+                    con domicilio legal plenamente constituido, me obligo de manera incondicional a liquidar a la orden de 
+                    <span class="font-black text-slate-900 dark:text-white">{{ empresa.nombre }}</span> la suma exacta de 
+                    <span class="font-black text-slate-900 dark:text-white">${{ formatearMoneda(prestamo.monto_prestado) }}</span>, 
+                    más el rendimiento ordinario pactado.
+                  </p>
+                  <p class="text-xs text-slate-500 dark:text-slate-500 uppercase tracking-wider font-bold">
+                    Este instrumento faculta la ejecución inmediata bajo la legislación mercantil vigente.
+                  </p>
+               </div>
+            </div>
+
+            <!-- Notas / Observaciones en Preview -->
+            <div v-if="prestamo.notas || prestamo.observaciones" class="mb-12">
+               <div class="flex items-center gap-3 mb-4">
+                  <div class="w-1.5 h-6 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+                  <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Notas y Observaciones Especiales</h3>
+               </div>
+               <div class="bg-slate-50 dark:bg-slate-950/30 rounded-2xl p-6 border border-slate-100 dark:border-slate-800/50 text-slate-600 dark:text-slate-400 text-sm italic leading-relaxed">
+                  {{ prestamo.notas || prestamo.observaciones }}
+               </div>
+            </div>
+
+            <!-- Firmas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+              <div class="text-center p-10 bg-slate-50 dark:bg-slate-950/50 rounded-3xl border border-dashed border-slate-300 dark:border-slate-800">
+                <div class="w-40 mx-auto h-20 border-b-2 border-slate-900 dark:border-white mb-6 flex items-end justify-center">
+                   <span class="text-[10px] text-slate-400 uppercase tracking-widest pb-2">Espacio para Firma</span>
                 </div>
+                <div class="text-lg font-black text-slate-900 dark:text-white tracking-tight">{{ cliente.nombre_razon_social }}</div>
+                <div class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">Sujeto Obligado / Deudor</div>
               </div>
-
-              <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-gray-200 dark:border-slate-800">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                  <svg class="w-5 h-5 mr-2 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                  </svg>
-                  Información del Acreedor
-                </h3>
-                <div class="space-y-3">
-                  <div>
-                    <div class="text-sm font-medium text-gray-700">Beneficiario</div>
-                    <div class="text-lg font-bold text-gray-900 dark:text-white">{{ empresa.nombre }}</div>
-                  </div>
-                  <div>
-                    <div class="text-sm font-medium text-gray-700">Lugar de Pago</div>
-                    <div class="text-lg font-bold text-gray-900 dark:text-white">{{ empresa.direccion }}</div>
-                  </div>
+              <div class="text-center p-10 bg-slate-50 dark:bg-slate-950/50 rounded-3xl border border-dashed border-slate-300 dark:border-slate-800">
+                <div class="w-40 mx-auto h-20 border-b-2 border-slate-900 dark:border-white mb-6 flex items-end justify-center">
+                   <span class="text-[10px] text-slate-400 uppercase tracking-widest pb-2">Sello Acreedor</span>
                 </div>
+                <div class="text-lg font-black text-slate-900 dark:text-white tracking-tight">{{ empresa.nombre_comercial || empresa.nombre }}</div>
+                <div class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">Beneficiario / Tenedor</div>
               </div>
             </div>
 
-            <!-- Texto legal mejorado -->
-            <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-8">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                </svg>
-                Compromiso de Pago
-              </h3>
-              <p class="text-gray-800 dark:text-gray-100 leading-relaxed mb-4">
-                Yo, <strong>{{ cliente.nombre_razon_social }}</strong>, con domicilio en <strong>{{ cliente.direccion_completa || 'Domicilio no especificado' }}</strong>,
-                me obligo incondicionalmente a pagar a la orden de <strong>{{ empresa.nombre }}</strong> la cantidad
-                de <strong>{{ formatearMoneda(prestamo.monto_prestado) }}</strong> (${{ monto_letras }}), más intereses ordinarios a razón de <strong>{{ tasa_mensual.toFixed(2) }}%</strong> mensual,
-                pagaderos mensualmente junto con cada exhibición de capital.
-              </p>
-              <p class="text-gray-800 dark:text-gray-100 leading-relaxed">
-                Los pagos se realizarán mensualmente a partir del <strong>{{ fechaPrimerPago }}</strong>,
-                hasta completar un total de <strong>{{ prestamo.numero_pagos }}</strong> pagos,
-                conforme al plan de pagos establecido.
-              </p>
-            </div>
-
-            <!-- Firmas visuales mejoradas -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-              <div class="text-center p-6 bg-white dark:bg-slate-900 rounded-xl border-2 border-dashed border-gray-300">
-                <div class="w-3/4 mx-auto h-16 border-b-2 border-gray-700 mb-4"></div>
-                <div class="text-lg font-semibold text-gray-900 dark:text-white">{{ cliente.nombre_razon_social }}</div>
-                <div class="text-sm text-gray-600 dark:text-gray-300">Deudor(a) — Firma autógrafa</div>
-              </div>
-              <div class="text-center p-6 bg-white dark:bg-slate-900 rounded-xl border-2 border-dashed border-gray-300">
-                <div class="w-3/4 mx-auto h-16 border-b-2 border-gray-700 mb-4"></div>
-                <div class="text-lg font-semibold text-gray-900 dark:text-white">{{ empresa.nombre_comercial }}  {{ empresa.nombre }}</div>
-                <div class="text-sm text-gray-600 dark:text-gray-300">Acreedor — Representante legal</div>
-              </div>
-            </div>
-
-            <!-- Información adicional -->
-            <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center">
-              <div class="flex items-center justify-center mb-4">
-                <svg class="w-8 h-8 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <h3 class="text-lg font-semibold text-blue-900">Información Importante</h3>
-              </div>
-              <p class="text-blue-800 mb-4">
-                Este documento constituye un título ejecutivo que faculta al tenedor legítimo para exigir el pago
-                por la vía ejecutiva correspondiente. El incumplimiento generará intereses moratorios y podrá
-                resultar en el vencimiento anticipado de la obligación.
-              </p>
-              <div class="flex items-center justify-center gap-4 text-sm text-blue-700">
-                <span>✓ Documento Legal Válido</span>
-                <span>✓ Protegido por Legislación Mexicana</span>
-                <span>✓ Confidencial y Privado</span>
-              </div>
-            </div>
-
-            <!-- Footer de la vista previa -->
-            <div class="text-center mt-8 pt-6 border-t border-gray-200 dark:border-slate-800">
-              <p class="text-sm text-gray-500 dark:text-gray-400">
-                Esta es una vista previa • El documento PDF oficial incluye formato A4 con encabezado y pie de página profesionales
-              </p>
-              <p class="text-xs text-gray-400 mt-2">
-                Generado el {{ formatearFechaCompleta(new Date()) }} • Versión {{ DOCUMENTO_INFO.version }}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Navegación inferior mejorada -->
-      <div class="flex justify-center mt-8">
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-gray-100 p-6">
-          <div class="flex flex-col items-center gap-4">
-            <!-- Selector de tamaño para el botón inferior -->
-            <div class="flex items-center gap-3">
-              <label class="text-sm font-medium text-gray-700">Tamaño:</label>
-              <select
-                v-model="tamanoSeleccionado"
-                class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            <!-- Accion Final -->
+            <div class="flex flex-col items-center justify-center gap-8 pt-12 border-t border-slate-100 dark:border-slate-800">
+               <button
+                @click="generarPDF(tamanoSeleccionado)"
+                class="inline-flex items-center px-12 py-6 bg-blue-600 text-white text-sm font-black uppercase tracking-[0.2em] rounded-3xl hover:bg-blue-700 hover:scale-[1.05] active:scale-95 shadow-2xl shadow-blue-600/30 transition-all duration-300"
               >
-                <option value="carta">📄 Carta (8.5" × 11")</option>
-                <option value="oficio">📃 Oficio (8.5" × 13")</option>
-                <option value="a4">📋 A4 (210mm × 297mm)</option>
-              </select>
-            </div>
-
-            <button
-              @click="generarPDF(tamanoSeleccionado)"
-              class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-lg font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            >
-              <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-              </svg>
-              Generar Documento PDF Oficial
-            </button>
-            <div class="text-center text-gray-600 dark:text-gray-300">
-              <div class="font-medium">Documento profesional listo para impresión</div>
-              <div class="text-sm text-gray-500 dark:text-gray-400">Tamaño seleccionado: {{ tamanosPapel[tamanoSeleccionado]?.nombre }} • Diseño ejecutivo</div>
+                <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                Exportar Formato PDF Oficial
+              </button>
+              
+              <div class="text-center">
+                <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] mb-2 leading-none">Generación Masiva Certificada</p>
+                <div class="flex items-center justify-center gap-4 text-[10px] font-bold text-slate-500">
+                   <span>ALTA DEFINICIÓN</span>
+                   <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                   <span>VECTORIAL</span>
+                   <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                   <span>LISTO PARA FIRMA</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

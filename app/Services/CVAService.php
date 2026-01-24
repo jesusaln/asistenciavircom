@@ -18,6 +18,46 @@ class CVAService
     }
 
     /**
+     * Obtener el tipo de cambio efectivo (Base + Buffer)
+     */
+    public function getEffectiveExchangeRate(): float
+    {
+        $base = (float) ($this->config->cva_tipo_cambio ?? 20.50);
+        $bufferPercent = (float) ($this->config->cva_tipo_cambio_buffer ?? 2.00);
+
+        return round($base * (1 + ($bufferPercent / 100)), 4);
+    }
+
+    /**
+     * Actualizar tipo de cambio desde CVA
+     */
+    public function updateExchangeRate()
+    {
+        try {
+            $response = Http::get("https://www.grupocva.com/catalogo_clientes_xml/tipo_cambio.xml");
+
+            if ($response->successful()) {
+                $xml = simplexml_load_string($response->body());
+                if ($xml && isset($xml->tipo_cambio)) {
+                    $tc = (float) $xml->tipo_cambio;
+
+                    if ($tc > 10) { // Validación mínima
+                        $this->config->update([
+                            'cva_tipo_cambio' => $tc,
+                            'cva_tipo_cambio_last_update' => now()
+                        ]);
+                        return $tc;
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Error actualizando TC CVA: ' . $e->getMessage());
+        }
+
+        return $this->config->cva_tipo_cambio;
+    }
+
+    /**
      * Obtener el token de autenticación (desde caché o API)
      */
     public function getToken()
@@ -75,7 +115,7 @@ class CVAService
                 'page' => $filters['page'] ?? $filters['pagina'] ?? 1,
                 'images' => 1,
                 'completos' => 1,
-                'MonedaPesos' => 1,
+                'MonedaPesos' => 0,
                 'exist' => 0,
                 'promos' => 1,
                 'sucursales' => 1,
@@ -156,7 +196,7 @@ class CVAService
         try {
             $params = [
                 'clave' => $clave,
-                'MonedaPesos' => 1,
+                'MonedaPesos' => 0,
                 'dt' => 1,
                 'dc' => 1,
                 'images' => 1,
@@ -448,14 +488,18 @@ class CVAService
         $tiers = $this->config->cva_utility_tiers ?? null;
 
         if ($tiers && is_array($tiers) && count($tiers) > 0) {
-            // Ordenar tiers por el campo 'max' para asegurar que el loop funcione
-            usort($tiers, fn($a, $b) => $a['max'] <=> $b['max']);
+            // Asegurar que estén ordenados por el campo 'max'
+            $sortedTiers = collect($tiers)->sortBy('max')->values()->all();
 
-            foreach ($tiers as $tier) {
-                if ($precio <= $tier['max']) {
+            foreach ($sortedTiers as $tier) {
+                if ($precio <= (float) $tier['max']) {
                     return (float) $tier['percent'] / 100;
                 }
             }
+
+            // Si el precio supera todos los tiers, usar el porcentaje del último tier (el más alto)
+            $lastTier = end($sortedTiers);
+            return (float) $lastTier['percent'] / 100;
         }
 
         // 2. Si no hay tiers, usar el porcentaje fijo configurado (default 15%)
@@ -463,23 +507,16 @@ class CVAService
             return (float) $this->config->cva_utility_percentage / 100;
         }
 
-        // 3. Fallback Industrial (Tiers MÁS AGRESIVOS para PyME con Servicio)
+        // 3. Fallback Industrial (Si no hay nada configurado)
         if ($precio <= 500)
-            return 0.50; // Accesorios, cables
+            return 0.50; // Accesorios
         if ($precio <= 1500)
             return 0.35; // Periféricos
-        if ($precio <= 4000)
-            return 0.25; // Monitores, discos
-        if ($precio <= 8000)
-            return 0.20; // Componentes PC
+        if ($precio <= 5000)
+            return 0.25; // Monitores
         if ($precio <= 15000)
-            return 0.15; // Laptops Home/Office
-        if ($precio <= 30000)
-            return 0.12; // Laptops Gamer/Pro
-        if ($precio <= 60000)
-            return 0.10; // Servidores/Workstations
-
-        return 0.08; // Proyectos muy grandes (+ $0k)
+            return 0.18; // Laptops Office
+        return 0.12; // Servidores/Workstations
     }
 
     /**
@@ -487,17 +524,29 @@ class CVAService
      */
     public function normalizeProduct($item)
     {
-        $precioBase = (float) ($item['precio'] ?? 0);
+        $precioOriginal = (float) ($item['precio'] ?? 0);
+        $moneda = $item['moneda'] ?? 'Pesos';
+        $itemTc = (float) ($item['tipo_cambio'] ?? 0);
+
+        // Si la moneda es dólares, convertimos a pesos usando NUESTRO motor de TC
+        if ($moneda === 'Dolares' || $moneda === 'USD') {
+            $tcEfectivo = $this->getEffectiveExchangeRate();
+            $precioBase = $precioOriginal * $tcEfectivo;
+        } else {
+            $precioBase = $precioOriginal;
+        }
 
         // CVA puede regresar el descuento en un nodo 'promociones' o 'promocion'
         $promocion = $item['promociones'] ?? $item['promocion'] ?? null;
         if ($promocion && isset($promocion['precio_descuento'])) {
-            $precioBase = (float) $promocion['precio_descuento'];
+            $desc = (float) $promocion['precio_descuento'];
+            $precioBase = ($moneda === 'Dolares' || $moneda === 'USD') ? $desc * $this->getEffectiveExchangeRate() : $desc;
         } elseif ($promocion && isset($promocion['precio'])) {
-            $precioBase = (float) $promocion['precio'];
+            $descPrice = (float) $promocion['precio'];
+            $precioBase = ($moneda === 'Dolares' || $moneda === 'USD') ? $descPrice * $this->getEffectiveExchangeRate() : $descPrice;
         }
 
-        // Porcentaje de utilidad escalonado según precio
+        // Porcentaje de utilidad escalonado según precio (en pesos ya)
         $utility = $this->getTieredUtilityPercentage($precioBase);
         $precioVenta = $precioBase * (1 + $utility);
 
@@ -971,6 +1020,90 @@ class CVAService
             return null;
         } catch (\Exception $e) {
             return null;
+        }
+    }
+
+    /**
+     * Obtener el saldo disponible en el Monedero CVA
+     * 
+     * @return float|null Saldo disponible o null si hay error
+     */
+    public function getMonederoBalance(): ?float
+    {
+        $token = $this->getToken();
+        if (!$token)
+            return null;
+
+        try {
+            $response = Http::withToken($token)
+                ->get("{$this->baseUrl}/pedidos_web/monedero");
+
+            if ($response->successful()) {
+                $saldo = (float) $response->json('saldo');
+
+                // Actualizar config si es posible para tener el valor "fresco" en la DB
+                if ($this->config) {
+                    $this->config->update([
+                        'cva_monedero_balance' => $saldo,
+                        'cva_monedero_last_update' => now()
+                    ]);
+                }
+
+                return $saldo;
+            }
+            return null;
+        } catch (\Exception $e) {
+            Log::error('CVA API Exception (getMonederoBalance)', ['message' => $e->getMessage()]);
+            return null;
+        }
+    }
+
+    /**
+     * Aplicar pago a un pedido CVA usando el Monedero
+     * 
+     * @param string $pedidoId ID del pedido en CVA
+     * @param float $monto Monto a pagar
+     * @return array Resultado de la operación
+     */
+    public function payOrderWithMonedero(string $pedidoId, float $monto)
+    {
+        $token = $this->getToken();
+        if (!$token)
+            return ['success' => false, 'error' => 'API CVA no autenticada'];
+
+        try {
+            Log::info("Pay CVA Order Request: Pedido {$pedidoId}, Monto: {$monto}");
+
+            $response = Http::withToken($token)
+                ->post("{$this->baseUrl}/pedidos_web/aplicar_monedero", [
+                    'pedido' => $pedidoId,
+                    'monto' => $monto
+                ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                Log::info('CVA Payment Successful', $data);
+
+                // Refrescar el saldo del monedero después de pagar
+                $this->getMonederoBalance();
+
+                return ['success' => true, 'data' => $data];
+            }
+
+            Log::error('CVA Payment Failed', [
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $response->json('error') ?? 'Error al aplicar pago en CVA',
+                'details' => $response->json()
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('CVA API Exception (payOrderWithMonedero)', ['message' => $e->getMessage()]);
+            return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 }

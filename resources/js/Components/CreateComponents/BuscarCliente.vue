@@ -17,7 +17,7 @@
             @blur="ocultarListaConRetraso"
             @keydown="manejarTeclas"
             :placeholder="placeholderBusqueda"
-            class="w-full pl-11 pr-11 py-3 bg-white dark:bg-slate-900 dark:bg-slate-900 border rounded-2xl shadow-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 text-sm transition-all duration-300 text-gray-900 dark:text-white dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+            class="w-full pl-11 pr-11 py-3 bg-white dark:bg-slate-950 border rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm transition-all duration-300 text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-gray-500"
             :class="{
               'border-red-300 dark:border-red-900/50 ring-red-50 dark:ring-red-900/10': errorBusqueda || (requerido && validacionError),
               'border-gray-200 dark:border-slate-800 dark:border-slate-800': !errorBusqueda && !(requerido && validacionError)
@@ -65,8 +65,8 @@
             @click="aplicarFiltroRapido(filtro)"
             class="inline-flex items-center px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-200 shadow-sm border"
             :class="filtroActivo === filtro.value
-              ? 'bg-indigo-600 text-white border-indigo-600 shadow-indigo-500/20'
-              : 'bg-white dark:bg-slate-900 dark:bg-slate-900/50 text-gray-600 dark:text-slate-400 border-gray-200 dark:border-slate-800 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800'"
+              ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20'
+              : 'bg-white dark:bg-slate-900/50 text-gray-600 dark:text-slate-400 border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800'"
           >
             <component :is="filtro.icon" class="w-3 h-3 mr-1.5" v-if="filtro.icon"/>
             {{ filtro.label }}
@@ -76,7 +76,7 @@
     </div>
 
     <!-- Información del cliente seleccionado -->
-    <div v-if="clienteSeleccionado" class="mt-2 group p-6 bg-white dark:bg-slate-900 dark:bg-slate-900/50 border border-gray-100 dark:border-slate-800 dark:border-slate-800 rounded-2xl shadow-xl transition-all hover:shadow-2xl">
+    <div v-if="clienteSeleccionado" class="mt-2 group p-6 bg-white dark:bg-slate-900/40 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-xl shadow-black/5 transition-all hover:shadow-2xl">
       <div class="flex items-start justify-between mb-6">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm">
@@ -85,14 +85,14 @@
             </svg>
           </div>
           <div>
-            <h3 class="text-lg font-black text-gray-900 dark:text-white dark:text-white transition-colors">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-slate-100 transition-colors">
               {{ clienteSeleccionado.nombre_razon_social }}
             </h3>
             <div class="flex items-center gap-2 mt-1">
-              <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest">{{ tituloClienteSeleccionado }}</span>
-              <div v-if="mostrarEstadoCliente" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-slate-800 dark:border-gray-700">
+              <span class="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">{{ tituloClienteSeleccionado }}</span>
+              <div v-if="mostrarEstadoCliente" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-50 dark:bg-slate-950 border border-gray-100 dark:border-slate-800">
                 <div class="w-1.5 h-1.5 rounded-full" :class="clienteSeleccionado.activo !== false ? 'bg-green-500' : 'bg-red-500'"></div>
-                <span class="text-[9px] font-black uppercase text-gray-500 dark:text-gray-400 dark:text-gray-400">
+                <span class="text-[9px] font-black uppercase text-gray-500 dark:text-slate-400">
                   {{ clienteSeleccionado.activo === false ? 'Inactivo' : 'Activo' }}
                 </span>
               </div>
@@ -137,12 +137,12 @@
         </div>
 
         <div class="space-y-1" v-if="clienteSeleccionado.rfc">
-          <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest">RFC</p>
+          <p class="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">RFC</p>
           <div class="flex items-center gap-2 group/info">
-            <div class="w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400 group-hover/info:text-indigo-500 transition-colors">
+            <div class="w-7 h-7 rounded-lg bg-gray-50 dark:bg-slate-950 flex items-center justify-center text-gray-400 group-hover/info:text-blue-500 transition-colors">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             </div>
-            <span class="text-sm font-bold text-gray-700 dark:text-gray-300 font-mono">{{ clienteSeleccionado.rfc }}</span>
+            <span class="text-sm font-bold text-gray-700 dark:text-slate-300 font-mono">{{ clienteSeleccionado.rfc }}</span>
           </div>
         </div>
 
@@ -226,7 +226,7 @@
       <div
         ref="listaClientesRef"
         v-if="mostrarListaClientes && clientesFiltrados.length > 0"
-        class="z-[100] mt-1 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-gray-100 dark:border-slate-800 dark:border-slate-800 rounded-2xl shadow-2xl shadow-black/50 max-h-[50vh] overflow-hidden flex flex-col transition-all animate-in fade-in zoom-in-95"
+        class="z-[100] mt-1 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-2xl shadow-black/50 max-h-[50vh] overflow-hidden flex flex-col transition-all animate-in fade-in zoom-in-95"
         :style="{
           position: 'fixed',
           width: inputWidth + 'px',
@@ -234,7 +234,7 @@
           left: inputPosition.left + 'px'
         }"
       >
-        <div class="px-4 py-2.5 border-b border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/50 flex items-center justify-between">
+        <div class="px-4 py-2.5 border-b border-gray-50 dark:border-slate-800/60 bg-gray-50/50 dark:bg-slate-900">
             <span class="text-[9px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">
                 {{ clientesFiltrados.length }} {{ clientesFiltrados.length === 15 ? 'Primeros resultados' : 'Resultados encontrados' }}
             </span>

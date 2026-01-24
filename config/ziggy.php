@@ -12,7 +12,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
+    'url' => env('APP_ENV') === 'production' ? env('APP_URL') : null,
 
     'port' => env('APP_PORT', 8000),
 

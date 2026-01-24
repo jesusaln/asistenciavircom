@@ -197,44 +197,55 @@ const getSaludPoliza = () => {
                             </table>
                         </div>
 
-                        <!-- Historial de Facturación y Cobros -->
+                        <!-- Historial de Facturación y Smart Billing -->
                         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden border border-blue-100">
-                            <div class="px-6 py-4 border-b bg-blue-50/50">
+                            <div class="px-6 py-4 border-b bg-blue-50/50 flex justify-between items-center">
                                 <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                                     </svg>
-                                    Historial de Facturación y Cobros
+                                    Cargos y Facturación (Smart Billing)
                                 </h3>
+                                <span class="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">
+                                    Nuevo
+                                </span>
                             </div>
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
                                 <thead class="bg-white dark:bg-slate-900 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">
                                     <tr>
-                                        <th class="px-6 py-3 text-left">Fecha</th>
+                                        <th class="px-6 py-3 text-left">Emisión / Vence</th>
                                         <th class="px-6 py-3 text-left">Concepto</th>
                                         <th class="px-6 py-3 text-center">Estado</th>
-                                        <th class="px-6 py-3 text-right">Monto</th>
+                                        <th class="px-6 py-3 text-right">Subtotal / IVA</th>
+                                        <th class="px-6 py-3 text-right">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 dark:divide-slate-800">
-                                    <tr v-for="cobro in poliza.cuentas_por_cobrar" :key="cobro.id" class="hover:bg-white dark:bg-slate-900">
-                                        <td class="px-6 py-4 text-xs font-medium text-gray-600 dark:text-gray-300">{{ formatDate(cobro.created_at) }}</td>
+                                    <tr v-for="cargo in poliza.cargos" :key="cargo.id" class="hover:bg-blue-50/10 transition-colors">
+                                        <td class="px-6 py-4 text-xs">
+                                            <div class="font-medium text-gray-900 dark:text-white">{{ formatDate(cargo.fecha_emision) }}</div>
+                                            <div class="text-[10px] text-red-500 font-bold">Vence: {{ formatDate(cargo.fecha_vencimiento) }}</div>
+                                        </td>
                                         <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
-                                            <div class="font-medium">Mensualidad Póliza</div>
-                                            <div class="text-[10px] text-gray-500 dark:text-gray-400 truncate max-w-xs">{{ cobro.notas }}</div>
+                                            <div class="font-medium truncate max-w-[200px]">{{ cargo.concepto }}</div>
+                                            <div class="text-[10px] text-gray-500 uppercase font-bold">{{ cargo.tipo_ciclo }}</div>
                                         </td>
                                         <td class="px-6 py-4 text-center">
-                                            <span :class="['px-2 py-0.5 text-[9px] font-black rounded uppercase border', getEstadoCobroBadge(cobro.estado)]">
-                                                {{ cobro.estado }}
+                                            <span :class="['px-2 py-0.5 text-[9px] font-black rounded uppercase border-2', getEstadoCobroBadge(cargo.estado)]">
+                                                {{ cargo.estado }}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 text-right text-sm font-bold text-gray-900 dark:text-white">
-                                            {{ formatCurrency(cobro.monto_total) }}
+                                        <td class="px-6 py-4 text-right text-xs">
+                                            <div class="text-gray-600">{{ formatCurrency(cargo.subtotal) }}</div>
+                                            <div class="text-[10px] text-gray-400 font-bold">+ {{ formatCurrency(cargo.iva) }} IVA</div>
+                                        </td>
+                                        <td class="px-6 py-4 text-right text-sm font-black text-blue-700 dark:text-blue-400">
+                                            {{ formatCurrency(cargo.total) }}
                                         </td>
                                     </tr>
-                                    <tr v-if="!poliza.cuentas_por_cobrar || poliza.cuentas_por_cobrar.length === 0">
-                                        <td colspan="4" class="px-6 py-8 text-center text-gray-400 text-sm italic">
-                                            No hay registros de cobros generados automáticamente aún.
+                                    <tr v-if="!poliza.cargos || poliza.cargos.length === 0">
+                                        <td colspan="5" class="px-6 py-8 text-center text-gray-400 text-sm">
+                                            Aún no hay cargos generados por el motor Smart Billing.
                                         </td>
                                     </tr>
                                 </tbody>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
 use App\Models\EmpresaConfiguracion;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -135,6 +136,51 @@ class BlogPostController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Error notifying n8n for blog post: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Send newsletter manually for this post
+     */
+    public function sendNewsletter(BlogPost $blog)
+    {
+        if ($blog->status !== 'published') {
+            return redirect()->back()->with('error', 'El post debe estar publicado para enviarlo como newsletter.');
+        }
+
+        try {
+            Artisan::call('newsletter:send', ['post_id' => $blog->id]);
+
+            $blog->update(['newsletter_enviado_at' => now()]);
+
+            return redirect()->back()->with('success', 'El proceso de envío de newsletter ha iniciado para ' . $blog->titulo);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error al iniciar el envío: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Send a test newsletter to the admin
+     */
+    public function sendTestNewsletter(BlogPost $blog)
+    {
+        $testEmails = ['jesuslopez210388@gmail.com', 'jesuslopeznoriega@hotmail.com'];
+
+        // Creamos un cliente "ficticio" para la prueba
+        $fakeCliente = new \App\Models\Cliente();
+        $fakeCliente->nombre_razon_social = 'Usuario de Prueba (Admin)';
+
+        try {
+            foreach ($testEmails as $email) {
+                $fakeCliente->email = $email;
+                \Illuminate\Support\Facades\Mail::mailer('newsletter')
+                    ->to($email)
+                    ->send(new \App\Mail\WeeklyNewsletter($blog, $fakeCliente));
+            }
+
+            return redirect()->back()->with('success', 'Correos de prueba enviados a sus cuentas de Gmail y Hotmail.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error al enviar prueba: ' . $e->getMessage());
         }
     }
 }

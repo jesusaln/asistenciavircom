@@ -234,6 +234,7 @@ class UserController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'almacen_venta_id' => 'nullable|exists:almacenes,id',
             'almacen_compra_id' => 'nullable|exists:almacenes,id',
+            'costo_hora_interno' => 'nullable|numeric|min:0',
             'roles' => 'nullable|array',
         ]);
 
@@ -244,6 +245,7 @@ class UserController extends Controller
             'activo' => true,
             'almacen_venta_id' => $validated['almacen_venta_id'] ?? null,
             'almacen_compra_id' => $validated['almacen_compra_id'] ?? null,
+            'costo_hora_interno' => $validated['costo_hora_interno'] ?? 0,
             'password' => Hash::make($validated['password']),
         ];
 
@@ -280,6 +282,7 @@ class UserController extends Controller
             'telefono' => 'nullable|string|max:20',
             'almacen_venta_id' => 'nullable|exists:almacenes,id',
             'almacen_compra_id' => 'nullable|exists:almacenes,id',
+            'costo_hora_interno' => 'nullable|numeric|min:0',
             'password' => 'nullable|string|min:8|confirmed',
             'roles' => 'nullable|array',
         ]);
@@ -291,6 +294,7 @@ class UserController extends Controller
             'telefono' => $validated['telefono'] ?? null,
             'almacen_venta_id' => $validated['almacen_venta_id'] ?? null,
             'almacen_compra_id' => $validated['almacen_compra_id'] ?? null,
+            'costo_hora_interno' => $validated['costo_hora_interno'] ?? $user->costo_hora_interno,
             'password' => $validated['password'] ? Hash::make($validated['password']) : $user->password,
         ]);
 

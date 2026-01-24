@@ -93,9 +93,15 @@ class PrestamoController extends Controller
                 'monto_total_pendiente' => (float) Prestamo::sum('monto_pendiente'),
             ];
 
+            // Obtener clientes activos para los filtros del header
+            $clientes = Cliente::active()
+                ->orderBy('nombre_razon_social')
+                ->get(['id', 'nombre_razon_social']);
+
             return Inertia::render('Prestamos/Index', [
                 'prestamos' => $prestamos,
                 'estadisticas' => $estadisticas,
+                'clientes' => $clientes,
                 'filters' => $request->only(['search', 'estado', 'cliente_id']),
                 'sorting' => ['sort_by' => $sortBy, 'sort_direction' => $sortDirection],
                 'pagination' => [
@@ -436,7 +442,7 @@ class PrestamoController extends Controller
                 default => 30,
             };
 
-            $prestamo->fecha_primer_pago = $fechaInicio->copy()->addDays($diasSumar);
+            $prestamo->setAttribute('fecha_primer_pago', \Carbon\Carbon::parse($fechaInicio)->addDays($diasSumar));
         }
     }
 

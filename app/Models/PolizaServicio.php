@@ -159,6 +159,10 @@ class PolizaServicio extends Model
         'condiciones_especiales',
         'clausulas_especiales',
         'notas',
+        'monto_total_contrato', // Nuevo: Monto total del contrato (para diferir)
+        'ingreso_devengado',     // Nuevo: IFRS15 Reconocimiento
+        'ingreso_diferido',      // Nuevo: IFRS15 Pendiente
+        'costo_acumulado_tecnico', // Nuevo: Costo real acumulado
         'ultimo_cobro_generado_at',
         'sla_horas_respuesta',
         'sla_horas_resolucion',
@@ -171,6 +175,7 @@ class PolizaServicio extends Model
         'dias_alerta_vencimiento',
         'alerta_vencimiento_enviada',
         'ultimo_aviso_vencimiento_at',
+        'ultima_emision_fac_at', // Nuevo: Para trackear reconocimiento mensual
         'ultima_alerta_exceso_at',
         'ultimo_reset_consumo_at',
         'mantenimiento_frecuencia_meses',
@@ -202,6 +207,10 @@ class PolizaServicio extends Model
         'fecha_inicio' => 'date:Y-m-d',
         'fecha_fin' => 'date:Y-m-d',
         'monto_mensual' => 'decimal:2',
+        'monto_total_contrato' => 'decimal:2',
+        'ingreso_devengado' => 'decimal:2',
+        'ingreso_diferido' => 'decimal:2',
+        'costo_acumulado_tecnico' => 'decimal:2',
         'notificar_exceso_limite' => 'boolean',
         'renovacion_automatica' => 'boolean',
         'condiciones_especiales' => 'json',
@@ -212,6 +221,7 @@ class PolizaServicio extends Model
         'costo_ticket_extra' => 'decimal:2',
         'ultimo_cobro_generado_at' => 'datetime',
         'ultimo_aviso_vencimiento_at' => 'datetime',
+        'ultima_emision_fac_at' => 'date',
         'ultima_alerta_exceso_at' => 'datetime',
         'ultimo_reset_consumo_at' => 'datetime',
         'proximo_mantenimiento_at' => 'date:Y-m-d',
@@ -292,6 +302,14 @@ class PolizaServicio extends Model
     public function citas(): HasMany
     {
         return $this->hasMany(Cita::class, 'poliza_id');
+    }
+
+    /**
+     * Historial de cargos/facturación de la póliza.
+     */
+    public function cargos(): HasMany
+    {
+        return $this->hasMany(PolizaCargo::class, 'poliza_id')->orderBy('fecha_emision', 'desc');
     }
 
     /**

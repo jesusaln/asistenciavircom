@@ -47,6 +47,40 @@ return [
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+            'stream' => [
+                'ssl' => [
+                    'allow_self_signed' => true,
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'security_level' => 0,
+                ],
+            ],
+        ],
+
+        'newsletter' => [
+            'transport' => 'smtp',
+            'host' => env('NEWSLETTER_MAIL_HOST', env('MAIL_HOST')),
+            'port' => env('NEWSLETTER_MAIL_PORT', env('MAIL_PORT')),
+            'username' => env('NEWSLETTER_MAIL_USERNAME'),
+            'password' => env('NEWSLETTER_MAIL_PASSWORD'),
+            'from' => [
+                'address' => env('NEWSLETTER_MAIL_FROM_ADDRESS'),
+                'name' => 'Asistencia Vircom Blog',
+            ],
+            'encryption' => env('NEWSLETTER_MAIL_ENCRYPTION', env('MAIL_ENCRYPTION')),
+            'timeout' => null,
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+            'stream' => [
+                'ssl' => [
+                    'allow_self_signed' => true,
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'security_level' => 0,
+                ],
+            ],
         ],
 
         'ses' => [

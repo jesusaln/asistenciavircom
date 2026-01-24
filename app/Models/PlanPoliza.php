@@ -52,6 +52,21 @@ class PlanPoliza extends Model
         'visitas_sitio_mensuales',
         'costo_visita_sitio_extra',
         'costo_ticket_extra',
+        'moneda',
+        'precio_trimestral',
+        'precio_semestral',
+        'iva_tasa',
+        'iva_incluido',
+        'limit_dia_pago',
+        'dias_gracia_cobranza',
+        'recargo_pago_tardio',
+        'tipo_recargo',
+        'limite_usuarios_soporte',
+        'limite_ubicaciones',
+        'soporte_remoto_ilimitado',
+        'soporte_presencial_incluido',
+        'requiere_orden_compra',
+        'metodo_pago_sugerido',
     ];
 
     protected $casts = [
@@ -70,6 +85,18 @@ class PlanPoliza extends Model
         'destacado' => 'boolean',
         'visible_catalogo' => 'boolean',
         'generar_cita_automatica' => 'boolean',
+        'precio_trimestral' => 'decimal:2',
+        'precio_semestral' => 'decimal:2',
+        'iva_tasa' => 'decimal:2',
+        'iva_incluido' => 'boolean',
+        'limit_dia_pago' => 'integer',
+        'dias_gracia_cobranza' => 'integer',
+        'recargo_pago_tardio' => 'decimal:2',
+        'limite_usuarios_soporte' => 'integer',
+        'limite_ubicaciones' => 'integer',
+        'soporte_remoto_ilimitado' => 'boolean',
+        'soporte_presencial_incluido' => 'boolean',
+        'requiere_orden_compra' => 'boolean',
     ];
 
     /**

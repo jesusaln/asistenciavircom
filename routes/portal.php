@@ -85,5 +85,9 @@ Route::prefix('portal')->group(function () {
         Route::get('/ventas/{id}/pdf', [PortalController::class, 'descargarVentaPdf'])->name('portal.ventas.pdf');
         Route::post('/pagos/venta/credito', [PortalController::class, 'payVentaWithCredit'])->name('portal.ventas.pagar-credito');
         Route::post('/pagos/venta/mercadopago', [\App\Http\Controllers\ClientPortal\PortalPaymentController::class, 'createMercadoPago'])->name('portal.pagos.mercadopago.crear');
+        Route::post('/pagos/cargo/mercadopago', [\App\Http\Controllers\ClientPortal\PortalPaymentController::class, 'createForCargo'])->name('portal.pagos.cargo.mercadopago');
     });
+
+    // Webhook público para MercadoPago
+    Route::post('/webhook/mercadopago', [\App\Http\Controllers\ClientPortal\PortalPaymentController::class, 'webhookMercadoPago'])->name('portal.pagos.mercadopago.webhook');
 });

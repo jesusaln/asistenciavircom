@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use App\Models\Ticket;
+use App\Models\Cita;
 
 class PolizaConsumo extends Model
 {
@@ -20,14 +22,17 @@ class PolizaConsumo extends Model
         'consumible_id',
         'cantidad',
         'valor_unitario',
+        'costo_interno',
         'ahorro',
         'descripcion',
         'registrado_por',
+        'tecnico_id',
         'fecha_consumo',
     ];
 
     protected $casts = [
         'valor_unitario' => 'decimal:2',
+        'costo_interno' => 'decimal:2',
         'ahorro' => 'decimal:2',
         'fecha_consumo' => 'datetime',
     ];
@@ -61,6 +66,14 @@ class PolizaConsumo extends Model
     public function registrador(): BelongsTo
     {
         return $this->belongsTo(User::class, 'registrado_por');
+    }
+
+    /**
+     * Técnico que realizó el servicio.
+     */
+    public function tecnico(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'tecnico_id');
     }
 
     /**
@@ -105,6 +118,24 @@ class PolizaConsumo extends Model
             default => 0,
         };
 
+        // 1. Determinar el técnico responsable para el costo real
+        $tecnico = null;
+        if (get_class($consumible) === Ticket::class) {
+            $tecnico = $consumible->technician;
+        } elseif (get_class($consumible) === Cita::class) {
+            $tecnico = $consumible->tecnico;
+        }
+
+        // 2. Calcular costo interno
+        $costoInterno = 0;
+        if ($tecnico && $tecnico->costo_hora_interno > 0) {
+            $horas = 1;
+            if ($tipo === self::TIPO_HORA) {
+                $horas = (float) $cantidad;
+            }
+            $costoInterno = $tecnico->costo_hora_interno * $horas;
+        }
+
         $consumo = self::create([
             'poliza_id' => $poliza->id,
             'tipo' => $tipo,
@@ -112,11 +143,23 @@ class PolizaConsumo extends Model
             'consumible_id' => $consumible->id,
             'cantidad' => $cantidad,
             'valor_unitario' => $valorUnitario,
+            'costo_interno' => $costoInterno,
             'ahorro' => $valorUnitario * $cantidad,
             'descripcion' => $descripcion ?? self::generarDescripcion($tipo, $consumible),
             'registrado_por' => auth()->guard('client')->check() ? null : auth()->id(),
+            'tecnico_id' => $tecnico?->id,
             'fecha_consumo' => now(),
         ]);
+
+        // 3. Actualizar costo acumulado en la póliza
+        $poliza->increment('costo_acumulado_tecnico', $costoInterno);
+
+        // 4. Verificar rentabilidad proactivamente
+        try {
+            app(\App\Services\PolizaRentabilidadService::class)->checkHealthAndNotify($poliza);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Error en checkHealthAndNotify: " . $e->getMessage());
+        }
 
         // Enviar notificación al cliente
         try {

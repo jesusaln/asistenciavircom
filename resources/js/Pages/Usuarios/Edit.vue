@@ -186,6 +186,41 @@
             </div>
           </div>
 
+          <!-- Costo Interno (Technical) - Solo para admins -->
+          <div v-if="isAdmin" class="space-y-6 border-t pt-6">
+              <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
+                  <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Información Financiera / Técnica
+                  </h2>
+                  <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Define el costo real de la hora técnica para cálculos de rentabilidad.</p>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="form-group">
+                    <label for="costo_hora_interno" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Costo Interno por Hora (Técnico)
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">$</span>
+                        </div>
+                        <input
+                            v-model="form.costo_hora_interno"
+                            type="number"
+                            step="0.01"
+                            id="costo_hora_interno"
+                            class="block w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900"
+                            placeholder="0.00"
+                        />
+                    </div>
+                    <InputError class="mt-2" :message="form.errors.costo_hora_interno" />
+                  </div>
+              </div>
+            </div>
+
           <!-- Asignación de Roles (Solo para admins) -->
           <div v-if="isAdmin" class="space-y-6 border-t pt-6">
             <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
@@ -644,6 +679,7 @@ const form = useForm({
   roles: props.usuario.roles.map(r => r.name),
   password: '',
   password_confirmation: '',
+  costo_hora_interno: props.usuario.costo_hora_interno || 0,
 });
 
 // Notificación
@@ -693,6 +729,7 @@ const isFormValid = computed(() => {
   const hasChanges = form.name !== props.usuario.name ||
                      form.email !== props.usuario.email ||
                      form.telefono !== (props.usuario.telefono || '') ||
+                     form.costo_hora_interno !== (props.usuario.costo_hora_interno || 0) ||
                      form.password ||
                      JSON.stringify([...form.roles].sort()) !== JSON.stringify(props.usuario.roles.map(r => r.name).sort());
 

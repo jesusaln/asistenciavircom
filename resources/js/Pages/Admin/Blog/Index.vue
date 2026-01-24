@@ -30,6 +30,20 @@ const formatDate = (date) => {
     year: 'numeric'
   })
 }
+
+const sendNewsletter = (post) => {
+  if (confirm(`¿Estás seguro de enviar "${post.titulo}" a los 600 clientes?`)) {
+    router.post(route('admin.blog.send-newsletter', post.id), {}, {
+      onSuccess: () => notyf.success('Proceso de envío iniciado')
+    })
+  }
+}
+
+const sendTest = (post) => {
+  router.post(route('admin.blog.send-test', post.id), {}, {
+    onSuccess: () => notyf.success('Correo de prueba enviado a tu Gmail')
+  })
+}
 </script>
 
 <template>
@@ -90,9 +104,18 @@ const formatDate = (date) => {
                   </span>
                 </td>
                 <td class="px-6 py-4">
-                  <span :class="post.status === 'published' ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300' : 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300'" class="px-2 py-1 rounded-full text-xs font-medium">
-                    {{ post.status === 'published' ? 'Publicado' : 'Borrador' }}
-                  </span>
+                  <div class="flex flex-col gap-1">
+                    <span :class="post.status === 'published' ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300' : 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300'" class="px-2 py-1 rounded-full text-xs font-medium inline-block text-center w-fit">
+                      {{ post.status === 'published' ? 'Publicado' : 'Borrador' }}
+                    </span>
+                    <span v-if="post.newsletter_enviado_at" class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold flex items-center gap-1">
+                      <FontAwesomeIcon icon="check-double" />
+                      Newsletter Enviado
+                    </span>
+                    <span v-else class="text-[10px] text-gray-400 font-medium">
+                      No enviado a lista
+                    </span>
+                  </div>
                 </td>
                 <td class="px-6 py-4 text-gray-600 dark:text-gray-300 dark:text-gray-300">
                   {{ formatDate(post.publicado_at || post.created_at) }}
@@ -105,13 +128,25 @@ const formatDate = (date) => {
                 </td>
                 <td class="px-6 py-4">
                   <div class="flex gap-2">
+                    <button v-if="post.status === 'published'" 
+                      @click="sendTest(post)" 
+                      class="p-2 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/40 rounded-lg transition-colors" 
+                      title="Enviar Prueba a mi Gmail">
+                      <FontAwesomeIcon icon="vial" />
+                    </button>
+                    <button v-if="post.status === 'published' && !post.newsletter_enviado_at" 
+                      @click="sendNewsletter(post)" 
+                      class="p-2 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 rounded-lg transition-colors" 
+                      title="Enviar Newsletter">
+                      <FontAwesomeIcon icon="paper-plane" />
+                    </button>
                     <Link :href="route('admin.blog.edit', post.id)" class="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 rounded-lg transition-colors" title="Editar">
                       <FontAwesomeIcon icon="edit" />
                     </Link>
                     <button @click="deletePost(post)" class="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 rounded-lg transition-colors" title="Eliminar">
                       <FontAwesomeIcon icon="trash" />
                     </button>
-                    <a v-if="post.status === 'published'" :href="route('public.blog.show', post.slug)" target="_blank" class="p-2 text-gray-600 dark:text-gray-300 dark:text-gray-300 hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-700 rounded-lg transition-colors" title="Ver">
+                    <a v-if="post.status === 'published'" :href="route('public.blog.show', post.slug)" target="_blank" class="p-2 text-gray-600 dark:text-gray-300 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors" title="Ver">
                       <FontAwesomeIcon icon="external-link-alt" />
                     </a>
                   </div>

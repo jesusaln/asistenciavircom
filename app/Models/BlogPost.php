@@ -25,6 +25,7 @@ class BlogPost extends Model
         'visitas',
         'meta_titulo',
         'meta_descripcion',
+        'newsletter_enviado_at',
     ];
 
     protected $appends = ['imagen_portada_url', 'tiempo_lectura'];
@@ -32,6 +33,7 @@ class BlogPost extends Model
     protected $casts = [
         'publicado_at' => 'datetime',
         'visitas' => 'integer',
+        'newsletter_enviado_at' => 'datetime',
     ];
 
     /**

@@ -39,6 +39,10 @@ class TiendaConfigController extends Controller
             'cva_codigo_sucursal' => 'nullable|integer',
             'cva_paqueteria_envio' => 'nullable|integer',
             'cva_utility_tiers' => 'nullable|array',
+            'cva_tipo_cambio' => 'nullable|numeric|min:0',
+            'cva_tipo_cambio_buffer' => 'nullable|numeric|min:0|max:100',
+            'cva_tipo_cambio_auto' => 'nullable|boolean',
+            'cva_auto_pago' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -49,7 +53,7 @@ class TiendaConfigController extends Controller
         $data = $validator->validated();
 
         // 1. Manejo de booleanos (checkboxes no enviados = false)
-        $booleanos = ['tienda_online_activa', 'mercadopago_sandbox', 'paypal_sandbox', 'stripe_sandbox', 'cva_active'];
+        $booleanos = ['tienda_online_activa', 'mercadopago_sandbox', 'paypal_sandbox', 'stripe_sandbox', 'cva_active', 'cva_tipo_cambio_auto', 'cva_auto_pago'];
         foreach ($booleanos as $campo) {
             if ($request->has($campo)) {
                 $data[$campo] = $request->boolean($campo);
@@ -87,5 +91,24 @@ class TiendaConfigController extends Controller
         }
 
         return redirect()->back()->with('success', 'Configuración de tienda actualizada correctamente.');
+    }
+
+    public function syncMonedero()
+    {
+        $service = new \App\Services\CVAService();
+        $balance = $service->getMonederoBalance();
+
+        if ($balance !== null) {
+            return response()->json([
+                'success' => true,
+                'balance' => $balance,
+                'last_update' => now()->toDateTimeString()
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'No se pudo obtener el saldo de CVA. Verifique sus credenciales.'
+        ], 500);
     }
 }

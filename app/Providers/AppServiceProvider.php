@@ -25,8 +25,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
 
-        if (str_starts_with(config('app.url'), 'https')) {
+        if (app()->environment('production') && str_starts_with(config('app.url'), 'https')) {
             URL::forceScheme('https');
+        } else {
+            URL::forceScheme('http');
         }
 
         // Nota: Para manejar UTF-8 malformado, trata los datos de origen

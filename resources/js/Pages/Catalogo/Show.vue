@@ -116,6 +116,13 @@ const isSimilarToDescription = (text) => {
     return longer.includes(shorter) || shorter.length > longer.length * 0.7
 }
 
+const sortedBranches = computed(() => {
+    if (!props.producto.stock_desglose) return {}
+    // Eliminar herrmosillo del desglose general ya que tiene su propia sección arriba
+    const { HERMOSILLO, ...others } = props.producto.stock_desglose
+    return others
+})
+
 const formatCurrency = (value) => {
     return new Intl.NumberFormat('es-MX', { 
         style: 'currency', 
@@ -405,31 +412,72 @@ const decrementar = () => {
                         </div>
                     </div>
 
-                    <!-- Disponibilidad por Sucursal -->
-                    <div v-if="producto.stock_desglose && Object.keys(producto.stock_desglose).length > 0" class="mb-8">
-                        <h4 class="text-xs font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Stock para Entrega Inmediata:</h4>
-                        <div class="flex flex-wrap gap-2">
-                            <div v-for="(qty, branch) in producto.stock_desglose" :key="branch" 
-                                class="px-3 py-1 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-700 rounded-lg flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-green-500 dark:bg-green-400"></span>
-                                <span class="text-xs text-gray-600 dark:text-gray-300 dark:text-gray-300 font-medium">{{ branch }}:</span>
-                                <span class="text-xs font-bold text-gray-900 dark:text-white dark:text-gray-100">{{ qty }}</span>
+                    <!-- Geolocalización de Stock Dinámica -->
+                    <div class="mb-8 p-6 bg-gradient-to-br from-gray-50 to-white dark:from-slate-900/40 dark:to-slate-900/10 rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 opacity-5">
+                            <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                        </div>
+
+                        <div class="relative z-10">
+                            <h4 class="text-[10px] font-black uppercase text-gray-400 dark:text-gray-500 tracking-[0.2em] mb-4 flex items-center gap-2">
+                                <span class="w-4 h-px bg-gray-200 dark:border-gray-700"></span>
+                                Disponibilidad Geográfica
+                            </h4>
+
+                            <!-- Opción 1: Stock Local (Hermosillo) -->
+                            <div v-if="producto.stock_local > 0" class="flex items-start gap-4 mb-6 animate-in slide-in-from-left duration-500">
+                                <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-2xl flex items-center justify-center flex-shrink-0 text-green-600 dark:text-green-400">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight">Disponible en Hermosillo</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">Pasa hoy mismo o recíbelo en 24h.</p>
+                                    <div class="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 bg-green-500/10 text-green-600 dark:text-green-400 rounded-lg">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                                        <span class="text-[10px] font-bold">{{ producto.stock_local }} unidades listas</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Opción 2: Stock Nacional (CVA CEDIS) -->
+                            <div v-if="producto.stock_cedis > 0" class="flex items-start gap-4 animate-in slide-in-from-left duration-700 delay-100">
+                                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center flex-shrink-0 text-blue-600 dark:text-blue-400">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight">Envío desde CEDIS Central</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">Trayecto nacional ({{ producto.stock_local > 0 ? 'Reserva adicional' : 'Entrega en 3 a 5 días' }}).</p>
+                                    <div class="mt-2 flex flex-wrap gap-2">
+                                        <div v-for="(qty, branch) in sortedBranches" :key="branch" 
+                                             class="flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
+                                            <span class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">{{ branch }}:</span>
+                                            <span class="text-[9px] font-black text-gray-700 dark:text-gray-300">{{ qty }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Caso Sin Stock -->
+                            <div v-if="producto.stock_local <= 0 && producto.stock_cedis <= 0 && producto.en_transito <= 0" 
+                                 class="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-2xl border border-amber-100 dark:border-amber-700">
+                                <svg class="w-10 h-10 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <div>
+                                    <p class="text-xs font-black text-amber-800 dark:text-amber-400 uppercase">Consultar Disponibilidad</p>
+                                    <p class="text-[10px] text-amber-700 dark:text-amber-500 font-bold">Importación especial o bajo pedido.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- En Tránsito (Próximamente) -->
-                    <div v-if="producto.en_transito > 0 && !(producto.stock > 0)" class="mb-8 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-100 dark:border-yellow-700">
-                        <div class="flex items-center gap-3 mb-2">
-                            <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <h4 class="font-bold text-yellow-800 dark:text-yellow-300">Producto en camino</h4>
+                    <!-- En Tránsito (Si aplica) -->
+                    <div v-if="producto.en_transito > 0" class="mb-8 p-5 bg-gradient-to-r from-yellow-500/10 to-transparent rounded-2xl border-l-4 border-yellow-500">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xl">🚢</span>
+                            <div>
+                                <h4 class="text-sm font-black text-yellow-800 dark:text-yellow-400 uppercase tracking-tight">Producto en Tránsito</h4>
+                                <p class="text-xs text-yellow-700/80 dark:text-yellow-500 font-medium">Hay {{ producto.en_transito }} unidades viajando a almacén. ¡Apártalas ahora!</p>
+                            </div>
                         </div>
-                        <p class="text-sm text-yellow-700 dark:text-yellow-200">
-                            Próximamente tendremos <strong>{{ producto.en_transito }} unidades</strong> disponibles. 
-                            ¡Puedes comprarlo ahora para asegurar tu pedido!
-                        </p>
                     </div>
 
                     <!-- Cantidad y Comprar (si hay stock o viene en camino) -->

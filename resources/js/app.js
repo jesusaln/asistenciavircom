@@ -39,7 +39,7 @@ import {
   faBlog, faNewspaper, faShareAlt, faMagic, faExternalLinkAlt, faGem, faCheckDouble,
   faThLarge, faQuestionCircle, faServer, faVideo, faUserLock,
   faWandMagicSparkles, faCircleInfo, faCircleCheck, faCircleExclamation, faTriangleExclamation,
-  faAddressCard, faEnvelopeCircleCheck, faGlobeAmericas, faCircleDot
+  faAddressCard, faEnvelopeCircleCheck, faGlobeAmericas, faCircleDot, faVial
 } from '@fortawesome/free-solid-svg-icons';
 
 import { faWhatsapp, faFacebook, faTwitter } from '@fortawesome/free-brands-svg-icons';
@@ -79,7 +79,7 @@ library.add(
   faThLarge, faQuestionCircle, faServer, faVideo, faUserLock,
   faBullseye, faBullhorn, faColumns, faTrophy, faInbox, faBoxOpen,
   faWandMagicSparkles, faCircleInfo, faCircleCheck, faCircleExclamation, faTriangleExclamation,
-  faAddressCard, faEnvelopeCircleCheck, faGlobeAmericas, faCircleDot
+  faAddressCard, faEnvelopeCircleCheck, faGlobeAmericas, faCircleDot, faVial
 );
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
