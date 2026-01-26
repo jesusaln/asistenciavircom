@@ -59,6 +59,7 @@ Route::get('/terminos', [LandingController::class, 'terminos'])->name('public.te
 Route::get('/asesor-climatizacion', [LandingController::class, 'asesor'])->name('public.asesor');
 Route::post('/asesor-lead', [LandingController::class, 'storeLead'])->name('public.asesor.store');
 Route::get('/asesor-pdf', [LandingController::class, 'downloadReport'])->name('public.asesor.pdf');
+Route::get('/puntos-de-venta', [LandingController::class, 'puntosVenta'])->name('public.puntos-venta');
 
 // Contacto y Citas Públicas (Rápido)
 Route::get('/contacto', [ContactoController::class, 'index'])->name('public.contacto');
@@ -171,3 +172,6 @@ Route::get('/img/profile-photos/{filename}', function ($filename) {
 Route::post('/webhooks/portal/mercadopago', [\App\Http\Controllers\ClientPortal\PortalPaymentController::class, 'webhookMercadoPago'])
     ->name('portal.pagos.mercadopago.webhook')
     ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
+// Newsletter Unsubscribe
+Route::get('/newsletter/unsubscribe', [\App\Http\Controllers\NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');

@@ -138,7 +138,8 @@
             </div>
 
             <div class="btn-container">
-                <a href="{{ config('app.url') . '/blog/' . $post->slug }}" class="btn">
+                <a href="{{ $trackToken ? route('newsletter.track.click', $trackToken) : route('public.blog.show', $post->slug) }}"
+                    class="btn">
                     Leer artículo completo
                 </a>
             </div>
@@ -161,6 +162,11 @@
                 reservados.</p>
         </div>
     </div>
+
+    @if($trackToken)
+        <img src="{{ route('newsletter.track.open', $trackToken) }}" width="1" height="1"
+            style="display:none !important;" />
+    @endif
 </body>
 
 </html>

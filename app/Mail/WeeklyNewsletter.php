@@ -10,20 +10,24 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+use Illuminate\Mail\Mailables\Headers;
+
 class WeeklyNewsletter extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $post;
     public $cliente;
+    public $trackToken;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($post, $cliente)
+    public function __construct($post, $cliente, $trackToken = null)
     {
         $this->post = $post;
         $this->cliente = $cliente;
+        $this->trackToken = $trackToken;
     }
 
     /**
@@ -31,9 +35,13 @@ class WeeklyNewsletter extends Mailable
      */
     public function envelope(): Envelope
     {
+        $fromAddress = config('mail.mailers.newsletter.from.address')
+            ?? config('mail.mailers.newsletter.username')
+            ?? config('mail.from.address');
+
         return new Envelope(
-            from: new Address(config('mail.mailers.newsletter.username'), 'Asistencia Vircom Blog'),
-            subject: '📰 Vircom Al Día: ' . $this->post->titulo,
+            from: new Address($fromAddress, 'Asistencia Vircom Blog'),
+            subject: $this->post->titulo,
         );
     }
 
@@ -44,6 +52,21 @@ class WeeklyNewsletter extends Mailable
     {
         return new Content(
             view: 'emails.weekly-newsletter',
+            text: 'emails.weekly-newsletter-text',
+        );
+    }
+
+    /**
+     * Get the message headers.
+     */
+    public function headers(): Headers
+    {
+        return new Headers(
+            text: [
+                'List-Unsubscribe' => '<' . config('app.url') . '/newsletter/unsubscribe?email=' . urlencode($this->cliente->email) . '>',
+                'Precedence' => 'bulk',
+                'X-Auto-Response-Suppress' => 'OOF, AutoReply',
+            ],
         );
     }
 

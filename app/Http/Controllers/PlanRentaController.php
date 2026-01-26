@@ -53,6 +53,8 @@ class PlanRentaController extends Controller
             'icono' => 'nullable|string|max:10',
             'color' => 'nullable|string|max:20',
             'precio_mensual' => 'required|numeric|min:0',
+            'precio_venta' => 'nullable|numeric|min:0',
+            'disponible_venta' => 'boolean',
             'deposito_garantia' => 'nullable|numeric|min:0',
             'meses_minimos' => 'required|integer|min:1',
             'beneficios' => 'nullable|array',
@@ -74,10 +76,10 @@ class PlanRentaController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(PlanRenta $planesRenta)
+    public function edit(PlanRenta $planRenta)
     {
         return Inertia::render('PlanRenta/Edit', [
-            'plan' => $planesRenta,
+            'plan' => $planRenta,
             'tipos' => PlanRenta::tipos(),
         ]);
     }
@@ -85,7 +87,7 @@ class PlanRentaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, PlanRenta $planesRenta)
+    public function update(Request $request, PlanRenta $planRenta)
     {
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
@@ -95,6 +97,8 @@ class PlanRentaController extends Controller
             'icono' => 'nullable|string|max:10',
             'color' => 'nullable|string|max:20',
             'precio_mensual' => 'required|numeric|min:0',
+            'precio_venta' => 'nullable|numeric|min:0',
+            'disponible_venta' => 'boolean',
             'deposito_garantia' => 'nullable|numeric|min:0',
             'meses_minimos' => 'required|integer|min:1',
             'beneficios' => 'nullable|array',
@@ -105,7 +109,7 @@ class PlanRentaController extends Controller
             'orden' => 'nullable|integer',
         ]);
 
-        $planesRenta->update($validated);
+        $planRenta->update($validated);
 
         return redirect()->route('planes-renta.index')
             ->with('success', 'Plan de renta actualizado correctamente.');
@@ -114,9 +118,9 @@ class PlanRentaController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PlanRenta $planesRenta)
+    public function destroy(PlanRenta $planRenta)
     {
-        $planesRenta->delete();
+        $planRenta->delete();
 
         return redirect()->route('planes-renta.index')
             ->with('success', 'Plan de renta eliminado correctamente.');
@@ -125,9 +129,9 @@ class PlanRentaController extends Controller
     /**
      * Toggle estado activo del plan.
      */
-    public function toggle(PlanRenta $planesRenta)
+    public function toggle(PlanRenta $planRenta)
     {
-        $planesRenta->update(['activo' => !$planesRenta->activo]);
+        $planRenta->update(['activo' => !$planRenta->activo]);
         return back()->with('success', 'Estado del plan actualizado.');
     }
 

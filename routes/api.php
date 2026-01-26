@@ -297,7 +297,12 @@ Route::prefix('cobranzas')->name('api.cobranzas.')->middleware(['auth:sanctum', 
     Route::get('/cuentas-bancarias', [\App\Http\Controllers\Api\CobranzaApiController::class, 'cuentasBancarias'])->name('cuentas-bancarias');
     Route::get('/{id}', [\App\Http\Controllers\Api\CobranzaApiController::class, 'show'])->name('show');
     Route::post('/{id}/pagar', [\App\Http\Controllers\Api\CobranzaApiController::class, 'registrarPago'])->name('pagar');
+    Route::post('/{id}/pagar', [\App\Http\Controllers\Api\CobranzaApiController::class, 'registrarPago'])->name('pagar');
 });
+
+// Blog Robot Endpoint (Public but secured with Bearer Token in Controller)
+Route::post('/blog/robot/draft', [\App\Http\Controllers\Api\BlogRobotController::class, 'storeDraft'])->name('api.blog.robot.draft');
+Route::post('/blog/track/interest', [\App\Http\Controllers\Api\NewsletterTrackingController::class, 'reportInterest'])->name('api.blog.track.interest');
 
 
 // Eliminado: rutas API de herramientas, asignaciones y alertas relacionadas

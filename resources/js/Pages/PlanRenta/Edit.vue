@@ -18,6 +18,7 @@ const form = useForm({
     icono: props.plan?.icono || '🖥️',
     color: props.plan?.color || '#3b82f6',
     precio_mensual: props.plan?.precio_mensual || 0,
+    precio_venta: props.plan?.precio_venta || 0,
     deposito_garantia: props.plan?.deposito_garantia || 0,
     meses_minimos: props.plan?.meses_minimos || 12,
     beneficios: props.plan?.beneficios || [],
@@ -25,6 +26,7 @@ const form = useForm({
     activo: props.plan?.activo ?? true,
     destacado: props.plan?.destacado ?? false,
     visible_catalogo: props.plan?.visible_catalogo ?? true,
+    disponible_venta: props.plan?.disponible_venta ?? false,
     orden: props.plan?.orden || 0,
 });
 
@@ -277,6 +279,27 @@ const coloresPreset = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
                                             min="1"
                                             class="w-full px-4 py-2 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
                                         />
+                                    </div>
+                                    
+                                    <div class="pt-4 border-t border-gray-100 dark:border-gray-700">
+                                        <label class="flex items-center gap-3 cursor-pointer group mb-2">
+                                            <input type="checkbox" v-model="form.disponible_venta" class="w-5 h-5 rounded text-blue-600">
+                                            <span class="text-sm font-bold text-gray-700 dark:text-gray-300 group-hover:text-blue-600">Disponible para Venta</span>
+                                        </label>
+
+                                        <div v-if="form.disponible_venta">
+                                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Precio de Venta Total</label>
+                                            <div class="relative">
+                                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                                                <input 
+                                                    v-model.number="form.precio_venta" 
+                                                    type="number" 
+                                                    step="0.01"
+                                                    min="0"
+                                                    class="w-full pl-8 pr-4 py-2 border-2 border-blue-100 dark:border-blue-900 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white font-bold"
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

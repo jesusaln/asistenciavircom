@@ -20,7 +20,7 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        $this->authorizeResource(User::class);
+        // $this->authorizeResource(User::class); // Deshabilitado para permitir manejo manual de excepciones
         $this->middleware(['auth:sanctum', 'verified'])->except(['index', 'show']);
     }
 

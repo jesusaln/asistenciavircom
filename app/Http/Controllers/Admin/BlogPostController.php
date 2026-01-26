@@ -19,8 +19,20 @@ class BlogPostController extends Controller
      */
     public function index()
     {
+        $posts = BlogPost::orderBy('created_at', 'desc')->get()->map(function ($post) {
+            // Stats de Newsletter
+            $post->newsletter_stats = [
+                'enviados' => \App\Models\NewsletterTrack::where('blog_post_id', $post->id)->count(),
+                'abiertos' => \App\Models\NewsletterTrack::where('blog_post_id', $post->id)->whereNotNull('abierto_at')->count(),
+                'clics' => \App\Models\NewsletterTrack::where('blog_post_id', $post->id)->whereNotNull('clic_at')->count(),
+                'interes' => \App\Models\NewsletterTrack::where('blog_post_id', $post->id)->whereNotNull('interes_at')->count(),
+            ];
+            return $post;
+        });
+
         return Inertia::render('Admin/Blog/Index', [
-            'posts' => BlogPost::orderBy('created_at', 'desc')->get()
+            'posts' => $posts,
+            'totalUnsubscribed' => \App\Models\Cliente::where('recibe_newsletter', false)->whereNotNull('newsletter_unsubscribed_at')->count(),
         ]);
     }
 
@@ -44,11 +56,20 @@ class BlogPostController extends Controller
             'categoria' => 'nullable|string',
             'status' => 'required|in:draft,published',
             'imagen_portada' => 'nullable|string',
+            'imagen_archivo' => 'nullable|image|max:2048', // Max 2MB
         ]);
+
+        if ($request->hasFile('imagen_archivo')) {
+            $path = $request->file('imagen_archivo')->store('blog-covers', 'public');
+            $validated['imagen_portada'] = $path; // Override string with path
+        }
 
         if ($validated['status'] === 'published' && !isset($validated['publicado_at'])) {
             $validated['publicado_at'] = now();
         }
+
+        // Remove imagen_archivo from array cause it's not in db column
+        unset($validated['imagen_archivo']);
 
         $post = BlogPost::create($validated);
 
@@ -83,12 +104,20 @@ class BlogPostController extends Controller
             'contenido' => 'required|string',
             'categoria' => 'nullable|string',
             'status' => 'required|in:draft,published',
-            'imagen_portada' => 'nullable|string',
+            'imagen_portada' => 'nullable|string', // Keep this if user wants to revert to URL
+            'imagen_archivo' => 'nullable|image|max:2048',
         ]);
+
+        if ($request->hasFile('imagen_archivo')) {
+            $path = $request->file('imagen_archivo')->store('blog-covers', 'public');
+            $validated['imagen_portada'] = $path;
+        }
 
         if ($validated['status'] === 'published' && !$blog->publicado_at) {
             $validated['publicado_at'] = now();
         }
+
+        unset($validated['imagen_archivo']);
 
         $blog->update($validated);
 
@@ -164,11 +193,12 @@ class BlogPostController extends Controller
      */
     public function sendTestNewsletter(BlogPost $blog)
     {
-        $testEmails = ['jesuslopez210388@gmail.com', 'jesuslopeznoriega@hotmail.com'];
+        $userEmail = auth()->user()->email;
+        $testEmails = [$userEmail];
 
         // Creamos un cliente "ficticio" para la prueba
         $fakeCliente = new \App\Models\Cliente();
-        $fakeCliente->nombre_razon_social = 'Usuario de Prueba (Admin)';
+        $fakeCliente->nombre_razon_social = 'Usuario de Prueba (Admin: ' . auth()->user()->name . ')';
 
         try {
             foreach ($testEmails as $email) {
@@ -178,7 +208,7 @@ class BlogPostController extends Controller
                     ->send(new \App\Mail\WeeklyNewsletter($blog, $fakeCliente));
             }
 
-            return redirect()->back()->with('success', 'Correos de prueba enviados a sus cuentas de Gmail y Hotmail.');
+            return redirect()->back()->with('success', 'Correo de prueba enviado a ' . $userEmail);
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error al enviar prueba: ' . $e->getMessage());
         }

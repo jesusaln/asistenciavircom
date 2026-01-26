@@ -257,9 +257,13 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     });
 
     // Gestión de Blog
+    Route::get('gestion-blog/unsubscribed', [App\Http\Controllers\Admin\NewsletterStatsController::class, 'unsubscribed'])->name('admin.blog.unsubscribed');
+    Route::get('gestion-blog/{id}/stats', [App\Http\Controllers\Admin\NewsletterStatsController::class, 'show'])->name('admin.blog.stats');
     Route::post('gestion-blog/{blog}/send-newsletter', [App\Http\Controllers\Admin\BlogPostController::class, 'sendNewsletter'])->name('admin.blog.send-newsletter');
     Route::post('gestion-blog/{blog}/send-test', [App\Http\Controllers\Admin\BlogPostController::class, 'sendTestNewsletter'])->name('admin.blog.send-test');
-    Route::resource('gestion-blog', App\Http\Controllers\Admin\BlogPostController::class)->names('admin.blog');
+    Route::resource('gestion-blog', App\Http\Controllers\Admin\BlogPostController::class)
+        ->names('admin.blog')
+        ->parameters(['gestion-blog' => 'blog']);
 
     Route::resource('proveedores', ProveedorController::class)->names('proveedores')->middleware('can:view proveedores');
     Route::put('/proveedores/{proveedor}/toggle', [ProveedorController::class, 'toggle'])->name('proveedores.toggle');
@@ -324,6 +328,9 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     });
 
     Route::resource('servicios', ServicioController::class)->names('servicios')->middleware('can:view servicios');
+    Route::post('/usuarios/{user}/sync-permissions', [UserController::class, 'syncPermissions'])->name('usuarios.sync-permissions')->middleware('can:edit usuarios');
+    Route::post('/usuarios/{user}/update-almacen-venta', [UserController::class, 'updateUserAlmacenVenta'])->name('usuarios.update-almacen-venta')->middleware('can:edit usuarios');
+    Route::post('/usuarios/{user}/update-almacen-compra', [UserController::class, 'updateUserAlmacenCompra'])->name('usuarios.update-almacen-compra')->middleware('can:edit usuarios');
     Route::resource('usuarios', UserController::class)->names('usuarios')->middleware('can:view usuarios');
     Route::put('/usuarios/{user}/toggle', [UserController::class, 'toggle'])->name('usuarios.toggle');
     Route::resource('roles', RoleController::class)->names('roles')->middleware('can:view roles');
@@ -438,8 +445,10 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::resource('planes-poliza', PlanPolizaController::class)->middleware('can:manage planes');
     Route::put('/planes-poliza/{planes_poliza}/toggle-destacado', [PlanPolizaController::class, 'toggleDestacado'])->name('planes-poliza.toggle-destacado')->middleware('can:manage planes');
 
-    Route::resource('planes-renta', PlanRentaController::class)->middleware('can:manage planes');
-    Route::put('/planes-renta/{planes_renta}/toggle', [PlanRentaController::class, 'toggle'])->name('planes-renta.toggle')->middleware('can:manage planes');
+    Route::resource('planes-renta', PlanRentaController::class)
+        ->parameters(['planes-renta' => 'plan_renta'])
+        ->middleware('can:manage planes');
+    Route::put('/planes-renta/{plan_renta}/toggle', [PlanRentaController::class, 'toggle'])->name('planes-renta.toggle')->middleware('can:manage planes');
 
     Route::resource('entregas-dinero', EntregaDineroController::class)->middleware('can:view entregas_dinero');
     Route::post('/entregas-dinero/{id}/marcar-recibido', [EntregaDineroController::class, 'marcarRecibido'])->name('entregas-dinero.marcar-recibido')->middleware('can:manage entregas_dinero');
@@ -466,6 +475,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::put('/configuracion/whatsapp', [EmpresaWhatsAppController::class, 'update'])->name('whatsapp.update');
         Route::get('/configuracion/logs', [SistemaConfigController::class, 'getLogs'])->name('sistema.logs');
         Route::post('/configuracion/logs/clear', [SistemaConfigController::class, 'clearLogs'])->name('sistema.logs.clear');
+        Route::put('/configuracion/robot-blog', [App\Http\Controllers\Config\BlogRobotConfigController::class, 'update'])->name('robot-blog.update');
 
         // Contenido de Landing
         Route::prefix('landing-content')->name('landing-content.')->group(function () {

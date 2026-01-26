@@ -440,7 +440,7 @@ const estadisticasConPorcentaje = computed(() => {
 
   return {
     activos: { ...{ label: 'Activos', icon: 'check-circle', color: 'green', description: 'Clientes activos' }, porcentaje: Math.round(((estadisticas.value.activos || 0) / total) * 100) },
-    inactivos: { ...{ label: 'Pendientes', icon: 'clock', color: 'amber', description: 'Clientes pendientes de aprobación' }, porcentaje: Math.round(((estadisticas.value.inactivos || 0) / total) * 100) },
+    inactivos: { ...{ label: 'Pendientes', icon: 'clock', color: 'blue', description: 'Clientes pendientes de aprobación' }, porcentaje: Math.round(((estadisticas.value.inactivos || 0) / total) * 100) },
   };
 })
 
@@ -566,8 +566,8 @@ const configEstados = {
   },
   'inactivo': {
     label: 'Pendiente',
-    classes: 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300',
-    color: 'bg-amber-400 dark:bg-amber-500'
+    classes: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300',
+    color: 'bg-blue-400 dark:bg-blue-500'
   }
 };
 
@@ -786,7 +786,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                         <button
                           v-if="$can('edit clientes')"
                           @click="editarCliente(cliente.id)"
-                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/60 hover:text-amber-700 dark:hover:text-amber-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:ring-offset-1"
+                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60 hover:text-blue-700 dark:hover:text-blue-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-1"
                           title="Editar cliente"
                         >
                           <svg class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1005,13 +1005,13 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                   </p>
                 </div>
                 
-                <div v-else class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-lg p-4 flex items-start transition-colors">
-                  <svg class="w-5 h-5 text-amber-600 dark:text-amber-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div v-else class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-lg p-4 flex items-start transition-colors">
+                  <svg class="w-5 h-5 text-blue-600 dark:text-blue-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <div>
-                    <p class="text-sm font-medium text-amber-900 dark:text-amber-200">Sin dirección registrada</p>
-                    <p class="text-xs text-amber-700 dark:text-amber-400 mt-1">Este cliente no tiene información de dirección.</p>
+                    <p class="text-sm font-medium text-blue-900 dark:text-blue-200">Sin dirección registrada</p>
+                    <p class="text-xs text-blue-700 dark:text-blue-400 mt-1">Este cliente no tiene información de dirección.</p>
                   </div>
                 </div>
               </div>
@@ -1044,7 +1044,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
 
               <button
                 @click="editarFila"
-                class="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:ring-offset-1"
+                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-1"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

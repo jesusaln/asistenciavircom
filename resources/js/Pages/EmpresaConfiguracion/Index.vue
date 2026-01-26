@@ -25,6 +25,7 @@ import FoliosTab from './Partials/FoliosTab.vue'
 import RespaldosTab from './Partials/RespaldosTab.vue'
 import RedesSocialesTab from './Partials/RedesSocialesTab.vue'
 import ApiKeysTab from './Partials/ApiKeysTab.vue'
+import BlogRobotTab from './Partials/BlogRobotTab.vue'
 
 defineOptions({ layout: AppLayout })
 
@@ -61,6 +62,7 @@ const tabs = [
   { id: 'tienda', nombre: 'Tienda y Pagos Online', icono: 'shopping-cart', component: TiendaOnlineTab },
   { id: 'respaldos', nombre: 'Respaldos Cloud', icono: 'cloud-upload-alt', component: RespaldosTab },
   { id: 'sistema', nombre: 'Sistema', icono: 'cogs', component: SistemaTab },
+  { id: 'robot-blog', nombre: 'Robot de Blog', icono: 'robot', component: BlogRobotTab }, // NEW
   { id: 'seguridad', nombre: 'Seguridad', icono: 'shield-alt', component: SeguridadTab },
   { id: 'danger', nombre: 'Zona de Peligro', icono: 'exclamation-triangle', component: DangerZoneTab },
 ]
@@ -83,6 +85,7 @@ const tabRoutes = {
   tienda: 'empresa-configuracion.tienda.update',
   respaldos: 'empresa-configuracion.respaldos.update',
   sistema: 'empresa-configuracion.sistema.update',
+  'robot-blog': 'empresa-configuracion.robot-blog.update', 
   seguridad: 'empresa-configuracion.seguridad.update',
   danger: null,
 }
@@ -285,7 +288,12 @@ const form = useForm({
   ollama_model: props.configuracion.ollama_model || 'llama3.1',
   chatbot_enabled: props.configuracion.chatbot_enabled ?? true,
   chatbot_system_prompt: props.configuracion.chatbot_system_prompt || '',
+  chatbot_system_prompt: props.configuracion.chatbot_system_prompt || '',
   chatbot_name: props.configuracion.chatbot_name || 'VircomBot',
+
+  // Robot Blog
+  blog_robot_token: props.configuracion.blog_robot_token || '',
+  blog_robot_enabled: props.configuracion.blog_robot_enabled ?? false,
 })
 
 const currentTabComponent = computed(() => {

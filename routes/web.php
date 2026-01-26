@@ -27,3 +27,10 @@ require __DIR__ . '/portal.php';
 // Panel de Administración (Protegido)
 require __DIR__ . '/admin.php';
 
+// Newsletter Tracking
+Route::get('/nt/o/{token}', [App\Http\Controllers\Api\NewsletterTrackingController::class, 'open'])->name('newsletter.track.open');
+Route::get('/nt/c/{token}', [App\Http\Controllers\Api\NewsletterTrackingController::class, 'click'])->name('newsletter.track.click');
+
+// iCal Feed
+Route::get('/calendar/feed', [App\Http\Controllers\CalendarFeedController::class, 'index'])->name('calendar.feed');
+

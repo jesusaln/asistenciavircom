@@ -49,7 +49,7 @@ class BlogPost extends Model
             return $this->imagen_portada;
         }
 
-        return \Illuminate\Support\Facades\Storage::url($this->imagen_portada);
+        return url(\Illuminate\Support\Facades\Storage::url($this->imagen_portada));
     }
 
     /**

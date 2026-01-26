@@ -12,15 +12,29 @@ class BlogController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $config = EmpresaConfiguracion::getConfig();
+        $query = BlogPost::published()->orderBy('publicado_at', 'desc');
+
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('titulo', 'like', "%{$search}%")
+                    ->orWhere('resumen', 'like', "%{$search}%")
+                    ->orWhere('contenido', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->has('category') && $request->category) {
+            $query->where('categoria', $request->category);
+        }
 
         return Inertia::render('Blog/Index', [
             'empresa' => $this->getEmpresaData($config),
-            'posts' => BlogPost::published()
-                ->orderBy('publicado_at', 'desc')
-                ->paginate(12)
+            'posts' => $query->paginate(12)->withQueryString(),
+            'categories' => BlogPost::published()->distinct()->pluck('categoria')->filter()->values(),
+            'filters' => $request->only(['search', 'category']),
         ]);
     }
 

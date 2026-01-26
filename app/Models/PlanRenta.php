@@ -24,6 +24,8 @@ class PlanRenta extends Model
         'icono',
         'color',
         'precio_mensual',
+        'precio_venta',
+        'disponible_venta',
         'deposito_garantia',
         'meses_minimos',
         'beneficios',
@@ -36,6 +38,7 @@ class PlanRenta extends Model
 
     protected $casts = [
         'precio_mensual' => 'decimal:2',
+        'precio_venta' => 'decimal:2',
         'deposito_garantia' => 'decimal:2',
         'meses_minimos' => 'integer',
         'beneficios' => 'array',
@@ -43,6 +46,7 @@ class PlanRenta extends Model
         'activo' => 'boolean',
         'destacado' => 'boolean',
         'visible_catalogo' => 'boolean',
+        'disponible_venta' => 'boolean',
         'orden' => 'integer',
     ];
 

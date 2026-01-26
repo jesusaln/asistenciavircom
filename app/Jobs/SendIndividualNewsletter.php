@@ -5,6 +5,8 @@ namespace App\Jobs;
 use App\Mail\WeeklyNewsletter;
 use App\Models\BlogPost;
 use App\Models\Cliente;
+use App\Models\NewsletterTrack;
+use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -40,9 +42,18 @@ class SendIndividualNewsletter implements ShouldQueue
         }
 
         try {
-            Mail::mailer('newsletter')->to($this->cliente->email)->send(new WeeklyNewsletter($this->post, $this->cliente));
+            // Crear el registro de seguimiento
+            $token = Str::random(32);
+            NewsletterTrack::create([
+                'blog_post_id' => $this->post->id,
+                'cliente_id' => $this->cliente->id,
+                'token' => $token,
+                'enviado_at' => now(),
+            ]);
 
-            Log::info("Newsletter enviado exitosamente a: {$this->cliente->email}");
+            Mail::mailer('newsletter')->to($this->cliente->email)->send(new WeeklyNewsletter($this->post, $this->cliente, $token));
+
+            Log::info("Newsletter enviado exitosamente a: {$this->cliente->email} (Token: {$token})");
         } catch (\Exception $e) {
             Log::error("Error enviando newsletter a {$this->cliente->email}: " . $e->getMessage());
 

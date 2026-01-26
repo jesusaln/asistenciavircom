@@ -252,9 +252,9 @@
               </div>
           </Link>
           <Link :href="route('citas.index', { cliente_id: cliente.id })" class="block group">
-              <div class="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-xl border border-amber-100 dark:border-amber-700 transform transition-all duration-200 group-hover:shadow-md group-hover:bg-amber-100 dark:group-hover:bg-amber-900/40 text-center">
-                <h3 class="text-[10px] font-bold text-amber-400 dark:text-amber-300 uppercase tracking-wider mb-1">Citas</h3>
-                <p class="text-xl font-black text-amber-900 dark:text-amber-100">{{ cliente.citas_count || 0 }}</p>
+              <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl border border-blue-100 dark:border-blue-700 transform transition-all duration-200 group-hover:shadow-md group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 text-center">
+                <h3 class="text-[10px] font-bold text-blue-400 dark:text-blue-300 uppercase tracking-wider mb-1">Citas</h3>
+                <p class="text-xl font-black text-blue-900 dark:text-blue-100">{{ cliente.citas_count || 0 }}</p>
               </div>
           </Link>
           <Link :href="route('polizas-servicio.index', { cliente_id: cliente.id })" class="block group">
@@ -328,18 +328,18 @@
                 <Link :href="route('citas.index', { cliente_id: cliente.id })" class="text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline">Ver historial</Link>
             </div>
             <div v-if="citas && citas.length > 0" class="space-y-3">
-               <div v-for="cita in citas" :key="cita.id" class="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-700 rounded-xl shadow-sm">
+               <div v-for="cita in citas" :key="cita.id" class="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-700 rounded-xl shadow-sm">
                   <div class="flex justify-between items-start mb-1">
-                     <Link :href="route('citas.show', cita.id)" class="text-sm font-bold text-amber-900 dark:text-amber-100 hover:underline">#{{ cita.id }} - {{ cita.tipo_servicio }}</Link>
+                     <Link :href="route('citas.show', cita.id)" class="text-sm font-bold text-blue-900 dark:text-blue-100 hover:underline">#{{ cita.id }} - {{ cita.tipo_servicio }}</Link>
                      <span :class="['text-[10px] px-2 py-0.5 rounded-full font-bold uppercase', 
                         cita.estado === 'completado' ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300' :
                         cita.estado === 'cancelado' ? 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300' :
-                        'bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300'
+                        'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
                      ]">
                         {{ cita.estado }}
                      </span>
                   </div>
-                  <div class="flex justify-between items-center text-[11px] text-amber-800 dark:text-amber-200">
+                  <div class="flex justify-between items-center text-[11px] text-blue-800 dark:text-blue-200">
                      <span>Téc: {{ cita.tecnico?.name }}</span>
                      <span class="font-bold">{{ new Date(cita.fecha_hora).toLocaleDateString('es-MX', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) }}</span>
                   </div>

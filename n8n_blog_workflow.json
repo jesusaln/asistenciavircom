@@ -1,0 +1,101 @@
+{
+    "nodes": [
+        {
+            "parameters": {},
+            "id": "trigger-manual",
+            "name": "On Click",
+            "type": "n8n-nodes-base.manualTrigger",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://localhost:8001/api/blog/robot/draft",
+                "authentication": "predefinedCredentialType",
+                "nodeCredentialType": "httpBearerAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Authorization",
+                            "value": "Bearer VIRCOM_AI_e5SRtEVqxcv0"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "titulo",
+                            "value": "={{$node[\"Mock Data\"].json[\"titulo\"]}}"
+                        },
+                        {
+                            "name": "contenido",
+                            "value": "={{$node[\"Mock Data\"].json[\"contenido\"]}}"
+                        },
+                        {
+                            "name": "resumen",
+                            "value": "={{$node[\"Mock Data\"].json[\"resumen\"]}}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "http-post-laravel",
+            "name": "Enviar a Laravel",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                650,
+                300
+            ],
+            "credentials": {
+                "httpBearerAuth": {
+                    "id": "temp-creds",
+                    "name": "Bearer Token Vircom"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "return {\n  titulo: \"Noticia automática: Nueva tecnología IP\",\n  resumen: \"Resumen generado por el robot sobre las nuevas cámaras...\",\n  contenido: \"<p>Contenido detallado de la noticia...</p>\"\n};"
+            },
+            "id": "mock-data",
+            "name": "Mock Data",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                450,
+                300
+            ]
+        }
+    ],
+    "connections": {
+        "On Click": {
+            "main": [
+                [
+                    {
+                        "node": "Mock Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Mock Data": {
+            "main": [
+                [
+                    {
+                        "node": "Enviar a Laravel",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

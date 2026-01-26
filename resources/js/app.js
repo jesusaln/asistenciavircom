@@ -39,10 +39,11 @@ import {
   faBlog, faNewspaper, faShareAlt, faMagic, faExternalLinkAlt, faGem, faCheckDouble,
   faThLarge, faQuestionCircle, faServer, faVideo, faUserLock,
   faWandMagicSparkles, faCircleInfo, faCircleCheck, faCircleExclamation, faTriangleExclamation,
-  faAddressCard, faEnvelopeCircleCheck, faGlobeAmericas, faCircleDot, faVial
+  faAddressCard, faEnvelopeCircleCheck, faGlobeAmericas, faCircleDot, faVial,
+  faLink, faListUl, faUserMinus, faFire
 } from '@fortawesome/free-solid-svg-icons';
 
-import { faWhatsapp, faFacebook, faTwitter } from '@fortawesome/free-brands-svg-icons';
+import { faWhatsapp, faFacebook, faTwitter, faFacebookF, faXTwitter } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 // Agrega los íconos a la librería
@@ -75,11 +76,12 @@ library.add(
   faWhatsapp, faList, faBalanceScale, faTruckLoading, faMedal, faFileUpload, faUserCheck,
   faCrown, faShieldHalved, faBuildingShield, faMobileAlt, faQuestion,
   faBlog, faNewspaper, faShareAlt, faMagic, faExternalLinkAlt,
-  faFacebook, faTwitter, faGem, faCheckDouble,
+  faFacebook, faTwitter, faFacebookF, faXTwitter, faGem, faCheckDouble,
   faThLarge, faQuestionCircle, faServer, faVideo, faUserLock,
   faBullseye, faBullhorn, faColumns, faTrophy, faInbox, faBoxOpen,
   faWandMagicSparkles, faCircleInfo, faCircleCheck, faCircleExclamation, faTriangleExclamation,
-  faAddressCard, faEnvelopeCircleCheck, faGlobeAmericas, faCircleDot, faVial
+  faAddressCard, faEnvelopeCircleCheck, faGlobeAmericas, faCircleDot, faVial,
+  faLink, faListUl, faUserMinus, faFire
 );
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';

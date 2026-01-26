@@ -262,6 +262,27 @@ class LandingController extends Controller
     }
 
     /**
+     * Página de Puntos de Venta (Landing + Simulador)
+     */
+    public function puntosVenta()
+    {
+        $config = EmpresaConfiguracion::getConfig();
+
+        return Inertia::render('Public/PuntosVenta', [
+            'empresa' => [
+                'nombre' => $config->nombre_empresa ?? 'Mi Empresa',
+                'logo_url' => $config->logo_url,
+                'color_principal' => $config->color_principal ?? '#3B82F6',
+                'color_secundario' => $config->color_secundario ?? '#64748B',
+                'color_terciario' => $config->color_terciario ?? '#fbbf24',
+                'telefono' => $config->telefono,
+                'email' => $config->email,
+                'whatsapp' => $config->whatsapp ?? $config->telefono,
+            ],
+        ]);
+    }
+
+    /**
      * Guardar lead desde el Simulador de Climatización
      */
     public function storeLead(Request $request)

@@ -16,7 +16,9 @@ const form = useForm({
   contenido: '',
   categoria: '',
   status: 'draft',
+  status: 'draft',
   imagen_portada: '',
+  imagen_archivo: null,
 })
 
 const generating = ref(false)
@@ -93,8 +95,32 @@ const submit = () => {
             </div>
 
             <div>
-              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">URL Imagen Portada</label>
-              <input v-model="form.imagen_portada" type="text" placeholder="https://..." class="w-full border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200">
+              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Imagen de Portada</label>
+              <div class="space-y-3">
+                  <!-- Opción URL -->
+                  <div class="flex items-center gap-2">
+                       <span class="text-xs font-bold text-gray-500 w-16">Opción A:</span>
+                       <input v-model="form.imagen_portada" type="text" placeholder="Pegar enlace (https://...)" class="flex-grow border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white text-sm">
+                  </div>
+                  
+                  <!-- Opción Archivo -->
+                  <div class="flex items-center gap-2">
+                       <span class="text-xs font-bold text-gray-500 w-16">Opción B:</span>
+                       <input 
+                          type="file" 
+                          @input="form.imagen_archivo = $event.target.files[0]" 
+                          class="flex-grow text-sm text-gray-500 dark:text-gray-400
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-full file:border-0
+                            file:text-xs file:font-semibold
+                            file:bg-blue-50 file:text-blue-700
+                            hover:file:bg-blue-100
+                            dark:file:bg-slate-700 dark:file:text-blue-400
+                          "
+                          accept="image/*"
+                        />
+                  </div>
+              </div>
             </div>
 
             <div class="md:col-span-2">
