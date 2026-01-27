@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { useForm, Head, Link } from '@inertiajs/vue3';
+import { useForm, Head, Link, usePage } from '@inertiajs/vue3';
 import DialogModal from '@/Components/DialogModal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
@@ -32,6 +32,32 @@ const formCompletar = useForm({
 });
 
 const abrirCompletar = (tarea) => {
+    // Verificar si la tarea NO tiene técnico asignado
+    if (!tarea.tecnico_id) {
+        if (confirm('Esta tarea no tiene técnico asignado. ¿Deseas asignártela para completarla ahora?')) {
+            formTomar.post(route('admin.mantenimientos.tecnico.tomar', tarea.id), {
+                onSuccess: () => {
+                   // Una vez asignada, recargar y abrir modal
+                   // En Inertia la página se recarga, así que el modal se cerraría.
+                   // Lo ideal es asignarla silenciosamente o simplemente dejar que el backend la asigne al completar (como ya hicimos).
+                   // Pero para UX visual, marcaremos localmente que ahora "es mía" para permitir abrir el modal
+                   tarea.tecnico_id = usePage().props.auth?.user?.id; // Asignación optimista
+                   abrirModalLogica(tarea);
+                }
+            });
+            // Retornamos para esperar la recarga (o la asignación optimista)
+            return;
+        } else {
+            return; // Cancelado por usuario
+        }
+    }
+    
+    // Si ya tiene técnico (se asume que es el usuario actual por el filtro de backend "misTareas", 
+    // pero si viniera de "disponibles" sin tomar...)
+    abrirModalLogica(tarea);
+};
+
+const abrirModalLogica = (tarea) => {
     tareaACompletar.value = tarea;
     formCompletar.reset();
     formCompletar.resultado = 'exitoso';

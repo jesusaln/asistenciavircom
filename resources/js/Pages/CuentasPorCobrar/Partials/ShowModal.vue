@@ -1,31 +1,43 @@
 <template>
     <DialogModal :show="show" @close="close" maxWidth="5xl">
         <template #content>
-            <div v-if="cuenta" class="relative bg-white dark:bg-slate-900 dark:bg-slate-950 pb-6">
-                <!-- Header Minimalista (Full White) -->
-                <div class="-mx-6 -mt-6 mb-6 px-6 py-6 bg-white dark:bg-slate-900 dark:bg-slate-950 border-b border-gray-100/80 dark:border-slate-800">
+            <div v-if="cuenta" class="relative bg-[#0F172A] text-slate-300 pb-6 overflow-hidden">
+                <!-- Background Gradients -->
+                <div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-64 h-64 bg-emerald-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+
+                <!-- Header Premium -->
+                <div class="-mx-6 -mt-6 mb-6 px-6 py-6 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800 relative z-10">
                     <div class="flex justify-between items-start">
                         <div class="flex items-center space-x-4">
-                            <div class="p-2.5 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800">
-                                <svg class="w-6 h-6 text-gray-900 dark:text-white dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="p-3 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl border border-slate-700 shadow-lg shadow-black/20">
+                                <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                             </div>
                             <div>
-                                <h2 class="text-2xl font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-tight tabular-nums">Cuenta por Cobrar #{{ cuenta.id }}</h2>
-                                <p class="text-gray-400 dark:text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">
-                                    {{ (cuenta.cobrable_type?.toLowerCase().includes('venta')) ? 'Venta de Productos' : 'Renta de Equipos' }}
-                                </p>
+                                <h2 class="text-2xl font-black text-white uppercase tracking-tight tabular-nums flex items-center gap-2">
+                                    Cuenta <span class="text-slate-500">#</span>{{ cuenta.id }}
+                                </h2>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md bg-slate-800 border border-slate-700 text-slate-400">
+                                        {{ (cuenta.cobrable_type?.toLowerCase().includes('venta')) ? 'Venta' : 'Renta' }}
+                                    </span>
+                                    <span class="text-slate-600 text-[10px]">•</span>
+                                    <p class="text-slate-400 text-xs font-medium">Detalle Financiero</p>
+                                </div>
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="text-[10px] text-gray-400 dark:text-slate-500 uppercase font-black tracking-widest mb-1">Fecha de Registro</p>
-                            <p class="font-extrabold text-gray-900 dark:text-white dark:text-white text-lg">{{ formatDate(cuenta.created_at) }}</p>
+                            <p class="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Registro</p>
+                            <p class="font-bold text-white text-base bg-slate-800/50 px-3 py-1 rounded-lg border border-slate-700/50">
+                                {{ formatDate(cuenta.created_at) }}
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
                     <!-- Columna Izquierda: Información Principal -->
                     <div class="lg:col-span-8 space-y-8">
                         <!-- Card de Cliente (Limpio) -->

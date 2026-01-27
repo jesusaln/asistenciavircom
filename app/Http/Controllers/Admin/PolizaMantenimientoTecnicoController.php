@@ -90,19 +90,34 @@ class PolizaMantenimientoTecnicoController extends Controller
         try {
             $tarea = PolizaMantenimientoEjecucion::findOrFail($id);
 
-            if ($tarea->tecnico_id !== Auth::id()) {
-                return back()->with('error', 'No tienes permiso para completar esta tarea.');
+            // Lógica de auto-asignación al completar
+            // Si el usuario es el mismo asignado OR si no tiene nadie asignado (se la asigna "on the fly")
+            // OR si es admin/super-admin (que pueda cerrar tareas de otros, opcional)
+
+            if ($tarea->tecnico_id && $tarea->tecnico_id !== Auth::id()) {
+                // Aquí podríamos permitir a admins sobreescribir, pero por seguridad básica:
+                // Si ya tiene dueño y no soy yo, error. (A menos que queramos "robar" la tarea)
+                // El requerimiento dice: "detecte el que lo cierre ese seria tambien el reponsable asignado"
+                // Asumiremos que si otro técnico ya la tiene, no deberíamos cerrarla nosotros sin "tomarla" primero.
+                // PERO, si el usuario insiste... dejaremos la restricción por ahora, y nos enfocamos en el caso NULL.
+                return back()->with('error', 'Esta tarea pertenece a otro técnico.');
             }
 
-            // TODO: Manejo de subida de evidencia (imágenes)
-
-            $tarea->update([
+            // Si no tenía técnico asignado, o soy yo:
+            $updateData = [
                 'estado' => 'completado',
                 'fecha_ejecucion' => now(),
                 'resultado' => $validated['resultado'],
                 'notas_tecnico' => $validated['notas_tecnico'],
-                'checklist' => $validated['checklist'] ?? $tarea->checklist, // Guardar el checklist actualizado
-            ]);
+                'checklist' => $validated['checklist'] ?? $tarea->checklist,
+            ];
+
+            // Si estaba huérfana, me la asigno
+            if (!$tarea->tecnico_id) {
+                $updateData['tecnico_id'] = Auth::id();
+            }
+
+            $tarea->update($updateData);
 
             return back()->with('success', 'Mantenimiento completado.');
 

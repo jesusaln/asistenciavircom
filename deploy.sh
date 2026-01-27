@@ -68,6 +68,8 @@ rsync -avz --no-perms --no-owner --no-group \
     --exclude='storage/framework/cache/*' \
     --exclude='storage/framework/sessions/*' \
     --exclude='storage/framework/views/*' \
+    --exclude='storage/app/public/*' \
+    --exclude='public/storage' \
     --exclude='vendor' \
     --exclude='node_modules' \
     --exclude='.git' \
@@ -101,6 +103,9 @@ ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
     docker exec $CONTAINER_APP php artisan route:cache && \
     docker exec $CONTAINER_APP php artisan view:cache && \
     docker exec $CONTAINER_APP php artisan event:cache && \
+
+    # Asegurar enlace simbólico de Storage (Critico para logos/imágenes)
+    docker exec $CONTAINER_APP php artisan storage:link --force && \
     
     # Ejecutar Migraciones (Force required in prod)
     docker exec $CONTAINER_APP php artisan migrate --force && \
