@@ -92,6 +92,32 @@ class PublicServicioController extends Controller
                 ['titulo' => 'Optimización SEO', 'desc' => 'Aparece en los primeros resultados de Google.', 'icon' => 'search'],
                 ['titulo' => 'Velocidad de Carga', 'desc' => 'Plataformas optimizadas para no hacer esperar al cliente.', 'icon' => 'bolt'],
                 ['titulo' => 'E-commerce', 'desc' => 'Vende tus productos en línea las 24 horas.', 'icon' => 'shopping-bag']
+            ],
+            'portafolio' => [
+                [
+                    'nombre' => 'Portal Corporativo Premium',
+                    'tipo' => 'Sitio Web Empresarial',
+                    'imagen' => 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?q=80&w=800&auto=format&fit=crop',
+                    'url' => '#'
+                ],
+                [
+                    'nombre' => 'E-commerce Moderno',
+                    'tipo' => 'Tienda en Línea',
+                    'imagen' => 'https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=800&auto=format&fit=crop',
+                    'url' => '#'
+                ],
+                [
+                    'nombre' => 'Dashboard Administrativo',
+                    'tipo' => 'Plataforma Web',
+                    'imagen' => 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
+                    'url' => '#'
+                ],
+                [
+                    'nombre' => 'Landing Page Pro',
+                    'tipo' => 'Generación de Leads',
+                    'imagen' => 'https://images.unsplash.com/photo-1522542550221-31fd19575a2d?q=80&w=800&auto=format&fit=crop',
+                    'url' => '#'
+                ]
             ]
         ],
     ];

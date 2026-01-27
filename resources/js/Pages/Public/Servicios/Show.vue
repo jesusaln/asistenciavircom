@@ -147,6 +147,32 @@ const getBtnColor = (color) => {
                     </Link>
                 </div>
             </div>
+
+            <!-- Portfolio/Work Samples (If applicable) -->
+            <div v-if="servicio.portafolio?.length > 0" class="border-t border-gray-100 dark:border-slate-800 pt-24">
+                <div class="text-center mb-16">
+                    <h3 class="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter mb-4">Portafolio de Trabajo</h3>
+                    <p class="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">Explora algunos de nuestros proyectos realizados y plantillas disponibles para tu negocio.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div v-for="item in servicio.portafolio" :key="item.nombre" class="group relative rounded-[2.5rem] overflow-hidden aspect-video shadow-2xl">
+                        <img :src="item.imagen" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Work Example">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent flex flex-col justify-end p-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                            <span class="text-[var(--color-primary)] font-black text-xs uppercase tracking-[0.3em] mb-2">{{ item.tipo }}</span>
+                            <h4 class="text-2xl font-black text-white mb-4 tracking-tight">{{ item.nombre }}</h4>
+                            <div class="flex">
+                                <a :href="item.url" class="px-6 py-3 bg-white text-slate-900 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[var(--color-primary)] hover:text-white transition-all">Ver Detalles</a>
+                            </div>
+                        </div>
+                        
+                        <!-- Mini Badge for non-hover state -->
+                        <div class="absolute bottom-6 left-6 p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl group-hover:opacity-0 transition-opacity">
+                            <h5 class="text-white font-black text-sm tracking-tight">{{ item.nombre }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
