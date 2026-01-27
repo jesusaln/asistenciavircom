@@ -253,6 +253,14 @@ class PolizaServicio extends Model
     }
 
     /**
+     * Relación con la Dirección de Servicio.
+     */
+    public function direccion(): BelongsTo
+    {
+        return $this->belongsTo(ClienteDireccion::class, 'direccion_id');
+    }
+
+    /**
      * Relación con los Servicios específicos incluidos en la póliza.
      */
     public function servicios(): BelongsToMany

@@ -26,6 +26,9 @@ Schedule::command('polizas:generar-cobros')->dailyAt('07:00');
 // Generar mantenimientos de pólizas cada día a las 07:15
 Schedule::command('app:process-poliza-maintenance')->dailyAt('07:15');
 
+// NUEVO: Generar mantenimientos detallados (checklist) a las 07:20
+Schedule::command('polizas:run-maintenance-plans')->dailyAt('07:20');
+
 // Alertas de vencimiento de pólizas y reset mensual a las 07:30
 Schedule::command('polizas:alertas-vencimiento')
     ->dailyAt('07:30')

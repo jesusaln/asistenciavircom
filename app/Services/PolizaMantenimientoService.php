@@ -37,14 +37,23 @@ class PolizaMantenimientoService
     /**
      * Determina si se debe generar una nueva ejecución basado en la frecuencia.
      */
-    protected function debeGenerarse(PolizaMantenimiento $mant): bool
+    /**
+     * Determina si se debe generar una nueva ejecución basado en la frecuencia.
+     * @param PolizaMantenimiento|mixed $mant
+     */
+    protected function debeGenerarse($mant): bool
     {
+        if (!$mant instanceof PolizaMantenimiento) {
+            Log::warning('PolizaMantenimientoService: Objeto inválido paso a debeGenerarse', ['type' => gettype($mant)]);
+            return false;
+        }
+
         // Si no se ha generado nunca, adelante
         if (!$mant->ultima_generacion_at) {
             return true;
         }
 
-        $ultima = $mant->ultima_generacion_at;
+        $ultima = $mant->ultima_generacion_at; // Asumimos que es Carbon por el cast del modelo
         $hoy = now();
 
         return match ($mant->frecuencia) {
@@ -61,11 +70,21 @@ class PolizaMantenimientoService
 
     /**
      * Crea la instancia de ejecución programada.
+     * @param PolizaMantenimiento|mixed $mant
      */
-    protected function crearEjecucion(PolizaMantenimiento $mant): PolizaMantenimientoEjecucion
+    protected function crearEjecucion($mant): PolizaMantenimientoEjecucion
     {
+        if (!$mant instanceof PolizaMantenimiento) {
+            throw new \InvalidArgumentException('Argumento debe ser una instancia de PolizaMantenimiento');
+        }
         // Calcular fecha sugerida
         $fecha = $this->calcularFechaProgramada($mant);
+
+        // Transformar checklist de strings a objetos con estado
+        $checklistBase = $mant->checklist ?? [];
+        $checklistConEstado = collect($checklistBase)->map(function ($item) {
+            return ['label' => is_string($item) ? $item : ($item['label'] ?? 'Tarea'), 'checked' => false];
+        })->toArray();
 
         $ejecucion = PolizaMantenimientoEjecucion::create([
             'mantenimiento_id' => $mant->id,
@@ -73,6 +92,7 @@ class PolizaMantenimientoService
             'fecha_programada' => $fecha,
             'fecha_original' => $fecha,
             'estado' => 'pendiente',
+            'checklist' => $checklistConEstado,
         ]);
 
         $mant->update(['ultima_generacion_at' => now()]);

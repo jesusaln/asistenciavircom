@@ -28,11 +28,16 @@ const modalCompletarAbierto = ref(false);
 const formCompletar = useForm({
     resultado: 'exitoso',
     notas_tecnico: '',
+    checklist: [],
 });
 
 const abrirCompletar = (tarea) => {
     tareaACompletar.value = tarea;
     formCompletar.reset();
+    formCompletar.resultado = 'exitoso';
+    formCompletar.notas_tecnico = '';
+    // Inicializar checklist desde la tarea, o vacío si no tiene
+    formCompletar.checklist = tarea.checklist ? JSON.parse(JSON.stringify(tarea.checklist)) : [];
     modalCompletarAbierto.value = true;
 };
 
@@ -172,11 +177,25 @@ const getPrioridadBadge = (prioridad) => {
                                             </svg>
                                             Ubicación de Servicio
                                         </div>
-                                        <p class="text-sm text-slate-300 font-medium leading-relaxed">
-                                            {{ tarea.mantenimiento.poliza?.direccion?.calle || 'Calle no especificada' }} 
-                                            {{ tarea.mantenimiento.poliza?.direccion?.numero_exterior }},
-                                            {{ tarea.mantenimiento.poliza?.direccion?.colonia }}
-                                        </p>
+                                        
+                                        <div v-if="tarea.mantenimiento.requiere_visita">
+                                            <p class="text-sm text-slate-300 font-medium leading-relaxed">
+                                                {{ tarea.mantenimiento.poliza?.direccion?.calle || 'Calle no especificada' }} 
+                                                {{ tarea.mantenimiento.poliza?.direccion?.numero_exterior }},
+                                                {{ tarea.mantenimiento.poliza?.direccion?.colonia }}
+                                            </p>
+                                        </div>
+                                        <div v-else class="flex items-center gap-3">
+                                            <div class="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-indigo-300 font-bold">Servicio Remoto</p>
+                                                <p class="text-xs text-slate-500">No se requiere visita en sitio</p>
+                                            </div>
+                                        </div>
                                     </div>
                                     
                                     <div class="bg-slate-900/40 rounded-2xl p-5 border border-slate-800 group-hover:border-slate-700 transition-colors">
@@ -189,6 +208,23 @@ const getPrioridadBadge = (prioridad) => {
                                         <p class="text-sm text-slate-400 italic">
                                             {{ tarea.mantenimiento.descripcion || 'Realizar mantenimiento de rutina según guía de póliza.' }}
                                         </p>
+                                        
+                                        <div v-if="tarea.mantenimiento.guia_tecnica || tarea.mantenimiento.nombre.toLowerCase().includes('disco')" class="mt-4 pt-4 border-t border-slate-800/50">
+                                            <component 
+                                                :is="tarea.mantenimiento.guia_tecnica?.route_name ? 'a' : 'div'"
+                                                :href="tarea.mantenimiento.guia_tecnica?.route_name ? route(tarea.mantenimiento.guia_tecnica.route_name) : (tarea.mantenimiento.nombre.toLowerCase().includes('disco') ? route('soporte.guias.discos') : '#')" 
+                                                :target="tarea.mantenimiento.guia_tecnica?.route_name ? '_blank' : ''"
+                                                class="flex items-center gap-2 text-xs font-bold text-amber-500 hover:text-amber-400 transition-colors group/link p-2 bg-amber-500/10 rounded-lg border border-amber-500/20 hover:border-amber-500/50 cursor-pointer"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover/link:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                                </svg>
+                                                <span>{{ tarea.mantenimiento.guia_tecnica?.nombre || 'Guía Técnica Recomendada' }}</span>
+                                                <svg v-if="tarea.mantenimiento.guia_tecnica?.route_name || tarea.mantenimiento.nombre.toLowerCase().includes('disco')" xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-auto opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                </svg>
+                                            </component>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -336,6 +372,26 @@ const getPrioridadBadge = (prioridad) => {
                                 class="w-full bg-slate-800 border-slate-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-2xl text-slate-200 placeholder-slate-600 text-sm font-medium transition-all"
                                 placeholder="Describe el trabajo realizado, refacciones usadas, voltajes medidos o piezas por cambiar..."></textarea>
                             <InputError :message="formCompletar.errors.notas_tecnico" class="mt-2" />
+                        </div>
+
+                        <!-- Checklist de Tareas -->
+                        <div v-if="formCompletar.checklist && formCompletar.checklist.length > 0">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest text-left mt-4 mb-2">Lista de Verificación</label>
+                                <span class="text-[10px] font-bold text-slate-600 bg-slate-800 px-2 rounded">{{ formCompletar.checklist.filter(i => i.checked).length }} / {{ formCompletar.checklist.length }}</span>
+                            </div>
+                            <div class="space-y-2 bg-slate-800/30 p-4 rounded-2xl border border-slate-700/50">
+                                <div v-for="(item, index) in formCompletar.checklist" :key="index" 
+                                    class="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+                                    @click="item.checked = !item.checked">
+                                    <div :class="['w-5 h-5 rounded flex items-center justify-center border transition-all', item.checked ? 'bg-blue-500 border-blue-500 text-white' : 'border-slate-600 bg-transparent']">
+                                        <svg v-if="item.checked" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <span :class="['text-sm font-medium select-none', item.checked ? 'text-slate-300 line-through decoration-slate-600' : 'text-slate-400']">{{ item.label }}</span>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Placeholder para Evidencia Fotográfica (Futuro) -->

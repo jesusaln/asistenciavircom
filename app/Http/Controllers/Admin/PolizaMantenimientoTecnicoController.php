@@ -83,6 +83,7 @@ class PolizaMantenimientoTecnicoController extends Controller
         $validated = $request->validate([
             'resultado' => 'required|in:exitoso,con_observaciones,fallido',
             'notas_tecnico' => 'nullable|string',
+            'checklist' => 'nullable|array', // Validación de checklist
             'evidencia' => 'nullable|array', // Array de archivos si se suben
         ]);
 
@@ -100,6 +101,7 @@ class PolizaMantenimientoTecnicoController extends Controller
                 'fecha_ejecucion' => now(),
                 'resultado' => $validated['resultado'],
                 'notas_tecnico' => $validated['notas_tecnico'],
+                'checklist' => $validated['checklist'] ?? $tarea->checklist, // Guardar el checklist actualizado
             ]);
 
             return back()->with('success', 'Mantenimiento completado.');

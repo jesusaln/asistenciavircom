@@ -451,7 +451,7 @@ const helpSections = [
                                             <span class="text-xs font-black text-emerald-400">-{{ resumenFinanciero.porcentajeAhorro }}%</span>
                                         </div>
                                         <div class="flex justify-between items-end">
-                                            <div class="text-[10px] text-slate-500">Valor real: <strike>${{ resumenFinanciero.valorReal.toFixed(2) }}</strike></div>
+                                            <div class="text-[10px] text-slate-500">Valor real: <span class="line-through">${{ resumenFinanciero.valorReal.toFixed(2) }}</span></div>
                                             <div class="text-xs font-bold text-emerald-400">Ahorra: ${{ resumenFinanciero.ahorro.toFixed(2) }}/mes</div>
                                         </div>
                                     </div>

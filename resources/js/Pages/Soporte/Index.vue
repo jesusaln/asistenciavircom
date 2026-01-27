@@ -48,23 +48,23 @@ const limpiarFiltros = () => {
 
 const getEstadoBadge = (estado) => {
     const colores = {
-        abierto: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-        en_progreso: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-        pendiente: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-        resuelto: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-        cerrado: 'bg-gray-100 text-gray-800 dark:text-gray-100 dark:bg-gray-700 dark:text-gray-400',
+        abierto: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/50',
+        en_progreso: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-200 dark:border-yellow-900/50',
+        pendiente: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-900/50',
+        resuelto: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-200 dark:border-green-900/50',
+        cerrado: 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800',
     };
-    return colores[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100 dark:bg-gray-700 dark:text-gray-400';
+    return colores[estado] || 'bg-slate-100 text-slate-800 dark:text-slate-100';
 };
 
 const getPrioridadBadge = (prioridad) => {
     const colores = {
-        urgente: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-        alta: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-        media: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-        baja: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+        urgente: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-900/50',
+        alta: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-900/50',
+        media: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-200 dark:border-yellow-900/50',
+        baja: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-200 dark:border-green-900/50',
     };
-    return colores[prioridad] || 'bg-gray-100 text-gray-800 dark:text-gray-100 dark:bg-gray-700 dark:text-gray-400';
+    return colores[prioridad] || 'bg-slate-100 text-slate-600 border-slate-200';
 };
 
 const getSlaStatusClass = (status) => {
@@ -103,144 +103,135 @@ const getSlaStatusClass = (status) => {
                 </div>
 
                 <!-- Estadísticas rápidas Premium -->
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl p-5 shadow-sm dark:shadow-none border border-gray-100 dark:border-gray-700 border-l-4 border-l-blue-500 transition-colors">
-                        <div class="text-2xl font-black text-gray-900 dark:text-white dark:text-white transition-colors">{{ stats.abiertos }}</div>
-                        <div class="text-xs font-bold text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest transition-colors">Tickets Abiertos</div>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                    <div class="bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-800 border-l-4 border-l-blue-500 transition-all hover:scale-[1.02]">
+                        <div class="text-3xl font-black text-gray-900 dark:text-white">{{ stats.abiertos }}</div>
+                        <div class="text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest mt-1">Tickets Abiertos</div>
                     </div>
-                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl p-5 shadow-sm dark:shadow-none border border-gray-100 dark:border-gray-700 border-l-4 border-l-yellow-500 transition-colors">
-                        <div class="text-2xl font-black text-gray-900 dark:text-white dark:text-white transition-colors">{{ stats.sin_asignar }}</div>
-                        <div class="text-xs font-bold text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest transition-colors">Sin Asignar</div>
+                    <div class="bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-800 border-l-4 border-l-yellow-500 transition-all hover:scale-[1.02]">
+                        <div class="text-3xl font-black text-gray-900 dark:text-white">{{ stats.sin_asignar }}</div>
+                        <div class="text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest mt-1">Sin Asignar</div>
                     </div>
-                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl p-5 shadow-sm dark:shadow-none border border-gray-100 dark:border-gray-700 border-l-4 border-l-red-500 transition-colors">
-                        <div class="text-2xl font-black text-gray-900 dark:text-white dark:text-white transition-colors">{{ stats.vencidos }}</div>
-                        <div class="text-xs font-bold text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest transition-colors">SLA Vencido</div>
+                    <div class="bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-800 border-l-4 border-l-red-500 transition-all hover:scale-[1.02]">
+                        <div class="text-3xl font-black text-gray-900 dark:text-white">{{ stats.vencidos }}</div>
+                        <div class="text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest mt-1">SLA Vencido</div>
                     </div>
-                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl p-5 shadow-sm dark:shadow-none border border-gray-100 dark:border-gray-700 border-l-4 border-l-green-500 transition-colors">
-                        <div class="text-2xl font-black text-gray-900 dark:text-white dark:text-white transition-colors">{{ stats.completados_hoy }}</div>
-                        <div class="text-xs font-bold text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest transition-colors">Completados Hoy</div>
+                    <div class="bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-800 border-l-4 border-l-green-500 transition-all hover:scale-[1.02]">
+                        <div class="text-3xl font-black text-gray-900 dark:text-white">{{ stats.completados_hoy }}</div>
+                        <div class="text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest mt-1">Completados Hoy</div>
                     </div>
                     <div 
-                        class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl p-5 shadow-sm dark:shadow-none border border-gray-100 dark:border-gray-700 border-l-4 border-l-gray-400 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700/50 transition-colors" 
+                        class="bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-800 border-l-4 border-l-slate-400 cursor-pointer hover:bg-orange-50/50 dark:hover:bg-orange-500/10 transition-all hover:scale-[1.02]" 
                         @click="filtros.incluir_finalizados = !filtros.incluir_finalizados; aplicarFiltros()"
                     >
-                        <div class="text-2xl font-black text-gray-600 dark:text-gray-300 dark:text-gray-300 transition-colors">{{ stats.cerrados }}</div>
-                        <div class="text-xs font-bold text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest flex items-center gap-2 transition-colors">
+                        <div class="text-3xl font-black text-gray-600 dark:text-slate-300">{{ stats.cerrados }}</div>
+                        <div class="text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-2 mt-1">
                             Finalizados
-                            <span v-if="filtros.incluir_finalizados" class="text-[10px] text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-1.5 py-0.5 rounded">✓</span>
+                            <span v-if="filtros.incluir_finalizados" class="text-[9px] text-green-600 dark:text-green-400 bg-green-500/10 border border-green-500/20 px-1.5 py-0.5 rounded-full">✓ VISTA ACTIVA</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Filtros Premium -->
-                <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-sm dark:shadow-none border border-gray-100 dark:border-gray-700 p-5 mb-6 transition-colors">
+                <div class="bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 p-6 mb-8">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-                        <input 
-                            v-model="filtros.buscar"
-                            type="text"
-                            placeholder="Buscar ticket, cliente, teléfono..."
-                            class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900 border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors"
-                            @keyup.enter="aplicarFiltros"
-                        />
-                        <select v-model="filtros.estado" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900 border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white dark:text-white focus:ring-2 focus:ring-amber-500 transition-colors" @change="aplicarFiltros">
+                        <div class="relative lg:col-span-2">
+                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                             <input 
+                                v-model="filtros.buscar"
+                                type="text"
+                                placeholder="Buscar ticket, cliente o folio..."
+                                class="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-600 focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all"
+                                @keyup.enter="aplicarFiltros"
+                            />
+                        </div>
+                        <select v-model="filtros.estado" class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-xl text-gray-900 dark:text-white focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all cursor-pointer font-medium" @change="aplicarFiltros">
                             <option v-for="e in estados" :key="e.value" :value="e.value">{{ e.label }}</option>
                         </select>
-                        <select v-model="filtros.prioridad" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900 border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white dark:text-white focus:ring-2 focus:ring-amber-500 transition-colors" @change="aplicarFiltros">
+                        <select v-model="filtros.prioridad" class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-xl text-gray-900 dark:text-white focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all cursor-pointer font-medium" @change="aplicarFiltros">
                             <option v-for="p in prioridades" :key="p.value" :value="p.value">{{ p.label }}</option>
                         </select>
-                        <select v-model="filtros.asignado_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900 border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white dark:text-white focus:ring-2 focus:ring-amber-500 transition-colors" @change="aplicarFiltros">
+                        <select v-model="filtros.asignado_id" class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-xl text-gray-900 dark:text-white focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all cursor-pointer font-medium" @change="aplicarFiltros">
                             <option value="">Todos los técnicos</option>
                             <option value="sin_asignar">Sin asignar</option>
                             <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>
                         </select>
-                        <select v-model="filtros.categoria_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900 border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white dark:text-white focus:ring-2 focus:ring-amber-500 transition-colors" @change="aplicarFiltros">
-                            <option value="">Todas las categorías</option>
-                            <option v-for="c in categorias" :key="c.id" :value="c.id">{{ c.nombre }}</option>
-                        </select>
-                        <!-- Toggle Finalizados Premium -->
-                        <label 
-                            class="flex items-center gap-2 px-4 py-2.5 border rounded-xl cursor-pointer transition-colors" 
-                            :class="filtros.incluir_finalizados 
-                                ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700' 
-                                : 'bg-gray-50 dark:bg-slate-950 dark:bg-gray-900 border-gray-200 dark:border-slate-800 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800'"
-                        >
-                            <input 
-                                type="checkbox" 
-                                v-model="filtros.incluir_finalizados" 
-                                @change="aplicarFiltros"
-                                class="rounded text-amber-500 focus:ring-amber-500 dark:bg-gray-800 dark:border-gray-600"
-                            />
-                            <span class="text-sm font-medium text-gray-600 dark:text-gray-300 dark:text-gray-300 transition-colors">Incluir finalizados</span>
-                        </label>
-                    </div>
-                    <div class="flex justify-end mt-3">
-                        <button @click="limpiarFiltros" class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
-                            Limpiar filtros
+                        
+                        <button @click="limpiarFiltros" class="w-full py-3 text-xs font-black uppercase tracking-widest text-gray-400 dark:text-slate-500 hover:text-orange-500 dark:hover:text-amber-400 transition-colors">
+                            Limpiar Filtros ×
                         </button>
                     </div>
                 </div>
 
                 <!-- Lista de Tickets Premium -->
-                <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-sm dark:shadow-none border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
+                <div class="bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-800 overflow-hidden">
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
-                            <thead class="bg-gray-50 dark:bg-slate-950 dark:bg-gray-900/50">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                            <thead class="bg-gray-50 dark:bg-slate-950/50">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest transition-colors">Ticket</th>
-                                    <th class="px-4 py-3 text-left text-xs font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest transition-colors">Cliente</th>
-                                    <th class="px-4 py-3 text-left text-xs font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest transition-colors">Prioridad</th>
-                                    <th class="px-4 py-3 text-left text-xs font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest transition-colors">Estado</th>
-                                    <th class="px-4 py-3 text-left text-xs font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest transition-colors">Asignado</th>
-                                    <th class="px-4 py-3 text-left text-xs font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest transition-colors">SLA</th>
-                                    <th class="px-4 py-3 text-left text-xs font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest transition-colors">Creado</th>
+                                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest transition-colors">Folio y Asunto</th>
+                                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest transition-colors">Cliente</th>
+                                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest transition-colors text-center">Prioridad</th>
+                                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest text-center">Estado</th>
+                                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest">Responsable</th>
+                                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest">SLA</th>
+                                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest">Fecha</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700 transition-colors">
+                            <tbody class="bg-white dark:bg-transparent divide-y divide-gray-100 dark:divide-slate-800">
                                 <tr 
                                     v-for="ticket in tickets.data" 
                                     :key="ticket.id" 
-                                    class="hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700/50 cursor-pointer transition-colors" 
+                                    class="group hover:bg-orange-50/30 dark:hover:bg-orange-500/5 cursor-pointer transition-all border-l-4 border-transparent hover:border-orange-500" 
                                     @click="router.visit(route('soporte.show', ticket.id))"
                                 >
-                                    <td class="px-4 py-4">
-                                        <div class="font-mono text-sm text-amber-600 dark:text-amber-400 flex items-center gap-1 transition-colors">
-                                            {{ ticket.numero }}
-                                            <font-awesome-icon v-if="ticket.poliza_id" icon="shield-halved" class="text-green-500 dark:text-green-400 text-[10px]" title="Tiene Póliza" />
+                                    <td class="px-6 py-5">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="font-mono text-xs font-black text-orange-600 dark:text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded leading-none">{{ ticket.numero }}</span>
+                                            <div v-if="ticket.poliza_id" class="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded font-black uppercase tracking-tighter flex items-center gap-1">
+                                                <span>🛡️ PÓLIZA</span>
+                                            </div>
                                         </div>
-                                        <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-white truncate max-w-xs transition-colors">{{ ticket.titulo }}</div>
+                                        <div class="text-sm font-black text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-amber-400 transition-colors truncate max-w-xs">{{ ticket.titulo }}</div>
                                     </td>
-                                    <td class="px-4 py-4">
-                                        <div class="text-sm text-gray-900 dark:text-white dark:text-white transition-colors">{{ ticket.cliente?.nombre || ticket.nombre_contacto || '-' }}</div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">{{ ticket.telefono_contacto }}</div>
+                                    <td class="px-6 py-5 focus-within:">
+                                        <div class="text-sm font-bold text-gray-900 dark:text-slate-200">{{ ticket.cliente?.nombre || ticket.nombre_contacto || '-' }}</div>
+                                        <div class="text-[10px] text-gray-500 dark:text-slate-500 font-medium uppercase tracking-wider mt-0.5">{{ ticket.telefono_contacto }}</div>
                                     </td>
-                                    <td class="px-4 py-4">
-                                        <span :class="['px-2.5 py-1 text-xs font-bold rounded-full uppercase tracking-wide', getPrioridadBadge(ticket.prioridad)]">
+                                    <td class="px-6 py-5 text-center">
+                                        <span :class="['px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest border shadow-sm', getPrioridadBadge(ticket.prioridad)]">
                                             {{ ticket.prioridad }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-4">
-                                        <span :class="['px-2.5 py-1 text-xs font-bold rounded-full uppercase tracking-wide', getEstadoBadge(ticket.estado)]">
+                                    <td class="px-6 py-5 text-center">
+                                        <span :class="['px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest border shadow-sm', getEstadoBadge(ticket.estado)]">
                                             {{ ticket.estado.replace('_', ' ') }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-4 text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300 transition-colors">
-                                        {{ ticket.asignado?.name || 'Sin asignar' }}
+                                    <td class="px-6 py-5">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-7 h-7 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-[10px] font-black text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-700">
+                                                {{ ticket.asignado?.name?.charAt(0) || '?' }}
+                                            </div>
+                                            <span class="text-sm font-bold text-gray-700 dark:text-slate-300">
+                                                {{ ticket.asignado?.name || 'Por asignar' }}
+                                            </span>
+                                        </div>
                                     </td>
-                                    <td class="px-4 py-4">
-                                        <span :class="['text-xs font-medium', getSlaStatusClass(ticket.sla_status)]">
-                                            {{ ticket.sla_status === 'vencido' ? '⚠️ Vencido' : ticket.sla_status === 'critico' ? '🔴 Crítico' : ticket.sla_status === 'advertencia' ? '🟡 Pronto' : ticket.sla_status === 'ok' ? '🟢 OK' : '-' }}
-                                        </span>
+                                    <td class="px-6 py-5">
+                                        <div :class="['text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5', getSlaStatusClass(ticket.sla_status)]">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span>
+                                            {{ ticket.sla_status }}
+                                        </div>
                                     </td>
-                                    <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">
+                                    <td class="px-6 py-5 text-xs text-gray-500 dark:text-slate-500 font-medium uppercase tracking-tighter">
                                         {{ new Date(ticket.created_at).toLocaleDateString() }}
                                     </td>
                                 </tr>
                                 <tr v-if="tickets.data.length === 0">
-                                    <td colspan="7" class="px-4 py-16 text-center">
-                                        <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl transition-colors">
-                                            ✨
-                                        </div>
-                                        <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium transition-colors">No hay tickets que mostrar</p>
+                                    <td colspan="7" class="px-6 py-24 text-center">
+                                        <div class="text-5xl mb-4">✨</div>
+                                        <p class="text-gray-500 dark:text-slate-400 font-black uppercase tracking-widest text-sm">No hay tickets activos en esta vista</p>
                                     </td>
                                 </tr>
                             </tbody>

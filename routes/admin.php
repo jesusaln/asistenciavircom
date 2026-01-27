@@ -211,6 +211,20 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         // Reportes PDF de Soporte
         Route::get('/reportes/consumo-poliza/{poliza}', [ReporteSoporteController::class, 'consumoPoliza'])->name('soporte.reporte.consumo-poliza');
         Route::get('/reportes/horas-tecnico/{usuario?}', [ReporteSoporteController::class, 'horasTecnico'])->name('soporte.reporte.horas-tecnico');
+
+        // Guías Técnicas
+        Route::get('/guias/mantenimiento-discos', function () {
+            return Inertia::render('Soporte/Guias/MantenimientoDiscos');
+        })->name('soporte.guias.discos');
+
+        // API Guías Técnicas
+        Route::get('/api/guias-tecnicas', [\App\Http\Controllers\Api\GuiaTecnicaController::class, 'index'])->name('api.guias-tecnicas.index');
+
+        // Gestión de Guías (Placeholder for now)
+        Route::get('/guias', function () {
+            // TODO: Implement CRUD for Guides
+            return redirect()->route('soporte.index');
+        })->name('guias.index');
     });
 
     Route::get('/soporte-remoto', [SoporteRemotoController::class, 'index'])->name('soporte-remoto.index')->middleware('can:view soporte');
@@ -441,6 +455,10 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::get('/polizas-servicio/{polizaServicio}/pdf-contrato', [PolizaServicioPDFController::class, 'contrato'])->name('polizas-servicio.pdf-contrato');
     Route::post('/polizas-servicio/{polizaServicio}/generar-cobro', [PolizaServicioController::class, 'generarCobro'])->name('polizas-servicio.generar-cobro');
     Route::post('/polizas-servicio/{polizaServicio}/enviar-recordatorio', [PolizaServicioController::class, 'enviarRecordatorioRenovacion'])->name('polizas-servicio.enviar-recordatorio');
+    Route::post('/polizas-servicio/{poliza}/mantenimientos', [App\Http\Controllers\PolizaMantenimientoController::class, 'store'])->name('polizas-servicio.mantenimientos.store');
+    Route::put('/polizas-servicio/mantenimientos/{mantenimiento}', [App\Http\Controllers\PolizaMantenimientoController::class, 'update'])->name('polizas-servicio.mantenimientos.update');
+    Route::delete('/polizas-servicio/mantenimientos/{mantenimiento}', [App\Http\Controllers\PolizaMantenimientoController::class, 'destroy'])->name('polizas-servicio.mantenimientos.destroy');
+
     Route::resource('polizas-servicio', PolizaServicioController::class)->middleware('can:view polizas');
     Route::resource('planes-poliza', PlanPolizaController::class)->middleware('can:manage planes');
     Route::put('/planes-poliza/{planes_poliza}/toggle-destacado', [PlanPolizaController::class, 'toggleDestacado'])->name('planes-poliza.toggle-destacado')->middleware('can:manage planes');

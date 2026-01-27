@@ -18,14 +18,17 @@ class PolizaMantenimiento extends Model
         'tipo',
         'nombre',
         'descripcion',
+        'checklist', // Nuevo
         'frecuencia',
         'dia_preferido',
         'requiere_visita',
         'activo', // bool
         'ultima_generacion_at',
+        'guia_tecnica_id',
     ];
 
     protected $casts = [
+        'checklist' => 'array',
         'activo' => 'boolean',
         'requiere_visita' => 'boolean',
         'ultima_generacion_at' => 'datetime',
@@ -37,6 +40,11 @@ class PolizaMantenimiento extends Model
     public function poliza(): BelongsTo
     {
         return $this->belongsTo(PolizaServicio::class, 'poliza_id');
+    }
+
+    public function guiaTecnica(): BelongsTo
+    {
+        return $this->belongsTo(GuiaTecnica::class, 'guia_tecnica_id');
     }
 
     /**

@@ -617,7 +617,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
 <template>
   <Head title="Clientes" />
 
-  <div class="clientes-index min-h-screen bg-white dark:bg-slate-900 dark:bg-gray-900 transition-colors" :style="cssVars">
+  <div class="clientes-index min-h-screen bg-white dark:bg-slate-900 transition-colors" :style="cssVars">
     <!-- Contenido principal -->
     <div class="w-full px-4 lg:px-8 py-8 transition-all">
       <!-- Header específico de clientes -->
@@ -639,7 +639,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
       />
 
       <!-- Información de paginación -->
-      <div class="flex justify-between items-center mb-4 text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400 transition-colors">
+      <div class="flex justify-between items-center mb-4 text-sm text-gray-600 dark:text-gray-300 transition-colors">
         <div>
           Mostrando {{ paginationData.from }} - {{ paginationData.to }} de {{ paginationData.total }} clientes
         </div>
@@ -648,7 +648,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
           <select
             :value="paginationData.per_page"
             @change="changePerPage"
-            class="border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded px-2 py-1 text-sm transition-colors"
+            class="border border-gray-300 dark:border-slate-800 dark:bg-slate-900 dark:text-white rounded px-2 py-1 text-sm transition-colors"
           >
             <option value="10">10</option>
             <option value="15">15</option>
@@ -661,14 +661,14 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
 
       <!-- Tabla de clientes -->
       <div class="mt-6">
-        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-gray-100 dark:border-slate-800 overflow-hidden transition-colors">
           <!-- Header con gradiente de empresa -->
           <div 
-            class="px-6 py-4 border-b border-gray-200 dark:border-slate-800/60 transition-colors" 
+            class="px-6 py-4 border-b border-gray-200 dark:border-slate-800 transition-colors" 
             :style="{ background: isDark ? 'linear-gradient(135deg, #1f2937 0%, #111827 100%)' : `linear-gradient(135deg, ${colors.principal}15 0%, ${colors.secundario}10 100%)` }"
           >
             <div class="flex items-center justify-between">
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-white dark:text-white tracking-tight flex items-center gap-2 transition-colors">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-tight flex items-center gap-2 transition-colors">
                 <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: colors.principal }"></span>
                 Clientes
               </h2>
@@ -681,31 +681,31 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
           <!-- Table -->
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800/60">
-              <thead class="bg-white dark:bg-slate-900/60 dark:bg-gray-900/60 transition-colors">
+              <thead class="bg-white dark:bg-slate-900 transition-colors">
                 <tr>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-400 uppercase tracking-wider">Fecha</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-400 uppercase tracking-wider">Email</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-400 uppercase tracking-wider">Teléfono</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-400 uppercase tracking-wider">Estado</th>
-                  <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Fecha</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Email</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Teléfono</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+                  <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
                 </tr>
               </thead>
 
-              <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-slate-800/40 dark:divide-gray-700/40 transition-colors">
+              <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800 transition-colors">
                 <template v-if="items.length > 0">
                   <tr
                     v-for="cliente in items"
                     :key="cliente.id"
-                    class="group hover:bg-white dark:bg-slate-900/60 dark:hover:bg-gray-700/40 transition-all duration-150 hover:shadow-sm"
+                    class="group hover:bg-white dark:bg-slate-900 dark:hover:bg-slate-800 transition-all duration-150 hover:shadow-sm"
                   >
                     <!-- Fecha -->
                     <td class="px-6 py-4">
                       <div class="flex flex-col space-y-0.5">
-                        <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-white transition-colors">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white transition-colors">
                           {{ formatearFecha(cliente.created_at || cliente.fecha) }}
                         </div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">
+                        <div class="text-xs text-gray-500 dark:text-gray-400 transition-colors">
                           {{ formatearHora(cliente.created_at || cliente.fecha) }}
                         </div>
                       </div>
@@ -714,7 +714,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                     <!-- Cliente -->
                     <td class="px-6 py-4">
                       <div class="flex flex-col space-y-0.5">
-                        <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-white group-hover:text-gray-800 dark:text-gray-100 dark:group-hover:text-gray-200 transition-colors">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors">
                           {{ cliente.nombre_razon_social || 'Sin nombre' }}
                         </div>
                       </div>
@@ -750,7 +750,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                         <!-- Ver detalles -->
                         <button
                           @click="verDetalles(cliente)"
-                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60 hover:text-blue-700 dark:hover:text-blue-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-1"
+                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:text-blue-700 dark:hover:text-blue-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-1"
                           title="Ver detalles"
                         >
                           <svg class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -762,7 +762,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                         <!-- Hub del Cliente -->
                         <Link
                           :href="route('clientes.hub', cliente.id)"
-                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 hover:text-indigo-700 dark:hover:text-indigo-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:ring-offset-1"
+                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 hover:text-indigo-700 dark:hover:text-indigo-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:ring-offset-1"
                           title="Ver Hub del Cliente"
                         >
                           <svg class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -774,7 +774,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                         <Link
                           v-if="cliente.prestamos_count > 0 && $can('view prestamos')"
                           :href="`/reportes/prestamos-por-cliente?cliente_id=${cliente.id}`"
-                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/40 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/60 hover:text-green-700 dark:hover:text-green-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-1"
+                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/50 hover:text-green-700 dark:hover:text-green-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-1"
                           :title="`Ver ${cliente.prestamos_count} préstamo(s) del cliente`"
                         >
                           <svg class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -786,7 +786,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                         <button
                           v-if="$can('edit clientes')"
                           @click="editarCliente(cliente.id)"
-                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60 hover:text-blue-700 dark:hover:text-blue-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-1"
+                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:text-blue-700 dark:hover:text-blue-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-1"
                           title="Editar cliente"
                         >
                           <svg class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -798,7 +798,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                         <button
                           v-if="!cliente.activo && $can('edit clientes')"
                           @click="aprobarCliente(cliente)"
-                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/40 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/60 hover:text-green-700 dark:hover:text-green-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-1"
+                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/50 hover:text-green-700 dark:hover:text-green-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-1"
                           title="Aprobar cuenta"
                         >
                           <svg class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -810,7 +810,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                         <button
                           v-if="$can('delete clientes')"
                           @click="confirmarEliminacion(cliente)"
-                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/60 hover:text-red-700 dark:hover:text-red-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-1"
+                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-700 dark:hover:text-red-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-1"
                           title="Eliminar cliente"
                         >
                           <svg class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -826,8 +826,8 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
                 <tr v-else>
                   <td :colspan="6" class="px-6 py-16 text-center">
                     <div class="flex flex-col items-center space-y-4">
-                      <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center transition-colors">
-                        <svg class="w-8 h-8 text-gray-400 dark:text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div class="w-16 h-16 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center transition-colors">
+                        <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                       </div>
@@ -849,7 +849,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
         <button
           @click="prevPage"
           :disabled="paginationData.current_page === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           Anterior
         </button>
@@ -863,7 +863,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
               'px-3 py-2 text-sm font-medium border rounded-md transition-all duration-200',
               page === paginationData.current_page
                 ? 'text-white shadow-md'
-                : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-900 dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-700'
+                : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 border-gray-300 dark:border-slate-800'
             ]"
             :style="page === paginationData.current_page ? { backgroundColor: colors.principal, borderColor: colors.principal } : {}"
           >
@@ -874,7 +874,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
         <button
           @click="nextPage"
           :disabled="paginationData.current_page === paginationData.last_page"
-          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           Siguiente
         </button>
@@ -889,7 +889,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
         @click.self="onClose"
       >
         <div
-          class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 outline-none transition-colors"
+          class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 outline-none transition-colors"
           role="dialog"
           aria-modal="true"
           :aria-label="`Modal de Cliente`"
@@ -1021,7 +1021,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
             <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-slate-800">
               <button
                 @click="onClose"
-                class="inline-flex items-center px-4 py-2 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:ring-offset-1"
+                class="inline-flex items-center px-4 py-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:ring-offset-1"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1059,7 +1059,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
 
     <!-- Loading overlay -->
     <div v-if="loading" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 transition-all">
-      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-6 rounded-xl shadow-xl transition-colors">
+      <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-xl transition-colors">
         <div class="flex items-center space-x-3">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2" :style="{ borderColor: colors.principal }"></div>
           <span class="text-gray-700 dark:text-gray-200 font-medium transition-colors">Procesando...</span>

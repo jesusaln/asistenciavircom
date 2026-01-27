@@ -131,23 +131,23 @@ const estados = ['abierto', 'en_progreso', 'pendiente', 'resuelto', 'cerrado'];
 
 const getEstadoBadge = (estado) => {
     const colores = {
-        abierto: 'bg-blue-100 text-blue-800 border-blue-300',
-        en_progreso: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-        pendiente: 'bg-orange-100 text-orange-800 border-orange-300',
-        resuelto: 'bg-green-100 text-green-800 border-green-300',
-        cerrado: 'bg-gray-100 text-gray-800 dark:text-gray-100 border-gray-300',
+        abierto: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/50',
+        en_progreso: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-200 dark:border-yellow-900/50',
+        pendiente: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-900/50',
+        resuelto: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-200 dark:border-green-900/50',
+        cerrado: 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800',
     };
-    return colores[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100';
+    return colores[estado] || 'bg-slate-100 text-slate-800 dark:text-slate-100';
 };
 
 const getPrioridadBadge = (prioridad) => {
     const colores = {
-        urgente: 'bg-red-500 text-white',
-        alta: 'bg-orange-500 text-white',
-        media: 'bg-yellow-500 text-white',
-        baja: 'bg-green-500 text-white',
+        urgente: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-900/50',
+        alta: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-900/50',
+        media: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-200 dark:border-yellow-900/50',
+        baja: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-200 dark:border-green-900/50',
     };
-    return colores[prioridad] || 'bg-white dark:bg-slate-9000 text-white';
+    return colores[prioridad] || 'bg-slate-100 text-slate-600 border-slate-200';
 };
 
 const formatDate = (date) => {
@@ -174,20 +174,20 @@ const formatDate = (date) => {
                         <div>
                             <div class="flex items-center gap-3">
                                 <span class="font-mono text-lg text-orange-600">{{ ticket.numero }}</span>
-                                <span :class="['px-3 py-1 text-sm font-medium rounded-full border', getEstadoBadge(ticket.estado)]">
+                                <span :class="['px-3 py-1 text-xs font-black uppercase tracking-widest rounded-full border shadow-sm transition-all', getEstadoBadge(ticket.estado)]">
                                     {{ ticket.estado.replace('_', ' ') }}
                                 </span>
-                                <span :class="['px-2 py-1 text-xs font-bold rounded', getPrioridadBadge(ticket.prioridad)]">
+                                <span :class="['px-3 py-1 text-xs font-black uppercase tracking-widest rounded-full border shadow-sm transition-all', getPrioridadBadge(ticket.prioridad)]">
                                     {{ ticket.prioridad?.toUpperCase() || 'NORMAL' }}
                                 </span>
-                                <span v-if="ticket.tipo_servicio === 'costo'" class="px-2 py-1 text-xs font-bold rounded bg-purple-100 text-purple-700 border border-purple-200">
+                                <span v-if="ticket.tipo_servicio === 'costo'" class="px-3 py-1 text-xs font-black uppercase tracking-widest rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-900/50 shadow-sm">
                                     💰 CON COSTO
                                 </span>
-                                <span v-else class="px-2 py-1 text-xs font-bold rounded bg-green-100 text-green-700 border border-green-200">
+                                <span v-else class="px-3 py-1 text-xs font-black uppercase tracking-widest rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50 shadow-sm">
                                     🛡️ GARANTÍA
                                 </span>
                             </div>
-                            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ ticket.titulo }}</h1>
+                            <h1 class="text-3xl font-black text-gray-900 dark:text-white mt-3 tracking-tight">{{ ticket.titulo }}</h1>
                         </div>
                         
                         <!-- Acciones Principales -->
@@ -228,9 +228,14 @@ const formatDate = (date) => {
                     <!-- Contenido principal -->
                     <div class="lg:col-span-2 space-y-6">
                         <!-- Descripción -->
-                        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
-                            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Descripción</h3>
-                            <p class="text-gray-700 whitespace-pre-wrap">{{ ticket.descripcion }}</p>
+                        <div class="bg-white dark:bg-slate-900/50 backdrop-blur-sm border border-gray-100 dark:border-slate-800 rounded-2xl shadow-sm p-6">
+                            <h3 class="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span class="text-orange-500 text-xl font-normal">📝</span>
+                                Descripción
+                            </h3>
+                            <div class="bg-gray-50 dark:bg-slate-950/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800/50">
+                                <p class="text-gray-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">{{ ticket.description || ticket.descripcion }}</p>
+                            </div>
                         </div>
 
                         <!-- Timeline de comentarios -->
@@ -242,28 +247,36 @@ const formatDate = (date) => {
                                     v-for="comentario in ticket.comentarios" 
                                     :key="comentario.id"
                                     :class="[
-                                        'p-4 rounded-lg',
-                                        comentario.es_interno ? 'bg-yellow-50 border-l-4 border-yellow-400' : 'bg-white dark:bg-slate-900'
+                                        'p-5 rounded-2xl transition-all duration-300',
+                                        comentario.es_interno 
+                                            ? 'bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-700/30' 
+                                            : 'bg-white dark:bg-slate-900/50 border border-gray-100 dark:border-slate-800/50'
                                     ]"
                                 >
-                                    <div class="flex justify-between items-start mb-2">
-                                        <div class="flex items-center gap-2">
-                                            <div class="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-sm font-bold">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-sm font-bold shadow-sm">
                                                 {{ comentario.user?.name?.charAt(0) || '?' }}
                                             </div>
                                             <div>
-                                                <span class="font-medium text-gray-900 dark:text-white">{{ comentario.user?.name }}</span>
-                                                <span v-if="comentario.es_interno" class="ml-2 text-xs text-yellow-700 bg-yellow-200 px-2 py-0.5 rounded">
-                                                    Nota interna
-                                                </span>
-                                                <span v-if="comentario.tipo === 'estado'" class="ml-2 text-xs text-blue-700 bg-blue-100 px-2 py-0.5 rounded">
-                                                    Cambio de estado
-                                                </span>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="font-bold text-gray-900 dark:text-white">{{ comentario.user?.name }}</span>
+                                                    <span v-if="comentario.es_interno" class="text-[10px] uppercase tracking-wider font-extrabold text-yellow-700 dark:text-yellow-500 bg-yellow-200/50 dark:bg-yellow-500/10 px-2 py-0.5 rounded-full border border-yellow-300/30 dark:border-yellow-500/20">
+                                                        Nota interna
+                                                    </span>
+                                                    <span v-if="comentario.tipo === 'estado'" class="text-[10px] uppercase tracking-wider font-extrabold text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded-full border border-blue-200/30 dark:border-blue-400/20">
+                                                        Cambio de estado
+                                                    </span>
+                                                </div>
+                                                <div class="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-0.5">
+                                                    {{ formatDate(comentario.created_at) }}
+                                                </div>
                                             </div>
                                         </div>
-                                        <span class="text-xs text-gray-500 dark:text-gray-400">{{ formatDate(comentario.created_at) }}</span>
                                     </div>
-                                    <p class="text-gray-700 ml-10">{{ comentario.contenido }}</p>
+                                    <div class="pl-13">
+                                        <p class="text-gray-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">{{ comentario.contenido }}</p>
+                                    </div>
                                 </div>
 
                                 <div v-if="ticket.comentarios.length === 0" class="text-center py-8 text-gray-400">
@@ -271,14 +284,15 @@ const formatDate = (date) => {
                                 </div>
                             </div>
 
-                            <!-- Agregar comentario -->
-                            <form @submit.prevent="agregarComentario" class="mt-6 pt-4 border-t">
-                                <textarea
-                                    v-model="nuevoComentario.contenido"
-                                    rows="3"
-                                    placeholder="Escribe una respuesta..."
-                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 resize-none"
-                                ></textarea>
+                            <form @submit.prevent="agregarComentario" class="mt-8 pt-6 border-t border-gray-100 dark:border-slate-800">
+                                <div class="relative group">
+                                    <textarea
+                                        v-model="nuevoComentario.contenido"
+                                        rows="3"
+                                        placeholder="Escribe una respuesta técnica o nota..."
+                                        class="w-full px-5 py-4 bg-gray-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-2xl focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all resize-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-600"
+                                    ></textarea>
+                                </div>
                                 <div class="flex justify-between items-center mt-3">
                                     <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                                         <input type="checkbox" v-model="nuevoComentario.es_interno" class="rounded text-yellow-500" />
@@ -297,48 +311,72 @@ const formatDate = (date) => {
                     </div>
 
                     <!-- Sidebar -->
-                    <div class="lg:col-span-1 space-y-4">
+                    <div class="lg:col-span-1 space-y-6">
                         <!-- Acciones rápidas -->
-                        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4">
-                            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Acciones</h3>
+                        <div class="bg-white dark:bg-slate-900/50 backdrop-blur-sm border border-gray-100 dark:border-slate-800 rounded-2xl shadow-sm p-6">
+                            <h3 class="font-bold text-gray-900 dark:text-white mb-5 flex items-center gap-2">
+                                <span class="text-orange-500">⚡</span>
+                                Gestión del Ticket
+                            </h3>
                             
                             <!-- Cambiar estado -->
-                            <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
-                                <div class="flex flex-wrap gap-1">
+                            <div class="mb-6">
+                                <label class="block text-[10px] uppercase tracking-widest font-extrabold text-gray-500 dark:text-slate-400 mb-4 flex justify-between items-center">
+                                    <span>Estado Operativo</span>
+                                    <span class="w-1 h-1 rounded-full bg-orange-500 animate-pulse"></span>
+                                </label>
+                                <div class="grid grid-cols-1 gap-2">
                                     <button
-                                        v-for="e in estados"
-                                        :key="e"
-                                        @click="cambiarEstado(e)"
+                                        v-for="e in [
+                                            { id: 'abierto', label: 'Abierto', icon: '🆕', color: 'blue' },
+                                            { id: 'en_progreso', label: 'En Progreso', icon: '⚡', color: 'yellow' },
+                                            { id: 'pendiente', label: 'Pendiente', icon: '⏳', color: 'orange' },
+                                            { id: 'resuelto', label: 'Resuelto', icon: '✅', color: 'green' },
+                                            { id: 'cerrado', label: 'Cerrado', icon: '🔒', color: 'slate' }
+                                        ]"
+                                        :key="e.id"
+                                        @click="cambiarEstado(e.id)"
                                         :class="[
-                                            'px-2 py-1 text-xs rounded transition',
-                                            ticket.estado === e 
-                                                ? 'bg-orange-500 text-white' 
-                                                : 'bg-gray-100 text-gray-600 dark:text-gray-300 hover:bg-gray-200'
+                                            'w-full px-4 py-3 rounded-xl text-left transition-all duration-300 border flex items-center justify-between group relative overflow-hidden',
+                                            ticket.estado === e.id 
+                                                ? `bg-${e.color}-500 dark:bg-${e.color}-600 border-${e.color}-400 dark:border-${e.color}-500 text-white shadow-lg shadow-${e.color}-500/20 scale-[1.02] z-10` 
+                                                : 'bg-gray-50 dark:bg-slate-950/50 border-gray-100 dark:border-slate-800 text-gray-700 dark:text-slate-300 hover:border-orange-500/50 hover:bg-orange-50/10 dark:hover:bg-orange-500/5'
                                         ]"
                                     >
-                                        {{ e.replace('_', ' ') }}
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-lg transition-transform group-hover:scale-110" v-html="e.icon"></span>
+                                            <span class="font-bold text-[13px] uppercase tracking-tight">{{ e.label }}</span>
+                                        </div>
+                                        <div v-if="ticket.estado === e.id" class="flex items-center">
+                                            <div class="w-2 h-2 rounded-full bg-white animate-pulse"></div>
+                                        </div>
+                                        <div v-else class="opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <span class="text-[10px] font-black uppercase">Cambiar →</span>
+                                        </div>
                                     </button>
                                 </div>
                             </div>
 
                             <!-- Asignar -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Asignado a</label>
+                                <label class="block text-[10px] uppercase tracking-widest font-extrabold text-gray-500 dark:text-slate-400 mb-3">Asignado a</label>
                                 <select 
                                     :value="ticket.asignado_id" 
                                     @change="asignarA($event.target.value)"
-                                    class="w-full px-3 py-2 border rounded-lg text-sm"
+                                    class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all cursor-pointer"
                                 >
-                                    <option value="">Sin asignar</option>
+                                    <option value="">👤 Sin asignar</option>
                                     <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>
                                 </select>
                             </div>
                         </div>
 
-                        <!-- Info del ticket -->
-                        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4">
-                            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Detalles</h3>
+                        <!-- Detalles del ticket -->
+                        <div class="bg-white dark:bg-slate-900/50 backdrop-blur-sm border border-gray-100 dark:border-slate-800 rounded-2xl shadow-sm p-6 text-[13px]">
+                            <h3 class="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span class="text-orange-500 text-lg">ℹ️</span>
+                                Información Técnica
+                            </h3>
                             <dl class="space-y-2 text-sm">
                                 <div class="flex justify-between">
                                     <dt class="text-gray-500 dark:text-gray-400">Categoría</dt>
@@ -374,68 +412,83 @@ const formatDate = (date) => {
                                     <dt class="text-gray-500 dark:text-gray-400">Fin Servicio</dt>
                                     <dd class="text-gray-900 dark:text-white">{{ formatDate(ticket.servicio_fin_at) }}</dd>
                                 </div>
-                                <div v-if="ticket.horas_trabajadas" class="flex justify-between bg-blue-50 -mx-2 px-2 py-1 rounded">
-                                    <dt class="text-blue-600 font-semibold">⏱️ Duración Total</dt>
-                                    <dd class="text-blue-800 font-bold">{{ ticket.horas_trabajadas }} hrs</dd>
+                                <div v-if="ticket.horas_trabajadas" class="flex justify-between bg-orange-500/10 dark:bg-orange-500/20 -mx-3 px-3 py-2 rounded-xl mt-3 border border-orange-500/20">
+                                    <dt class="text-orange-600 dark:text-orange-400 font-bold uppercase tracking-widest text-[10px] flex items-center gap-1">
+                                        <span>⏱️</span> Duración Total
+                                    </dt>
+                                    <dd class="text-orange-700 dark:text-orange-300 font-black text-sm">{{ ticket.horas_trabajadas }} hrs</dd>
                                 </div>
                             </dl>
                         </div>
 
                         <!-- Citas Relacionadas -->
-                        <div v-if="ticket.citas && ticket.citas.length > 0" class="bg-blue-50 rounded-xl shadow-sm p-4 border border-blue-200">
-                             <h3 class="font-semibold text-blue-900 mb-2 flex items-center gap-2">
-                                 <span>📅</span>
+                        <div v-if="ticket.citas && ticket.citas.length > 0" class="bg-blue-500/5 dark:bg-blue-500/10 backdrop-blur-sm rounded-2xl shadow-sm p-6 border border-blue-200 dark:border-blue-500/20">
+                             <h3 class="font-bold text-blue-900 dark:text-blue-300 mb-4 flex items-center gap-2">
+                                 <span class="text-xl">📅</span>
                                  Citas del Servicio
                              </h3>
-                             <div class="space-y-3">
-                                 <div v-for="cita in ticket.citas" :key="cita.id" class="text-sm bg-white dark:bg-slate-900 p-3 rounded-lg border border-blue-100 shadow-sm">
-                                     <div class="flex justify-between items-start mb-1">
-                                         <Link :href="route('citas.show', cita.id)" class="font-bold text-blue-700 hover:underline">
+                             <div class="space-y-4">
+                                 <div v-for="cita in ticket.citas" :key="cita.id" class="text-sm bg-white/80 dark:bg-slate-950/50 p-4 rounded-xl border border-blue-100 dark:border-blue-500/20 shadow-sm transition-all hover:shadow-md">
+                                     <div class="flex justify-between items-start mb-2">
+                                         <Link :href="route('citas.show', cita.id)" class="font-black text-blue-700 dark:text-blue-400 hover:underline">
                                              {{ cita.folio }}
                                          </Link>
-                                         <span :class="['text-[10px] px-2 py-0.5 rounded-full font-bold uppercase', 
-                                            cita.estado === 'completado' ? 'bg-green-100 text-green-700' :
-                                            cita.estado === 'cancelado' ? 'bg-red-100 text-red-700' :
-                                            'bg-blue-100 text-blue-700'
+                                         <span :class="['text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider shadow-sm border', 
+                                            cita.estado === 'completado' ? 'bg-green-500/10 text-green-600 border-green-200 dark:border-green-900/30' :
+                                            cita.estado === 'cancelado' ? 'bg-red-500/10 text-red-600 border-red-200 dark:border-red-900/30' :
+                                            'bg-blue-500/10 text-blue-600 border-blue-200 dark:border-blue-900/30'
                                          ]">
                                              {{ cita.estado }}
                                          </span>
                                      </div>
-                                     <div class="text-xs text-gray-600 dark:text-gray-300">
-                                         {{ formatDate(cita.fecha_hora) }}
+                                     <div class="text-[11px] text-gray-500 dark:text-slate-400 font-medium flex items-center gap-1">
+                                         <span>🕒</span> {{ formatDate(cita.fecha_hora) }}
                                      </div>
                                  </div>
                              </div>
                         </div>
 
                         <!-- Info de Póliza -->
-                        <div v-if="ticket.poliza" class="bg-green-50 rounded-xl shadow-sm p-4 border border-green-200">
-                             <h3 class="font-semibold text-green-900 mb-2 flex items-center gap-2">
-                                 <font-awesome-icon icon="shield-halved" />
+                        <div v-if="ticket.poliza" class="bg-emerald-500/5 dark:bg-emerald-500/10 backdrop-blur-sm rounded-2xl shadow-sm p-6 border border-emerald-200 dark:border-emerald-500/20">
+                             <h3 class="font-bold text-emerald-900 dark:text-emerald-300 mb-4 flex items-center gap-2">
+                                 <span class="text-xl">🛡️</span>
                                  Póliza de Servicio
                              </h3>
-                             <div class="text-sm">
-                                 <div class="font-bold text-green-800">{{ ticket.poliza.nombre }}</div>
-                                 <div class="text-green-700 font-mono text-xs">Folio: {{ ticket.poliza.folio }}</div>
-                                 <div class="mt-2 text-xs text-green-600">
-                                     Consumos mes: {{ ticket.poliza.tickets_mes_actual_count }} / {{ ticket.poliza.limite_mensual_tickets || 'Sin límite' }}
+                             <div class="p-4 bg-white/80 dark:bg-slate-950/50 rounded-xl border border-emerald-100 dark:border-emerald-500/20 shadow-sm">
+                                 <div class="font-black text-emerald-800 dark:text-emerald-400 text-sm">{{ ticket.poliza.nombre }}</div>
+                                 <div class="text-emerald-600 dark:text-emerald-500/80 font-mono text-[10px] mt-1 tracking-wider uppercase">Folio: {{ ticket.poliza.folio }}</div>
+                                 <div class="mt-3 pt-3 border-t border-emerald-100/50 dark:border-emerald-500/10 flex items-center justify-between">
+                                     <span class="text-[11px] text-emerald-700 dark:text-emerald-500/70 font-bold uppercase tracking-tighter">Consumos mes</span>
+                                     <span class="text-[11px] font-black text-emerald-900 dark:text-emerald-300">
+                                         {{ ticket.poliza.tickets_mes_actual_count }} / {{ ticket.poliza.limite_mensual_tickets || '∞' }}
+                                     </span>
                                  </div>
-                                 <Link :href="route('polizas-servicio.show', ticket.poliza.id)" class="inline-block mt-2 text-green-800 hover:text-green-900 text-xs font-bold">
-                                     Detalles de la póliza →
+                                 <Link :href="route('polizas-servicio.show', ticket.poliza.id)" class="w-full mt-4 py-2 flex items-center justify-center bg-emerald-500/10 dark:bg-emerald-500/20 hover:bg-emerald-500 dark:hover:bg-emerald-600 text-emerald-700 dark:text-emerald-400 hover:text-white dark:hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">
+                                     Detalles →
                                  </Link>
                              </div>
                         </div>
 
                         <!-- Info del cliente -->
-                        <div v-if="ticket.cliente" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4">
-                            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Cliente</h3>
-                            <div class="text-sm">
-                                <div class="font-medium text-gray-900 dark:text-white">{{ ticket.cliente.nombre }}</div>
-                                <div class="text-gray-600 dark:text-gray-300">{{ ticket.cliente.email }}</div>
-                                <div class="text-gray-600 dark:text-gray-300">{{ ticket.cliente.telefono || ticket.cliente.celular }}</div>
+                        <div v-if="ticket.cliente" class="bg-white dark:bg-slate-900/50 backdrop-blur-sm border border-gray-100 dark:border-slate-800 rounded-2xl shadow-sm p-6">
+                            <h3 class="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span class="text-orange-500 text-lg">👤</span>
+                                Cliente
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-slate-950/50 rounded-xl border border-gray-100 dark:border-slate-800/50">
+                                    <div class="font-bold text-gray-900 dark:text-white text-sm">{{ ticket.cliente.nombre }}</div>
+                                    <div class="text-gray-500 dark:text-gray-400 text-xs mt-1 flex items-center gap-1">
+                                        <span>📧</span> {{ ticket.cliente.email }}
+                                    </div>
+                                    <div class="text-gray-500 dark:text-gray-400 text-xs mt-1 flex items-center gap-1">
+                                        <span>📞</span> {{ ticket.cliente.telefono || ticket.cliente.celular }}
+                                    </div>
+                                </div>
                                 
-                                <Link :href="route('clientes.show', ticket.cliente.id)" class="inline-block mt-2 text-orange-600 hover:text-orange-800 text-xs">
-                                    Ver ficha completa →
+                                <Link :href="route('clientes.show', ticket.cliente.id)" class="w-full py-2.5 flex items-center justify-center bg-gray-100 dark:bg-slate-800 hover:bg-orange-500 dark:hover:bg-orange-600 text-gray-700 dark:text-slate-300 hover:text-white dark:hover:text-white rounded-xl text-xs font-bold transition-all gap-2">
+                                    <span>Ver ficha completa</span>
+                                    <span>→</span>
                                 </Link>
                             </div>
 
@@ -452,11 +505,14 @@ const formatDate = (date) => {
                         </div>
 
                         <!-- Producto relacionado -->
-                        <div v-if="ticket.producto" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4">
-                            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Producto</h3>
-                            <div class="text-sm">
-                                <div class="font-medium text-gray-900 dark:text-white">{{ ticket.producto.nombre }}</div>
-                                <div class="text-gray-600 dark:text-gray-300 font-mono text-xs">{{ ticket.producto.sku }}</div>
+                        <div v-if="ticket.producto" class="bg-white dark:bg-slate-900/50 backdrop-blur-sm border border-gray-100 dark:border-slate-800 rounded-2xl shadow-sm p-6">
+                            <h3 class="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span class="text-orange-500 text-lg">📦</span>
+                                Producto
+                            </h3>
+                            <div class="p-4 bg-gray-50 dark:bg-slate-950/50 rounded-xl border border-gray-100 dark:border-slate-800/50 shadow-sm">
+                                <div class="font-black text-gray-900 dark:text-white text-sm">{{ ticket.producto.nombre }}</div>
+                                <div class="text-gray-500 dark:text-gray-400 font-mono text-[10px] mt-1 tracking-wider uppercase">SKU: {{ ticket.producto.sku }}</div>
                             </div>
                         </div>
                     </div>

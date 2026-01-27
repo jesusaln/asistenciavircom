@@ -25,31 +25,31 @@ Para cada componente `.vue`, sigue estos pasos:
 
 ### 🏗️ Layouts (Estructural)
 - [x] `resources/js/Layouts/AppLayout.vue` (Ya tiene soporte base)
-- [ ] `resources/js/Layouts/GuestLayout.vue`
+- [ ] `resources/js/Layouts/GuestLayout.vue` (⚠️ No encontrado, verificar necesidad)
 
 ### 📄 Páginas Principales (Pages)
-- [ ] `resources/js/Pages/Dashboard.vue`
-- [ ] `resources/js/Pages/Clientes/Index.vue`
-- [ ] `resources/js/Pages/Clientes/Show.vue`
-- [ ] `resources/js/Pages/Ventas/Index.vue`
-- [ ] `resources/js/Pages/Ventas/Create.vue`
-- [ ] `resources/js/Pages/Soporte/Dashboard.vue`
+- [x] `resources/js/Pages/Panel.vue` (Dashboard Principal - En progreso)
+- [x] `resources/js/Pages/Clientes/Index.vue` (Migrado a Slate)
+- [x] `resources/js/Pages/Clientes/Show.vue` (Actualizado con paleta Slate)
+- [x] `resources/js/Pages/Ventas/Index.vue` (Migrado a Slate)
+- [x] `resources/js/Pages/Ventas/Create.vue` (Migrado a Slate)
+- [x] `resources/js/Pages/Soporte/Dashboard.vue` (Migrado a Slate)
 - [ ] `resources/js/Pages/Soporte/Tickets/Index.vue`
 - [ ] `resources/js/Pages/Pedidos/Index.vue`
 - [ ] `resources/js/Pages/Reportes/Index.vue`
 - [ ] `resources/js/Pages/Admin/Users/Index.vue`
 
 ### 🧩 Componentes Reutilizables (Common UI)
-- [ ] `resources/js/Components/UI/DataTable.vue`
-- [ ] `resources/js/Components/UI/PageHeader.vue`
-- [ ] `resources/js/Components/UI/StatCard.vue`
-- [ ] `resources/js/Components/Modal.vue`
-- [ ] `resources/js/Components/TextInput.vue`
-- [ ] `resources/js/Components/InputLabel.vue`
-- [ ] `resources/js/Components/PrimaryButton.vue`
-- [ ] `resources/js/Components/SecondaryButton.vue`
+- [x] `resources/js/Components/UI/DataTable.vue` (Soporte básico implementado)
+- [x] `resources/js/Components/UI/StatCard.vue` (Soporte básico implementado)
+- [x] `resources/js/Components/UI/PageHeader.vue` (Soporte básico implementado)
+- [x] `resources/js/Components/Modal.vue` (Limpieza de clases duplicadas)
+- [x] `resources/js/Components/TextInput.vue` (Verificado: Paleta Slate Correcta)
+- [x] `resources/js/Components/InputLabel.vue` (Actualizado a Slate)
+- [x] `resources/js/Components/PrimaryButton.vue` (Verificado)
+- [x] `resources/js/Components/SecondaryButton.vue` (Corregido bg duplicado)
 
 ---
 
 ## 🚀 Próximos Pasos (Pendientes de iniciar)
-Selecciona un componente de la lista anterior para comenzar la migración. Se recomienda empezar por los componentes de UI (`DataTable`, `StatCard`) ya que impactan en muchas páginas a la vez.
+Selecciona un componente de la lista anterior para comenzar la migración. Se recomienda continuar con `resources/js/Pages/Clientes/Show.vue` o `resources/js/Components/Modal.vue`.

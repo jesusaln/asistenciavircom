@@ -24,6 +24,7 @@ class PolizaMantenimientoEjecucion extends Model
         'estado', // pendiente, completado, cancelado, vencido
         'resultado', // ok, alerta, critico
         'notas_tecnico',
+        'checklist', // Status de los items
         'evidencia',
         'notificado_cliente',
     ];
@@ -32,6 +33,7 @@ class PolizaMantenimientoEjecucion extends Model
         'fecha_programada' => 'datetime',
         'fecha_original' => 'datetime',
         'fecha_ejecucion' => 'datetime',
+        'checklist' => 'array',
         'evidencia' => 'array',
         'notificado_cliente' => 'boolean',
     ];

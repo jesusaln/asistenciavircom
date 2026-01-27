@@ -1,7 +1,7 @@
 <template>
   <Head :title="`Cliente: ${cliente.nombre_razon_social}`" />
   <div class="w-full p-4" :style="cssVars">
-    <div class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-xl dark:shadow-none rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700">
+    <div class="bg-white dark:bg-slate-900/80 backdrop-blur-sm shadow-xl dark:shadow-none rounded-2xl overflow-hidden border border-gray-100 dark:border-slate-800">
       <!-- Header moderno con gradiente -->
       <div class="p-6 text-white" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
         <div class="flex items-start justify-between">
@@ -82,8 +82,8 @@
       </div>
 
       <!-- Información General -->
-      <section class="border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 pb-6 mb-6">
-        <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Información General</h2>
+      <section class="border-b border-gray-200 dark:border-slate-800 pb-6 mb-6">
+        <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Información General</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre/Razón Social</label>
@@ -113,8 +113,8 @@
       </section>
 
       <!-- Información Fiscal -->
-      <section class="border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 pb-6 mb-6">
-        <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Información Fiscal</h2>
+      <section class="border-b border-gray-200 dark:border-slate-800 pb-6 mb-6">
+        <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Información Fiscal</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">RFC</label>
@@ -200,9 +200,9 @@
       </section>
 
       <!-- Dirección -->
-      <section class="border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 pb-6 mb-6">
-        <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Dirección</h2>
-        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-lg p-4">
+      <section class="border-b border-gray-200 dark:border-slate-800 pb-6 mb-6">
+        <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Dirección</h2>
+        <div class="bg-white dark:bg-slate-900 rounded-lg p-4">
              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                <div>
                   <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase">Calle y Números</h4>
@@ -227,10 +227,10 @@
 
       <!-- Estadísticas Relacionadas -->
       <section>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Módulos Relacionados</h2>
+        <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Módulos Relacionados</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
           <Link :href="route('cotizaciones.index', { cliente_id: cliente.id })" class="block group">
-              <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-700 transform transition-all duration-200 group-hover:shadow-md group-hover:bg-gray-100 dark:group-hover:bg-gray-700 text-center">
+              <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-gray-100 dark:border-slate-800 transform transition-all duration-200 group-hover:shadow-md group-hover:bg-gray-100 dark:group-hover:bg-slate-800 text-center">
                 <h3 class="text-[10px] font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Cots</h3>
                 <p class="text-xl font-black text-gray-800 dark:text-gray-100 dark:text-gray-100">{{ cliente.cotizaciones_count || 0 }}</p>
               </div>
@@ -301,7 +301,7 @@
                 <Link :href="route('soporte.index', { cliente_id: cliente.id })" class="text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline">Ver todos</Link>
             </div>
             <div v-if="tickets && tickets.length > 0" class="space-y-3">
-               <div v-for="ticket in tickets" :key="ticket.id" class="p-3 bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+               <div v-for="ticket in tickets" :key="ticket.id" class="p-3 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-xl shadow-sm hover:shadow-md transition-shadow">
                   <div class="flex justify-between items-start mb-1">
                      <Link :href="route('soporte.show', ticket.id)" class="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline">#{{ ticket.numero }} - {{ ticket.titulo }}</Link>
                      <span :class="['text-[10px] px-2 py-0.5 rounded-full font-bold uppercase', 
@@ -357,7 +357,7 @@
             Ver todas las ventas &rarr;
           </Link>
         </div>
-        <div class="overflow-x-auto bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-lg shadow-sm dark:shadow-none">
+        <div class="overflow-x-auto bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg shadow-sm dark:shadow-none">
           <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
             <thead class="bg-white dark:bg-slate-900 dark:bg-gray-800">
               <tr>
@@ -407,7 +407,7 @@
             Ver todo el historial &rarr;
           </Link>
         </div>
-        <div class="overflow-x-auto bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-lg shadow-sm dark:shadow-none">
+        <div class="overflow-x-auto bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg shadow-sm dark:shadow-none">
           <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800 dark:divide-gray-700">
             <thead class="bg-white dark:bg-slate-900 dark:bg-gray-800">
               <tr>
@@ -465,7 +465,7 @@
       </section>
 
       <!-- Debug (desarrollo) -->
-      <div v-if="isDevelopment" class="mt-6 p-4 bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-md text-xs">
+      <div v-if="isDevelopment" class="mt-6 p-4 bg-white dark:bg-slate-900 rounded-md text-xs">
         <h3 class="font-semibold mb-2">Debug: Cliente ID {{ cliente.id }}</h3>
         <pre class="text-xs overflow-auto">{{ JSON.stringify(cliente, null, 2) }}</pre>
       </div>

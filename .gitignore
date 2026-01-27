@@ -183,3 +183,4 @@ Thumbs.db
 !scripts/deploy_vps.sh
 !scripts/restore_services.sh
 rustdesk_build
+!deploy.sh
