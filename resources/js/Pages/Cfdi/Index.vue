@@ -1199,501 +1199,443 @@ const previousDescargaStatuses = ref({})
                 </div>
             </div>
             <!-- Stats Dashboard -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
-                    <div class="absolute right-0 top-0 w-32 h-32 bg-emerald-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
-                    <div class="relative z-10">
-                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Ingresos</p>
-                        <h3 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight">{{ formatCurrency(stats.ingresos) }}</h3>
-                        <p class="text-[10px] font-bold text-emerald-500 mt-2 flex items-center gap-1">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            Facturas Emitidas
-                        </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <div class="bg-[#0F172A] border border-slate-700/50 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden group hover:-translate-y-2 transition-all duration-500">
+                    <div class="absolute right-0 top-0 w-32 h-32 bg-emerald-500/10 blur-[50px] rounded-full -mr-16 -mt-16 group-hover:bg-emerald-500/20 transition-all"></div>
+                    <div class="relative z-10 text-center lg:text-left">
+                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Ingresos Consolidados</p>
+                        <h3 class="text-3xl font-black text-white tracking-tight italic">{{ formatCurrency(stats.ingresos) }}</h3>
+                        <div class="mt-4 flex items-center justify-center lg:justify-start gap-2">
+                            <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-emerald-500/20">Vigentes</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
-                    <div class="absolute right-0 top-0 w-32 h-32 bg-rose-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
-                    <div class="relative z-10">
-                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Egresos</p>
-                        <h3 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight">{{ formatCurrency(stats.egresos) }}</h3>
-                        <p class="text-[10px] font-bold text-rose-500 mt-2 flex items-center gap-1">
-                            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-                            Notas Crédito / Gastos
-                        </p>
+                <div class="bg-[#0F172A] border border-slate-700/50 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden group hover:-translate-y-2 transition-all duration-500">
+                    <div class="absolute right-0 top-0 w-32 h-32 bg-rose-500/10 blur-[50px] rounded-full -mr-16 -mt-16 group-hover:bg-rose-500/20 transition-all"></div>
+                    <div class="relative z-10 text-center lg:text-left">
+                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Egresos & Notas</p>
+                        <h3 class="text-3xl font-black text-white tracking-tight italic">{{ formatCurrency(stats.egresos) }}</h3>
+                        <div class="mt-4 flex items-center justify-center lg:justify-start gap-2">
+                            <span class="px-3 py-1 bg-rose-500/10 text-rose-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-rose-500/20">Reducciones</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
-                    <div class="absolute right-0 top-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
-                    <div class="relative z-10">
-                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Pagos</p>
-                        <h3 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight">{{ formatCurrency(stats.pagos) }}</h3>
-                        <p class="text-[10px] font-bold text-blue-500 mt-2 flex items-center gap-1">
-                            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                            Complementos Pago
-                        </p>
+                <div class="bg-[#0F172A] border border-slate-700/50 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden group hover:-translate-y-2 transition-all duration-500">
+                    <div class="absolute right-0 top-0 w-32 h-32 bg-blue-500/10 blur-[50px] rounded-full -mr-16 -mt-16 group-hover:bg-blue-500/20 transition-all"></div>
+                    <div class="relative z-10 text-center lg:text-left">
+                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Flujo de Pagos (REP)</p>
+                        <h3 class="text-3xl font-black text-white tracking-tight italic">{{ formatCurrency(stats.pagos) }}</h3>
+                        <div class="mt-4 flex items-center justify-center lg:justify-start gap-2">
+                            <span class="px-3 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-blue-500/20">Complementos</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
-                    <div class="absolute right-0 top-0 w-32 h-32 bg-gray-100 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
-                    <div class="relative z-10">
-                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Total Visibles</p>
-                        <h3 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight">{{ stats.count }}</h3>
-                        <p class="text-[10px] font-bold text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
-                            <span class="w-2 h-2 rounded-full bg-gray-400"></span>
-                            Documentos Filtrados
-                        </p>
+                <div class="bg-[#0F172A] border border-slate-700/50 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden group hover:-translate-y-2 transition-all duration-500">
+                    <div class="absolute right-0 top-0 w-32 h-32 bg-slate-500/10 blur-[50px] rounded-full -mr-16 -mt-16 group-hover:bg-slate-500/20 transition-all"></div>
+                    <div class="relative z-10 text-center lg:text-left">
+                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Volumen de Datos</p>
+                        <h3 class="text-3xl font-black text-white tracking-tight italic">{{ stats.count }}</h3>
+                        <div class="mt-4 flex items-center justify-center lg:justify-start gap-2">
+                            <span class="px-3 py-1 bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-slate-700">CFDI Filtrados</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Tabs de Dirección -->
-            <div class="flex gap-2 mb-6">
+            <div class="flex gap-4 mb-8">
                 <button @click="setDireccion('')" 
-                        :class="['px-5 py-2.5 rounded-xl font-bold text-sm transition-all border', 
-                                 filters.direccion === '' ? 'bg-gray-900 text-white shadow-lg shadow-blue-500/20' : 'bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300 hover:bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800']">
-                    Todos
-                    <span class="ml-2 px-2 py-0.5 rounded-lg text-xs" :class="filters.direccion === '' ? 'bg-white dark:bg-slate-900/20' : 'bg-gray-100'">{{ contadores.total }}</span>
+                        :class="['px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all border', 
+                                 filters.direccion === '' ? 'bg-white text-slate-900 border-white shadow-xl shadow-white/5' : 'bg-slate-900/50 text-slate-500 border-slate-800 hover:border-slate-600']">
+                    Todos los CFDI
+                    <span class="ml-2 opacity-50">{{ contadores.total }}</span>
                 </button>
                 <button @click="setDireccion('emitido')" 
-                        :class="['px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 border', 
-                                 filters.direccion === 'emitido' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300 hover:bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800']">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
-                    Emitidos
-                    <span class="px-2 py-0.5 rounded-lg text-xs" :class="filters.direccion === 'emitido' ? 'bg-white dark:bg-slate-900/20' : 'bg-gray-100'">{{ contadores.emitidos }}</span>
+                        :class="['px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center gap-3 border', 
+                                 filters.direccion === 'emitido' ? 'bg-emerald-600 text-white border-emerald-500 shadow-xl shadow-emerald-900/20' : 'bg-slate-900/50 text-slate-500 border-slate-800 hover:border-slate-600']">
+                    Emitidos (Ingresos)
+                    <span class="opacity-50 border-l border-white/20 pl-3">{{ contadores.emitidos }}</span>
                 </button>
                 <button @click="setDireccion('recibido')" 
-                        :class="['px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 border', 
-                                 filters.direccion === 'recibido' ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/20' : 'bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300 hover:bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800']">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
-                    Recibidos
-                    <span class="px-2 py-0.5 rounded-lg text-xs" :class="filters.direccion === 'recibido' ? 'bg-white dark:bg-slate-900/20' : 'bg-gray-100'">{{ contadores.recibidos }}</span>
+                        :class="['px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center gap-3 border', 
+                                 filters.direccion === 'recibido' ? 'bg-indigo-600 text-white border-indigo-500 shadow-xl shadow-indigo-900/20' : 'bg-slate-900/50 text-slate-500 border-slate-800 hover:border-slate-600']">
+                    Recibidos (Gastos)
+                    <span class="opacity-50 border-l border-white/20 pl-3">{{ contadores.recibidos }}</span>
                 </button>
             </div>
 
             <!-- Descargas masivas -->
-            <div v-if="descargasItems.length" class="mb-6 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-black text-gray-700 uppercase tracking-[0.2em]">Descargas Masivas SAT</h3>
-                    <button @click="router.reload({ preserveState: true })" class="text-xs text-gray-400 hover:text-gray-600 dark:text-gray-300 font-bold uppercase tracking-widest">
-                        Actualizar
-                    </button>
+            <div v-if="descargasItems.length" class="mb-10 bg-[#0F172A] rounded-[2.5rem] border border-slate-700/50 shadow-2xl p-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 blur-[100px] rounded-full pointer-events-none"></div>
+                
+                <div class="flex items-center justify-between mb-8 relative z-10">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-blue-400 border border-slate-800">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" /></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-white italic tracking-tight">Recuperación SAT Activa</h3>
+                            <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Sincronización masiva en segundo plano</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="grid gap-3">
+
+                <div class="grid gap-6 relative z-10">
                     <div v-for="descarga in descargasItems" :key="descarga.id" 
-                     :class="['flex flex-col gap-4 p-5 rounded-2xl border-2 transition-all duration-300', 
-                              ['solicitando', 'pendiente', 'verificando', 'descargando'].includes(descarga.status) 
-                                ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shadow-lg shadow-blue-100' 
-                                : descarga.status === 'esperando' 
-                                    ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-300 shadow-lg shadow-amber-100'
-                                    : descarga.status === 'pausado'
-                                        ? 'bg-gradient-to-r from-red-50 to-rose-50 border-red-300'
-                                        : 'bg-white dark:bg-slate-900 border-gray-100']">
-                        <!-- Encabezado con dirección y fechas -->
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                            <div class="flex flex-col">
-                                <div class="flex items-center gap-2">
-                                    <span :class="['px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest',
-                                                   descarga.direccion === 'emitido' ? 'bg-emerald-100 text-emerald-700' : 'bg-violet-100 text-violet-700']">
+                      :class="['flex flex-col gap-6 p-8 rounded-[2rem] border transition-all duration-500 group overflow-hidden relative', 
+                               ['solicitando', 'pendiente', 'verificando', 'descargando'].includes(descarga.status) 
+                                 ? 'bg-slate-900/80 border-blue-500/30 shadow-2xl shadow-blue-900/20' 
+                                 : descarga.status === 'esperando' 
+                                     ? 'bg-slate-900/80 border-amber-500/30'
+                                     : descarga.status === 'pausado'
+                                         ? 'bg-red-950/20 border-red-500/30'
+                                         : 'bg-slate-900/30 border-slate-800 hover:border-slate-700']">
+                        
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-3">
+                                    <span :class="['px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg',
+                                                   descarga.direccion === 'emitido' ? 'bg-emerald-600 text-white' : 'bg-indigo-600 text-white']">
                                         {{ descarga.direccion === 'emitido' ? '↑ Emitidos' : '↓ Recibidos' }}
                                     </span>
-                                    <span :class="['px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider',
-                                                   descarga.status === 'completado' || descarga.status === 'finished' || descarga.status === 'completo' ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-200' :
-                                                   descarga.status === 'error' ? 'bg-red-100 text-red-700' :
+                                    <span :class="['px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border',
+                                                   descarga.status === 'completado' || descarga.status === 'finished' || descarga.status === 'completo' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                                                   descarga.status === 'error' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
                                                    descarga.status === 'esperando' ? 'bg-amber-500 text-white animate-pulse' :
                                                    descarga.status === 'pausado' ? 'bg-red-600 text-white' :
-                                                   'bg-blue-100 text-blue-700 animate-pulse']">
+                                                   'bg-blue-500/10 text-blue-400 border-blue-500/20 animate-pulse']">
                                         {{ descarga.status === 'completado' || descarga.status === 'finished' || descarga.status === 'completo' 
-                                            ? '✓ YA DESCARGADOS' 
+                                            ? 'Verificado' 
                                             : descarga.status === 'esperando' 
-                                                ? '⏳ ESPERANDO' 
-                                                : descarga.status === 'pausado'
-                                                    ? '⏸️ PAUSADO'
-                                                    : descarga.status }}
-                                    </span>
-                                    <!-- Indicador de reintentos -->
-                                    <span v-if="descarga.retry_count > 0" class="px-2 py-0.5 rounded text-[10px] font-black bg-gray-200 text-gray-600 dark:text-gray-300">
-                                        Intento {{ descarga.retry_count }}/{{ descarga.max_retries || 3 }}
+                                                ? '⏳ Reintentando' 
+                                                : descarga.status.toUpperCase() }}
                                     </span>
                                 </div>
-                                <span class="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                                    📅 {{ formatDateShort(descarga.fecha_inicio) }} → {{ formatDateShort(descarga.fecha_fin) }}
-                                </span>
+                                <p class="text-sm font-black text-slate-300 italic">
+                                    {{ formatDateShort(descarga.fecha_inicio) }} <span class="text-slate-600 mx-2">→</span> {{ formatDateShort(descarga.fecha_fin) }}
+                                </p>
                             </div>
                             
-                            <!-- Indicador de actividad en tiempo real -->
-                            <div v-if="['solicitando', 'pendiente', 'verificando', 'descargando'].includes(descarga.status)" 
-                                 class="flex items-center gap-2 text-blue-600">
-                                <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                </svg>
-                                <span class="text-xs font-bold animate-pulse">Procesando...</span>
-                            </div>
-                            <!-- Indicador de espera para reintento -->
-                            <div v-else-if="descarga.status === 'esperando' && descarga.next_retry_at" 
-                                 class="flex items-center gap-2 text-amber-600">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span class="text-xs font-bold">Próximo intento: {{ formatDateTime(descarga.next_retry_at) }}</span>
-                            </div>
-                        </div>
-
-                        <!-- Mensaje Amigable para Límites del SAT -->
-                        <div v-if="descarga.mensaje_usuario || descarga.limite_tipo" 
-                             :class="['rounded-xl p-4 flex items-start gap-3',
-                                      descarga.limite_tipo === 'por_vida' ? 'bg-red-100 border border-red-200' : 'bg-amber-100 border border-amber-200']">
-                            <span class="text-2xl">{{ descarga.limite_tipo === 'por_vida' ? '🚫' : '⏳' }}</span>
-                            <div class="flex-1">
-                                <p :class="['text-sm font-medium', descarga.limite_tipo === 'por_vida' ? 'text-red-800' : 'text-amber-800']">
-                                    {{ descarga.mensaje_usuario || descarga.mensaje_amigable || 'Límite del SAT detectado' }}
-                                </p>
-                                <p v-if="descarga.status === 'esperando'" class="text-xs text-gray-600 dark:text-gray-300 mt-1">
-                                    El sistema reintentará automáticamente. No necesitas hacer nada.
-                                </p>
-                                <p v-else-if="descarga.status === 'pausado'" class="text-xs text-red-600 mt-1 font-medium">
-                                    Después de varios intentos, el SAT sigue bloqueando. Espera 24-48 horas antes de reintentar.
-                                </p>
+                            <!-- Actions -->
+                            <div class="flex items-center gap-2">
+                                <button v-if="descarga.status === 'pendiente' || descarga.status === 'verificando'"
+                                        @click="verificarDescarga(descarga.id)"
+                                        class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                                    Forzar Consulta
+                                </button>
+                                <button v-if="descarga.status === 'pausado' || descarga.status === 'esperando'"
+                                        @click="reintentarDescargaManual(descarga)"
+                                        class="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-amber-900/20">
+                                    Reintentar Ahora
+                                </button>
+                                <button v-if="['finished', 'error', 'completo', 'completado'].includes(descarga.status)"
+                                        @click="abrirRevisor(descarga)"
+                                        class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-900/20 flex items-center gap-2 group-hover:scale-105">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                    Revisar Docs
+                                </button>
+                                <button @click="eliminarDescarga(descarga)"
+                                        class="p-2.5 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </button>
                             </div>
                         </div>
 
-                        <!-- Barra de Progreso en Tiempo Real -->
-                        <div v-if="descarga.total_cfdis > 0 || ['solicitando', 'pendiente', 'verificando', 'descargando'].includes(descarga.status)" 
-                             class="w-full">
-                            <div class="flex justify-between text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
-                                <span>Progreso de Descarga</span>
-                                <span v-if="descarga.total_cfdis > 0">
-                                    {{ descarga.inserted_cfdis + descarga.duplicate_cfdis }} / {{ descarga.total_cfdis }} procesados
-                                </span>
-                            </div>
-                            <div class="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
-                                <div v-if="descarga.total_cfdis > 0"
-                                     class="h-full rounded-full transition-all duration-500 ease-out"
-                                     :style="{ width: Math.min(100, ((descarga.inserted_cfdis + descarga.duplicate_cfdis) / descarga.total_cfdis) * 100) + '%' }"
-                                     :class="['solicitando', 'pendiente', 'verificando', 'descargando'].includes(descarga.status) 
-                                              ? 'bg-gradient-to-r from-blue-500 to-indigo-500 animate-pulse' 
-                                              : 'bg-gradient-to-r from-emerald-500 to-teal-500'">
+                        <!-- Progress Bar Container -->
+                        <div class="space-y-4">
+                            <!-- Barra de Progreso -->
+                            <div v-if="descarga.total_cfdis > 0 || ['solicitando', 'pendiente', 'verificando', 'descargando'].includes(descarga.status)" class="space-y-2">
+                                <div class="flex justify-between items-end">
+                                    <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">Sincronización Auditada</p>
+                                    <p v-if="descarga.total_cfdis > 0" class="text-[10px] font-black text-white italic tabular-nums">
+                                        {{ Math.min(100, Math.round(((descarga.inserted_cfdis + descarga.duplicate_cfdis) / descarga.total_cfdis) * 100)) }}%
+                                    </p>
                                 </div>
-                                <div v-else class="h-full w-full bg-gradient-to-r from-blue-400 to-indigo-400 animate-pulse opacity-50"></div>
-                            </div>
-                        </div>
-
-                        <!-- Contadores en Tiempo Real -->
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <div class="bg-white dark:bg-slate-900 rounded-xl p-3 border border-gray-100 shadow-sm text-center">
-                                <div class="text-2xl font-black text-gray-800 dark:text-gray-100">{{ descarga.total_cfdis || 0 }}</div>
-                                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total</div>
-                            </div>
-                             <div :class="['rounded-xl p-3 border shadow-sm text-center transition-all duration-500', 
-                                         descarga.imported_cfdis > 0 ? 'bg-emerald-50 border-emerald-200 scale-105 z-10' : 'bg-white dark:bg-slate-900 border-emerald-100']">
-                                <div class="text-2xl font-black text-emerald-600">{{ descarga.imported_cfdis || 0 }}</div>
-                                <div class="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">Nuevos (ADD)</div>
-                            </div>
-                            <div :class="['rounded-xl p-3 border shadow-sm text-center transition-all duration-500',
-                                         descarga.pending_cfdis > 0 ? 'bg-orange-50 border-orange-200 animate-pulse' : 'bg-white dark:bg-slate-900 border-gray-100']">
-                                <div :class="['text-2xl font-black', descarga.pending_cfdis > 0 ? 'text-orange-600' : 'text-gray-800 dark:text-gray-100']">
-                                    {{ descarga.pending_cfdis || 0 }}
+                                <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700/50">
+                                    <div v-if="descarga.total_cfdis > 0"
+                                         class="h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                                         :style="{ width: Math.min(100, ((descarga.inserted_cfdis + descarga.duplicate_cfdis) / descarga.total_cfdis) * 100) + '%' }"
+                                         :class="['solicitando', 'pendiente', 'verificando', 'descargando'].includes(descarga.status) 
+                                                  ? 'bg-gradient-to-r from-blue-600 to-indigo-500 animate-pulse' 
+                                                  : 'bg-gradient-to-r from-emerald-600 to-emerald-400'">
+                                    </div>
+                                    <div v-else class="h-full w-full bg-gradient-to-r from-blue-600 to-slate-800 animate-pulse opacity-20"></div>
                                 </div>
-                                <div :class="['text-[10px] font-bold uppercase tracking-wider', descarga.pending_cfdis > 0 ? 'text-orange-500' : 'text-gray-400']">Pendientes</div>
                             </div>
-                            <div class="bg-white dark:bg-slate-900 rounded-xl p-3 border border-amber-100 shadow-sm text-center">
-                                <div class="text-2xl font-black text-amber-600">{{ descarga.duplicate_cfdis || 0 }}</div>
-                                <div class="text-[10px] font-bold text-amber-500 uppercase tracking-wider">Duplicados</div>
-                            </div>
-                            <div class="bg-white dark:bg-slate-900 rounded-xl p-3 border border-red-100 shadow-sm text-center">
-                                <div class="text-2xl font-black text-red-600">{{ descarga.error_cfdis || 0 }}</div>
-                                <div class="text-[10px] font-bold text-red-500 uppercase tracking-wider">Errores</div>
+
+                            <!-- Contadores Cards -->
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="bg-black/20 border border-slate-800 rounded-[1.5rem] p-4 text-center group-hover:border-slate-700 transition-colors">
+                                    <div class="text-xl font-black text-white tabular-nums">{{ descarga.total_cfdis || 0 }}</div>
+                                    <div class="text-[8px] font-black text-slate-500 uppercase tracking-widest mt-1">Recuperados</div>
+                                </div>
+                                <div class="bg-emerald-500/5 border border-emerald-500/10 rounded-[1.5rem] p-4 text-center">
+                                    <div class="text-xl font-black text-emerald-400 tabular-nums">{{ descarga.imported_cfdis || 0 }}</div>
+                                    <div class="text-[8px] font-black text-emerald-600 uppercase tracking-widest mt-1">Importados</div>
+                                </div>
+                                <div class="bg-amber-500/5 border border-amber-500/10 rounded-[1.5rem] p-4 text-center">
+                                    <div class="text-xl font-black text-amber-500 tabular-nums">{{ descarga.duplicate_cfdis || 0 }}</div>
+                                    <div class="text-[8px] font-black text-amber-600 uppercase tracking-widest mt-1">Duplicados</div>
+                                </div>
+                                <div class="bg-red-500/5 border border-red-500/10 rounded-[1.5rem] p-4 text-center">
+                                    <div class="text-xl font-black text-red-500 tabular-nums">{{ descarga.error_cfdis || 0 }}</div>
+                                    <div class="text-[8px] font-black text-red-600 uppercase tracking-widest mt-1">Errores</div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Error Message (solo si no hay mensaje amigable) -->
-                        <div v-if="descarga.last_error && !descarga.mensaje_usuario && !descarga.limite_tipo" class="bg-red-50 border border-red-200 rounded-xl p-3">
-                            <div class="flex items-start gap-2">
-                                <svg class="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span class="text-xs text-red-700 font-medium">{{ descarga.last_error }}</span>
+                        <!-- Alerts -->
+                        <div v-if="descarga.last_error && !descarga.mensaje_usuario" class="mt-2 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3">
+                            <div class="w-6 h-6 rounded-lg bg-red-500/20 flex items-center justify-center text-red-500 flex-shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button v-if="descarga.status === 'pendiente' || descarga.status === 'verificando'"
-                                    @click="verificarDescarga(descarga.id)"
-                                    class="px-3 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700">
-                                Consultar
-                            </button>
-                            <!-- Botón Reintentar Manual (para estados pausado/esperando) -->
-                            <button v-if="descarga.status === 'pausado' || descarga.status === 'esperando'"
-                                    @click="reintentarDescargaManual(descarga)"
-                                    class="px-3 py-2 bg-amber-600 text-white rounded-lg text-xs font-bold hover:bg-amber-700 flex items-center gap-1.5">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                </svg>
-                                Reintentar Ahora
-                            </button>
-                            <!-- Nuevo botón de revisión -->
-                            <button v-if="descarga.status === 'finished' || descarga.status === 'error' || descarga.status === 'completo' || descarga.status === 'completado'"
-                                    @click="abrirRevisor(descarga)"
-                                    class="px-3 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 flex items-center gap-1.5 shadow-md shadow-emerald-500/20">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                                Revisar Docs
-                            </button>
-                            
-                            <!-- Botón Ver Resumen con SweetAlert -->
-                            <button v-if="descarga.status === 'finished' || descarga.status === 'error' || descarga.status === 'completo' || descarga.status === 'completado'"
-                                    @click="mostrarResumenDescarga(descarga)"
-                                    class="px-3 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 flex items-center gap-1.5">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                                Ver Resumen
-                            </button>
-
-                            <button v-if="descarga.status === 'completado'"
-                                    @click="revalidarDescarga(descarga)"
-                                    :disabled="isRevalidatingDescarga[descarga.id]"
-                                    class="px-3 py-2 bg-amber-600 text-white rounded-lg text-xs font-bold hover:bg-amber-700 disabled:opacity-60">
-                                {{ isRevalidatingDescarga[descarga.id] ? 'Revalidando...' : 'Revalidar SAT' }}
-                            </button>
-
-                            <button @click="eliminarDescarga(descarga)"
-                                    :disabled="isDeletingDescarga[descarga.id]"
-                                    class="px-3 py-2 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700 disabled:opacity-60">
-                                <svg v-if="!isDeletingDescarga[descarga.id]" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                <svg v-else class="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                            </button>
+                            <span class="text-[10px] text-red-400 font-bold uppercase tracking-wider">{{ descarga.last_error }}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Filtros Avanzados -->
-            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-gray-200 dark:border-slate-800 p-8 mb-10 transition-all">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                    <div class="space-y-2">
-                        <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Búsqueda Inteligente</label>
+            <div class="bg-[#0F172A] border border-slate-700/50 rounded-[2.5rem] shadow-2xl p-10 mb-10 relative overflow-hidden transition-all">
+                <div class="absolute top-0 left-0 w-64 h-64 bg-indigo-500/5 blur-[80px] rounded-full pointer-events-none"></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 items-end relative z-10">
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Búsqueda Inteligente</label>
                         <div class="relative group">
                             <input v-model="filters.search" placeholder="Folio, UUID..." 
-                                   class="w-full h-14 pl-12 pr-4 bg-white dark:bg-slate-900 border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white dark:bg-slate-900 focus:border-blue-500 focus:ring-0 transition-all placeholder:text-gray-400" />
-                            <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                   class="w-full h-14 pl-12 pr-4 bg-slate-900/50 border border-slate-700 rounded-2xl text-xs font-bold text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-600" />
+                            <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                         </div>
                     </div>
 
-                    <div class="space-y-2">
-                        <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Tipo Documento</label>
-                        <select v-model="filters.tipo_comprobante" class="w-full h-14 px-5 bg-white dark:bg-slate-900 border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white dark:bg-slate-900 focus:border-blue-500 focus:ring-0 transition-all appearance-none">
-                            <option value="">Cualquier Tipo</option>
-                            <option value="I">Factura (Ingreso)</option>
-                            <option value="P">Pago (Complemento)</option>
-                            <option value="E">Egreso (N. Crédito)</option>
-                        </select>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Estado Fiscal</label>
-                        <select v-model="filters.estatus" class="w-full h-14 px-5 bg-white dark:bg-slate-900 border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white dark:bg-slate-900 focus:border-blue-500 focus:ring-0 transition-all appearance-none">
-                            <option value="">Todos los Estados</option>
-                            <option value="vigente">Vigente / Timbrado</option>
-                            <option value="cancelado">Cancelado</option>
-                        </select>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Rango de Fecha</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <input type="date" v-model="filters.fecha_inicio" class="w-full h-14 px-3 bg-white dark:bg-slate-900 border-2 border-transparent rounded-2xl text-[11px] font-bold focus:bg-white dark:bg-slate-900 focus:border-blue-100 focus:ring-0 transition-all" />
-                            <input type="date" v-model="filters.fecha_fin" class="w-full h-14 px-3 bg-white dark:bg-slate-900 border-2 border-transparent rounded-2xl text-[11px] font-bold focus:bg-white dark:bg-slate-900 focus:border-blue-100 focus:ring-0 transition-all" />
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Naturaleza</label>
+                        <div class="relative">
+                            <select v-model="filters.tipo_comprobante" class="w-full h-14 px-5 bg-slate-900/50 border border-slate-700 rounded-2xl text-xs font-bold text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none">
+                                <option value="">Cualquier Tipo</option>
+                                <option value="I">Factura (Ingreso)</option>
+                                <option value="P">Pago (Complemento)</option>
+                                <option value="E">Egreso (N. Crédito)</option>
+                            </select>
+                            <svg class="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                         </div>
                     </div>
 
-                    <div class="flex items-end pb-1">
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Estado Fiscal</label>
+                        <div class="relative">
+                            <select v-model="filters.estatus" class="w-full h-14 px-5 bg-slate-900/50 border border-slate-700 rounded-2xl text-xs font-bold text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none">
+                                <option value="">Todos los Estados</option>
+                                <option value="vigente">Vigente / Timbrado</option>
+                                <option value="cancelado">Cancelado</option>
+                            </select>
+                            <svg class="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Temporalidad (Rango)</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <input type="date" v-model="filters.fecha_inicio" class="w-full h-14 px-3 bg-slate-900/50 border border-slate-700 rounded-2xl text-[10px] font-bold text-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all" />
+                            <input type="date" v-model="filters.fecha_fin" class="w-full h-14 px-3 bg-slate-900/50 border border-slate-700 rounded-2xl text-[10px] font-bold text-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all" />
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
                         <button @click="Object.keys(filters).forEach(k => filters[k] = k === 'sort_dir' ? 'desc' : '')" 
-                                class="w-full h-14 text-[10px] font-black text-gray-400 hover:text-red-500 uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 hover:bg-red-50 rounded-2xl">
+                                class="flex-1 h-14 bg-slate-800 hover:bg-red-500/10 text-slate-500 hover:text-red-400 font-bold text-[10px] uppercase tracking-widest rounded-2xl border border-slate-700 transition-all flex items-center justify-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                            Borrar Filtros
+                            Reset
                         </button>
-                    </div>
-
-                    <!-- Toggle Filtros Avanzados -->
-                    <div class="flex items-end pb-1 lg:col-span-5 border-t border-gray-100 pt-6 mt-2">
-                        <button @click="showAdvancedFilters = !showAdvancedFilters" class="flex items-center gap-2 text-xs font-black text-blue-600 uppercase tracking-widest hover:text-blue-700 transition-colors">
-                            <svg class="w-4 h-4 transition-transform duration-300" :class="showAdvancedFilters ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                            {{ showAdvancedFilters ? 'Menos Filtros' : 'Filtros Avanzados' }}
+                        <button @click="showAdvancedFilters = !showAdvancedFilters" 
+                                :class="['h-14 px-4 rounded-2xl border transition-all flex items-center justify-center', 
+                                         showAdvancedFilters ? 'bg-indigo-600 text-white border-indigo-500' : 'bg-slate-800 text-slate-400 border-slate-700']">
+                            <svg class="w-5 h-5 transition-transform duration-300" :class="showAdvancedFilters ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                         </button>
                     </div>
 
                     <!-- Campos Avanzados -->
                     <template v-if="showAdvancedFilters">
-                        <div class="space-y-2 lg:col-span-2">
-                            <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">RFC Emisor</label>
-                            <input v-model="filters.rfc_emisor" placeholder="AAA010101AAA" 
-                                   class="w-full h-14 px-4 bg-white dark:bg-slate-900 border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white dark:bg-slate-900 focus:border-blue-500 focus:ring-0 transition-all uppercase placeholder:normal-case" />
-                        </div>
-                        <div class="space-y-2 lg:col-span-2">
-                            <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">RFC Receptor</label>
-                            <input v-model="filters.rfc_receptor" placeholder="AAA010101AAA" 
-                                   class="w-full h-14 px-4 bg-white dark:bg-slate-900 border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white dark:bg-slate-900 focus:border-blue-500 focus:ring-0 transition-all uppercase placeholder:normal-case" />
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Serie</label>
-                            <input v-model="filters.serie" placeholder="A" 
-                                   class="w-full h-14 px-4 bg-white dark:bg-slate-900 border-2 border-transparent rounded-2xl text-sm font-bold focus:bg-white dark:bg-slate-900 focus:border-blue-500 focus:ring-0 transition-all" />
+                        <div class="lg:col-span-5 pt-6 mt-2 border-t border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-8 animate-fadeIn">
+                            <div class="space-y-3">
+                                <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">RFC Emisor</label>
+                                <input v-model="filters.rfc_emisor" placeholder="AAA010101AAA" 
+                                       class="w-full h-14 px-5 bg-slate-900/50 border border-slate-700 rounded-2xl text-xs font-bold text-white focus:ring-2 focus:ring-blue-500/20 uppercase placeholder:normal-case" />
+                            </div>
+                            <div class="space-y-3">
+                                <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">RFC Receptor</label>
+                                <input v-model="filters.rfc_receptor" placeholder="AAA010101AAA" 
+                                       class="w-full h-14 px-5 bg-slate-900/50 border border-slate-700 rounded-2xl text-xs font-bold text-white focus:ring-2 focus:ring-blue-500/20 uppercase placeholder:normal-case" />
+                            </div>
+                            <div class="space-y-3">
+                                <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Serie del Documento</label>
+                                <input v-model="filters.serie" placeholder="A" 
+                                       class="w-full h-14 px-5 bg-slate-900/50 border border-slate-700 rounded-2xl text-xs font-bold text-white focus:ring-2 focus:ring-blue-500/20" />
+                            </div>
                         </div>
                     </template>
                 </div>
             </div>
 
             <!-- Listado de Documentos (Tabla / Grid) -->
-            <div v-if="viewMode === 'table'" class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-gray-200 dark:border-slate-800 transition-all overflow-hidden">
+            <div v-if="viewMode === 'table'" class="bg-[#0F172A] border border-slate-700/50 rounded-[2.5rem] shadow-2xl transition-all overflow-hidden relative">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead>
-                            <tr class="bg-white dark:bg-slate-900/50 border-b border-gray-200 dark:border-slate-800">
-                                <th class="px-4 py-6 text-center">
-                            <input type="checkbox" :checked="selectedIds.length === cfdiItems.length && cfdiItems.length > 0" @change="toggleSelectAll" class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer" />
+                            <tr class="bg-slate-900/80 border-b border-slate-800">
+                                <th class="px-4 py-8 text-center">
+                                    <input type="checkbox" :checked="selectedIds.length === cfdiItems.length && cfdiItems.length > 0" @change="toggleSelectAll" 
+                                           class="w-5 h-5 rounded-lg border-slate-700 bg-slate-800 text-blue-600 focus:ring-blue-500/20 transition-all cursor-pointer" />
                                 </th>
-                                <th class="px-8 py-6 text-[14px] font-black text-gray-400 uppercase tracking-[0.2em]">
-    <button @click="toggleSort('folio')" class="inline-flex items-center gap-2 hover:text-gray-700">
-        Folio & Fiscal
-        <span class="text-[9px] font-black text-gray-300">{{ getSortIndicator('folio') }}</span>
-    </button>
-</th>
-                                <th class="px-8 py-6 text-[14px] font-black text-gray-400 uppercase tracking-[0.2em]">
-    <button @click="toggleSort('nombre')" class="inline-flex items-center gap-2 hover:text-gray-700">
-        Emisor / Receptor
-        <span class="text-[9px] font-black text-gray-300">{{ getSortIndicator('nombre') }}</span>
-    </button>
-</th>
-                                <th class="px-8 py-6 text-[14px] font-black text-gray-400 uppercase tracking-[0.2em]">
-    <button @click="toggleSort('fecha_emision')" class="inline-flex items-center gap-2 hover:text-gray-700">
-        Temporalidad
-        <span class="text-[9px] font-black text-gray-300">{{ getSortIndicator('fecha_emision') }}</span>
-    </button>
-</th>
-                                <th class="px-8 py-6 text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] text-right">
-    <button @click="toggleSort('total')" class="inline-flex items-center gap-2 hover:text-gray-700">
-        Monto Total
-        <span class="text-[9px] font-black text-gray-300">{{ getSortIndicator('total') }}</span>
-    </button>
-</th>
-                                <th class="px-8 py-6 text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] text-center">
-    <button @click="toggleSort('estatus')" class="inline-flex items-center gap-2 hover:text-gray-700">
-        Estatus
-        <span class="text-[9px] font-black text-gray-300">{{ getSortIndicator('estatus') }}</span>
-    </button>
-</th>
-                                <th class="px-8 py-6 text-[14px] font-black text-gray-400 uppercase tracking-[0.2em] text-right">Gestión</th>
+                                <th class="px-8 py-8 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                                    <button @click="toggleSort('folio')" class="group inline-flex items-center gap-2 hover:text-white transition-colors">
+                                        Identificador
+                                        <span class="opacity-0 group-hover:opacity-100 transition-opacity">{{ getSortIndicator('folio') }}</span>
+                                    </button>
+                                </th>
+                                <th class="px-8 py-8 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                                    <button @click="toggleSort('nombre')" class="group inline-flex items-center gap-2 hover:text-white transition-colors">
+                                        Entidad Fiscal
+                                        <span class="opacity-0 group-hover:opacity-100 transition-opacity">{{ getSortIndicator('nombre') }}</span>
+                                    </button>
+                                </th>
+                                <th class="px-8 py-8 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                                    <button @click="toggleSort('fecha_emision')" class="group inline-flex items-center gap-2 hover:text-white transition-colors">
+                                        Emisión
+                                        <span class="opacity-0 group-hover:opacity-100 transition-opacity">{{ getSortIndicator('fecha_emision') }}</span>
+                                    </button>
+                                </th>
+                                <th class="px-8 py-8 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">
+                                    <button @click="toggleSort('total')" class="group inline-flex items-center gap-2 hover:text-white transition-colors justify-end">
+                                        Monto Neto
+                                        <span class="opacity-0 group-hover:opacity-100 transition-opacity">{{ getSortIndicator('total') }}</span>
+                                    </button>
+                                </th>
+                                <th class="px-8 py-8 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Estado</th>
+                                <th class="px-8 py-8 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Gestión</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y divide-slate-800">
                             <template v-for="cfdi in cfdiItems" :key="cfdi.id">
-                                <tr :class="['group hover:bg-blue-50/80 transition-all duration-300 cursor-pointer', isSelected(cfdi.id) ? 'bg-blue-50/50' : '', isExpanded(cfdi.id) ? 'bg-indigo-50/50' : '']"
+                                <tr :class="['group hover:bg-slate-800/80 transition-all duration-300 cursor-pointer relative border-l-4', 
+                                             isSelected(cfdi.id) ? 'bg-blue-600/10 border-l-blue-500' : 'border-l-transparent', 
+                                             isExpanded(cfdi.id) ? 'bg-indigo-600/10 border-l-indigo-500' : '']"
                                     @click="toggleRow(cfdi.id)">
-                                    <td class="px-4 py-6 text-center" @click.stop>
-                                        <input type="checkbox" :checked="isSelected(cfdi.id)" @change="toggleSelect(cfdi.id)" class="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer" />
+                                    
+                                    <td class="px-4 py-8 text-center" @click.stop>
+                                        <div class="relative flex items-center justify-center">
+                                            <input type="checkbox" :checked="isSelected(cfdi.id)" @change="toggleSelect(cfdi.id)" 
+                                                   class="w-5 h-5 rounded-lg border-slate-700 bg-slate-900/50 text-blue-600 focus:ring-blue-500/20 transition-all cursor-pointer" />
+                                        </div>
                                     </td>
-                                    <!-- 1. Folio & Fiscal -->
-                                    <td class="px-8 py-6">
-                                        <div class="flex flex-col gap-1.5">
-                                            <div class="flex items-center gap-2">
-                                                <span class="text-lg font-black text-gray-900 dark:text-white tracking-tight">{{ cfdi.folio }}</span>
-                                                <span :class="['px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border', 
-                                                    cfdi.tipo_comprobante_nombre === 'Ingreso' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                                                    cfdi.tipo_comprobante_nombre === 'Egreso' ? 'bg-rose-50 text-rose-600 border-rose-100' :
-                                                    cfdi.tipo_comprobante_nombre === 'Pago' ? 'bg-sky-50 text-sky-600 border-sky-100' :
-                                                    cfdi.tipo_comprobante_nombre === 'Nómina' ? 'bg-orange-50 text-orange-600 border-orange-100' :
-                                                    cfdi.tipo_comprobante_nombre === 'Traslado' ? 'bg-violet-50 text-violet-600 border-violet-100' :
-                                                    'bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300 border-gray-100']"
-                                                    :title="cfdi.tipo_comprobante_nombre">
-                                                    {{ cfdi.tipo_comprobante_nombre || cfdi.tipo_comprobante }}
+
+                                    <!-- Identificador -->
+                                    <td class="px-8 py-8">
+                                        <div class="flex flex-col gap-2">
+                                            <div class="flex items-center gap-3">
+                                                <span class="text-lg font-black text-white italic tracking-tight">{{ cfdi.folio || 'S/F' }}</span>
+                                                <span :class="['px-3 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-[0.1em] border', 
+                                                    cfdi.tipo_comprobante === 'I' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                                                    cfdi.tipo_comprobante === 'E' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
+                                                    cfdi.tipo_comprobante === 'P' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
+                                                    'bg-slate-800 text-slate-400 border-slate-700']">
+                                                    {{ getTipoLabel(cfdi.tipo_comprobante) }}
                                                 </span>
                                             </div>
-                                            <div class="flex items-center gap-1.5">
-                                                <svg class="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>
-                                                <span class="text-[14px] font-mono text-gray-600 dark:text-gray-300 group-hover:text-blue-500 transition-colors uppercase truncate max-w-[120px]" :title="cfdi.uuid">
+                                            <div class="flex items-center gap-2">
+                                                <svg class="w-3 h-3 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>
+                                                <span class="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-tighter truncate w-32" :title="cfdi.uuid">
                                                     {{ cfdi.uuid }}
                                                 </span>
                                             </div>
                                         </div>
                                     </td>
 
-                                    <!-- 2. Cliente/Proveedor (según dirección) -->
-                                    <td class="px-8 py-6">
-                                         <div class="flex flex-col gap-1">
-                                            <!-- Para EMITIDOS: Mostrar receptor (tu cliente) -->
-                                            <template v-if="cfdi.direccion === 'emitido'">
-                                                <div class="flex items-center gap-1">
-                                                    <span class="text-[9px] font-black text-blue-600 uppercase">Cliente:</span>
-                                                    <span class="text-xs font-bold text-gray-900 dark:text-white truncate max-w-[180px]" :title="cfdi.receptor">
-                                                        {{ cfdi.receptor || 'Sin especificar' }}
-                                                    </span>
-                                                </div>
-                                                <span class="text-[14px] font-mono text-gray-600 dark:text-gray-300 truncate max-w-[120px]">{{ cfdi.rfc_receptor || '' }}</span>
-                                            </template>
-                                            <!-- Para RECIBIDOS: Mostrar emisor (tu proveedor) -->
-                                            <template v-else>
-                                                <div class="flex items-center gap-1">
-                                                    <span class="text-[9px] font-black text-emerald-600 uppercase">Proveedor:</span>
-                                                    <span class="text-xs font-bold text-gray-900 dark:text-white truncate max-w-[180px]" :title="cfdi.emisor">
-                                                        {{ cfdi.emisor || 'Sin especificar' }}
-                                                    </span>
-                                                </div>
-                                                <span class="text-[14px] font-mono text-gray-600 dark:text-gray-300 truncate max-w-[120px]">{{ cfdi.rfc_emisor || '' }}</span>
-                                            </template>
-                                         </div>
-                                    </td>
-
-                                    <!-- 3. Fecha de Emisión -->
-                                    <td class="px-8 py-6">
-                                        <div class="flex flex-col">
-                                            <span class="text-[13px] font-black text-gray-400 uppercase tracking-widest">Emisión</span>
-                                            <span class="text-base font-bold text-gray-700">{{ cfdi.fecha || 'Sin fecha' }}</span>
+                                    <!-- Entidad Fiscal -->
+                                    <td class="px-8 py-8">
+                                        <div class="flex flex-col gap-1.5">
+                                            <div class="flex items-center gap-2">
+                                                <span :class="['text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded', 
+                                                              cfdi.direccion === 'emitido' ? 'bg-blue-500/10 text-blue-400' : 'bg-emerald-500/10 text-emerald-400']">
+                                                    {{ cfdi.direccion === 'emitido' ? 'Receptor' : 'Emisor' }}
+                                                </span>
+                                                <span class="text-xs font-black text-slate-200 group-hover:text-white transition-colors truncate max-w-[200px]" :title="cfdi.direccion === 'emitido' ? cfdi.receptor : cfdi.emisor">
+                                                    {{ cfdi.direccion === 'emitido' ? (cfdi.receptor || 'Público General') : (cfdi.emisor || 'Desconocido') }}
+                                                </span>
+                                            </div>
+                                            <div class="flex items-center gap-2 pl-1">
+                                                <span class="text-[10px] font-mono font-bold text-slate-600">{{ cfdi.direccion === 'emitido' ? (cfdi.rfc_receptor || 'XAXX010101000') : (cfdi.rfc_emisor || '') }}</span>
+                                            </div>
                                         </div>
                                     </td>
 
-                                    <!-- 4. Monto Total -->
-                                    <td class="px-8 py-6 text-right">
-                                        <span class="text-sm font-black text-emerald-600 tracking-tight tabular-nums">
-                                            ${{ Number(cfdi.total).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}
-                                        </span>
+                                    <!-- Emisión -->
+                                    <td class="px-8 py-8">
+                                        <div class="flex flex-col">
+                                            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Fecha Cert.</span>
+                                            <span class="text-sm font-black text-slate-300 italic tabular-nums">{{ cfdi.fecha || '---' }}</span>
+                                        </div>
                                     </td>
 
-                                    <!-- 5. Estatus -->
-                                    <td class="px-8 py-6 text-center">
-                                         <div v-if="satStatus[cfdi.id]" 
-                                             :class="['inline-flex px-2 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest', 
-                                                      satStatus[cfdi.id].estado === 'Vigente' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700']">
+                                    <!-- Monto Neto -->
+                                    <td class="px-8 py-8 text-right">
+                                        <div class="flex flex-col items-end">
+                                            <span class="text-xl font-black text-white italic tabular-nums group-hover:scale-105 transition-transform origin-right">
+                                                {{ formatCurrency(cfdi.total) }}
+                                            </span>
+                                            <span class="text-[8px] font-black text-slate-600 uppercase tracking-widest">Moneda: {{ cfdi.moneda || 'MXN' }}</span>
+                                        </div>
+                                    </td>
+
+                                    <!-- Estado -->
+                                    <td class="px-8 py-8 text-center">
+                                        <div v-if="satStatus[cfdi.id]" 
+                                             :class="['inline-flex px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg', 
+                                                      satStatus[cfdi.id].estado === 'Vigente' ? 'bg-emerald-600 text-white shadow-emerald-900/20' : 'bg-red-600 text-white shadow-red-900/20']">
                                             {{ satStatus[cfdi.id].estado }}
                                         </div>
                                         <div v-else 
-                                             :class="['inline-flex px-2 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest',
-                                                      (cfdi.estado_sat === 'Cancelado') ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700']">
+                                             :class="['inline-flex px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border',
+                                                      (cfdi.estado_sat === 'Cancelado') ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20']">
                                             {{ cfdi.estado_sat || 'Vigente' }}
                                         </div>
                                     </td>
 
-                                    <!-- 6. Gestión -->
-                                    <td class="px-8 py-6">
-                                        <div class="flex items-center justify-end gap-2">
-                                            <button @click="verPdf(cfdi.uuid)" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                                    <!-- Gestión -->
+                                    <td class="px-8 py-8">
+                                        <div class="flex items-center justify-end gap-3" @click.stop>
+                                            <button @click="verPdf(cfdi.uuid)" class="w-10 h-10 flex items-center justify-center bg-slate-800 text-slate-400 rounded-xl hover:bg-blue-600 hover:text-white hover:shadow-lg hover:shadow-blue-900/20 transition-all">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                                             </button>
                                             <button @click="abrirModalCrearCuenta(cfdi)"
-                                                    class="w-8 h-8 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"
-                                                    title="Crear Cuenta por Pagar/Cobrar">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                                </svg>
-                                            </button>
-                                            <button @click="verXml(cfdi.uuid)" class="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-white transition-all">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                                                    class="w-10 h-10 flex items-center justify-center bg-slate-800 text-slate-400 rounded-xl hover:bg-emerald-600 hover:text-white hover:shadow-lg hover:shadow-emerald-900/20 transition-all">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                                             </button>
                                             
-                                            <div class="w-[1px] h-6 bg-gray-100 mx-1"></div>
-
-                                            <button v-if="!cfdi.venta_id" @click="deleteCfdi(cfdi)" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                            </button>
+                                            <div class="relative group/more">
+                                                <button class="w-10 h-10 flex items-center justify-center bg-slate-800 text-slate-400 rounded-xl hover:bg-slate-700 transition-all">
+                                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" /></svg>
+                                                </button>
+                                                <div class="absolute right-0 top-full mt-2 w-48 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/more:opacity-100 group-hover/more:translate-y-0 group-hover/more:pointer-events-auto transition-all z-50 overflow-hidden">
+                                                    <button @click="verXml(cfdi.uuid)" class="w-full px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-slate-400 hover:bg-indigo-600 hover:text-white flex items-center gap-3 transition-colors">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                                                        Extracción XML
+                                                    </button>
+                                                    <button @click="enviarCorreo(cfdi.uuid)" class="w-full px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-slate-400 hover:bg-blue-600 hover:text-white flex items-center gap-3 transition-colors">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                                                        Enviar Cliente
+                                                    </button>
+                                                    <div class="border-t border-slate-800"></div>
+                                                    <button v-if="!cfdi.venta_id" @click="deleteCfdi(cfdi)" class="w-full px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-600 hover:text-white flex items-center gap-3 transition-colors">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                        Eliminar ADD
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>

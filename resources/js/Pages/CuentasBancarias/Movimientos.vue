@@ -1,179 +1,212 @@
 <template>
-  <div>
-    <Head :title="`Movimientos - ${cuenta.nombre}`" />
+  <Head :title="`Movimientos - ${cuenta.nombre}`" />
 
-    <div class="w-full px-6 py-8">
-      <!-- Header -->
-      <div class="flex items-center mb-8">
-        <Link :href="route('cuentas-bancarias.show', { cuentas_bancaria: cuenta.id })" class="mr-4 p-2 hover:bg-gray-100 rounded-lg">
-          <FontAwesomeIcon :icon="['fas', 'arrow-left']" class="text-gray-600 dark:text-gray-300" />
-        </Link>
-        <div class="flex-1">
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Movimientos Bancarios</h1>
-          <p class="text-gray-600 dark:text-gray-300 mt-1">{{ cuenta.nombre }} • {{ cuenta.banco }}</p>
+  <div class="min-h-screen bg-slate-950 text-slate-200 font-outfit pb-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      
+      <!-- Premium Header -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 animate-fade-in">
+        <div class="flex items-center gap-5">
+          <Link 
+            :href="route('cuentas-bancarias.show', { cuentas_bancaria: cuenta.id })" 
+            class="group flex items-center justify-center w-12 h-12 bg-slate-900/50 border border-slate-800 rounded-2xl hover:bg-slate-800 hover:border-slate-700 transition-all duration-300 shadow-xl"
+          >
+            <FontAwesomeIcon icon="arrow-left" class="text-slate-400 group-hover:text-white transition-colors" />
+          </Link>
+          <div>
+            <h1 class="text-4xl font-extrabold text-white tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+              Movimientos
+            </h1>
+            <p class="text-slate-400 mt-1 flex items-center gap-2">
+              <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
+              {{ cuenta.nombre }} • {{ cuenta.banco }}
+            </p>
+          </div>
         </div>
-        <div class="text-right">
-          <p class="text-sm text-gray-500 dark:text-gray-400">Saldo Actual</p>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white">${{ formatMonto(cuenta.saldo_actual) }}</p>
+        
+        <div class="bg-slate-900/50 backdrop-blur-xl border border-slate-800 px-8 py-4 rounded-3xl flex flex-col items-end">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Saldo Actualizado</span>
+          <p class="text-3xl font-black text-white leading-none tracking-tighter transition-all hover:scale-110 origin-right cursor-default">
+            ${{ formatMonto(cuenta.saldo_actual) }}
+          </p>
         </div>
       </div>
 
-      <!-- Filtros -->
-      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-md p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <!-- Fecha Desde -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Desde</label>
-            <input
-              type="date"
-              v-model="filters.fecha_desde"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
+      <!-- Modern Glass Filters -->
+      <div class="bg-slate-900/40 backdrop-blur-xl border border-slate-800/50 rounded-[2.5rem] p-8 mb-10 animate-fade-in-up" style="animation-delay: 100ms">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Periodo Inicial</label>
+            <input type="date" v-model="filters.fecha_desde" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500/20 transition-all font-medium" />
           </div>
-          <!-- Fecha Hasta -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Hasta</label>
-            <input
-              type="date"
-              v-model="filters.fecha_hasta"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Periodo Final</label>
+            <input type="date" v-model="filters.fecha_hasta" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500/20 transition-all font-medium" />
           </div>
-          <!-- Tipo -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-            <select
-              v-model="filters.tipo"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">Todos</option>
-              <option value="deposito">Depósitos</option>
-              <option value="retiro">Retiros</option>
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Tipo de Flujo</label>
+            <select v-model="filters.tipo" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500/20 transition-all font-medium">
+              <option value="">Cualquier tipo</option>
+              <option value="deposito">Ingresos (Depósitos)</option>
+              <option value="retiro">Egresos (Retiros)</option>
             </select>
           </div>
-          <!-- Origen -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Origen</label>
-            <select
-              v-model="filters.origen_tipo"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">Todos</option>
-              <option value="venta">Ventas</option>
-              <option value="renta">Rentas</option>
-              <option value="cobro">Cobros</option>
-              <option value="prestamo">Préstamos</option>
-              <option value="traspaso">Traspasos</option>
-              <option value="pago">Pagos</option>
-              <option value="otro">Otros</option>
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Módulo Origen</label>
+            <select v-model="filters.origen_tipo" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500/20 transition-all font-medium">
+              <option value="">Todas las fuentes</option>
+              <option value="venta">Ventas Directas</option>
+              <option value="renta">Rentas de Equipos</option>
+              <option value="cobro">Gestión de Cobros</option>
+              <option value="prestamo">Cartera Préstamos</option>
+              <option value="traspaso">Transferencias</option>
+              <option value="pago">Mis Pagos</option>
+              <option value="otro">Misceláneos</option>
             </select>
           </div>
         </div>
-        <div class="mt-4 flex justify-end gap-2">
-          <button
-            @click="limpiarFiltros"
-            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
-          >
-            Limpiar
+        <div class="mt-8 flex justify-end gap-4">
+          <button @click="limpiarFiltros" class="px-8 py-3 bg-slate-950 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 rounded-2xl transition-all font-bold text-xs uppercase tracking-widest">
+            Restablecer
           </button>
-          <button
-            @click="aplicarFiltros"
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            <FontAwesomeIcon :icon="['fas', 'search']" class="mr-2" />
-            Filtrar
+          <button @click="aplicarFiltros" class="px-10 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl transition-all hover:scale-105 active:scale-95 font-bold text-xs uppercase tracking-widest shadow-xl shadow-blue-900/20">
+            <FontAwesomeIcon icon="search" class="mr-2" />
+            Ejecutar Filtro
           </button>
         </div>
       </div>
 
-      <!-- Estadísticas del período -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-4 text-white">
-          <p class="text-green-100 text-sm">Total Depósitos</p>
-          <p class="text-2xl font-bold">${{ formatMonto(stats.total_depositos) }}</p>
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10 animate-fade-in-up" style="animation-delay: 200ms">
+        <div class="relative group bg-slate-900/60 p-8 rounded-[2rem] border border-emerald-500/10 hover:border-emerald-500/30 transition-all">
+          <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent rounded-[2rem]"></div>
+          <div class="relative">
+             <div class="flex items-center gap-3 mb-4">
+                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                   <FontAwesomeIcon icon="arrow-up" />
+                </div>
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Ingresos Totales</span>
+             </div>
+             <p class="text-3xl font-black text-emerald-400 tracking-tighter">${{ formatMonto(stats.total_depositos) }}</p>
+          </div>
         </div>
-        <div class="bg-gradient-to-r from-red-500 to-red-600 rounded-xl p-4 text-white">
-          <p class="text-red-100 text-sm">Total Retiros</p>
-          <p class="text-2xl font-bold">${{ formatMonto(stats.total_retiros) }}</p>
+        
+        <div class="relative group bg-slate-900/60 p-8 rounded-[2rem] border border-rose-500/10 hover:border-rose-500/30 transition-all">
+          <div class="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent rounded-[2rem]"></div>
+          <div class="relative">
+             <div class="flex items-center gap-3 mb-4">
+                <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-500">
+                   <FontAwesomeIcon icon="arrow-down" />
+                </div>
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Egresos Totales</span>
+             </div>
+             <p class="text-3xl font-black text-rose-400 tracking-tighter">${{ formatMonto(stats.total_retiros) }}</p>
+          </div>
         </div>
-        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-4 text-white">
-          <p class="text-blue-100 text-sm">Movimientos</p>
-          <p class="text-2xl font-bold">{{ stats.cantidad_movimientos }}</p>
+
+        <div class="relative group bg-slate-900/60 p-8 rounded-[2rem] border border-blue-500/10 hover:border-blue-500/30 transition-all">
+          <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-[2rem]"></div>
+          <div class="relative">
+             <div class="flex items-center gap-3 mb-4">
+                <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500">
+                   <FontAwesomeIcon icon="receipt" />
+                </div>
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Actividad</span>
+             </div>
+             <p class="text-3xl font-black text-white tracking-tighter">{{ stats.cantidad_movimientos }} <span class="text-sm font-medium text-slate-500 ml-1">registros</span></p>
+          </div>
         </div>
       </div>
 
-      <!-- Tabla de movimientos -->
-      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-md overflow-hidden">
-        <div class="px-6 py-4 border-b bg-white dark:bg-slate-900 flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Movimientos</h3>
-          <span class="text-sm text-gray-500 dark:text-gray-400">
-            {{ movimientos.from || 0 }} - {{ movimientos.to || 0 }} de {{ movimientos.total || 0 }}
+      <!-- Transaction List Premium Table -->
+      <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/50 rounded-[2.5rem] overflow-hidden animate-fade-in-up shadow-2xl shadow-black/50" style="animation-delay: 300ms">
+        <div class="px-10 py-8 border-b border-slate-800 flex items-center justify-between">
+          <h3 class="text-xl font-bold text-white flex items-center gap-3">
+             <FontAwesomeIcon icon="list" class="text-blue-500" />
+             Libro de Movimientos
+          </h3>
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+            {{ movimientos.from || 0 }} - {{ movimientos.to || 0 }} de {{ movimientos.total || 0 }} resultados
           </span>
         </div>
         
         <div v-if="movimientos.data && movimientos.data.length > 0" class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
-            <thead class="bg-white dark:bg-slate-900">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Fecha</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Concepto</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Origen</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Tipo</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Monto</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Estado</th>
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-950/30">
+                <th class="px-10 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Fecha</th>
+                <th class="px-10 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Concepto & Glosa</th>
+                <th class="px-10 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Procedencia</th>
+                <th class="px-10 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Naturaleza</th>
+                <th class="px-10 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Monto</th>
+                <th class="px-10 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Estatus</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-slate-800">
-              <tr v-for="mov in movimientos.data" :key="mov.id" class="hover:bg-white dark:bg-slate-900">
-                <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">{{ formatFecha(mov.fecha) }}</td>
-                <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
-                  <div>{{ mov.concepto || '-' }}</div>
-                  <div v-if="mov.referencia" class="text-xs text-gray-500 dark:text-gray-400">Ref: {{ mov.referencia }}</div>
+            <tbody class="divide-y divide-slate-800/50">
+              <tr v-for="mov in movimientos.data" :key="mov.id" class="hover:bg-blue-500/5 transition-colors group/row">
+                <td class="px-10 py-6">
+                   <span class="text-sm font-bold text-white group-hover/row:text-blue-400 transition-colors">{{ formatFecha(mov.fecha) }}</span>
                 </td>
-                <td class="px-6 py-4">
-                  <span :class="getOrigenClass(mov.origen_tipo)" class="px-2 py-1 rounded-full text-xs font-medium">
+                <td class="px-10 py-6">
+                  <div class="flex flex-col">
+                    <span class="text-sm font-medium text-slate-200">{{ mov.concepto || 'Sin descripción' }}</span>
+                    <span v-if="mov.referencia" class="text-[10px] font-bold text-slate-600 mt-1 uppercase tracking-tighter">REF: {{ mov.referencia }}</span>
+                  </div>
+                </td>
+                <td class="px-10 py-6 text-center">
+                  <span :class="getOrigenClass(mov.origen_tipo)" class="inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
                     {{ getOrigenLabel(mov.origen_tipo) }}
                   </span>
                 </td>
-                <td class="px-6 py-4">
-                  <span :class="mov.tipo === 'deposito' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" class="px-2 py-1 rounded-full text-xs font-medium">
-                    {{ mov.tipo === 'deposito' ? 'Depósito' : 'Retiro' }}
+                <td class="px-10 py-6 text-center">
+                  <span 
+                    class="inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest"
+                    :class="mov.tipo === 'deposito' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border border-rose-500/20'"
+                  >
+                    {{ mov.tipo === 'deposito' ? 'Ingreso' : 'Egreso' }}
                   </span>
                 </td>
-                <td class="px-6 py-4 text-sm text-right font-medium" :class="mov.tipo === 'deposito' ? 'text-green-600' : 'text-red-600'">
-                  {{ mov.tipo === 'deposito' ? '+' : '' }}${{ formatMonto(mov.monto) }}
+                <td class="px-10 py-6 text-right">
+                   <span class="text-lg font-black tracking-tight" :class="mov.tipo === 'deposito' ? 'text-emerald-400' : 'text-rose-400'">
+                      {{ mov.tipo === 'deposito' ? '+' : '-' }}${{ formatMonto(mov.monto) }}
+                   </span>
                 </td>
-                <td class="px-6 py-4">
-                  <span :class="getEstadoClass(mov.estado)" class="px-2 py-1 rounded-full text-xs font-medium">
-                    {{ getEstadoLabel(mov.estado) }}
-                  </span>
+                <td class="px-10 py-6 text-center">
+                   <span 
+                    class="inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter border shadow-sm"
+                    :class="getEstadoClass(mov.estado)"
+                   >
+                     {{ getEstadoLabel(mov.estado) }}
+                   </span>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
         
-        <div v-else class="p-12 text-center">
-          <FontAwesomeIcon :icon="['fas', 'receipt']" class="h-12 w-12 text-gray-300 mb-4" />
-          <p class="text-gray-500 dark:text-gray-400">No hay movimientos para el período seleccionado</p>
+        <div v-else class="p-40 text-center">
+          <div class="w-20 h-20 bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-6 opacity-30">
+             <FontAwesomeIcon icon="receipt" class="text-4xl text-slate-400" />
+          </div>
+          <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Sin movimientos para este criterio de búsqueda</p>
         </div>
 
-        <!-- Paginación -->
-        <div v-if="movimientos.links && movimientos.links.length > 3" class="px-6 py-4 border-t bg-white dark:bg-slate-900 flex items-center justify-center gap-2">
+        <!-- Premium Pagination -->
+        <div v-if="movimientos.links && movimientos.links.length > 3" class="px-10 py-10 border-t border-slate-800 flex items-center justify-center gap-3">
           <template v-for="(link, index) in movimientos.links" :key="index">
             <Link
               v-if="link.url"
               :href="link.url"
               :class="[
-                'px-3 py-1 rounded-lg text-sm',
-                link.active ? 'bg-blue-600 text-white' : 'bg-white dark:bg-slate-900 text-gray-700 hover:bg-gray-100 border'
+                'px-5 py-2.5 rounded-2xl text-xs font-black transition-all duration-300',
+                link.active ? 'bg-blue-600 text-white shadow-xl shadow-blue-900/20 scale-110' : 'bg-slate-900 text-slate-500 hover:text-white hover:bg-slate-800 border border-slate-800'
               ]"
               v-html="link.label"
               preserve-scroll
             />
             <span
               v-else
-              class="px-3 py-1 text-sm text-gray-400"
+              class="px-5 py-2.5 text-xs font-black text-slate-700 bg-slate-950/20 rounded-2xl cursor-not-allowed uppercase"
               v-html="link.label"
             />
           </template>

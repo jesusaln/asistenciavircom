@@ -1,6 +1,6 @@
 <!-- /resources/js/Pages/Rentas/Index.vue -->
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { Head, router, usePage, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Notyf } from 'notyf'
@@ -29,6 +29,12 @@ onMounted(() => {
   if (flash?.success) notyf.success(flash.success)
   if (flash?.error) notyf.error(flash.error)
 })
+
+watch(() => page.props.flash, (flash) => {
+  if (flash?.success) notyf.success(flash.success)
+  if (flash?.error) notyf.error(flash.error)
+  if (flash?.warning) notyf.warning(flash.warning)
+}, { deep: true })
 
 // Props
 const props = defineProps({
@@ -207,7 +213,9 @@ const eliminarRenta = () => {
       router.reload()
     },
     onError: (errors) => {
-      notyf.error('No se pudo eliminar la renta')
+      // Si hay un error específico en 'error' (que mandamos desde el controlador)
+      const msg = errors.error || Object.values(errors)[0] || 'No se pudo eliminar la renta'
+      notyf.error(msg)
     }
   })
 }
@@ -300,6 +308,22 @@ const renovarRenta = async (renta) => {
     }
   } catch (error) {
     const msg = error.response?.data?.error || 'Error al renovar la renta'
+    notyf.error(msg)
+  }
+}
+
+const anularRenta = async (renta) => {
+  if (!confirm(`¿Anular la renta #${renta.numero_contrato}? Esto liberará los equipos y eliminará los cobros pendientes que no hayan sido pagados.`)) return
+  try {
+    const response = await axios.post(route('rentas.anular', renta.id))
+    if (response.data.success) {
+      notyf.success(response.data.message || 'Renta anulada correctamente')
+      router.reload()
+    } else {
+      notyf.error(response.data.error || 'Error al anular la renta')
+    }
+  } catch (error) {
+    const msg = error.response?.data?.error || 'Error al anular la renta'
     notyf.error(msg)
   }
 }
@@ -604,6 +628,18 @@ const obtenerLabelEstado = (estado) => {
                         >
                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                          </svg>
+                        </button>
+
+                        <!-- Anular -->
+                        <button
+                          v-if="['activo', 'proximo_vencimiento', 'vencido', 'suspendido'].includes(renta.raw.estado)"
+                          @click="anularRenta(renta.raw)"
+                          class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-all duration-200"
+                          title="Anular renta y borrar cobros"
+                        >
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                           </svg>
                         </button>
                       </div>

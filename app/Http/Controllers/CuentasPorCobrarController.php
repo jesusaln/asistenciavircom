@@ -287,7 +287,7 @@ class CuentasPorCobrarController extends Controller
         ]);
 
         $cuenta->update($validated);
-        $cuenta->calcularPendiente(); // Recalcular si cambió el total
+        $cuenta->actualizarEstado(); // Recalcular saldo y estado si cambió el total
 
         return redirect()->route('cuentas-por-cobrar.index')->with('success', 'Cuenta por cobrar actualizada.');
     }
@@ -316,7 +316,7 @@ class CuentasPorCobrarController extends Controller
             $pendienteActual = $cuenta->calcularPendiente();
 
             $validated = $request->validate([
-                'monto' => 'required|numeric|min:0.01|max:' . $pendienteActual,
+                'monto' => 'required|numeric|min:0.01|max:' . number_format($pendienteActual, 2, '.', ''),
                 'fecha_pago' => 'nullable|date',
                 'notas' => 'nullable|string|max:1000',
                 'metodo_pago' => 'required|in:efectivo,transferencia,cheque,tarjeta,tarjeta_credito,tarjeta_debito,otros',

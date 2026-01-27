@@ -353,7 +353,7 @@ const planesCalculados = computed(() => {
             <div class="w-full px-4">
                 <p class="text-center text-xs font-black uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500 dark:text-gray-400 mb-10 transition-colors">Marcas Líderes que Confián en Nosotros</p>
                 <div class="flex flex-wrap justify-between items-center gap-8 opacity-50 grayscale hover:grayscale-0 dark:grayscale-0 dark:opacity-100 dark:brightness-110 transition-all duration-500">
-                     <img v-for="marca in marcas" :key="marca.id" :src="marca.logo_url || `https://placehold.co/200x80?text=${marca.nombre}`" class="h-8 lg:h-12 w-auto object-contain" :alt="marca.nombre">
+                     <img v-for="marca in marcas" :key="marca.id" :src="getImageUrl(marca.logo_url) || `https://placehold.co/200x80?text=${marca.nombre}`" class="h-8 lg:h-12 w-auto object-contain" :alt="marca.nombre">
                      <template v-if="!marcas?.length">
                         <img v-for="i in 5" :key="i" :src="`https://placehold.co/200x80?text=Marca+${i}`" class="h-8 lg:h-12 w-auto object-contain">
                      </template>

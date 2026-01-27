@@ -1,6 +1,6 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { ref, computed, onMounted, watch } from 'vue';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';
@@ -16,6 +16,20 @@ const notyf = new Notyf({
         { type: 'warning', background: '#f59e0b', icon: false }
     ]
 });
+
+const page = usePage();
+
+onMounted(() => {
+    const flash = page.props.flash;
+    if (flash?.success) notyf.success(flash.success);
+    if (flash?.error) notyf.error(flash.error);
+});
+
+watch(() => page.props.flash, (flash) => {
+    if (flash?.success) notyf.success(flash.success);
+    if (flash?.error) notyf.error(flash.error);
+    if (flash?.warning) notyf.warning(flash.warning);
+}, { deep: true });
 
 const props = defineProps({
     renta: {
@@ -187,6 +201,29 @@ const confirmarPago = async () => {
         notyf.error('Error de conexión');
     }
 };
+
+const anularRenta = async () => {
+    if (!confirm(`¿Anular la renta #${props.renta.numero_contrato}? Esto liberará los equipos y eliminará los cobros pendientes que no hayan sido pagados.`)) return;
+    try {
+        const response = await fetch(route('rentas.anular', props.renta.id), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        });
+        
+        const data = await response.json();
+        if (response.ok && data.success) {
+            notyf.success(data.message || 'Renta anulada correctamente');
+            router.visit(route('rentas.index'));
+        } else {
+            notyf.error(data.error || 'Error al anular la renta');
+        }
+    } catch (error) {
+        notyf.error('Error de conexión');
+    }
+};
 </script>
 
 <template>
@@ -229,6 +266,16 @@ const confirmarPago = async () => {
                             </svg>
                             Contrato PDF
                         </a>
+                        <button 
+                            v-if="['activo', 'proximo_vencimiento', 'vencido', 'suspendido'].includes(renta.estado)"
+                            @click="anularRenta" 
+                            class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors flex items-center gap-2 border border-red-200"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Anular Renta
+                        </button>
                     </div>
                 </div>
             </div>

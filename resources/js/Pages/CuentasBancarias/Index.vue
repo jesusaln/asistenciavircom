@@ -1,223 +1,279 @@
 <template>
-  <div>
-    <Head title="Cuentas Bancarias" />
+  <Head title="Cuentas Bancarias" />
 
-    <div class="w-full px-6 py-8 animate-fade-in">
-      <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-            <div>
-              <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
-                <FontAwesomeIcon :icon="['fas', 'landmark']" class="h-8 w-8 text-blue-600 mr-3" />
-                Cuentas Bancarias
-              </h1>
-              <p class="text-gray-600 dark:text-gray-300 mt-1">Gestiona tus cuentas bancarias y saldos</p>
+  <div class="min-h-screen bg-slate-950 text-slate-200 font-outfit pb-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      
+      <!-- Header Area -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 animate-fade-in">
+        <div>
+          <h1 class="text-4xl font-extrabold text-white tracking-tight flex items-center gap-4">
+            <div class="w-12 h-12 bg-blue-600/20 rounded-2xl flex items-center justify-center border border-blue-500/30">
+              <FontAwesomeIcon icon="landmark" class="text-blue-500" />
             </div>
-            <div class="flex flex-col sm:flex-row gap-3">
-                <Link
-                :href="route('traspasos-bancarios.index')"
-                class="mt-4 md:mt-0 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center shadow-md"
-                >
-                <FontAwesomeIcon :icon="['fas', 'exchange-alt']" class="mr-2" />
-                Ver Traspasos
-                </Link>
-                <Link
-                :href="route('cuentas-bancarias.create')"
-                class="mt-4 md:mt-0 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center shadow-md"
-                >
-                <FontAwesomeIcon :icon="['fas', 'plus']" class="mr-2" />
-                Nueva Cuenta
-                </Link>
-            </div>
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+              Cuentas Bancarias
+            </span>
+          </h1>
+          <p class="text-slate-400 mt-2 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
+            Gestiona tus cuentas bancarias y flujo de efectivo
+          </p>
         </div>
-
-      <!-- Flash Messages -->
-      <div v-if="$page.props.flash?.success" class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-r">
-        {{ $page.props.flash.success }}
+        
+        <div class="flex items-center gap-4">
+          <Link
+            :href="route('traspasos-bancarios.index')"
+            class="group flex items-center gap-3 px-6 py-3 bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 rounded-2xl transition-all duration-300"
+          >
+            <FontAwesomeIcon icon="exchange-alt" class="group-hover:rotate-180 transition-transform duration-500" />
+            <span class="font-bold">Ver Traspasos</span>
+          </Link>
+          <Link
+            :href="route('cuentas-bancarias.create')"
+            class="flex items-center gap-3 px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-2xl transition-all duration-300 shadow-xl shadow-blue-900/20 active:scale-95"
+          >
+            <FontAwesomeIcon icon="plus" />
+            <span>Nueva Cuenta</span>
+          </Link>
+        </div>
       </div>
-      <div v-if="$page.props.flash?.error" class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r">
-        {{ $page.props.flash.error }}
-      </div>
 
-      <!-- Total General -->
-      <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl shadow-xl p-6 mb-8 text-white">
-        <div class="flex items-center justify-between">
+      <!-- Total Balance Visualization -->
+      <div class="relative group mb-10 overflow-hidden rounded-[2.5rem] animate-fade-in" style="animation-delay: 100ms">
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-700 to-slate-900 opacity-90 transition-all duration-500 group-hover:scale-105"></div>
+        <div class="absolute -right-20 -top-20 w-80 h-80 bg-white/10 rounded-full blur-3xl group-hover:bg-white/15 transition-all"></div>
+        
+        <div class="relative p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
           <div>
-            <p class="text-blue-100 text-sm uppercase tracking-wide">Saldo Total en Cuentas</p>
-            <p class="text-4xl font-bold mt-1">${{ formatMonto(totales.saldo_total) }}</p>
-            <p class="text-blue-200 text-sm mt-2">{{ totales.cuentas_activas }} cuenta(s) activa(s)</p>
-          </div>
-          <FontAwesomeIcon :icon="['fas', 'wallet']" class="h-16 w-16 text-blue-400/50" />
-        </div>
-      </div>
-
-      <!-- Grid de Cuentas -->
-      <div v-if="cuentas.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div
-          v-for="cuenta in cuentas"
-          :key="cuenta.id"
-          class="bg-white dark:bg-slate-900 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-          :class="{ 'opacity-60': !cuenta.activa }"
-        >
-          <!-- Header de la tarjeta con color del banco -->
-          <div class="h-2" :style="{ backgroundColor: cuenta.color }"></div>
-          
-          <div class="p-5">
-            <!-- Info del banco -->
-            <div class="flex items-start justify-between mb-4">
-              <div>
-                <h3 class="font-bold text-gray-900 dark:text-white">{{ cuenta.nombre }}</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400">{{ cuenta.banco }}</p>
-                <p class="text-xs text-gray-400">{{ cuenta.numero_cuenta_mascarado }}</p>
+            <span class="inline-block px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest text-blue-100 mb-4">
+              Saldo Consolidado
+            </span>
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl font-medium text-blue-200">$</span>
+              <h2 class="text-6xl font-black text-white tracking-tighter">
+                {{ formatMonto(totales.saldo_total) }}
+              </h2>
+            </div>
+            <div class="flex items-center gap-6 mt-6">
+              <div class="flex flex-col">
+                <span class="text-xs font-bold text-blue-200/60 uppercase">Cuentas Activas</span>
+                <span class="text-xl font-bold text-white">{{ totales.cuentas_activas }}</span>
               </div>
-              <span
-                v-if="!cuenta.activa"
-                class="px-2 py-1 bg-gray-100 text-gray-600 dark:text-gray-300 text-xs rounded-full"
-              >
-                Inactiva
-              </span>
+              <div class="w-px h-10 bg-white/10"></div>
+              <div class="flex flex-col">
+                <span class="text-xs font-bold text-blue-200/60 uppercase">Estado</span>
+                <span class="text-xl font-bold text-emerald-400">Saludable</span>
+              </div>
             </div>
+          </div>
+          <div class="p-8 bg-black/20 backdrop-blur-3xl rounded-3xl border border-white/5 shadow-2xl">
+            <FontAwesomeIcon icon="wallet" class="text-7xl text-white/80" />
+          </div>
+        </div>
+      </div>
 
-            <!-- Saldo -->
-            <div class="bg-white dark:bg-slate-900 rounded-lg p-4 mb-4">
-              <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Saldo Actual</p>
-              <p class="text-2xl font-bold" :class="cuenta.saldo_actual >= 0 ? 'text-green-600' : 'text-red-600'">
-                ${{ formatMonto(cuenta.saldo_actual) }}
-              </p>
-              <p class="text-xs text-gray-400 mt-1">Saldo inicial: ${{ formatMonto(cuenta.saldo_inicial) }}</p>
+      <!-- Accounts Grid -->
+      <div v-if="cuentas.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div
+          v-for="(cuenta, index) in cuentas"
+          :key="cuenta.id"
+          class="group relative animate-fade-in-up"
+          :style="{ animationDelay: `${200 + index * 50}ms` }"
+        >
+          <!-- Active Glow Effect -->
+          <div v-if="cuenta.activa" class="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 rounded-[2rem] blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+          
+          <div 
+            class="relative bg-slate-900/60 backdrop-blur-xl border border-slate-800/50 rounded-[2rem] overflow-hidden transition-all duration-300 group-hover:-translate-y-2 group-hover:border-slate-700/50 group-hover:shadow-2xl shadow-blue-900/10"
+            :class="{ 'opacity-50 grayscale select-none': !cuenta.activa }"
+          >
+            <!-- Bank Color Stripe -->
+            <div class="h-1.5 w-full flex">
+              <div :style="{ backgroundColor: cuenta.color }" class="flex-1 opacity-80 group-hover:opacity-100 transition-opacity"></div>
+              <div :style="{ backgroundColor: cuenta.color }" class="flex-none w-1/3 blur-sm opacity-50"></div>
             </div>
+            
+            <div class="p-8">
+              <!-- Bank Header -->
+              <div class="flex items-start justify-between mb-8">
+                <div class="space-y-1">
+                  <h3 class="text-lg font-bold text-white group-hover:text-blue-400 transition-colors">{{ cuenta.nombre }}</h3>
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">{{ cuenta.banco }}</span>
+                    <span class="text-[10px] font-mono text-slate-600">{{ cuenta.numero_cuenta_mascarado }}</span>
+                  </div>
+                </div>
+                <div 
+                  v-if="!cuenta.activa"
+                  class="px-2.5 py-1 bg-slate-800 text-slate-400 text-[10px] font-bold rounded-full border border-slate-700 uppercase"
+                >
+                  Inactiva
+                </div>
+              </div>
 
-            <!-- Info adicional -->
-            <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
-              <span>{{ cuenta.tipo }}</span>
-              <span>{{ cuenta.movimientos_count }} movimientos</span>
-            </div>
+              <!-- Balance Display -->
+              <div class="bg-black/30 border border-slate-800/50 rounded-2xl p-5 mb-8 relative group/balance overflow-hidden transition-all hover:bg-black/40">
+                <div class="absolute top-0 right-0 p-2 opacity-5">
+                   <FontAwesomeIcon icon="piggy-bank" class="text-4xl text-white" />
+                </div>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Saldo Disponible</p>
+                <div class="flex items-baseline gap-1">
+                  <span class="text-sm font-bold text-slate-400">$</span>
+                  <p class="text-3xl font-black transition-all group-hover/balance:scale-105 origin-left" :class="cuenta.saldo_actual >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                    {{ formatMonto(cuenta.saldo_actual) }}
+                  </p>
+                </div>
+                <div class="flex items-center justify-between mt-4">
+                   <div class="h-1 bg-slate-800 flex-1 rounded-full mr-4">
+                      <div class="h-full bg-blue-500 rounded-full w-2/3 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
+                   </div>
+                   <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">{{ cuenta.tipo }}</span>
+                </div>
+              </div>
 
-            <!-- Acciones -->
-            <div class="flex items-center justify-end gap-2 pt-4 border-t">
-              <Link
-                :href="route('cuentas-bancarias.show', { cuentas_bancaria: cuenta.id })"
-                class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                title="Ver cuenta y movimientos"
-              >
-                <FontAwesomeIcon :icon="['fas', 'list']" />
-              </Link>
-              <Link
-                :href="route('cuentas-bancarias.show', { cuentas_bancaria: cuenta.id })"
-                class="px-3 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors"
-                title="Ver registros"
-              >
-                Ver registros
-              </Link>
-              <button
-                @click="verDetalle(cuenta)"
-                class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                title="Ver detalle rápido"
-              >
-                <FontAwesomeIcon :icon="['fas', 'eye']" />
-              </button>
-              <Link
-                :href="route('cuentas-bancarias.edit', { cuentas_bancaria: cuenta.id })"
-                class="p-2 text-gray-600 dark:text-gray-300 hover:bg-white dark:bg-slate-900 rounded-lg transition-colors"
-                title="Editar"
-              >
-                <FontAwesomeIcon :icon="['fas', 'edit']" />
-              </Link>
-              <button
-                v-if="cuenta.movimientos_count === 0"
-                @click="eliminar(cuenta)"
-                class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                title="Eliminar"
-              >
-                <FontAwesomeIcon :icon="['fas', 'trash']" />
-              </button>
+              <!-- Stats & Actions -->
+              <div class="flex items-center justify-between mb-6">
+                 <div class="flex items-center gap-2 text-slate-400">
+                    <FontAwesomeIcon icon="history" class="text-[10px]" />
+                    <span class="text-xs font-bold">{{ cuenta.movimientos_count }} ops</span>
+                 </div>
+                 <div class="flex gap-2">
+                    <button 
+                      @click="verDetalle(cuenta)"
+                      class="w-10 h-10 bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl flex items-center justify-center transition-all"
+                    >
+                      <FontAwesomeIcon icon="eye" />
+                    </button>
+                    <Link
+                      :href="route('cuentas-bancarias.edit', { cuentas_bancaria: cuenta.id })"
+                      class="w-10 h-10 bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl flex items-center justify-center transition-all"
+                    >
+                      <FontAwesomeIcon icon="edit" />
+                    </Link>
+                 </div>
+              </div>
+
+              <div class="flex gap-3">
+                 <Link
+                    :href="route('cuentas-bancarias.show', { cuentas_bancaria: cuenta.id })"
+                    class="flex-1 py-4 bg-slate-950 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/10 to-transparent text-center text-xs font-black uppercase tracking-widest rounded-2xl transition-all"
+                  >
+                    Ver Libro Mayor
+                  </Link>
+                  <button
+                    v-if="cuenta.movimientos_count === 0"
+                    @click="eliminar(cuenta)"
+                    class="w-14 h-14 bg-rose-950/20 border border-rose-900/30 text-rose-500 hover:bg-rose-500 hover:text-white rounded-2xl flex items-center justify-center transition-all group/trash"
+                  >
+                    <FontAwesomeIcon icon="trash" class="group-hover/trash:scale-125 transition-transform" />
+                  </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Estado vacío -->
-      <div v-else class="bg-white dark:bg-slate-900 rounded-xl shadow-md p-12 text-center">
-        <FontAwesomeIcon :icon="['fas', 'piggy-bank']" class="h-16 w-16 text-gray-300 mb-4" />
-        <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-2">No hay cuentas bancarias</h3>
-        <p class="text-gray-500 dark:text-gray-400 mb-6">Agrega una cuenta bancaria para comenzar a gestionar tus saldos</p>
+      <!-- Empty State -->
+      <div v-else class="bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-[3rem] p-20 text-center animate-pulse-slow">
+        <div class="w-24 h-24 bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-8">
+           <FontAwesomeIcon icon="piggy-bank" class="text-5xl text-slate-600" />
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-2">Sin cuentas configuradas</h3>
+        <p class="text-slate-400 mb-10 max-w-md mx-auto italic">Comienza agregando tu primera cuenta bancaria para llevar el control absoluto de tu flujo financiero.</p>
         <Link
           :href="route('cuentas-bancarias.create')"
-          class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          class="inline-flex items-center gap-4 px-10 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black uppercase tracking-widest rounded-3xl transition-all shadow-2xl shadow-blue-500/20"
         >
-          Agregar Cuenta
+          <FontAwesomeIcon icon="plus" />
+          <span>Configurar Mi Primera Cuenta</span>
         </Link>
       </div>
     </div>
 
-    <!-- Modal de Detalle -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="showModal = false">
-      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-lg mx-4 overflow-hidden">
-        <!-- Header con color del banco -->
-        <div class="h-2" :style="{ backgroundColor: cuentaSeleccionada?.color }"></div>
-        <div class="p-6 border-b">
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ cuentaSeleccionada?.nombre }}</h3>
-              <p class="text-gray-500 dark:text-gray-400">{{ cuentaSeleccionada?.banco }}</p>
+    <!-- Premium Detail Modal -->
+    <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 lg:p-0">
+      <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-xl" @click="showModal = false"></div>
+      
+      <div class="relative w-full max-w-2xl bg-slate-900/90 border border-slate-800 rounded-[3rem] shadow-2xl overflow-hidden animate-zoom-in">
+        <!-- Progress Color Loader -->
+        <div class="h-1.5 w-full bg-slate-800">
+           <div :style="{ width: '100%', backgroundColor: cuentaSeleccionada?.color }" class="h-full"></div>
+        </div>
+        
+        <div class="p-8 md:p-12">
+          <div class="flex items-center justify-between mb-10">
+            <div class="flex items-center gap-5">
+              <div class="w-16 h-16 bg-slate-950 border border-slate-800 rounded-2xl flex items-center justify-center text-3xl shadow-xl">
+                 <FontAwesomeIcon icon="university" class="text-slate-500" />
+              </div>
+              <div>
+                <h3 class="text-3xl font-black text-white leading-tight">{{ cuentaSeleccionada?.nombre }}</h3>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">{{ cuentaSeleccionada?.banco }}</span>
+              </div>
             </div>
-            <button @click="showModal = false" class="p-2 hover:bg-gray-100 rounded-lg">
-              <FontAwesomeIcon :icon="['fas', 'times']" class="text-gray-400" />
+            <button @click="showModal = false" class="w-12 h-12 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-2xl transition-all">
+              <FontAwesomeIcon icon="times" class="text-lg" />
             </button>
           </div>
-        </div>
 
-        <!-- Contenido -->
-        <div class="p-6 space-y-4">
-          <!-- Saldo -->
-          <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-4 text-white">
-            <p class="text-blue-100 text-sm">Saldo Actual</p>
-            <p class="text-3xl font-bold">${{ formatMonto(cuentaSeleccionada?.saldo_actual) }}</p>
-          </div>
-
-          <!-- Info -->
-          <div class="grid grid-cols-2 gap-4">
-            <div class="bg-white dark:bg-slate-900 rounded-lg p-3">
-              <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Número de cuenta</p>
-              <p class="font-medium text-gray-900 dark:text-white">{{ cuentaSeleccionada?.numero_cuenta || 'No especificado' }}</p>
-            </div>
-            <div class="bg-white dark:bg-slate-900 rounded-lg p-3">
-              <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Tipo</p>
-              <p class="font-medium text-gray-900 dark:text-white capitalize">{{ cuentaSeleccionada?.tipo }}</p>
-            </div>
-            <div class="bg-white dark:bg-slate-900 rounded-lg p-3">
-              <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Saldo inicial</p>
-              <p class="font-medium text-gray-900 dark:text-white">${{ formatMonto(cuentaSeleccionada?.saldo_inicial) }}</p>
-            </div>
-            <div class="bg-white dark:bg-slate-900 rounded-lg p-3">
-              <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Movimientos</p>
-              <p class="font-medium text-gray-900 dark:text-white">{{ cuentaSeleccionada?.movimientos_count }}</p>
+          <!-- Balance Feature -->
+          <div class="bg-gradient-to-br from-blue-600 to-indigo-800 rounded-[2.5rem] p-10 text-white shadow-2xl mb-10 relative overflow-hidden group/m">
+            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
+            <p class="text-xs font-bold text-blue-100 uppercase tracking-widest mb-2 opacity-80">Saldo Consolidado en Cuenta</p>
+            <div class="flex items-baseline gap-2">
+              <span class="text-2xl font-medium text-blue-200 opacity-60">$</span>
+              <p class="text-6xl font-black tracking-tighter group-hover/m:scale-105 transition-transform origin-left">
+                {{ formatMonto(cuentaSeleccionada?.saldo_actual) }}
+              </p>
             </div>
           </div>
 
-          <!-- CLABE -->
-          <div v-if="cuentaSeleccionada?.clabe" class="bg-white dark:bg-slate-900 rounded-lg p-3">
-            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">CLABE Interbancaria</p>
-            <p class="font-medium text-gray-900 dark:text-white font-mono">{{ cuentaSeleccionada?.clabe }}</p>
+          <!-- Extended Grid -->
+          <div class="grid grid-cols-2 gap-6 mb-10">
+            <div class="bg-slate-950/50 border border-slate-800 rounded-3xl p-6">
+               <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Número de Cuenta</p>
+               <p class="text-lg font-bold text-white selection:bg-blue-500/30">{{ cuentaSeleccionada?.numero_cuenta || '🔒 Enmascarado' }}</p>
+            </div>
+            <div class="bg-slate-950/50 border border-slate-800 rounded-3xl p-6">
+               <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Tipo / Línea</p>
+               <p class="text-lg font-bold text-white capitalize flex items-center gap-2">
+                  <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  {{ cuentaSeleccionada?.tipo }}
+               </p>
+            </div>
           </div>
 
-          <!-- Notas -->
-          <div v-if="cuentaSeleccionada?.notas" class="bg-white dark:bg-slate-900 rounded-lg p-3">
-            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Notas</p>
-            <p class="text-gray-700">{{ cuentaSeleccionada?.notas }}</p>
+          <div v-if="cuentaSeleccionada?.clabe" class="bg-slate-950/50 border border-slate-800 rounded-[2rem] p-8 mb-10">
+             <div class="flex items-center justify-between">
+                <div>
+                   <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">CLABE Interbancaria (18 dígitos)</p>
+                   <p class="text-2xl font-mono text-white tracking-widest select-all">{{ cuentaSeleccionada?.clabe }}</p>
+                </div>
+                <FontAwesomeIcon icon="shield-check" class="text-3xl text-emerald-500 opacity-20" />
+             </div>
           </div>
-        </div>
 
-        <!-- Footer -->
-        <div class="flex justify-end gap-3 p-4 border-t bg-white dark:bg-slate-900">
-          <button @click="showModal = false" class="px-4 py-2 border rounded-lg hover:bg-gray-100">
-            Cerrar
-          </button>
-          <Link
-            :href="route('cuentas-bancarias.edit', { cuentas_bancaria: cuentaSeleccionada?.id })"
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Editar
-          </Link>
+          <!-- Notes -->
+          <div v-if="cuentaSeleccionada?.notas" class="mb-12">
+             <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Notas Internas</h4>
+             <div class="bg-slate-950/30 border-l-4 border-blue-500/50 p-6 rounded-r-3xl italic text-slate-300 leading-relaxed shadow-inner">
+                {{ cuentaSeleccionada?.notas }}
+             </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex gap-4">
+            <button @click="showModal = false" class="flex-1 py-5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-2xl transition-all active:scale-95">
+              Cerrar Vista
+            </button>
+            <Link
+              :href="route('cuentas-bancarias.edit', { cuentas_bancaria: cuentaSeleccionada?.id })"
+              class="flex-1 py-5 bg-white text-slate-950 font-black text-center rounded-2xl transition-all hover:bg-slate-200 active:scale-95 shadow-xl shadow-white/5"
+            >
+              Gestionar Cuenta
+            </Link>
+          </div>
         </div>
       </div>
     </div>

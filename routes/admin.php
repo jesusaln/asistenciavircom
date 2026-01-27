@@ -439,6 +439,12 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::resource('carros', CarroController::class)->names('carros')->middleware('can:view vehicles');
     Route::resource('mantenimientos', MantenimientoController::class)->names('mantenimientos')->middleware('can:view mantenimientos');
     Route::resource('equipos', EquipoController::class)->middleware('can:view equipos');
+    Route::post('/rentas/{renta}/anular', [RentasController::class, 'anular'])->name('rentas.anular');
+    Route::post('/rentas/{renta}/duplicate', [RentasController::class, 'duplicate'])->name('rentas.duplicate');
+    Route::post('/rentas/{renta}/suspender', [RentasController::class, 'suspender'])->name('rentas.suspender');
+    Route::post('/rentas/{renta}/reactivar', [RentasController::class, 'reactivar'])->name('rentas.reactivar');
+    Route::post('/rentas/{renta}/finalizar', [RentasController::class, 'finalizar'])->name('rentas.finalizar');
+    Route::post('/rentas/{renta}/renovar', [RentasController::class, 'renovar'])->name('rentas.renovar');
     Route::resource('rentas', RentasController::class)->middleware('can:view rentas');
     Route::get('/rentas/{renta}/contrato', [RentasContratoController::class, 'contratoPDF'])->name('rentas.contrato');
     // Dashboard Técnico de Mantenimientos (Pólizas)

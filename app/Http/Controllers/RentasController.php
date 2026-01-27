@@ -536,18 +536,83 @@ class RentasController extends Controller
      */
     public function destroy(Renta $renta)
     {
-        // Validar si existen pagos o cobranzas pagadas
-        if ($renta->pagos()->exists() || $renta->cuentasPorCobrar()->where('estado', 'pagado')->exists()) {
-            return redirect()->back()->with('error', 'No se puede eliminar una renta que tiene pagos registrados. Considere finalizarla o suspenderla.');
-        }
+        \Illuminate\Support\Facades\Log::info("Iniciando eliminación de renta #{$renta->id} (Contrato: {$renta->numero_contrato})");
+        try {
+            // 1. Verificar si tiene PAGOS REALES en Cuentas por Cobrar o en Cobranzas (legacy)
+            $tienePagosCxC = $renta->cuentasPorCobrar()->where('monto_pagado', '>', 0)->exists();
+            $tienePagosCobranza = $renta->cobranzas()->where('monto_pagado', '>', 0)->exists();
 
-        // Liberar equipos al eliminar la renta
-        foreach ($renta->equipos as $equipo) {
-            $equipo->update(['estado' => 'disponible']);
-        }
+            if ($tienePagosCxC || $tienePagosCobranza) {
+                $mensaje = 'No se puede eliminar una renta que tiene pagos registrados. Considere finalizarla o suspenderla.';
+                throw \Illuminate\Validation\ValidationException::withMessages(['error' => $mensaje]);
+            }
 
-        $renta->delete();
-        return redirect()->route('rentas.index')->with('success', 'Renta eliminada correctamente.');
+            // 2. Liberar equipos al eliminar la renta
+            foreach ($renta->equipos as $equipo) {
+                $equipo->update(['estado' => 'disponible']);
+            }
+
+            // 3. Eliminar Cuentas por Cobrar y Cobranzas asociadas (que no tienen pagos)
+            $renta->cuentasPorCobrar()->delete();
+            $renta->cobranzas()->delete();
+
+            // 4. Eliminar la renta (soft delete)
+            $renta->delete();
+
+            if (request()->expectsJson()) {
+                return response()->json(['success' => 'Renta eliminada correctamente']);
+            }
+            return redirect()->route('rentas.index')->with('success', 'Renta y sus cobros pendientes eliminados correctamente.');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Error al eliminar renta: ' . $e->getMessage(), [
+                'renta_id' => $renta->id,
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            $mensaje = 'Error interno al intentar eliminar la renta. Por favor, verifique los registros o intente anularla primero.';
+
+            if (request()->expectsJson()) {
+                return response()->json(['error' => $mensaje, 'detail' => $e->getMessage()], 500);
+            }
+            return redirect()->back()->with('error', $mensaje);
+        }
+    }
+
+    /**
+     * Anular una renta (marcar como anulada y eliminar cobros pendientes).
+     */
+    public function anular(Request $request, Renta $renta)
+    {
+        try {
+            // Liberar equipos
+            foreach ($renta->equipos as $equipo) {
+                $equipo->update(['estado' => 'disponible']);
+            }
+
+            // Eliminar cobros pendientes (CxC y Cobranzas legacy)
+            $renta->cuentasPorCobrar()->where('monto_pagado', 0)->delete();
+            $renta->cobranzas()->where('monto_pagado', 0)->delete();
+
+            // Marcar renta como anulada
+            $renta->update(['estado' => 'anulado']);
+
+            if ($request->expectsJson()) {
+                return response()->json(['success' => true, 'message' => 'Renta anulada correctamente']);
+            }
+            return redirect()->back()->with('success', 'Renta anulada correctamente');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Error al anular renta: ' . $e->getMessage(), [
+                'renta_id' => $renta->id,
+                'trace' => $e->getTraceAsString()
+            ]);
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'error' => 'Error al anular la renta: ' . $e->getMessage()], 500);
+            }
+            return redirect()->back()->with('error', 'Error al anular la renta: ' . $e->getMessage());
+        }
     }
 
     /**

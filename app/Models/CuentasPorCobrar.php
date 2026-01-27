@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\BelongsToEmpresa;
 use App\Models\Concerns\Blameable;
+use Carbon\Carbon;
 
 class CuentasPorCobrar extends Model
 {
@@ -120,7 +122,7 @@ class CuentasPorCobrar extends Model
      */
     public function calcularPendiente(): float
     {
-        return max(0, (float) ($this->monto_total - $this->monto_pagado));
+        return round(max(0, (float) ($this->monto_total - $this->monto_pagado)), 2);
     }
 
     /**
@@ -137,17 +139,20 @@ class CuentasPorCobrar extends Model
 
         $pendiente = $this->calcularPendiente();
 
-        if ($pendiente <= 0) {
+        if ($pendiente <= 0.009) {
             $this->estado = 'pagado';
-        } elseif ($this->monto_pagado > 0) {
-            $this->estado = 'parcial';
-        } elseif ($this->estaVencida()) {
-            $this->estado = 'vencido';
+            $this->monto_pendiente = 0;
         } else {
-            $this->estado = 'pendiente';
+            if ($this->monto_pagado > 0) {
+                $this->estado = 'parcial';
+            } elseif ($this->estaVencida()) {
+                $this->estado = 'vencido';
+            } else {
+                $this->estado = 'pendiente';
+            }
+            $this->monto_pendiente = $pendiente;
         }
 
-        $this->monto_pendiente = max(0, $pendiente);
         $this->save();
 
         // Nota: La sincronización con la Venta relacionada ahora es manejada 
@@ -165,7 +170,7 @@ class CuentasPorCobrar extends Model
         }
 
         // Validación 2: Calcular pendiente actual
-        $pendienteActual = $this->calcularPendiente();
+        $pendienteActual = round($this->calcularPendiente(), 2);
 
         // Validación 3: Monto no puede exceder el pendiente
         if ($monto > $pendienteActual) {
