@@ -21,11 +21,16 @@ const { itemCount } = useCart();
 
 const navLinks = [
     { name: 'Inicio', route: 'landing', id: 'landing' },
-    { name: 'Pólizas', route: 'catalogo.polizas', id: 'polizas' },
-    { name: 'Rentas', route: 'catalogo.rentas', id: 'rentas' },
+    { name: 'Servicios', id: 'servicios', dropdown: true },
+    { name: 'Blog', route: 'public.blog.index', id: 'blog' },
     { name: 'Productos', route: 'catalogo.index', id: 'tienda' },
     { name: 'Contacto', route: 'public.contacto', id: 'contacto' },
     { name: 'Soporte', route: 'portal.dashboard', id: 'soporte' },
+];
+
+const serviciosLinks = [
+    { name: 'Pólizas', route: 'catalogo.polizas', id: 'polizas' },
+    { name: 'Rentas', route: 'catalogo.rentas', id: 'rentas' },
 ];
 
 const computeLogo = computed(() => {
@@ -42,6 +47,12 @@ const computeBrandName = computed(() => {
 
 const showAuthModal = ref(false);
 const showUserMenu = ref(false);
+const showServiciosMenu = ref(false);
+const showMobileMenu = ref(false);
+
+const isServiciosActive = computed(() => {
+    return serviciosLinks.some(link => props.activeTab === link.id);
+});
 
 // Form para cerrar sesión
 const logoutForm = useForm({});
@@ -85,6 +96,46 @@ watch(() => props.empresa, (newConfig) => {
                         {{ link.name }}
                     </Link>
 
+                    <!-- Dropdown de Servicios -->
+                    <div v-else-if="link.dropdown" class="relative" v-click-outside="() => showServiciosMenu = false">
+                        <button 
+                            @mousedown="showServiciosMenu = !showServiciosMenu"
+                            :class="[
+                                'flex items-center gap-1 text-sm font-bold transition-all uppercase tracking-widest pb-1',
+                                (isServiciosActive || showServiciosMenu)
+                                    ? 'text-gray-900 dark:text-white border-b-2 border-[var(--color-primary)]' 
+                                    : 'text-gray-500 dark:text-gray-400 hover:text-[var(--color-primary)]'
+                            ]"
+                        >
+                            {{ link.name }}
+                            <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': showServiciosMenu }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        
+                        <!-- Dropdown Content -->
+                        <Transition
+                            enter-active-class="transition-all duration-200 ease-out"
+                            enter-from-class="opacity-0 -translate-y-2"
+                            enter-to-class="opacity-100 translate-y-0"
+                            leave-active-class="transition-all duration-150 ease-in"
+                            leave-from-class="opacity-100 translate-y-0"
+                            leave-to-class="opacity-0 -translate-y-2"
+                        >
+                            <div v-if="showServiciosMenu" class="absolute left-0 mt-2 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-100 dark:border-slate-800 py-2 z-50">
+                                <Link 
+                                    v-for="sLink in serviciosLinks" 
+                                    :key="sLink.id"
+                                    :href="route(sLink.route)" 
+                                    class="block px-4 py-3 text-sm font-bold uppercase tracking-wider text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-[var(--color-primary)] transition-colors"
+                                    @click="showServiciosMenu = false"
+                                >
+                                    {{ sLink.name }}
+                                </Link>
+                            </div>
+                        </Transition>
+                    </div>
+
                     <!-- Links Normales -->
                     <Link 
                         v-else-if="link.route"
@@ -92,19 +143,12 @@ watch(() => props.empresa, (newConfig) => {
                         :class="[
                             'text-sm font-bold transition-all uppercase tracking-widest pb-1',
                             activeTab === link.id 
-                                ? 'text-gray-900 dark:text-white dark:text-white border-b-2 border-[var(--color-primary)]' 
-                                : 'text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:text-[var(--color-primary)]'
+                                ? 'text-gray-900 dark:text-white border-b-2 border-[var(--color-primary)]' 
+                                : 'text-gray-500 dark:text-gray-400 hover:text-[var(--color-primary)]'
                         ]"
                     >
                         {{ link.name }}
                     </Link>
-                    <a 
-                        v-else
-                        href="#" 
-                        class="text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-[var(--color-primary)] transition-all uppercase tracking-widest"
-                    >
-                        {{ link.name }}
-                    </a>
                 </template>
 
                 <div class="h-6 w-px bg-gray-200 ml-2"></div>
@@ -236,11 +280,70 @@ watch(() => props.empresa, (newConfig) => {
                         {{ itemCount }}
                     </span>
                 </Link>
-                <button class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white dark:text-white transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                <button @click="showMobileMenu = !showMobileMenu" class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white transition-colors relative z-50">
+                    <svg v-if="!showMobileMenu" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
         </div>
+
+        <!-- Mobile Menu Drawer -->
+        <Transition
+            enter-active-class="transition-all duration-300 ease-out"
+            enter-from-class="opacity-0 translate-x-full"
+            enter-to-class="opacity-100 translate-x-0"
+            leave-active-class="transition-all duration-200 ease-in"
+            leave-from-class="opacity-100 translate-x-0"
+            leave-to-class="opacity-0 translate-x-full"
+        >
+            <div v-if="showMobileMenu" class="fixed inset-0 z-40 bg-white dark:bg-slate-950 md:hidden">
+                <div class="pt-24 pb-8 px-6 space-y-4 h-full overflow-y-auto">
+                    <div v-for="link in navLinks" :key="link.id">
+                        <template v-if="link.dropdown">
+                            <button 
+                                @click="showServiciosMenu = !showServiciosMenu"
+                                class="w-full flex justify-between items-center py-4 text-xl font-black uppercase tracking-tighter text-gray-900 dark:text-white border-b border-gray-100 dark:border-slate-800"
+                            >
+                                {{ link.name }}
+                                <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': showServiciosMenu }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div v-if="showServiciosMenu" class="bg-gray-50 dark:bg-slate-900/50 rounded-2xl mt-2 overflow-hidden">
+                                <Link 
+                                    v-for="sLink in serviciosLinks" 
+                                    :key="sLink.id"
+                                    :href="route(sLink.route)"
+                                    class="block px-6 py-4 text-lg font-bold text-gray-600 dark:text-gray-400 border-b border-white dark:border-slate-800 last:border-0"
+                                    @click="showMobileMenu = false"
+                                >
+                                    {{ sLink.name }}
+                                </Link>
+                            </div>
+                        </template>
+                        <Link 
+                            v-else
+                            :href="route(link.route)"
+                            class="block py-4 text-xl font-black uppercase tracking-tighter text-gray-900 dark:text-white border-b border-gray-100 dark:border-slate-800"
+                            @click="showMobileMenu = false"
+                        >
+                            {{ link.name }}
+                        </Link>
+                    </div>
+                    
+                    <!-- Auth Mobile -->
+                    <div class="pt-8 space-y-4">
+                        <Link v-if="!currentUser" :href="route('portal.login')" class="block w-full py-4 text-center bg-gray-100 dark:bg-slate-800 rounded-2xl font-black uppercase" @click="showMobileMenu = false">Ingresar</Link>
+                        <Link v-if="!currentUser" :href="route('portal.register')" class="block w-full py-4 text-center bg-[var(--color-primary)] text-white rounded-2xl font-black uppercase" @click="showMobileMenu = false">Registro</Link>
+                        <div v-else class="space-y-4">
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Hola, {{ currentUser.nombre_razon_social?.split(' ')[0] || currentUser.name?.split(' ')[0] }}</p>
+                            <Link :href="route(currentUser.tipo === 'cliente' ? 'portal.dashboard' : 'dashboard')" class="block w-full py-4 text-center bg-[var(--color-primary)] text-white rounded-2xl font-black uppercase" @click="showMobileMenu = false">Mi Panel</Link>
+                            <button @click="logout(); showMobileMenu = false" class="block w-full py-4 text-center bg-red-50 text-red-600 rounded-2xl font-black uppercase">Cerrar Sesión</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Transition>
     </nav>
 
     <!-- Modal de Autorización Pendiente -->
