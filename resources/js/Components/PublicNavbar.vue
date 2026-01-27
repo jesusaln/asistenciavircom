@@ -286,65 +286,101 @@ watch(() => props.empresa, (newConfig) => {
                         {{ itemCount }}
                     </span>
                 </Link>
-                <button @click="showMobileMenu = !showMobileMenu" class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white transition-colors relative z-50">
-                    <svg v-if="!showMobileMenu" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-                    <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button 
+                    @click="showMobileMenu = !showMobileMenu" 
+                    class="w-12 h-12 flex items-center justify-center rounded-2xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white transition-all active:scale-95 relative z-[60]"
+                    aria-label="Toggle Menu"
+                >
+                    <div class="w-6 h-5 relative flex flex-col justify-between">
+                        <span :class="['w-full h-0.5 bg-current transition-all duration-300 rounded-full', showMobileMenu ? 'rotate-45 translate-y-2' : '']"></span>
+                        <span :class="['w-full h-0.5 bg-current transition-all duration-300 rounded-full', showMobileMenu ? 'opacity-0' : '']"></span>
+                        <span :class="['w-full h-0.5 bg-current transition-all duration-300 rounded-full', showMobileMenu ? '-rotate-45 -translate-y-2.5' : '']"></span>
+                    </div>
                 </button>
             </div>
         </div>
 
         <!-- Mobile Menu Drawer -->
         <Transition
-            enter-active-class="transition-all duration-300 ease-out"
-            enter-from-class="opacity-0 translate-x-full"
-            enter-to-class="opacity-100 translate-x-0"
-            leave-active-class="transition-all duration-200 ease-in"
-            leave-from-class="opacity-100 translate-x-0"
-            leave-to-class="opacity-0 translate-x-full"
+            enter-active-class="transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1)"
+            enter-from-class="opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1)"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
         >
-            <div v-if="showMobileMenu" class="fixed inset-0 z-40 bg-white dark:bg-slate-950 md:hidden">
-                <div class="pt-24 pb-8 px-6 space-y-4 h-full overflow-y-auto">
-                    <div v-for="link in navLinks" :key="link.id">
-                        <template v-if="link.dropdown">
-                            <button 
-                                @click="showServiciosMenu = !showServiciosMenu"
-                                class="w-full flex justify-between items-center py-4 text-xl font-black uppercase tracking-tighter text-gray-900 dark:text-white border-b border-gray-100 dark:border-slate-800"
+            <div v-if="showMobileMenu" class="fixed inset-0 z-[55] md:hidden">
+                <!-- Blur Backdrop -->
+                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-xl" @click="showMobileMenu = false"></div>
+                
+                <!-- Drawer Content -->
+                <div class="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-white dark:bg-slate-950 shadow-2xl overflow-y-auto flex flex-col transition-transform duration-500 ease-out" :class="showMobileMenu ? 'translate-x-0' : 'translate-x-full'">
+                    <div class="pt-24 pb-8 px-8 space-y-2 flex-grow">
+                        <div v-for="link in navLinks" :key="link.id" class="border-b border-gray-50 dark:border-slate-800/50 last:border-0">
+                            <template v-if="link.dropdown">
+                                <button 
+                                    @click="showServiciosMenu = !showServiciosMenu"
+                                    class="w-full flex justify-between items-center py-5 text-xl font-black uppercase tracking-tighter text-gray-900 dark:text-white"
+                                >
+                                    {{ link.name }}
+                                    <svg class="w-5 h-5 transition-transform duration-300" :class="{ 'rotate-180 text-[var(--color-primary)]': showServiciosMenu }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                <Transition
+                                    enter-active-class="transition-[max-height,opacity] duration-300 ease-out"
+                                    enter-from-class="max-h-0 opacity-0"
+                                    enter-to-class="max-h-[500px] opacity-100"
+                                    leave-active-class="transition-[max-height,opacity] duration-200 ease-in"
+                                    leave-from-class="max-h-[500px] opacity-100"
+                                    leave-to-class="max-h-0 opacity-0"
+                                >
+                                    <div v-if="showServiciosMenu" class="bg-gray-50 dark:bg-white/5 rounded-3xl mb-4 overflow-hidden">
+                                        <Link 
+                                            v-for="sLink in serviciosLinks" 
+                                            :key="sLink.id"
+                                            :href="route(sLink.route, sLink.params || {})"
+                                            class="block px-6 py-4 text-base font-bold text-gray-600 dark:text-gray-400 border-b border-white dark:border-slate-800/30 last:border-0 active:bg-white dark:active:bg-white/10"
+                                            @click="showMobileMenu = false"
+                                        >
+                                            <span class="flex items-center gap-3">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]"></span>
+                                                {{ sLink.name }}
+                                            </span>
+                                        </Link>
+                                    </div>
+                                </Transition>
+                            </template>
+                            <Link 
+                                v-else
+                                :href="route(link.route)"
+                                class="block py-5 text-xl font-black uppercase tracking-tighter text-gray-900 dark:text-white"
+                                @click="showMobileMenu = false"
+                                :class="{ 'text-[var(--color-primary)]': activeTab === link.id }"
                             >
                                 {{ link.name }}
-                                <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': showServiciosMenu }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <div v-if="showServiciosMenu" class="bg-gray-50 dark:bg-slate-900/50 rounded-2xl mt-2 overflow-hidden">
-                                <Link 
-                                    v-for="sLink in serviciosLinks" 
-                                    :key="sLink.id"
-                                    :href="route(sLink.route, sLink.params || {})"
-                                    class="block px-6 py-4 text-lg font-bold text-gray-600 dark:text-gray-400 border-b border-white dark:border-slate-800 last:border-0"
-                                    @click="showMobileMenu = false"
-                                >
-                                    {{ sLink.name }}
-                                </Link>
-                            </div>
-                        </template>
-                        <Link 
-                            v-else
-                            :href="route(link.route)"
-                            class="block py-4 text-xl font-black uppercase tracking-tighter text-gray-900 dark:text-white border-b border-gray-100 dark:border-slate-800"
-                            @click="showMobileMenu = false"
-                        >
-                            {{ link.name }}
-                        </Link>
+                            </Link>
+                        </div>
                     </div>
                     
-                    <!-- Auth Mobile -->
-                    <div class="pt-8 space-y-4">
-                        <Link v-if="!currentUser" :href="route('portal.login')" class="block w-full py-4 text-center bg-gray-100 dark:bg-slate-800 rounded-2xl font-black uppercase" @click="showMobileMenu = false">Ingresar</Link>
-                        <Link v-if="!currentUser" :href="route('portal.register')" class="block w-full py-4 text-center bg-[var(--color-primary)] text-white rounded-2xl font-black uppercase" @click="showMobileMenu = false">Registro</Link>
-                        <div v-else class="space-y-4">
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Hola, {{ currentUser.nombre_razon_social?.split(' ')[0] || currentUser.name?.split(' ')[0] }}</p>
-                            <Link :href="route(currentUser.tipo === 'cliente' ? 'portal.dashboard' : 'dashboard')" class="block w-full py-4 text-center bg-[var(--color-primary)] text-white rounded-2xl font-black uppercase" @click="showMobileMenu = false">Mi Panel</Link>
-                            <button @click="logout(); showMobileMenu = false" class="block w-full py-4 text-center bg-red-50 text-red-600 rounded-2xl font-black uppercase">Cerrar Sesión</button>
+                    <!-- Auth Mobile & Footer -->
+                    <div class="p-8 bg-gray-50 dark:bg-white/5 rounded-t-[3rem] space-y-6">
+                        <div v-if="!currentUser" class="grid grid-cols-2 gap-4">
+                            <Link :href="route('portal.login')" class="py-4 text-center bg-gray-200 dark:bg-slate-800 rounded-2xl font-black uppercase text-xs tracking-widest" @click="showMobileMenu = false">Ingresar</Link>
+                            <Link :href="route('portal.register')" class="py-4 text-center bg-[var(--color-primary)] text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-[var(--color-primary)]/20" @click="showMobileMenu = false">Registro</Link>
+                        </div>
+                        <div v-else class="space-y-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-[var(--color-primary-soft)] flex items-center justify-center text-[var(--color-primary)] font-black">
+                                    {{ (currentUser.nombre_razon_social || currentUser.name || 'H').charAt(0).toUpperCase() }}
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sesión Iniciada</p>
+                                    <p class="font-bold text-gray-900 dark:text-white">{{ currentUser.nombre_razon_social || currentUser.name }}</p>
+                                </div>
+                            </div>
+                            <Link :href="route(currentUser.tipo === 'cliente' ? 'portal.dashboard' : 'dashboard')" class="block w-full py-4 text-center bg-[var(--color-primary)] text-white rounded-2xl font-black uppercase text-xs tracking-widest" @click="showMobileMenu = false">Ir a Mi Panel</Link>
+                            <button @click="logout(); showMobileMenu = false" class="block w-full py-4 text-center bg-red-50 dark:bg-red-950/20 text-red-600 rounded-2xl font-black uppercase text-xs tracking-widest border border-red-100 dark:border-red-900/30">Cerrar Sesión</button>
                         </div>
                     </div>
                 </div>
