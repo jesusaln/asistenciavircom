@@ -26,8 +26,10 @@ const form = useForm({
 })
 
 const submit = () => {
-  form.post(route('admin.blog.update', props.post.id), {
-     _method: 'put',
+  form.transform((data) => ({
+    ...data,
+    _method: 'put',
+  })).post(route('admin.blog.update', props.post.id), {
      onSuccess: () => notyf.success('Artículo actualizado con éxito')
   })
 }

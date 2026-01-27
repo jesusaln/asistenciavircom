@@ -192,6 +192,7 @@ class PolizaServicio extends Model
         'reanudada_at',
         'motivo_pausa',
         'total_dias_pausa',
+        'plan_poliza_id',
         // Firma Digital
         'firma_cliente',
         'firmado_at',
@@ -251,6 +252,7 @@ class PolizaServicio extends Model
     {
         return $this->belongsTo(Cliente::class);
     }
+
 
     /**
      * Relación con la Dirección de Servicio.
@@ -455,7 +457,7 @@ class PolizaServicio extends Model
             return null;
         }
 
-        return now()->diffInDays($this->fecha_fin, false);
+        return (int) now()->diffInDays($this->fecha_fin, false);
     }
 
     /**
