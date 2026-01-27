@@ -31,11 +31,12 @@ const navLinks = [
 const serviciosLinks = [
     { name: 'Pólizas de Soporte', route: 'catalogo.polizas', id: 'polizas' },
     { name: 'Renta de Equipos', route: 'catalogo.rentas', id: 'rentas' },
-    { name: 'Cámaras y CCTV', route: 'catalogo.index', params: { categoria: 23 }, id: 'cctv' },
-    { name: 'Control de Acceso', route: 'catalogo.index', params: { categoria: 30 }, id: 'acceso' },
-    { name: 'Alarmas y Seguridad', route: 'catalogo.index', params: { categoria: 7 }, id: 'alarmas' },
-    { name: 'Puntos de Venta (POS)', route: 'catalogo.index', params: { categoria: 118 }, id: 'pos' },
-    { name: 'Desarrollo Web', route: 'public.contacto', id: 'web' },
+    { name: 'Cámaras y CCTV', route: 'public.servicio.show', params: { slug: 'camaras-cctv' }, id: 'cctv' },
+    { name: 'Control de Acceso', route: 'public.servicio.show', params: { slug: 'control-acceso' }, id: 'acceso' },
+    { name: 'Alarmas y Seguridad', route: 'public.servicio.show', params: { slug: 'alarmas-seguridad' }, id: 'alarmas' },
+    { name: 'Puntos de Venta (POS)', route: 'public.servicio.show', params: { slug: 'punto-de-venta' }, id: 'pos' },
+    { name: 'Relojes Checadores', route: 'public.servicio.show', params: { slug: 'relojes-checadores' }, id: 'asistencia' },
+    { name: 'Desarrollo Web', route: 'public.servicio.show', params: { slug: 'desarrollo-web' }, id: 'web' },
 ];
 
 const computeLogo = computed(() => {
