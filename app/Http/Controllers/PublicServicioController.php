@@ -21,7 +21,7 @@ class PublicServicioController extends Controller
                 ['titulo' => 'Monitoreo Remoto', 'desc' => 'Accede a tus cámaras desde cualquier lugar del mundo.', 'icon' => 'mobile-alt'],
                 ['titulo' => 'Grabación Continua', 'desc' => 'Almacenamiento seguro de eventos importantes.', 'icon' => 'server'],
                 ['titulo' => 'Alertas Inteligentes', 'desc' => 'Notificaciones inmediatas ante cualquier movimiento.', 'icon' => 'bell'],
-                ['titulo' => 'Visión Nocturna', 'desc' => 'Claridad total incluso en la oscuridad más absoluta.', 'icon' => 'moon']
+                ['titulo' => 'Visión Nocturna', 'desc' => 'Claridad total incluso en la oscuridad más absoluta.', 'icon' => 'video']
             ]
         ],
         'control-acceso' => [
@@ -32,10 +32,10 @@ class PublicServicioController extends Controller
             'categoria_id' => 30,
             'color' => 'indigo',
             'beneficios' => [
-                ['titulo' => 'Biometría Avanzada', 'desc' => 'Reconocimiento facial y huella dactilar de alta precisión.', 'icon' => 'fingerprint'],
+                ['titulo' => 'Biometría Avanzada', 'desc' => 'Reconocimiento facial y huella dactilar de alta precisión.', 'icon' => 'id-card'],
                 ['titulo' => 'Gestión de Horarios', 'desc' => 'Control exacto de retardos, faltas y tiempo extra.', 'icon' => 'clock'],
                 ['titulo' => 'Zonas Restringidas', 'desc' => 'Permite el acceso solo a personal autorizado.', 'icon' => 'user-lock'],
-                ['titulo' => 'Reportes en Vivo', 'desc' => 'Exporta registros de asistencia de forma instantánea.', 'icon' => 'file-chart-line']
+                ['titulo' => 'Reportes en Vivo', 'desc' => 'Exporta registros de asistencia de forma instantánea.', 'icon' => 'file-alt']
             ]
         ],
         'alarmas-seguridad' => [
@@ -47,9 +47,9 @@ class PublicServicioController extends Controller
             'color' => 'red',
             'beneficios' => [
                 ['titulo' => 'Detección Perimetral', 'desc' => 'Sensores que cubren cada punto de entrada.', 'icon' => 'shield-alt'],
-                ['titulo' => 'Botón de Pánico', 'desc' => 'Solicitud de ayuda inmediata en caso de emergencia.', 'icon' => 'house-signal'],
+                ['titulo' => 'Botón de Pánico', 'desc' => 'Solicitud de ayuda inmediata en caso de emergencia.', 'icon' => 'bell'],
                 ['titulo' => 'Integración Total', 'desc' => 'Conecta tu alarma con tus cámaras y luces.', 'icon' => 'sync'],
-                ['titulo' => 'Cero Cables', 'desc' => 'Instalaciones inalámbricas limpias y seguras.', 'icon' => 'wifi']
+                ['titulo' => 'Cero Cables', 'desc' => 'Instalaciones inalámbricas limpias y seguras.', 'icon' => 'broadcast-tower']
             ]
         ],
         'punto-de-venta' => [
@@ -62,7 +62,7 @@ class PublicServicioController extends Controller
             'beneficios' => [
                 ['titulo' => 'Control de Inventarios', 'desc' => 'Sabe exactamente qué tienes y qué te falta.', 'icon' => 'boxes'],
                 ['titulo' => 'Ventas más Rápidas', 'desc' => 'Ligeriza filas con equipos de alto rendimiento.', 'icon' => 'cash-register'],
-                ['titulo' => 'Gestión de Sucursales', 'desc' => 'Cruza datos de todos tus negocios en un solo lugar.', 'icon' => 'store'],
+                ['titulo' => 'Gestión de Sucursales', 'desc' => 'Cruza datos de todos tus negocios en un solo lugar.', 'icon' => 'building'],
                 ['titulo' => 'Software Amigable', 'desc' => 'Fácil de usar para tus empleados y cajeros.', 'icon' => 'desktop']
             ]
         ],
@@ -71,12 +71,12 @@ class PublicServicioController extends Controller
             'subtitulo' => 'Optimiza la administración de tu capital humano',
             'descripcion' => 'Relojes checadores con tecnología en la nube. Olvídate de las tarjetas de cartón y moderniza el registro de jornada laboral.',
             'imagen' => 'https://images.unsplash.com/photo-1579389083078-4e7018379f7e?q=80&w=2000&auto=format&fit=crop',
-            'categoria_id' => 30, // Reutilizamos categoria de acceso
+            'categoria_id' => 30,
             'color' => 'amber',
             'beneficios' => [
                 ['titulo' => 'Sin Errores', 'desc' => 'Cálculos automáticos de horas laboradas sin errores.', 'icon' => 'calculator'],
                 ['titulo' => 'Evita Suplantación', 'desc' => 'Verificación biométrica que asegura identidad.', 'icon' => 'user-check'],
-                ['titulo' => 'App Móvil', 'desc' => 'Tus empleados pueden checar desde su zona de trabajo.', 'icon' => 'mobile'],
+                ['titulo' => 'App Móvil', 'desc' => 'Tus empleados pueden checar desde su zona de trabajo.', 'icon' => 'mobile-alt'],
                 ['titulo' => 'Exportación Directa', 'desc' => 'Compatible con sistemas de nómina populares.', 'icon' => 'file-invoice-dollar']
             ]
         ],
@@ -84,12 +84,12 @@ class PublicServicioController extends Controller
             'titulo' => 'Páginas Web y Desarrollo Digital',
             'subtitulo' => 'Tu negocio abierto al mundo 24/7',
             'descripcion' => 'Diseñamos y desarrollamos sitios web corporativos, tiendas en línea y plataformas personalizadas que generan ventas y confianza.',
-            'imagen' => 'https://images.unsplash.com/photo-1547658719-da2b51169166?q=80&w=2000&auto=format&fit=crop',
+            'imagen' => 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2000&auto=format&fit=crop',
             'categoria_id' => null,
             'color' => 'sky',
             'beneficios' => [
-                ['titulo' => 'Diseño Responsivo', 'desc' => 'Tu sitio se verá perfecto en móviles y escritorio.', 'icon' => 'laptop-code'],
-                ['titulo' => 'Optimización SEO', 'desc' => 'Aparece en los primeros resultados de Google.', 'icon' => 'search-location'],
+                ['titulo' => 'Diseño Responsivo', 'desc' => 'Tu sitio se verá perfecto en móviles y escritorio.', 'icon' => 'laptop'],
+                ['titulo' => 'Optimización SEO', 'desc' => 'Aparece en los primeros resultados de Google.', 'icon' => 'search'],
                 ['titulo' => 'Velocidad de Carga', 'desc' => 'Plataformas optimizadas para no hacer esperar al cliente.', 'icon' => 'bolt'],
                 ['titulo' => 'E-commerce', 'desc' => 'Vende tus productos en línea las 24 horas.', 'icon' => 'shopping-bag']
             ]
