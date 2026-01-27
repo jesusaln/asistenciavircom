@@ -335,7 +335,7 @@ const horasSimuladas = computed(() => {
                     <!-- Ventaja 3 -->
                     <div class="p-8 rounded-[2rem] bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all group">
                         <div class="w-14 h-14 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
-                            <font-awesome-icon icon="shield-check" />
+                            <font-awesome-icon icon="circle-check" />
                         </div>
                         <h4 class="text-xl font-black text-gray-900 dark:text-white mb-3 tracking-tight">Prevención vs Crisis</h4>
                         <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-medium">

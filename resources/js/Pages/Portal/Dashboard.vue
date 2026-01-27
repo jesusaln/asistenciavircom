@@ -1230,7 +1230,7 @@ const toggleIncluirFinalizados = () => {
                                     
                                     <div class="flex md:flex-col justify-end gap-2">
                                         <div class="px-4 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-xl text-[10px] font-black uppercase text-center flex items-center gap-2 transition-colors shadow-sm">
-                                            <font-awesome-icon icon="shield-check" /> Protegido
+                                            <font-awesome-icon icon="circle-check" /> Protegido
                                         </div>
                                     </div>
                                 </div>

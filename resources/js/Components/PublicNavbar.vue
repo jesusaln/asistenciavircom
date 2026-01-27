@@ -55,6 +55,7 @@ const showAuthModal = ref(false);
 const showUserMenu = ref(false);
 const showServiciosMenu = ref(false);
 const showMobileMenu = ref(false);
+const showMobileServicios = ref(false);
 
 const isServiciosActive = computed(() => {
     return serviciosLinks.some(link => props.activeTab === link.id);
@@ -286,159 +287,147 @@ watch(() => props.empresa, (newConfig) => {
                         {{ itemCount }}
                     </span>
                 </Link>
+                <!-- Mobile Toggle -->
                 <button 
-                    @click.stop="showMobileMenu = !showMobileMenu" 
-                    class="w-12 h-12 flex items-center justify-center rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white transition-all active:scale-90 relative z-[70] border border-gray-200 dark:border-gray-700 shadow-sm"
-                    aria-label="Toggle Menu"
+                    type="button"
+                    @click="showMobileMenu = true" 
+                    class="w-12 h-12 flex items-center justify-center rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white transition-all active:scale-90 relative z-[40] border border-gray-200 dark:border-gray-700 shadow-sm"
+                    aria-label="Open Menu"
                 >
-                    <div class="w-6 h-5 relative flex flex-col justify-between pointer-events-none">
-                        <span :class="['w-full h-0.5 bg-current transition-all duration-300 rounded-full', showMobileMenu ? 'rotate-45 translate-y-2' : '']"></span>
-                        <span :class="['w-full h-0.5 bg-current transition-all duration-300 rounded-full', showMobileMenu ? 'opacity-0' : '']"></span>
-                        <span :class="['w-full h-0.5 bg-current transition-all duration-300 rounded-full', showMobileMenu ? '-rotate-45 -translate-y-2.5' : '']"></span>
-                    </div>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 8h16M4 16h16" />
+                    </svg>
                 </button>
             </div>
         </div>
 
-        <!-- Teleport the Drawer to Body to avoid overflow issues -->
+        <!-- Mobile Menu (Teleported to Body for absolute reliability) -->
         <Teleport to="body">
-            <!-- Mobile Menu Backdrop -->
-            <Transition
-                enter-active-class="transition-opacity duration-300 ease-out"
-                enter-from-class="opacity-0"
-                enter-to-class="opacity-100"
-                leave-active-class="transition-opacity duration-200 ease-in"
-                leave-from-class="opacity-100"
-                leave-to-class="opacity-0"
-            >
-                <div v-if="showMobileMenu" 
-                    class="fixed inset-0 z-[9998] bg-slate-900/40 backdrop-blur-md"
-                    @click="showMobileMenu = false"
-                ></div>
-            </Transition>
-            
-            <!-- Mobile Menu Drawer Content -->
-            <div 
-                class="fixed top-0 right-0 bottom-0 w-[85%] max-w-[340px] bg-white dark:bg-slate-950 z-[9999] shadow-2xl flex flex-col transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) border-l border-gray-100 dark:border-slate-800"
-                :style="{ transform: showMobileMenu ? 'translateX(0)' : 'translateX(100%)' }"
-            >
-                <div class="pt-24 pb-8 px-8 space-y-2 flex-grow overflow-y-auto custom-scrollbar">
-                    <div v-for="link in navLinks" :key="link.id" class="border-b border-gray-50 dark:border-white/5 last:border-0">
-                        <template v-if="link.dropdown">
-                            <button 
-                                @click="showServiciosMenu = !showServiciosMenu"
-                                class="w-full flex justify-between items-center py-5 text-xl font-black uppercase tracking-tighter text-gray-900 dark:text-white"
-                            >
-                                {{ link.name }}
-                                <svg class="w-5 h-5 transition-transform duration-300" :class="{ 'rotate-180 text-[var(--color-primary)]': showServiciosMenu }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <Transition
-                                enter-active-class="transition-[max-height,opacity] duration-300 ease-out"
-                                enter-from-class="max-h-0 opacity-0"
-                                enter-to-class="max-h-[500px] opacity-100"
-                                leave-active-class="transition-[max-height,opacity] duration-200 ease-in"
-                                leave-from-class="max-h-[500px] opacity-100"
-                                leave-to-class="max-h-0 opacity-0"
-                            >
-                                <div v-if="showServiciosMenu" class="bg-gray-50 dark:bg-white/5 rounded-3xl mb-4 overflow-hidden border border-gray-100 dark:border-white/5">
+            <Transition name="fade">
+                <div v-if="showMobileMenu" class="fixed inset-0 z-[9999] md:hidden overflow-hidden">
+                    <!-- Backdrop -->
+                    <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-xl" @click="showMobileMenu = false"></div>
+                    
+                    <!-- Drawer Content -->
+                    <Transition name="drawer-slide" appear>
+                        <div v-if="showMobileMenu" class="absolute right-0 top-0 bottom-0 w-[85%] max-w-[360px] bg-white dark:bg-slate-950 shadow-[0_0_80px_rgba(0,0,0,0.5)] flex flex-col border-l border-gray-100 dark:border-slate-800">
+                            <!-- Header / Close -->
+                            <div class="p-6 flex justify-between items-center border-b border-gray-50 dark:border-white/5">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-[var(--color-primary)] flex items-center justify-center text-white font-black text-sm">V</div>
+                                    <span class="text-xs font-black uppercase tracking-[0.2em] text-gray-900 dark:text-white">Menú</span>
+                                </div>
+                                <button @click="showMobileMenu = false" class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white transition-all active:scale-90">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div class="flex-grow overflow-y-auto px-8 py-8 space-y-2 custom-scrollbar">
+                                <template v-for="link in navLinks" :key="link.id">
+                                    <div v-if="link.dropdown" class="mb-2">
+                                        <button 
+                                            @click="showMobileServicios = !showMobileServicios"
+                                            class="w-full flex justify-between items-center py-5 text-2xl font-black uppercase tracking-tighter text-gray-900 dark:text-white border-b border-gray-50 dark:border-white/5"
+                                        >
+                                            {{ link.name }}
+                                            <svg class="w-5 h-5 transition-transform duration-300" :class="{ 'rotate-180 text-[var(--color-primary)]': showMobileServicios }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+                                        
+                                        <Transition
+                                            enter-active-class="transition-all duration-300 ease-out"
+                                            enter-from-class="max-h-0 opacity-0 overflow-hidden"
+                                            enter-to-class="max-h-[500px] opacity-100"
+                                            leave-active-class="transition-all duration-200 ease-in"
+                                            leave-from-class="max-h-[500px] opacity-100"
+                                            leave-to-class="max-h-0 opacity-0 overflow-hidden"
+                                        >
+                                            <div v-if="showMobileServicios" class="mt-4 bg-gray-50 dark:bg-white/5 rounded-3xl overflow-hidden border border-gray-100 dark:border-white/5">
+                                                <Link 
+                                                    v-for="sLink in serviciosLinks" 
+                                                    :key="sLink.id"
+                                                    :href="route(sLink.route, sLink.params || {})"
+                                                    class="block px-6 py-4 text-base font-bold text-gray-600 dark:text-gray-400 border-b border-white dark:border-white/5 last:border-0 active:bg-[var(--color-primary)] active:text-white"
+                                                    @click="showMobileMenu = false"
+                                                >
+                                                    {{ sLink.name }}
+                                                </Link>
+                                            </div>
+                                        </Transition>
+                                    </div>
                                     <Link 
-                                        v-for="sLink in serviciosLinks" 
-                                        :key="sLink.id"
-                                        :href="route(sLink.route, sLink.params || {})"
-                                        class="block px-6 py-4 text-base font-bold text-gray-600 dark:text-gray-400 border-b border-white dark:border-white/5 last:border-0 active:bg-white dark:active:bg-white/10"
+                                        v-else
+                                        :href="route(link.route)"
+                                        class="block py-5 text-2xl font-black uppercase tracking-tighter text-gray-900 dark:text-white border-b border-gray-50 dark:border-white/5"
+                                        :class="{ 'text-[var(--color-primary)]': activeTab === link.id }"
                                         @click="showMobileMenu = false"
                                     >
-                                        <span class="flex items-center gap-3">
-                                            <span class="w-2 h-2 rounded-full bg-[var(--color-primary)] shadow-[0_0_10px_rgba(var(--color-primary-rgb),0.5)]"></span>
-                                            {{ sLink.name }}
-                                        </span>
+                                        {{ link.name }}
                                     </Link>
-                                </div>
-                            </Transition>
-                        </template>
-                        <Link 
-                            v-else
-                            :href="route(link.route)"
-                            class="block py-5 text-xl font-black uppercase tracking-tighter text-gray-900 dark:text-white"
-                            @click="showMobileMenu = false"
-                            :class="{ 'text-[var(--color-primary)]': activeTab === link.id }"
-                        >
-                            {{ link.name }}
-                        </Link>
-                    </div>
-                </div>
-                
-                <!-- Auth Mobile & Footer -->
-                <div class="p-8 bg-slate-50 dark:bg-white/5 rounded-t-[3rem] border-t border-gray-100 dark:border-white/5 space-y-6">
-                    <div v-if="!currentUser" class="grid grid-cols-2 gap-4">
-                        <Link :href="route('portal.login')" class="py-4 text-center bg-white dark:bg-slate-800 dark:text-white rounded-2xl font-black uppercase text-[10px] tracking-widest border border-gray-200 dark:border-gray-700 shadow-sm" @click="showMobileMenu = false">Ingresar</Link>
-                        <Link :href="route('portal.register')" class="py-4 text-center bg-[var(--color-primary)] text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-[var(--color-primary)]/20" @click="showMobileMenu = false">Registro</Link>
-                    </div>
-                    <div v-else class="space-y-6">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[var(--color-primary)] to-amber-500 flex items-center justify-center text-white font-black shadow-lg">
-                                {{ (currentUser.nombre_razon_social || currentUser.name || 'H').charAt(0).toUpperCase() }}
+                                </template>
                             </div>
-                            <div>
-                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Bienvenido</p>
-                                <p class="font-black text-gray-900 dark:text-white truncate max-w-[180px]">{{ currentUser.nombre_razon_social || currentUser.name }}</p>
+                            
+                            <!-- Auth Mobile -->
+                            <div class="p-8 bg-slate-50 dark:bg-slate-900/50 rounded-t-[3rem] border-t border-gray-100 dark:border-white/5">
+                                <div v-if="!currentUser" class="grid grid-cols-2 gap-4">
+                                    <Link :href="route('portal.login')" class="py-4 text-center bg-white dark:bg-slate-800 dark:text-white rounded-2xl font-black uppercase text-[10px] tracking-widest border border-gray-200 dark:border-gray-700 shadow-sm" @click="showMobileMenu = false">Login</Link>
+                                    <Link :href="route('portal.register')" class="py-4 text-center bg-[var(--color-primary)] text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-[var(--color-primary)]/30" @click="showMobileMenu = false">Registro</Link>
+                                </div>
+                                <div v-else class="space-y-6">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[var(--color-primary)] to-amber-500 flex items-center justify-center text-white font-black shadow-lg">
+                                            {{ (currentUser.nombre_razon_social || currentUser.name || 'H').charAt(0).toUpperCase() }}
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Usuario</p>
+                                            <p class="font-black text-gray-900 dark:text-white truncate">{{ currentUser.nombre_razon_social || currentUser.name }}</p>
+                                        </div>
+                                    </div>
+                                    <Link :href="route(currentUser.tipo === 'cliente' ? 'portal.dashboard' : 'dashboard')" class="block w-full py-4 text-center bg-[var(--color-primary)] text-white rounded-2xl font-black uppercase text-[10px] tracking-widest" @click="showMobileMenu = false">Mi Portal</Link>
+                                </div>
                             </div>
                         </div>
-                        <Link :href="route(currentUser.tipo === 'cliente' ? 'portal.dashboard' : 'dashboard')" class="block w-full py-4 text-center bg-[var(--color-primary)] text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-[var(--color-primary)]/20" @click="showMobileMenu = false">Panel de Control</Link>
-                        <button @click="logout(); showMobileMenu = false" class="block w-full py-4 text-center bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-2xl font-black uppercase text-[10px] tracking-widest border border-rose-100 dark:border-rose-500/20">Cerrar Sesión</button>
-                    </div>
+                    </Transition>
                 </div>
-            </div>
+            </Transition>
         </Teleport>
     </nav>
 
-    <!-- Modal de Autorización Pendiente -->
+    <!-- Modal Autorización (Teleported to avoid 500 issues) -->
     <Teleport to="body">
-        <div v-if="showAuthModal" class="fixed inset-0 z-[10000] flex items-center justify-center p-4">
-            <!-- Backdrop -->
-            <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="showAuthModal = false"></div>
-            
-            <!-- Modal Content -->
-            <div class="relative bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl max-w-md w-full p-10 text-center overflow-hidden transform transition-all animate-fade-in-up border border-gray-100 dark:border-slate-800">
-                <div class="w-20 h-20 bg-blue-50 dark:bg-blue-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 text-blue-600 dark:text-blue-400 text-4xl shadow-inner">
-                    🛍️
+        <Transition name="fade">
+            <div v-if="showAuthModal" class="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+                <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showAuthModal = false"></div>
+                <div class="relative bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl max-w-md w-full p-10 text-center border border-white/10 overflow-hidden animate-scale-in">
+                    <div class="text-6xl mb-6">🛍️</div>
+                    <h3 class="text-3xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">¡Bienvenido!</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mb-8 text-sm">Tu cuenta está lista para realizar compras.</p>
+                    <button @click="showAuthModal = false" class="w-full py-5 bg-[var(--color-primary)] text-white rounded-2xl font-black uppercase tracking-widest text-xs">Continuar</button>
                 </div>
-                <h3 class="text-3xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">¡Bienvenido!</h3>
-                <div class="text-gray-500 dark:text-gray-400 font-medium mb-10 leading-relaxed text-sm space-y-4">
-                    <p>
-                        Tu cuenta ha sido creada y <strong class="text-green-600 dark:text-green-400 font-black">puedes realizar compras ahora mismo sin problemas.</strong>
-                    </p>
-                    <div class="bg-amber-50 dark:bg-amber-500/10 p-5 rounded-2xl border border-amber-100 dark:border-amber-500/20 text-amber-800 dark:text-amber-400 text-xs">
-                        <strong class="block mb-2 text-amber-900 dark:text-amber-300 uppercase tracking-widest">Aviso:</strong>
-                        Tu acceso al área de Soporte y Facturación (Panel Administrativo) está en revisión. Te avisaremos pronto.
-                    </div>
-                </div>
-                <button 
-                    @click="showAuthModal = false"
-                    class="w-full py-5 bg-[var(--color-primary)] text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:shadow-2xl hover:shadow-[var(--color-primary)]/40 transition-all active:scale-95"
-                >
-                    Continuar a la Tienda
-                </button>
             </div>
-        </div>
+        </Transition>
     </Teleport>
 </template>
 
 <style scoped>
-.rotate-icon-enter-active,
-.rotate-icon-leave-active {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+/* Transiciones Refinadas */
+.fade-enter-active, .fade-leave-active { transition: opacity 0.4s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 
-.rotate-icon-enter-from {
-  opacity: 0;
-  transform: rotate(-90deg) scale(0.5);
-}
+.drawer-slide-enter-active { transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.drawer-slide-leave-active { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.drawer-slide-enter-from, .drawer-slide-leave-to { transform: translateX(100%); }
 
-.rotate-icon-leave-to {
-  opacity: 0;
-  transform: rotate(90deg) scale(0.5);
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(var(--color-primary-rgb), 0.1); border-radius: 10px; }
+
+@keyframes scale-in {
+    from { opacity: 0; transform: scale(0.9) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
 }
+.animate-scale-in { animation: scale-in 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
 </style>

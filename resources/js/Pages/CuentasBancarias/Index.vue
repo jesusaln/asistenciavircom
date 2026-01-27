@@ -250,7 +250,7 @@
                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">CLABE Interbancaria (18 dígitos)</p>
                    <p class="text-2xl font-mono text-white tracking-widest select-all">{{ cuentaSeleccionada?.clabe }}</p>
                 </div>
-                <FontAwesomeIcon icon="shield-check" class="text-3xl text-emerald-500 opacity-20" />
+                <FontAwesomeIcon icon="circle-check" class="text-3xl text-emerald-500 opacity-20" />
              </div>
           </div>
 

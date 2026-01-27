@@ -18,7 +18,7 @@ class PublicServicioController extends Controller
             'categoria_id' => 23,
             'color' => 'blue',
             'beneficios' => [
-                ['titulo' => 'Monitoreo Remoto', 'desc' => 'Accede a tus cámaras desde cualquier lugar del mundo.', 'icon' => 'mobile-alt'],
+                ['titulo' => 'Monitoreo Remoto', 'desc' => 'Accede a tus cámaras desde cualquier lugar del mundo.', 'icon' => 'mobile-screen-button'],
                 ['titulo' => 'Grabación Continua', 'desc' => 'Almacenamiento seguro de eventos importantes.', 'icon' => 'server'],
                 ['titulo' => 'Alertas Inteligentes', 'desc' => 'Notificaciones inmediatas ante cualquier movimiento.', 'icon' => 'bell'],
                 ['titulo' => 'Visión Nocturna', 'desc' => 'Claridad total incluso en la oscuridad más absoluta.', 'icon' => 'video']
@@ -46,10 +46,10 @@ class PublicServicioController extends Controller
             'categoria_id' => 7,
             'color' => 'red',
             'beneficios' => [
-                ['titulo' => 'Detección Perimetral', 'desc' => 'Sensores que cubren cada punto de entrada.', 'icon' => 'shield-alt'],
+                ['titulo' => 'Detección Perimetral', 'desc' => 'Sensores que cubren cada punto de entrada.', 'icon' => 'shield-halved'],
                 ['titulo' => 'Botón de Pánico', 'desc' => 'Solicitud de ayuda inmediata en caso de emergencia.', 'icon' => 'bell'],
                 ['titulo' => 'Integración Total', 'desc' => 'Conecta tu alarma con tus cámaras y luces.', 'icon' => 'sync'],
-                ['titulo' => 'Cero Cables', 'desc' => 'Instalaciones inalámbricas limpias y seguras.', 'icon' => 'broadcast-tower']
+                ['titulo' => 'Cero Cables', 'desc' => 'Instalaciones inalámbricas limpias y seguras.', 'icon' => 'tower-broadcast']
             ]
         ],
         'punto-de-venta' => [
@@ -76,7 +76,7 @@ class PublicServicioController extends Controller
             'beneficios' => [
                 ['titulo' => 'Sin Errores', 'desc' => 'Cálculos automáticos de horas laboradas sin errores.', 'icon' => 'calculator'],
                 ['titulo' => 'Evita Suplantación', 'desc' => 'Verificación biométrica que asegura identidad.', 'icon' => 'user-check'],
-                ['titulo' => 'App Móvil', 'desc' => 'Tus empleados pueden checar desde su zona de trabajo.', 'icon' => 'mobile-alt'],
+                ['titulo' => 'App Móvil', 'desc' => 'Tus empleados pueden checar desde su zona de trabajo.', 'icon' => 'mobile-screen-button'],
                 ['titulo' => 'Exportación Directa', 'desc' => 'Compatible con sistemas de nómina populares.', 'icon' => 'file-invoice-dollar']
             ]
         ],
