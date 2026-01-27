@@ -29,8 +29,13 @@ const navLinks = [
 ];
 
 const serviciosLinks = [
-    { name: 'Pólizas', route: 'catalogo.polizas', id: 'polizas' },
-    { name: 'Rentas', route: 'catalogo.rentas', id: 'rentas' },
+    { name: 'Pólizas de Soporte', route: 'catalogo.polizas', id: 'polizas' },
+    { name: 'Renta de Equipos', route: 'catalogo.rentas', id: 'rentas' },
+    { name: 'Cámaras y CCTV', route: 'catalogo.index', params: { categoria: 23 }, id: 'cctv' },
+    { name: 'Control de Acceso', route: 'catalogo.index', params: { categoria: 30 }, id: 'acceso' },
+    { name: 'Alarmas y Seguridad', route: 'catalogo.index', params: { categoria: 7 }, id: 'alarmas' },
+    { name: 'Puntos de Venta (POS)', route: 'catalogo.index', params: { categoria: 118 }, id: 'pos' },
+    { name: 'Desarrollo Web', route: 'public.contacto', id: 'web' },
 ];
 
 const computeLogo = computed(() => {
@@ -126,7 +131,7 @@ watch(() => props.empresa, (newConfig) => {
                                 <Link 
                                     v-for="sLink in serviciosLinks" 
                                     :key="sLink.id"
-                                    :href="route(sLink.route)" 
+                                    :href="route(sLink.route, sLink.params || {})" 
                                     class="block px-4 py-3 text-sm font-bold uppercase tracking-wider text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-[var(--color-primary)] transition-colors"
                                     @click="showServiciosMenu = false"
                                 >
@@ -313,7 +318,7 @@ watch(() => props.empresa, (newConfig) => {
                                 <Link 
                                     v-for="sLink in serviciosLinks" 
                                     :key="sLink.id"
-                                    :href="route(sLink.route)"
+                                    :href="route(sLink.route, sLink.params || {})"
                                     class="block px-6 py-4 text-lg font-bold text-gray-600 dark:text-gray-400 border-b border-white dark:border-slate-800 last:border-0"
                                     @click="showMobileMenu = false"
                                 >
