@@ -88,6 +88,7 @@ Route::prefix('portal')->group(function () {
         Route::post('/pagos/cargo/mercadopago', [\App\Http\Controllers\ClientPortal\PortalPaymentController::class, 'createForCargo'])->name('portal.pagos.cargo.mercadopago');
     });
 
-    // Webhook público para MercadoPago
+    /* // Webhook público para MercadoPago (Duplicado en public.php)
     Route::post('/webhook/mercadopago', [\App\Http\Controllers\ClientPortal\PortalPaymentController::class, 'webhookMercadoPago'])->name('portal.pagos.mercadopago.webhook');
+    */
 });
