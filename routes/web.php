@@ -36,6 +36,5 @@ Route::get('/calendar/feed', [App\Http\Controllers\CalendarFeedController::class
 
 
 // Promo Seguridad Enero
-Route::get('/promo', function () {
-    return view('promo');
-})->name('promo');
+Route::get('/promo', [App\Http\Controllers\PromoController::class, 'index'])->name('promo');
+Route::post('/promo/lead', [App\Http\Controllers\PromoController::class, 'storeLead'])->name('promo.lead');
