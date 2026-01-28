@@ -34,3 +34,8 @@ Route::get('/nt/c/{token}', [App\Http\Controllers\Api\NewsletterTrackingControll
 // iCal Feed
 Route::get('/calendar/feed', [App\Http\Controllers\CalendarFeedController::class, 'index'])->name('calendar.feed');
 
+
+// Promo Seguridad Enero
+Route::get('/promo', function () {
+    return view('promo');
+})->name('promo');
