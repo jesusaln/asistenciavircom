@@ -46,14 +46,8 @@
         <div
             class="glass rounded-3xl p-8 mb-8 shadow-2xl shadow-blue-500/10 hover:shadow-blue-500/20 transition-all duration-300 transform hover:-translate-y-1">
             <div class="mb-6 flex justify-center">
-                <!-- Icono Cámara Bala -->
-                <svg class="w-24 h-24 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                    </path>
-                </svg>
+                <img src="/img/promo-hilook.png" alt="Kit HiLook TurboHD"
+                    class="w-full max-w-md rounded-2xl shadow-2xl">
             </div>
 
             <h3 class="text-xl font-bold bg-white text-slate-900 rounded-lg py-1 px-4 inline-block mb-4">Modelo
