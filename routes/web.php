@@ -38,3 +38,4 @@ Route::get('/calendar/feed', [App\Http\Controllers\CalendarFeedController::class
 // Promo Seguridad Enero
 Route::get('/promo', [App\Http\Controllers\PromoController::class, 'index'])->name('promo');
 Route::post('/promo/lead', [App\Http\Controllers\PromoController::class, 'storeLead'])->name('promo.lead');
+Route::post('/chat/message', [App\Http\Controllers\ChatController::class, 'message'])->name('chat.message');

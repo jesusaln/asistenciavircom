@@ -192,24 +192,148 @@
         </button>
     </div>
 
+    <!-- Widget Flotante Vircom Bot (Chat Real) -->
+    <div class="fixed bottom-6 right-6 z-[100] flex flex-col items-end font-sans">
+        <div id="botChat" class="hidden mb-4 w-80 md:w-96 bg-white rounded-[2rem] shadow-[0_20px_60px_rgba(0,0,0,0.5)] border border-gray-100 overflow-hidden flex flex-col h-[500px] transform transition-all duration-300 scale-95 opacity-0 origin-bottom-right">
+            <!-- Header -->
+            <div class="bg-slate-900 p-5 text-white relative overflow-hidden flex-shrink-0">
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-600/30 to-purple-600/30 opacity-50"></div>
+                <div class="relative z-10 flex items-center gap-3 text-left">
+                    <div class="w-10 h-10 bg-gradient-to-tr from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-xl shadow-lg border border-white/20">🤖</div>
+                    <div>
+                        <h3 class="text-base font-bold">Vircom Bot</h3>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                            <span class="text-[9px] uppercase tracking-widest font-bold opacity-70">Soporte Inteligente</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Container -->
+            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50 shadow-inner">
+                <div class="flex w-full justify-start">
+                    <div class="max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed shadow-sm bg-white text-slate-800 rounded-bl-none border border-gray-100">
+                        ¡Hola! Soy Vircom Bot. 🤖 Estoy listo para ayudarte. ¿En qué puedo apoyarte hoy?
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-4 bg-white border-t border-gray-100 flex-shrink-0">
+                <form id="botForm" class="flex gap-2 relative">
+                    <input id="botInput" type="text" placeholder="Escribe un mensaje..." class="flex-1 bg-gray-50 border border-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90 shadow-lg">
+                        <svg class="w-5 h-5 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <button onclick="toggleBotChat()" class="w-16 h-16 bg-gradient-to-tr from-[#25D366] to-[#128C7E] rounded-full shadow-2xl flex items-center justify-center text-3xl hover:scale-110 active:scale-95 transition-all">
+            <span id="botIcon">🤖</span>
+        </button>
+    </div>
+
     <script>
-        function toggleBotMenu() {
-            const menu = document.getElementById('botMenu');
+        const chatSessionId = 'promo-' + Math.random().toString(36).substring(2, 9);
+
+        function toggleBotChat() {
+            const chat = document.getElementById('botChat');
             const icon = document.getElementById('botIcon');
-            if (menu.classList.contains('hidden')) {
-                menu.classList.remove('hidden');
+            if (chat.classList.contains('hidden')) {
+                chat.classList.remove('hidden');
                 setTimeout(() => {
-                    menu.classList.remove('scale-95', 'opacity-0');
-                    menu.classList.add('scale-100', 'opacity-100');
+                    chat.classList.remove('scale-95', 'opacity-0');
+                    chat.classList.add('scale-100', 'opacity-100');
+                    scrollToChatBottom();
                 }, 10);
                 icon.innerText = '✕';
             } else {
-                menu.classList.add('scale-95', 'opacity-0');
-                menu.classList.remove('scale-100', 'opacity-100');
-                setTimeout(() => menu.classList.add('hidden'), 300);
+                chat.classList.add('scale-95', 'opacity-0');
+                chat.classList.remove('scale-100', 'opacity-100');
+                setTimeout(() => chat.classList.add('hidden'), 300);
                 icon.innerText = '🤖';
             }
         }
+
+        function scrollToChatBottom() {
+            const container = document.getElementById('chatMessages');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function appendMessage(text, isBot) {
+            const container = document.getElementById('chatMessages');
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex w-full ${isBot ? 'justify-start' : 'justify-end'}`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = `max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                isBot 
+                    ? 'bg-white text-slate-800 rounded-bl-none border border-gray-100' 
+                    : 'bg-blue-600 text-white rounded-br-none font-medium'
+            }`;
+            bubble.innerText = text;
+            
+            wrapper.appendChild(bubble);
+            container.appendChild(wrapper);
+            scrollToChatBottom();
+        }
+
+        document.getElementById('botForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('botInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            appendMessage(text, false);
+            input.value = '';
+            
+            // Loading bubble
+            const loadingId = 'loading-' + Date.now();
+            const container = document.getElementById('chatMessages');
+            const loadingWrapper = document.createElement('div');
+            loadingWrapper.id = loadingId;
+            loadingWrapper.className = 'flex justify-start';
+            loadingWrapper.innerHTML = `
+                <div class="bg-white p-3 rounded-2xl rounded-bl-none shadow-sm flex gap-1">
+                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span>
+                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                </div>
+            `;
+            container.appendChild(loadingWrapper);
+            scrollToChatBottom();
+
+            try {
+                const response = await fetch('/chat/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: text,
+                        session_id: chatSessionId
+                    })
+                });
+
+                const data = await response.json();
+                document.getElementById(loadingId).remove();
+
+                if (data.success) {
+                    appendMessage(data.message, true);
+                } else {
+                    appendMessage('Lo siento, tuve un problema. ¿Puedes intentar de nuevo?', true);
+                }
+            } catch (error) {
+                document.getElementById(loadingId).remove();
+                appendMessage('Error de conexión.', true);
+            }
+        });
 
         function openModal() {
             const modal = document.getElementById('leadModal');
