@@ -67,28 +67,47 @@ class ChatController extends Controller
 
     private function parseClawdbotOutput($output)
     {
-        // Dividir por líneas
         $lines = explode("\n", $output);
-        $foundDiamond = false;
         $resultLines = [];
+        $foundDiamond = false;
+        $inMessage = false;
 
         foreach ($lines as $line) {
+            // Si hay diamante, es la marca oficial de inicio de mensaje
             if (str_contains($line, '◇')) {
                 $foundDiamond = true;
-                // Intentar quitar el diamante y espacios si están en la misma línea
+                $inMessage = true;
                 $content = trim(str_replace('◇', '', $line));
-                if ($content !== '') {
+                if ($content !== '')
                     $resultLines[] = $content;
-                }
                 continue;
             }
 
-            if ($foundDiamond) {
+            // Si no hay diamante pero vemos que ya pasamos los logs de diagnóstico
+            if (!$foundDiamond && !$inMessage) {
                 $trimmed = trim($line);
-                // Si encontramos códigos de salida o líneas vacías al final, paramos o filtramos
+                if (empty($trimmed))
+                    continue;
+                if (str_starts_with($trimmed, '🦞'))
+                    continue;
+                if (str_starts_with($trimmed, 'Gateway'))
+                    continue;
+                if (str_starts_with($trimmed, 'Source:'))
+                    continue;
+                if (str_starts_with($trimmed, 'Config:'))
+                    continue;
+                if (str_starts_with($trimmed, 'Bind:'))
+                    continue;
+                if (str_starts_with($trimmed, 'Updating'))
+                    continue;
+
+                // Empezamos a capturar a partir de la primera línea no decorativa
+                $inMessage = true;
+            }
+
+            if ($inMessage) {
                 if (str_contains($line, 'Exit code:'))
                     break;
-
                 $resultLines[] = $line;
             }
         }
@@ -96,7 +115,7 @@ class ChatController extends Controller
         $response = trim(implode("\n", $resultLines));
 
         if (empty($response)) {
-            return "Lo siento, tuve un problema procesando tu mensaje. ¿Puedes intentar de nuevo?";
+            return "¡Hola! Tuve un pequeño contratiempo al procesar tu solicitud. Por favor, intenta escribirme de nuevo.";
         }
 
         return $response;
