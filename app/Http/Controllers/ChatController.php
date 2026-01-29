@@ -33,14 +33,13 @@ class ChatController extends Controller
             'main',
             '--session-id',
             $sessionId,
-            // Asumimos que los archivos de configuración estarán en la raíz de la app en prod
-            '--workspace',
-            base_path('clawd'),
-            '--config-dir',
-            base_path('.clawdbot')
         ];
 
-        $process = new Process($command);
+        $process = new Process($command, base_path(), [
+            'CLAWDBOT_WORKSPACE' => base_path('clawd'),
+            'CLAWDBOT_CONFIG_DIR' => base_path('.clawdbot'),
+            'HOME' => '/var/www' // Para que node/npm no intenten escribir en /root o similar
+        ]);
         $process->setTimeout(60);
         $process->run();
 
