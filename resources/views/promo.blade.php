@@ -146,7 +146,71 @@
         &copy; 2026 Asistencia Vircom. Tecnología con Confianza.
     </footer>
 
+    <!-- Widget Flotante Clawdbot (Blade Version) -->
+    <div class="fixed bottom-6 right-6 z-[100] flex flex-col items-end font-sans">
+        <div id="botMenu"
+            class="hidden mb-4 w-72 bg-white dark:bg-slate-900 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-gray-100 dark:border-slate-800 overflow-hidden transform transition-all duration-300 scale-95 opacity-0 origin-bottom-right">
+            <div class="bg-slate-950 p-6 text-white relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 opacity-50"></div>
+                <div class="relative z-10 flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 bg-gradient-to-tr from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-2xl shadow-lg border border-white/20">
+                        🤖</div>
+                    <div class="text-left">
+                        <h3 class="text-lg font-bold leading-tight">Clawdbot IA</h3>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                            <p class="text-[10px] uppercase tracking-wider font-semibold opacity-70">En línea ahora</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 bg-gray-50/30 dark:bg-slate-900/50 space-y-2">
+                <a href="https://wa.me/5216622036840?text=Hola%20Clawdbot!%20Me%20interesa%20la%20promo"
+                    class="flex items-center gap-3 p-3 rounded-2xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 hover:border-blue-500/50 transition-all group">
+                    <span class="text-xl">🏷️</span>
+                    <div class="text-left">
+                        <p class="font-bold text-sm">Ver Promociones</p>
+                    </div>
+                </a>
+                <a href="https://wa.me/5216622036840?text=Hola!%20Quiero%20agendar%20una%20cita"
+                    class="flex items-center gap-3 p-3 rounded-2xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 hover:border-blue-500/50 transition-all group">
+                    <span class="text-xl">📅</span>
+                    <div class="text-left">
+                        <p class="font-bold text-sm">Agendar Cita</p>
+                    </div>
+                </a>
+            </div>
+            <div class="p-2 text-center border-t border-gray-50 dark:border-slate-800">
+                <p class="text-[9px] text-gray-400">Powered by Clawdbot</p>
+            </div>
+        </div>
+
+        <button onclick="toggleBotMenu()"
+            class="w-16 h-16 bg-gradient-to-tr from-[#25D366] to-[#128C7E] rounded-full shadow-2xl flex items-center justify-center text-3xl hover:scale-110 active:scale-95 transition-all">
+            <span id="botIcon">🤖</span>
+        </button>
+    </div>
+
     <script>
+        function toggleBotMenu() {
+            const menu = document.getElementById('botMenu');
+            const icon = document.getElementById('botIcon');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                setTimeout(() => {
+                    menu.classList.remove('scale-95', 'opacity-0');
+                    menu.classList.add('scale-100', 'opacity-100');
+                }, 10);
+                icon.innerText = '✕';
+            } else {
+                menu.classList.add('scale-95', 'opacity-0');
+                menu.classList.remove('scale-100', 'opacity-100');
+                setTimeout(() => menu.classList.add('hidden'), 300);
+                icon.innerText = '🤖';
+            }
+        }
+
         function openModal() {
             const modal = document.getElementById('leadModal');
             modal.classList.remove('hidden');
@@ -205,11 +269,13 @@
         // Close modal on click outside
         window.onclick = function (event) {
             const modal = document.getElementById('leadModal');
+            const botMenu = document.getElementById('botMenu');
             if (event.target == modal) {
                 closeModal();
             }
         }
     </script>
+
 </body>
 
 </html>
