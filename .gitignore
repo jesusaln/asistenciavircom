@@ -184,3 +184,5 @@ Thumbs.db
 !scripts/restore_services.sh
 rustdesk_build
 !deploy.sh
+/clawd
+/.clawdbot

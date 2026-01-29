@@ -90,7 +90,11 @@ ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
     docker exec $CONTAINER_APP composer install --optimize-autoloader --no-dev --no-interaction && \
     
     # 3. Limpiar flag de hot reload si se sincronizó por error
-    docker exec $CONTAINER_APP rm -f public/hot"
+    docker exec $CONTAINER_APP rm -f public/hot && \
+    
+    # 4. Asegurar que clawdbot esté instalado en el contenedor
+    echo '🤖 Asegurando Clawdbot en el contenedor...' && \
+    docker exec -u root $CONTAINER_APP npm install -g clawdbot"
 
 # 7. Ejecución de Tareas de Laravel
 echo "⚙️ 7/8 Optimizando y Migrando..."

@@ -17,16 +17,27 @@ class ChatController extends Controller
         $message = $request->message;
         $sessionId = $request->session_id ?? 'web-visitor-' . time();
 
-        // Ejecutar clawdbot agent
+        // Intentar rutas comunes de binarios
+        $binary = 'clawdbot';
+        if (file_exists('/usr/local/bin/clawdbot'))
+            $binary = '/usr/local/bin/clawdbot';
+        if (file_exists('/usr/bin/clawdbot'))
+            $binary = '/usr/bin/clawdbot';
+
         $command = [
-            '/home/vircom/.nvm/versions/node/v24.13.0/bin/clawdbot',
+            $binary,
             'agent',
             '--message',
             $message,
             '--agent',
             'main',
             '--session-id',
-            $sessionId
+            $sessionId,
+            // Asumimos que los archivos de configuración estarán en la raíz de la app en prod
+            '--workspace',
+            base_path('clawd'),
+            '--config-dir',
+            base_path('.clawdbot')
         ];
 
         $process = new Process($command);
@@ -34,9 +45,11 @@ class ChatController extends Controller
         $process->run();
 
         if (!$process->isSuccessful()) {
+            \Illuminate\Support\Facades\Log::error('Clawdbot Error: ' . $process->getErrorOutput());
             return response()->json([
                 'success' => false,
-                'error' => 'No se pudo obtener respuesta de la IA.'
+                'error' => 'No se pudo obtener respuesta de la IA.',
+                'debug' => $process->getErrorOutput()
             ], 500);
         }
 
