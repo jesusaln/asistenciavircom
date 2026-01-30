@@ -116,7 +116,17 @@ ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
     
     # Reiniciar colas y servicios
     echo '🔄 Reiniciando Queue Workers...' && \
-    (docker restart $CONTAINER_QUEUE || (echo '⚠️ Queue container not found, restarting app only' && docker restart $CONTAINER_APP))"
+    (docker restart $CONTAINER_QUEUE || (echo '⚠️ Queue container not found, restarting app only' && docker restart $CONTAINER_APP)) 
+    
+# 9. Sincronización de IA (Clawdbot)
+echo "🤖 9/8 Sincronizando Cerebro de IA..."
+mkdir -p ia_sync
+cp -r ./.clawdbot ia_sync/
+cp -r ./clawd ia_sync/
+rsync -avz --exclude='*.log' ./ia_sync $USER@$VPS_IP:$REMOTE_PATH/
+ssh $USER@$VPS_IP "docker cp $REMOTE_PATH/ia_sync/.clawdbot $CONTAINER_APP:/var/www/cdd_app/ && \
+    docker cp $REMOTE_PATH/ia_sync/clawd $CONTAINER_APP:/var/www/cdd_app/ && \
+    docker exec -u root $CONTAINER_APP chown -R www-data:www-data /var/www/cdd_app/.clawdbot /var/www/cdd_app/clawd"
 
 # 8. Reactivar Sitio
 echo "✅ 8/8 Desactivando mantenimiento..."
