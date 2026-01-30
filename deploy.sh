@@ -26,37 +26,29 @@ echo "--------------------------------------------------------"
 # 1. Incremento de Versión, Commit y Push
 echo "📝 1/8 Control de Versiones y Sincronización..."
 # Intento de autodetectar versión (Fallback a timestamp si falla grep)
-LAST_VERSION=$(git log --grep="Version [0-9]*" -n 1 --format=%s 2>/dev/null | grep -o "Version [0-9]*" | grep -o "[0-9]*" | head -n 1 || echo 0)
+LAST_VERSION=$(git log --grep="Version [0-9]*" -n 1 --format=%s 2/dev/null | grep -o "Version [0-9]*" | grep -o "[0-9]*" | head -n 1 || echo 0)
 NEXT_VERSION=$((LAST_VERSION + 1))
+
 echo "📌 Nueva Versión Detectada: $NEXT_VERSION"
 
+# Agregar, commit y push (Opcional, pero recomendado para trazabilidad)
 git add .
-# Commit condicional (solo si hay cambios)
-if git diff-index --quiet HEAD --; then
-    echo "ℹ️ No hay cambios para commitear, procediendo con push de seguridad."
-else
-    git commit -m "Version $NEXT_VERSION - Auto Deploy"
-    echo "📤 Cambios guardados localmente."
-fi
+git commit -m "Version $NEXT_VERSION - Auto Deploy" || echo "No hay cambios para commit."
+echo "📤 Cambios guardados localmente."
 
 echo "📤 Sincronizando con Repositorio Remoto..."
-git push origin main || echo "⚠️ Advertencia: 'git push' falló (¿conexión?). Continuando con el despliegue directo..."
+git push origin main || echo "⚠️ Falló el push, continuando con despliegue local..."
 
-# 2. Construcción de Assets Local
+# 2. Construcción de Assets
 echo "📦 2/8 Construyendo Assets (Vite Production Build)..."
-rm -f public/hot # Elimina flag de dev server
-npm run build 
+npm run build
 
-# 3. Fix Manifiesto (Previene error 500 en carga de assets)
-if [ -f "public/build/.vite/manifest.json" ]; then
-    echo "🔧 3/8 Normalizando manifest.json..."
-    cp public/build/.vite/manifest.json public/build/manifest.json
-fi
+# 3. Preparar Modo Mantenimiento
+echo "🚧 3/8 Activando modo mantenimiento..."
+ssh $USER@$VPS_IP "cd $REMOTE_PATH && docker exec $CONTAINER_APP php artisan down || true"
 
-# 4. Modo Mantenimiento
-echo "🚧 4/8 Activando Modo Mantenimiento en VPS..."
-# Usamos '|| true' para no abortar si el contenedor no responde (ej. primer despliegue)
-ssh $USER@$VPS_IP "docker exec $CONTAINER_APP php artisan down --message=\"Actualizando Asistencia Vircom (v$NEXT_VERSION). Volvemos enseguida...\" --retry=60 || echo '⚠️ No se pudo activar modo mantenimiento (¿Contenedor caído?)'"
+# 4. Limpieza de Logs y Caché Local (Opcional)
+# rm -rf storage/logs/*.log
 
 # 5. Sincronización de Archivos (Rsync)
 echo "📡 5/8 Enviando archivos vía Rsync..."
@@ -76,6 +68,9 @@ rsync -avz --no-perms --no-owner --no-group \
     --exclude='.idea' \
     --exclude='.vscode' \
     --exclude='tests' \
+    --exclude='ia_sync' \
+    --exclude='clawd' \
+    --exclude='.clawdbot' \
     --exclude='deploy.sh' \
     ./ $USER@$VPS_IP:$REMOTE_PATH/
 
@@ -116,9 +111,9 @@ ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
     
     # Reiniciar colas y servicios
     echo '🔄 Reiniciando Queue Workers...' && \
-    (docker restart $CONTAINER_QUEUE || (echo '⚠️ Queue container not found, restarting app only' && docker restart $CONTAINER_APP)) 
-    
-# 9. Sincronización de IA (Clawdbot)
+    (docker restart $CONTAINER_QUEUE || (echo '⚠️ Queue container not found, restarting app only' && docker restart $CONTAINER_APP))"
+
+# 8. Sincronización de IA (Clawdbot)
 echo "🤖 9/8 Sincronizando Cerebro de IA..."
 mkdir -p ia_sync
 cp -r ./.clawdbot ia_sync/
@@ -128,8 +123,8 @@ ssh $USER@$VPS_IP "docker cp $REMOTE_PATH/ia_sync/.clawdbot $CONTAINER_APP:/var/
     docker cp $REMOTE_PATH/ia_sync/clawd $CONTAINER_APP:/var/www/cdd_app/ && \
     docker exec -u root $CONTAINER_APP chown -R www-data:www-data /var/www/cdd_app/.clawdbot /var/www/cdd_app/clawd"
 
-# 8. Reactivar Sitio
-echo "✅ 8/8 Desactivando mantenimiento..."
+# 10. Reactivar Sitio
+echo "✅ 10/10 Desactivando mantenimiento..."
 ssh $USER@$VPS_IP "docker exec $CONTAINER_APP php artisan up"
 
 echo "--------------------------------------------------------"
