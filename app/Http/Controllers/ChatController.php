@@ -36,9 +36,8 @@ class ChatController extends Controller
         ];
 
         $process = new Process($command, base_path(), [
-            'CLAWDBOT_WORKSPACE' => base_path('clawd'),
-            'CLAWDBOT_CONFIG_DIR' => base_path('.clawdbot'),
-            'HOME' => '/var/www' // Para que node/npm no intenten escribir en /root o similar
+            'HOME' => base_path(),
+            'PATH' => '/usr/local/bin:/usr/bin:/bin' // Asegurar que encuentre node y clawdbot
         ]);
         $process->setTimeout(60);
         $process->run();
