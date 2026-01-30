@@ -11,7 +11,7 @@ use Carbon\Carbon;
 
 class BotManager extends Command
 {
-    protected $signature = 'app:bot-manager {action} {--query=} {--name=} {--phone=} {--date=} {--desc=}';
+    protected $signature = 'app:bot-manager {action} {--query=} {--name=} {--phone=} {--date=} {--desc=} {--tipo=} {--calle=} {--colonia=} {--cp=}';
     protected $description = 'Interfaz para que el Bot de WhatsApp interactúe con el sistema AsistenciaVircom';
 
     public function handle()
@@ -62,9 +62,36 @@ class BotManager extends Command
         $phone = $this->option('phone');
         $dateStr = $this->option('date'); // Y-m-d H:i
         $desc = $this->option('desc');
+        $tipo = $this->option('tipo') ?? 'Soporte Técnico';
+        $calle = $this->option('calle');
+        $colonia = $this->option('colonia');
+        $cp = $this->option('cp');
 
         if (!$name || !$phone || !$dateStr) {
-            $this->error("Faltan datos: --name, --phone y --date son obligatorios.");
+            $this->error("Faltan datos críticos: --name, --phone y --date son obligatorios.");
+            return;
+        }
+
+        try {
+            $fechaHora = Carbon::parse($dateStr);
+        } catch (\Exception $e) {
+            $this->error("Formato de fecha inválido. Use AAAA-MM-DD HH:MM (Ej: 2026-02-15 14:30)");
+            return;
+        }
+
+        // 1. ANALIZAR SI ESTÁ OCUPADA LA FECHA (Validación de conflicto)
+        // Buscamos citas que no estén canceladas y que caigan en el mismo bloque horario (rango de 1 hora)
+        $conflicto = Cita::where('estado', '!=', Cita::ESTADO_CANCELADO)
+            ->where(function ($query) use ($fechaHora) {
+                $query->whereBetween('fecha_hora', [
+                    $fechaHora->copy()->subMinutes(59),
+                    $fechaHora->copy()->addMinutes(59)
+                ]);
+            })->first();
+
+        if ($conflicto) {
+            $horaConflicto = $conflicto->fecha_hora->format('H:i');
+            $this->error("LO SENTIMOS: Ya existe una cita programada cerca de esa hora ({$horaConflicto}). Por favor, elija otro horario.");
             return;
         }
 
@@ -82,13 +109,18 @@ class BotManager extends Command
         $cita = Cita::create([
             'empresa_id' => 1,
             'cliente_id' => $cliente->id,
-            'fecha_hora' => Carbon::parse($dateStr),
-            'descripcion' => $desc ?? 'Cita agendada por Bot WhatsApp',
+            'fecha_hora' => $fechaHora,
+            'tipo_servicio' => $tipo,
+            'descripcion' => $desc ?? "Cita agendada por Vircom Bot - {$tipo}",
+            'problema_reportado' => $desc,
+            'direccion_calle' => $calle,
+            'direccion_colonia' => $colonia,
+            'direccion_cp' => $cp,
             'estado' => Cita::ESTADO_PENDIENTE,
             'prioridad' => Cita::PRIORIDAD_MEDIA
         ]);
 
-        $this->info("Cita agendada con éxito. Folio: {$cita->folio}");
+        $this->info("¡CITA AGENDADA CON ÉXITO! Folio: {$cita->folio}");
     }
 
     private function clientesBuscar()
@@ -102,7 +134,7 @@ class BotManager extends Command
         }
 
         foreach ($clientes as $cliente) {
-            $saldo = number_format($cliente->saldo_pendiente, 2);
+            $saldo = number_format((float) $cliente->saldo_pendiente, 2);
             $this->line("- ID: {$cliente->id} | {$cliente->nombre_razon_social} | Tel: {$cliente->telefono} | Saldo: \${$saldo}");
         }
     }
@@ -120,7 +152,7 @@ class BotManager extends Command
         }
 
         foreach ($productos as $producto) {
-            $precio = number_format($producto->precio_publico, 2);
+            $precio = number_format((float) $producto->precio_publico, 2);
             $stock = $producto->stock_total ?? 0;
             $this->line("- SKU: {$producto->sku} | {$producto->nombre} | Precio: \${$precio} | Stock: {$stock}");
         }
@@ -142,8 +174,8 @@ class BotManager extends Command
         $this->info("Pagos Pendientes Prioritarios:");
         foreach ($pagos as $pago) {
             $cliente = $pago->venta->cliente->nombre_razon_social ?? 'Desconocido';
-            $vence = $pago->fecha_vencimiento->format('d/m/Y');
-            $monto = number_format($pago->monto_pendiente, 2);
+            $vence = $pago->fecha_vencimiento ? $pago->fecha_vencimiento->format('d/m/Y') : 'N/A';
+            $monto = number_format((float) $pago->monto_pendiente, 2);
             $this->line("- {$cliente}: \${$monto} (Vence: {$vence})");
         }
     }

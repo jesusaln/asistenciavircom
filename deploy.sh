@@ -123,6 +123,8 @@ ssh $USER@$VPS_IP "docker cp $REMOTE_PATH/ia_sync/.clawdbot $CONTAINER_APP:/var/
     docker cp $REMOTE_PATH/ia_sync/clawd $CONTAINER_APP:/var/www/cdd_app/ && \
     docker exec -u root $CONTAINER_APP chown -R www-data:www-data /var/www/cdd_app/.clawdbot /var/www/cdd_app/clawd"
 
+ssh $USER@$VPS_IP "docker exec -d $CONTAINER_APP bash -c 'HOME=/var/www/cdd_app clawdbot gateway > /var/www/cdd_app/storage/logs/gateway.log 2>&1' || true"
+
 # 10. Reactivar Sitio
 echo "✅ 10/10 Desactivando mantenimiento..."
 ssh $USER@$VPS_IP "docker exec $CONTAINER_APP php artisan up"
