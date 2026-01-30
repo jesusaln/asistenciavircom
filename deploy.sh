@@ -26,7 +26,7 @@ echo "--------------------------------------------------------"
 # 1. Incremento de Versión, Commit y Push
 echo "📝 1/8 Control de Versiones y Sincronización..."
 # Intento de autodetectar versión (Fallback a timestamp si falla grep)
-LAST_VERSION=$(git log --grep="Version [0-9]*" -n 1 --format=%s 2/dev/null | grep -o "Version [0-9]*" | grep -o "[0-9]*" | head -n 1 || echo 0)
+LAST_VERSION=$(git log --grep="Version [0-9]*" -n 1 --format=%s 2>/dev/null | grep -o "Version [0-9]*" | grep -o "[0-9]*" | head -n 1 || echo 0)
 NEXT_VERSION=$((LAST_VERSION + 1))
 
 echo "📌 Nueva Versión Detectada: $NEXT_VERSION"
