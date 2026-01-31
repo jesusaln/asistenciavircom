@@ -39,3 +39,25 @@ Route::get('/calendar/feed', [App\Http\Controllers\CalendarFeedController::class
 Route::get('/promo', [App\Http\Controllers\PromoController::class, 'index'])->name('promo');
 Route::post('/promo/lead', [App\Http\Controllers\PromoController::class, 'storeLead'])->name('promo.lead');
 Route::post('/chat/message', [App\Http\Controllers\ChatController::class, 'message'])->name('chat.message');
+
+Route::get('/crear-poliza-test', function () {
+    $cliente = App\Models\Cliente::firstOrCreate(
+        ['email' => 'test@asistenciavircom.com'],
+        ['nombre_comercial' => 'Cliente Pruebas', 'razon_social' => 'Test SA DE CV', 'rfc' => 'XAXX010101000']
+    );
+
+    $poliza = App\Models\PolizaServicio::create([
+        'cliente_id' => $cliente->id,
+        'empresa_id' => 1,
+        'nombre' => 'Póliza Test Producción $20',
+        'monto_mensual' => 20,
+        'monto_anual' => 240,
+        'frecuencia_pago' => 'mensual',
+        'fecha_inicio' => now(),
+        'fecha_fin' => now()->addYear(),
+        'dia_pago' => now()->day,
+        'estado' => 'pendiente_pago'
+    ]);
+
+    return "Póliza creada: ID {$poliza->id} - Monto: \${$poliza->monto_mensual}";
+});
