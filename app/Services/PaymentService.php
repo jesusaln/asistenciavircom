@@ -243,9 +243,12 @@ class PaymentService
                 $preferenceData['auto_return'] = 'approved';
             }
 
-            // Agregar webhook solo si hay ruta disponible
+            // Agregar webhook solo si es URL pública (MercadoPago rechaza localhost en producción)
             try {
-                $preferenceData['notification_url'] = route('pago.poliza.mercadopago.webhook');
+                $webhookUrl = route('pago.poliza.mercadopago.webhook');
+                if (!str_contains($webhookUrl, 'localhost') && !str_contains($webhookUrl, '127.0.0.1') && !str_contains($webhookUrl, '.test')) {
+                    $preferenceData['notification_url'] = $webhookUrl;
+                }
             } catch (\Exception $e) {
                 // Sin webhook
             }
