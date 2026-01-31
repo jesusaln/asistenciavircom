@@ -82,8 +82,8 @@ Route::post('/api/tienda/cva/sync-marcas', [App\Http\Controllers\Tienda\CVAProxy
 
 // Ruta de PRUEBA para Pagos (Solo dev)
 Route::get('/test/pagos', function () {
-    if (app()->environment('production'))
-        abort(404);
+    //    if (app()->environment('production'))
+//        abort(404);
     $poliza = \App\Models\PolizaServicio::with('cliente')->where('estado', 'pendiente_pago')->latest()->first();
     return \Inertia\Inertia::render('Contratacion/TestPagos', ['poliza' => $poliza, 'gateways' => config('payments')]);
 })->name('pago.test');
