@@ -213,6 +213,7 @@ class EmpresaConfiguracion extends Model
         'shipping_local_cp_prefix',
         'shipping_local_cost',
         'n8n_webhook_blog',
+        'ticket_default_assignee_id',
     ];
 
     protected $casts = [

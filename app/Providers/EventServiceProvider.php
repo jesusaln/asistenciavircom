@@ -23,7 +23,7 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\PolizaProximaAVencer::class => [
             \App\Listeners\CrearTicketRenovacion::class,
         ],
-        
+
         // Venta Events
         \App\Events\VentaCreated::class => [
             \App\Listeners\LogVentaCreated::class,
@@ -40,5 +40,6 @@ class EventServiceProvider extends ServiceProvider
     {
         // Registrar observers
         \App\Models\Producto::observe(\App\Observers\KitObserver::class);
+        \App\Models\Ticket::observe(\App\Observers\TicketObserver::class);
     }
 }
