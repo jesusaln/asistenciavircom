@@ -838,8 +838,9 @@ class PolizaServicio extends Model
             }
         }
 
-        // Agregar IVA (16% México)
-        $iva = round($subtotal * 0.16, 2);
+        // Agregar IVA de configuración
+        $ivaPorcentaje = (EmpresaConfiguracion::getConfig()->iva_porcentaje ?? 16.0) / 100;
+        $iva = round($subtotal * $ivaPorcentaje, 2);
 
         return $subtotal + $iva;
     }

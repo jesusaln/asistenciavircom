@@ -34,7 +34,7 @@ class CVAService
     public function updateExchangeRate()
     {
         try {
-            $response = Http::get("https://www.grupocva.com/catalogo_clientes_xml/tipo_cambio.xml");
+            $response = Http::withoutVerifying()->get("https://www.grupocva.com/catalogo_clientes_xml/tipo_cambio.xml");
 
             if ($response->successful()) {
                 $xml = simplexml_load_string($response->body());
@@ -70,7 +70,7 @@ class CVAService
 
         return Cache::remember($cacheKey, now()->addHours(11), function () {
             try {
-                $response = Http::post("{$this->baseUrl}/user/login", [
+                $response = Http::withoutVerifying()->post("{$this->baseUrl}/user/login", [
                     'user' => $this->config->cva_user,
                     'password' => $this->config->cva_password,
                 ]);
@@ -129,6 +129,7 @@ class CVAService
 
             try {
                 $response = Http::withToken($token)
+                    ->withoutVerifying()
                     ->get("{$this->baseUrl}/catalogo_clientes/lista_precios", $params);
 
                 if ($response->successful()) {
@@ -212,6 +213,7 @@ class CVAService
             ];
 
             $response = Http::withToken($token)
+                ->withoutVerifying()
                 ->get("{$this->baseUrl}/catalogo_clientes/lista_precios", $params);
 
             if ($response->successful()) {
@@ -230,6 +232,7 @@ class CVAService
                 // Fallback: Si no se encontró por clave, intentar por código de parte (Numero de parte)
                 if (!$item || (isset($item['descripcion']) && empty($item['descripcion']))) {
                     $responseAlt = Http::withToken($token)
+                        ->withoutVerifying()
                         ->get("{$this->baseUrl}/catalogo_clientes/lista_precios", array_merge($params, ['codigo' => $clave, 'clave' => null]));
                     if ($responseAlt->successful()) {
                         $dataAlt = $responseAlt->json();
@@ -283,7 +286,9 @@ class CVAService
             unset($params['clave']);
 
         try {
-            $response = Http::withToken($token)->get("{$this->baseUrl}/catalogo_clientes/lista_precios", $params);
+            $response = Http::withToken($token)
+                ->withoutVerifying()
+                ->get("{$this->baseUrl}/catalogo_clientes/lista_precios", $params);
             if ($response->successful()) {
                 $data = $response->json();
                 $item = null;
@@ -319,6 +324,7 @@ class CVAService
 
             try {
                 $response = Http::withToken($token)
+                    ->withoutVerifying()
                     ->get("{$this->baseUrl}/catalogo_clientes/imagenes_alta", [
                         'clave' => $clave
                     ]);
@@ -344,7 +350,7 @@ class CVAService
 
         return Cache::remember($cacheKey, now()->addHours(2), function () use ($clave) {
             try {
-                $response = Http::get("https://www.grupocva.com/catalogo_clientes_xml/productos_compatibles.xml", [
+                $response = Http::withoutVerifying()->get("https://www.grupocva.com/catalogo_clientes_xml/productos_compatibles.xml", [
                     'clave' => $clave
                 ]);
 
@@ -386,6 +392,7 @@ class CVAService
 
             try {
                 $response = Http::withToken($token)
+                    ->withoutVerifying()
                     ->get("{$this->baseUrl}/catalogo_clientes/informacion_tecnica", [
                         'clave' => $clave
                     ]);
@@ -638,7 +645,7 @@ class CVAService
                 ];
             }, $items);
 
-            $response = Http::post('https://www.grupocva.com/api/paqueteria_service/', [
+            $response = Http::withoutVerifying()->post('https://www.grupocva.com/api/paqueteria_service/', [
                 'paqueteria' => $this->config->cva_paqueteria_envio ?: 4,
                 'cp' => $cp,
                 'cp_sucursal' => 44900, // Guadalajara CD (Mucho stock ahí)
@@ -835,7 +842,7 @@ class CVAService
 
         $marcas = Cache::remember($cacheKey, now()->addDays(1), function () {
             try {
-                $response = Http::get("https://www.grupocva.com/catalogo_clientes_xml/marcas.xml");
+                $response = Http::withoutVerifying()->get("https://www.grupocva.com/catalogo_clientes_xml/marcas.xml");
                 if ($response->successful()) {
                     $xml = simplexml_load_string($response->body());
                     $marcas = [];
@@ -870,7 +877,7 @@ class CVAService
     {
         return Cache::remember('cva_grupos', now()->addDays(1), function () {
             try {
-                $response = Http::get("{$this->baseUrl}/catalogo_clientes/grupos");
+                $response = Http::withoutVerifying()->get("{$this->baseUrl}/catalogo_clientes/grupos");
                 if ($response->successful()) {
                     return $response->json('grupos') ?: [];
                 }
@@ -891,7 +898,7 @@ class CVAService
         try {
             // Nota: La doc dice que no requiere token, pero por consistencia podríamos usarlo o no.
             // "Para consultar este endpoint no se necesita estar autenticado con token."
-            $response = Http::get("{$this->baseUrl}/catalogo_clientes/sucursales");
+            $response = Http::withoutVerifying()->get("{$this->baseUrl}/catalogo_clientes/sucursales");
 
             if ($response->successful()) {
                 return $response->json('sucursales');
@@ -909,7 +916,7 @@ class CVAService
     public function getPaqueterias()
     {
         try {
-            $response = Http::get("{$this->baseUrl}/catalogo_clientes/paqueteria");
+            $response = Http::withoutVerifying()->get("{$this->baseUrl}/catalogo_clientes/paqueteria");
 
             if ($response->successful()) {
                 return $response->json('paqueterias');
@@ -1010,6 +1017,7 @@ class CVAService
 
         try {
             $response = Http::withToken($token)
+                ->withoutVerifying()
                 ->post("{$this->baseUrl}/pedidos_web/consultar_pedido", [
                     'pedido' => $pedidoReferencia
                 ]);
@@ -1036,6 +1044,7 @@ class CVAService
 
         try {
             $response = Http::withToken($token)
+                ->withoutVerifying()
                 ->get("{$this->baseUrl}/pedidos_web/monedero");
 
             if ($response->successful()) {

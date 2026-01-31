@@ -80,14 +80,16 @@ class VircomBotService
         }
 
         // 5. Guardar texto final en historial y caché
-        if (isset($aiMessage['content'])) {
+        $finalContent = $aiMessage['content'] ?? 'Entiendo, ¿en qué más puedo ayudarte?';
+
+        if (!empty($aiMessage['content'])) {
             $history[] = ['role' => 'assistant', 'content' => $aiMessage['content']];
             // Mantener solo los últimos 10 mensajes para no saturar el contexto
             Cache::put($historyKey, array_slice($history, -11), now()->addHours(2));
         }
 
         return [
-            'message' => $aiMessage['content'] ?? 'Entiendo, ¿en qué más puedo ayudarte?',
+            'message' => $finalContent,
             'action' => $functionName ?? null
         ];
     }
@@ -319,7 +321,7 @@ class VircomBotService
                     'horas_incluidas' => $poliza->horas_incluidas_mensual,
                     'horas_consumidas' => $poliza->horas_consumidas_mes,
                     'horas_disponibles' => $poliza->horas_disponibles,
-                    'vigencia' => $poliza->fecha_fin ? $poliza->fecha_fin->format('d/m/Y') : 'Indefinida',
+                    'vigencia' => $poliza->fecha_fin ? \Carbon\Carbon::parse($poliza->fecha_fin)->format('d/m/Y') : 'Indefinida',
                     'reinicio' => "El día {$poliza->dia_cobro} de cada mes"
                 ];
 

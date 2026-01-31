@@ -85,6 +85,8 @@ class DynamicUrlServiceProvider extends ServiceProvider
                         'mail.mailers.smtp.username' => $config->smtp_username,
                         'mail.mailers.smtp.password' => $config->smtp_password,
                         'mail.mailers.smtp.encryption' => $config->smtp_encryption,
+                        'mail.mailers.smtp.verify_peer' => false,
+                        'mail.mailers.smtp.verify_peer_name' => false,
                         'mail.from.address' => $config->email_from_address,
                         'mail.from.name' => $config->email_from_name,
                     ]);

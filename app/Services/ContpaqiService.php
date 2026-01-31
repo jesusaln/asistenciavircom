@@ -293,7 +293,7 @@ class ContpaqiService
             "regimenFiscal" => $cliente->regimen_fiscal ?? '601',
             "usoCFDI" => $cliente->uso_cfdi ?? 'G03',
             "formaPago" => $cliente->forma_pago_default ?? '99',
-            "listaPreciosCliente" => $cliente->lista_precios_id > 0 ? (int) $cliente->lista_precios_id : 1, // Default a 1 si no hay lista asignada
+            "listaPreciosCliente" => $cliente->lista_precio_id > 0 ? (int) $cliente->lista_precio_id : 1, // Default a 1 si no hay lista asignada
         ];
 
         // LOG ESPECÍFICO PARA PUBLICO EN GENERAL

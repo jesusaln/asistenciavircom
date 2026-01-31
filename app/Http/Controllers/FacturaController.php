@@ -102,6 +102,9 @@ class FacturaController extends Controller
             }
         }
 
+        $clienteSeleccionado = null;
+        $ventasPendientes = collect();
+
         if ($request->filled('cliente_id')) {
             $clienteSeleccionado = Cliente::with(['regimen', 'uso'])->find($request->cliente_id);
 
@@ -625,7 +628,8 @@ class FacturaController extends Controller
 
         // Si no está timbrada o falló el servicio profesional, usar el PDF básico
         $pdf = $this->pdfService->loadView('factura', [
-            'factura' => $factura
+            'factura' => $factura,
+            'configuracion' => $this->getConfiguracionEmpresa()
         ]);
 
         return $pdf->stream("factura-{$factura->numero_factura}.pdf");
@@ -647,7 +651,8 @@ class FacturaController extends Controller
             }
         }
 
-        return view('factura', compact('factura'));
+        $configuracion = $this->getConfiguracionEmpresa();
+        return view('factura', compact('factura', 'configuracion'));
     }
 
     /**

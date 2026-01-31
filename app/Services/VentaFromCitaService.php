@@ -33,7 +33,7 @@ class VentaFromCitaService
         if ($cita->estado !== Cita::ESTADO_COMPLETADO || $cita->items()->count() === 0) {
             return null;
         }
-        
+
         if (Venta::where('cita_id', $cita->id)->exists()) {
             Log::info("La venta para la cita #{$cita->id} ya existe. No se creará una nueva.");
             return null;
@@ -80,6 +80,20 @@ class VentaFromCitaService
 
             // Create VentaItems
             foreach ($cita->items as $cItem) {
+                $costoUnitario = 0;
+
+                // Intentar recuperar el costo real del item
+                if ($cItem->citable_type === \App\Models\Producto::class) {
+                    $producto = $cItem->citable;
+                    if ($producto) {
+                        $costoUnitario = $producto->calcularCostoHistorico($cItem->cantidad, $almacenId);
+                    }
+                } elseif ($cItem->citable_type === \App\Models\Servicio::class) {
+                    $servicio = $cItem->citable;
+                    // El costo de un servicio para la empresa suele ser la comisión del técnico o 0 si es utilidad pura
+                    $costoUnitario = $servicio->comision_vendedor ?? 0;
+                }
+
                 VentaItem::create([
                     'empresa_id' => $venta->empresa_id,
                     'venta_id' => $venta->id,
@@ -89,10 +103,26 @@ class VentaFromCitaService
                     'precio' => $cItem->precio,
                     'descuento' => $cItem->descuento,
                     'subtotal' => $cItem->subtotal,
-                    'costo_unitario' => 0, // TODO: This should be calculated if it's a product
+                    'costo_unitario' => $costoUnitario,
                 ]);
-                
-                // TODO: Stock decrement logic should be handled here, ideally via an InventoryService
+
+                // Reducir inventario si es un producto y no requiere serie
+                if ($cItem->citable_type === \App\Models\Producto::class) {
+                    $producto = $cItem->citable;
+                    if ($producto && !$producto->requiere_serie) {
+                        try {
+                            app(\App\Services\InventarioService::class)->salida($producto, (int) $cItem->cantidad, [
+                                'motivo' => 'Venta generada desde Cita #' . $cita->id,
+                                'almacen_id' => $almacenId,
+                                'referencia' => $venta,
+                                'user_id' => auth()->id() ?? $cita->tecnico_id,
+                                'skip_transaction' => true,
+                            ]);
+                        } catch (\Exception $e) {
+                            Log::warning("No se pudo descontar stock para producto {$producto->id} en cita #{$cita->id}: " . $e->getMessage());
+                        }
+                    }
+                }
             }
 
             // Create CuentasPorCobrar

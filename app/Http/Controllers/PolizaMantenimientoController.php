@@ -23,6 +23,7 @@ class PolizaMantenimientoController extends Controller
             'requiere_visita' => 'boolean',
             'activo' => 'boolean',
             'guia_tecnica_id' => 'nullable|exists:guia_tecnicas,id',
+            'tipo' => 'nullable|string|max:50',
         ]);
 
         if (!isset($validated['tipo'])) {
@@ -48,7 +49,12 @@ class PolizaMantenimientoController extends Controller
             'requiere_visita' => 'boolean',
             'activo' => 'boolean',
             'guia_tecnica_id' => 'nullable|exists:guia_tecnicas,id',
+            'tipo' => 'nullable|string|max:50',
         ]);
+
+        if (empty($validated['tipo'])) {
+            $validated['tipo'] = $mantenimiento->tipo ?? 'preventivo';
+        }
 
         $mantenimiento->update($validated);
 

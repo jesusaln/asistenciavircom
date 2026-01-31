@@ -51,7 +51,7 @@ class ImageProxyController extends Controller
                 $response = \Illuminate\Support\Facades\Http::withHeaders([
                     'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                     'Referer' => 'https://www.grupocva.com/',
-                ])->timeout(15)->get($url);
+                ])->withoutVerifying()->retry(2, 200)->timeout(15)->get($url);
 
                 if ($response->failed()) {
                     return null;
@@ -81,7 +81,7 @@ class ImageProxyController extends Controller
                         $response = \Illuminate\Support\Facades\Http::withHeaders([
                             'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                             'Referer' => 'https://www.grupocva.com/',
-                        ])->timeout(10)->get($realImageUrl);
+                        ])->withoutVerifying()->retry(2, 200)->timeout(10)->get($realImageUrl);
 
                         if ($response->successful()) {
                             return [
@@ -171,7 +171,7 @@ class ImageProxyController extends Controller
                         $response = \Illuminate\Support\Facades\Http::withHeaders([
                             'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                             'Referer' => 'https://www.grupocva.com/',
-                        ])->timeout(8)->get($realUrl);
+                        ])->withoutVerifying()->timeout(8)->get($realUrl);
 
                         if ($response->successful() && str_contains($response->header('Content-Type'), 'image')) {
                             return [

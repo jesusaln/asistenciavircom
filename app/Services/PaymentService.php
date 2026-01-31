@@ -84,7 +84,8 @@ class PaymentService
         $baseUrl = $config[$mode]['api_url'];
 
         try {
-            $response = Http::withBasicAuth($config['client_id'], $config['client_secret'])
+            $response = Http::withoutVerifying()
+                ->withBasicAuth($config['client_id'], $config['client_secret'])
                 ->asForm()
                 ->post("$baseUrl/v1/oauth2/token", [
                     'grant_type' => 'client_credentials',
@@ -118,7 +119,8 @@ class PaymentService
         $currency = $this->config['currency'] ?? 'MXN';
 
         try {
-            $response = Http::withToken($accessToken)
+            $response = Http::withoutVerifying()
+                ->withToken($accessToken)
                 ->post("$baseUrl/v2/checkout/orders", [
                     'intent' => 'CAPTURE',
                     'purchase_units' => [
@@ -175,7 +177,8 @@ class PaymentService
         $baseUrl = $config[$mode]['api_url'];
 
         try {
-            $response = Http::withToken($accessToken)
+            $response = Http::withoutVerifying()
+                ->withToken($accessToken)
                 ->withBody('', 'application/json')
                 ->post("$baseUrl/v2/checkout/orders/{$orderId}/capture");
 
@@ -253,7 +256,8 @@ class PaymentService
                 // Sin webhook
             }
 
-            $response = Http::withToken($config['access_token'])
+            $response = Http::withoutVerifying()
+                ->withToken($config['access_token'])
                 ->post($config['api_url'] . '/checkout/preferences', $preferenceData);
 
             if ($response->successful()) {
@@ -283,7 +287,8 @@ class PaymentService
         $config = $this->config['mercadopago'];
 
         try {
-            $response = Http::withToken($config['access_token'])
+            $response = Http::withoutVerifying()
+                ->withToken($config['access_token'])
                 ->get($config['api_url'] . '/v1/payments/' . $paymentId);
 
             if ($response->successful()) {
@@ -312,7 +317,8 @@ class PaymentService
             // Stripe usa centavos para MXN
             $amountCents = (int) round($amount * 100);
 
-            $response = Http::withBasicAuth($config['secret_key'], '')
+            $response = Http::withoutVerifying()
+                ->withBasicAuth($config['secret_key'], '')
                 ->asForm()
                 ->post($config['api_url'] . '/v1/payment_intents', [
                     'amount' => $amountCents,
@@ -350,7 +356,8 @@ class PaymentService
         try {
             $amountCents = (int) round($amount * 100);
 
-            $response = Http::withBasicAuth($config['secret_key'], '')
+            $response = Http::withoutVerifying()
+                ->withBasicAuth($config['secret_key'], '')
                 ->asForm()
                 ->post($config['api_url'] . '/v1/checkout/sessions', [
                     'mode' => 'payment',
@@ -389,7 +396,8 @@ class PaymentService
         $config = $this->config['stripe'];
 
         try {
-            $response = Http::withBasicAuth($config['secret_key'], '')
+            $response = Http::withoutVerifying()
+                ->withBasicAuth($config['secret_key'], '')
                 ->get($config['api_url'] . '/v1/payment_intents/' . $paymentIntentId);
 
             if ($response->successful()) {
@@ -411,7 +419,8 @@ class PaymentService
         $config = $this->config['stripe'];
 
         try {
-            $response = Http::withBasicAuth($config['secret_key'], '')
+            $response = Http::withoutVerifying()
+                ->withBasicAuth($config['secret_key'], '')
                 ->get($config['api_url'] . '/v1/checkout/sessions/' . $sessionId);
 
             if ($response->successful()) {

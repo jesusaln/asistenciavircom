@@ -30,6 +30,7 @@ class FolioService
         'ticket' => \App\Models\Ticket::class,
         'traspaso' => \App\Models\Traspaso::class,
         'vacacion' => \App\Models\Vacacion::class,
+        'poliza' => \App\Models\PolizaServicio::class,
     ];
 
     /**
@@ -47,7 +48,7 @@ class FolioService
             'orden_compra' => 'numero_orden',
             'compra' => 'numero_compra',
             'cliente', 'proveedor', 'producto', 'servicio' => 'codigo',
-            'cita', 'mantenimiento', 'nomina', 'prestamo', 'traspaso', 'vacacion', 'ticket' => 'folio',
+            'cita', 'mantenimiento', 'nomina', 'prestamo', 'traspaso', 'vacacion', 'ticket', 'poliza' => 'folio',
             'herramienta' => 'codigo_inventario',
             'renta' => 'numero_contrato',
             default => 'codigo' // Default fallback
