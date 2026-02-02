@@ -13,6 +13,7 @@ defineOptions({ layout: AppLayout })
 
 // Estado reactivo para Modo Oscuro
 const isDark = ref(false)
+const loading = ref(false)
 let observer = null
 
 onMounted(() => {
@@ -171,16 +172,26 @@ const usuariosDocumentos = computed(() => {
 })
 
 // Handlers
+let searchTimeout = null
 function handleSearchChange(newSearch) {
   searchTerm.value = newSearch
-  router.get(route('usuarios.index'), {
-    search: newSearch,
-    sort_by: sortBy.value.split('-')[0],
-    sort_direction: sortBy.value.split('-')[1] || 'desc',
-    activo: filtroEstado.value,
-    per_page: perPage.value,
-    page: 1
-  }, { preserveState: true, preserveScroll: true })
+  if (searchTimeout) clearTimeout(searchTimeout)
+  
+  searchTimeout = setTimeout(() => {
+    loading.value = true
+    router.get(route('usuarios.index'), {
+      search: newSearch,
+      sort_by: sortBy.value.split('-')[0],
+      sort_direction: sortBy.value.split('-')[1] || 'desc',
+      activo: filtroEstado.value,
+      per_page: perPage.value,
+      page: 1
+    }, { 
+      preserveState: true, 
+      preserveScroll: true,
+      onFinish: () => { loading.value = false }
+    })
+  }, 500)
 }
 
 function handleEstadoChange(newEstado) {

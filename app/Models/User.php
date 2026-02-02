@@ -20,6 +20,11 @@ class User extends Authenticatable
     use HasApiTokens, Notifiable, HasRoles, HasFactory, HasProfilePhoto, HasTeams, TwoFactorAuthenticatable, \App\Models\Concerns\BelongsToEmpresa;
 
     /**
+     * Variable para cachear los registros de vacaciones durante el ciclo de vida de la petición.
+     */
+    protected $vacacionesCache = null;
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -265,9 +270,13 @@ class User extends Authenticatable
             return 0;
         }
 
-        $registro = $this->registroVacacionesActual()->first();
-        if (!$registro) {
-            $registro = \App\Models\RegistroVacaciones::actualizarRegistroAnual($this->id);
+        if ($this->relationLoaded('registroVacacionesActual')) {
+            $registro = $this->registroVacacionesActual;
+        } else {
+            $registro = $this->registroVacacionesActual()->first();
+            if (!$registro) {
+                $registro = \App\Models\RegistroVacaciones::actualizarRegistroAnual($this->id);
+            }
         }
         return $registro?->dias_correspondientes ?? 0;
     }
@@ -279,10 +288,15 @@ class User extends Authenticatable
             return 0;
         }
 
-        $registro = $this->registroVacacionesActual()->first();
-        if (!$registro) {
-            $registro = \App\Models\RegistroVacaciones::actualizarRegistroAnual($this->id);
+        if ($this->relationLoaded('registroVacacionesActual')) {
+            $registro = $this->registroVacacionesActual;
+        } else {
+            $registro = $this->registroVacacionesActual()->first();
+            if (!$registro) {
+                $registro = \App\Models\RegistroVacaciones::actualizarRegistroAnual($this->id);
+            }
         }
+
         if (!$registro)
             return 0;
 
@@ -305,6 +319,34 @@ class User extends Authenticatable
     public function scopeEmpleadosActivos($query)
     {
         return $query->where('es_empleado', true)->where('activo', true);
+    }
+
+    // Scope unificado para filtrado (utilizado en index y export)
+    public function scopeFilter($query, array $filters)
+    {
+        $query->when($filters['search'] ?? null, function ($query, $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('telefono', 'like', "%{$search}%");
+            });
+        });
+
+        $query->when($filters['activo'] ?? null, function ($query, $activo) {
+            if ($activo === '1') {
+                $query->where(function ($q) {
+                    $q->where('activo', true)->orWhereNull('activo');
+                });
+            } elseif ($activo === '0') {
+                $query->where('activo', false);
+            }
+        });
+
+        $query->when($filters['role'] ?? null, function ($query, $role) {
+            $query->role($role);
+        });
+
+        return $query;
     }
 
     // ==================== Scopes Unificados ====================

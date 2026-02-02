@@ -40,7 +40,7 @@
     "exceljs": "^4.4.0",
     "form-data": "^4.0.4",
     "highlight.js": "^11.11.1",
-    "jspdf": "^3.0.1",
+    "jspdf": "^4.1.0",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "notyf": "^3.10.0",

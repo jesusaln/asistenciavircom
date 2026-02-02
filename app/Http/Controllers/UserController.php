@@ -48,28 +48,6 @@ class UserController extends Controller
         }
 
         try {
-            $query = User::with('roles');
-
-            // Filtros de búsqueda
-            if ($s = trim((string) $request->input('search', ''))) {
-                $query->where(function ($w) use ($s) {
-                    $w->where('name', 'like', "%{$s}%")
-                        ->orWhere('email', 'like', "%{$s}%");
-                });
-            }
-
-            // Filtrar por estado activo/inactivo
-            if ($request->query->has('activo')) {
-                $val = (string) $request->query('activo');
-                if ($val === '1') {
-                    $query->where(function ($query) {
-                        $query->where('activo', true)->orWhereNull('activo');
-                    });
-                } elseif ($val === '0') {
-                    $query->where('activo', false);
-                }
-            }
-
             // Ordenamiento
             $sortBy = $request->get('sort_by', 'created_at');
             $sortDirection = $request->get('sort_direction', 'desc');
@@ -80,10 +58,11 @@ class UserController extends Controller
             if (!in_array($sortDirection, ['asc', 'desc']))
                 $sortDirection = 'desc';
 
-            $query->orderBy($sortBy, $sortDirection);
-
-            // Paginación
-            $usuarios = $query->paginate(10)->appends($request->query());
+            $usuarios = User::with(['roles', 'registroVacacionesActual'])
+                ->filter($request->only(['search', 'activo', 'role']))
+                ->orderBy($sortBy, $sortDirection)
+                ->paginate($request->input('per_page', 10))
+                ->appends($request->query());
 
             // Estadísticas
             $usuariosCount = User::count();
@@ -236,6 +215,7 @@ class UserController extends Controller
             'almacen_compra_id' => 'nullable|exists:almacenes,id',
             'costo_hora_interno' => 'nullable|numeric|min:0',
             'roles' => 'nullable|array',
+            'roles.*' => 'exists:roles,name',
         ]);
 
         $userData = [
@@ -285,6 +265,9 @@ class UserController extends Controller
             'costo_hora_interno' => 'nullable|numeric|min:0',
             'password' => 'nullable|string|min:8|confirmed',
             'roles' => 'nullable|array',
+            'roles.*' => 'exists:roles,name',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'string|exists:permissions,name',
         ]);
 
         // Actualizar los datos del usuario
@@ -300,6 +283,10 @@ class UserController extends Controller
 
         if ($request->has('roles')) {
             $user->syncRoles($validated['roles']);
+        }
+
+        if ($request->has('permissions')) {
+            $user->syncPermissions($validated['permissions']);
         }
 
         $tipo = $user->es_empleado ? 'empleado' : 'usuario';
@@ -475,28 +462,9 @@ class UserController extends Controller
         $this->authorize('viewAny', User::class);
 
         try {
-            $query = User::with('roles');
-
-            // Aplicar los mismos filtros que en index
-            if ($s = trim((string) $request->input('search', ''))) {
-                $query->where(function ($w) use ($s) {
-                    $w->where('name', 'like', "%{$s}%")
-                        ->orWhere('email', 'like', "%{$s}%");
-                });
-            }
-
-            if ($request->query->has('activo')) {
-                $val = (string) $request->query('activo');
-                if ($val === '1') {
-                    $query->where(function ($query) {
-                        $query->where('activo', true)->orWhereNull('activo');
-                    });
-                } elseif ($val === '0') {
-                    $query->where('activo', false);
-                }
-            }
-
-            $usuarios = $query->get();
+            $usuarios = User::with('roles')
+                ->filter($request->only(['search', 'activo', 'role']))
+                ->get();
 
             $filename = 'usuarios_' . date('Y-m-d_H-i-s') . '.csv';
 

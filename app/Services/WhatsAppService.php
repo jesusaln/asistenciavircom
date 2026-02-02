@@ -280,6 +280,16 @@ class WhatsAppService
             return '+52' . $digits;
         }
 
+        // - 13 dígitos empezando con 521: celular con '1' extra, quitar el '1'
+        if (preg_match('/^521\d{10}$/', $digits)) {
+            return '+52' . substr($digits, 3);
+        }
+
+        // - 11 dígitos empezando con 1 y 10 dígitos: quitar el '1' y agregar +52
+        if (preg_match('/^1\d{10}$/', $digits)) {
+            return '+52' . substr($digits, 1);
+        }
+
         // - 8 dígitos: número local, asumir código de área común (Hermosillo: 662)
         if (strlen($digits) === 8) {
             return '+52662' . $digits;

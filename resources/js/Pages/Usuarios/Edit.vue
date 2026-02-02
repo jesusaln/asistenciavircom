@@ -219,36 +219,33 @@
         <!-- Right Column: Settings, Matrix and Stats -->
         <div class="space-y-8">
            <!-- Preferences Card -->
-           <div v-if="isAdmin" class="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-2xl transition-all duration-500">
-              <h3 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-8">Almacenes</h3>
-              
-              <div class="space-y-8">
-                 <div class="space-y-3">
-                    <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Para Ventas</label>
-                    <select v-model="selectedAlmacenVenta" @change="updateAlmacenVenta" class="block w-full px-5 py-5 border-slate-100 dark:border-slate-800 rounded-3xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold appearance-none">
-                       <option value="">SIN PREDETERMINADO</option>
-                       <option v-for="almacen in props.almacenes" :key="almacen.id" :value="almacen.id">{{ almacen.nombre }}</option>
-                    </select>
-                 </div>
+            <div v-if="isAdmin" class="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-2xl transition-all duration-500">
+               <h3 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-8">Almacenes</h3>
+               
+               <div class="space-y-8">
+                  <div class="space-y-3">
+                     <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Para Ventas</label>
+                     <select v-model="form.almacen_venta_id" class="block w-full px-5 py-5 border-slate-100 dark:border-slate-800 rounded-3xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold appearance-none">
+                        <option :value="null">SIN PREDETERMINADO</option>
+                        <option v-for="almacen in props.almacenes" :key="almacen.id" :value="almacen.id">{{ almacen.nombre }}</option>
+                     </select>
+                  </div>
 
-                 <div class="space-y-3">
-                    <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Para Compras</label>
-                    <select v-model="selectedAlmacenCompra" @change="updateAlmacenCompra" class="block w-full px-5 py-5 border-slate-100 dark:border-slate-800 rounded-3xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold appearance-none">
-                       <option value="">SIN PREDETERMINADO</option>
-                       <option v-for="almacen in props.almacenes" :key="almacen.id" :value="almacen.id">{{ almacen.nombre }}</option>
-                    </select>
-                 </div>
-              </div>
-           </div>
+                  <div class="space-y-3">
+                     <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Para Compras</label>
+                     <select v-model="form.almacen_compra_id" class="block w-full px-5 py-5 border-slate-100 dark:border-slate-800 rounded-3xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold appearance-none">
+                        <option :value="null">SIN PREDETERMINADO</option>
+                        <option v-for="almacen in props.almacenes" :key="almacen.id" :value="almacen.id">{{ almacen.nombre }}</option>
+                     </select>
+                  </div>
+               </div>
+            </div>
 
            <!-- Permissions Matrix Card -->
            <div v-if="isAdmin && props.permissionGroups" class="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-2xl transition-all duration-500">
               <div class="flex items-center justify-between mb-8">
                 <h3 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Micro-Permisos</h3>
-                <button @click="savePermissions" :disabled="savingPermissions || !permissionsChanged" class="p-4 rounded-2xl bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500 hover:text-white transition-all disabled:opacity-30">
-                   <svg v-if="savingPermissions" class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                   <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
-                </button>
+                <div v-if="permissionsChanged" class="px-3 py-1 bg-amber-500/10 text-amber-500 text-[9px] font-bold rounded-full uppercase tracking-widest animate-pulse">Pendiente de guardar</div>
               </div>
 
               <div class="space-y-6 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
@@ -305,8 +302,6 @@ const props = defineProps({
 });
 
 const showPassword = ref(false);
-const selectedAlmacenVenta = ref(props.usuario.almacen_venta_id || '');
-const selectedAlmacenCompra = ref(props.usuario.almacen_compra_id || '');
 
 const actions = ['view', 'create', 'edit', 'delete', 'export', 'stats', 'manage'];
 const actionLabels = {
@@ -326,86 +321,46 @@ const notyf = new Notyf({
 
 const permissionsChanged = computed(() => {
   const original = [...(props.userDirectPermissions || [])].sort();
-  const current = [...directPermissions.value].sort();
+  const current = [...form.permissions].sort();
   return JSON.stringify(original) !== JSON.stringify(current);
 });
 
 const isRolePermission = (permName) => (props.rolePermissions || []).includes(permName);
-const isDirectPermission = (permName) => directPermissions.value.includes(permName);
+const isDirectPermission = (permName) => form.permissions.includes(permName);
 const togglePermission = (permName) => {
   if (isRolePermission(permName)) return;
-  const index = directPermissions.value.indexOf(permName);
-  if (index === -1) directPermissions.value.push(permName);
-  else directPermissions.value.splice(index, 1);
+  const index = form.permissions.indexOf(permName);
+  if (index === -1) form.permissions.push(permName);
+  else form.permissions.splice(index, 1);
 };
 
-const savePermissions = async () => {
-  savingPermissions.value = true;
-  try {
-    const response = await fetch(`/usuarios/${props.usuario.id}/sync-permissions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({ permissions: directPermissions.value })
-    });
-    const data = await response.json();
-    if (data.success) {
-      notyf.success('Políticas de seguridad sincronizadas correctamente');
-      directPermissions.value = data.userDirectPermissions || [];
-    } else throw new Error(data.message);
-  } catch (error) {
-    notyf.error('Fallo en sincronización: ' + error.message);
-  } finally {
-    savingPermissions.value = false;
-  }
-};
-
-const updateAlmacenVenta = async () => {
-  try {
-    await fetch(`/usuarios/${props.usuario.id}/update-almacen-venta`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({ almacen_venta_id: selectedAlmacenVenta.value || null })
-    });
-    notyf.success('Logística de venta actualizada');
-  } catch (e) { notyf.error('Error en logística'); }
-};
-
-const updateAlmacenCompra = async () => {
-  try {
-    await fetch(`/usuarios/${props.usuario.id}/update-almacen-compra`, {
-      method: 'POST', headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({ almacen_compra_id: selectedAlmacenCompra.value || null })
-    });
-    notyf.success('Logística de compra actualizada');
-  } catch (e) { notyf.error('Error en logística'); }
-};
+// Los métodos de guardado parcial han sido reemplazados por el formulario unificado
 
 const form = useForm({
   name: props.usuario.name,
   email: props.usuario.email,
   telefono: props.usuario.telefono || '',
   roles: props.usuario.roles.map(r => r.name),
+  permissions: [...(props.userDirectPermissions || [])],
   password: '',
   password_confirmation: '',
   costo_hora_interno: props.usuario.costo_hora_interno || 0,
+  almacen_venta_id: props.usuario.almacen_venta_id || null,
+  almacen_compra_id: props.usuario.almacen_compra_id || null,
 });
 
 const isAdmin = computed(() => props.auth.user?.roles.some(role => ['admin', 'super-admin'].includes(role.name)));
 
 const isFormValid = computed(() => {
-  const hasChanges = form.name !== props.usuario.name || form.email !== props.usuario.email || form.telefono !== (props.usuario.telefono || '') || form.costo_hora_interno !== (props.usuario.costo_hora_interno || 0) || form.password || JSON.stringify([...form.roles].sort()) !== JSON.stringify(props.usuario.roles.map(r => r.name).sort());
+  const hasChanges = form.name !== props.usuario.name || 
+                     form.email !== props.usuario.email || 
+                     form.telefono !== (props.usuario.telefono || '') || 
+                     form.costo_hora_interno != (props.usuario.costo_hora_interno || 0) || 
+                     form.almacen_venta_id !== props.usuario.almacen_venta_id ||
+                     form.almacen_compra_id !== props.usuario.almacen_compra_id ||
+                     form.password || 
+                     JSON.stringify([...form.roles].sort()) !== JSON.stringify(props.usuario.roles.map(r => r.name).sort()) ||
+                     permissionsChanged.value;
   const validPassword = !form.password || (form.password.length >= 8 && form.password === form.password_confirmation);
   return hasChanges && validPassword;
 });

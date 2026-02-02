@@ -18,30 +18,27 @@ class WhatsAppWebhookController extends Controller
      */
     public function verify(Request $request)
     {
-        // Validar parámetros requeridos
-        $validator = Validator::make($request->all(), [
-            'hub.mode' => 'required|string|in:subscribe',
-            'hub.verify_token' => 'required|string',
-            'hub.challenge' => 'required|string',
-        ]);
+        // Meta envía hub.mode, hub.verify_token, hub.challenge. 
+        // PHP convierte los puntos en guiones bajos en $_GET/$_REQUEST.
 
-        if ($validator->fails()) {
-            Log::warning('Parámetros de verificación de webhook inválidos', [
-                'errors' => $validator->errors(),
+        $mode = $request->input('hub_mode');
+        $token = $request->input('hub_verify_token');
+        $challenge = $request->input('hub_challenge');
+
+        // Validar parámetros requeridos
+        if ($mode !== 'subscribe' || !$token || !$challenge) {
+            Log::warning('Parámetros de verificación de webhook inválidos o faltantes', [
                 'request' => $request->all(),
             ]);
             return response('Parámetros inválidos', 400);
         }
 
-        $verifyToken = $request->input('hub.verify_token');
-        $challenge = $request->input('hub.challenge');
-
         // Buscar empresa con este token de verificación
-        $empresa = Empresa::where('whatsapp_webhook_verify_token', $verifyToken)->first();
+        $empresa = Empresa::where('whatsapp_webhook_verify_token', $token)->first();
 
         if (!$empresa) {
-            Log::warning('Token de verificación de webhook no encontrado', [
-                'token' => $verifyToken,
+            Log::warning('Token de verificación de webhook no encontrado o no coincide', [
+                'token' => $token,
                 'ip' => $request->ip(),
             ]);
             return response('Token de verificación inválido', 403);
@@ -61,6 +58,11 @@ class WhatsAppWebhookController extends Controller
      */
     public function receive(Request $request)
     {
+        Log::info('Webhook WhatsApp Iniciado (POST)', [
+            'headers' => $request->headers->all(),
+            'body' => $request->getContent()
+        ]);
+
         // Obtener el cuerpo raw para validación de firma
         $rawBody = $request->getContent();
         $signatureHeader = $request->header('X-Hub-Signature-256', '');
@@ -231,8 +233,6 @@ class WhatsAppWebhookController extends Controller
         $signature = $matches[1];
 
         // Para validar necesitamos el app_secret de alguna empresa
-        // Como no sabemos cuál empresa, intentamos con todas las que tienen WhatsApp habilitado
-        // @todo Optimizar esto usando un mapa de secretos o buscando por business_id del payload primero
         $empresas = Empresa::where('whatsapp_enabled', true)
             ->whereNotNull('whatsapp_app_secret')
             ->get();
@@ -247,7 +247,6 @@ class WhatsAppWebhookController extends Controller
                     ]);
 
                     // ESTABLECER CONTEXTO DE EMPRESA
-                    // Esto es crucial para que los modelos con scope funcionen correctamente
                     \App\Support\EmpresaResolver::setContext($empresa->id);
 
                     return true;
