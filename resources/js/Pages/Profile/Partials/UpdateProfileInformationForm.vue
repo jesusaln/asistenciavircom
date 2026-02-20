@@ -1,13 +1,13 @@
 <template>
     <FormSection @submitted="updateProfileInformation">
         <template #title>
-            <h2 class="text-black font-semibold text-xl leading-tight">
+            <h2 class="text-slate-900 dark:text-white font-semibold text-xl leading-tight">
                 Información del Perfil
             </h2>
         </template>
 
         <template #description>
-            <p class="text-black">
+            <p class="text-slate-600 dark:text-slate-400">
                 Actualiza la información del perfil y la dirección de correo electrónico de tu cuenta.
             </p>
         </template>
@@ -24,7 +24,7 @@
                     @change="updatePhotoPreview"
                 >
 
-                <InputLabel for="photo" value="Foto" class="text-black" />
+                <InputLabel for="photo" value="Foto" class="text-slate-700 dark:text-slate-300" />
 
                 <!-- Foto de Perfil Actual -->
                 <div v-show="!photoPreview && props.user.profile_photo_url" class="mt-2">
@@ -39,51 +39,51 @@
                     />
                 </div>
 
-                <SecondaryButton class="mt-2 me-2 text-black" type="button" @click.prevent="selectNewPhoto">
+                <SecondaryButton class="mt-2 me-2 dark:text-white" type="button" @click.prevent="selectNewPhoto">
                     Seleccionar Nueva Foto
                 </SecondaryButton>
 
                 <SecondaryButton
                     v-if="props.user.profile_photo_path"
                     type="button"
-                    class="mt-2 text-black"
+                    class="mt-2 dark:text-white"
                     @click.prevent="deletePhoto"
                 >
                     Eliminar Foto
                 </SecondaryButton>
 
-                <InputError :message="form.errors.photo" class="mt-2 text-black" />
+                <InputError :message="form.errors.photo" class="mt-2" />
             </div>
 
             <!-- Nombre -->
             <div class="col-span-6 sm:col-span-4">
-                <InputLabel for="name" value="Nombre" class="text-black" />
+                <InputLabel for="name" value="Nombre" class="text-slate-700 dark:text-slate-300" />
                 <TextInput
                     id="name"
                     v-model="form.name"
                     type="text"
-                    class="mt-1 block w-full text-black"
+                    class="mt-1 block w-full dark:text-white dark:bg-slate-800 dark:border-slate-700"
                     required
                     autocomplete="name"
                 />
-                <InputError :message="form.errors.name" class="mt-2 text-black" />
+                <InputError :message="form.errors.name" class="mt-2" />
             </div>
 
             <!-- Correo Electrónico -->
             <div class="col-span-6 sm:col-span-4">
-                <InputLabel for="email" value="Correo Electrónico" class="text-black" />
+                <InputLabel for="email" value="Correo Electrónico" class="text-slate-700 dark:text-slate-300" />
                 <TextInput
                     id="email"
                     v-model="form.email"
                     type="email"
-                    class="mt-1 block w-full text-black"
+                    class="mt-1 block w-full dark:text-white dark:bg-slate-800 dark:border-slate-700"
                     required
                     autocomplete="username"
                 />
-                <InputError :message="form.errors.email" class="mt-2 text-black" />
+                <InputError :message="form.errors.email" class="mt-2" />
 
                 <div v-if="$page.props.jetstream.hasEmailVerification && props.user.email_verified_at === null">
-                    <p class="text-sm mt-2 text-black">
+                    <p class="text-sm mt-2 text-slate-600 dark:text-slate-400">
                         Tu dirección de correo electrónico no está verificada.
 
                         <Link
@@ -109,7 +109,7 @@
                 Guardado.
             </ActionMessage>
 
-            <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing" class="text-black">
+            <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing" class="dark:text-white">
                 Guardar
             </PrimaryButton>
         </template>

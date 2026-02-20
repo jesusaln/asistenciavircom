@@ -40,24 +40,24 @@ const closeModal = () => {
 <template>
     <ActionSection>
         <template #title>
-            <h2 class="text-black font-semibold text-xl leading-tight">
+            <h2 class="text-slate-900 dark:text-white font-semibold text-xl leading-tight">
                 Eliminar Cuenta
             </h2>
         </template>
 
         <template #description>
-            <p class="text-black">
+            <p class="text-slate-600 dark:text-slate-400">
                 Elimina permanentemente tu cuenta.
             </p>
         </template>
 
         <template #content>
-            <div class="max-w-xl text-sm text-white">
+            <div class="max-w-xl text-sm text-slate-600 dark:text-slate-400">
                 Una vez que tu cuenta sea eliminada, todos sus recursos y datos serán eliminados permanentemente. Antes de eliminar tu cuenta, por favor descarga cualquier dato o información que desees conservar.
             </div>
 
             <div class="mt-5">
-                <DangerButton @click="confirmUserDeletion" class="text-black">
+                <DangerButton @click="confirmUserDeletion" class="dark:text-white">
                     Eliminar Cuenta
                 </DangerButton>
             </div>
@@ -65,13 +65,13 @@ const closeModal = () => {
             <!-- Modal de Confirmación para Eliminar Cuenta -->
             <DialogModal :show="confirmingUserDeletion" @close="closeModal">
                 <template #title>
-                    <h2 class="text-black font-semibold text-xl leading-tight">
+                    <h2 class="text-slate-900 dark:text-white font-semibold text-xl leading-tight">
                         Eliminar Cuenta
                     </h2>
                 </template>
 
                 <template #content>
-                    <p class="text-black">
+                    <p class="text-slate-600 dark:text-slate-400">
                         ¿Estás seguro de que deseas eliminar tu cuenta? Una vez que tu cuenta sea eliminada, todos sus recursos y datos serán eliminados permanentemente. Por favor, introduce tu contraseña para confirmar que deseas eliminar tu cuenta permanentemente.
                     </p>
 
@@ -80,23 +80,23 @@ const closeModal = () => {
                             ref="passwordInput"
                             v-model="form.password"
                             type="password"
-                            class="mt-1 block w-3/4 text-black"
+                            class="mt-1 block w-3/4 dark:text-white dark:bg-slate-800 dark:border-slate-700"
                             placeholder="Contraseña"
                             autocomplete="current-password"
                             @keyup.enter="deleteUser"
                         />
 
-                        <InputError :message="form.errors.password" class="mt-2 text-black" />
+                        <InputError :message="form.errors.password" class="mt-2" />
                     </div>
                 </template>
 
                 <template #footer>
-                    <SecondaryButton @click="closeModal" class="text-black">
+                    <SecondaryButton @click="closeModal" class="dark:text-white">
                         Cancelar
                     </SecondaryButton>
 
                     <DangerButton
-                        class="ms-3 text-black"
+                        class="ms-3 dark:text-white"
                         :class="{ 'opacity-25': form.processing }"
                         :disabled="form.processing"
                         @click="deleteUser"

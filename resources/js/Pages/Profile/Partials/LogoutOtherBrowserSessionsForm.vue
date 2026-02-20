@@ -45,19 +45,19 @@ const closeModal = () => {
 <template>
     <ActionSection>
         <template #title>
-            <h2 class="text-black font-semibold text-xl leading-tight">
+            <h2 class="text-slate-900 dark:text-white font-semibold text-xl leading-tight">
                 Sesiones del Navegador
             </h2>
         </template>
 
         <template #description>
-            <p class="text-black">
+            <p class="text-slate-600 dark:text-slate-400">
                 Administra y cierra sesión en tus sesiones activas en otros navegadores y dispositivos.
             </p>
         </template>
 
         <template #content>
-            <div class="max-w-xl text-sm text-white">
+            <div class="max-w-xl text-sm text-slate-600 dark:text-slate-400">
                 Si es necesario, puedes cerrar sesión en todas tus otras sesiones de navegador en todos tus dispositivos. Algunas de tus sesiones recientes se listan a continuación; sin embargo, esta lista puede no ser exhaustiva. Si sientes que tu cuenta ha sido comprometida, también deberías actualizar tu contraseña.
             </div>
 
@@ -75,12 +75,12 @@ const closeModal = () => {
                     </div>
 
                     <div class="ms-3">
-                        <div class="text-sm text-black">
+                        <div class="text-sm text-slate-900 dark:text-white">
                             {{ session.agent.platform ? session.agent.platform : 'Desconocido' }} - {{ session.agent.browser ? session.agent.browser : 'Desconocido' }}
                         </div>
 
                         <div>
-                            <div class="text-xs text-black">
+                            <div class="text-xs text-slate-500 dark:text-slate-400">
                                 {{ session.ip_address }},
 
                                 <span v-if="session.is_current_device" class="text-green-500 font-semibold">Este dispositivo</span>
@@ -92,11 +92,11 @@ const closeModal = () => {
             </div>
 
             <div class="flex items-center mt-5">
-                <PrimaryButton @click="confirmLogout" class="text-black">
+                <PrimaryButton @click="confirmLogout" class="dark:text-white">
                     Cerrar Sesión en Otros Navegadores
                 </PrimaryButton>
 
-                <ActionMessage :on="form.recentlySuccessful" class="ms-3 text-black">
+                <ActionMessage :on="form.recentlySuccessful" class="ms-3 text-slate-600 dark:text-slate-400">
                     Hecho.
                 </ActionMessage>
             </div>
@@ -104,13 +104,13 @@ const closeModal = () => {
             <!-- Modal de Confirmación para Cerrar Sesión en Otros Dispositivos -->
             <DialogModal :show="confirmingLogout" @close="closeModal">
                 <template #title>
-                    <h2 class="text-black font-semibold text-xl leading-tight">
+                    <h2 class="text-slate-900 dark:text-white font-semibold text-xl leading-tight">
                         Cerrar Sesión en Otros Navegadores
                     </h2>
                 </template>
 
                 <template #content>
-                    <p class="text-black">
+                    <p class="text-slate-600 dark:text-slate-400">
                         Por favor, introduce tu contraseña para confirmar que deseas cerrar sesión en tus otras sesiones de navegador en todos tus dispositivos.
                     </p>
 
@@ -119,23 +119,23 @@ const closeModal = () => {
                             ref="passwordInput"
                             v-model="form.password"
                             type="password"
-                            class="mt-1 block w-3/4 text-black"
+                            class="mt-1 block w-3/4 dark:text-white dark:bg-slate-800 dark:border-slate-700"
                             placeholder="Contraseña"
                             autocomplete="current-password"
                             @keyup.enter="logoutOtherBrowserSessions"
                         />
 
-                        <InputError :message="form.errors.password" class="mt-2 text-black" />
+                        <InputError :message="form.errors.password" class="mt-2" />
                     </div>
                 </template>
 
                 <template #footer>
-                    <SecondaryButton @click="closeModal" class="text-black">
+                    <SecondaryButton @click="closeModal" class="dark:text-white">
                         Cancelar
                     </SecondaryButton>
 
                     <PrimaryButton
-                        class="ms-3 text-black"
+                        class="ms-3 dark:text-white"
                         :class="{ 'opacity-25': form.processing }"
                         :disabled="form.processing"
                         @click="logoutOtherBrowserSessions"
