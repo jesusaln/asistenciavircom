@@ -23,6 +23,17 @@ echo "--------------------------------------------------------"
 echo "🚀 Iniciando Despliegue Robusto - ASISTENCIA VIRCOM..."
 echo "--------------------------------------------------------"
 
+# Preflight: detectar contenedor real para comandos Artisan.
+# En este VPS Laravel vive en queue-v3 (web-v3 es nginx).
+echo "🔎 Verificando contenedor de aplicación..."
+DETECTED_APP_CONTAINER=$(ssh $USER@$VPS_IP "for c in '$CONTAINER_APP' '$CONTAINER_QUEUE'; do docker ps --format '{{.Names}}' | grep -Fx \"\$c\" >/dev/null && { echo \"\$c\"; break; }; done")
+if [ -z "$DETECTED_APP_CONTAINER" ]; then
+    echo "❌ No se encontró contenedor Laravel activo (ni $CONTAINER_APP ni $CONTAINER_QUEUE)."
+    exit 1
+fi
+CONTAINER_APP="$DETECTED_APP_CONTAINER"
+echo "✅ Contenedor Laravel detectado: $CONTAINER_APP"
+
 # 1. Incremento de Versión, Commit y Push
 echo "📝 1/8 Control de Versiones y Sincronización..."
 # Intento de autodetectar versión (Fallback a timestamp si falla grep)
