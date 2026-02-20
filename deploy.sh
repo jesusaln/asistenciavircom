@@ -63,6 +63,9 @@ rsync -avz --no-perms --no-owner --no-group \
     --exclude='storage/framework/cache/*' \
     --exclude='storage/framework/sessions/*' \
     --exclude='storage/framework/views/*' \
+    --include='storage/app/public/landing_hero_professional.png' \
+    --include='storage/app/public/logos/***' \
+    --include='storage/app/public/favicons/***' \
     --exclude='storage/app/public/*' \
     --exclude='public/storage' \
     --exclude='public/hot' \
