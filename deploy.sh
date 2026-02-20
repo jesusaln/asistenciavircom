@@ -15,7 +15,7 @@ REMOTE_PATH="/root/asistenciavircom" # Asumiendo ruta estándar
 
 # Nombres de Contenedores (Ajusta según tu docker-compose en prod)
 # Por defecto Docker Compose usa carpeta_servicio_numero
-CONTAINER_APP="asistenciavircom-app-v3"
+CONTAINER_APP="asistenciavircom-queue-v3"
 CONTAINER_QUEUE="asistenciavircom-queue-v3"
 CONTAINER_WEB="asistenciavircom-web-v3"
 
