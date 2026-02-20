@@ -10,12 +10,17 @@
         $empresaConfig = \App\Models\EmpresaConfiguracion::getConfig();
         $title = $empresaConfig->nombre_empresa ?: config('app.name', 'Asistencia Vircom');
         $description = $empresaConfig->descripcion_empresa ?: 'Soporte técnico profesional y soluciones integrales para tu hogar y empresa. Especialistas en tecnología y seguridad.';
-        $ogImage = $empresaConfig->logo_path ? asset('storage/' . $empresaConfig->logo_path) : asset('images/og-main.png');
+        // Priorizar el banner diseñado para que se vea "bonito" en WhatsApp
+        $ogImage = asset('images/og-main.png');
+        if (!file_exists(public_path('images/og-main.png')) && $empresaConfig->logo_path) {
+            $ogImage = asset('storage/' . $empresaConfig->logo_path);
+        }
     @endphp
 
     {{-- SEO & Redes Sociales --}}
     <meta name="description" content="{{ $description }}">
-    <meta name="keywords" content="soporte técnico, vircom, asistencia, mantenimiento, tecnología, seguridad, {{ strtolower($title) }}">
+    <meta name="keywords"
+        content="soporte técnico, vircom, asistencia, mantenimiento, tecnología, seguridad, {{ strtolower($title) }}">
     <meta name="author" content="{{ $title }}">
 
     {{-- Open Graph / WhatsApp / Facebook --}}
@@ -41,7 +46,8 @@
     <!-- Fonts -->
     <link rel="preload" href="https://fonts.bunny.net/css?family=figtree:400&display=swap" as="style">
     <link href="https://fonts.bunny.net/css?family=figtree:400&display=swap" rel="stylesheet" />
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        as="style">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
     {{-- Favicon dinámico --}}
@@ -54,11 +60,15 @@
     {{-- Estilos dinámicos con colores de empresa --}}
     <style>
         :root {
-            --color-primary: {{ $empresaConfig->color_principal ?? '#3B82F6' }};
-            --color-secondary: {{ $empresaConfig->color_secundario ?? '#1E40AF' }};
+            --color-primary:
+                {{ $empresaConfig->color_principal ?? '#3B82F6' }}
+            ;
+            --color-secondary:
+                {{ $empresaConfig->color_secundario ?? '#1E40AF' }}
+            ;
             --empresa-nombre: "{{ addslashes($empresaConfig->nombre_empresa ?? 'CDD Sistema') }}";
         }
-        
+
         /* Ensure proper font rendering for Spanish characters */
         body {
             font-family: 'Figtree', 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
@@ -73,6 +83,7 @@
             body {
                 background: linear-gradient(45deg, #f3f4f6, #e5e7eb);
             }
+
             body::before {
                 content: "";
                 position: fixed;
@@ -83,6 +94,7 @@
                 background-color: rgba(0, 0, 0, 0.5);
                 z-index: 9998;
             }
+
             .mantenimiento-modal {
                 position: fixed;
                 top: 50%;
@@ -112,11 +124,14 @@
         <div class="mantenimiento-modal">
             <div class="mb-4">
                 @if($empresaConfig->logo_path ?? false)
-                    <img src="{{ asset('storage/' . $empresaConfig->logo_path) }}" alt="Logo" class="w-16 h-16 mx-auto mb-4 object-contain" />
+                    <img src="{{ asset('storage/' . $empresaConfig->logo_path) }}" alt="Logo"
+                        class="w-16 h-16 mx-auto mb-4 object-contain" />
                 @endif
             </div>
             <h2 class="text-xl font-bold text-gray-900 mb-2">Sistema en Mantenimiento</h2>
-            <p class="text-gray-600 mb-4">{{ $empresaConfig->mensaje_mantenimiento ?? 'El sistema se encuentra temporalmente fuera de servicio por mantenimiento. Por favor, inténtalo más tarde.' }}</p>
+            <p class="text-gray-600 mb-4">
+                {{ $empresaConfig->mensaje_mantenimiento ?? 'El sistema se encuentra temporalmente fuera de servicio por mantenimiento. Por favor, inténtalo más tarde.' }}
+            </p>
             <div class="text-sm text-gray-500">
                 <p>{{ $empresaConfig->nombre_empresa ?? 'CDD Sistema' }}</p>
                 @if($empresaConfig->email ?? false)
