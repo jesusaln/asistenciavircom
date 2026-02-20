@@ -1,7 +1,7 @@
 <template>
     <div class="relative w-full">
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-            {{ label }} <span v-if="required" class="text-red-500">*</span>
+        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2 px-1">
+            {{ label }} <span v-if="required" class="text-rose-500">*</span>
         </label>
         
         <div class="relative">
@@ -14,16 +14,16 @@
                 @keydown.up.prevent="navigateResults(-1)"
                 @keydown.enter.prevent="selectCurrent"
                 :placeholder="placeholder"
-                class="input-field pr-10"
+                class="block w-full px-4 py-2.5 bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all pr-10"
                 autocomplete="off"
             />
             
             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <svg v-if="loading" class="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg v-if="loading" class="animate-spin h-5 w-5 text-blue-500/50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <svg v-else class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg v-else class="h-5 w-5 text-slate-400 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
             </div>
@@ -35,11 +35,11 @@
                     v-for="(result, index) in results"
                     :key="result.clave"
                     @click="selectResult(result)"
-                    class="px-4 py-2 hover:bg-blue-50 cursor-pointer text-sm"
-                    :class="{ 'bg-blue-100': index === activeIndex }"
+                    class="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/80 cursor-pointer transition-colors border-l-2 border-transparent hover:border-blue-500"
+                    :class="{ 'bg-blue-50/50 dark:bg-slate-800 border-blue-500': index === activeIndex }"
                 >
-                    <div class="font-bold text-blue-700">{{ result.clave }}</div>
-                    <div class="text-gray-600 truncate">{{ result.descripcion }}</div>
+                    <div class="font-black text-blue-600 dark:text-blue-400 text-xs tracking-wider mb-0.5">{{ result.clave }}</div>
+                    <div class="text-slate-600 dark:text-slate-300 text-sm font-medium truncate">{{ result.descripcion }}</div>
                 </li>
             </ul>
             <div v-else-if="search.length >= 3 && !loading" class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 italic">
@@ -50,11 +50,14 @@
             </div>
         </div>
 
-        <div v-if="selectedDescription" class="mt-2 p-2 bg-blue-50 border border-blue-100 rounded text-xs text-blue-800 flex items-start gap-2">
-            <svg class="h-4 w-4 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+        <div v-if="selectedDescription" class="mt-3 p-4 bg-blue-50/50 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/10 rounded-xl flex items-start gap-3 shadow-inner">
+            <svg class="h-5 w-5 text-blue-500 mt-0.5 shadow-sm" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
             </svg>
-            <span><strong>Seleccionado:</strong> {{ selectedDescription }}</span>
+            <div class="flex flex-col">
+                <span class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-0.5">Vínculo seleccionado</span>
+                <span class="text-sm text-blue-900 dark:text-blue-200 font-bold leading-snug">{{ selectedDescription }}</span>
+            </div>
         </div>
         
         <p v-if="error" class="error-message mt-1">{{ error }}</p>

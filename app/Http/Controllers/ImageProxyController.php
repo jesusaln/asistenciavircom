@@ -115,7 +115,8 @@ class ImageProxyController extends Controller
                 ->header('Cache-Control', 'public, max-age=86400');
 
         } catch (\Exception $e) {
-            \Log::error("Image Proxy Exception: " . $e->getMessage() . " for URL: " . $url);
+            $logLevel = str_contains($e->getMessage(), '404') ? 'warning' : 'error';
+            \Log::log($logLevel, "Image Proxy Exception ($logLevel): " . $e->getMessage() . " for URL: " . $url);
 
             // Si falló por timeout o error de red, intentar el último recurso: resolver por API V2
             if (str_contains($url, 'grupocva.com')) {

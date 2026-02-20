@@ -338,7 +338,7 @@ const obtenerLabelEstado = (estado) => {
 <template>
   <Head title="Usuarios" />
   
-  <div class="usuarios-index min-h-screen bg-white dark:bg-slate-900 dark:bg-gray-900 transition-colors" :style="cssVars">
+  <div class="usuarios-index min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300" :style="cssVars">
     <div class="w-full px-4 lg:px-8 py-8 transition-all">
       
       <!-- Header Area -->
@@ -360,17 +360,17 @@ const obtenerLabelEstado = (estado) => {
         @limpiar-filtros="limpiarFiltros"
       />
 
-      <!-- Información de paginación -->
-      <div class="flex justify-between items-center mb-4 text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400 transition-colors">
-        <div>
-          Mostrando {{ paginationData.from }} - {{ paginationData.to }} de {{ paginationData.total }} usuarios
+      <!-- Información de paginación Premium -->
+      <div class="flex justify-between items-center mt-8 mb-4">
+        <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
+          Mostrando {{ paginationData.from }} - {{ paginationData.to }} de {{ paginationData.total }} usuarios registrados
         </div>
-        <div class="flex items-center space-x-2">
-          <span>Elementos por página:</span>
+        <div class="flex items-center space-x-3 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm">
+          <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Filas:</span>
           <select
             :value="paginationData.per_page"
             @change="handlePerPageChange"
-            class="border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded px-2 py-1 text-sm transition-colors"
+            class="bg-transparent border-none text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-0 cursor-pointer pr-8"
           >
             <option value="10">10</option>
             <option value="15">15</option>
@@ -380,129 +380,118 @@ const obtenerLabelEstado = (estado) => {
         </div>
       </div>
 
-      <!-- Tabla de usuarios -->
-      <div class="mt-6">
-        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
-          <!-- Header con gradiente de empresa -->
-          <div 
-            class="px-6 py-4 border-b border-gray-200 dark:border-slate-800/60 transition-colors" 
-            :style="{ background: isDark ? 'linear-gradient(135deg, #1f2937 0%, #111827 100%)' : `linear-gradient(135deg, ${colors.principal}15 0%, ${colors.secundario}10 100%)` }"
-          >
-            <div class="flex items-center justify-between">
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-white dark:text-white tracking-tight flex items-center gap-2 transition-colors">
-                <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: colors.principal }"></span>
-                Lista de Usuarios
-              </h2>
-              <div class="text-sm font-medium px-3 py-1 rounded-full border transition-colors" :style="isDark ? { backgroundColor: '#1f2937', color: '#e5e7eb', borderColor: '#374151' } : { backgroundColor: `${colors.principal}10`, color: colors.principal, borderColor: `${colors.principal}30` }">
-                {{ usuariosData.length }} de {{ estadisticas.total }} registros
-              </div>
-            </div>
-          </div>
-
-          <!-- Table -->
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800/60">
-              <thead class="bg-white dark:bg-slate-900/60 dark:bg-gray-900/60 transition-colors">
-                <tr>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-400 uppercase tracking-wider">Usuario & Perfil</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-400 uppercase tracking-wider">Email</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-400 uppercase tracking-wider text-center">Roles</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-400 uppercase tracking-wider text-center">Estado</th>
-                  <th v-if="$can('edit usuarios') || $can('delete usuarios') || $can('view usuarios')" class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
-                </tr>
-              </thead>
-            <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-slate-800/40 dark:divide-gray-700/40 transition-colors">
+      <!-- Tabla de usuarios Premium -->
+      <div class="bg-white dark:bg-slate-900/40 dark:backdrop-blur-xl rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800/60 overflow-hidden ring-1 ring-black/5 dark:ring-white/5 transition-all duration-300">
+        <!-- Table -->
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-100 dark:divide-slate-800/60">
+            <thead class="bg-slate-50/50 dark:bg-slate-950/50">
+              <tr>
+                <th class="px-6 py-5 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Usuario y Perfil</th>
+                <th class="px-6 py-5 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Contacto</th>
+                <th class="px-6 py-5 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center">Roles Asignados</th>
+                <th class="px-6 py-5 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center">Estado</th>
+                <th v-if="$can('edit usuarios') || $can('delete usuarios') || $can('view usuarios')" class="px-6 py-5 text-right text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50 dark:divide-slate-800/40 transition-colors">
               <tr 
                 v-for="usuario in usuariosDocumentos" 
                 :key="usuario.id" 
-                class="group hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-all duration-150 relative"
+                class="group hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-all duration-200 border-l-4 border-transparent hover:border-blue-500"
               >
                 <!-- Usuario -->
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-3">
-                    <div class="relative w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden border border-gray-200 dark:border-gray-600">
-                      <img v-if="usuario.raw.profile_photo_url" :src="usuario.raw.profile_photo_url" class="w-full h-full object-cover">
-                      <span v-else class="text-sm font-bold text-gray-500 dark:text-gray-400">{{ usuario.titulo.charAt(0) }}</span>
+                <td class="px-6 py-5">
+                  <div class="flex items-center gap-4">
+                    <div class="relative group/avatar">
+                      <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border-2 border-white dark:border-slate-700 shadow-md group-hover/avatar:scale-105 transition-all duration-300">
+                        <img v-if="usuario.raw.profile_photo_url" :src="usuario.raw.profile_photo_url" class="w-full h-full object-cover">
+                        <span v-else class="text-lg font-black text-slate-400">{{ usuario.titulo.charAt(0) }}</span>
+                      </div>
+                      <div v-if="usuario.estado === 'activo'" class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full shadow-sm"></div>
                     </div>
                     <div>
-                      <div class="text-sm font-medium text-gray-900 dark:text-white">{{ usuario.titulo }}</div>
-                      <div class="text-xs text-gray-500 dark:text-gray-400">ID: #{{ usuario.id }}</div>
+                      <div class="text-sm font-black text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{{ usuario.titulo }}</div>
+                      <div class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">ID Sistema: <span class="text-slate-500 dark:text-slate-300">#{{ usuario.id }}</span></div>
                     </div>
                   </div>
                 </td>
                 
                 <!-- Email -->
-                <td class="px-6 py-4">
-                  <div class="text-sm text-gray-700 dark:text-gray-300">{{ usuario.subtitulo }}</div>
-                  <div class="text-xs text-gray-400 dark:text-gray-500">{{ formatearFecha(usuario.fecha) }}</div>
+                <td class="px-6 py-5">
+                  <div class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ usuario.subtitulo }}</div>
+                  <div class="flex items-center gap-1.5 mt-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    {{ formatearFecha(usuario.fecha) }}
+                  </div>
                 </td>
                 
                 <!-- Roles -->
-                <td class="px-6 py-4 text-center">
-                  <div class="flex flex-wrap gap-1 justify-center">
+                <td class="px-6 py-5 text-center">
+                  <div class="flex flex-wrap gap-1.5 justify-center">
                     <span v-for="rol in usuario.raw.roles" :key="rol.id" 
-                          class="px-2.5 py-0.5 rounded-full text-xs font-medium border"
+                          class="px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-sm transition-all"
                           :class="{
-                            'bg-indigo-50 text-indigo-700 border-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800': ['admin', 'super-admin'].includes(rol.name),
-                            'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800': ['vendedor', 'ventas'].includes(rol.name),
-                            'bg-green-50 text-green-700 border-green-100 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800': ['cobranza'].includes(rol.name),
-                            'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800': ['tecnico'].includes(rol.name),
-                            'bg-gray-50 text-gray-700 border-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700': !['admin', 'super-admin', 'vendedor', 'cobranza', 'tecnico', 'ventas'].includes(rol.name)
+                            'bg-indigo-50 text-indigo-700 border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20': ['admin', 'super-admin'].includes(rol.name),
+                            'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20': ['vendedor', 'ventas'].includes(rol.name),
+                            'bg-green-50 text-green-700 border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20': ['cobranza'].includes(rol.name),
+                            'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20': ['tecnico'].includes(rol.name),
+                            'bg-slate-50 text-slate-600 border-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700': !['admin', 'super-admin', 'vendedor', 'cobranza', 'tecnico', 'ventas'].includes(rol.name)
                           }">
                       {{ rol.name }}
                     </span>
-                    <span v-if="!usuario.raw.roles || usuario.raw.roles.length === 0" class="text-xs text-gray-400 italic">
-                      Sin roles
+                    <span v-if="!usuario.raw.roles || usuario.raw.roles.length === 0" class="text-[10px] text-slate-400 font-bold italic uppercase tracking-widest">
+                      Sin Acceso
                     </span>
                   </div>
                 </td>
 
                 <!-- Estado -->
-                <td class="px-6 py-4 text-center">
+                <td class="px-6 py-5 text-center">
                   <span :class="[
-                      'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                      'inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm',
                       usuario.estado === 'activo' 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' 
-                        : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                        ? 'bg-green-50 text-green-700 border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20' 
+                        : 'bg-rose-50 text-rose-700 border-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20'
                     ]">
-                    <span :class="['w-1.5 h-1.5 rounded-full mr-1.5', usuario.estado === 'activo' ? 'bg-green-500' : 'bg-red-500']"></span>
+                    <span :class="['w-1.5 h-1.5 rounded-full mr-2', usuario.estado === 'activo' ? 'bg-green-500' : 'bg-rose-500']"></span>
                     {{ obtenerLabelEstado(usuario.estado) }}
                   </span>
                 </td>
 
                 <!-- Acciones -->
-                <td v-if="$can('edit usuarios') || $can('delete usuarios') || $can('view usuarios')" class="px-6 py-4 text-right">
+                <td v-if="$can('edit usuarios') || $can('delete usuarios') || $can('view usuarios')" class="px-6 py-5 text-right">
                   <div class="flex items-center justify-end gap-2">
                     <button v-if="$can('view usuarios')" @click="verDetalles(usuario)" 
-                            class="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 dark:hover:text-blue-400 transition-colors"
-                            title="Ver detalles">
+                            class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 dark:hover:text-blue-400 transition-all duration-200 border border-transparent hover:border-blue-200 dark:hover:border-blue-500/30"
+                            title="Ver Perfil">
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
                     </button>
 
                     <button v-if="$can('edit usuarios')" @click="editarUsuario(usuario.id)" 
-                            class="p-1.5 rounded-lg text-gray-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/30 dark:hover:text-amber-400 transition-colors"
-                            title="Editar">
+                            class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 dark:hover:text-amber-400 transition-all duration-200 border border-transparent hover:border-amber-200 dark:hover:border-amber-500/30"
+                            title="Modificar">
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                     </button>
 
                     <button v-if="$can('edit usuarios')" @click="toggleUsuario(usuario.id)" 
-                            class="p-1.5 rounded-lg text-gray-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 dark:hover:text-purple-400 transition-colors"
-                            title="Alternar Estado">
+                            class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-500/10 dark:hover:text-purple-400 transition-all duration-200 border border-transparent hover:border-purple-200 dark:hover:border-purple-500/30"
+                            :title="usuario.estado === 'activo' ? 'Suspender' : 'Reactivar'">
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
                     </button>
 
                     <button v-if="$can('delete usuarios')" @click="confirmarEliminacion(usuario.id)" 
-                            class="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors"
-                            title="Eliminar">
+                            class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 dark:hover:text-rose-400 transition-all duration-200 border border-transparent hover:border-rose-200 dark:hover:border-rose-500/30"
+                            title="Eliminar Permanente">
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
                     </button>
                   </div>
@@ -511,17 +500,17 @@ const obtenerLabelEstado = (estado) => {
 
               <!-- Empty State -->
               <tr v-if="usuariosDocumentos.length === 0">
-                <td colspan="5" class="px-6 py-12 text-center">
+                <td colspan="5" class="px-6 py-24 text-center">
                   <div class="flex flex-col items-center justify-center">
-                     <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
-                        <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <div class="w-20 h-20 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl flex items-center justify-center mb-6 shadow-sm">
+                        <svg class="w-10 h-10 text-slate-400 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
                      </div>
-                     <h3 class="text-sm font-medium text-gray-900 dark:text-white">No se encontraron usuarios</h3>
-                     <p class="text-sm text-gray-500 dark:text-gray-400 max-w-sm mt-1">Intenta ajustar los filtros de búsqueda o crea un nuevo usuario.</p>
-                     <button @click="crearNuevoUsuario" class="mt-4 text-sm text-[var(--color-primary)] font-semibold hover:underline">
-                        Crear nuevo usuario
+                     <h3 class="text-lg font-black text-slate-900 dark:text-white uppercase tracking-widest">No hay usuarios</h3>
+                     <p class="text-sm font-medium text-slate-500 dark:text-slate-400 max-w-sm mt-2">No se encontraron registros que coincidan con los criterios de búsqueda actuales.</p>
+                     <button @click="crearNuevoUsuario" class="mt-8 px-6 py-3 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-500/20">
+                        Crear nuevo usuario ahora
                      </button>
                   </div>
                 </td>
@@ -531,154 +520,171 @@ const obtenerLabelEstado = (estado) => {
         </div>
       </div>
       
-      <!-- Paginación Inferior (Simple) -->
-      <div v-if="paginationData.last_page > 1" class="mt-6 flex justify-end">
-        <nav class="flex items-center gap-2">
+      <!-- Paginación Inferior Premium -->
+      <div v-if="paginationData.last_page > 1" class="mt-10 flex justify-center">
+        <nav class="flex items-center gap-2 bg-white dark:bg-slate-900 p-1.5 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800 transition-all duration-300">
           <button 
-            v-if="paginationData.prev_page_url"
+            v-if="paginationData.current_page > 1"
             @click="handlePageChange(paginationData.current_page - 1)"
-            class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors"
+            class="w-10 h-10 flex items-center justify-center rounded-xl text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-blue-600 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
           >
-            Anterior
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" /></svg>
           </button>
           
-          <span class="text-sm text-gray-600 dark:text-gray-400 px-2">
-            Página {{ paginationData.current_page }} de {{ paginationData.last_page }}
-          </span>
+          <div class="flex items-center px-4">
+            <span class="text-xs font-black uppercase tracking-widest text-slate-400">Página</span>
+            <span class="mx-2 text-sm font-black text-blue-600 dark:text-blue-400">{{ paginationData.current_page }}</span>
+            <span class="text-xs font-black uppercase tracking-widest text-slate-400">de {{ paginationData.last_page }}</span>
+          </div>
 
           <button 
-            v-if="paginationData.next_page_url"
+            v-if="paginationData.current_page < paginationData.last_page"
             @click="handlePageChange(paginationData.current_page + 1)"
-            class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors"
+            class="w-10 h-10 flex items-center justify-center rounded-xl text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-blue-600 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
           >
-            Siguiente
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
           </button>
         </nav>
       </div>
 
     </div>
-  </div>
-    <!-- Modal de detalles / confirmación -->
+
+    <!-- Modal de detalles / confirmación Premium -->
     <Transition name="modal">
       <div
         v-if="showModal"
-        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+        class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-50 p-4"
         @click.self="showModal = false"
       >
         <div
-          class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 outline-none transition-colors"
+          class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden border border-gray-100 dark:border-slate-800 transition-all duration-300"
           role="dialog"
           aria-modal="true"
-          :aria-label="`Modal de Usuario`"
-          tabindex="-1"
           ref="modalRef"
           @keydown.esc.prevent="showModal = false"
         >
           <!-- Modo: Confirmación de eliminación -->
-          <div v-if="modalMode === 'confirm'" class="text-center">
-            <div class="w-12 h-12 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-                />
+          <div v-if="modalMode === 'confirm'" class="p-8 text-center">
+            <div class="w-20 h-20 mx-auto bg-rose-50 dark:bg-rose-500/10 rounded-3xl flex items-center justify-center mb-6 shadow-inner">
+              <svg class="w-10 h-10 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
             </div>
-            <h3 class="text-lg font-medium mb-2">
-              ¿Eliminar usuario?
-            </h3>
-            <p class="text-gray-600 dark:text-gray-300 mb-6">
-              Esta acción no se puede deshacer y el usuario perderá acceso al sistema permanentemente.
+            <h3 class="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-2">Eliminar Usuario</h3>
+            <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-8 max-w-sm mx-auto">
+              Esta acción es irreversible y retirará todos los privilegios del sistema para este usuario permanentemente.
             </p>
-            <div class="flex gap-3">
+            <div class="flex gap-4">
               <button
                 @click="showModal = false"
-                class="flex-1 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+                class="flex-1 px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-transparent hover:border-slate-300 shadow-sm"
               >
-                Cancelar
+                Mantener
               </button>
               <button
                 @click="eliminarUsuario"
-                class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                class="flex-1 px-6 py-3 bg-rose-600 text-white text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-rose-700 transition-all shadow-lg shadow-rose-500/20"
               >
-                Eliminar
+                Eliminar Ahora
               </button>
             </div>
           </div>
 
-          <!-- Modo: Detalles -->
-          <div v-else-if="modalMode === 'details' && selectedUsuario" class="space-y-4">
-            <h3 class="text-lg font-medium mb-1 flex items-center gap-2">
-              Detalles de Usuario
-              <span v-if="selectedUsuario?.id" class="text-sm text-gray-500 dark:text-gray-400">#{{ selectedUsuario.id }}</span>
-            </h3>
+          <!-- Modo: Detalles Premium -->
+          <div v-else-if="modalMode === 'details' && selectedUsuario" class="flex flex-col h-full">
+            <div class="p-8 pb-4 border-b border-gray-100 dark:border-slate-800 flex justify-between items-start">
+              <div>
+                <h3 class="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-3">
+                  Perfil de Usuario
+                  <span class="text-xs font-bold text-slate-400 bg-slate-50 dark:bg-slate-800 px-3 py-1 rounded-lg">#ID: {{ selectedUsuario.id }}</span>
+                </h3>
+                <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">Información detallada y niveles de acceso</p>
+              </div>
+              <button @click="showModal = false" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
 
-            <div class="space-y-4">
+            <div class="p-8 space-y-8 overflow-y-auto">
               <!-- Información general -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
-                    <strong>Nombre:</strong> {{ selectedUsuario.titulo || 'Sin nombre' }}
-                  </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
-                    <strong>Email:</strong> {{ selectedUsuario.subtitulo || 'N/A' }}
-                  </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
-                     <strong>Fecha Alta:</strong> {{ formatearFecha(selectedUsuario.fecha) }}
-                  </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">
-                    <strong>Estado:</strong>
-                    <span
-                      :class="obtenerClasesEstado(selectedUsuario.activo ? 'activo' : 'inactivo')"
-                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ml-2"
-                    >
-                      {{ obtenerLabelEstado(selectedUsuario.activo ? 'activo' : 'inactivo') }}
-                    </span>
-                  </p>
+              <div class="grid grid-cols-1 md:flex items-start gap-8">
+                <div class="flex-shrink-0">
+                  <div class="relative group/modalavatar">
+                    <div class="w-32 h-32 rounded-[2.5rem] bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border-4 border-white dark:border-slate-700 shadow-xl group-hover/modalavatar:scale-105 transition-all duration-500">
+                      <img v-if="selectedUsuario.raw?.profile_photo_url" :src="selectedUsuario.raw.profile_photo_url" class="w-full h-full object-cover">
+                      <span v-else class="text-4xl font-black text-slate-300">{{ selectedUsuario.titulo?.charAt(0) }}</span>
+                    </div>
+                    <div class="absolute -bottom-2 -right-2 w-10 h-10 border-4 border-white dark:border-slate-900 rounded-2xl shadow-lg flex items-center justify-center" :class="selectedUsuario.activo ? 'bg-green-500' : 'bg-rose-500'">
+                      <svg v-if="selectedUsuario.activo" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+                      <svg v-else class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </div>
+                  </div>
                 </div>
 
-                <div>
-                   <div class="relative w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden border border-gray-200 dark:border-gray-600 mx-auto sm:mx-0">
-                      <img v-if="selectedUsuario.raw?.profile_photo_url" :src="selectedUsuario.raw.profile_photo_url" class="w-full h-full object-cover">
-                      <span v-else class="text-3xl font-bold text-gray-500 dark:text-gray-400">{{ selectedUsuario.titulo?.charAt(0) }}</span>
+                <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+                  <div class="space-y-1">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Nombre Completo</p>
+                    <p class="text-lg font-black text-slate-900 dark:text-white">{{ selectedUsuario.titulo || 'Sin identificar' }}</p>
+                  </div>
+                  <div class="space-y-1">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Correo Electrónico</p>
+                    <p class="text-lg font-bold text-blue-600 dark:text-blue-400 truncate">{{ selectedUsuario.subtitulo || 'N/A' }}</p>
+                  </div>
+                  <div class="space-y-1">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Dado de Alta el</p>
+                    <p class="text-md font-bold text-slate-700 dark:text-slate-300">{{ formatearFecha(selectedUsuario.fecha) }}</p>
+                  </div>
+                  <div class="space-y-1">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Estado Actual</p>
+                    <div class="flex items-center gap-2 mt-1">
+                      <span :class="obtenerClasesEstado(selectedUsuario.activo ? 'activo' : 'inactivo')" class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-current opacity-80 shadow-sm">
+                        {{ obtenerLabelEstado(selectedUsuario.activo ? 'activo' : 'inactivo') }}
+                      </span>
                     </div>
+                  </div>
                 </div>
               </div>
 
-              <!-- Roles -->
-              <div class="pt-4 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700 transition-colors">
-                <h4 class="text-sm font-semibold text-gray-900 dark:text-white dark:text-white mb-3">Roles y Permisos</h4>
+              <!-- Roles / Permisos -->
+              <div class="bg-slate-50 dark:bg-slate-950/50 p-6 rounded-3xl border border-slate-100 dark:border-slate-800/80">
+                <div class="flex items-center gap-2 mb-4">
+                  <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                  </div>
+                  <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Capacidades del Sistema</h4>
+                </div>
+                
                 <div class="flex flex-wrap gap-2">
                    <span v-for="rol in selectedUsuario.raw?.roles" :key="rol.id" 
-                          class="px-2.5 py-0.5 rounded-full text-xs font-medium border bg-gray-50 text-gray-700 border-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700"
+                          class="px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-widest border bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-100 dark:border-slate-800 shadow-sm"
                    >
                       {{ rol.name }}
                    </span>
-                   <span v-if="!selectedUsuario.raw?.roles?.length" class="text-xs text-gray-500 italic">Sin roles asignados</span>
+                   <div v-if="!selectedUsuario.raw?.roles?.length" class="flex flex-col items-center py-4 text-center w-full">
+                      <p class="text-xs font-black text-rose-500 uppercase tracking-widest italic opacity-60">¡Alerta: Usuario sin privilegios asignados!</p>
+                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Botones de acción -->
-            <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-slate-800">
+            <!-- Botones de acción Modal Premium -->
+            <div class="p-8 bg-slate-50 dark:bg-slate-950/30 border-t border-gray-100 dark:border-slate-800 flex justify-end gap-3 mt-auto">
               <button
                 @click="showModal = false"
-                class="inline-flex items-center px-4 py-2 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:ring-offset-1"
+                class="px-6 py-3 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-slate-200 dark:border-slate-700 shadow-sm"
               >
-                Cerrar
+                Cerrar Perfil
               </button>
 
               <button
                 v-if="$can('edit usuarios')"
                 @click="editarUsuario(selectedUsuario.id)"
-                class="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:ring-offset-1"
+                class="inline-flex items-center px-6 py-3 bg-amber-500 text-white text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-amber-600 hover:shadow-xl hover:shadow-amber-500/20 transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
-                Editar Usuario
+                Actualizar Datos
               </button>
             </div>
           </div>
@@ -686,14 +692,15 @@ const obtenerLabelEstado = (estado) => {
       </div>
     </Transition>
 
-    <!-- Loading overlay -->
-    <div v-if="loading" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 transition-all">
-      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-6 rounded-xl shadow-xl transition-colors">
-        <div class="flex items-center space-x-3">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2" :style="{ borderColor: colors.principal }"></div>
-          <span class="text-gray-700 dark:text-gray-200 font-medium transition-colors">Procesando...</span>
+    <!-- Loading overlay Premium -->
+    <div v-if="loading" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl flex flex-col items-center justify-center z-[100] transition-all duration-500">
+      <div class="relative">
+        <div class="h-24 w-24 rounded-3xl border-4 border-slate-800 border-t-blue-500 animate-spin"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="h-12 w-12 rounded-2xl bg-slate-900 border-2 border-slate-700"></div>
         </div>
       </div>
+      <p class="mt-8 text-xs font-black text-white uppercase tracking-[0.3em] animate-pulse">Sincronizando Usuarios...</p>
     </div>
   </div>
 </template>

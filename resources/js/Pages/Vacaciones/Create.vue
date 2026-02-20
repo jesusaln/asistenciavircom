@@ -1,226 +1,230 @@
 <template>
-  <Head :title="props.empleadoSeleccionado && $page.props.auth.user && props.empleadoSeleccionado.id === $page.props.auth.user.id ? 'Solicitar Vacaciones' : (props.empleadoSeleccionado ? `Vacaciones para ${props.empleadoSeleccionado.name}` : 'Nueva Solicitud de Vacaciones')" />
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-green-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="w-full">
-      <!-- Header -->
-      <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-600 to-blue-600 rounded-full mb-4">
-          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
+  <Head :title="headerTitle" />
+  
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 py-12 px-4 sm:px-6 lg:px-8" :style="cssVars">
+    <div class="max-w-4xl mx-auto">
+      <!-- Header Premium -->
+      <div class="text-center mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
+        <div class="inline-flex items-center justify-center w-20 h-20 bg-emerald-500 rounded-[2rem] mb-6 shadow-2xl shadow-emerald-500/20 text-white transform hover:rotate-12 transition-transform duration-500">
+          <FontAwesomeIcon icon="umbrella-beach" size="2x" />
         </div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          {{ props.empleadoSeleccionado && $page.props.auth.user && props.empleadoSeleccionado.id === $page.props.auth.user.id ? 'Solicitar Vacaciones' : (props.empleadoSeleccionado ? `Vacaciones para ${props.empleadoSeleccionado.name}` : 'Nueva Solicitud de Vacaciones') }}
+        <h1 class="text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-3">
+          {{ headerTitle }}
         </h1>
-        <p class="text-gray-600 dark:text-gray-300">
-          {{ props.empleadoSeleccionado && $page.props.auth.user && props.empleadoSeleccionado.id === $page.props.auth.user.id ? 'Completa la información para solicitar tus vacaciones' : (props.empleadoSeleccionado ? 'Crear vacaciones para el empleado seleccionado' : 'Completa la información para solicitar vacaciones') }}
+        <p class="text-slate-500 dark:text-slate-400 font-medium max-w-lg mx-auto">
+          {{ headerSubtitle }}
         </p>
       </div>
 
-      <!-- Form Card -->
-      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-        <form @submit.prevent="submit" class="p-8 space-y-8">
-          <!-- Información del Empleado -->
-          <div class="space-y-6">
-            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-                Información del Empleado
-              </h2>
+      <!-- Form Card Premium -->
+      <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-800/60 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-1000">
+        <form @submit.prevent="submit" class="p-10 lg:p-14 space-y-12">
+          
+          <!-- Sección: Identidad del Colaborador -->
+          <div class="space-y-8">
+            <div class="flex items-center gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-6">
+              <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                <FontAwesomeIcon icon="user-tie" />
+              </div>
+              <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Identidad del Colaborador</h2>
             </div>
 
-            <!-- Si es el propio empleado, mostrar información en lugar del selector -->
-            <div v-if="props.empleadoSeleccionado && $page.props.auth.user && props.empleadoSeleccionado.id === $page.props.auth.user.id" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div class="flex items-center">
-                <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
+            <!-- Información fija para auto-solicitud -->
+            <div v-if="isSelfRequest" class="group bg-blue-500/5 dark:bg-blue-500/10 p-6 rounded-3xl border border-blue-200/30 dark:border-blue-500/20 transition-all hover:shadow-lg">
+              <div class="flex items-center gap-5">
+                <div class="w-14 h-14 rounded-2xl bg-white dark:bg-slate-900 flex items-center justify-center border border-blue-100 dark:border-blue-500/30 overflow-hidden shadow-sm">
+                   <img v-if="props.empleadoSeleccionado?.profile_photo_url" :src="props.empleadoSeleccionado.profile_photo_url" class="w-full h-full object-cover">
+                   <span v-else class="text-xl font-black text-blue-500">{{ props.empleadoSeleccionado?.name?.charAt(0) }}</span>
+                </div>
                 <div>
-                  <p class="text-sm font-medium text-blue-800">
-Creando vacaciones para: <strong>{{ props.empleadoSeleccionado.name }}</strong>
-                  </p>
-                  <p class="text-xs text-blue-600">{{ props.empleadoSeleccionado.puesto }}</p>
+                  <div class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Solicitante Identificado</div>
+                  <div class="text-lg font-black text-slate-900 dark:text-white">{{ props.empleadoSeleccionado?.name }}</div>
+                  <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">{{ props.empleadoSeleccionado?.puesto }}</div>
                 </div>
               </div>
               <input type="hidden" v-model="form.user_id" />
             </div>
 
-            <!-- Si es administrador creando para otro empleado, mostrar selector -->
-            <div v-else class="form-group">
-              <label for="user_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                Empleado *
+            <!-- Selector para administradores -->
+            <div v-else class="space-y-3">
+              <label for="user_id" class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-4">
+                Colaborador Destino <span class="text-rose-500">*</span>
               </label>
-              <select
-                v-model="form.user_id"
-                id="user_id"
-                class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900"
-                :class="{
-                  'border-red-300 bg-red-50 focus:ring-red-500': form.errors.user_id,
-                  'border-green-300 bg-green-50': form.user_id && !form.errors.user_id
-                }"
-              >
-                <option value="" disabled>Seleccionar empleado</option>
-                <option v-for="empleado in empleados" :key="empleado.id" :value="empleado.id">
-{{ empleado.name }} - {{ empleado.puesto }}
-                </option>
-              </select>
-              <InputError class="mt-2" :message="form.errors.user_id" />
+              <div class="relative group">
+                <div class="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors pointer-events-none">
+                   <FontAwesomeIcon icon="users" />
+                </div>
+                <select
+                  v-model="form.user_id"
+                  id="user_id"
+                  class="block w-full pl-16 pr-12 py-5 bg-slate-50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800/60 rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white appearance-none cursor-pointer focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all shadow-sm"
+                  :class="{'border-rose-500/50 bg-rose-500/5': form.errors.user_id}"
+                >
+                  <option value="" disabled>Elegir integrante del equipo...</option>
+                  <option v-for="empleado in empleados" :key="empleado.id" :value="empleado.id">
+                    {{ empleado.name }} — {{ empleado.puesto }}
+                  </option>
+                </select>
+                <div class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                  <FontAwesomeIcon icon="chevron-down" size="xs" />
+                </div>
+              </div>
+              <InputError class="ml-4" :message="form.errors.user_id" />
             </div>
           </div>
 
-          <!-- Información de Vacaciones -->
-          <div class="space-y-6">
-            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-                Información de Vacaciones
-              </h2>
+          <!-- Sección: Cronograma Operativo -->
+          <div class="space-y-8">
+            <div class="flex items-center gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-6">
+              <div class="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500">
+                <FontAwesomeIcon icon="calendar-alt" />
+              </div>
+              <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Cronograma Operativo</h2>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="form-group">
-                <label for="fecha_inicio" class="block text-sm font-semibold text-gray-700 mb-2">
-                  Fecha de Inicio *
-                </label>
-                <input
-                  v-model="form.fecha_inicio"
-                  type="date"
-                  id="fecha_inicio"
-                  :min="minDate"
-                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900"
-                  :class="{
-                    'border-red-300 bg-red-50 focus:ring-red-500': form.errors.fecha_inicio,
-                    'border-green-300 bg-green-50': form.fecha_inicio && !form.errors.fecha_inicio
-                  }"
-                />
-                <InputError class="mt-2" :message="form.errors.fecha_inicio" />
-              </div>
-
-              <div class="form-group">
-                <label for="fecha_fin" class="block text-sm font-semibold text-gray-700 mb-2">
-                  Fecha de Fin *
-                </label>
-                <input
-                  v-model="form.fecha_fin"
-                  type="date"
-                  id="fecha_fin"
-                  :min="form.fecha_inicio || minDate"
-                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900"
-                  :class="{
-                    'border-red-300 bg-red-50 focus:ring-red-500': form.errors.fecha_fin,
-                    'border-green-300 bg-green-50': form.fecha_fin && !form.errors.fecha_fin
-                  }"
-                />
-                <InputError class="mt-2" :message="form.errors.fecha_fin" />
-              </div>
-            </div>
-
-            <!-- Información de días disponibles -->
-            <div v-if="props.empleadoSeleccionado && props.registroVacaciones" class="bg-green-50 border border-green-200 rounded-lg p-4">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                  <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                  <div>
-                    <p class="text-sm text-green-800">
-                      Días disponibles: <strong>{{ props.registroVacaciones.dias_disponibles }}</strong>
-                    </p>
-                    <p class="text-xs text-green-600">
-                      Año {{ props.registroVacaciones.anio }} • {{ props.registroVacaciones.dias_correspondientes }} días correspondientes
-                    </p>
+            <!-- Grid de Fechas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="space-y-3">
+                <label for="fecha_inicio" class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-4">Fecha de Inicio <span class="text-rose-500">*</span></label>
+                <div class="relative group">
+                  <div class="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors pointer-events-none">
+                    <FontAwesomeIcon icon="plane-departure" />
                   </div>
+                  <input
+                    v-model="form.fecha_inicio"
+                    type="date"
+                    id="fecha_inicio"
+                    :min="minDate"
+                    class="block w-full pl-16 pr-8 py-5 bg-slate-50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800/60 rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all shadow-sm"
+                    :class="{'border-rose-500/50 bg-rose-500/5': form.errors.fecha_inicio}"
+                  />
                 </div>
+                <InputError class="ml-4" :message="form.errors.fecha_inicio" />
+              </div>
+
+              <div class="space-y-3">
+                <label for="fecha_fin" class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-4">Fecha de Retorno <span class="text-rose-500">*</span></label>
+                <div class="relative group">
+                  <div class="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors pointer-events-none">
+                    <FontAwesomeIcon icon="plane-arrival" />
+                  </div>
+                  <input
+                    v-model="form.fecha_fin"
+                    type="date"
+                    id="fecha_fin"
+                    :min="form.fecha_inicio || minDate"
+                    class="block w-full pl-16 pr-8 py-5 bg-slate-50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800/60 rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all shadow-sm"
+                    :class="{'border-rose-500/50 bg-rose-500/5': form.errors.fecha_fin}"
+                  />
+                </div>
+                <InputError class="ml-4" :message="form.errors.fecha_fin" />
               </div>
             </div>
 
-            <!-- Información de días solicitados -->
-            <div v-if="form.fecha_inicio && form.fecha_fin" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                  <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                  <span class="text-sm text-blue-800">
-                    Días solicitados: <strong>{{ diasSolicitados }}</strong>
-                  </span>
-                </div>
+            <!-- Bloque de Resumen de Tiempo -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+               <!-- Disponibilidad -->
+               <div v-if="props.registroVacaciones" class="bg-emerald-500/5 dark:bg-emerald-500/10 p-6 rounded-3xl border border-emerald-200/30 dark:border-emerald-500/20 flex items-center justify-between">
+                  <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                       <FontAwesomeIcon icon="award" />
+                    </div>
+                    <div>
+                        <div class="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Saldo Disponible</div>
+                        <div class="text-2xl font-black text-slate-900 dark:text-white">{{ props.registroVacaciones.dias_disponibles }} <span class="text-xs font-bold text-slate-400">Días</span></div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Periodo {{ props.registroVacaciones.anio }}</div>
+                    <div class="text-[10px] font-bold text-emerald-600 dark:text-emerald-500">+{{ props.registroVacaciones.dias_correspondientes }} Totales</div>
+                  </div>
+               </div>
 
-                <!-- Verificación de días disponibles -->
-                <div v-if="props.registroVacaciones" class="flex items-center">
-                  <span v-if="diasSolicitados <= props.registroVacaciones.dias_disponibles" class="text-green-600 text-sm">
-                    ✅ Disponibles
-                  </span>
-                  <span v-else class="text-red-600 text-sm">
-                    ❌ Insuficientes (necesitas {{ diasSolicitados - props.registroVacaciones.dias_disponibles }} más)
-                  </span>
-                </div>
-              </div>
+               <!-- Solicitados -->
+               <div v-if="form.fecha_inicio && form.fecha_fin" 
+                    class="p-6 rounded-3xl border flex items-center justify-between transition-all duration-500"
+                    :class="canApply ? 'bg-indigo-500/5 dark:bg-indigo-500/10 border-indigo-200/30 dark:border-indigo-500/20' : 'bg-rose-500/5 dark:bg-rose-500/10 border-rose-200/30 dark:border-rose-500/20'"
+               >
+                  <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center" :class="canApply ? 'bg-indigo-500/10 text-indigo-600' : 'bg-rose-500/10 text-rose-600'">
+                       <FontAwesomeIcon :icon="canApply ? 'check-circle' : 'exclamation-circle'" />
+                    </div>
+                    <div>
+                        <div class="text-[9px] font-black uppercase tracking-widest" :class="canApply ? 'text-indigo-600' : 'text-rose-600'">Impacto en Saldo</div>
+                        <div class="text-2xl font-black text-slate-900 dark:text-white">{{ diasSolicitados }} <span class="text-xs font-bold text-slate-400">Días</span></div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                      <div class="text-[10px] font-black uppercase tracking-widest" :class="canApply ? 'text-emerald-500' : 'text-rose-500'">
+                         {{ canApply ? 'Factible' : 'Excede Saldo' }}
+                      </div>
+                      <div v-if="!canApply" class="text-[10px] font-bold text-rose-400">Faltan {{ diasSolicitados - props.registroVacaciones.dias_disponibles }} días</div>
+                  </div>
+               </div>
             </div>
 
-            <div class="form-group">
-              <label for="motivo" class="block text-sm font-semibold text-gray-700 mb-2">
-                Motivo
-              </label>
-              <textarea
-                v-model="form.motivo"
-                id="motivo"
-                rows="3"
-                class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900"
-                placeholder="Describe el motivo de las vacaciones (opcional)"
-              ></textarea>
-              <InputError class="mt-2" :message="form.errors.motivo" />
+            <!-- Motivo -->
+            <div class="space-y-3">
+              <label for="motivo" class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-4">Explica tu requerimiento (Opcional)</label>
+              <div class="relative group">
+                <div class="absolute left-6 top-6 text-slate-400 group-focus-within:text-emerald-500 transition-colors pointer-events-none">
+                  <FontAwesomeIcon icon="message" />
+                </div>
+                <textarea
+                  v-model="form.motivo"
+                  id="motivo"
+                  rows="4"
+                  class="block w-full pl-16 pr-8 py-5 bg-slate-50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800/60 rounded-[2.5rem] text-sm font-bold text-slate-900 dark:text-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all shadow-sm"
+                  placeholder="Utiliza este espacio para añadir detalles relevantes sobre tu solicitud..."
+                ></textarea>
+              </div>
+              <InputError class="ml-4" :message="form.errors.motivo" />
             </div>
           </div>
 
-          <!-- Action Buttons -->
-          <div class="pt-6 border-t border-gray-200 dark:border-slate-800">
-            <div class="flex flex-col sm:flex-row gap-4 justify-end">
-              <Link :href="props.empleadoSeleccionado && $page.props.auth.user && props.empleadoSeleccionado.id === $page.props.auth.user.id ? route('vacaciones.mis-vacaciones') : route('vacaciones.index')"
-                    class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-gray-300 rounded-xl text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 font-semibold transition-all duration-200 hover:shadow-md">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-                Cancelar
-              </Link>
-              <button
-                type="submit"
-                class="w-full sm:w-auto inline-flex justify-center items-center px-8 py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold rounded-xl transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
-                :disabled="form.processing || !isFormValid"
-              >
-                <div v-if="form.processing" class="flex items-center">
-                  <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>Enviando Solicitud...</span>
-                </div>
-                <div v-else class="flex items-center">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                  </svg>
-                  <span>Enviar Solicitud</span>
-                </div>
-              </button>
-            </div>
+          <!-- Acciones Finales Premium -->
+          <div class="pt-10 flex flex-col sm:flex-row items-center justify-center gap-6 border-t border-slate-100 dark:border-slate-800/60">
+            <Link :href="backRoute"
+                  class="w-full sm:w-auto px-10 py-5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-3xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center">
+              <FontAwesomeIcon icon="times" class="mr-3" />
+              Descartar
+            </Link>
+            
+            <button
+              type="submit"
+              class="w-full sm:w-auto px-16 py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-3xl font-black text-[10px] uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-emerald-500/20 flex items-center justify-center disabled:opacity-50 disabled:grayscale disabled:scale-100"
+              :disabled="form.processing || !isFormValid"
+            >
+              <template v-if="form.processing">
+                <FontAwesomeIcon icon="circle-notch" spin class="mr-3" />
+                Procesando...
+              </template>
+              <template v-else>
+                <FontAwesomeIcon icon="paper-plane" class="mr-3" />
+                Formalizar Solicitud
+              </template>
+            </button>
           </div>
         </form>
+      </div>
+      
+      <!-- Pie de página informativo -->
+      <div class="mt-12 text-center text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-in fade-in duration-1000 delay-500">
+          * Gestión Automatizada de Recursos Humanos — Vircom System
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { Head, useForm, Link } from '@inertiajs/vue3'
+import { Head, useForm, Link, usePage } from '@inertiajs/vue3'
 import InputError from '@/Components/InputError.vue'
 import { Notyf } from 'notyf'
 import 'notyf/notyf.min.css'
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { useCompanyColors } from '@/Composables/useCompanyColors'
 
 defineOptions({
   layout: AppLayout,
@@ -233,11 +237,16 @@ const props = defineProps({
   registroVacaciones: Object,
 })
 
+const { cssVars } = useCompanyColors()
+const page = usePage()
+
 const notyf = new Notyf({
-  duration: 3000,
+  duration: 4000,
   position: { x: 'right', y: 'top' },
-  ripple: true,
-  dismissible: true
+  types: [
+    { type: 'success', background: '#10b981', icon: false },
+    { type: 'error', background: '#ef4444', icon: false }
+  ]
 })
 
 const minDate = new Date().toISOString().split('T')[0]
@@ -249,73 +258,61 @@ const form = useForm({
   motivo: '',
 })
 
-// Debug toggle: add ?debugVacaciones=1 or set localStorage.debugVacaciones = '1'
-const DEBUG = computed(() => {
-  try {
-    const hasQuery = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('debugVacaciones')
-    const ls = typeof window !== 'undefined' && window.localStorage?.getItem('debugVacaciones') === '1'
-    return !!(hasQuery || ls)
-  } catch { return false }
-})
+// Lógica de Títulos
+const isSelfRequest = computed(() => 
+  props.empleadoSeleccionado && 
+  page.props.auth.user && 
+  props.empleadoSeleccionado.id === page.props.auth.user.id
+)
 
+const headerTitle = computed(() => 
+  isSelfRequest.value 
+    ? 'Solicitar Vacaciones' 
+    : (props.empleadoSeleccionado ? `Gestión para ${props.empleadoSeleccionado.name}` : 'Nuevo Registro de Vacaciones')
+)
+
+const headerSubtitle = computed(() => 
+  isSelfRequest.value 
+    ? 'Completa el cronograma para formalizar tu periodo de descanso ante capital humano.' 
+    : 'Registra y valida periodos vacacionales para los integrantes de tu equipo asignado.'
+)
+
+const backRoute = computed(() => 
+  isSelfRequest.value ? route('vacaciones.mis-vacaciones') : route('vacaciones.index')
+)
+
+// Cálculos Operativos
 const diasSolicitados = computed(() => {
   if (!form.fecha_inicio || !form.fecha_fin) return 0
-
   try {
     const inicio = new Date(form.fecha_inicio)
     const fin = new Date(form.fecha_fin)
     const diffTime = Math.abs(fin - inicio)
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1
-    return diffDays
-  } catch {
-    return 0
-  }
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1
+  } catch { return 0 }
+})
+
+const canApply = computed(() => {
+  if (!props.registroVacaciones) return true
+  return diasSolicitados.value <= props.registroVacaciones.dias_disponibles
 })
 
 const isFormValid = computed(() => {
   return form.user_id &&
          form.fecha_inicio &&
          form.fecha_fin &&
-         form.fecha_inicio <= form.fecha_fin
+         form.fecha_inicio <= form.fecha_fin &&
+         canApply.value
 })
 
 const submit = () => {
-  try {
-    if (DEBUG.value) {
-      // eslint-disable-next-line no-console
-      console.log('[Vacaciones][Create] Enviando', {
-        route: route('vacaciones.store'),
-        data: { ...form }
-      })
-    }
-    // Log de payload enviado (incondicional)
-    // eslint-disable-next-line no-console
-    console.log('[Vacaciones][Create] Payload a enviar', {
-      ...form,
-      diasSolicitados: diasSolicitados.value
-    })
     form.post(route('vacaciones.store'), {
-      onSuccess: (page) => {
-        const empleadoNombre = props.empleadoSeleccionado ? props.empleadoSeleccionado.name : 'el empleado'
-        notyf.success(`Solicitud de vacaciones para ${empleadoNombre} enviada exitosamente.`)
-        if (DEBUG.value) {
-          // eslint-disable-next-line no-console
-          console.log('[Vacaciones][Create] Success', { page })
-        }
+      onSuccess: () => {
+        notyf.success(`Solicitud procesada correctamente en los registros corporativos.`)
         form.reset()
       },
       onError: (errors) => {
-        // Log detallado de errores y payload
-        // eslint-disable-next-line no-console
-        console.error('[Vacaciones][Create] onError', {
-          errors,
-          sent: { ...form },
-          diasSolicitados: diasSolicitados.value
-        })
-        // eslint-disable-next-line no-console
-        console.error('[Vacaciones][Create] Errores de validación', errors)
-        notyf.error('Error al enviar la solicitud. Revisa los campos.')
-
+        notyf.error('Error de validación. Verifica los campos resaltados en rojo.')
         const firstErrorField = Object.keys(errors)[0]
         if (firstErrorField) {
           const element = document.getElementById(firstErrorField)
@@ -324,76 +321,32 @@ const submit = () => {
             element.focus()
           }
         }
-      },
-      onFinish: () => {
-        if (DEBUG.value) {
-          // eslint-disable-next-line no-console
-          console.log('[Vacaciones][Create] Finalizado')
-        }
       }
     })
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error('[Vacaciones][Create] Error inesperado', e)
-    notyf.error('Ocurrió un error inesperado al enviar la solicitud.')
-  }
 }
 </script>
 
 <style scoped>
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-/* Estilos para el input focus */
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-}
-
-/* Animación para los botones */
-button:not(:disabled):hover {
-  transform: translateY(-1px);
-}
-
-button:disabled {
-  background-color: #d1d5db;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Estilos para el select personalizado */
+/* Eliminar flecha nativa de select */
 select {
-  background-image: none;
+  background-image: none !important;
 }
 
-/* Animaciones suaves */
-.transition-all {
-  transition: all 0.2s ease-in-out;
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.5);
+    cursor: pointer;
+    opacity: 0.1;
+    position: absolute;
+    right: 1.5rem;
+    width: 2rem;
+    height: 2rem;
 }
 
-/* Efecto hover para los inputs */
-input:hover:not(:focus), select:hover:not(:focus), textarea:hover:not(:focus) {
-  border-color: #9ca3af;
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
 }
 
-/* Estilo para campos válidos */
-.border-green-300 {
-  border-color: #86efac;
-}
-
-.bg-green-50 {
-  background-color: #f0fdf4;
-}
-
-/* Estilo para campos con error */
-.border-red-300 {
-  border-color: #fca5a5;
-}
-
-.bg-red-50 {
-  background-color: #fef2f2;
+textarea {
+  resize: none;
 }
 </style>
-

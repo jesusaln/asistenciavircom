@@ -1,211 +1,191 @@
 <template>
   <Head title="Detalles de Vacaciones" />
-  <div class="vacaciones-show min-h-screen bg-white dark:bg-slate-900">
-    <div class="w-full px-6 py-8">
-      <!-- Header -->
-      <div class="mb-8">
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Detalles de Vacaciones</h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-1">Información completa de la solicitud de vacaciones</p>
-          </div>
-          <Link
-            :href="route('vacaciones.index')"
-            class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
-          >
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-            </svg>
-            Volver a Gestión
-          </Link>
+  
+  <div class="vacaciones-show min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 py-10 px-6 lg:px-12" :style="cssVars">
+    <div class="max-w-6xl mx-auto">
+      
+      <!-- Header Premium -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
+        <div class="flex items-center gap-5">
+           <div class="w-14 h-14 rounded-2xl bg-indigo-500 flex items-center justify-center text-white shadow-2xl shadow-indigo-500/20">
+              <FontAwesomeIcon icon="file-signature" size="lg" />
+           </div>
+           <div>
+              <h1 class="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Expediente de Vacaciones</h1>
+              <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Auditoría detallada y validación de periodo solicitado</p>
+           </div>
+        </div>
+
+        <Link
+          :href="route('vacaciones.index')"
+          class="px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex items-center shadow-sm"
+        >
+          <FontAwesomeIcon icon="arrow-left" class="mr-3" />
+          Regresar al Panel
+        </Link>
+      </div>
+
+      <!-- Grid de Información Principal -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+        
+        <!-- Columna Lateral: Perfil y Estado -->
+        <div class="lg:col-span-1 space-y-8">
+           <!-- Card de Usuario -->
+           <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800/60 shadow-xl text-center">
+              <div class="relative inline-block mb-6">
+                 <div class="w-24 h-24 rounded-[2.5rem] bg-indigo-500/10 flex items-center justify-center border-4 border-white dark:border-slate-800 overflow-hidden shadow-lg mx-auto">
+                    <img v-if="vacacion.empleado?.profile_photo_url" :src="vacacion.empleado.profile_photo_url" class="w-full h-full object-cover">
+                    <span v-else class="text-3xl font-black text-indigo-500">{{ vacacion.empleado?.name?.charAt(0) }}</span>
+                 </div>
+                 <div class="absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl border-4 border-white dark:border-slate-900 flex items-center justify-center shadow-lg" :class="getEstadoDotColor(vacacion.estado || 'pendiente')">
+                    <FontAwesomeIcon :icon="getEstadoIcon(vacacion.estado || 'pendiente')" class="text-white text-sm" />
+                 </div>
+              </div>
+              <h2 class="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight mb-1">{{ vacacion.empleado?.name || 'Incompleto' }}</h2>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ vacacion.empleado?.puesto || 'Puesto no Definido' }}</p>
+              
+              <div class="mt-8 pt-6 border-t border-slate-50 dark:border-slate-800/60">
+                 <div :class="getEstadoClasses(vacacion.estado || 'pendiente')" class="w-full py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] border">
+                   {{ getEstadoLabel(vacacion.estado || 'pendiente') }}
+                 </div>
+              </div>
+           </div>
+
+           <!-- Card de Registro Anual -->
+           <div v-if="props.registroVacaciones" class="bg-indigo-600 p-8 rounded-[2.5rem] shadow-2xl text-white relative overflow-hidden group">
+              <div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+              <h3 class="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mb-6">Status Anual {{ props.registroVacaciones.anio }}</h3>
+              
+              <div class="space-y-4">
+                 <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold opacity-80 uppercase tracking-widest">Saldo Inicial</span>
+                    <span class="text-lg font-black">{{ props.registroVacaciones.dias_correspondientes }} Días</span>
+                 </div>
+                 <div class="flex justify-between items-center py-4 border-y border-white/10">
+                    <span class="text-xs font-bold opacity-80 uppercase tracking-widest">Utilizados</span>
+                    <span class="text-lg font-black">{{ props.registroVacaciones.dias_utilizados }} Días</span>
+                 </div>
+                 <div class="flex justify-between items-center mt-4">
+                    <span class="text-xs font-black uppercase tracking-widest">Disponibilidad Actual</span>
+                    <div class="bg-white/20 px-4 py-2 rounded-xl text-xl font-black">
+                       {{ props.registroVacaciones.dias_disponibles }}
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </div>
+
+        <!-- Columna Principal: Detalles Operativos -->
+        <div class="lg:col-span-2 space-y-8">
+           <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] border border-slate-100 dark:border-slate-800/60 shadow-xl overflow-hidden">
+              <div class="px-10 py-8 border-b border-slate-50 dark:border-slate-800/60 flex items-center gap-4 bg-slate-50/30 dark:bg-slate-900/40">
+                 <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                    <FontAwesomeIcon icon="calendar-check" />
+                 </div>
+                 <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Especificaciones Técnicas</h2>
+              </div>
+
+              <div class="p-10 divide-y divide-slate-50 dark:divide-slate-800/60">
+                 <div class="grid grid-cols-2 py-6">
+                    <div class="space-y-1">
+                       <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Periodo de Ausencia</p>
+                       <p class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight">
+                          {{ formatDateShort(vacacion.fecha_inicio) }} — {{ formatDateShort(vacacion.fecha_fin) }}
+                       </p>
+                    </div>
+                    <div class="text-right space-y-1">
+                       <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Impacto en Nómina</p>
+                       <p class="text-2xl font-black text-emerald-500 uppercase tracking-tighter">{{ vacacion.dias_solicitados }} Días Calendario</p>
+                    </div>
+                 </div>
+
+                 <div class="py-10 space-y-4">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Declaración de Motivo</p>
+                    <div class="p-6 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800 font-medium text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                       {{ vacacion.motivo || 'No se documentó una justificación oficial para este requerimiento.' }}
+                    </div>
+                 </div>
+
+                 <div v-if="vacacion.observaciones" class="py-10 space-y-4">
+                    <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Resolución del Dictaminador</p>
+                    <div class="p-6 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-2xl border border-indigo-200/30 dark:border-indigo-500/20 font-bold text-indigo-600 dark:text-indigo-400 text-sm italic">
+                       "{{ vacacion.observaciones }}"
+                    </div>
+                 </div>
+
+                 <div v-if="vacacion.aprobador" class="grid grid-cols-2 pt-10">
+                    <div class="space-y-1">
+                       <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Validado Por</p>
+                       <p class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight">{{ vacacion.aprobador.name }}</p>
+                    </div>
+                    <div class="text-right space-y-1">
+                       <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fecha Resolución</p>
+                       <p class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight">{{ formatDateWithTime(vacacion.fecha_aprobacion) }}</p>
+                    </div>
+                 </div>
+              </div>
+           </div>
+
+           <!-- Tabla de Ajustes Históricos -->
+           <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] border border-slate-100 dark:border-slate-800/60 shadow-xl overflow-hidden">
+              <div class="px-10 py-8 border-b border-slate-50 dark:border-slate-800/60 flex items-center justify-between bg-slate-50/30 dark:bg-slate-900/40">
+                 <div class="flex items-center gap-4">
+                    <div class="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-500">
+                       <FontAwesomeIcon icon="history" />
+                    </div>
+                    <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Correcciones de Saldo Anual</h2>
+                 </div>
+              </div>
+
+              <div class="overflow-x-auto">
+                 <table v-if="(ajustesVacaciones && ajustesVacaciones.length)" class="min-w-full divide-y divide-slate-100 dark:divide-slate-800/40">
+                    <thead class="bg-slate-50/50 dark:bg-slate-950/50">
+                       <tr>
+                          <th class="px-10 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Fecha</th>
+                          <th class="px-10 py-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Ajuste</th>
+                          <th class="px-10 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Justificación</th>
+                          <th class="px-10 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Auditoría</th>
+                       </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50 dark:divide-slate-800/20 text-nowrap">
+                       <tr v-for="a in ajustesVacaciones" :key="a.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                          <td class="px-10 py-4 text-[11px] font-bold text-slate-500 dark:text-slate-400">{{ formatDateShort(a.created_at) }}</td>
+                          <td class="px-10 py-4 text-center">
+                             <span :class="a.dias >= 0 ? 'text-emerald-500' : 'text-rose-500'" class="text-sm font-black">
+                                {{ a.dias >= 0 ? '+' : '' }}{{ a.dias }} Días
+                             </span>
+                          </td>
+                          <td class="px-10 py-4 text-[11px] font-medium text-slate-600 dark:text-slate-400 italic">{{ a.motivo || '—' }}</td>
+                          <td class="px-10 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ a.creador?.name || 'Sistema' }}</td>
+                       </tr>
+                    </tbody>
+                 </table>
+                 <div v-else class="p-16 text-center">
+                    <p class="text-[11px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-[0.3em]">No se documentan ajustes para este periodo</p>
+                 </div>
+              </div>
+           </div>
         </div>
       </div>
 
-      <!-- Información de la vacación -->
-      <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 p-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <!-- Información del empleado -->
-          <div class="space-y-6">
-            <div>
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-                Información del Empleado
-              </h2>
-              <div class="space-y-3">
-                <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-300">Nombre:</span>
-<span class="font-medium">{{ vacacion.empleado ? (vacacion.empleado.name || 'N/A') : 'N/A' }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-300">Puesto:</span>
-                  <span class="font-medium">{{ vacacion.empleado?.puesto || 'No especificado' }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-300">Departamento:</span>
-                  <span class="font-medium">{{ vacacion.empleado?.departamento || 'No especificado' }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Información de la vacación -->
-            <div>
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-                Información de Vacaciones
-              </h2>
-              <div class="space-y-3">
-                <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-300">Fecha de Inicio:</span>
-                  <span class="font-medium">{{ vacacion.fecha_inicio ? formatDate(vacacion.fecha_inicio) : 'N/A' }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-300">Fecha de Fin:</span>
-                  <span class="font-medium">{{ vacacion.fecha_fin ? formatDate(vacacion.fecha_fin) : 'N/A' }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-300">Días Solicitados:</span>
-                  <span class="font-medium">{{ (vacacion.dias_solicitados > 0) ? vacacion.dias_solicitados + ' días' : '0 días' }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-300">Estado:</span>
-                  <span :class="getEstadoClasses(vacacion.estado || 'pendiente')" class="font-medium">
-                    {{ getEstadoLabel(vacacion.estado || 'pendiente') }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Información adicional -->
-          <div class="space-y-6">
-            <!-- Motivo -->
-            <div>
-              <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">Motivo</h3>
-              <div class="bg-white dark:bg-slate-900 rounded-lg p-4">
-                <p class="text-gray-700">{{ vacacion.motivo || 'No se especificó motivo' }}</p>
-              </div>
-            </div>
-
-            <!-- Observaciones (si las hay) -->
-            <div v-if="vacacion.observaciones">
-              <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">Observaciones</h3>
-              <div class="bg-blue-50 rounded-lg p-4">
-                <p class="text-blue-800">{{ vacacion.observaciones }}</p>
-              </div>
-            </div>
-
-            <!-- Información del aprobador -->
-            <div v-if="vacacion.aprobador && vacacion.aprobador.name">
-              <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">Información de Aprobación</h3>
-              <div class="bg-green-50 rounded-lg p-4 space-y-2">
-                <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-300">Aprobado por:</span>
-                  <span class="font-medium">{{ vacacion.aprobador.name }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-300">Fecha de aprobación:</span>
-                  <span class="font-medium">{{ vacacion.fecha_aprobacion ? formatDate(vacacion.fecha_aprobacion) : 'N/A' }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Información del registro de vacaciones -->
-            <div v-if="props.registroVacaciones">
-              <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">Registro de Vacaciones {{ props.registroVacaciones.anio }}</h3>
-              <div class="bg-purple-50 rounded-lg p-4 space-y-2">
-                <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-300">Días correspondientes:</span>
-                  <span class="font-medium">{{ props.registroVacaciones.dias_correspondientes }} días</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-300">Días disponibles:</span>
-                  <span class="font-medium">{{ props.registroVacaciones.dias_disponibles }} días</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-300">Días utilizados:</span>
-                  <span class="font-medium">{{ props.registroVacaciones.dias_utilizados }} días</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-300">Días pendientes:</span>
-                  <span class="font-medium">{{ props.registroVacaciones.dias_pendientes }} días</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Fechas de creación y actualización -->
-            <div>
-              <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">Fechas del Sistema</h3>
-              <div class="bg-white dark:bg-slate-900 rounded-lg p-4 space-y-2">
-                <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-300">Fecha de creación:</span>
-                  <span class="font-medium">{{ vacacion.created_at ? formatDate(vacacion.created_at) : 'N/A' }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-300">Última actualización:</span>
-                  <span class="font-medium">{{ vacacion.updated_at ? formatDate(vacacion.updated_at) : 'N/A' }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Historial de ajustes de vacaciones (año de la solicitud) -->
-        <div class="mt-8">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-            <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 1.343-3 3m6 0c0-1.657-1.343-3-3-3m0 0V5m0 6h3m-3 0H9m9 4a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            Ajustes de vacaciones (año)
-          </h2>
-          <div v-if="(ajustesVacaciones && ajustesVacaciones.length)" class="overflow-x-auto bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
-              <thead class="bg-gray-100">
-                <tr>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Días (+/-)</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Motivo</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Aplicado por</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
-                <tr v-for="a in ajustesVacaciones" :key="a.id">
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ formatDate(a.created_at) }}</td>
-                  <td class="px-4 py-3 text-sm" :class="a.dias >= 0 ? 'text-green-700' : 'text-red-700'">{{ a.dias }}</td>
-                  <td class="px-4 py-3 text-sm text-gray-700">{{ a.motivo || '-' }}</td>
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ a.creador?.name || 'Sistema' }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p v-else class="text-sm text-gray-600 dark:text-gray-300">No hay ajustes registrados para este año.</p>
-        </div>
-
-        <!-- Acciones (solo para administradores y vacaciones pendientes) -->
-        <div v-if="vacacion.estado === 'pendiente' && $page.props.auth.user && ($page.props.auth.user.is_admin || ($page.props.auth.user.roles && $page.props.auth.user.roles.some(role => ['admin', 'super-admin'].includes(role.name))))" class="mt-8 pt-6 border-t border-gray-200 dark:border-slate-800">
-          <div class="flex justify-end gap-3">
-            <button
-              @click="rechazarVacacion"
-              class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
-            >
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-              Rechazar
-            </button>
-            <button
-              @click="aprobarVacacion"
-              class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
-            >
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-              Aprobar
-            </button>
-          </div>
+      <!-- Acciones de Gestión Corporativa (Admin) -->
+      <div v-if="vacacion.estado === 'pendiente' && isAdmin" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-900 p-3 rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.4)] border border-slate-100 dark:border-slate-800/60 animate-in slide-in-from-bottom-10 duration-700 z-50">
+        <div class="flex items-center gap-4">
+           <button
+             @click="rechazarVacacion"
+             class="px-10 py-5 bg-rose-600 text-white rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-xl shadow-rose-500/20 flex items-center"
+           >
+             <FontAwesomeIcon icon="times-circle" class="mr-3" />
+             Declinar Solicitud
+           </button>
+           
+           <button
+             @click="aprobarVacacion"
+             class="px-10 py-5 bg-emerald-600 text-white rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-xl shadow-emerald-500/20 flex items-center"
+           >
+             <FontAwesomeIcon icon="check-circle" class="mr-3" />
+             Ratificar Comisión
+           </button>
         </div>
       </div>
     </div>
@@ -213,11 +193,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { Head, router, Link } from '@inertiajs/vue3'
+import { Head, router, Link, usePage } from '@inertiajs/vue3'
 import { Notyf } from 'notyf'
 import 'notyf/notyf.min.css'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import { computed } from 'vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { useCompanyColors } from '@/Composables/useCompanyColors'
 
 defineOptions({
   layout: AppLayout,
@@ -227,79 +209,99 @@ defineOptions({
 const props = defineProps({
   vacacion: Object,
   registroVacaciones: Object,
-  ajustesVacaciones: {
-    type: Array,
-    default: () => []
-  }
+  ajustesVacaciones: { type: Array, default: () => [] }
 })
+
+const { cssVars } = useCompanyColors()
+const page = usePage()
 
 const notyf = new Notyf({
   duration: 4000,
   position: { x: 'right', y: 'top' },
+  types: [
+    { type: 'success', background: '#10b981', icon: false },
+    { type: 'error', background: '#ef4444', icon: false }
+  ]
+})
+
+const isAdmin = computed(() => {
+    return page.props.auth.user && 
+           (page.props.auth.user.is_admin || 
+           (page.props.auth.user.roles && page.props.auth.user.roles.some(role => ['admin', 'super-admin'].includes(role.name))))
 })
 
 const aprobarVacacion = () => {
-  if (confirm('¿Estás seguro de que deseas aprobar esta solicitud de vacaciones?')) {
-    router.post(route('vacaciones.aprobar', props.vacacion.id), {
-      observaciones: ''
-    }, {
-      onSuccess: () => {
-        notyf.success('Vacaciones aprobadas exitosamente')
-      },
-      onError: () => {
-        notyf.error('Error al aprobar las vacaciones')
-      }
+  if (confirm('¿Ratificar formalmente este periodo vacacional en los registros corporativos?')) {
+    router.post(route('vacaciones.aprobar', props.vacacion.id), { observaciones: '' }, {
+      onSuccess: () => notyf.success('Expediente ratificado exitosamente'),
+      onError: () => notyf.error('Error crítico al procesar la aprobación')
     })
   }
 }
 
 const rechazarVacacion = () => {
-  const observaciones = prompt('Ingresa el motivo del rechazo (opcional):')
-  if (confirm('¿Estás seguro de que deseas rechazar esta solicitud de vacaciones?')) {
-    router.post(route('vacaciones.rechazar', props.vacacion.id), {
-      observaciones: observaciones || ''
-    }, {
-      onSuccess: () => {
-        notyf.success('Vacaciones rechazadas')
-      },
-      onError: () => {
-        notyf.error('Error al rechazar las vacaciones')
-      }
+  const observaciones = prompt('Justificación institucional del rechazo operacional:')
+  if (observaciones !== null && confirm('¿Confirmar el declive oficial de esta solicitud?')) {
+    router.post(route('vacaciones.rechazar', props.vacacion.id), { observaciones: observaciones || '' }, {
+      onSuccess: () => notyf.success('Solicitud declinada y documentada'),
+      onError: () => notyf.error('Error al procesar la declinación')
     })
   }
 }
 
-const formatDate = (date) => {
-  if (!date) return 'N/A'
+const formatDateShort = (date) => {
+  if (!date) return '—'
   try {
     return new Date(date).toLocaleDateString('es-MX', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  } catch {
-    return 'Fecha inválida'
-  }
+      day: '2-digit', month: 'short', year: 'numeric'
+    }).replace('.', '')
+  } catch { return 'Err.' }
+}
+
+const formatDateWithTime = (date) => {
+  if (!date) return 'Sin Registro'
+  try {
+    return new Date(date).toLocaleDateString('es-MX', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    }).replace('.', '')
+  } catch { return 'Err.' }
 }
 
 const getEstadoClasses = (estado) => {
   const classes = {
-    'pendiente': 'bg-yellow-100 text-yellow-700',
-    'aprobada': 'bg-green-100 text-green-700',
-    'rechazada': 'bg-red-100 text-red-700',
+    'pendiente': 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+    'aprobada': 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
+    'rechazada': 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20',
   }
-  return classes[estado] || 'bg-gray-100 text-gray-700'
+  return classes[estado] || 'bg-slate-100 text-slate-500 border-slate-200'
+}
+
+const getEstadoDotColor = (estado) => {
+  const dots = {
+    'pendiente': 'bg-amber-500',
+    'aprobada': 'bg-emerald-500',
+    'rechazada': 'bg-rose-500'
+  }
+  return dots[estado] || 'bg-slate-400'
+}
+
+const getEstadoIcon = (estado) => {
+  const icons = {
+    'pendiente': 'hourglass-half',
+    'aprobada': 'check',
+    'rechazada': 'times'
+  }
+  return icons[estado] || 'question'
 }
 
 const getEstadoLabel = (estado) => {
   const labels = {
-    'pendiente': 'Pendiente',
-    'aprobada': 'Aprobada',
-    'rechazada': 'Rechazada',
+    'pendiente': 'Estatus: En Revisión',
+    'aprobada': 'Estatus: Ratificada',
+    'rechazada': 'Estatus: Declinada'
   }
-  return labels[estado] || 'Desconocido'
+  return labels[estado] || 'Indefinido'
 }
 </script>
 
@@ -308,4 +310,3 @@ const getEstadoLabel = (estado) => {
   min-height: 100vh;
 }
 </style>
-

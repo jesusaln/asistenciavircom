@@ -407,8 +407,8 @@ const obtenerLabelEstado = (estado) => {
 
 <template>
   <Head title="Servicios" />
-  <div class="servicios-index min-h-screen bg-white dark:bg-slate-900">
-    <div class="w-full px-6 py-8">
+  <div class="servicios-index min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    <div class="w-full px-4 sm:px-6 py-8 mx-auto max-w-7xl">
       <!-- Header específico de servicios -->
       <ServiciosHeader
         :total="estadisticas.total"
@@ -429,68 +429,82 @@ const obtenerLabelEstado = (estado) => {
         @limpiar-filtros="limpiarFiltros"
       />
 
-      <!-- Tabla -->
-      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <!-- Tabla con efecto Glassmorphism en Dark mode -->
+      <div class="mt-8 bg-white dark:bg-slate-900/40 dark:backdrop-blur-xl rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800/60 overflow-hidden ring-1 ring-black/5 dark:ring-white/5">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
-            <thead class="bg-white dark:bg-slate-900">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800/80">
+            <thead class="bg-gray-50/50 dark:bg-slate-900/80">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Servicio</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Código</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">SAT</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Precio</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Duración</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Estado</th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">Fecha</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">Servicio</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">Código</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest text-center">SAT</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">Precio</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">Duración</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest text-center">Estado</th>
+                <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">Acciones</th>
               </tr>
             </thead>
-            <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
-              <tr v-for="servicio in serviciosDocumentos" :key="servicio.id" class="hover:bg-white dark:bg-slate-900 transition-colors duration-150">
-                <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900 dark:text-white">{{ formatearFecha(servicio.fecha) }}</div>
+            <tbody class="bg-white dark:bg-transparent divide-y divide-gray-100 dark:divide-slate-800/50">
+              <tr v-for="servicio in serviciosDocumentos" :key="servicio.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all duration-200 group">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-600 dark:text-slate-300">{{ formatearFecha(servicio.fecha) }}</div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{ servicio.titulo }}</div>
-                  <div class="text-sm text-gray-500 dark:text-gray-400">{{ servicio.subtitulo }}</div>
+                  <div class="text-sm font-bold text-gray-900 dark:text-slate-100 leading-tight">{{ servicio.titulo }}</div>
+                  <div class="text-xs text-gray-500 dark:text-slate-400 mt-1 max-w-[200px] truncate">{{ servicio.subtitulo }}</div>
                 </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm text-gray-700">{{ servicio.raw.codigo || 'N/A' }}</div>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 text-xs font-mono bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 rounded">
+                    {{ servicio.raw.codigo || 'N/A' }}
+                  </span>
                 </td>
-                <td class="px-6 py-4">
+                <td class="px-6 py-4 text-center whitespace-nowrap">
                   <button
-                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
-                    :class="servicio.raw.sat_clave_prod_serv ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+                    class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all duration-200 hover:scale-105"
+                    :class="servicio.raw.sat_clave_prod_serv 
+                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20' 
+                      : 'bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20'"
                     @click="openSatModal(servicio.raw)"
                   >
                     {{ servicio.raw.sat_clave_prod_serv || 'Sin clave' }}
                   </button>
                 </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm text-gray-700">${{ formatNumber(servicio.raw.precio || 0) }}</div>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-bold text-gray-900 dark:text-slate-100">${{ formatNumber(servicio.raw.precio || 0) }}</div>
                 </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm text-gray-700">{{ servicio.raw.duracion || 0 }} min</div>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <div class="inline-flex items-center text-xs font-medium text-gray-600 dark:text-slate-400">
+                    <svg class="w-3 h-3 mr-1 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {{ servicio.raw.duracion || 0 }} min
+                  </div>
                 </td>
-                <td class="px-6 py-4">
-                  <span :class="obtenerClasesEstado(servicio.estado)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                <td class="px-6 py-4 text-center whitespace-nowrap">
+                  <span 
+                    :class="servicio.estado === 'activo' 
+                      ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/20' 
+                      : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700'" 
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all duration-300"
+                  >
                     {{ obtenerLabelEstado(servicio.estado) }}
                   </span>
                 </td>
-                <td class="px-6 py-4 text-right">
-                  <div class="flex items-center justify-end space-x-1">
-                    <button @click="verDetalles(servicio)" class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors duration-150" title="Ver detalles">
-                      <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <td class="px-6 py-4 text-right whitespace-nowrap space-x-2">
+                  <div class="flex items-center justify-end space-x-2 opacity-60 group-hover:opacity-100 transition-opacity duration-200">
+                    <button @click="verDetalles(servicio)" class="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-all" title="Ver detalles">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
                     </button>
-                    <button @click="editarServicio(servicio.id)" class="w-8 h-8 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors duration-150" title="Editar">
-                      <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button @click="editarServicio(servicio.id)" class="p-2 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-lg transition-all" title="Editar">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                     </button>
-                    <button v-if="servicio.raw.can_delete" @click="confirmarEliminacion(servicio.id)" class="w-8 h-8 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors duration-150" title="Eliminar">
+                    <button v-if="servicio.raw.can_delete" @click="confirmarEliminacion(servicio.id)" class="p-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-all" title="Eliminar">
                       <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
@@ -517,170 +531,190 @@ const obtenerLabelEstado = (estado) => {
           </table>
         </div>
 
-        <!-- Paginación -->
-        <div v-if="paginationData.lastPage > 1" class="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 px-4 py-3 sm:px-6">
-          <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <!-- Paginación Premium -->
+        <div v-if="paginationData.lastPage > 1" class="bg-gray-50/50 dark:bg-slate-900/40 border-t border-gray-100 dark:border-slate-800/60 px-6 py-4">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div class="flex items-center gap-4">
-              <p class="text-sm text-gray-700">
-                Mostrando {{ paginationData.from }} - {{ paginationData.to }} de {{ paginationData.total }} resultados
-              </p>
+              <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Mostrando <span class="text-slate-900 dark:text-white">{{ paginationData.from }}</span> - <span class="text-slate-900 dark:text-white">{{ paginationData.to }}</span> de <span class="text-slate-900 dark:text-white">{{ paginationData.total }}</span>
+              </span>
               <select
                 :value="paginationData.perPage"
                 @change="handlePerPageChange(parseInt($event.target.value))"
-                class="border border-gray-300 rounded-md text-sm py-1 px-2 bg-white dark:bg-slate-900"
+                class="border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold py-1.5 px-3 bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
               >
-                <option value="10">10</option>
-                <option value="15">15</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
+                <option value="10">10 / página</option>
+                <option value="15">15 / página</option>
+                <option value="25">25 / página</option>
+                <option value="50">50 / página</option>
               </select>
             </div>
 
-            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+            <nav class="flex items-center gap-2">
               <button
                 v-if="paginationData.prevPageUrl"
                 @click="handlePageChange(paginationData.currentPage - 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white dark:bg-slate-900 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900"
+                class="p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm"
               >
-                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
 
-              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400">
-                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                </svg>
-              </span>
-
-              <button
-                v-for="page in [paginationData.currentPage - 1, paginationData.currentPage, paginationData.currentPage + 1].filter(p => p > 0 && p <= paginationData.lastPage)"
-                :key="page"
-                @click="handlePageChange(page)"
-                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white dark:bg-slate-900 border-gray-300 text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900'"
-                class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
-              >
-                {{ page }}
-              </button>
+              <div class="flex items-center gap-1">
+                <button
+                  v-for="page in [paginationData.currentPage - 1, paginationData.currentPage, paginationData.currentPage + 1].filter(p => p > 0 && p <= paginationData.lastPage)"
+                  :key="page"
+                  @click="handlePageChange(page)"
+                  :class="page === paginationData.currentPage 
+                    ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30' 
+                    : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'"
+                  class="w-10 h-10 rounded-lg border text-xs font-bold transition-all"
+                >
+                  {{ page }}
+                </button>
+              </div>
 
               <button
                 v-if="paginationData.nextPageUrl"
                 @click="handlePageChange(paginationData.currentPage + 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white dark:bg-slate-900 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900"
+                class="p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm"
               >
-                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
               </button>
-
-              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400">
-                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                </svg>
-              </span>
             </nav>
           </div>
         </div>
       </div>
 
-      <!-- Modal SAT -->
-      <div v-if="showSatModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="closeSatModal">
-        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-xl overflow-hidden">
-          <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-              Clave SAT del servicio: {{ satTarget?.nombre || '' }}
-            </h3>
-            <button @click="closeSatModal" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 transition-colors">
+      <!-- Modal SAT Premium -->
+      <div v-if="showSatModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all" @click.self="closeSatModal">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden border border-gray-100 dark:border-slate-800 animate-in fade-in zoom-in duration-300">
+          <div class="flex items-center justify-between p-8 border-b border-gray-100 dark:border-slate-800/60">
+            <div>
+              <h3 class="text-xl font-black text-slate-900 dark:text-white leading-tight">Clave SAT</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">{{ satTarget?.nombre }}</p>
+            </div>
+            <button @click="closeSatModal" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
-          <div class="p-6 space-y-4">
-            <p class="text-sm text-gray-600 dark:text-gray-300">
-              Se usa el nombre para sugerir la primera coincidencia del catalogo SAT.
+          <div class="p-8 space-y-6">
+            <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+              Vincula este servicio con el catálogo oficial del SAT para una facturación precisa.
             </p>
-            <div v-if="satSuggesting" class="text-xs text-gray-500 dark:text-gray-400">Buscando sugerencia...</div>
-            <SatClaveProdServSearch
-              v-model="satForm.sat_clave_prod_serv"
-              :initial-description="satClaveDescription"
-            />
-            <div v-if="satSuggestion" class="text-xs text-gray-500 dark:text-gray-400">
-              Sugerencia aplicada: {{ satSuggestion.clave }} - {{ satSuggestion.descripcion }}
+            <div v-if="satSuggesting" class="flex items-center gap-2 text-xs font-bold text-blue-600 dark:text-blue-400 animate-pulse uppercase tracking-widest">
+              <svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83" stroke-width="3" stroke-linecap="round"/></svg>
+              Buscando inteligencia fiscal...
+            </div>
+            <div class="bg-slate-50 dark:bg-slate-950/40 p-1 rounded-2xl border border-slate-100 dark:border-slate-800">
+              <SatClaveProdServSearch
+                v-model="satForm.sat_clave_prod_serv"
+                :initial-description="satClaveDescription"
+              />
+            </div>
+            <div v-if="satSuggestion" class="flex items-start gap-3 p-4 bg-emerald-50 dark:bg-emerald-500/5 rounded-xl border border-emerald-100 dark:border-emerald-500/10">
+              <svg class="w-5 h-5 text-emerald-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              <div>
+                <p class="text-[10px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-widest mb-1 text-center sm:text-left">Sugerencia inteligente</p>
+                <p class="text-xs text-emerald-800 dark:text-emerald-300 font-bold">{{ satSuggestion.clave }} — {{ satSuggestion.descripcion }}</p>
+              </div>
             </div>
           </div>
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-            <button @click="closeSatModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+          <div class="flex justify-end gap-3 px-8 py-6 border-t border-gray-100 dark:border-slate-800/60 bg-gray-50/50 dark:bg-slate-900/40">
+            <button @click="closeSatModal" class="px-6 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-all">
               Cancelar
             </button>
-            <button @click="saveSatClave" :disabled="satSaving" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">
-              {{ satSaving ? 'Guardando...' : 'Guardar' }}
+            <button @click="saveSatClave" :disabled="satSaving" class="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-500/30 transition-all flex items-center gap-2">
+              <span v-if="satSaving" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              {{ satSaving ? 'Sincronizando...' : 'confirmar Clave' }}
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Modal mejorado -->
-      <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showModal = false">
-        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <!-- Modal Detalles/Confirmación Premium -->
+      <div v-if="showModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all" @click.self="showModal = false">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-100 dark:border-slate-800 animate-in fade-in zoom-in duration-300">
           <!-- Header del modal -->
-          <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-              {{ modalMode === 'details' ? 'Detalles del Servicio' : 'Confirmar Eliminación' }}
-            </h3>
-            <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 transition-colors">
+          <div class="flex items-center justify-between p-8 border-b border-gray-100 dark:border-slate-800/60">
+            <div>
+              <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none">
+                {{ modalMode === 'details' ? 'Detalles del Servicio' : 'Confirmar Eliminación' }}
+              </h3>
+              <p v-if="modalMode === 'details'" class="text-xs text-slate-500 dark:text-slate-400 mt-2 font-bold uppercase tracking-widest">Información completa del catálogo</p>
+            </div>
+            <button @click="showModal = false" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
 
-          <div class="p-6">
+          <div class="p-8">
             <div v-if="modalMode === 'details' && selectedServicio">
-              <div class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div class="space-y-3">
+              <div class="space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div class="space-y-6">
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Nombre</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ selectedServicio.nombre }}</p>
+                      <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Nombre del Servicio</label>
+                      <p class="text-lg font-bold text-slate-900 dark:text-white leading-tight underline decoration-blue-500/30 decoration-2 underline-offset-4">{{ selectedServicio.nombre }}</p>
                     </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Código</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ selectedServicio.codigo || 'N/A' }}</p>
+                    <div class="grid grid-cols-2 gap-4">
+                      <div>
+                        <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Código</label>
+                        <p class="text-sm font-mono font-bold text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-950/50 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800 inline-block">{{ selectedServicio.codigo || 'N/A' }}</p>
+                      </div>
+                      <div>
+                        <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Categoría</label>
+                        <p class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ selectedServicio.categoria?.nombre || 'General' }}</p>
+                      </div>
                     </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Precio</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">${{ formatNumber(selectedServicio.precio || 0) }}</p>
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Duración</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ selectedServicio.duracion || 0 }} minutos</p>
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Estado</label>
-                      <span :class="obtenerClasesEstado(selectedServicio.estado)" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium mt-1">
-                        {{ obtenerLabelEstado(selectedServicio.estado) }}
-                      </span>
+                    <div class="flex items-end gap-4">
+                      <div class="flex-1">
+                        <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Precio Unitario</label>
+                        <p class="text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">${{ formatNumber(selectedServicio.precio || 0) }}</p>
+                      </div>
+                      <div class="flex-1">
+                        <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Estado actual</label>
+                        <span :class="selectedServicio.estado === 'activo' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20' : 'bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border-rose-100 dark:border-rose-500/20'" class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border mt-1">
+                          {{ obtenerLabelEstado(selectedServicio.estado) }}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div class="space-y-3">
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Categoría</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ selectedServicio.categoria?.nombre || 'N/A' }}</p>
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Fecha de Creación</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ formatearFecha(selectedServicio.created_at) }}</p>
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Última Actualización</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ formatearFecha(selectedServicio.updated_at) }}</p>
+                  <div class="space-y-6 pt-2">
+                    <div class="bg-slate-50 dark:bg-slate-950/30 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/50">
+                      <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 bg-blue-100 dark:bg-blue-500/10 rounded-lg flex items-center justify-center">
+                          <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <span class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest">Cronometría</span>
+                      </div>
+                      <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                          <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Duración Estimada</span>
+                          <span class="text-sm font-bold text-slate-900 dark:text-slate-200">{{ selectedServicio.duracion || 0 }} min</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                          <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Creado el</span>
+                          <span class="text-sm font-bold text-slate-900 dark:text-slate-200">{{ formatearFecha(selectedServicio.created_at) }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                          <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Actualizado</span>
+                          <span class="text-sm font-bold text-slate-900 dark:text-slate-200">{{ formatearFecha(selectedServicio.updated_at) }}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div v-if="selectedServicio.descripcion">
-                  <label class="block text-sm font-medium text-gray-700">Descripción</label>
-                  <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedServicio.descripcion }}</p>
+                <div v-if="selectedServicio.descripcion" class="pt-4 border-t border-gray-100 dark:border-slate-800/60">
+                  <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Descripción Detallada</label>
+                  <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed italic">{{ selectedServicio.descripcion }}</p>
                 </div>
               </div>
             </div>
@@ -701,21 +735,21 @@ const obtenerLabelEstado = (estado) => {
             </div>
           </div>
 
-          <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-            <button @click="showModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
-              {{ modalMode === 'details' ? 'Cerrar' : 'Cancelar' }}
+          <!-- Footer del modal Premium -->
+          <div class="flex flex-col sm:flex-row justify-end gap-3 px-8 py-6 border-t border-gray-100 dark:border-slate-800/60 bg-gray-50/50 dark:bg-slate-900/40">
+            <button @click="showModal = false" class="px-6 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-all">
+              {{ modalMode === 'details' ? 'Cerrar' : 'No, volver' }}
             </button>
-            <div v-if="modalMode === 'details'" class="flex gap-2">
-              <button @click="toggleServicio(selectedServicio.id)" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                Cambiar Estado
+            <div v-if="modalMode === 'details'" class="flex gap-3">
+              <button @click="toggleServicio(selectedServicio.id)" class="px-6 py-2.5 text-xs font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-lg shadow-emerald-500/20 transition-all">
+                Activar/Desactivar
               </button>
-              <button @click="editarServicio(selectedServicio.id)" class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors">
-                Editar
+              <button @click="editarServicio(selectedServicio.id)" class="px-6 py-2.5 text-xs font-black uppercase tracking-widest bg-amber-600 hover:bg-amber-700 text-white rounded-xl shadow-lg shadow-amber-500/20 transition-all">
+                Editar Registro
               </button>
             </div>
-            <button v-if="modalMode === 'confirm'" @click="eliminarServicio" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-              Eliminar
+            <button v-if="modalMode === 'confirm'" @click="eliminarServicio" class="px-8 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-rose-500/30 transition-all">
+              Sí, eliminar servicio
             </button>
           </div>
         </div>

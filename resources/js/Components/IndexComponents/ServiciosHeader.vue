@@ -2,10 +2,10 @@
   <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-gray-100 dark:border-slate-800 overflow-hidden">
     <!-- Header con estadísticas -->
     <div class="px-6 py-6 border-b border-gray-200 dark:border-slate-800/60">
-      <div class="flex items-center justify-between mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Servicios</h1>
-          <p class="text-sm text-gray-600 mt-1">Gestiona todos tus servicios en un solo lugar</p>
+          <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Servicios</h1>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Gestiona y optimiza tu catálogo de servicios profesionales</p>
         </div>
         <button
           @click="onCrearNueva"
@@ -20,56 +20,56 @@
 
       <!-- Estadísticas -->
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
+        <div class="bg-white dark:bg-slate-800/40 rounded-xl p-5 border border-slate-200 dark:border-slate-700/50 shadow-sm transition-all hover:shadow-md group">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Total</p>
-              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total }}</p>
+              <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Total</p>
+              <p class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ total }}</p>
             </div>
-            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 rounded-2xl flex items-center justify-center transition-transform group-hover:rotate-12">
+              <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
+        <div class="bg-white dark:bg-slate-800/40 rounded-xl p-5 border border-slate-200 dark:border-slate-700/50 shadow-sm transition-all hover:shadow-md group">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Activos</p>
-              <p class="text-2xl font-bold text-green-600">{{ activos }}</p>
+              <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Activos</p>
+              <p class="text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">{{ activos }}</p>
             </div>
-            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-12 h-12 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl flex items-center justify-center transition-transform group-hover:rotate-12">
+              <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
+        <div class="bg-white dark:bg-slate-800/40 rounded-xl p-5 border border-slate-200 dark:border-slate-700/50 shadow-sm transition-all hover:shadow-md group">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Inactivos</p>
-              <p class="text-2xl font-bold text-red-600">{{ inactivos }}</p>
+              <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Inactivos</p>
+              <p class="text-2xl font-black text-rose-600 dark:text-rose-400 tracking-tight">{{ inactivos }}</p>
             </div>
-            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-              <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-12 h-12 bg-rose-50 dark:bg-rose-500/10 rounded-2xl flex items-center justify-center transition-transform group-hover:rotate-12">
+              <svg class="w-6 h-6 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-900/70 rounded-lg p-4 border border-gray-200 dark:border-slate-800/50">
+        <div class="bg-white dark:bg-slate-800/40 rounded-xl p-5 border border-slate-200 dark:border-slate-700/50 shadow-sm transition-all hover:shadow-md group">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Precio Promedio</p>
-              <p class="text-2xl font-bold text-green-600">${{ formatearMoneda(precioPromedio) }}</p>
+              <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Precio Promedio</p>
+              <p class="text-2xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight">${{ formatearMoneda(precioPromedio) }}</p>
             </div>
-            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-500/10 rounded-2xl flex items-center justify-center transition-transform group-hover:rotate-12">
+              <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
               </svg>
             </div>
@@ -107,7 +107,7 @@
               v-model="searchTerm"
               type="text"
               placeholder="Buscar por nombre, código o descripción..."
-              class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white dark:bg-slate-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              class="block w-full pl-10 pr-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl leading-5 bg-white dark:bg-slate-950/50 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:text-slate-200 text-sm transition-all"
               @input="onSearchChange"
             />
           </div>
@@ -224,16 +224,16 @@ watch([searchTerm, sortBy, filtroEstado, filtroCategoria], () => {
 <style scoped>
 /* Estilos específicos para el header de servicios */
 .servicios-header {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.dark .servicios-header {
+  background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
 }
 
 @media (max-width: 768px) {
   .servicios-header .grid {
     grid-template-columns: 1fr;
-  }
-
-  .servicios-header h1 {
-    font-size: 1.5rem;
   }
 }
 </style>

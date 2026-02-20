@@ -356,20 +356,25 @@ class PaymentService
         try {
             $amountCents = (int) round($amount * 100);
 
+            $params = [
+                'mode' => 'payment',
+                'success_url' => url($this->config['success_url']) . '?poliza_id=' . $poliza->id . '&session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url' => url($this->config['cancel_url']) . '?poliza_id=' . $poliza->id,
+                'line_items[0][price_data][currency]' => strtolower($this->config['currency'] ?? 'mxn'),
+                'line_items[0][price_data][product_data][name]' => $description,
+                'line_items[0][price_data][unit_amount]' => $amountCents,
+                'line_items[0][quantity]' => 1,
+                'metadata[poliza_id]' => $poliza->id,
+            ];
+
+            if ($poliza->cliente && !empty($poliza->cliente->email)) {
+                $params['customer_email'] = $poliza->cliente->email;
+            }
+
             $response = Http::withoutVerifying()
                 ->withBasicAuth($config['secret_key'], '')
                 ->asForm()
-                ->post($config['api_url'] . '/v1/checkout/sessions', [
-                    'mode' => 'payment',
-                    'success_url' => url($this->config['success_url']) . '?poliza_id=' . $poliza->id . '&session_id={CHECKOUT_SESSION_ID}',
-                    'cancel_url' => url($this->config['cancel_url']) . '?poliza_id=' . $poliza->id,
-                    'line_items[0][price_data][currency]' => strtolower($this->config['currency'] ?? 'mxn'),
-                    'line_items[0][price_data][product_data][name]' => $description,
-                    'line_items[0][price_data][unit_amount]' => $amountCents,
-                    'line_items[0][quantity]' => 1,
-                    'metadata[poliza_id]' => $poliza->id,
-                    'customer_email' => $poliza->cliente->email,
-                ]);
+                ->post($config['api_url'] . '/v1/checkout/sessions', $params);
 
             if ($response->successful()) {
                 $session = $response->json();

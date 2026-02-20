@@ -34,6 +34,7 @@ Para cada componente `.vue`, sigue estos pasos:
 - [x] `resources/js/Pages/Ventas/Index.vue` (Migrado a Slate)
 - [x] `resources/js/Pages/Ventas/Create.vue` (Migrado a Slate)
 - [x] `resources/js/Pages/Soporte/Dashboard.vue` (Migrado a Slate)
+- [x] `resources/js/Pages/Servicios/Index.vue` (Migrado a Dark Premium 💎)
 - [ ] `resources/js/Pages/Soporte/Tickets/Index.vue`
 - [ ] `resources/js/Pages/Pedidos/Index.vue`
 - [ ] `resources/js/Pages/Reportes/Index.vue`

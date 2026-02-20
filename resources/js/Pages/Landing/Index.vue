@@ -155,6 +155,13 @@ const getImageUrl = (item) => {
     
     return `/storage/${urlStr}`
 }
+const heroFallbackImage = 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop'
+const handleHeroImageError = (event) => {
+    const target = event?.target
+    if (!target || target.dataset.fallbackApplied === '1') return
+    target.dataset.fallbackApplied = '1'
+    target.src = heroFallbackImage
+}
 const getFaIcon = (plan) => {
     if (plan.icono && plan.icono.includes('-')) return plan.icono;
     
@@ -295,7 +302,7 @@ const planesCalculados = computed(() => {
                     <div :class="{'translate-y-0 opacity-100': isVisible, 'translate-y-12 opacity-0': !isVisible}" class="relative transition-all duration-1000 delay-300 ease-out">
                         <!-- Imagen Principal con borde estilizado -->
                         <div class="relative z-10 rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white dark:border-gray-800 group transition-colors duration-300">
-                            <img :src="empresaData?.hero_imagen_url || 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Seguridad Tecnológica">
+                            <img :src="getImageUrl(empresaData?.hero_imagen_url) || heroFallbackImage" @error="handleHeroImageError" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Seguridad Tecnológica">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
                         </div>
                         

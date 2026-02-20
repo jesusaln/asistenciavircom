@@ -40,11 +40,16 @@ trait BelongsToEmpresa
 
     protected static function hasEmpresaColumn(string $table): bool
     {
-        if (!array_key_exists($table, self::$empresaScopeCache)) {
-            self::$empresaScopeCache[$table] = Schema::hasColumn($table, 'empresa_id');
+        try {
+            if (!array_key_exists($table, self::$empresaScopeCache)) {
+                self::$empresaScopeCache[$table] = Schema::hasColumn($table, 'empresa_id');
+            }
+            return self::$empresaScopeCache[$table];
+        } catch (\Throwable $e) {
+            // Si la base de datos no está disponible o la tabla no existe aún (ej. migraciones), 
+            // retornamos false para evitar que la aplicación colapse durante el inicio.
+            return false;
         }
-
-        return self::$empresaScopeCache[$table];
     }
 
     public function empresa(): BelongsTo

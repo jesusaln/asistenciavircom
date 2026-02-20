@@ -6,29 +6,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- Configuración de empresa --}}
     @php
         $empresaConfig = \App\Models\EmpresaConfiguracion::getConfig();
+        $title = $empresaConfig->nombre_empresa ?: config('app.name', 'Asistencia Vircom');
+        $description = $empresaConfig->descripcion_empresa ?: 'Soporte técnico profesional y soluciones integrales para tu hogar y empresa. Especialistas en tecnología y seguridad.';
+        $ogImage = $empresaConfig->logo_path ? asset('storage/' . $empresaConfig->logo_path) : asset('images/og-main.png');
     @endphp
 
-    {{-- Información de la empresa --}}
-    <meta name="description" content="{{ $empresaConfig->descripcion_empresa ?? 'Sistema de gestión empresarial' }}">
-    <meta name="keywords" content="sistema, gestión, empresarial, {{ strtolower($empresaConfig->nombre_empresa ?? 'CDD') }}">
-    <meta name="author" content="{{ $empresaConfig->nombre_empresa ?? 'CDD Sistema' }}">
+    {{-- SEO & Redes Sociales --}}
+    <meta name="description" content="{{ $description }}">
+    <meta name="keywords" content="soporte técnico, vircom, asistencia, mantenimiento, tecnología, seguridad, {{ strtolower($title) }}">
+    <meta name="author" content="{{ $title }}">
 
-    {{-- Título con nombre de empresa --}}
-    <title inertia>
-        @if($empresaConfig->nombre_empresa)
-            {{ $empresaConfig->nombre_empresa }}
-        @else
-            {{ config('app.name', 'Asistencia Vircom') }}
-        @endif
-    </title>
+    {{-- Open Graph / WhatsApp / Facebook --}}
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="{{ $title }}">
+    <meta property="og:description" content="{{ $description }}">
+    <meta property="og:image" content="{{ $ogImage }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="{{ $title }}">
+
+    {{-- Twitter --}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="{{ url()->current() }}">
+    <meta name="twitter:title" content="{{ $title }}">
+    <meta name="twitter:description" content="{{ $description }}">
+    <meta name="twitter:image" content="{{ $ogImage }}">
+
+    {{-- Título --}}
+    <title inertia>{{ $title }}</title>
 
     <!-- Fonts -->
     <link rel="preload" href="https://fonts.bunny.net/css?family=figtree:400&display=swap" as="style">
     <link href="https://fonts.bunny.net/css?family=figtree:400&display=swap" rel="stylesheet" />
-    <!-- Fallback font for better Spanish character support -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
@@ -37,13 +49,6 @@
         <link rel="icon" href="{{ asset('storage/' . $empresaConfig->favicon_path) }}" type="image/x-icon">
     @else
         <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/x-icon">
-    @endif
-
-    {{-- Logo para meta tags --}}
-    @if($empresaConfig->logo_path)
-        <meta property="og:image" content="{{ asset('storage/' . $empresaConfig->logo_path) }}">
-        <meta property="og:title" content="{{ $empresaConfig->nombre_empresa ?? config('app.name') }}">
-        <meta property="og:description" content="{{ $empresaConfig->descripcion_empresa ?? 'Sistema de gestión empresarial' }}">
     @endif
 
     {{-- Estilos dinámicos con colores de empresa --}}
