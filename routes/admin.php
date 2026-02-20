@@ -347,6 +347,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::post('/usuarios/{user}/update-almacen-compra', [UserController::class, 'updateUserAlmacenCompra'])->name('usuarios.update-almacen-compra')->middleware('can:edit usuarios');
     Route::resource('usuarios', UserController::class)->names('usuarios')->middleware('can:view usuarios');
     Route::put('/usuarios/{user}/toggle', [UserController::class, 'toggle'])->name('usuarios.toggle');
+    Route::delete('/usuarios/{user}/photo', [UserController::class, 'deleteUserPhoto'])->name('usuarios.delete-photo')->middleware('can:edit usuarios');
     Route::resource('roles', RoleController::class)->names('roles')->middleware('can:view roles');
 
     Route::get('/compras/siguiente-numero', [CompraController::class, 'obtenerSiguienteNumero'])->name('compras.siguiente-numero')->middleware('can:view compras');

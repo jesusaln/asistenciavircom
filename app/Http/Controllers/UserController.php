@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Illuminate\Database\QueryException;
 use Spatie\Permission\Models\Role;
@@ -264,11 +265,23 @@ class UserController extends Controller
             'almacen_compra_id' => 'nullable|exists:almacenes,id',
             'costo_hora_interno' => 'nullable|numeric|min:0',
             'password' => 'nullable|string|min:8|confirmed',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'roles' => 'nullable|array',
             'roles.*' => 'exists:roles,name',
             'permissions' => 'nullable|array',
             'permissions.*' => 'string|exists:permissions,name',
         ]);
+
+        // Manejar la foto de perfil si se envió una nueva
+        if ($request->hasFile('photo')) {
+            // Eliminar la foto anterior si existe
+            if ($user->profile_photo_path) {
+                Storage::disk('public')->delete($user->profile_photo_path);
+            }
+            // Guardar la nueva foto
+            $photoPath = $request->file('photo')->store('profile-photos', 'public');
+            $user->forceFill(['profile_photo_path' => $photoPath])->save();
+        }
 
         // Actualizar los datos del usuario
         $user->update([
@@ -347,6 +360,25 @@ class UserController extends Controller
             Log::error('Error cambiando estado del usuario: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Hubo un problema al cambiar el estado del usuario.');
         }
+    }
+
+    /**
+     * Eliminar la foto de perfil de un usuario (solo admin)
+     */
+    public function deleteUserPhoto(User $user)
+    {
+        try {
+            $this->authorize('update', $user);
+        } catch (AuthorizationException $e) {
+            return redirect()->back()->with('error', 'No tienes permisos para modificar este usuario.');
+        }
+
+        if ($user->profile_photo_path) {
+            Storage::disk('public')->delete($user->profile_photo_path);
+            $user->forceFill(['profile_photo_path' => null])->save();
+        }
+
+        return redirect()->back()->with('success', 'Foto de perfil eliminada correctamente.');
     }
 
     public function updateAlmacenVenta(Request $request)

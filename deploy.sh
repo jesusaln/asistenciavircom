@@ -43,6 +43,9 @@ git push origin main || echo "⚠️ Falló el push, continuando con despliegue 
 echo "📦 2/8 Construyendo Assets (Vite Production Build)..."
 npm run build
 
+# Evitar que producción cargue Vite HMR por accidente.
+rm -f public/hot
+
 # 3. Preparar Modo Mantenimiento
 echo "🚧 3/8 Activando modo mantenimiento..."
 ssh $USER@$VPS_IP "cd $REMOTE_PATH && docker exec $CONTAINER_APP php artisan down || true"
@@ -62,6 +65,7 @@ rsync -avz --no-perms --no-owner --no-group \
     --exclude='storage/framework/views/*' \
     --exclude='storage/app/public/*' \
     --exclude='public/storage' \
+    --exclude='public/hot' \
     --exclude='vendor' \
     --exclude='node_modules' \
     --exclude='.git' \
