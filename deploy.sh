@@ -115,7 +115,9 @@ ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
     
     # Reiniciar colas y servicios
     echo '🔄 Reiniciando Queue Workers...' && \
-    (docker restart $CONTAINER_QUEUE || (echo '⚠️ Queue container not found, restarting app only' && docker restart $CONTAINER_APP))"
+    (docker restart $CONTAINER_QUEUE || (echo '⚠️ Queue container not found, restarting app only' && docker restart $CONTAINER_APP)) && \
+    # Asegurar PHP-FPM para que Nginx no responda 502
+    docker exec $CONTAINER_APP sh -lc 'php-fpm -D || php-fpm8.2 -D || true'"
 
 # 8. Sincronización de IA (Clawdbot)
 echo "🤖 9/8 Sincronizando Cerebro de IA..."
