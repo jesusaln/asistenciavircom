@@ -15,6 +15,21 @@
         if (!file_exists(public_path('images/og-main.png')) && $empresaConfig->logo_path) {
             $ogImage = asset('storage/' . $empresaConfig->logo_path);
         }
+
+        // Override using Inertia Page Props for SEO
+        if (isset($page['props']['post']) && is_array($page['props']['post'])) {
+            $post = $page['props']['post'];
+            if (!empty($post['titulo'])) {
+                $title = $post['titulo'] . ' | ' . $title;
+            }
+            if (!empty($post['resumen'])) {
+                $description = $post['resumen'];
+            }
+            if (!empty($post['imagen_portada_url'])) {
+                $imgUrl = $post['imagen_portada_url'];
+                $ogImage = (str_starts_with($imgUrl, 'http')) ? $imgUrl : url($imgUrl);
+            }
+        }
     @endphp
 
     {{-- SEO & Redes Sociales --}}
