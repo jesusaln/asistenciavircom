@@ -1,202 +1,208 @@
 <template>
-  <div v-if="show" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-      <!-- Encabezado del modal -->
-      <div class="sticky top-0 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 px-6 py-4 flex justify-between items-center">
-        <h3 class="text-xl font-bold text-gray-900 dark:text-white">
-          Vista Previa de {{ documentTypeLabel }}
-        </h3>
-        <button @click="close" class="text-gray-400 hover:text-gray-600">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
-      </div>
-
-      <div class="p-6">
-        <!-- Encabezado del documento -->
-        <div class="text-center mb-8">
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2 uppercase">
-            {{ documentTypeLabel }}
-          </h1>
-          <p class="text-gray-600">{{ currentDate }}</p>
-        </div>
-
-        <!-- Información del cliente -->
-        <div v-if="cliente" class="mb-8 p-6 bg-gray-50 rounded-lg">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Cliente</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <p><strong>Nombre:</strong> {{ cliente.nombre_razon_social }}</p>
-              <p v-if="cliente.email"><strong>Email:</strong> {{ cliente.email }}</p>
+  <Teleport to="body">
+    <transition
+      enter-active-class="transition duration-300 ease-out"
+      enter-from-class="opacity-0 scale-95"
+      enter-to-class="opacity-100 scale-100"
+      leave-active-class="transition duration-200 ease-in"
+      leave-from-class="opacity-100 scale-100"
+      leave-to-class="opacity-0 scale-95"
+    >
+      <div v-if="show" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-950/60 backdrop-blur-sm" @click.self="close">
+        <div class="w-full max-w-5xl bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-200/50 dark:border-slate-800/50 overflow-hidden flex flex-col max-h-[90vh]">
+          
+          <!-- Sticky Header -->
+          <div class="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl z-20">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-2xl bg-blue-600/10 flex items-center justify-center text-blue-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+              </div>
+              <div>
+                <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-900 dark:text-white">Previsualización de Documento</h2>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{{ documentTypeLabel }} Operativo</p>
+              </div>
             </div>
-            <div>
-              <p v-if="cliente.telefono"><strong>Teléfono:</strong> {{ cliente.telefono }}</p>
-              <p v-if="cliente.direccion"><strong>Dirección:</strong> {{ cliente.direccion }}</p>
-            </div>
+            <button @click="close" class="w-10 h-10 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-400 hover:text-rose-500 transition-all">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
           </div>
-        </div>
 
-        <!-- Tabla de productos/servicios -->
-        <div class="mb-8">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Detalles</h2>
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Descripción</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cant.</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">P. Unitario</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Descuento</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Subtotal</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200">
-                <tr v-for="item in items" :key="item.id">
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {{ item.nombre || item.descripcion }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {{ item.cantidad }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    ${{ (item.precio || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-orange-600">
-                    {{ item.descuento }}%
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                    ${{ ((item.cantidad * item.precio) - (item.cantidad * item.precio * item.descuento / 100)).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+          <!-- Document Body -->
+          <div class="flex-1 overflow-y-auto p-10 custom-scrollbar space-y-10">
+            <!-- Header Section -->
+            <div class="text-center space-y-2">
+                <span class="text-[10px] font-black uppercase tracking-[0.4em] text-blue-600 dark:text-blue-400">Canal de Documentación Oficial</span>
+                <h1 class="text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">{{ documentTypeLabel }}</h1>
+                <div class="flex items-center justify-center gap-4">
+                    <div class="h-px w-12 bg-slate-200 dark:bg-slate-800"></div>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ currentDate }}</span>
+                    <div class="h-px w-12 bg-slate-200 dark:bg-slate-800"></div>
+                </div>
+            </div>
 
-        <!-- Resumen de totales -->
-        <div class="bg-gray-50 rounded-lg p-6 mb-8">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Resumen</h3>
-          <div class="space-y-3">
-            <div class="flex justify-between items-center text-gray-700">
-              <span>Subtotal:</span>
-              <span class="font-semibold">${{ totals.subtotal.toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <!-- Entity Info -->
+                <div class="bg-slate-50/50 dark:bg-slate-950/30 rounded-[2rem] p-8 border border-slate-200/50 dark:border-slate-800/50">
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-4">Información del Receptor</span>
+                    <div v-if="cliente" class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Nombre / Razón Social</p>
+                                <p class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">{{ cliente.nombre_razon_social || cliente.nombre }}</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-6 pt-2">
+                            <div>
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Contacto Digital</p>
+                                <p class="text-xs font-bold text-slate-600 dark:text-slate-300">{{ cliente.email || 'SIN EMAIL' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Ubicación / Fiscal</p>
+                                <p class="text-xs font-bold text-slate-600 dark:text-slate-300 line-clamp-2 uppercase">{{ cliente.direccion || 'SIN DOMICILIO' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document Context (Metadata) -->
+                <div class="bg-slate-50/50 dark:bg-slate-950/30 rounded-[2rem] p-8 border border-slate-200/50 dark:border-slate-800/50">
+                     <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-4">Metadatos de Operación</span>
+                     <div class="grid grid-cols-2 gap-8" v-if="ordenData">
+                          <div>
+                              <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">N° Documento</p>
+                              <p class="text-sm font-black text-blue-600 tracking-widest">{{ ordenData.numero_orden || 'PENDIENTE' }}</p>
+                          </div>
+                          <div>
+                              <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Entrega Est.</p>
+                              <p class="text-sm font-black text-slate-900 dark:text-white">{{ ordenData.fecha_entrega_esperada || 'INMEDIATA' }}</p>
+                          </div>
+                          <div>
+                              <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Términos Pago</p>
+                              <p class="text-[11px] font-black text-slate-900 dark:text-white uppercase">{{ ordenData.terminos_pago?.replace('_', ' ') || 'CONTADO' }}</p>
+                          </div>
+                          <div>
+                              <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Prioridad</p>
+                              <div class="flex items-center gap-2 mt-1">
+                                  <div class="w-2 h-2 rounded-full" :class="ordenData.prioridad === 'alta' || ordenData.prioridad === 'urgente' ? 'bg-rose-500' : 'bg-blue-500'"></div>
+                                  <p class="text-[11px] font-black text-slate-900 dark:text-white uppercase">{{ ordenData.prioridad || 'MEDIA' }}</p>
+                              </div>
+                          </div>
+                     </div>
+                </div>
             </div>
-            <div v-if="totals.descuentoItems > 0" class="flex justify-between items-center text-orange-600">
-              <span>Descuentos por ítem:</span>
-              <span class="font-semibold">-${{ totals.descuentoItems.toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
-            </div>
-            <div v-if="totals.descuentoGeneral > 0" class="flex justify-between items-center text-orange-600">
-              <span>Descuento general ({{ descuentoGeneral }}%):</span>
-              <span class="font-semibold">-${{ totals.descuentoGeneral.toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
-            </div>
-            <div class="flex justify-between items-center text-gray-700">
-              <span>Subtotal con descuentos:</span>
-              <span class="font-semibold">${{ totals.subtotalConDescuentos.toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
-            </div>
-            <div class="flex justify-between items-center text-blue-600">
-              <span>IVA (16%):</span>
-              <span class="font-semibold">${{ totals.iva.toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
-            </div>
-            <div v-if="depositoGarantia && depositoGarantia > 0" class="flex justify-between items-center text-green-600">
-              <span>Depósito de Garantía:</span>
-              <span class="font-semibold">${{ Number(depositoGarantia).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
-            </div>
-            <div class="border-t border-gray-300 pt-3">
-              <div class="flex justify-between items-center text-lg font-bold text-gray-900 dark:text-white">
-                <span>Total Final:</span>
-                <span>${{ (totals.total + Number(depositoGarantia || 0)).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
+
+            <!-- Items Table -->
+            <div class="rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-950/20">
+              <table class="w-full text-left border-separate border-spacing-0">
+                <thead class="bg-slate-50 dark:bg-slate-950">
+                  <tr>
+                    <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Descripción Técnica</th>
+                    <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Cant</th>
+                    <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Unitario</th>
+                    <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Dcto</th>
+                    <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Importe</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800/40">
+                  <tr v-for="item in items" :key="item.id" class="group/row">
+                    <td class="px-8 py-5 text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">{{ item.nombre || item.descripcion }}</td>
+                    <td class="px-8 py-5 text-sm font-black text-slate-500 dark:text-slate-400 text-center tracking-widest">{{ item.cantidad }}</td>
+                    <td class="px-8 py-5 text-sm font-black text-slate-500 dark:text-slate-400 text-right tracking-widest">${{ (item.precio || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</td>
+                    <td class="px-8 py-5 text-xs font-black text-amber-600 dark:text-amber-500 text-right tracking-widest">{{ item.descuento }}%</td>
+                    <td class="px-8 py-5 text-sm font-black text-slate-900 dark:text-white text-right tracking-widest">
+                       ${{ ((item.cantidad * item.precio) - (item.cantidad * item.precio * item.descuento / 100)).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              <!-- Summary Sub-table -->
+              <div class="p-10 bg-slate-50 dark:bg-slate-950/60 border-t border-slate-100 dark:border-slate-800/40 flex flex-col md:flex-row justify-between gap-10">
+                  <div class="flex-1 max-w-md">
+                      <div v-if="notas" class="space-y-2">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Observaciones Especiales</span>
+                        <p class="text-[11px] font-bold text-slate-600 dark:text-slate-300 leading-relaxed uppercase">{{ notas }}</p>
+                      </div>
+                  </div>
+                  <div class="space-y-4 min-w-[300px]">
+                      <div class="flex justify-between items-center text-[11px] font-black uppercase text-slate-400 tracking-widest">
+                          <span>Subtotal Lineal</span>
+                          <span class="text-slate-600 dark:text-slate-300">${{ totals.subtotal.toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
+                      </div>
+                      <div v-if="totals.descuentoItems > 0 || totals.descuentoGeneral > 0" class="flex justify-between items-center text-[11px] font-black uppercase text-rose-500 tracking-widest animate-pulse">
+                          <span>Incentivos / Dctos</span>
+                          <span>-${{ (totals.descuentoItems + totals.descuentoGeneral).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
+                      </div>
+                      <div class="flex justify-between items-center text-[11px] font-black uppercase text-slate-400 tracking-widest">
+                          <span>Impuestos Trasl. (16%)</span>
+                          <span class="text-blue-600">${{ totals.iva.toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
+                      </div>
+                      <div v-if="totals.retencion_iva > 0 || totals.retencion_isr > 0" class="flex justify-between items-center text-[11px] font-black uppercase text-indigo-500 tracking-widest">
+                          <span>Retenciones Fiscales</span>
+                          <span>-${{ (totals.retencion_iva + totals.retencion_isr).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
+                      </div>
+                      <div class="h-px bg-slate-200 dark:bg-slate-800 my-4"></div>
+                      <div class="flex justify-between items-center text-lg font-black uppercase text-slate-900 dark:text-white tracking-[0.2em]">
+                          <span class="text-xs">Monto Liquidación</span>
+                          <span class="text-blue-600">${{ totals.total.toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
+                      </div>
+                  </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Notas -->
-        <div v-if="notas" class="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <h3 class="text-sm font-semibold text-yellow-800 mb-2">Notas:</h3>
-          <p class="text-sm text-yellow-700">{{ notas }}</p>
-        </div>
-
-        <!-- Botones de acción -->
-        <div class="flex justify-end gap-3">
-          <button
-            @click="imprimir"
-            class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 transition-colors duration-200 shadow-sm"
-          >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-            </svg>
-            Imprimir
-          </button>
-          <button
-            @click="close"
-            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors duration-200"
-          >
-            Cerrar
-          </button>
+          <!-- Footer Actions -->
+          <div class="p-8 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-4 bg-slate-50/50 dark:bg-slate-950/20">
+            <button @click="close" class="px-8 py-4 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-300 transition-all">Cerrar</button>
+            <button @click="imprimir" class="px-8 py-4 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 hover:shadow-blue-500/40 hover:-translate-y-1 transition-all">
+                <div class="flex items-center gap-3">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    Emitir / Imprimir
+                </div>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+    </transition>
+  </Teleport>
 </template>
 
 <script setup>
 import { computed } from 'vue';
 
-// --- PROPS ---
 const props = defineProps({
-  show: {
-    type: Boolean,
-    default: false
-  },
+  show: { type: Boolean, default: false },
   type: {
     type: String,
     required: true,
-    validator: (value) => ['cotizacion', 'pedido', 'venta', 'compra', 'ordenescompra', 'renta'].includes(value)
+    validator: (v) => ['cotizacion', 'pedido', 'venta', 'compra', 'ordenescompra', 'renta'].includes(v)
   },
-  cliente: {
-    type: Object,
-    default: null
-  },
-  items: {
-    type: Array,
-    default: () => []
-  },
-  totals: {
-    type: Object,
-    required: true
-  },
-  descuentoGeneral: {
-    type: Number,
-    default: 0
-  },
-  notas: {
-    type: String,
-    default: ''
-  },
-  depositoGarantia: {
-    type: [Number, String],
-    default: 0
-  }
+  cliente: { type: Object, default: null },
+  items: { type: Array, default: () => [] },
+  totals: { type: Object, required: true },
+  descuentoGeneral: { type: Number, default: 0 },
+  notas: { type: String, default: '' },
+  ordenData: { type: Object, default: null },
+  depositoGarantia: { type: [Number, String], default: 0 }
 });
 
-// --- EMITS ---
 const emit = defineEmits(['close', 'print']);
 
-// --- Etiqueta del documento ---
 const documentTypeLabel = computed(() => {
   const labels = {
     cotizacion: 'Cotización',
     pedido: 'Pedido',
     venta: 'Venta',
     compra: 'Compra',
-    ordenescompra: 'Órdenes de Compra',
+    ordenescompra: 'Orden de Compra',
     renta: 'Contrato de Renta'
   };
   return labels[props.type] || 'Documento';
 });
 
-// --- Fecha actual ---
 const currentDate = computed(() => {
   return new Date().toLocaleDateString('es-MX', {
     year: 'numeric',
@@ -205,16 +211,13 @@ const currentDate = computed(() => {
   });
 });
 
-// --- Cerrar modal ---
-const close = () => {
-  emit('close');
-};
-
-// --- Imprimir ---
-const imprimir = () => {
-  emit('print');
-  // O puedes usar window.print() directamente
-  // window.print();
-};
+const close = () => emit('close');
+const imprimir = () => emit('print');
 </script>
 
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.1); border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(59, 130, 246, 0.2); }
+</style>

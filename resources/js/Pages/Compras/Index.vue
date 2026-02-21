@@ -515,42 +515,54 @@ const handleConfirm = () => {
 <template>
   <Head title="Compras" />
 
-  <div class="compras-index min-h-screen bg-white dark:bg-slate-900">
+  <div class="compras-index min-h-screen bg-white dark:bg-slate-950 transition-colors duration-500 overflow-x-hidden">
     <!-- Contenido principal -->
-    <div class="w-full px-6 py-8">
-      <!-- Header específico de compras -->
-      <ComprasHeader
-        :total="estadisticas.total"
-        :procesadas="estadisticas.procesadas"
-        :canceladas="estadisticas.canceladas"
-        :monto-total="montoTotal"
-        :pendientes-pago="pendientesPago"
-        v-model:search-term="searchTerm"
-        v-model:sort-by="sortBy"
-        v-model:filtro-estado="filtroEstado"
-        v-model:filtro-origen="filtroOrigen"
-        @crear-nueva="crearNuevaCompra"
-        @importar-xml="importarDesdeXml"
-        @search-change="updateFilters"
-        @filtro-estado-change="updateFilters"
-        @filtro-origen-change="updateFilters"
-        @sort-change="updateSort"
-        @limpiar-filtros="handleLimpiarFiltros"
-      />
+    <div class="w-full px-4 sm:px-8 py-10 max-w-[1920px] mx-auto relative z-10">
+      
+      <!-- Ambient Backdrops (Dark Mode Only) -->
+      <div class="fixed inset-0 pointer-events-none overflow-hidden z-0 opacity-30 dark:opacity-100 hidden dark:block">
+        <div class="absolute -top-[10%] -right-[5%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px] animate-pulse-slow"></div>
+        <div class="absolute top-[20%] -left-[5%] w-[30%] h-[30%] bg-indigo-600/5 rounded-full blur-[100px]"></div>
+      </div>
 
-      <!-- Información de paginación -->
-      <div class="flex justify-between items-center mb-4 text-sm text-gray-600 dark:text-gray-300">
-        <div>
-          Mostrando {{ props.pagination.from }} -
-          {{ props.pagination.to }}
-          de {{ props.pagination.total }} compras
+      <!-- Header específico de compras -->
+      <div class="animate-fade-in-up">
+        <ComprasHeader
+          :total="estadisticas.total"
+          :procesadas="estadisticas.procesadas"
+          :canceladas="estadisticas.canceladas"
+          :monto-total="montoTotal"
+          :pendientes-pago="pendientesPago"
+          v-model:search-term="searchTerm"
+          v-model:sort-by="sortBy"
+          v-model:filtro-estado="filtroEstado"
+          v-model:filtro-origen="filtroOrigen"
+          @crear-nueva="crearNuevaCompra"
+          @importar-xml="importarDesdeXml"
+          @search-change="updateFilters"
+          @filtro-estado-change="updateFilters"
+          @filtro-origen-change="updateFilters"
+          @sort-change="updateSort"
+          @limpiar-filtros="handleLimpiarFiltros"
+        />
+      </div>
+
+      <!-- Info & Tools Bar -->
+      <div class="flex flex-col sm:flex-row justify-between items-center mt-10 mb-6 gap-4 animate-fade-in-up" style="animation-delay: 100ms">
+        <div class="flex items-center gap-3">
+            <div class="w-1 h-8 bg-blue-600 rounded-full hidden sm:block"></div>
+            <div class="text-sm font-black text-slate-500 dark:text-slate-400 tracking-widest uppercase">
+            Mostrando <span class="text-slate-900 dark:text-white">{{ props.pagination.from }} - {{ props.pagination.to }}</span>
+            de <span class="text-slate-900 dark:text-white">{{ props.pagination.total }}</span> Compras
+            </div>
         </div>
-        <div class="flex items-center space-x-2">
-          <span>Elementos por página:</span>
+        
+        <div class="flex items-center gap-4 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md px-4 py-2 rounded-2xl border border-slate-200/50 dark:border-slate-800/50">
+          <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Por página</label>
           <select
             :value="props.pagination.per_page"
             @change="updateFilters({ per_page: $event.target.value, page: 1 })"
-            class="border border-gray-300 rounded px-2 py-1 text-sm"
+            class="bg-transparent border-none text-xs font-black text-slate-900 dark:text-white focus:ring-0 cursor-pointer"
           >
             <option value="10">10</option>
             <option value="15">15</option>
@@ -561,82 +573,73 @@ const handleConfirm = () => {
       </div>
 
       <!-- Tabla de compras -->
-      <div class="mt-6">
-      <ComprasTable
-          :documentos="paginatedCompras"
-          :search-term="searchTerm"
-          :sort-by="sortBy"
-          :filtro-estado="filtroEstado"
-          :filtro-origen="filtroOrigen"
-          :is-admin="props.is_admin"
-          @ver-detalles="verDetalles"
-          @editar="editarCompra"
-          @imprimir="imprimirCompra"
-          @eliminar="confirmarEliminacion"
-          @sort="updateSort"
-        />
+      <div class="mt-2 animate-fade-in-up" style="animation-delay: 200ms">
+        <div class="relative group">
+            <!-- Glass Overlay behind table if needed -->
+            <div class="absolute -inset-1 bg-gradient-to-r from-blue-600/5 to-indigo-600/5 rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+            <ComprasTable
+                :documentos="paginatedCompras"
+                :search-term="searchTerm"
+                :sort-by="sortBy"
+                :filtro-estado="filtroEstado"
+                :filtro-origen="filtroOrigen"
+                :is-admin="props.is_admin"
+                @ver-detalles="verDetalles"
+                @editar="editarCompra"
+                @imprimir="imprimirCompra"
+                @eliminar="confirmarEliminacion"
+                @sort="updateSort"
+            />
+        </div>
       </div>
 
-      <!-- Controles de paginación -->
-      <div v-if="props.pagination.total > 0" class="flex justify-center items-center space-x-2 mt-6">
+      <!-- Controles de paginación Premium -->
+      <div v-if="props.pagination.total > 0" class="flex justify-center items-center gap-2 mt-12 animate-fade-in-up" style="animation-delay: 300ms">
         <button
           @click="prevPage"
           :disabled="currentPage === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-slate-900 border border-gray-300 rounded-md hover:bg-white dark:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="group w-12 h-12 flex items-center justify-center rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-blue-600 hover:border-blue-600/30 hover:shadow-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300"
         >
-          Anterior
+          <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
         </button>
 
-        <div class="flex space-x-1">
-          <!-- Primera página (solo si no está en visiblePages) -->
+        <div class="flex items-center gap-2 p-1 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-[1.5rem] border border-slate-200/50 dark:border-slate-800/50">
           <template v-if="!visiblePages.includes(1) && totalPages > 7">
-            <button
-              @click="goToPage(1)"
-              class="px-3 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 border border-gray-300 rounded-md hover:bg-white dark:bg-slate-900"
-            >
-              1
-            </button>
-            <span class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">...</span>
+            <button @click="goToPage(1)" class="w-10 h-10 flex items-center justify-center rounded-xl text-xs font-black transition-all hover:bg-slate-100 dark:hover:bg-slate-800">1</button>
+            <span class="text-slate-300 dark:text-slate-600">•••</span>
           </template>
 
-          <!-- Páginas visibles -->
           <button
             v-for="page in visiblePages"
             :key="page"
             @click="goToPage(page)"
             :class="[
-              'px-3 py-2 text-sm font-medium border border-gray-300 rounded-md',
+              'w-10 h-10 flex items-center justify-center rounded-xl text-xs font-black transition-all duration-300',
               page === currentPage
-                ? 'bg-blue-500 text-white border-blue-500'
-                : 'text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-110'
+                : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
             ]"
           >
             {{ page }}
           </button>
 
-          <!-- Última página (solo si no está en visiblePages) -->
           <template v-if="!visiblePages.includes(totalPages) && totalPages > 7">
-            <span class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">...</span>
-            <button
-              @click="goToPage(totalPages)"
-              class="px-3 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-slate-900 border border-gray-300 rounded-md hover:bg-white dark:bg-slate-900"
-            >
-              {{ totalPages }}
-            </button>
+            <span class="text-slate-300 dark:text-slate-600">•••</span>
+            <button @click="goToPage(totalPages)" class="w-10 h-10 flex items-center justify-center rounded-xl text-xs font-black transition-all hover:bg-slate-100 dark:hover:bg-slate-800">{{ totalPages }}</button>
           </template>
         </div>
 
         <button
           @click="nextPage"
           :disabled="currentPage === totalPages"
-          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-slate-900 border border-gray-300 rounded-md hover:bg-white dark:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="group w-12 h-12 flex items-center justify-center rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-blue-600 hover:border-blue-600/30 hover:shadow-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300"
         >
-          Siguiente
+          <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
         </button>
       </div>
     </div>
 
-    <!-- Modal de detalles -->
+    <!-- Modal de detalles (Themed via component) -->
     <ModalCompra
       v-if="modalMode === 'details'"
       :show="showModal"
@@ -648,7 +651,7 @@ const handleConfirm = () => {
       @imprimir="imprimirFila"
     />
 
-    <!-- Modal de cancelación/eliminación -->
+    <!-- Modal de cancelación/eliminación (Themed via component) -->
     <ModalCompras
       v-if="modalMode === 'cancel' || modalMode === 'delete'"
       :show="showModal"
@@ -665,19 +668,71 @@ const handleConfirm = () => {
       @import="handleXmlImport"
     />
 
-    <!-- Loading overlay -->
-    <div v-if="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-lg">
-        <div class="flex items-center space-x-3">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          <span class="text-gray-700">Procesando...</span>
+    <!-- Multi-layered Loading Overlay -->
+    <Transition
+      enter-active-class="transition duration-300 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition duration-200 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="loading" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center z-[100]">
+        <div class="relative">
+            <div class="absolute inset-0 bg-blue-600 rounded-full blur-2xl opacity-20 animate-pulse"></div>
+            <div class="relative bg-white dark:bg-slate-900 p-10 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col items-center">
+                <div class="w-16 h-16 border-4 border-slate-100 dark:border-slate-800 border-t-blue-600 rounded-full animate-spin mb-6"></div>
+                <p class="text-xs font-black uppercase tracking-[0.3em] text-slate-900 dark:text-white">Procesando</p>
+            </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </div>
 </template>
 
 <style scoped>
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pulse-slow {
+    0%, 100% { opacity: 0.1; transform: scale(1); }
+    50% { opacity: 0.15; transform: scale(1.1); }
+}
+
+.animate-pulse-slow {
+    animation: pulse-slow 8s ease-in-out infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+.dark ::-webkit-scrollbar-thumb {
+    background: #334155;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
 .compras-index {
   min-height: 100vh;
 }
@@ -687,19 +742,6 @@ const handleConfirm = () => {
     padding-left: 1rem;
     padding-right: 1rem;
   }
-
-  .compras-index h1 {
-    font-size: 1.5rem;
-  }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.compras-index > * {
-  animation: fadeIn 0.3s ease-out;
 }
 </style>
 

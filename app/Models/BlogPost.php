@@ -49,6 +49,11 @@ class BlogPost extends Model
             return $this->imagen_portada;
         }
 
+        // Local public images (e.g., /images/blog/...)
+        if (str_starts_with($this->imagen_portada, '/images/')) {
+            return url($this->imagen_portada);
+        }
+
         return url(\Illuminate\Support\Facades\Storage::url($this->imagen_portada));
     }
 

@@ -53,15 +53,19 @@ class AlmacenController extends Controller
             $perPage = min((int) $request->input('per_page', 10), 50);
             $almacenes = $query->paginate($perPage)->appends($request->query());
 
-            // Estadísticas
+            // Estadísticas globales (independientes de la paginación)
             $total = Almacen::count();
             $activos = Almacen::where('estado', 'activo')->count();
             $inactivos = Almacen::where('estado', 'inactivo')->count();
+            $conResponsable = Almacen::whereNotNull('responsable')->count();
+            $conTelefono = Almacen::whereNotNull('telefono')->where('telefono', '!=', '')->count();
 
             $stats = [
                 'total' => $total,
                 'activos' => $activos,
                 'inactivos' => $inactivos,
+                'con_responsable' => $conResponsable,
+                'con_telefono' => $conTelefono,
                 'activos_porcentaje' => $total > 0 ? round(($activos / $total) * 100, 1) : 0,
                 'inactivos_porcentaje' => $total > 0 ? round(($inactivos / $total) * 100, 1) : 0,
             ];

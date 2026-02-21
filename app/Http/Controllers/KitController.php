@@ -29,10 +29,7 @@ class KitController extends Controller
 
     public function create(): Response
     {
-        $productosDisponibles = Producto::where('estado', 'activo')
-            ->where('tipo_producto', '!=', 'kit')
-            ->orderBy('nombre')
-            ->get();
+        $productosDisponibles = []; // No cargar todos los productos aquí (11k+ registros causan timeout)
 
         $serviciosDisponibles = \App\Models\Servicio::where('estado', 'activo')
             ->orderBy('nombre')
@@ -49,9 +46,9 @@ class KitController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request): JsonResponse|\Illuminate\Http\RedirectResponse
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'codigo' => 'nullable|string|max:50|unique:productos,codigo',
@@ -63,13 +60,6 @@ class KitController extends Controller
             'componentes.*.cantidad' => 'required|integer|min:1',
             'componentes.*.precio_unitario' => 'nullable|numeric|min:0',
         ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
 
         try {
             // Validar que los productos no sean kits
@@ -176,11 +166,15 @@ class KitController extends Controller
                 return $kit;
             });
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Kit creado exitosamente.',
-                'kit' => $kit->load('kitItems.item')
-            ], 201);
+            if ($request->wantsJson() && !$request->header('X-Inertia')) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Kit creado exitosamente.',
+                    'kit' => $kit->load('kitItems.item')
+                ], 201);
+            }
+
+            return redirect()->route('kits.index')->with('success', 'Kit creado exitosamente.');
 
         } catch (\Exception $e) {
             return response()->json([
@@ -277,10 +271,7 @@ class KitController extends Controller
             return $item;
         });
 
-        $productosDisponibles = Producto::where('estado', 'activo')
-            ->where('tipo_producto', '!=', 'kit')
-            ->orderBy('nombre')
-            ->get();
+        $productosDisponibles = []; // No cargar todos los productos aquí (11k+ registros causan timeout)
 
         $serviciosDisponibles = \App\Models\Servicio::where('estado', 'activo')
             ->orderBy('nombre')
@@ -296,7 +287,7 @@ class KitController extends Controller
         ]);
     }
 
-    public function update(Request $request, Producto $kit): JsonResponse
+    public function update(Request $request, Producto $kit): JsonResponse|\Illuminate\Http\RedirectResponse
     {
         if (!$kit->esKit()) {
             return response()->json([
@@ -305,7 +296,7 @@ class KitController extends Controller
             ], 404);
         }
 
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'codigo' => 'nullable|string|max:50|unique:productos,codigo,' . $kit->id,
@@ -318,13 +309,6 @@ class KitController extends Controller
             'componentes.*.cantidad' => 'required|integer|min:1',
             'componentes.*.precio_unitario' => 'nullable|numeric|min:0',
         ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
 
         try {
             // Validar que los productos no sean kits
@@ -398,11 +382,15 @@ class KitController extends Controller
                 }
             });
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Kit actualizado exitosamente.',
-                'kit' => $kit->fresh()->load('kitItems.item')
-            ], 200);
+            if ($request->wantsJson() && !$request->header('X-Inertia')) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Kit actualizado exitosamente.',
+                    'kit' => $kit->fresh()->load('kitItems.item')
+                ], 200);
+            }
+
+            return redirect()->route('kits.index')->with('success', 'Kit actualizado correctamente.');
 
         } catch (\Exception $e) {
             return response()->json([
@@ -427,10 +415,10 @@ class KitController extends Controller
                 $kit->delete();
             });
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Kit eliminado exitosamente.'
-        ], 200);
+            return response()->json([
+                'success' => true,
+                'message' => 'Kit eliminado exitosamente.'
+            ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -450,8 +438,8 @@ class KitController extends Controller
             if (!empty($search)) {
                 $query->where(function ($q) use ($search) {
                     $q->where('nombre', 'like', "%{$search}%")
-                      ->orWhere('codigo', 'like', "%{$search}%")
-                      ->orWhere('descripcion', 'like', "%{$search}%");
+                        ->orWhere('codigo', 'like', "%{$search}%")
+                        ->orWhere('descripcion', 'like', "%{$search}%");
                 });
             }
         }
@@ -471,8 +459,8 @@ class KitController extends Controller
         $page = $request->page ?? 1;
         $perPage = $request->length ?? 10;
         $kits = $query->skip(($page - 1) * $perPage)
-                     ->take($perPage)
-                     ->get();
+            ->take($perPage)
+            ->get();
 
         $data = $kits->map(function ($kit) {
             return [
@@ -491,9 +479,9 @@ class KitController extends Controller
         $stats = [
             'totalKits' => $totalRecords,
             'kitsActivos' => Producto::where('tipo_producto', 'kit')
-                                    ->where('estado', 'activo')->count(),
+                ->where('estado', 'activo')->count(),
             'valorTotal' => Producto::where('tipo_producto', 'kit')
-                                   ->sum('precio_venta')
+                ->sum('precio_venta')
         ];
 
         return response()->json([
@@ -553,13 +541,13 @@ class KitController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('nombre', 'like', "%{$search}%")
-                  ->orWhere('codigo', 'like', "%{$search}%");
+                    ->orWhere('codigo', 'like', "%{$search}%");
             });
         }
 
         $productos = $query->orderBy('nombre')
-                          ->limit(50)
-                          ->get(['id', 'codigo', 'nombre', 'precio_venta']);
+            ->limit(50)
+            ->get(['id', 'codigo', 'nombre', 'precio_venta']);
 
         return response()->json($productos);
     }

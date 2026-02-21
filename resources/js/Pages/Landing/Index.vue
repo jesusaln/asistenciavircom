@@ -132,6 +132,23 @@ const toggleFaq = (id) => {
     activeFaq.value = activeFaq.value === id ? null : id;
 };
 
+const defaultFaqs = [
+    {id: 1, icon: 'shield-halved', pregunta: '¿Qué servicios ofrecen?', respuesta: 'Ofrecemos soluciones integrales en seguridad electrónica (alarmas, cámaras CCTV), soporte técnico computacional, redes y pólizas de mantenimiento preventivo para empresas y hogares.'},
+    {id: 2, icon: 'truck', pregunta: '¿Hacen servicio a domicilio?', respuesta: 'Sí, contamos con técnicos certificados que se desplazan a su domicilio o empresa en Hermosillo y alrededores para instalaciones y soporte técnico.'},
+    {id: 3, icon: 'clock', pregunta: '¿Cuánto tiempo tarda una reparación?', respuesta: 'El tiempo depende de la complejidad, pero la mayoría de los servicios de soporte técnico y reparaciones menores se resuelven en un plazo de 24 a 48 horas.'},
+    {id: 4, icon: 'medal', pregunta: '¿Ofrecen garantía en sus servicios?', respuesta: 'Absolutamente. Todos nuestros trabajos de instalación y reparación cuentan con garantía por escrito para su total tranquilidad y respaldo.'},
+    {id: 5, icon: 'camera', pregunta: '¿Qué marcas de cámaras manejan?', respuesta: 'Trabajamos con las mejores marcas del mercado como Hikvision, Dahua y Axis, asegurando la más alta resolución y durabilidad en cada sistema de videovigilancia.'},
+    {id: 6, icon: 'mobile-screen-button', pregunta: '¿Puedo monitorear mis cámaras de forma remota?', respuesta: 'Sí, configuramos todos nuestros sistemas para que pueda visualizar sus cámaras en tiempo real desde su celular o computadora, desde cualquier parte del mundo.'}
+];
+
+const computedFaqs = computed(() => {
+    const list = props.faqs?.length ? props.faqs : defaultFaqs;
+    return list.map((faq, index) => ({
+        ...faq,
+        icon: faq.icon || defaultFaqs[index % defaultFaqs.length].icon
+    }));
+});
+
 const getImageUrl = (item) => {
     if (!item) return null
     const imagen = typeof item === 'string' ? item : (item.imagen_url || item.imagen)
@@ -543,7 +560,7 @@ const planesCalculados = computed(() => {
         </section>
 
         <!-- POLIZAS DE MANTENIMIENTO (CYBER DARK & LIGHT) -->
-        <section class="py-32 bg-white dark:bg-slate-900 dark:bg-gray-900 relative overflow-hidden transition-colors duration-300">
+        <section v-if="empresaData.mostrar_polizas_landing" class="py-32 bg-white dark:bg-slate-900 dark:bg-gray-900 relative overflow-hidden transition-colors duration-300">
              <!-- Background FX (Dark Only) -->
              <div class="absolute inset-0 pointer-events-none hidden dark:block">
                 <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-[var(--color-primary)] opacity-[0.05] blur-[100px] rounded-full mix-blend-screen animate-pulse"></div>
@@ -754,15 +771,8 @@ const planesCalculados = computed(() => {
                 </div>
 
                 <div class="space-y-4">
-                    <div v-for="(faq, index) in (faqs?.length ? faqs : [
-                        {id: 1, icon: 'shield-alt', pregunta: '¿Qué servicios ofrecen?', respuesta: 'Ofrecemos soluciones integrales en seguridad electrónica (alarmas, cámaras CCTV), soporte técnico computacional, redes y pólizas de mantenimiento preventivo para empresas y hogares.'},
-                        {id: 2, icon: 'truck', pregunta: '¿Hacen servicio a domicilio?', respuesta: 'Sí, contamos con técnicos certificados que se desplazan a su domicilio o empresa en Hermosillo y alrededores para instalaciones y soporte técnico.'},
-                        {id: 3, icon: 'clock', pregunta: '¿Cuánto tiempo tarda una reparación?', respuesta: 'El tiempo depende de la complejidad, pero la mayoría de los servicios de soporte técnico y reparaciones menores se resuelven en un plazo de 24 a 48 horas.'},
-                        {id: 4, icon: 'medal', pregunta: '¿Ofrecen garantía en sus servicios?', respuesta: 'Absolutamente. Todos nuestros trabajos de instalación y reparación cuentan con garantía por escrito para su total tranquilidad y respaldo.'},
-                        {id: 5, icon: 'camera', pregunta: '¿Qué marcas de cámaras manejas?', respuesta: 'Trabajamos con las mejores marcas del mercado como Hikvision, Dahua y Axis, asegurando la más alta resolución y durabilidad en cada sistema de videovigilancia.'},
-                        {id: 6, icon: 'mobile-alt', pregunta: '¿Puedo monitorear mis cámaras de forma remota?', respuesta: 'Sí, configuramos todos nuestros sistemas para que pueda visualizar sus cámaras en tiempo real desde su celular o computadora, desde cualquier parte del mundo.'}
-                    ])" :key="faq.id" 
-                        class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-[2rem] border border-gray-100 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group"
+                    <div v-for="(faq, index) in computedFaqs" :key="faq.id" 
+                        class="bg-white dark:bg-slate-900 rounded-[2rem] border border-gray-100 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group"
                         :class="{'ring-2 ring-[var(--color-primary-soft)]': activeFaq === faq.id}"
                     >
                         <button 
@@ -770,12 +780,16 @@ const planesCalculados = computed(() => {
                             class="w-full px-8 py-7 flex items-center justify-between text-left"
                         >
                             <div class="flex items-center gap-5">
-                                <span class="w-12 h-12 rounded-2xl bg-[var(--color-primary-soft)] dark:bg-gray-700 flex items-center justify-center text-lg text-[var(--color-primary)] transition-colors">
-                                    <font-awesome-icon :icon="faq.icon || 'question'" />
+                                <span class="w-12 h-12 rounded-2xl flex items-center justify-center text-lg transition-all duration-300 shrink-0"
+                                      :class="activeFaq === faq.id 
+                                          ? 'bg-[var(--color-primary)] text-white shadow-lg shadow-[var(--color-primary)]/30' 
+                                          : 'bg-[var(--color-primary-soft)] dark:bg-gray-700 text-[var(--color-primary)]'"
+                                >
+                                    <font-awesome-icon :icon="faq.icon || ['shield-halved','truck','clock','medal','camera','mobile-screen-button'][index] || 'cog'" />
                                 </span>
-                                <span class="font-black text-gray-900 dark:text-white dark:text-white group-hover:text-[var(--color-primary)] transition-colors text-lg leading-snug">{{ faq.pregunta }}</span>
+                                <span class="font-black text-gray-900 dark:text-white group-hover:text-[var(--color-primary)] transition-colors text-lg leading-snug">{{ faq.pregunta }}</span>
                             </div>
-                            <span class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 dark:bg-gray-700 flex items-center justify-center text-gray-400 transition-transform duration-500 shrink-0" :class="{'rotate-180 bg-[var(--color-primary)] text-white shadow-lg': activeFaq === faq.id}">
+                            <span class="w-10 h-10 rounded-xl bg-white dark:bg-gray-700 flex items-center justify-center text-gray-400 transition-all duration-500 shrink-0" :class="{'rotate-180 !bg-[var(--color-primary)] !text-white shadow-lg': activeFaq === faq.id}">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>
                             </span>
                         </button>
@@ -789,7 +803,7 @@ const planesCalculados = computed(() => {
                         >
                             <div v-if="activeFaq === faq.id" class="px-8 pb-8 pt-2">
                                 <div class="pl-16 pr-8">
-                                    <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium leading-relaxed border-t border-gray-50 dark:border-gray-700 pt-6 text-[15px] transition-colors">{{ faq.respuesta }}</p>
+                                    <p class="text-gray-500 dark:text-gray-400 font-medium leading-relaxed border-t border-gray-50 dark:border-gray-700 pt-6 text-[15px] transition-colors">{{ faq.respuesta }}</p>
                                 </div>
                             </div>
                         </transition>

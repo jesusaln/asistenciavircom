@@ -100,7 +100,7 @@ const getBtnColor = (color) => {
 
                 <div class="relative">
                     <div class="aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl relative group">
-                        <img :src="servicio.imagen" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Service Detail">
+                        <img :src="servicio.imagen_detalle || servicio.imagen" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Service Detail">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
                         
                         <div class="absolute bottom-10 left-10 right-10 p-8 bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl text-white">

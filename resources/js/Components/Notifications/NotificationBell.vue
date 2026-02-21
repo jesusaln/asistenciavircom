@@ -164,7 +164,7 @@ export default {
     async loadUnreadCount() {
       try {
         const response = await axios.get('/notifications/unread-count', {
-          timeout: 10000
+          timeout: 20000 // Aumentado a 20s para mayor resiliencia
         });
         const newCount = response.data.unread_count || 0;
         

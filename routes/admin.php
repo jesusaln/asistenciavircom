@@ -284,7 +284,9 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
     Route::resource('categorias', CategoriaController::class)->names('categorias')->middleware('can:view categorias');
     Route::resource('marcas', MarcaController::class)->names('marcas')->middleware('can:view marcas');
+    Route::get('/almacenes/export', [AlmacenController::class, 'export'])->name('almacenes.export');
     Route::resource('almacenes', AlmacenController::class)->names('almacenes');
+    Route::put('/almacenes/{almacen}/toggle', [AlmacenController::class, 'toggle'])->name('almacenes.toggle');
     Route::resource('traspasos', TraspasoController::class)->names('traspasos')->middleware('can:view traspasos');
     Route::resource('movimientos-inventario', MovimientoInventarioController::class)->names('movimientos-inventario')->middleware('can:view movimientos_inventario');
 
@@ -332,7 +334,9 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
     Route::prefix('kits')->name('kits.')->middleware('can:view kits')->group(function () {
         Route::get('/', [KitController::class, 'index'])->name('index');
-        Route::get('/api/data', [KitController::class, 'apiIndex'])->name('api.data'); // Added this line
+        Route::get('/api/data', [KitController::class, 'apiIndex'])->name('api.data');
+        Route::get('/api/productos-disponibles', [KitController::class, 'apiProductosDisponibles'])->name('api.productos-disponibles');
+        Route::post('/api/calcular-costo', [KitController::class, 'apiCalcularCosto'])->name('api.calcular-costo');
         Route::get('/create', [KitController::class, 'create'])->name('create');
         Route::post('/', [KitController::class, 'store'])->name('store');
         Route::get('/{kit}', [KitController::class, 'show'])->name('show');

@@ -105,8 +105,21 @@ class ProductoController extends Controller
             $perPage = min((int) $request->input('per_page', 30), 100);
 
             if ($request->has('nopaginate') || $request->input('all') == '1') {
-                $productos = $query->get()->map(function ($producto) {
+                $productos = $query->get()->map(function (Producto $producto) {
                     $producto->imagen_url = $producto->imagen ? $this->generateCorrectStorageUrl($producto->imagen) : null;
+
+                    $producto->stock_por_almacen = $producto->inventarios()
+                        ->with('almacen:id,nombre')
+                        ->where('cantidad', '>', 0)
+                        ->get()
+                        ->map(function ($inv) {
+                            return [
+                                'almacen_id' => $inv->almacen_id,
+                                'almacen_nombre' => $inv->almacen?->nombre ?? 'Desconocido',
+                                'cantidad' => $inv->cantidad,
+                            ];
+                        });
+
                     return $producto;
                 });
                 return response()->json([

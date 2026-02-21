@@ -7,7 +7,18 @@
             ]
         },
         "skipLibCheck": true,
-        "typeRoots": []
+        "target": "esnext",
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "jsx": "preserve",
+        "lib": [
+            "esnext",
+            "dom",
+            "dom.iterable"
+        ],
+        "types": [
+            "vite/client"
+        ]
     },
     "include": [
         "resources/js/**/*"

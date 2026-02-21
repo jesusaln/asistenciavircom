@@ -212,6 +212,8 @@ class PlanPoliza extends Model
      */
     public function getTipoLabelAttribute()
     {
+        if (!$this->tipo)
+            return 'General';
         return self::tipos()[$this->tipo] ?? ucfirst($this->tipo);
     }
 

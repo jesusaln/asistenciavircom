@@ -36,7 +36,7 @@ export default defineConfig(({ mode }) => {
       port: devPort,
       strictPort: true,
       cors: {
-        origin: [appUrl, /^https?:\/\/(?:.+\.)?nip\.io(?::\d+)?$/],
+        origin: [appUrl, /^https?:\/\/(?:.+\.)?nip\.io(?::\d+)?$/, /^https?:\/\/192\.168\.\d+\.\d+(?::\d+)?$/],
       },
       hmr: {
         host: hmrHost,

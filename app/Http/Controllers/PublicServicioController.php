@@ -14,7 +14,8 @@ class PublicServicioController extends Controller
             'titulo' => 'Sistemas de Videovigilancia y CCTV',
             'subtitulo' => 'Protección 24/7 para tu hogar y negocio',
             'descripcion' => 'Instalamos tecnología de punta en cámaras de seguridad análogas e IP. Monitorea desde tu celular en tiempo real y protege lo que más quieres con resolución 4K y visión nocturna.',
-            'imagen' => 'https://images.unsplash.com/photo-1557597774-9d2739f05a76?q=80&w=2000&auto=format&fit=crop',
+            'imagen' => '/images/servicios/cctv-hero.png',
+            'imagen_detalle' => '/images/servicios/cctv-detail.png',
             'categoria_id' => 23,
             'color' => 'blue',
             'beneficios' => [
@@ -28,7 +29,8 @@ class PublicServicioController extends Controller
             'titulo' => 'Control de Acceso y Asistencia',
             'subtitulo' => 'Gestiona quién entra y sale con precisión',
             'descripcion' => 'Soluciones biométricas, faciales y mediante tarjetas. Ideal para empresas que buscan automatizar el registro de personal y asegurar áreas restringidas.',
-            'imagen' => 'https://images.unsplash.com/photo-1517404212328-44a3e36e0530?q=80&w=2000&auto=format&fit=crop',
+            'imagen' => '/images/servicios/control-acceso-hero.png',
+            'imagen_detalle' => '/images/servicios/control-acceso-detail.png',
             'categoria_id' => 30,
             'color' => 'indigo',
             'beneficios' => [
@@ -42,7 +44,8 @@ class PublicServicioController extends Controller
             'titulo' => 'Sistemas de Alarma y Detección',
             'subtitulo' => 'Detección temprana de intrusos e incidentes',
             'descripcion' => 'Sistemas de alarma inteligentes vinculados a tu smartphone. Sensores de movimiento, ruptura de cristal y detectores de humo integrados.',
-            'imagen' => 'https://images.unsplash.com/photo-1558002038-1055907df827?q=80&w=2000&auto=format&fit=crop',
+            'imagen' => '/images/servicios/alarmas-hero.png',
+            'imagen_detalle' => '/images/servicios/alarmas-detail.png',
             'categoria_id' => 7,
             'color' => 'red',
             'beneficios' => [
@@ -56,7 +59,8 @@ class PublicServicioController extends Controller
             'titulo' => 'Sistemas de Punto de Venta (POS)',
             'subtitulo' => 'Transforma tu negocio con tecnología eficiente',
             'descripcion' => 'Equipamiento completo para tiendas, restaurantes y comercios. Básculas, lectores, cajas de dinero y software de administración especializado.',
-            'imagen' => 'https://images.unsplash.com/photo-1556742049-13940130059a?q=80&w=2000&auto=format&fit=crop',
+            'imagen' => '/images/servicios/pos-hero.png',
+            'imagen_detalle' => '/images/servicios/pos-detail.png',
             'categoria_id' => 118,
             'color' => 'emerald',
             'beneficios' => [
@@ -70,7 +74,8 @@ class PublicServicioController extends Controller
             'titulo' => 'Relojes Checadores y Asistencia',
             'subtitulo' => 'Optimiza la administración de tu capital humano',
             'descripcion' => 'Relojes checadores con tecnología en la nube. Olvídate de las tarjetas de cartón y moderniza el registro de jornada laboral.',
-            'imagen' => 'https://images.unsplash.com/photo-1579389083078-4e7018379f7e?q=80&w=2000&auto=format&fit=crop',
+            'imagen' => '/images/servicios/relojes-hero.png',
+            'imagen_detalle' => '/images/servicios/relojes-detail.png',
             'categoria_id' => 30,
             'color' => 'amber',
             'beneficios' => [
@@ -84,7 +89,8 @@ class PublicServicioController extends Controller
             'titulo' => 'Páginas Web y Desarrollo Digital',
             'subtitulo' => 'Tu negocio abierto al mundo 24/7',
             'descripcion' => 'Diseñamos y desarrollamos sitios web corporativos, tiendas en línea y plataformas personalizadas que generan ventas y confianza.',
-            'imagen' => 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2000&auto=format&fit=crop',
+            'imagen' => '/images/servicios/desarrollo-web-hero.png',
+            'imagen_detalle' => '/images/servicios/desarrollo-web-detail.png',
             'categoria_id' => null,
             'color' => 'sky',
             'beneficios' => [
@@ -97,25 +103,25 @@ class PublicServicioController extends Controller
                 [
                     'nombre' => 'Portal Corporativo Premium',
                     'tipo' => 'Sitio Web Empresarial',
-                    'imagen' => 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?q=80&w=800&auto=format&fit=crop',
+                    'imagen' => '/images/servicios/portfolio-corporativo.png',
                     'url' => '#'
                 ],
                 [
                     'nombre' => 'E-commerce Moderno',
                     'tipo' => 'Tienda en Línea',
-                    'imagen' => 'https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=800&auto=format&fit=crop',
+                    'imagen' => '/images/servicios/portfolio-ecommerce.png',
                     'url' => '#'
                 ],
                 [
                     'nombre' => 'Dashboard Administrativo',
                     'tipo' => 'Plataforma Web',
-                    'imagen' => 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
+                    'imagen' => '/images/servicios/portfolio-dashboard.png',
                     'url' => '#'
                 ],
                 [
                     'nombre' => 'Landing Page Pro',
                     'tipo' => 'Generación de Leads',
-                    'imagen' => 'https://images.unsplash.com/photo-1522542550221-31fd19575a2d?q=80&w=800&auto=format&fit=crop',
+                    'imagen' => '/images/servicios/portfolio-landing.png',
                     'url' => '#'
                 ]
             ]
