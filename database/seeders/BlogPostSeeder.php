@@ -86,6 +86,32 @@ class BlogPostSeeder extends Seeder
                 'publicado_at' => Carbon::now()->subDays(10),
                 'imagen_portada' => 'https://images.unsplash.com/photo-1544197150-b99a580bbcbf?q=80&w=2071&auto=format&fit=crop',
             ],
+            [
+                'titulo' => 'Reloj Checador: Prepárate para la jornada de 40 horas y el RIT',
+                'resumen' => 'Descubre cómo un reloj checador biométrico no solo optimiza tu empresa ante la inminente reforma laboral de 40 horas en México, sino que es clave para aplicar el Reglamento Interior de Trabajo.',
+                'contenido' => '
+                    <p>Con la inminente aprobación de la reducción de la jornada laboral a <strong>40 horas semanales en México</strong>, el control del tiempo y asistencia dejará de ser opcional para convertirse en una necesidad crítica para cualquier empresa.</p>
+
+                    <h3>El desafío de las 40 horas</h3>
+                    <p>La nueva ley exigirá a los empleadores llevar un registro milimétrico de las horas laboradas para evitar demandas por horas extras no pagadas y cuantiosas multas de la STPS. Un <strong>reloj checador biométrico</strong> automatiza este proceso, garantizando cálculos exactos, eliminando el "robo de tiempo" y protegiéndote legalmente con reportes inalterables de entradas y salidas.</p>
+
+                    <h3>El Reglamento Interior de Trabajo (RIT)</h3>
+                    <p>No basta con comprar el reloj; su uso y las sanciones deben estar fundamentadas en tu <strong>Reglamento Interior de Trabajo (RIT)</strong>. La comisión mixta (conformada por representantes del patrón y de los trabajadores) debe formular este reglamento, estipulando claramente:</p>
+                    <ul>
+                        <li>Los horarios de entrada, salida y tiempos de comida o descansos.</li>
+                        <li>Los minutos de tolerancia y las sanciones aplicables por retardos, faltas injustificadas o abandono de labores.</li>
+                    </ul>
+
+                    <h3>Puntualidad, Productividad y Legalidad</h3>
+                    <p>Al contar con un RIT debidamente depositado ante el Centro Federal de Conciliación y Registro Laboral, respaldado por la tecnología precisa de un reloj checador, adquieres certidumbre legal para la aplicación de descuentos por retardos, levantamiento de actas administrativas o incluso rescisiones laborales sin riesgo ante un tribunal.</p>
+
+                    <p>Implementar soluciones biométricas fomenta una cultura de puntualidad y transparencia organizativa. En <strong>Asistencia Vircom</strong>, te instalamos los equipos de control de asistencia más avanzados. ¡Prepara a tu empresa hoy para el futuro legal!</p>
+                ',
+                'categoria' => 'Consultoría',
+                'status' => 'published',
+                'publicado_at' => Carbon::now(),
+                'imagen_portada' => '/images/blog/reloj-checador.png',
+            ],
         ];
 
         foreach ($posts as $post) {
