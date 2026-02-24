@@ -37,6 +37,8 @@ const challengeCompleted = ref(false);
 const livenessScore = ref(0);
 const faceCount = ref(0);
 const mirroredPreview = true;
+const eyesOpen = ref(false);
+const autoCaptureRunning = ref(false);
 const captureQuality = ref({
     brightness: 0,
     sharpness: 0,
@@ -65,6 +67,7 @@ const currentChallengeLabel = computed(() => {
 const qualityStatusLabel = computed(() => captureQuality.value.passed ? 'Calidad OK' : 'Calidad pendiente');
 const qualityStatusClass = computed(() => captureQuality.value.passed ? 'text-emerald-400' : 'text-amber-300');
 const faceInsideOval = computed(() => cameraActive.value && captureQuality.value.singleFace && captureQuality.value.sizePass && captureQuality.value.centerPass);
+const readyForAutoCapture = computed(() => faceInsideOval.value && captureQuality.value.passed && form.face_challenge_completed && eyesOpen.value);
 const overlayClass = computed(() => {
     if (!cameraActive.value) return 'border-white/20';
     return faceInsideOval.value ? 'border-emerald-400/80' : 'border-amber-400/70';
@@ -77,7 +80,7 @@ const form = useForm({
     longitud: '',
     precision_metros: '',
     selfie: null,
-    consentimiento: false,
+    consentimiento: true,
     face_challenge_completed: false,
     face_liveness_score: '',
     face_descriptor: '',
@@ -213,6 +216,23 @@ const buildChallenge = () => {
 const avgPoint = (points) => {
     const sum = points.reduce((acc, p) => ({ x: acc.x + p.x, y: acc.y + p.y }), { x: 0, y: 0 });
     return { x: sum.x / points.length, y: sum.y / points.length };
+};
+
+const pointDistance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+
+const eyeAspectRatio = (eyePoints = []) => {
+    if (eyePoints.length < 6) return 0;
+    const horizontal = Math.max(0.0001, pointDistance(eyePoints[0], eyePoints[3]));
+    const vertical = pointDistance(eyePoints[1], eyePoints[5]) + pointDistance(eyePoints[2], eyePoints[4]);
+    return vertical / (2 * horizontal);
+};
+
+const detectEyesOpen = (landmarks) => {
+    if (!landmarks) return false;
+    const leftEAR = eyeAspectRatio(landmarks.getLeftEye());
+    const rightEAR = eyeAspectRatio(landmarks.getRightEye());
+    const avgEAR = (leftEAR + rightEAR) / 2;
+    return avgEAR >= 0.2;
 };
 
 const processChallenge = (landmarks) => {
@@ -368,6 +388,7 @@ const startFaceDetection = () => {
                 .withFaceDescriptors();
 
             if (!detections?.length) {
+                eyesOpen.value = false;
                 evaluateQuality(videoRef.value, { x: 0, y: 0, width: 0, height: 0 }, 0);
                 return;
             }
@@ -379,8 +400,16 @@ const startFaceDetection = () => {
             }, detections[0]);
 
             const qualityPass = evaluateQuality(videoRef.value, primary.detection.box, detections.length);
+            eyesOpen.value = detectEyesOpen(primary.landmarks);
             if (!qualityPass) {
                 form.face_descriptor = '';
+                return;
+            }
+            if (!eyesOpen.value) {
+                form.face_descriptor = '';
+                captureQuality.value = { ...captureQuality.value, passed: false, message: 'Mantén los ojos abiertos' };
+                form.face_capture_quality_passed = false;
+                form.face_quality_message = 'Mantén los ojos abiertos';
                 return;
             }
 
@@ -388,6 +417,16 @@ const startFaceDetection = () => {
             liveDescriptor.value = descriptor;
             form.face_descriptor = JSON.stringify(descriptor);
             processChallenge(primary.landmarks);
+
+            if (readyForAutoCapture.value && !autoCaptureRunning.value && !form.selfie) {
+                autoCaptureRunning.value = true;
+                cameraMessage.value = 'Rostro listo, capturando foto...';
+                try {
+                    await captureSelfie();
+                } finally {
+                    autoCaptureRunning.value = false;
+                }
+            }
         } catch (e) {
             // Ignore intermittent frame errors
         }
@@ -431,6 +470,7 @@ const openCamera = async () => {
             videoRef.value.srcObject = mediaStream;
             await videoRef.value.play();
         }
+        cameraMessage.value = '';
         cameraActive.value = true;
         startFaceDetection();
     } catch (error) {
@@ -438,7 +478,15 @@ const openCamera = async () => {
     }
 };
 
+const openCameraAutomatically = async () => {
+    if (!cameraSupported.value) return;
+    if (cameraActive.value) return;
+    if (form.selfie) return;
+    await openCamera();
+};
+
 const captureSelfie = async () => {
+    cameraMessage.value = '';
     if (!videoRef.value || !canvasRef.value) return;
     if (!form.face_challenge_completed) {
         cameraMessage.value = 'Completa el reto de movimientos antes de tomar la foto.';
@@ -446,6 +494,10 @@ const captureSelfie = async () => {
     }
     if (!captureQuality.value.passed) {
         cameraMessage.value = captureQuality.value.message || 'Mejora la calidad antes de capturar.';
+        return;
+    }
+    if (!eyesOpen.value) {
+        cameraMessage.value = 'Mantén los ojos abiertos para tomar la foto.';
         return;
     }
 
@@ -479,6 +531,10 @@ const captureSelfie = async () => {
             cameraMessage.value = captureQuality.value.message || 'Calidad insuficiente para selfie.';
             return;
         }
+        if (!detectEyesOpen(primary.landmarks)) {
+            cameraMessage.value = 'No cierres los ojos al capturar.';
+            return;
+        }
 
         const descriptor = Array.from(primary.descriptor);
         liveDescriptor.value = descriptor;
@@ -490,6 +546,7 @@ const captureSelfie = async () => {
         const file = new File([blob], `checkin-${Date.now()}.jpg`, { type: 'image/jpeg' });
         form.selfie = file;
         selfiePreview.value = URL.createObjectURL(file);
+        cameraMessage.value = 'Foto capturada correctamente.';
         stopCamera();
     }, 'image/jpeg', 0.8);
 };
@@ -506,6 +563,7 @@ const refreshClock = () => {
 };
 
 const submit = () => {
+    form.consentimiento = true;
     form.post(route('asistencia.store'), {
         forceFormData: true,
         preserveScroll: true,
@@ -530,6 +588,7 @@ const submit = () => {
             form.tipo = nextType(lastType);
             buildChallenge();
             captureLocation();
+            openCameraAutomatically();
         }
     });
 };
@@ -544,6 +603,7 @@ onMounted(() => {
     cameraSupported.value = !!navigator.mediaDevices?.getUserMedia;
     buildChallenge();
     captureLocation();
+    openCameraAutomatically();
 });
 
 onUnmounted(() => {
@@ -616,6 +676,9 @@ onUnmounted(() => {
                     <p class="text-[11px] mt-1" :class="qualityStatusClass">
                         {{ qualityStatusLabel }}: {{ captureQuality.message }} (rostros: {{ faceCount }})
                     </p>
+                    <p class="text-[11px] mt-1" :class="eyesOpen ? 'text-emerald-300' : 'text-amber-300'">
+                        Ojos: {{ eyesOpen ? 'Abiertos' : 'Parpadeo o cerrados' }}
+                    </p>
                     <p v-if="faceApiError" class="text-[10px] text-rose-300 mt-2">{{ faceApiError }}</p>
                 </div>
                 
@@ -679,12 +742,26 @@ onUnmounted(() => {
                              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                         </button>
                     </div>
+
+                    <button
+                        v-if="cameraActive"
+                        type="button"
+                        @click="captureSelfie"
+                        :disabled="form.processing || autoCaptureRunning"
+                        class="w-full py-3 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 disabled:opacity-60 disabled:cursor-not-allowed text-[11px] font-black uppercase tracking-widest transition-all"
+                    >
+                        Tomar foto (manual)
+                    </button>
+
+                    <p v-if="cameraMessage" class="text-[10px] font-bold" :class="form.selfie ? 'text-emerald-300' : 'text-amber-300'">
+                        {{ cameraMessage }}
+                    </p>
                 </div>
 
                 <!-- Terms -->
                 <div class="space-y-4 pt-4 border-t border-white/10">
                     <div class="flex items-start gap-3">
-                        <input id="consent" type="checkbox" v-model="form.consentimiento" class="mt-1 w-5 h-5 bg-black border-white/20 rounded text-blue-600 focus:ring-0">
+                        <input id="consent" type="checkbox" v-model="form.consentimiento" checked disabled class="mt-1 w-5 h-5 bg-black border-white/20 rounded text-blue-600 focus:ring-0 opacity-80 cursor-not-allowed">
                         <label for="consent" class="text-[11px] leading-relaxed text-neutral-400">
                             Certifico que este registro es real y consiento el uso de mi ubicación y fotografía para fines laborales.
                         </label>
