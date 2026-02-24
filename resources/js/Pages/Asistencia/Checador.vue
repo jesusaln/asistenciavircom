@@ -40,6 +40,7 @@ const faceCount = ref(0);
 const mirroredPreview = true;
 const eyesOpen = ref(false);
 const autoCaptureRunning = ref(false);
+const countdown = ref(null);
 const captureQuality = ref({
     brightness: 0,
     sharpness: 0,
@@ -270,8 +271,8 @@ const detectEyesOpen = (landmarks) => {
     const leftEAR = eyeAspectRatio(landmarks.getLeftEye());
     const rightEAR = eyeAspectRatio(landmarks.getRightEye());
     const avgEAR = (leftEAR + rightEAR) / 2;
-    // Reducido de 0.2 a 0.16 para ser menos estricto con la detección de ojos
-    return avgEAR >= 0.16;
+    // Más relajado aún: 0.14 para ojos
+    return avgEAR >= 0.14;
 };
 
 const processChallenge = (landmarks) => {
@@ -384,11 +385,11 @@ const evaluateQuality = (source, box, facesLength) => {
         return false;
     }
 
-    // Relajación de umbrales para evitar bloqueos
-    const lightingPass = stats.brightness >= 0.15 && stats.brightness <= 0.90;
-    const sharpnessPass = stats.sharpness >= 0.03;
-    const sizePass = stats.faceAreaRatio >= 0.08 && stats.faceAreaRatio <= 0.70;
-    const centerPass = stats.centerOffset <= 0.35;
+    // Relajación extrema de umbrales para entorno real
+    const lightingPass = stats.brightness >= 0.10 && stats.brightness <= 0.95;
+    const sharpnessPass = stats.sharpness >= 0.02;
+    const sizePass = stats.faceAreaRatio >= 0.05 && stats.faceAreaRatio <= 0.80;
+    const centerPass = stats.centerOffset <= 0.45;
     const passed = lightingPass && sharpnessPass && sizePass && centerPass;
 
     let message = 'Calidad correcta';
@@ -458,14 +459,28 @@ const startFaceDetection = () => {
             liveDescriptor.value = descriptor;
             form.face_descriptor = JSON.stringify(descriptor);
 
-            if (readyForAutoCapture.value && !autoCaptureRunning.value && !form.selfie) {
-                autoCaptureRunning.value = true;
-                cameraMessage.value = 'Rostro listo, capturando foto...';
-                try {
-                    await captureSelfie();
-                } finally {
-                    autoCaptureRunning.value = false;
-                }
+            if (readyForAutoCapture.value && !autoCaptureRunning.value && !form.selfie && !countdown.value) {
+                cameraMessage.value = 'Rostro detectado...';
+                
+                // Countdown de 3 segundos
+                countdown.value = 3;
+                let countInterval = setInterval(async () => {
+                    countdown.value--;
+                    if (countdown.value <= 0) {
+                        clearInterval(countInterval);
+                        countdown.value = null;
+                        
+                        if (readyForAutoCapture.value && !form.selfie) {
+                            autoCaptureRunning.value = true;
+                            cameraMessage.value = 'Capturando...';
+                            try {
+                                await captureSelfie();
+                            } finally {
+                                autoCaptureRunning.value = false;
+                            }
+                        }
+                    }
+                }, 1000);
             }
         } catch (e) {
             // Ignore intermittent frame errors
@@ -795,6 +810,13 @@ onUnmounted(() => {
                                 {{ currentChallengeLabel }}
                             </div>
                         </div>
+
+                        <!-- Countdown Overlay -->
+                        <div v-if="countdown !== null" class="absolute inset-0 flex items-center justify-center bg-black/20 z-30">
+                            <div class="text-9xl font-black text-white drop-shadow-[0_0_20px_rgba(0,0,0,0.8)] animate-ping">
+                                {{ countdown }}
+                            </div>
+                        </div>
                         
                         <img v-if="selfiePreview && !cameraActive" :src="selfiePreview" class="w-full h-full object-cover" />
 
@@ -847,7 +869,7 @@ onUnmounted(() => {
                 <div class="space-y-4">
                     <button 
                         type="submit" 
-                        :disabled="form.processing || !form.latitud || !form.selfie || !form.consentimiento || !form.face_descriptor"
+                        :disabled="form.processing || !form.latitud || !form.selfie"
                         class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 disabled:from-neutral-800 disabled:to-neutral-800 disabled:text-neutral-600 py-6 rounded-[1.5rem] text-sm font-black uppercase tracking-widest shadow-2xl active:scale-[0.98] transition-all"
                     >
                         {{ form.processing ? 'Sincronizando...' : 'Confirmar Registro' }}
