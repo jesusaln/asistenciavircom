@@ -36,11 +36,14 @@ const challengeStarted = ref(false);
 const challengeCompleted = ref(false);
 const livenessScore = ref(0);
 const faceCount = ref(0);
+const mirroredPreview = true;
 const captureQuality = ref({
     brightness: 0,
     sharpness: 0,
     faceAreaRatio: 0,
     centerOffset: 1,
+    sizePass: false,
+    centerPass: false,
     singleFace: false,
     passed: false,
     message: 'Activa cámara para validar calidad',
@@ -61,9 +64,10 @@ const currentChallengeLabel = computed(() => {
 });
 const qualityStatusLabel = computed(() => captureQuality.value.passed ? 'Calidad OK' : 'Calidad pendiente');
 const qualityStatusClass = computed(() => captureQuality.value.passed ? 'text-emerald-400' : 'text-amber-300');
+const faceInsideOval = computed(() => cameraActive.value && captureQuality.value.singleFace && captureQuality.value.sizePass && captureQuality.value.centerPass);
 const overlayClass = computed(() => {
     if (!cameraActive.value) return 'border-white/20';
-    return captureQuality.value.passed ? 'border-emerald-400/70' : 'border-amber-400/70';
+    return faceInsideOval.value ? 'border-emerald-400/80' : 'border-amber-400/70';
 });
 
 const form = useForm({
@@ -198,6 +202,8 @@ const buildChallenge = () => {
         sharpness: 0,
         faceAreaRatio: 0,
         centerOffset: 1,
+        sizePass: false,
+        centerPass: false,
         singleFace: false,
         passed: false,
         message: 'Esperando rostro...',
@@ -233,8 +239,8 @@ const processChallenge = (landmarks) => {
     const current = currentChallengeKey.value;
 
     let passed = false;
-    if (current === 'left') passed = relYaw < -0.10;
-    if (current === 'right') passed = relYaw > 0.10;
+    if (current === 'left') passed = mirroredPreview ? relYaw > 0.10 : relYaw < -0.10;
+    if (current === 'right') passed = mirroredPreview ? relYaw < -0.10 : relYaw > 0.10;
     if (current === 'up') passed = relPitch < -0.08;
     if (current === 'down') passed = relPitch > 0.08;
 
@@ -302,20 +308,20 @@ const evaluateQuality = (source, box, facesLength) => {
     if (facesLength === 0) {
         form.face_capture_quality_passed = false;
         form.face_quality_message = 'No se detecta rostro';
-        captureQuality.value = { ...captureQuality.value, singleFace: false, passed: false, message: 'No se detecta rostro' };
+        captureQuality.value = { ...captureQuality.value, sizePass: false, centerPass: false, singleFace: false, passed: false, message: 'No se detecta rostro' };
         return false;
     }
 
     if (facesLength > 1) {
         form.face_capture_quality_passed = false;
         form.face_quality_message = 'Solo debe aparecer 1 rostro';
-        captureQuality.value = { ...captureQuality.value, singleFace: false, passed: false, message: 'Solo debe aparecer 1 rostro' };
+        captureQuality.value = { ...captureQuality.value, sizePass: false, centerPass: false, singleFace: false, passed: false, message: 'Solo debe aparecer 1 rostro' };
         return false;
     }
 
     const stats = frameStats(source, box);
     if (!stats) {
-        captureQuality.value = { ...captureQuality.value, singleFace: false, passed: false, message: 'No se pudo evaluar calidad' };
+        captureQuality.value = { ...captureQuality.value, sizePass: false, centerPass: false, singleFace: false, passed: false, message: 'No se pudo evaluar calidad' };
         return false;
     }
 
@@ -333,6 +339,8 @@ const evaluateQuality = (source, box, facesLength) => {
 
     captureQuality.value = {
         ...stats,
+        sizePass,
+        centerPass,
         singleFace: true,
         passed,
         message,
@@ -631,8 +639,8 @@ onUnmounted(() => {
 
                 <!-- Camera/Selfie -->
                 <div class="space-y-4">
-                    <div :class="['relative overflow-hidden rounded-[2rem] border-4 aspect-square transition-all bg-neutral-900', cameraActive ? (captureQuality.passed ? 'border-emerald-500/50' : 'border-amber-500/50') : 'border-white/5']">
-                        <video v-show="cameraActive" ref="videoRef" autoplay muted playsinline class="w-full h-full object-cover"></video>
+                    <div :class="['relative overflow-hidden rounded-[2rem] border-4 aspect-square transition-all bg-neutral-900', cameraActive ? (faceInsideOval ? 'border-emerald-500/50' : 'border-amber-500/50') : 'border-white/5']">
+                        <video v-show="cameraActive" ref="videoRef" autoplay muted playsinline :class="['w-full h-full object-cover', mirroredPreview ? '-scale-x-100' : '']"></video>
                         <canvas ref="canvasRef" class="hidden"></canvas>
 
                         <div v-if="cameraActive" class="absolute inset-0 pointer-events-none">
