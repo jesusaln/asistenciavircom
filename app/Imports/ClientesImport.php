@@ -28,15 +28,9 @@ class ClientesImport implements ToModel, WithHeadingRow, SkipsEmptyRows, WithVal
         // Limpiar y normalizar RFC
         $rfc = strtoupper(trim($row['rfc']));
 
-        // Evitar duplicados por RFC
-        if (Cliente::where('rfc', $rfc)->exists()) {
-            return null; // El validador 'unique' en rules() se encargará de esto si es necesario, pero aquí evitamos el insert accidental
-        }
-
-        return new Cliente([
+        $data = [
             'nombre_razon_social' => $row['nombre_razon_social'],
             'tipo_persona' => strtolower($row['tipo_persona'] ?? 'fisica'),
-            'rfc' => $rfc,
             'curp' => $row['curp'] ?? null,
             'regimen_fiscal' => (string) ($row['regimen_fiscal'] ?? '601'),
             'uso_cfdi' => (string) ($row['uso_cfdi'] ?? 'G03'),
@@ -60,9 +54,24 @@ class ClientesImport implements ToModel, WithHeadingRow, SkipsEmptyRows, WithVal
             })($row['pais'] ?? 'MX'),
             'limite_credito' => $row['limite_credito'] ?? 0.00,
             'dias_credito' => $row['dias_credito'] ?? 0,
+        ];
+
+        // Buscar si el cliente ya existe por RFC
+        $cliente = Cliente::where('rfc', $rfc)->first();
+
+        if ($cliente) {
+            // Si ya existe, actualizamos sus datos
+            $cliente->update($data);
+            Log::info("Cliente con RFC {$rfc} actualizado mediante importación.");
+            return null; // Retornamos null porque ya hicimos la actualización manual
+        }
+
+        // Si no existe, creamos uno nuevo
+        return new Cliente(array_merge($data, [
+            'rfc' => $rfc,
             'activo' => true,
             'requiere_factura' => true,
-        ]);
+        ]));
     }
 
     public function rules(): array
