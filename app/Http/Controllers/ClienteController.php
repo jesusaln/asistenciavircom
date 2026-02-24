@@ -23,6 +23,8 @@ use Exception;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ClientesExport;
+use App\Exports\ClientesTemplateExport;
+use App\Imports\ClientesImport;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ClientAccountApprovedMail;
@@ -1069,6 +1071,31 @@ class ClienteController extends Controller
             'logo' => $logo,
             'fecha' => $cliente->credito_firmado_at ? $cliente->credito_firmado_at->format('d/m/Y') : now()->format('d/m/Y')
         ]);
+    }
+
+    public function downloadTemplate()
+    {
+        try {
+            return Excel::download(new ClientesTemplateExport, 'plantilla_clientes.xlsx');
+        } catch (Exception $e) {
+            Log::error('Error descargando plantilla de clientes: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error al generar la plantilla.');
+        }
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:5120' // 5MB max
+        ]);
+
+        try {
+            Excel::import(new ClientesImport, $request->file('file'));
+            return redirect()->route('clientes.index')->with('success', 'Clientes importados correctamente.');
+        } catch (Exception $e) {
+            Log::error('Error importando clientes: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error al importar clientes. Asegúrese de que el formato sea correcto.');
+        }
     }
 
     // Servicios extraidos: ClienteRelationsService

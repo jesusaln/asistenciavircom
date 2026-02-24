@@ -1,7 +1,7 @@
 <!-- /resources/js/Pages/Clientes/IndexNew.vue -->
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
-import { Head, router, usePage, Link } from '@inertiajs/vue3'
+import { Head, router, usePage, Link, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Notyf } from 'notyf'
 import 'notyf/notyf.min.css'
@@ -101,12 +101,32 @@ onMounted(() => {
     Estado local y modal
  ========================= */
 const showModal = ref(false)
+const showImportModal = ref(false)
 const modalMode = ref('details')
 const selectedCliente = ref(null)
 const selectedId = ref(null)
 const loading = ref(false)
 const clientesCanDelete = ref(new Map())
 const clientesPrestamos = ref(new Map())
+
+const importForm = useForm({
+  file: null
+})
+
+const handleImport = () => {
+  if (!importForm.file) return
+
+  importForm.post(route('clientes.import'), {
+    onSuccess: () => {
+      showImportModal.value = false
+      importForm.reset()
+      notyf.success('Clientes importados correctamente')
+    },
+    onError: (errors) => {
+      notyf.error(errors.file || 'Error al importar clientes')
+    }
+  })
+}
 
 /* =========================
    Filtros, orden y datos
@@ -636,6 +656,7 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
         @filtro-estado-change="handleFilter"
         @sort-change="updateSort"
         @limpiar-filtros="limpiarFiltros"
+        @importar-excel="showImportModal = true"
       />
 
       <!-- Información de paginación -->
@@ -1053,6 +1074,113 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
               </button>
             </div>
           </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Modal de Importación -->
+    <Transition name="modal">
+      <div
+        v-if="showImportModal"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        @click.self="showImportModal = false"
+      >
+        <div
+          class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transition-all duration-300 transform scale-100"
+          role="dialog"
+          aria-modal="true"
+        >
+          <!-- Header del Modal -->
+          <div class="px-6 py-4 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-gray-50/50 dark:bg-slate-800/50">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+              </svg>
+              Importar Clientes
+            </h3>
+            <button 
+              @click="showImportModal = false"
+              class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <form @submit.prevent="handleImport" class="p-6 space-y-6">
+            <div class="space-y-4">
+              <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                Seleccione el archivo Excel (.xlsx, .xls) con los datos de sus clientes. Asegúrese de usar el formato de la plantilla proporcionada.
+              </p>
+              
+              <!-- Zona de Carga -->
+              <div 
+                class="relative border-2 border-dashed border-gray-300 dark:border-slate-700 rounded-xl p-8 transition-all hover:border-indigo-500 dark:hover:border-indigo-500 group bg-gray-50/30 dark:bg-slate-800/20"
+                :class="{ 'border-indigo-500 bg-indigo-50/30 dark:bg-indigo-900/10': importForm.file }"
+              >
+                <input 
+                  type="file" 
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  @input="importForm.file = $event.target.files[0]"
+                  accept=".xlsx, .xls, .csv"
+                />
+                
+                <div class="text-center">
+                  <div v-if="!importForm.file">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 group-hover:text-indigo-500 transition-colors" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                      <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                      <span class="font-semibold text-indigo-600 dark:text-indigo-400">Haga clic para subir</span> o arrastre y suelte
+                    </p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">Excel hasta 5MB</p>
+                  </div>
+                  <div v-else class="flex flex-col items-center">
+                    <svg class="h-10 w-10 text-green-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ importForm.file.name }}</p>
+                    <button 
+                      type="button" 
+                      @click.stop="importForm.file = null"
+                      class="mt-2 text-xs text-red-500 hover:text-red-700 underline"
+                    >
+                      Cambiar archivo
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Errores -->
+              <div v-if="importForm.errors.file" class="text-sm text-red-500 font-medium animate-pulse">
+                {{ importForm.errors.file }}
+              </div>
+            </div>
+
+            <!-- Footer con Botones -->
+            <div class="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                @click="showImportModal = false"
+                class="px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all"
+                :disabled="importForm.processing"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                class="inline-flex items-center px-6 py-2.5 bg-indigo-600 border border-transparent rounded-xl font-semibold text-sm text-white shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
+                :disabled="!importForm.file || importForm.processing"
+              >
+                <svg v-if="importForm.processing" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ importForm.processing ? 'Importando...' : 'Comenzar Importación' }}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </Transition>

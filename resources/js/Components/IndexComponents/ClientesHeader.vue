@@ -17,17 +17,43 @@
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-0.5 transition-colors">Gestiona todos tus clientes en un solo lugar</p>
           </div>
         </div>
-        <button
-          v-if="$can('create clientes')"
-          @click="onCrearNueva"
-          class="inline-flex items-center px-5 py-2.5 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-300 transform hover:-translate-y-0.5"
-          :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)`, '--tw-ring-color': colors.principal }"
-        >
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-          Nuevo Cliente
-        </button>
+        <div class="flex items-center gap-2">
+          <!-- Botón de Plantilla -->
+          <a
+            :href="route('clientes.template')"
+            class="inline-flex items-center px-4 py-2.5 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-xl shadow-md border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-300 transform hover:-translate-y-0.5"
+            title="Descargar plantilla Excel"
+          >
+            <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            </svg>
+            Plantilla
+          </a>
+
+          <!-- Botón de Importar -->
+          <button
+            @click="onImportarExcel"
+            class="inline-flex items-center px-4 py-2.5 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-xl shadow-md border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-300 transform hover:-translate-y-0.5"
+            title="Importar desde Excel"
+          >
+            <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+            </svg>
+            Importar
+          </button>
+
+          <button
+            v-if="$can('create clientes')"
+            @click="onCrearNueva"
+            class="inline-flex items-center px-5 py-2.5 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-300 transform hover:-translate-y-0.5"
+            :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)`, '--tw-ring-color': colors.principal }"
+          >
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Nuevo Cliente
+          </button>
+        </div>
       </div>
 
       <!-- Estadísticas -->
@@ -198,7 +224,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
-  'crear-nueva', 'search-change', 'filtro-tipo-persona-change', 'filtro-estado-change', 'filtro-estado-mexico-change', 'sort-change', 'limpiar-filtros'
+  'crear-nueva', 'search-change', 'filtro-tipo-persona-change', 'filtro-estado-change', 'filtro-estado-mexico-change', 'sort-change', 'limpiar-filtros', 'importar-excel'
 ])
 
 // Estados locales para filtros
@@ -216,6 +242,7 @@ const onFiltroEstadoChange = () => emit('filtro-estado-change', filtroEstado.val
 const onFiltroEstadoMexicoChange = () => emit('filtro-estado-mexico-change', filtroEstadoMexico.value)
 const onSortChange = () => emit('sort-change', sortBy.value)
 const onLimpiarFiltros = () => emit('limpiar-filtros')
+const onImportarExcel = () => emit('importar-excel')
 
 // Watch para limpiar filtros automáticamente
 watch([searchTerm, sortBy, filtroTipoPersona, filtroEstado, filtroEstadoMexico], () => {

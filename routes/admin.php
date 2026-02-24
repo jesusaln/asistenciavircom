@@ -112,6 +112,8 @@ Route::pattern('herramienta', '[0-9]+');
 // Middleware de Exportación (Nivel superior en auth)
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/clientes/export', [ClienteController::class, 'export'])->name('clientes.export')->middleware('can:export clientes');
+    Route::get('/clientes/template', [ClienteController::class, 'downloadTemplate'])->name('clientes.template');
+    Route::post('/clientes/import', [ClienteController::class, 'import'])->name('clientes.import')->middleware('role:ventas|admin|super-admin');
     Route::get('/proveedores/export', [ProveedorController::class, 'export'])->name('proveedores.export')->middleware('can:export proveedores');
     Route::get('/tecnicos/export', [TecnicoController::class, 'export'])->name('tecnicos.export')->middleware('can:export tecnicos');
     Route::get('/usuarios/export', [UserController::class, 'export'])->name('usuarios.export')->middleware('can:export usuarios');
