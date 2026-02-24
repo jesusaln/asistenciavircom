@@ -25,7 +25,9 @@ class CompraCuentasPagarService
         $fechaVencimiento = $fechaInicio->copy()->addDays(30);
 
         $cuenta = CuentasPorPagar::create([
+            'empresa_id' => $compra->empresa_id,
             'compra_id' => $compra->id,
+            'proveedor_id' => $compra->proveedor_id,
             'monto_total' => $total,
             'monto_pagado' => 0,
             'monto_pendiente' => $total,
@@ -50,7 +52,7 @@ class CompraCuentasPagarService
     public function actualizarCuentaPorPagar(Compra $compra, float $nuevoTotal): void
     {
         $cuentaPorPagar = CuentasPorPagar::where('compra_id', $compra->id)->first();
-        
+
         if ($cuentaPorPagar) {
             $montoPagado = $cuentaPorPagar->monto_pagado;
             // ✅ FIX: Proteger contra valores negativos
@@ -71,7 +73,9 @@ class CompraCuentasPagarService
         } else {
             // Crear si no existe
             CuentasPorPagar::create([
+                'empresa_id' => $compra->empresa_id,
                 'compra_id' => $compra->id,
+                'proveedor_id' => $compra->proveedor_id,
                 'monto_total' => $nuevoTotal,
                 'monto_pagado' => 0,
                 'monto_pendiente' => $nuevoTotal,
@@ -90,7 +94,7 @@ class CompraCuentasPagarService
     public function cancelarCuentaPorPagar(Compra $compra): void
     {
         $cuentaPorPagar = CuentasPorPagar::where('compra_id', $compra->id)->first();
-        
+
         if (!$cuentaPorPagar) {
             return;
         }
@@ -102,7 +106,7 @@ class CompraCuentasPagarService
                 'monto_pendiente' => 0,
                 'notas' => ($cuentaPorPagar->notas ? $cuentaPorPagar->notas . " | " : "") . 'Cancelada por cancelación de compra'
             ]);
-            
+
             Log::info('Cuenta por pagar marcada como cancelada', [
                 'cuenta_id' => $cuentaPorPagar->id,
                 'monto_pagado' => $cuentaPorPagar->monto_pagado
@@ -110,7 +114,7 @@ class CompraCuentasPagarService
         } else {
             // Si no hay pagos, eliminar el registro
             $cuentaPorPagar->delete();
-            
+
             Log::info('Cuenta por pagar eliminada', ['compra_id' => $compra->id]);
         }
     }

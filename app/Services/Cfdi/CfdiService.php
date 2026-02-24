@@ -125,11 +125,12 @@ class CfdiService
             throw new \Exception("No hay un servicio de timbrado activo configurado (FacturaLOPlus fue removido).");
 
             // 5. Guardar archivos físicamente
-            $xmlFilename = 'cfdis/' . $uuid . '.xml';
+            $empresaId = $venta->empresa_id;
+            $xmlFilename = "empresas/{$empresaId}/cfdis/{$uuid}.xml";
             Storage::disk('public')->put($xmlFilename, $xml);
 
             // 6. Generar PDF Localmente
-            $pdfFilename = 'cfdis/' . $uuid . '.pdf';
+            $pdfFilename = "empresas/{$empresaId}/cfdis/{$uuid}.pdf";
             $this->generarPdfManual($venta->id, $data, $cfdiJson);
 
             // 6. Registrar en la base de datos
@@ -302,7 +303,8 @@ class CfdiService
             ]);
 
             $pdf->setPaper('letter', 'portrait');
-            $pdfPath = 'cfdis/' . $data['uuid'] . '.pdf';
+            $empresaId = $venta->empresa_id;
+            $pdfPath = "empresas/{$empresaId}/cfdis/" . $data['uuid'] . '.pdf';
             Storage::disk('public')->put($pdfPath, $pdf->output());
 
             return true;

@@ -24,14 +24,14 @@ class ReportesInventarioController extends Controller
 
         // Estadísticas generales
         $stats = [
-            'total_productos' => Producto::count(),
-            'productos_activos' => Producto::where('estado', 'activo')->count(),
-            'total_almacenes' => Almacen::where('estado', 'activo')->count(),
+            'total_productos' => Producto::where('empresa_id', $empresaId)->count(),
+            'productos_activos' => Producto::where('empresa_id', $empresaId)->where('estado', 'activo')->count(),
+            'total_almacenes' => Almacen::where('empresa_id', $empresaId)->where('estado', 'activo')->count(),
             'total_stock' => DB::table('inventarios')
                 ->when($empresaId, fn($query) => $query->where('empresa_id', $empresaId))
                 ->sum('cantidad'),
-            'productos_sin_stock' => Producto::where('stock', 0)->count(),
-            'productos_bajo_stock' => Producto::whereRaw('stock <= stock_minimo AND stock_minimo > 0')->count(),
+            'productos_sin_stock' => Producto::where('empresa_id', $empresaId)->where('stock', 0)->count(),
+            'productos_bajo_stock' => Producto::where('empresa_id', $empresaId)->whereRaw('stock <= stock_minimo AND stock_minimo > 0')->count(),
         ];
 
         // Valor total del inventario (aproximado)
@@ -60,7 +60,9 @@ class ReportesInventarioController extends Controller
         $query = DB::table('inventarios')
             ->join('productos', 'inventarios.producto_id', '=', 'productos.id')
             ->join('almacenes', 'inventarios.almacen_id', '=', 'almacenes.id')
-            ->when($empresaId, fn($query) => $query->where('inventarios.empresa_id', $empresaId))
+            ->when($empresaId, fn($query) => $query->where('inventarios.empresa_id', $empresaId)
+                ->where('productos.empresa_id', $empresaId)
+                ->where('almacenes.empresa_id', $empresaId))
             ->where('productos.estado', 'activo')
             ->where('almacenes.estado', 'activo')
             ->select([
@@ -101,7 +103,7 @@ class ReportesInventarioController extends Controller
             ];
         }
 
-        $almacenes = Almacen::where('estado', 'activo')->select('id', 'nombre')->get();
+        $almacenes = Almacen::where('empresa_id', $empresaId)->where('estado', 'activo')->select('id', 'nombre')->get();
 
         return Inertia::render('ReportesInventario/StockPorAlmacen', [
             'reporte' => $reporte,
@@ -117,13 +119,14 @@ class ReportesInventarioController extends Controller
     {
         $empresaId = EmpresaResolver::resolveId();
 
-        $productos = Producto::with(['categoria', 'marca'])
+        $productos = Producto::where('empresa_id', $empresaId)
+            ->with(['categoria', 'marca'])
             ->where('estado', 'activo')
             ->whereRaw('stock <= stock_minimo')
             ->where('stock_minimo', '>', 0)
             ->orderBy('stock', 'asc')
             ->get()
-            ->map(function ($producto) {
+            ->map(function ($producto) use ($empresaId) {
                 // Obtener distribución por almacén
                 $distribucion = DB::table('inventarios')
                     ->join('almacenes', 'inventarios.almacen_id', '=', 'almacenes.id')
@@ -133,11 +136,11 @@ class ReportesInventarioController extends Controller
                     ->select('almacenes.nombre as almacen', 'inventarios.cantidad')
                     ->get()
                     ->map(function ($inv) {
-                        return [
-                            'almacen' => $inv->almacen,
-                            'cantidad' => $inv->cantidad,
-                        ];
-                    });
+                    return [
+                        'almacen' => $inv->almacen,
+                        'cantidad' => $inv->cantidad,
+                    ];
+                });
 
                 return [
                     'id' => $producto->id,
@@ -170,7 +173,8 @@ class ReportesInventarioController extends Controller
         $tipo = $request->get('tipo'); // entrada, salida, todos
 
         // Movimientos de inventario_movimientos
-        $query = InventarioMovimiento::with(['producto', 'almacen', 'user'])
+        $query = InventarioMovimiento::where('empresa_id', $empresaId)
+            ->with(['producto', 'almacen', 'user'])
             ->whereBetween('created_at', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59']);
 
         if ($tipo && $tipo !== 'todos') {
@@ -224,10 +228,11 @@ class ReportesInventarioController extends Controller
         $empresaId = EmpresaResolver::resolveId();
         $tipoCosto = $request->get('tipo_costo', 'promedio'); // promedio, ultimo, total
 
-        $productos = Producto::with(['categoria', 'marca'])
+        $productos = Producto::where('empresa_id', $empresaId)
+            ->with(['categoria', 'marca'])
             ->where('estado', 'activo')
             ->get()
-            ->map(function ($producto) use ($tipoCosto) {
+            ->map(function ($producto) use ($tipoCosto, $empresaId) {
                 // Calcular costo según el tipo seleccionado
                 $costo = $this->calcularCostoProducto($producto->id, $tipoCosto);
 
@@ -246,12 +251,12 @@ class ReportesInventarioController extends Controller
                     ->select('almacenes.nombre as almacen', 'inventarios.cantidad')
                     ->get()
                     ->map(function ($inv) use ($costo) {
-                        return [
-                            'almacen' => $inv->almacen,
-                            'cantidad' => $inv->cantidad,
-                            'valor' => $inv->cantidad * $costo,
-                        ];
-                    });
+                    return [
+                        'almacen' => $inv->almacen,
+                        'cantidad' => $inv->cantidad,
+                        'valor' => $inv->cantidad * $costo,
+                    ];
+                });
 
                 return [
                     'id' => $producto->id,

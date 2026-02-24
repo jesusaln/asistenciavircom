@@ -10,7 +10,6 @@ use App\Models\Cliente;
 use App\Models\User;
 use App\Models\Empresa;
 use App\Support\EmpresaResolver;
-use Illuminate\Foundation\Testing\WithoutMiddleware; // Add this line
 
 /**
  * ✅ SAFE TESTS: Uses DatabaseTransactions to rollback ALL changes
@@ -22,11 +21,10 @@ use Illuminate\Foundation\Testing\WithoutMiddleware; // Add this line
  * - Automatically rollback everything
  * - Leave database unchanged
  */
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 class VentaControllerTest extends TestCase
 {
-    use DatabaseTransactions;
-    use WithoutMiddleware;
+    use RefreshDatabase;
 
     protected User $user;
     protected Cliente $cliente;
@@ -39,6 +37,9 @@ class VentaControllerTest extends TestCase
     {
         parent::setUp();
 
+        $this->seed(\Database\Seeders\RolesAndPermissionsSeeder::class);
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
         // 1. Crear Empresa base para el contexto
         $this->empresa = Empresa::factory()->create();
         EmpresaResolver::setContext($this->empresa->id);
@@ -48,8 +49,12 @@ class VentaControllerTest extends TestCase
             'empresa_id' => $this->empresa->id,
             'activo' => true
         ]);
+
         $this->user->assignRole('admin');
+
         $this->actingAs($this->user);
+
+        // Probe query to check if transaction is healthy
 
         // 3. Asegurar que existan datos básicos asociados a la empresa
         $this->cliente = Cliente::factory()->create([
@@ -111,6 +116,7 @@ class VentaControllerTest extends TestCase
     {
         $ventasCountBefore = Venta::count();
 
+        $this->withoutExceptionHandling();
         $response = $this->post(route('ventas.store'), [
             'cliente_id' => $this->cliente->id,
             'almacen_id' => $this->almacen->id,
@@ -260,11 +266,10 @@ class VentaControllerTest extends TestCase
                 ],
             ],
         ]);
-        
+
         // 3. Assert: Check for authorization error and no new sale
         $response->assertRedirect();
-        $response->dumpSession(); // Debugging line
-        $response->assertSessionHasErrors([]); // Temporarily change assertion for debugging
+        $response->assertSessionHasErrors('message');
         $this->assertEquals($ventasCountBefore, Venta::count());
     }
 

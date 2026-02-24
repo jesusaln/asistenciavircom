@@ -14,66 +14,71 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        // 1. Obtener una categoría válida (o crear una por defecto)
-        $categoria = \App\Models\Categoria::first();
-        if (!$categoria) {
-            $categoria = \App\Models\Categoria::create([
-                'nombre' => 'Servicios Generales',
-                'empresa_id' => 1,
-                'estado' => 'activo'
-            ]);
-        }
-
-        // 2. Asegurar que existan los servicios
-        $serviciosRequeridos = [
-            [
-                'nombre' => 'Soporte Técnico para sistemas Contpaqi',
-                'descripcion' => 'Soporte especializado para paquetería Contpaqi',
-                'precio' => 0,
-            ],
-            [
-                'nombre' => 'Soporte Técnico para Equipos de Cómputo',
-                'descripcion' => 'Mantenimiento y soporte para hardware y SO',
-                'precio' => 0,
-            ]
-        ];
-
-        $idsServicios = [];
-
-        foreach ($serviciosRequeridos as $index => $data) {
-            // Buscamos por nombre
-            $servicio = Servicio::where('nombre', $data['nombre'])->first();
-
-            if (!$servicio) {
-                $servicio = Servicio::create([
-                    'nombre' => $data['nombre'],
-                    'descripcion' => $data['descripcion'],
-                    'precio' => $data['precio'],
-                    'categoria_id' => $categoria->id,
-                    'empresa_id' => 1, // Asumiendo empresa 1
-                    'codigo' => 'SERV-' . strtoupper(Str::random(6)),
-                    'unidad_medida' => 'servicio',
-                    'estado' => 'activo',
-                    'duracion' => 60 // Duración por defecto en minutos
-                ]);
+        if (Schema::hasTable('servicios') && Schema::hasTable('plan_polizas')) {
+            // 1. Obtener una categoría válida (o crear una por defecto) solo si la tabla existe
+            $categoria = null;
+            if (Schema::hasTable('categorias')) {
+                $categoria = \App\Models\Categoria::first();
+                if (!$categoria) {
+                    $categoria = \App\Models\Categoria::create([
+                        'nombre' => 'Servicios Generales',
+                        'empresa_id' => 1,
+                        'estado' => 'activo'
+                    ]);
+                }
             }
 
-            $idsServicios[] = $servicio->id;
-        }
+            // 2. Asegurar que existan los servicios
+            $serviciosRequeridos = [
+                [
+                    'nombre' => 'Soporte Técnico para sistemas Contpaqi',
+                    'descripcion' => 'Soporte especializado para paquetería Contpaqi',
+                    'precio' => 0,
+                ],
+                [
+                    'nombre' => 'Soporte Técnico para Equipos de Cómputo',
+                    'descripcion' => 'Mantenimiento y soporte para hardware y SO',
+                    'precio' => 0,
+                ]
+            ];
 
-        // 3. Buscar la Póliza (Mini o Pyme Estándar) y actualizarla
-        $planTarget = PlanPoliza::where('nombre', 'like', '%Estándar%')
-            ->orWhere('nombre', 'like', '%Estandar%')
-            ->orWhere('nombre', 'like', '%Mini%')
-            ->first();
+            $idsServicios = [];
 
-        if ($planTarget) {
-            $planTarget->incluye_servicios = $idsServicios;
-            $planTarget->save();
+            foreach ($serviciosRequeridos as $index => $data) {
+                // Buscamos por nombre
+                $servicio = Servicio::where('nombre', $data['nombre'])->first();
 
-            echo "Plan '{$planTarget->nombre}' actualizado con " . count($idsServicios) . " servicios.\n";
-        } else {
-            echo "No se encontró ningún plan con nombre 'Estándar' ni 'Mini'.\n";
+                if (!$servicio) {
+                    $servicio = Servicio::create([
+                        'nombre' => $data['nombre'],
+                        'descripcion' => $data['descripcion'],
+                        'precio' => $data['precio'],
+                        'categoria_id' => $categoria ? $categoria->id : null,
+                        'empresa_id' => 1, // Asumiendo empresa 1
+                        'codigo' => 'SERV-' . strtoupper(Str::random(6)),
+                        'unidad_medida' => 'servicio',
+                        'estado' => 'activo',
+                        'duracion' => 60 // Duración por defecto en minutos
+                    ]);
+                }
+
+                $idsServicios[] = $servicio->id;
+            }
+
+            // 3. Buscar la Póliza (Mini o Pyme Estándar) y actualizarla
+            $planTarget = PlanPoliza::where('nombre', 'like', '%Estándar%')
+                ->orWhere('nombre', 'like', '%Estandar%')
+                ->orWhere('nombre', 'like', '%Mini%')
+                ->first();
+
+            if ($planTarget) {
+                $planTarget->incluye_servicios = $idsServicios;
+                $planTarget->save();
+
+                echo "Plan '{$planTarget->nombre}' actualizado con " . count($idsServicios) . " servicios.\n";
+            } else {
+                echo "No se encontró ningún plan con nombre 'Estándar' ni 'Mini'.\n";
+            }
         }
     }
 

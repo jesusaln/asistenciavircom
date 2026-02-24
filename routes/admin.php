@@ -330,7 +330,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::delete('/{factura}', [\App\Http\Controllers\FacturaController::class, 'destroy'])->name('destroy');
     });
 
-    Route::resource('garantias', GarantiaController::class)->names('garantias')->middleware('can:view garantias');
+    Route::resource('garantias', GarantiaController::class)->only(['index', 'create'])->names('garantias')->middleware('can:view garantias');
 
     Route::prefix('kits')->name('kits.')->middleware('can:view kits')->group(function () {
         Route::get('/', [KitController::class, 'index'])->name('index');

@@ -200,7 +200,8 @@ class ClienteController extends Controller
             $withRelations = ['estadoSat', 'regimen', 'uso'];
         }
 
-        $q = \App\Models\Cliente::query()->with($withRelations);
+        $empresaId = \App\Support\EmpresaResolver::resolveId();
+        $q = \App\Models\Cliente::where('empresa_id', $empresaId)->with($withRelations);
 
         if ($s = trim((string) $request->input('search', ''))) {
             if (strlen($s) >= 3 && $this->hasFulltextIndex()) {
@@ -709,7 +710,8 @@ class ClienteController extends Controller
                 ], 422);
             }
 
-            $query = Cliente::where('email', $email);
+            $empresaId = \App\Support\EmpresaResolver::resolveId();
+            $query = Cliente::where('empresa_id', $empresaId)->where('email', $email);
             if ($clienteId) {
                 $query->where('id', '!=', $clienteId);
             }
@@ -749,7 +751,8 @@ class ClienteController extends Controller
                 return response()->json(['success' => true, 'exists' => false, 'message' => 'RFC genérico válido']);
             }
 
-            $query = Cliente::where('rfc', $rfc);
+            $empresaId = \App\Support\EmpresaResolver::resolveId();
+            $query = Cliente::where('empresa_id', $empresaId)->where('rfc', $rfc);
             if ($clienteId)
                 $query->where('id', '!=', $clienteId);
 
@@ -819,7 +822,9 @@ class ClienteController extends Controller
                 return response()->json(['success' => false, 'message' => 'Mínimo ' . self::MIN_SEARCH_LENGTH . ' caracteres para búsqueda'], 422);
             }
 
-            $clientes = Cliente::where('activo', true)
+            $empresaId = \App\Support\EmpresaResolver::resolveId();
+            $clientes = Cliente::where('empresa_id', $empresaId)
+                ->where('activo', true)
                 ->where(function ($q) use ($query) {
                     $q->where('nombre_razon_social', 'like', "%{$query}%")
                         ->orWhere('rfc', 'like', "%{$query}%")
@@ -851,14 +856,15 @@ class ClienteController extends Controller
     public function stats(): JsonResponse
     {
         try {
-            $stats = Cache::remember('clientes_stats', 5, function () {
+            $empresaId = \App\Support\EmpresaResolver::resolveId();
+            $stats = Cache::remember("clientes_stats_{$empresaId}", 5, function () use ($empresaId) {
                 return [
-                    'total' => Cliente::count(),
-                    'activos' => Cliente::where('activo', true)->count(),
-                    'inactivos' => Cliente::where('activo', false)->count(),
-                    'personas_fisicas' => Cliente::where('tipo_persona', 'fisica')->count(),
-                    'personas_morales' => Cliente::where('tipo_persona', 'moral')->count(),
-                    'nuevos_mes' => Cliente::whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
+                    'total' => Cliente::where('empresa_id', $empresaId)->count(),
+                    'activos' => Cliente::where('empresa_id', $empresaId)->where('activo', true)->count(),
+                    'inactivos' => Cliente::where('empresa_id', $empresaId)->where('activo', false)->count(),
+                    'personas_fisicas' => Cliente::where('empresa_id', $empresaId)->where('tipo_persona', 'fisica')->count(),
+                    'personas_morales' => Cliente::where('empresa_id', $empresaId)->where('tipo_persona', 'moral')->count(),
+                    'nuevos_mes' => Cliente::where('empresa_id', $empresaId)->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
                 ];
             });
 

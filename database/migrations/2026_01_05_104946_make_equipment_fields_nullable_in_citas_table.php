@@ -11,9 +11,15 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('citas', function (Blueprint $table) {
-            $table->string('tipo_equipo')->nullable()->change();
-            $table->string('marca_equipo')->nullable()->change();
-            $table->string('modelo_equipo')->nullable()->change();
+            if (Schema::hasColumn('citas', 'tipo_equipo')) {
+                $table->string('tipo_equipo')->nullable()->change();
+            }
+            if (Schema::hasColumn('citas', 'marca_equipo')) {
+                $table->string('marca_equipo')->nullable()->change();
+            }
+            if (Schema::hasColumn('citas', 'modelo_equipo')) {
+                $table->string('modelo_equipo')->nullable()->change();
+            }
         });
     }
 

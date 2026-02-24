@@ -22,6 +22,7 @@ class VentaPolicy
 
     public function create(User $user): bool
     {
+        \Illuminate\Support\Facades\DB::select('SELECT 1');
         return $user->hasRole(['super-admin', 'admin']) || $user->can('create ventas');
     }
 

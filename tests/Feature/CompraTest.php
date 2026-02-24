@@ -14,41 +14,86 @@ use App\Enums\EstadoCompra;
 
 use Spatie\Permission\Models\Role;
 use Laravel\Sanctum\Sanctum;
+use App\Support\EmpresaResolver;
 
 class CompraTest extends TestCase
 {
-    
+
 
     protected $proveedor;
+    protected $almacen;
     protected $producto1;
     protected $producto2;
+    protected $empresa;
+    protected $user;
 
     protected function setUp(): void
     {
         parent::setUp();
 
+        // Crear empresa
+        $this->empresa = \App\Models\Empresa::create([
+            'nombre_razon_social' => 'Empresa Test',
+            'rfc' => 'TEN010101TEN',
+            'email' => 'admin@test.com',
+            'tipo_persona' => 'moral',
+            'regimen_fiscal' => '601',
+            'uso_cfdi' => 'G03',
+            'codigo_postal' => '00000',
+            'calle' => 'Calle Test',
+            'numero_exterior' => '1',
+            'colonia' => 'Colonia Test',
+            'municipio' => 'Municipio Test',
+            'estado' => 'Estado Test',
+            'pais' => 'México'
+        ]);
+
+        EmpresaResolver::setContext($this->empresa->id);
+
         // Autenticar usuario
         /** @var \App\Models\User $user */
-        $user = User::factory()->create();
+        $this->user = User::factory()->create(['empresa_id' => $this->empresa->id]);
         // Verificar email para pasar middleware 'verified'
-        $user->forceFill(['email_verified_at' => now()])->save();
+        $this->user->forceFill(['email_verified_at' => now()])->save();
         // Asignar rol requerido por middleware de rutas
         $role = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
-        $user->assignRole($role);
-        Sanctum::actingAs($user, ['*']);
-        $this->actingAs($user);
+
+        // Asegurar que el rol tenga permisos para compras
+        $permissions = [
+            'view compras',
+            'create compras',
+            'edit compras',
+            'delete compras'
+        ];
+        foreach ($permissions as $perm) {
+            \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
+        }
+        $role->syncPermissions($permissions);
+
+        $this->user->assignRole($role);
+        Sanctum::actingAs($this->user, ['*']);
+        $this->actingAs($this->user);
 
         // Crear categoria y marca para productos
         $categoria = Categoria::create([
             'nombre' => 'Categoria Test',
             'descripcion' => 'Descripción categoria test',
             'activo' => true,
+            'empresa_id' => $this->empresa->id,
         ]);
 
         $marca = Marca::create([
             'nombre' => 'Marca Test',
             'descripcion' => 'Descripción marca test',
             'activo' => true,
+            'empresa_id' => $this->empresa->id,
+        ]);
+
+        // Crear almacen
+        $this->almacen = \App\Models\Almacen::create([
+            'nombre' => 'Almacen Test',
+            'empresa_id' => $this->empresa->id,
+            'activo' => true
         ]);
 
         // Crear datos de prueba básicos sin dependencias complejas
@@ -79,7 +124,7 @@ class CompraTest extends TestCase
             'categoria_id' => $categoria->id,
             'marca_id' => $marca->id,
             'proveedor_id' => $this->proveedor->id,
-            'almacen_id' => null,
+            'almacen_id' => $this->almacen->id,
             'stock' => 50,
             'stock_minimo' => 10,
             'precio_compra' => 100.00,
@@ -90,6 +135,14 @@ class CompraTest extends TestCase
             'estado' => 'activo',
         ]);
 
+        // Asegurar registro de inventario para producto1
+        \App\Models\Inventario::create([
+            'producto_id' => $this->producto1->id,
+            'almacen_id' => $this->almacen->id,
+            'empresa_id' => $this->empresa->id,
+            'cantidad' => 50,
+        ]);
+
         $this->producto2 = Producto::create([
             'nombre' => 'Producto Test 2',
             'descripcion' => 'Descripción del producto test 2',
@@ -98,7 +151,7 @@ class CompraTest extends TestCase
             'categoria_id' => $categoria->id,
             'marca_id' => $marca->id,
             'proveedor_id' => $this->proveedor->id,
-            'almacen_id' => null,
+            'almacen_id' => $this->almacen->id,
             'stock' => 30,
             'stock_minimo' => 5,
             'precio_compra' => 200.00,
@@ -108,6 +161,14 @@ class CompraTest extends TestCase
             'tipo_producto' => 'fisico',
             'estado' => 'activo',
         ]);
+
+        // Asegurar registro de inventario para producto2
+        \App\Models\Inventario::create([
+            'producto_id' => $this->producto2->id,
+            'almacen_id' => $this->almacen->id,
+            'empresa_id' => $this->empresa->id,
+            'cantidad' => 30,
+        ]);
     }
 
     /** @test */
@@ -115,6 +176,8 @@ class CompraTest extends TestCase
     {
         $compraData = [
             'proveedor_id' => $this->proveedor->id,
+            'almacen_id' => $this->almacen->id,
+            'metodo_pago' => 'efectivo',
             'descuento_general' => 0.00,
             'productos' => [
                 [
@@ -137,12 +200,17 @@ class CompraTest extends TestCase
         $response->assertRedirect(route('compras.index'));
         $this->assertDatabaseHas('compras', [
             'proveedor_id' => $this->proveedor->id,
-            'estado' => EstadoCompra::Procesada,
+            'estado' => EstadoCompra::Procesada->value,
+        ]);
+
+        $this->assertDatabaseHas('compra_items', [
+            'comprable_id' => $this->producto1->id,
+            'cantidad' => 2,
         ]);
 
         $compra = Compra::where('proveedor_id', $this->proveedor->id)->first();
         $this->assertNotNull($compra);
-        $this->assertCount(2, $compra->productos);
+        $this->assertEquals(2, $compra->compraItems()->count());
 
         // Verificar que el stock se incrementó
         $this->producto1->refresh();
@@ -167,16 +235,30 @@ class CompraTest extends TestCase
     public function puede_cancelar_compra_procesada()
     {
         // Crear una compra procesada
-        $compra = Compra::factory()->create([
+        $compra = Compra::create([ // Changed from Compra::factory()->create to Compra::create
+            'empresa_id' => $this->empresa->id, // Added this line
+            'numero_compra' => 'C0001', // Added this line
             'proveedor_id' => $this->proveedor->id,
-            'estado' => EstadoCompra::Procesada
+            'almacen_id' => $this->almacen->id,
+            'metodo_pago' => 'efectivo',
+            'estado' => EstadoCompra::Procesada->value, // Changed to use ->value
+            'fecha_compra' => now()->subDay(), // Added this line
+            'subtotal' => 500.00, // Added this line
+            'descuento_general' => 0.00, // Added this line
+            'descuento_items' => 0.00, // Added this line
+            'iva' => 80.00, // Added this line
+            'total' => 580.00, // Added this line
+            'created_by' => $this->user->id, // Added this line
+            'updated_by' => $this->user->id, // Added this line
         ]);
 
         // Agregar productos
+        // Añadir un item para que el stock sea relevante
         CompraItem::create([
+            'empresa_id' => $this->empresa->id, // Added this line
             'compra_id' => $compra->id,
             'comprable_id' => $this->producto1->id,
-            'comprable_type' => Producto::class,
+            'comprable_type' => 'producto', // Changed 'producto' to 'producto'
             'cantidad' => 5,
             'precio' => 100.00,
             'descuento' => 0,
@@ -184,21 +266,27 @@ class CompraTest extends TestCase
             'descuento_monto' => 0,
         ]);
 
-        // Simular que el stock se incrementó
+        // Simular que el stock se incrementó en el inventario y producto
+        \App\Models\Inventario::where('producto_id', $this->producto1->id)
+            ->where('almacen_id', $this->almacen->id)
+            ->increment('cantidad', 5);
         $this->producto1->increment('stock', 5);
-        $this->assertEquals(55, $this->producto1->fresh()->stock);
 
-        $response = $this->post(route('compras.cancel', $compra->id));
+        $this->assertEquals(55.00, $this->producto1->fresh()->stock);
+
+        $response = $this->from(route('compras.index'))
+            ->post(route('compras.cancel', $compra->id));
 
         $response->assertRedirect(route('compras.index'));
+        $response->assertSessionHas('success');
         $this->assertDatabaseHas('compras', [
             'id' => $compra->id,
-            'estado' => EstadoCompra::Cancelada
+            'estado' => EstadoCompra::Cancelada->value
         ]);
 
         // Verificar que se revirtió el stock
         $this->producto1->refresh();
-        $this->assertEquals(50, $this->producto1->stock); // 55 - 5
+        $this->assertEquals(50.00, $this->producto1->stock); // 55 - 5
     }
 
     /** @test */
@@ -214,7 +302,7 @@ class CompraTest extends TestCase
         CompraItem::create([
             'compra_id' => $compra->id,
             'comprable_id' => $this->producto1->id,
-            'comprable_type' => Producto::class,
+            'comprable_type' => 'producto',
             'cantidad' => 10,
             'precio' => 100.00,
             'descuento' => 0,
@@ -233,8 +321,7 @@ class CompraTest extends TestCase
         $response->assertSessionHas('error');
 
         // Verificar que no se canceló
-        $compra->refresh();
-        $this->assertEquals(EstadoCompra::Procesada->value, $compra->estado);
+        $this->assertEquals(EstadoCompra::Procesada, $compra->refresh()->estado);
     }
 
     /** @test */
@@ -243,6 +330,8 @@ class CompraTest extends TestCase
         // Crear una compra usando el método store
         $compraData = [
             'proveedor_id' => $this->proveedor->id,
+            'almacen_id' => $this->almacen->id,
+            'metodo_pago' => 'efectivo',
             'descuento_general' => 0.00,
             'productos' => [
                 [
@@ -263,6 +352,8 @@ class CompraTest extends TestCase
 
         $updateData = [
             'proveedor_id' => $this->proveedor->id,
+            'almacen_id' => $this->almacen->id,
+            'metodo_pago' => 'transferencia',
             'descuento_general' => 10.00,
             'productos' => [
                 [
@@ -274,7 +365,8 @@ class CompraTest extends TestCase
             ]
         ];
 
-        $response = $this->put(route('compras.update', $compra->id), $updateData);
+        $response = $this->from(route('compras.index'))
+            ->put(route('compras.update', $compra->id), $updateData);
 
         $response->assertRedirect(route('compras.index'));
 
@@ -308,6 +400,8 @@ class CompraTest extends TestCase
     {
         $compraData = [
             'proveedor_id' => $this->proveedor->id,
+            'almacen_id' => $this->almacen->id,
+            'metodo_pago' => 'tarjeta',
             'descuento_general' => 0.00,
             'productos' => [
                 [
@@ -330,6 +424,8 @@ class CompraTest extends TestCase
     {
         $compraData = [
             'proveedor_id' => $this->proveedor->id,
+            'almacen_id' => $this->almacen->id,
+            'metodo_pago' => 'efectivo',
             'descuento_general' => 0.00,
             'productos' => [
                 [
@@ -352,6 +448,8 @@ class CompraTest extends TestCase
     {
         $compraData = [
             'proveedor_id' => $this->proveedor->id,
+            'almacen_id' => $this->almacen->id,
+            'metodo_pago' => 'efectivo',
             'descuento_general' => 50.00, // Descuento general
             'productos' => [
                 [

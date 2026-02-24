@@ -13,7 +13,9 @@ return new class extends Migration {
     {
         Schema::table('citas', function (Blueprint $table) {
             // fecha_hora se confirma después por el administrador
-            $table->dateTime('fecha_hora')->nullable()->change();
+            if (Schema::hasColumn('citas', 'fecha_hora')) {
+                $table->dateTime('fecha_hora')->nullable()->change();
+            }
         });
     }
 

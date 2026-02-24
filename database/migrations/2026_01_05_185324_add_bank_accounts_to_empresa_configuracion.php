@@ -11,9 +11,15 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('empresa_configuracion', function (Blueprint $table) {
-            $table->foreignId('cuenta_id_paypal')->nullable()->after('paypal_sandbox')->constrained('cuentas_bancarias')->onDelete('set null');
-            $table->foreignId('cuenta_id_mercadopago')->nullable()->after('mercadopago_sandbox')->constrained('cuentas_bancarias')->onDelete('set null');
-            $table->foreignId('cuenta_id_stripe')->nullable()->after('stripe_sandbox')->constrained('cuentas_bancarias')->onDelete('set null');
+            $table->unsignedBigInteger('cuenta_id_paypal')->nullable()->after('paypal_sandbox');
+            $table->unsignedBigInteger('cuenta_id_mercadopago')->nullable()->after('mercadopago_sandbox');
+            $table->unsignedBigInteger('cuenta_id_stripe')->nullable()->after('stripe_sandbox');
+
+            if (Schema::hasTable('cuentas_bancarias')) {
+                $table->foreign('cuenta_id_paypal')->references('id')->on('cuentas_bancarias')->onDelete('set null');
+                $table->foreign('cuenta_id_mercadopago')->references('id')->on('cuentas_bancarias')->onDelete('set null');
+                $table->foreign('cuenta_id_stripe')->references('id')->on('cuentas_bancarias')->onDelete('set null');
+            }
         });
     }
 

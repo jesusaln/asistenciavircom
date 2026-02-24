@@ -10,12 +10,14 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('rentas', function (Blueprint $table) {
-            $table->string('ine_frontal')->nullable()->after('firma_hash');
-            $table->string('ine_trasera')->nullable()->after('ine_frontal');
-            $table->string('comprobante_domicilio')->nullable()->after('ine_trasera');
-            $table->string('solicitud_renta')->nullable()->after('comprobante_domicilio');
-        });
+        if (Schema::hasTable('rentas')) {
+            Schema::table('rentas', function (Blueprint $table) {
+                $table->string('ine_frontal')->nullable()->after('firma_hash');
+                $table->string('ine_trasera')->nullable()->after('ine_frontal');
+                $table->string('comprobante_domicilio')->nullable()->after('ine_trasera');
+                $table->string('solicitud_renta')->nullable()->after('comprobante_domicilio');
+            });
+        }
     }
 
     /**

@@ -10,13 +10,15 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('rentas', function (Blueprint $table) {
-            $table->text('firma_digital')->nullable()->after('referencia_pago');
-            $table->dateTime('firmado_at')->nullable()->after('firma_digital');
-            $table->string('firmado_ip')->nullable()->after('firmado_at');
-            $table->string('firmado_nombre')->nullable()->after('firmado_ip');
-            $table->string('firma_hash')->nullable()->after('firmado_nombre');
-        });
+        if (Schema::hasTable('rentas')) {
+            Schema::table('rentas', function (Blueprint $table) {
+                $table->text('firma_digital')->nullable()->after('referencia_pago');
+                $table->dateTime('firmado_at')->nullable()->after('firma_digital');
+                $table->string('firmado_ip')->nullable()->after('firmado_at');
+                $table->string('firmado_nombre')->nullable()->after('firmado_ip');
+                $table->string('firma_hash')->nullable()->after('firmado_nombre');
+            });
+        }
     }
 
     /**

@@ -22,6 +22,7 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
 
     protected $fillable = [
         'codigo',
+        'uuid',
         'empresa_id',
         'nombre_razon_social',
         'razon_social',        // Razón social para facturación (puede ser diferente al nombre comercial)
@@ -139,6 +140,9 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
     protected static function booted()
     {
         static::creating(function (Cliente $cliente) {
+            if (empty($cliente->uuid)) {
+                $cliente->uuid = (string) \Illuminate\Support\Str::uuid();
+            }
             if (empty($cliente->codigo)) {
                 try {
                     $cliente->codigo = app(\App\Services\Folio\FolioService::class)->getNextFolio('cliente');

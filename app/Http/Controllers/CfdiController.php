@@ -50,7 +50,8 @@ class CfdiController extends Controller
 
     public function index(Request $request)
     {
-        $query = Cfdi::with(['cliente', 'venta', 'conceptos']);
+        $empresaId = \App\Support\EmpresaResolver::resolveId();
+        $query = Cfdi::where('empresa_id', $empresaId)->with(['cliente', 'venta', 'conceptos']);
         $hasDireccionColumn = Schema::hasColumn('cfdis', 'direccion');
 
         if ($request->filled('search')) {
@@ -138,13 +139,14 @@ class CfdiController extends Controller
 
         // Calcular contadores generales
         $contadores = [
-            'total' => Cfdi::count(),
-            'emitidos' => $hasDireccionColumn ? Cfdi::where('direccion', 'emitido')->count() : 0,
-            'recibidos' => $hasDireccionColumn ? Cfdi::where('direccion', 'recibido')->count() : 0,
+            'total' => Cfdi::where('empresa_id', $empresaId)->count(),
+            'emitidos' => $hasDireccionColumn ? Cfdi::where('empresa_id', $empresaId)->where('direccion', 'emitido')->count() : 0,
+            'recibidos' => $hasDireccionColumn ? Cfdi::where('empresa_id', $empresaId)->where('direccion', 'recibido')->count() : 0,
         ];
 
         // Obtener historial de descargas masivas
-        $descargas = SatDescargaMasiva::orderBy('created_at', 'desc')
+        $descargas = SatDescargaMasiva::where('created_by', auth()->id())
+            ->orderBy('created_at', 'desc')
             ->take(5)
             ->get()
             ->map(function (SatDescargaMasiva $descarga) {
@@ -199,7 +201,7 @@ class CfdiController extends Controller
         // Obtener RFC de la empresa para determinar dirección dinámica
         $empresaRfc = EmpresaConfiguracion::getConfig()->rfc;
 
-        $cfdis->setCollection($cfdis->getCollection()->map(function ($cfdi) use ($empresaRfc) {
+        $cfdis->setCollection($cfdis->getCollection()->map(function ($cfdi) use ($empresaRfc, $empresaId) {
             $rawFechaEmision = $cfdi->getRawOriginal('fecha_emision');
             $hasTimeInEmision = $rawFechaEmision && (Str::contains($rawFechaEmision, ' ') || Str::contains($rawFechaEmision, 'T'));
             $fechaBase = $hasTimeInEmision
@@ -246,8 +248,8 @@ class CfdiController extends Controller
                     'forma_pago' => $cfdi->forma_pago,
                     'uso_cfdi' => $cfdi->uso_cfdi,
                 ]),
-                'tiene_pdf' => Storage::disk('public')->exists('cfdis/' . $cfdi->uuid . '.pdf'),
-                'tiene_xml' => Storage::disk('public')->exists('cfdis/' . $cfdi->uuid . '.xml'),
+                'tiene_pdf' => Storage::disk('public')->exists("empresas/{$empresaId}/cfdis/{$cfdi->uuid}.pdf"),
+                'tiene_xml' => Storage::disk('public')->exists("empresas/{$empresaId}/cfdis/{$cfdi->uuid}.xml"),
             ];
         }));
         $cfdis->appends($request->query());
@@ -279,10 +281,11 @@ class CfdiController extends Controller
 
     public function create()
     {
+        $empresaId = \App\Support\EmpresaResolver::resolveId();
         return Inertia::render('Cfdi/Create', [
-            'clientes' => Cliente::all(),
-            'productos' => Producto::all(),
-            'empresa' => EmpresaConfiguracion::getConfig(),
+            'clientes' => Cliente::where('empresa_id', $empresaId)->get(),
+            'productos' => Producto::where('empresa_id', $empresaId)->get(),
+            'empresa' => EmpresaConfiguracion::getConfig($empresaId),
         ]);
     }
 
@@ -315,8 +318,12 @@ class CfdiController extends Controller
 
     public function descargarXml(Request $request, $uuid)
     {
-        $cfdi = Cfdi::where('uuid', $uuid)->first();
+        $empresaId = \App\Support\EmpresaResolver::resolveId();
+        $cfdi = Cfdi::where('empresa_id', $empresaId)->where('uuid', $uuid)->first();
+
         $paths = [
+            "empresas/{$empresaId}/cfdis/xml/{$uuid}.xml",
+            "empresas/{$empresaId}/cfdis/{$uuid}.xml",
             'cfdis/xml/' . $uuid . '.xml',
             'cfdis/' . $uuid . '.xml',
         ];
@@ -358,8 +365,12 @@ class CfdiController extends Controller
 
     public function verPdf($uuid)
     {
-        $cfdi = Cfdi::where('uuid', $uuid)->first();
+        $empresaId = \App\Support\EmpresaResolver::resolveId();
+        $cfdi = Cfdi::where('empresa_id', $empresaId)->where('uuid', $uuid)->first();
+
         $paths = [
+            "empresas/{$empresaId}/cfdis/pdf/{$uuid}.pdf",
+            "empresas/{$empresaId}/cfdis/{$uuid}.pdf",
             'cfdis/pdf/' . $uuid . '.pdf',
             'cfdis/' . $uuid . '.pdf',
         ];
@@ -544,7 +555,12 @@ class CfdiController extends Controller
     {
         $uuid = $cfdi->uuid;
 
+        $empresaId = \App\Support\EmpresaResolver::resolveId();
         $paths = [
+            "empresas/{$empresaId}/cfdis/xml/{$uuid}.xml",
+            "empresas/{$empresaId}/cfdis/pdf/{$uuid}.pdf",
+            "empresas/{$empresaId}/cfdis/{$uuid}.xml",
+            "empresas/{$empresaId}/cfdis/{$uuid}.pdf",
             "cfdis/xml/{$uuid}.xml",
             "cfdis/pdf/{$uuid}.pdf",
             "cfdis/{$uuid}.xml",
@@ -644,6 +660,7 @@ class CfdiController extends Controller
         ]);
 
         $ids = $request->input('ids');
+        /** @var \Illuminate\Database\Eloquent\Collection<int, Cfdi> $cfdis */
         $cfdis = Cfdi::whereIn('id', $ids)->get();
 
         if ($cfdis->isEmpty()) {

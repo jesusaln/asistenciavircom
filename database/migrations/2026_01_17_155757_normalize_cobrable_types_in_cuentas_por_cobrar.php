@@ -9,20 +9,22 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        // Actualizar App\Models\Venta -> venta
-        DB::table('cuentas_por_cobrar')
-            ->where('cobrable_type', 'App\Models\Venta')
-            ->update(['cobrable_type' => 'venta']);
+        if (Schema::hasTable('cuentas_por_cobrar')) {
+            // Actualizar App\Models\Venta -> venta
+            DB::table('cuentas_por_cobrar')
+                ->where('cobrable_type', 'App\Models\Venta')
+                ->update(['cobrable_type' => 'venta']);
 
-        // Actualizar App\Models\Renta -> renta
-        DB::table('cuentas_por_cobrar')
-            ->where('cobrable_type', 'App\Models\Renta')
-            ->update(['cobrable_type' => 'renta']);
+            // Actualizar App\Models\Renta -> renta
+            DB::table('cuentas_por_cobrar')
+                ->where('cobrable_type', 'App\Models\Renta')
+                ->update(['cobrable_type' => 'renta']);
 
-        // Actualizar App\Models\PolizaServicio -> poliza_servicio
-        DB::table('cuentas_por_cobrar')
-            ->where('cobrable_type', 'App\Models\PolizaServicio')
-            ->update(['cobrable_type' => 'poliza_servicio']);
+            // Actualizar App\Models\PolizaServicio -> poliza_servicio
+            DB::table('cuentas_por_cobrar')
+                ->where('cobrable_type', 'App\Models\PolizaServicio')
+                ->update(['cobrable_type' => 'poliza_servicio']);
+        }
     }
 
     /**

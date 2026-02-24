@@ -10,9 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('clientes', function (Blueprint $table) {
-            $table->uuid('uuid')->nullable()->after('id');
-        });
+        if (!Schema::hasColumn('clientes', 'uuid')) {
+            Schema::table('clientes', function (Blueprint $table) {
+                $table->uuid('uuid')->nullable()->after('id');
+            });
+        }
 
         // Populate existing clients
         \Illuminate\Support\Facades\DB::table('clientes')->orderBy('id')->chunk(100, function ($clientes) {

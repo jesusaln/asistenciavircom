@@ -198,8 +198,8 @@ class CfdiUploadService
         $date = $fecha ? \Carbon\Carbon::parse($fecha) : now();
         $year = $date->format('Y');
         $month = $date->format('m');
-
-        $directory = "cfdis/recibidos/{$year}/{$month}";
+        $empresaId = \App\Support\EmpresaResolver::resolveId();
+        $directory = "empresas/{$empresaId}/cfdis/recibidos/{$year}/{$month}";
         $filename = "{$uuid}.xml";
 
         // Asegurar que el directorio existe

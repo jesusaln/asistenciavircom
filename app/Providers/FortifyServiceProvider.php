@@ -44,12 +44,14 @@ class FortifyServiceProvider extends ServiceProvider
 
             if ($user && Hash::check($request->password, $user->password)) {
                 if (!$user->activo) {
+                    \Illuminate\Support\Facades\Log::warning('Login failed for inactive user: ' . $request->email);
                     throw ValidationException::withMessages([
                         Fortify::username() => ['Tu cuenta está pendiente de aprobación por un administrador.'],
                     ]);
                 }
                 return $user;
             }
+            \Illuminate\Support\Facades\Log::warning('Login failed for user (not found or bad password): ' . $request->email);
             return null;
         });
 

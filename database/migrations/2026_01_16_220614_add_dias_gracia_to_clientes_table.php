@@ -10,9 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('clientes', function (Blueprint $table) {
-            $table->integer('dias_gracia')->nullable()->after('dias_credito')->comment('Días de gracia específicos para este cliente antes del bloqueo');
-        });
+        if (!Schema::hasColumn('clientes', 'dias_gracia')) {
+            Schema::table('clientes', function (Blueprint $table) {
+                $table->integer('dias_gracia')->nullable()->after('dias_credito')->comment('Días de gracia específicos para este cliente antes del bloqueo');
+            });
+        }
     }
 
     /**

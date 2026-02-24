@@ -25,10 +25,11 @@ class AjusteInventarioController extends Controller
      */
     public function index(Request $request)
     {
+        $empresaId = \App\Support\EmpresaResolver::resolveId();
         $perPage = (int) ($request->integer('per_page') ?: 10);
         $page = max(1, (int) $request->get('page', 1));
 
-        $baseQuery = AjusteInventario::with([
+        $baseQuery = AjusteInventario::where('empresa_id', $empresaId)->with([
             'producto',
             'almacen',
             'usuario',
@@ -114,16 +115,16 @@ class AjusteInventarioController extends Controller
 
         // Estadísticas
         $stats = [
-            'total' => AjusteInventario::count(),
-            'incrementos' => AjusteInventario::where('tipo', 'incremento')->count(),
-            'decrementos' => AjusteInventario::where('tipo', 'decremento')->count(),
-            'productos_ajustados' => AjusteInventario::distinct('producto_id')->count('producto_id'),
-            'almacenes_afectados' => AjusteInventario::distinct('almacen_id')->count('almacen_id'),
+            'total' => AjusteInventario::where('empresa_id', $empresaId)->count(),
+            'incrementos' => AjusteInventario::where('empresa_id', $empresaId)->where('tipo', 'incremento')->count(),
+            'decrementos' => AjusteInventario::where('empresa_id', $empresaId)->where('tipo', 'decremento')->count(),
+            'productos_ajustados' => AjusteInventario::where('empresa_id', $empresaId)->distinct('producto_id')->count('producto_id'),
+            'almacenes_afectados' => AjusteInventario::where('empresa_id', $empresaId)->distinct('almacen_id')->count('almacen_id'),
         ];
 
         // Datos para filtros
-        $productos = Producto::select('id', 'nombre')->orderBy('nombre')->get();
-        $almacenes = Almacen::select('id', 'nombre')->where('estado', 'activo')->orderBy('nombre')->get();
+        $productos = Producto::where('empresa_id', $empresaId)->select('id', 'nombre')->orderBy('nombre')->get();
+        $almacenes = Almacen::where('empresa_id', $empresaId)->select('id', 'nombre')->where('estado', 'activo')->orderBy('nombre')->get();
 
         return Inertia::render('AjustesInventario/Index', [
             'ajustes' => $paginator,
@@ -152,8 +153,9 @@ class AjusteInventarioController extends Controller
      */
     public function create()
     {
-        $productos = Producto::select('id', 'nombre', 'codigo', 'requiere_serie')->orderBy('nombre')->get();
-        $almacenes = Almacen::select('id', 'nombre')->where('estado', 'activo')->orderBy('nombre')->get();
+        $empresaId = \App\Support\EmpresaResolver::resolveId();
+        $productos = Producto::where('empresa_id', $empresaId)->select('id', 'nombre', 'codigo', 'requiere_serie')->orderBy('nombre')->get();
+        $almacenes = Almacen::where('empresa_id', $empresaId)->select('id', 'nombre')->where('estado', 'activo')->orderBy('nombre')->get();
 
         return Inertia::render('AjustesInventario/Create', [
             'productos' => $productos,

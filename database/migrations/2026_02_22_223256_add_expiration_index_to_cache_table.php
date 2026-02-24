@@ -10,11 +10,9 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        if (!Schema::hasColumn('facturas', 'fecha_vencimiento')) {
-            Schema::table('facturas', function (Blueprint $table) {
-                $table->date('fecha_vencimiento')->nullable()->after('fecha_emision');
-            });
-        }
+        Schema::table('cache', function (Blueprint $table) {
+            $table->index('expiration');
+        });
     }
 
     /**
@@ -22,8 +20,8 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::table('facturas', function (Blueprint $table) {
-            $table->dropColumn('fecha_vencimiento');
+        Schema::table('cache', function (Blueprint $table) {
+            $table->dropIndex(['expiration']);
         });
     }
 };

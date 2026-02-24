@@ -13,6 +13,7 @@ class StoreVentaRequest extends FormRequest
      */
     public function authorize(): bool
     {
+        \Illuminate\Support\Facades\Log::info('StoreVentaRequest@authorize');
         return true; // Authorization handled by middleware
     }
 

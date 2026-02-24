@@ -96,7 +96,6 @@ class VentaController extends Controller
             $user = Auth::user();
             $validatedData = $request->validated();
 
-            // Authorization Checks
             if (isset($validatedData['vendedor_id'])) {
                 $vendedor = \App\Models\User::find($validatedData['vendedor_id']);
                 if (!$vendedor || $vendedor->empresa_id !== $user->empresa_id) {
@@ -152,12 +151,16 @@ class VentaController extends Controller
                 ->withErrors(['message' => $e->getMessage()])
                 ->withInput();
         } catch (\Exception $e) {
-            // âœ… Enhanced error handling
-            Log::error('Error creating venta', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'user_id' => Auth::id(),
-            ]);
+            // Enhanced error handling
+            Log::error('Error creating venta: ' . $e->getMessage());
+
+            $prev = $e->getPrevious();
+            while ($prev) {
+                Log::error('PREVIOUS ERROR: ' . $prev->getMessage());
+                $prev = $prev->getPrevious();
+            }
+
+            Log::error($e->getTraceAsString());
 
             VentaAuditLog::logAction(
                 null,

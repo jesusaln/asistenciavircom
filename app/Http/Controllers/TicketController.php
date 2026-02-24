@@ -27,8 +27,7 @@ class TicketController extends Controller
         }
         $empresaId = EmpresaResolver::resolveId();
 
-        $query = Ticket::with(['cliente', 'asignado', 'categoria', 'creador']);
-        // ->where('empresa_id', $empresaId); // Deshabilitado temporalmente hasta tener multi-tenancy completo
+        $query = Ticket::where('empresa_id', $empresaId)->with(['cliente', 'asignado', 'categoria', 'creador']);
 
         // Por defecto, excluir cerrados y resueltos a menos que se solicite explícitamente
         $incluirFinalizados = $request->boolean('incluir_finalizados') || $request->boolean('incluir_cerrados');
@@ -101,14 +100,14 @@ class TicketController extends Controller
 
         // Estadísticas rápidas
         $stats = [
-            'abiertos' => Ticket::whereIn('estado', ['abierto', 'en_progreso', 'pendiente'])->count(),
-            'sin_asignar' => Ticket::abiertos()->whereNull('asignado_id')->count(),
-            'vencidos' => Ticket::vencidos()->count(),
-            'completados_hoy' => Ticket::where(function ($q) {
+            'abiertos' => Ticket::where('empresa_id', $empresaId)->whereIn('estado', ['abierto', 'en_progreso', 'pendiente'])->count(),
+            'sin_asignar' => Ticket::where('empresa_id', $empresaId)->abiertos()->whereNull('asignado_id')->count(),
+            'vencidos' => Ticket::where('empresa_id', $empresaId)->vencidos()->count(),
+            'completados_hoy' => Ticket::where('empresa_id', $empresaId)->where(function ($q) {
                 $q->whereDate('resuelto_at', date('Y-m-d'))
                     ->orWhereDate('cerrado_at', date('Y-m-d'));
             })->count(),
-            'cerrados' => Ticket::where('estado', 'cerrado')->count(),
+            'cerrados' => Ticket::where('empresa_id', $empresaId)->where('estado', 'cerrado')->count(),
         ];
 
         return Inertia::render('Soporte/Index', [
@@ -125,18 +124,21 @@ class TicketController extends Controller
         $empresaId = EmpresaResolver::resolveId();
 
         // Tickets por estado
-        $porEstado = Ticket::select('estado', DB::raw('count(*) as total'))
+        $porEstado = Ticket::where('empresa_id', $empresaId)
+            ->select('estado', DB::raw('count(*) as total'))
             ->groupBy('estado')
             ->pluck('total', 'estado');
 
         // Tickets por prioridad (solo abiertos)
-        $porPrioridad = Ticket::abiertos()
+        $porPrioridad = Ticket::where('empresa_id', $empresaId)
+            ->abiertos()
             ->select('prioridad', DB::raw('count(*) as total'))
             ->groupBy('prioridad')
             ->pluck('total', 'prioridad');
 
         // Tickets por técnico asignado
-        $porTecnico = Ticket::abiertos()
+        $porTecnico = Ticket::where('empresa_id', $empresaId)
+            ->abiertos()
             ->select('asignado_id', DB::raw('count(*) as total'))
             ->groupBy('asignado_id')
             ->with('asignado:id,name')
@@ -252,7 +254,8 @@ class TicketController extends Controller
             if ($request->hasFile('archivos')) {
                 foreach ($request->file('archivos') as $archivo) {
                     // Usar el sistema de archivos de Laravel para más seguridad y flexibilidad
-                    $path = Storage::disk('public')->putFile('tickets', $archivo);
+                    $empresaId = EmpresaResolver::resolveId();
+                    $path = Storage::disk('public')->putFile("tickets/empresa_{$empresaId}", $archivo);
                     if ($path) {
                         $rutasArchivos[] = $path;
                     }

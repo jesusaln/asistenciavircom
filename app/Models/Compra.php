@@ -19,7 +19,7 @@ use App\Models\Concerns\Blameable;
  */
 class Compra extends Model
 {
-    use HasFactory, Blameable, BelongsToEmpresa; // SoftDeletes temporarily disabled
+    use HasFactory, SoftDeletes, Blameable, BelongsToEmpresa;
 
     protected $table = 'compras';
 
@@ -38,7 +38,6 @@ class Compra extends Model
         'subtotal',
         'descuento_general',
         'descuento_items',
-        'iva',
         'iva',
         'retencion_iva',
         'retencion_isr',
@@ -68,7 +67,7 @@ class Compra extends Model
     ];
 
     protected $casts = [
-        'estado' => 'string',
+        'estado' => \App\Enums\EstadoCompra::class,
         'subtotal' => 'decimal:2',
         'descuento_general' => 'decimal:2',
         'descuento_items' => 'decimal:2',
@@ -98,7 +97,7 @@ class Compra extends Model
     /** Productos de la compra (relación polimórfica - puede no funcionar correctamente) */
     public function productos(): MorphToMany
     {
-        return $this->morphedByMany(Producto::class, 'comprable', 'compra_items')
+        return $this->morphToMany(Producto::class, 'comprable', 'compra_items', 'compra_id', 'comprable_id')
             ->withPivot('cantidad', 'precio', 'descuento', 'subtotal', 'descuento_monto');
     }
 

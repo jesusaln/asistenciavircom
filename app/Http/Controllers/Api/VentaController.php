@@ -235,13 +235,18 @@ class VentaController extends Controller
     public function nextNumeroVenta()
     {
         try {
-            // Obtener la parte numérica más alta de las ventas existentes
+            $empresaId = \App\Support\EmpresaResolver::resolveId();
+
+            // Obtener la parte numérica más alta de las ventas existentes para la empresa actual
             if (\DB::getDriverName() === 'pgsql') {
                 $max = \DB::table('ventas')
+                    ->where('empresa_id', $empresaId)
                     ->selectRaw("COALESCE(MAX(NULLIF(regexp_replace(numero_venta, '\\\\D', '', 'g'), '')::int), 0) as max_num")
                     ->value('max_num');
             } else {
-                $ultimo = \App\Models\Venta::orderByDesc('id')->value('numero_venta');
+                $ultimo = \App\Models\Venta::where('empresa_id', $empresaId)
+                    ->orderByDesc('id')
+                    ->value('numero_venta');
                 $max = 0;
                 if ($ultimo && preg_match('/(\\d+)$/', $ultimo, $m)) {
                     $max = (int) $m[1];

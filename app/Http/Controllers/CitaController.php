@@ -23,7 +23,8 @@ class CitaController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Cita::with('tecnico', 'cliente');
+            $empresaId = \App\Support\EmpresaResolver::resolveId();
+            $query = Cita::where('empresa_id', $empresaId)->with('tecnico', 'cliente');
 
             // Filtros de búsqueda
             if ($s = trim((string) $request->input('search', ''))) {
@@ -112,11 +113,11 @@ class CitaController extends Controller
             }
 
             // Estadísticas por estado de cita
-            $citasCount = Cita::count();
-            $citasPendientes = Cita::where('estado', Cita::ESTADO_PENDIENTE)->count();
-            $citasEnProceso = Cita::where('estado', Cita::ESTADO_EN_PROCESO)->count();
-            $citasCompletadas = Cita::where('estado', Cita::ESTADO_COMPLETADO)->count();
-            $citasCanceladas = Cita::where('estado', Cita::ESTADO_CANCELADO)->count();
+            $citasCount = Cita::where('empresa_id', $empresaId)->count();
+            $citasPendientes = Cita::where('empresa_id', $empresaId)->where('estado', Cita::ESTADO_PENDIENTE)->count();
+            $citasEnProceso = Cita::where('empresa_id', $empresaId)->where('estado', Cita::ESTADO_EN_PROCESO)->count();
+            $citasCompletadas = Cita::where('empresa_id', $empresaId)->where('estado', Cita::ESTADO_COMPLETADO)->count();
+            $citasCanceladas = Cita::where('empresa_id', $empresaId)->where('estado', Cita::ESTADO_CANCELADO)->count();
 
             // Datos adicionales para filtros
             $tecnicos = User::tecnicos()->select('id', 'name as nombre')->get();
@@ -707,7 +708,8 @@ class CitaController extends Controller
                     $extension = $file->getClientOriginalExtension();
                     $filename = $originalName . '_' . now()->format('YmdHis') . '_' . substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyz'), 0, 6) . '.' . $extension;
 
-                    $path = $file->storeAs('citas', $filename, 'public');
+                    $empresaId = \App\Support\EmpresaResolver::resolveId();
+                    $path = $file->storeAs("citas/empresa_{$empresaId}", $filename, 'public');
                     $filePaths[$field] = $path;
 
                     // Eliminar el archivo anterior si existe

@@ -100,14 +100,16 @@ class CompraController extends Controller
 
     private function buildBaseCompraQuery()
     {
-        return Compra::with([
-            'proveedor',
-            'compraItems.comprable', // Cargar items con sus productos
-            'almacen',
-            'ordenCompra',
-            'movimientos', // Cargar movimientos para obtener stock histórico
-            'cuentasPorPagar', // <--- Añadido para indicadores REP/PUE
-        ])->where('tipo', 'inventario');
+        $empresaId = \App\Support\EmpresaResolver::resolveId();
+        return Compra::where('empresa_id', $empresaId)
+            ->with([
+                'proveedor',
+                'compraItems.comprable', // Cargar items con sus productos
+                'almacen',
+                'ordenCompra',
+                'movimientos', // Cargar movimientos para obtener stock histórico
+                'cuentasPorPagar', // <--- Añadido para indicadores REP/PUE
+            ])->where('tipo', 'inventario');
     }
 
     private function applyCompraFilters($baseQuery, Request $request): void
@@ -189,20 +191,22 @@ class CompraController extends Controller
 
     private function buildComprasStats(): array
     {
-        $comprasInventario = Compra::where('tipo', 'inventario');
+        $empresaId = \App\Support\EmpresaResolver::resolveId();
+        $comprasInventario = Compra::where('empresa_id', $empresaId)->where('tipo', 'inventario');
         $totalCompras = (clone $comprasInventario)->count();
         $montoTotal = (clone $comprasInventario)->where('estado', '!=', 'cancelada')->sum('total');
 
-        $pendientesPago = CuentasPorPagar::where('estado', '!=', 'pagado')
+        $pendientesPago = CuentasPorPagar::where('empresa_id', $empresaId)
+            ->where('estado', '!=', 'pagado')
             ->where('estado', '!=', 'cancelada')
             ->sum('monto_pendiente');
 
         return [
             'total' => $totalCompras,
-            'procesadas' => Compra::where('tipo', 'inventario')->where('estado', EstadoCompra::Procesada->value)->count(),
-            'canceladas' => Compra::where('tipo', 'inventario')->where('estado', 'cancelada')->count(),
-            'con_orden_compra' => Compra::where('tipo', 'inventario')->whereNotNull('orden_compra_id')->count(),
-            'directas' => Compra::where('tipo', 'inventario')->whereNull('orden_compra_id')->count(),
+            'procesadas' => Compra::where('empresa_id', $empresaId)->where('tipo', 'inventario')->where('estado', EstadoCompra::Procesada->value)->count(),
+            'canceladas' => Compra::where('empresa_id', $empresaId)->where('tipo', 'inventario')->where('estado', 'cancelada')->count(),
+            'con_orden_compra' => Compra::where('empresa_id', $empresaId)->where('tipo', 'inventario')->whereNotNull('orden_compra_id')->count(),
+            'directas' => Compra::where('empresa_id', $empresaId)->where('tipo', 'inventario')->whereNull('orden_compra_id')->count(),
             'monto_total' => (float) $montoTotal,
             'pendientes_pago' => (float) $pendientesPago,
         ];
@@ -210,7 +214,9 @@ class CompraController extends Controller
 
     private function buildCompraFilterOptions(): array
     {
-        $proveedores = Proveedor::select('id', 'nombre_razon_social', 'rfc')
+        $empresaId = \App\Support\EmpresaResolver::resolveId();
+        $proveedores = Proveedor::where('empresa_id', $empresaId)
+            ->select('id', 'nombre_razon_social', 'rfc')
             ->where('activo', true)
             ->orderBy('nombre_razon_social')
             ->get()
@@ -218,7 +224,8 @@ class CompraController extends Controller
                 return [$proveedor->id => $proveedor->nombre_razon_social . ' (' . $proveedor->rfc . ')'];
             });
 
-        $almacenes = Almacen::select('id', 'nombre', 'ubicacion')
+        $almacenes = Almacen::where('empresa_id', $empresaId)
+            ->select('id', 'nombre', 'ubicacion')
             ->where('estado', 'activo')
             ->orderBy('nombre')
             ->get()
@@ -260,12 +267,13 @@ class CompraController extends Controller
 
     public function create()
     {
+        $empresaId = \App\Support\EmpresaResolver::resolveId();
         // ✅ FIX: Solo mostrar proveedores activos
-        $proveedores = Proveedor::where('activo', true)->orderBy('nombre_razon_social')->get();
+        $proveedores = Proveedor::where('empresa_id', $empresaId)->where('activo', true)->orderBy('nombre_razon_social')->get();
 
         // Obtener productos con informaciï¿½n de stock por almacï¿½n
-        $productosBase = Producto::where('estado', 'activo')->get();
-        $almacenes = Almacen::where('estado', 'activo')->get();
+        $productosBase = Producto::where('empresa_id', $empresaId)->where('estado', 'activo')->get();
+        $almacenes = Almacen::where('empresa_id', $empresaId)->where('estado', 'activo')->get();
 
         $productos = $productosBase->map(function ($producto) use ($almacenes) {
             // Obtener stock disponible en cada almacï¿½n
@@ -458,7 +466,7 @@ class CompraController extends Controller
 
         // ✅ FIX: Comparar con ->value del Enum, no con el Enum directamente
         // Permitir edición si está Procesada O Borrador (para completar importaciones)
-        if ($compra->estado !== EstadoCompra::Procesada->value && $compra->estado !== EstadoCompra::Borrador->value) {
+        if ($compra->estado !== EstadoCompra::Procesada && $compra->estado !== EstadoCompra::Borrador) {
             \Log::warning('Compra no editable (ni procesada ni borrador)', [
                 'estado_actual' => $compra->estado,
                 'permitidos' => [EstadoCompra::Procesada->value, EstadoCompra::Borrador->value]
@@ -501,10 +509,16 @@ class CompraController extends Controller
             ];
         })->filter()->values();
 
-        $proveedores = Proveedor::where('activo', true)->orderBy('nombre_razon_social')->get();
-        $productos = Producto::where('estado', 'activo')->get();
+        $empresaId = \App\Support\EmpresaResolver::resolveId();
+        $proveedores = Proveedor::where('empresa_id', $empresaId)->where('activo', true)->orderBy('nombre_razon_social')->get();
+        $almacenes = Almacen::where('empresa_id', $empresaId)->where('estado', 'activo')->orderBy('nombre')->get();
+
+        // Cargar productos con sus precios de compra
+        $productos = Producto::where('empresa_id', $empresaId)->where('estado', 'activo')
+            ->select('id', 'nombre', 'codigo', 'precio_compra', 'unidad_medida', 'requiere_serie', 'categoria_id', 'marca_id')
+            ->orderBy('nombre')
+            ->get();
         $servicios = [];
-        $almacenes = Almacen::where('estado', 'activo')->get();
 
         return Inertia::render('Compras/Edit', [
             'compra' => $compra,
@@ -537,7 +551,7 @@ class CompraController extends Controller
         $compra = Compra::with('compraItems.comprable', 'almacen')->findOrFail($id);
 
         // ✅ FIX: Permitir Borrador para finalizar importaciones
-        if ($compra->estado !== EstadoCompra::Procesada->value && $compra->estado !== EstadoCompra::Borrador->value) {
+        if ($compra->estado !== EstadoCompra::Procesada && $compra->estado !== EstadoCompra::Borrador) {
             \Log::warning('Intento de editar compra no válida', [
                 'compra_id' => $id,
                 'estado' => $compra->estado
@@ -810,13 +824,14 @@ class CompraController extends Controller
 
                         // Log price change
                         ProductoPrecioHistorial::create([
+                            'empresa_id' => $compra->empresa_id,
                             'producto_id' => $producto->id,
                             'precio_compra_anterior' => $oldPrecioCompra,
                             'precio_compra_nuevo' => $precio,
                             'precio_venta_anterior' => null,
                             'precio_venta_nuevo' => $producto->precio_venta,
                             'tipo_cambio' => 'compra',
-                            'notas' => "Actualización por edición de compra #{$compra->id}",
+                            'notas' => "Actualización por edición de compra #{$compra->numero_compra}",
                             'user_id' => Auth::id(),
                         ]);
                     }
@@ -861,9 +876,10 @@ class CompraController extends Controller
                     }
 
                     CompraItem::create([
+                        'empresa_id' => $compra->empresa_id,
                         'compra_id' => $compra->id,
                         'comprable_id' => $productoData['id'],
-                        'comprable_type' => Producto::class,
+                        'comprable_type' => 'producto',
                         'cantidad' => $cantidad,
                         'precio' => $precio,
                         'descuento' => $descuento,
@@ -883,6 +899,7 @@ class CompraController extends Controller
 
                             if (!$serieExistente) {
                                 ProductoSerie::create([
+                                    'empresa_id' => $compra->empresa_id,
                                     'producto_id' => $producto->id,
                                     'compra_id' => $compra->id,
                                     'almacen_id' => $validatedData['almacen_id'],

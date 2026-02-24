@@ -35,6 +35,7 @@ class Producto extends Model
     protected $fillable = [
         'empresa_id',
         'nombre',
+        'sku',
         'descripcion',
         'codigo',
         'codigo_barras',
