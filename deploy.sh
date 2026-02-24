@@ -48,18 +48,12 @@ rm -f public/hot
 # 3. Sincronización a STAGING (Página sigue ONLINE)
 echo "📡 3/8 Enviando archivos a STAGING (Carga en segundo plano)..."
 rsync -avz --no-perms --no-owner --no-group --delete \
-    --include='storage/app/public/landing_hero_professional.png' \
-    --include='storage/app/public/landing/***' \
-    --include='storage/app/public/logos/***' \
-    --include='storage/app/public/favicons/***' \
-    --exclude='storage/app/public/*' \
     --exclude='.env' \
     --exclude='storage/*.key' \
     --exclude='storage/logs/*' \
     --exclude='storage/framework/cache/*' \
     --exclude='storage/framework/sessions/*' \
     --exclude='storage/framework/views/*' \
-    --exclude='storage/app/public/*' \
     --exclude='public/storage' \
     --exclude='public/hot' \
     --exclude='vendor' \
@@ -67,6 +61,7 @@ rsync -avz --no-perms --no-owner --no-group --delete \
     --exclude='.git' \
     --exclude='ia_sync' \
     --exclude='clawd' \
+    --exclude='.clawdbot' \
     ./ $USER@$VPS_IP:$STAGING_PATH/
 
 # 4. Preparación de Dependencias en Staging
