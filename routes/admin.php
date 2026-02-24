@@ -74,6 +74,7 @@ use App\Http\Controllers\ReportesInventarioController;
 use App\Http\Controllers\EmpresaConfiguracionController;
 use App\Http\Controllers\FolioConfigController;
 use App\Http\Controllers\Config\AparienciaConfigController;
+use App\Http\Controllers\Config\BiometriaConfigController;
 use App\Http\Controllers\Config\EmailConfigController;
 use App\Http\Controllers\Config\CertificadosConfigController;
 use App\Http\Controllers\Config\GeneralConfigController;
@@ -511,6 +512,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::put('/configuracion/tienda', [TiendaConfigController::class, 'update'])->name('tienda.update');
         Route::post('/configuracion/tienda/sync-monedero', [TiendaConfigController::class, 'syncMonedero'])->name('tienda.sync-monedero');
         Route::put('/configuracion/whatsapp', [EmpresaWhatsAppController::class, 'update'])->name('whatsapp.update');
+        Route::put('/configuracion/biometria', [BiometriaConfigController::class, 'update'])->name('biometria.update');
         Route::get('/configuracion/logs', [SistemaConfigController::class, 'getLogs'])->name('sistema.logs');
         Route::post('/configuracion/logs/clear', [SistemaConfigController::class, 'clearLogs'])->name('sistema.logs.clear');
         Route::put('/configuracion/robot-blog', [App\Http\Controllers\Config\BlogRobotConfigController::class, 'update'])->name('robot-blog.update');

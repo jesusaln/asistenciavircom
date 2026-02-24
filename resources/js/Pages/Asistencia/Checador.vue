@@ -25,6 +25,7 @@ const videoRef = ref(null);
 const canvasRef = ref(null);
 const selfiePreview = ref('');
 let mediaStream = null;
+const qualityCanvas = typeof document !== 'undefined' ? document.createElement('canvas') : null;
 const faceApiReady = ref(false);
 const faceApiError = ref('');
 const challengeStepIndex = ref(0);
@@ -34,6 +35,16 @@ const liveDescriptor = ref(null);
 const challengeStarted = ref(false);
 const challengeCompleted = ref(false);
 const livenessScore = ref(0);
+const faceCount = ref(0);
+const captureQuality = ref({
+    brightness: 0,
+    sharpness: 0,
+    faceAreaRatio: 0,
+    centerOffset: 1,
+    singleFace: false,
+    passed: false,
+    message: 'Activa cámara para validar calidad',
+});
 let faceDetectionTimer = null;
 const isEnrollment = computed(() => !props.biometric?.is_enrolled);
 const challengeLabels = {
@@ -48,6 +59,12 @@ const currentChallengeLabel = computed(() => {
     if (!challengeStarted.value) return 'Centra tu cara en el marco';
     return challengeLabels[currentChallengeKey.value] || 'Preparando reto';
 });
+const qualityStatusLabel = computed(() => captureQuality.value.passed ? 'Calidad OK' : 'Calidad pendiente');
+const qualityStatusClass = computed(() => captureQuality.value.passed ? 'text-emerald-400' : 'text-amber-300');
+const overlayClass = computed(() => {
+    if (!cameraActive.value) return 'border-white/20';
+    return captureQuality.value.passed ? 'border-emerald-400/70' : 'border-amber-400/70';
+});
 
 const form = useForm({
     tipo: props.suggestedType || 'entry',
@@ -60,6 +77,13 @@ const form = useForm({
     face_challenge_completed: false,
     face_liveness_score: '',
     face_descriptor: '',
+    face_detected_count: 0,
+    face_capture_quality_passed: false,
+    face_quality_brightness: '',
+    face_quality_sharpness: '',
+    face_quality_area_ratio: '',
+    face_quality_center_offset: '',
+    face_quality_message: '',
     notas: '',
 });
 
@@ -158,8 +182,26 @@ const buildChallenge = () => {
     challengeCompleted.value = false;
     baselinePose.value = null;
     livenessScore.value = 0;
+    faceCount.value = 0;
     form.face_challenge_completed = false;
     form.face_liveness_score = '';
+    form.face_descriptor = '';
+    form.face_detected_count = 0;
+    form.face_capture_quality_passed = false;
+    form.face_quality_brightness = '';
+    form.face_quality_sharpness = '';
+    form.face_quality_area_ratio = '';
+    form.face_quality_center_offset = '';
+    form.face_quality_message = '';
+    captureQuality.value = {
+        brightness: 0,
+        sharpness: 0,
+        faceAreaRatio: 0,
+        centerOffset: 1,
+        singleFace: false,
+        passed: false,
+        message: 'Esperando rostro...',
+    };
 };
 
 const avgPoint = (points) => {
@@ -208,6 +250,103 @@ const processChallenge = (landmarks) => {
     }
 };
 
+const frameStats = (source, box) => {
+    if (!qualityCanvas) return null;
+    const w = source.videoWidth || source.width || 0;
+    const h = source.videoHeight || source.height || 0;
+    if (!w || !h) return null;
+
+    qualityCanvas.width = 160;
+    qualityCanvas.height = 120;
+    const qCtx = qualityCanvas.getContext('2d', { willReadFrequently: true });
+    qCtx.drawImage(source, 0, 0, qualityCanvas.width, qualityCanvas.height);
+    const img = qCtx.getImageData(0, 0, qualityCanvas.width, qualityCanvas.height).data;
+
+    let brightnessSum = 0;
+    let gradientSum = 0;
+    let samples = 0;
+    const stride = 4;
+    const rowPixels = qualityCanvas.width;
+
+    for (let y = 1; y < qualityCanvas.height - 1; y++) {
+        for (let x = 1; x < qualityCanvas.width - 1; x++) {
+            const i = (y * rowPixels + x) * stride;
+            const lum = 0.299 * img[i] + 0.587 * img[i + 1] + 0.114 * img[i + 2];
+            const right = i + stride;
+            const down = i + rowPixels * stride;
+            const lumRight = 0.299 * img[right] + 0.587 * img[right + 1] + 0.114 * img[right + 2];
+            const lumDown = 0.299 * img[down] + 0.587 * img[down + 1] + 0.114 * img[down + 2];
+            brightnessSum += lum;
+            gradientSum += Math.abs(lum - lumRight) + Math.abs(lum - lumDown);
+            samples++;
+        }
+    }
+
+    const brightness = samples ? (brightnessSum / samples) / 255 : 0;
+    const sharpness = samples ? (gradientSum / samples) / 255 : 0;
+    const area = Math.max(1, w * h);
+    const faceAreaRatio = (box.width * box.height) / area;
+    const faceCx = box.x + (box.width / 2);
+    const faceCy = box.y + (box.height / 2);
+    const frameCx = w / 2;
+    const frameCy = h / 2;
+    const centerOffset = Math.hypot(faceCx - frameCx, faceCy - frameCy) / Math.hypot(frameCx, frameCy);
+
+    return { brightness, sharpness, faceAreaRatio, centerOffset };
+};
+
+const evaluateQuality = (source, box, facesLength) => {
+    faceCount.value = facesLength;
+    form.face_detected_count = facesLength;
+
+    if (facesLength === 0) {
+        form.face_capture_quality_passed = false;
+        form.face_quality_message = 'No se detecta rostro';
+        captureQuality.value = { ...captureQuality.value, singleFace: false, passed: false, message: 'No se detecta rostro' };
+        return false;
+    }
+
+    if (facesLength > 1) {
+        form.face_capture_quality_passed = false;
+        form.face_quality_message = 'Solo debe aparecer 1 rostro';
+        captureQuality.value = { ...captureQuality.value, singleFace: false, passed: false, message: 'Solo debe aparecer 1 rostro' };
+        return false;
+    }
+
+    const stats = frameStats(source, box);
+    if (!stats) {
+        captureQuality.value = { ...captureQuality.value, singleFace: false, passed: false, message: 'No se pudo evaluar calidad' };
+        return false;
+    }
+
+    const lightingPass = stats.brightness >= 0.22 && stats.brightness <= 0.82;
+    const sharpnessPass = stats.sharpness >= 0.06;
+    const sizePass = stats.faceAreaRatio >= 0.12 && stats.faceAreaRatio <= 0.55;
+    const centerPass = stats.centerOffset <= 0.20;
+    const passed = lightingPass && sharpnessPass && sizePass && centerPass;
+
+    let message = 'Calidad correcta';
+    if (!lightingPass) message = 'Ajusta iluminación';
+    else if (!sharpnessPass) message = 'Evita movimiento, enfoca mejor';
+    else if (!sizePass) message = 'Ajusta distancia para encuadrar rostro';
+    else if (!centerPass) message = 'Centra tu rostro en pantalla';
+
+    captureQuality.value = {
+        ...stats,
+        singleFace: true,
+        passed,
+        message,
+    };
+    form.face_capture_quality_passed = passed;
+    form.face_quality_brightness = stats.brightness.toFixed(4);
+    form.face_quality_sharpness = stats.sharpness.toFixed(4);
+    form.face_quality_area_ratio = stats.faceAreaRatio.toFixed(4);
+    form.face_quality_center_offset = stats.centerOffset.toFixed(4);
+    form.face_quality_message = message;
+
+    return passed;
+};
+
 const startFaceDetection = () => {
     if (!window.faceapi || !videoRef.value) return;
     if (faceDetectionTimer) clearInterval(faceDetectionTimer);
@@ -215,17 +354,32 @@ const startFaceDetection = () => {
     faceDetectionTimer = setInterval(async () => {
         if (!cameraActive.value || !videoRef.value) return;
         try {
-            const detection = await window.faceapi
-                .detectSingleFace(videoRef.value, new window.faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
+            const detections = await window.faceapi
+                .detectAllFaces(videoRef.value, new window.faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
                 .withFaceLandmarks()
-                .withFaceDescriptor();
+                .withFaceDescriptors();
 
-            if (!detection) return;
+            if (!detections?.length) {
+                evaluateQuality(videoRef.value, { x: 0, y: 0, width: 0, height: 0 }, 0);
+                return;
+            }
 
-            const descriptor = Array.from(detection.descriptor);
+            const primary = detections.reduce((best, current) => {
+                const bestArea = best.detection.box.width * best.detection.box.height;
+                const currentArea = current.detection.box.width * current.detection.box.height;
+                return currentArea > bestArea ? current : best;
+            }, detections[0]);
+
+            const qualityPass = evaluateQuality(videoRef.value, primary.detection.box, detections.length);
+            if (!qualityPass) {
+                form.face_descriptor = '';
+                return;
+            }
+
+            const descriptor = Array.from(primary.descriptor);
             liveDescriptor.value = descriptor;
             form.face_descriptor = JSON.stringify(descriptor);
-            processChallenge(detection.landmarks);
+            processChallenge(primary.landmarks);
         } catch (e) {
             // Ignore intermittent frame errors
         }
@@ -282,6 +436,10 @@ const captureSelfie = async () => {
         cameraMessage.value = 'Completa el reto de movimientos antes de tomar la foto.';
         return;
     }
+    if (!captureQuality.value.passed) {
+        cameraMessage.value = captureQuality.value.message || 'Mejora la calidad antes de capturar.';
+        return;
+    }
 
     const video = videoRef.value;
     const canvas = canvasRef.value;
@@ -292,16 +450,29 @@ const captureSelfie = async () => {
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     if (window.faceapi) {
-        const detection = await window.faceapi
-            .detectSingleFace(canvas, new window.faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
+        const detections = await window.faceapi
+            .detectAllFaces(canvas, new window.faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
             .withFaceLandmarks()
-            .withFaceDescriptor();
-        if (!detection) {
+            .withFaceDescriptors();
+
+        if (!detections?.length) {
             cameraMessage.value = 'No se detectó rostro válido en la selfie. Intenta de nuevo.';
             return;
         }
 
-        const descriptor = Array.from(detection.descriptor);
+        const primary = detections.reduce((best, current) => {
+            const bestArea = best.detection.box.width * best.detection.box.height;
+            const currentArea = current.detection.box.width * current.detection.box.height;
+            return currentArea > bestArea ? current : best;
+        }, detections[0]);
+
+        const qualityPass = evaluateQuality(canvas, primary.detection.box, detections.length);
+        if (!qualityPass) {
+            cameraMessage.value = captureQuality.value.message || 'Calidad insuficiente para selfie.';
+            return;
+        }
+
+        const descriptor = Array.from(primary.descriptor);
         liveDescriptor.value = descriptor;
         form.face_descriptor = JSON.stringify(descriptor);
     }
@@ -332,7 +503,21 @@ const submit = () => {
         preserveScroll: true,
         onSuccess: () => {
             const lastType = form.tipo;
-            form.reset('selfie', 'consentimiento', 'notas', 'face_challenge_completed', 'face_liveness_score', 'face_descriptor');
+            form.reset(
+                'selfie',
+                'consentimiento',
+                'notas',
+                'face_challenge_completed',
+                'face_liveness_score',
+                'face_descriptor',
+                'face_detected_count',
+                'face_capture_quality_passed',
+                'face_quality_brightness',
+                'face_quality_sharpness',
+                'face_quality_area_ratio',
+                'face_quality_center_offset',
+                'face_quality_message'
+            );
             selfiePreview.value = '';
             form.tipo = nextType(lastType);
             buildChallenge();
@@ -420,6 +605,9 @@ onUnmounted(() => {
                     <p class="text-[11px] text-blue-100/80 mt-2">
                         {{ currentChallengeLabel }}. Progreso: {{ challengeStepIndex }}/{{ challengeSequence.length }}.
                     </p>
+                    <p class="text-[11px] mt-1" :class="qualityStatusClass">
+                        {{ qualityStatusLabel }}: {{ captureQuality.message }} (rostros: {{ faceCount }})
+                    </p>
                     <p v-if="faceApiError" class="text-[10px] text-rose-300 mt-2">{{ faceApiError }}</p>
                 </div>
                 
@@ -443,9 +631,24 @@ onUnmounted(() => {
 
                 <!-- Camera/Selfie -->
                 <div class="space-y-4">
-                    <div :class="['relative overflow-hidden rounded-[2rem] border-4 aspect-square transition-all bg-neutral-900', cameraActive ? 'border-blue-500/50' : 'border-white/5']">
+                    <div :class="['relative overflow-hidden rounded-[2rem] border-4 aspect-square transition-all bg-neutral-900', cameraActive ? (captureQuality.passed ? 'border-emerald-500/50' : 'border-amber-500/50') : 'border-white/5']">
                         <video v-show="cameraActive" ref="videoRef" autoplay muted playsinline class="w-full h-full object-cover"></video>
                         <canvas ref="canvasRef" class="hidden"></canvas>
+
+                        <div v-if="cameraActive" class="absolute inset-0 pointer-events-none">
+                            <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div
+                                    :class="[
+                                        'w-[62%] h-[78%] rounded-[46%] border-[3px] transition-colors duration-300',
+                                        overlayClass
+                                    ]"
+                                ></div>
+                            </div>
+                            <div class="absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/45 backdrop-blur-sm text-[10px] font-black uppercase tracking-widest text-white/90">
+                                Alinea tu rostro dentro del ovalo
+                            </div>
+                        </div>
                         
                         <img v-if="selfiePreview && !cameraActive" :src="selfiePreview" class="w-full h-full object-cover" />
 
@@ -455,7 +658,13 @@ onUnmounted(() => {
                         </div>
 
                         <div v-if="cameraActive" class="absolute bottom-6 inset-x-0 flex justify-center">
-                            <button type="button" @click="captureSelfie" class="w-16 h-16 bg-white rounded-full border-8 border-white/20 active:scale-90 transition-transform"></button>
+                            <button
+                                type="button"
+                                @click="captureSelfie"
+                                :disabled="!captureQuality.passed || !form.face_challenge_completed"
+                                class="w-16 h-16 rounded-full border-8 border-white/20 transition-transform"
+                                :class="(!captureQuality.passed || !form.face_challenge_completed) ? 'bg-neutral-400 cursor-not-allowed' : 'bg-white active:scale-90'"
+                            ></button>
                         </div>
 
                         <button v-if="selfiePreview && !cameraActive" type="button" @click="openCamera" class="absolute top-4 right-4 bg-black/50 p-2 rounded-full text-white">

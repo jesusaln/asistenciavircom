@@ -74,6 +74,23 @@ const faceStatusLabel = (status) => {
     };
     return labels[status] || 'N/D';
 };
+
+const qualityValue = (value, decimals = 2) => {
+    if (value === null || value === undefined || Number.isNaN(Number(value))) return 'N/D';
+    return Number(value).toFixed(decimals);
+};
+
+const qualityBadgeClass = (passed) => {
+    if (passed === true) return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
+    if (passed === false) return 'bg-rose-500/10 text-rose-400 border-rose-500/30';
+    return 'bg-neutral-500/10 text-neutral-400 border-neutral-500/30';
+};
+
+const qualityBadgeLabel = (passed) => {
+    if (passed === true) return 'Calidad OK';
+    if (passed === false) return 'Calidad baja';
+    return 'Sin datos';
+};
 </script>
 
 <template>
@@ -192,9 +209,28 @@ const faceStatusLabel = (status) => {
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <span :class="['px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border', faceStatusClass(reg.face_verification_status)]" :title="reg.face_verification_notes || ''">
-                                        {{ faceStatusLabel(reg.face_verification_status) }}
-                                    </span>
+                                    <div class="space-y-1.5">
+                                        <span :class="['px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border', faceStatusClass(reg.face_verification_status)]" :title="reg.face_verification_notes || ''">
+                                            {{ faceStatusLabel(reg.face_verification_status) }}
+                                        </span>
+                                        <div class="text-[9px] text-neutral-500 leading-relaxed">
+                                            <span :class="['px-2 py-0.5 rounded-full border font-black uppercase tracking-wide', qualityBadgeClass(reg.face_capture_quality_passed)]">
+                                                {{ qualityBadgeLabel(reg.face_capture_quality_passed) }}
+                                            </span>
+                                            <div class="mt-1 font-mono text-neutral-600">
+                                                R: {{ reg.face_detected_count ?? 'N/D' }}
+                                                | B: {{ qualityValue(reg.face_quality_brightness) }}
+                                                | N: {{ qualityValue(reg.face_quality_sharpness) }}
+                                            </div>
+                                            <div class="font-mono text-neutral-600">
+                                                A: {{ qualityValue(reg.face_quality_area_ratio) }}
+                                                | C: {{ qualityValue(reg.face_quality_center_offset) }}
+                                            </div>
+                                            <div v-if="reg.face_quality_message" class="text-[9px] text-neutral-500 mt-0.5 max-w-[14rem] mx-auto truncate" :title="reg.face_quality_message">
+                                                {{ reg.face_quality_message }}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <a v-if="reg.selfie_path" :href="`/storage/${reg.selfie_path}`" target="_blank" class="inline-block p-2 bg-white/5 hover:bg-blue-600 border border-white/10 rounded-lg text-neutral-400 hover:text-white transition-all transform hover:scale-110">

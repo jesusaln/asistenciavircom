@@ -34,6 +34,13 @@ class AsistenciaRegistro extends Model
         'face_verification_status',
         'face_provider',
         'face_verification_notes',
+        'face_detected_count',
+        'face_capture_quality_passed',
+        'face_quality_brightness',
+        'face_quality_sharpness',
+        'face_quality_area_ratio',
+        'face_quality_center_offset',
+        'face_quality_message',
     ];
 
     protected $casts = [
@@ -46,6 +53,12 @@ class AsistenciaRegistro extends Model
         'face_verified' => 'boolean',
         'face_match_score' => 'decimal:4',
         'face_liveness_score' => 'decimal:4',
+        'face_detected_count' => 'integer',
+        'face_capture_quality_passed' => 'boolean',
+        'face_quality_brightness' => 'decimal:4',
+        'face_quality_sharpness' => 'decimal:4',
+        'face_quality_area_ratio' => 'decimal:4',
+        'face_quality_center_offset' => 'decimal:4',
     ];
 
     public function user(): BelongsTo

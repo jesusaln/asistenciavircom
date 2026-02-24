@@ -15,6 +15,7 @@ import CorreoTab from './Partials/CorreoTab.vue'
 import WhatsAppTab from './Partials/WhatsAppTab.vue'
 import SistemaTab from './Partials/SistemaTab.vue'
 import SeguridadTab from './Partials/SeguridadTab.vue'
+import BiometriaTab from './Partials/BiometriaTab.vue'
 import CobrosTab from './Partials/CobrosTab.vue'
 import PagosTab from './Partials/PagosTab.vue'
 import CertificadosTab from './Partials/CertificadosTab.vue'
@@ -38,7 +39,7 @@ const props = defineProps({
 // Inicializar tab desde URL hash o default
 const getInitialTab = () => {
   const hash = window.location.hash.replace('#', '');
-  const validTabs = ['general', 'visual', 'redes-sociales', 'folios', 'documentos', 'impuestos', 'bancarios', 'correo', 'whatsapp', 'api-keys', 'cobros', 'pagos', 'certificados', 'red', 'tienda', 'respaldos', 'sistema', 'seguridad', 'danger'];
+  const validTabs = ['general', 'visual', 'redes-sociales', 'folios', 'documentos', 'impuestos', 'bancarios', 'correo', 'whatsapp', 'api-keys', 'cobros', 'pagos', 'certificados', 'red', 'tienda', 'respaldos', 'sistema', 'seguridad', 'biometria', 'danger'];
   return validTabs.includes(hash) ? hash : 'general';
 };
 
@@ -64,6 +65,7 @@ const tabs = [
   { id: 'sistema', nombre: 'Sistema', icono: 'cogs', component: SistemaTab },
   { id: 'robot-blog', nombre: 'Robot de Blog', icono: 'robot', component: BlogRobotTab }, // NEW
   { id: 'seguridad', nombre: 'Seguridad', icono: 'shield-alt', component: SeguridadTab },
+  { id: 'biometria', nombre: 'Biometría Checador', icono: 'id-card', component: BiometriaTab },
   { id: 'danger', nombre: 'Zona de Peligro', icono: 'exclamation-triangle', component: DangerZoneTab },
 ]
 
@@ -87,6 +89,7 @@ const tabRoutes = {
   sistema: 'empresa-configuracion.sistema.update',
   'robot-blog': 'empresa-configuracion.robot-blog.update', 
   seguridad: 'empresa-configuracion.seguridad.update',
+  biometria: 'empresa-configuracion.biometria.update',
   danger: null,
 }
 
@@ -207,6 +210,15 @@ const form = useForm({
   intentos_login: props.configuracion.intentos_login,
   tiempo_bloqueo: props.configuracion.tiempo_bloqueo,
   requerir_2fa: props.configuracion.requerir_2fa,
+  // Biometría
+  biometrics_strict_match: props.configuracion.biometrics_strict_match ?? false,
+  biometrics_local_match_threshold: props.configuracion.biometrics_local_match_threshold ?? 0.72,
+  biometrics_local_liveness_threshold: props.configuracion.biometrics_local_liveness_threshold ?? 0.45,
+  biometrics_geofence_soft_margin_meters: props.configuracion.biometrics_geofence_soft_margin_meters ?? 120,
+  biometrics_nearby_match_relax: props.configuracion.biometrics_nearby_match_relax ?? 0.06,
+  biometrics_nearby_liveness_relax: props.configuracion.biometrics_nearby_liveness_relax ?? 0.10,
+  biometrics_far_match_penalty: props.configuracion.biometrics_far_match_penalty ?? 0.06,
+  biometrics_far_liveness_penalty: props.configuracion.biometrics_far_liveness_penalty ?? 0.10,
   dkim_selector: props.configuracion.dkim_selector,
   dkim_domain: props.configuracion.dkim_domain,
   dkim_public_key: props.configuracion.dkim_public_key,
@@ -432,6 +444,5 @@ nav {
   to { opacity: 1; transform: translateY(0); }
 }
 </style>
-
 
 

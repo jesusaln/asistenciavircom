@@ -22,6 +22,9 @@ class Almacen extends Model
         'telefono',
         'responsable',
         'estado',
+        'latitud',
+        'longitud',
+        'geocerca_radio',
     ];
 
     protected $casts = [

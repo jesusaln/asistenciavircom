@@ -79,7 +79,7 @@ class AsistenciaController extends Controller
      */
     public function showByToken(string $token): Response
     {
-        $user = User::where('checkin_token', $token)->firstOrFail();
+        $user = User::withoutGlobalScope('empresa')->where('checkin_token', $token)->firstOrFail();
         return $this->renderCheckView($user, $token);
     }
 
@@ -134,7 +134,7 @@ class AsistenciaController extends Controller
             'token' => $token,
             'biometric' => [
                 'is_enrolled' => (bool) $user->face_enrolled_at,
-                'strict_match' => (bool) config('services.biometrics.strict_match', false),
+                'strict_match' => (bool) ($config->biometrics_strict_match ?? config('services.biometrics.strict_match', false)),
                 'has_face_descriptor' => !empty($user->face_descriptor),
             ],
             'checkTypes' => [
@@ -153,7 +153,7 @@ class AsistenciaController extends Controller
     {
         $user = null;
         if ($request->has('token')) {
-            $user = User::where('checkin_token', $request->token)->firstOrFail();
+            $user = User::withoutGlobalScope('empresa')->where('checkin_token', $request->token)->firstOrFail();
         } else {
             $user = Auth::user();
         }
@@ -161,6 +161,7 @@ class AsistenciaController extends Controller
         if (!$user) {
             return back()->withErrors(['auth' => 'Sesión no válida.']);
         }
+        $companyConfig = EmpresaConfiguracion::getConfig($user->empresa_id);
 
         $validated = $request->validate([
             'tipo' => 'required|in:entry,exit,break_start,break_end',
@@ -173,6 +174,13 @@ class AsistenciaController extends Controller
             'face_challenge_completed' => 'required|accepted',
             'face_liveness_score' => 'nullable|numeric|between:0,1',
             'face_descriptor' => 'required|string|max:10000',
+            'face_detected_count' => 'nullable|integer|min:0|max:20',
+            'face_capture_quality_passed' => 'nullable|boolean',
+            'face_quality_brightness' => 'nullable|numeric|between:0,1',
+            'face_quality_sharpness' => 'nullable|numeric|between:0,1',
+            'face_quality_area_ratio' => 'nullable|numeric|between:0,1',
+            'face_quality_center_offset' => 'nullable|numeric|between:0,1',
+            'face_quality_message' => 'nullable|string|max:255',
         ]);
 
         // Evitar duplicados rápidos (anti-doble-click)
@@ -190,7 +198,7 @@ class AsistenciaController extends Controller
         $almacen = $user->almacenVenta ?: Almacen::where('empresa_id', $user->empresa_id)->first();
         $distanceFromOffice = null;
         $baseGeofenceRadius = $almacen?->geocerca_radio ? (float) $almacen->geocerca_radio : null;
-        $softGeofenceMargin = (float) config('services.biometrics.geofence_soft_margin_meters', 120);
+        $softGeofenceMargin = (float) ($companyConfig->biometrics_geofence_soft_margin_meters ?? config('services.biometrics.geofence_soft_margin_meters', 120));
 
         if ($almacen && $almacen->latitud && $almacen->longitud && $validated['latitud'] && $validated['longitud']) {
             $distancia = $this->calculateDistance(
@@ -223,15 +231,15 @@ class AsistenciaController extends Controller
         $faceLivenessScore = null;
         $faceProvider = null;
         $faceNotes = null;
-        $strictFaceMatch = (bool) config('services.biometrics.strict_match', false);
+        $strictFaceMatch = (bool) ($companyConfig->biometrics_strict_match ?? config('services.biometrics.strict_match', false));
         $faceLivenessScore = isset($validated['face_liveness_score']) ? (float) $validated['face_liveness_score'] : null;
         $incomingDescriptor = $this->parseFaceDescriptor($validated['face_descriptor']);
-        $baseMatchThreshold = (float) config('services.biometrics.local_match_threshold', 0.72);
-        $baseLivenessThreshold = (float) config('services.biometrics.local_liveness_threshold', 0.45);
-        $nearbyMatchRelax = (float) config('services.biometrics.nearby_match_relax', 0.06);
-        $nearbyLivenessRelax = (float) config('services.biometrics.nearby_liveness_relax', 0.10);
-        $farMatchPenalty = (float) config('services.biometrics.far_match_penalty', 0.06);
-        $farLivenessPenalty = (float) config('services.biometrics.far_liveness_penalty', 0.10);
+        $baseMatchThreshold = (float) ($companyConfig->biometrics_local_match_threshold ?? config('services.biometrics.local_match_threshold', 0.72));
+        $baseLivenessThreshold = (float) ($companyConfig->biometrics_local_liveness_threshold ?? config('services.biometrics.local_liveness_threshold', 0.45));
+        $nearbyMatchRelax = (float) ($companyConfig->biometrics_nearby_match_relax ?? config('services.biometrics.nearby_match_relax', 0.06));
+        $nearbyLivenessRelax = (float) ($companyConfig->biometrics_nearby_liveness_relax ?? config('services.biometrics.nearby_liveness_relax', 0.10));
+        $farMatchPenalty = (float) ($companyConfig->biometrics_far_match_penalty ?? config('services.biometrics.far_match_penalty', 0.06));
+        $farLivenessPenalty = (float) ($companyConfig->biometrics_far_liveness_penalty ?? config('services.biometrics.far_liveness_penalty', 0.10));
 
         $matchThreshold = $baseMatchThreshold;
         $livenessThreshold = $baseLivenessThreshold;
@@ -348,6 +356,13 @@ class AsistenciaController extends Controller
             'face_verification_status' => $faceStatus,
             'face_provider' => $faceProvider,
             'face_verification_notes' => $faceNotes,
+            'face_detected_count' => $validated['face_detected_count'] ?? null,
+            'face_capture_quality_passed' => (bool) ($validated['face_capture_quality_passed'] ?? false),
+            'face_quality_brightness' => $validated['face_quality_brightness'] ?? null,
+            'face_quality_sharpness' => $validated['face_quality_sharpness'] ?? null,
+            'face_quality_area_ratio' => $validated['face_quality_area_ratio'] ?? null,
+            'face_quality_center_offset' => $validated['face_quality_center_offset'] ?? null,
+            'face_quality_message' => $validated['face_quality_message'] ?? null,
         ]);
 
         $msg = $esIncidencia ? 'Registro guardado con incidencia de ubicación.' : 'Asistencia registrada correctamente.';

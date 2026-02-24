@@ -214,6 +214,15 @@ class EmpresaConfiguracion extends Model
         'shipping_local_cost',
         'n8n_webhook_blog',
         'ticket_default_assignee_id',
+        // Biométricos / Checador
+        'biometrics_strict_match',
+        'biometrics_local_match_threshold',
+        'biometrics_local_liveness_threshold',
+        'biometrics_geofence_soft_margin_meters',
+        'biometrics_nearby_match_relax',
+        'biometrics_nearby_liveness_relax',
+        'biometrics_far_match_penalty',
+        'biometrics_far_liveness_penalty',
     ];
 
     protected $casts = [
@@ -276,6 +285,15 @@ class EmpresaConfiguracion extends Model
         'cva_monedero_last_update' => 'datetime',
         'shipping_local_cost' => 'decimal:2',
         'dias_gracia_corte' => 'integer',
+        // Biométricos
+        'biometrics_strict_match' => 'boolean',
+        'biometrics_local_match_threshold' => 'decimal:4',
+        'biometrics_local_liveness_threshold' => 'decimal:4',
+        'biometrics_geofence_soft_margin_meters' => 'integer',
+        'biometrics_nearby_match_relax' => 'decimal:4',
+        'biometrics_nearby_liveness_relax' => 'decimal:4',
+        'biometrics_far_match_penalty' => 'decimal:4',
+        'biometrics_far_liveness_penalty' => 'decimal:4',
     ];
 
     /**
