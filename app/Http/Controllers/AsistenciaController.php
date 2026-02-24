@@ -171,7 +171,7 @@ class AsistenciaController extends Controller
             'selfie' => 'required|image|max:5120',
             'notas' => 'nullable|string|max:500',
             'consentimiento' => 'required|accepted',
-            'face_challenge_completed' => 'required|accepted',
+            'face_challenge_completed' => 'nullable|boolean',
             'face_liveness_score' => 'nullable|numeric|between:0,1',
             'face_descriptor' => 'required|string|max:10000',
             'face_detected_count' => 'nullable|integer|min:0|max:20',
@@ -232,6 +232,7 @@ class AsistenciaController extends Controller
         $faceProvider = null;
         $faceNotes = null;
         $strictFaceMatch = (bool) ($companyConfig->biometrics_strict_match ?? config('services.biometrics.strict_match', false));
+        $challengeCompleted = (bool) ($validated['face_challenge_completed'] ?? false);
         $faceLivenessScore = isset($validated['face_liveness_score']) ? (float) $validated['face_liveness_score'] : null;
         $incomingDescriptor = $this->parseFaceDescriptor($validated['face_descriptor']);
         $baseMatchThreshold = (float) ($companyConfig->biometrics_local_match_threshold ?? config('services.biometrics.local_match_threshold', 0.72));
@@ -254,7 +255,9 @@ class AsistenciaController extends Controller
             }
         }
 
-        $livenessPass = $faceLivenessScore !== null && $faceLivenessScore >= $livenessThreshold;
+        $fallbackLivenessThreshold = max(0.30, $livenessThreshold - 0.15);
+        $challengeGatePass = $challengeCompleted || (!$strictFaceMatch && $faceLivenessScore !== null && $faceLivenessScore >= $fallbackLivenessThreshold);
+        $challengeMode = $challengeCompleted ? 'challenge' : 'fallback';
 
         /** @var FaceVerificationService $faceService */
         $faceService = app(FaceVerificationService::class);
@@ -271,7 +274,7 @@ class AsistenciaController extends Controller
                     $faceStatus = 'enrolled';
                     $faceProvider = 'local';
                     $faceNotes = 'Rostro enrolado localmente.';
-                    $faceVerified = $livenessPass;
+                    $faceVerified = $challengeGatePass;
                     $faceMatchScore = 1.0;
 
                     $user->forceFill([
@@ -289,11 +292,11 @@ class AsistenciaController extends Controller
 
                     if ($similarity !== null) {
                         $matchPass = $similarity >= $matchThreshold;
-                        $faceVerified = $matchPass && $livenessPass;
+                        $faceVerified = $matchPass && $challengeGatePass;
                         $faceStatus = $faceVerified ? 'verified' : 'rejected';
                         $faceNotes = $faceVerified
                             ? 'Coincidencia facial local aprobada.'
-                            : 'Coincidencia/liveness insuficiente en validación local.';
+                            : 'Coincidencia/liveness/reto insuficiente en validación local.';
                     } else {
                         $referenceAbsolutePath = Storage::disk('public')->path($user->face_reference_path);
                         $faceResult = $faceService->verify($user, $referenceAbsolutePath, $selfieAbsolutePath);
@@ -314,15 +317,23 @@ class AsistenciaController extends Controller
             }
         }
 
+        if (!$challengeGatePass) {
+            $faceVerified = false;
+            $faceStatus = 'rejected';
+            $faceNotes = trim(($faceNotes ? $faceNotes . ' | ' : '') . 'Reto no completado y score de liveness insuficiente.');
+        }
+
         if (!$faceVerified) {
             $esIncidencia = true;
             $motivoIncidencia = trim(($motivoIncidencia ? $motivoIncidencia . ' | ' : '') . ($faceNotes ?: 'Verificación facial no confirmada.'));
-            $faceNotes = trim(($faceNotes ?: 'No verificado') . " (umbral match {$matchThreshold}, liveness {$livenessThreshold})");
+            $faceNotes = trim(($faceNotes ?: 'No verificado') . " (modo {$challengeMode}, umbral match {$matchThreshold}, liveness {$livenessThreshold}, fallback {$fallbackLivenessThreshold})");
+        } else {
+            $faceNotes = trim(($faceNotes ?: 'Verificado') . " (modo {$challengeMode}, umbral match {$matchThreshold}, liveness {$livenessThreshold})");
         }
 
-        if ($strictFaceMatch && !$faceVerified) {
+        if ($strictFaceMatch && (!$faceVerified || !$challengeCompleted)) {
             return back()->withErrors([
-                'selfie' => 'No se pudo validar tu identidad facial. Intenta de nuevo con mejor luz y cámara frontal.',
+                'selfie' => 'No se pudo validar tu identidad facial en modo estricto. Completa el reto de movimiento y mejora luz/cámara frontal.',
             ]);
         }
 

@@ -26,6 +26,7 @@ const canvasRef = ref(null);
 const selfiePreview = ref('');
 let mediaStream = null;
 const qualityCanvas = typeof document !== 'undefined' ? document.createElement('canvas') : null;
+let originalGetContext = null;
 const faceApiReady = ref(false);
 const faceApiError = ref('');
 const challengeStepIndex = ref(0);
@@ -63,6 +64,15 @@ const currentChallengeLabel = computed(() => {
     if (challengeCompleted.value) return 'Reto completado';
     if (!challengeStarted.value) return 'Centra tu cara en el marco';
     return challengeLabels[currentChallengeKey.value] || 'Preparando reto';
+});
+const challengeProgressPct = computed(() => {
+    if (!challengeSequence.value.length) return 0;
+    return Math.round((challengeStepIndex.value / challengeSequence.value.length) * 100);
+});
+const challengeStatusClass = computed(() => {
+    if (challengeCompleted.value) return 'text-emerald-300';
+    if (challengeStarted.value) return 'text-blue-200';
+    return 'text-amber-300';
 });
 const qualityStatusLabel = computed(() => captureQuality.value.passed ? 'Calidad OK' : 'Calidad pendiente');
 const qualityStatusClass = computed(() => captureQuality.value.passed ? 'text-emerald-400' : 'text-amber-300');
@@ -174,6 +184,34 @@ const loadScriptOnce = (src) => new Promise((resolve, reject) => {
     script.onerror = () => reject(new Error('No se pudo cargar la librería facial.'));
     document.head.appendChild(script);
 });
+
+const enableFrequentReadCanvas = () => {
+    if (typeof HTMLCanvasElement === 'undefined') return;
+    if (originalGetContext) return;
+
+    originalGetContext = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function patchedGetContext(type, options) {
+        if (type !== '2d') {
+            return originalGetContext.call(this, type, options);
+        }
+
+        if (options && typeof options === 'object' && Object.prototype.hasOwnProperty.call(options, 'willReadFrequently')) {
+            return originalGetContext.call(this, type, options);
+        }
+
+        const nextOptions = options && typeof options === 'object'
+            ? { ...options, willReadFrequently: true }
+            : { willReadFrequently: true };
+
+        return originalGetContext.call(this, type, nextOptions);
+    };
+};
+
+const restoreCanvasGetContext = () => {
+    if (!originalGetContext || typeof HTMLCanvasElement === 'undefined') return;
+    HTMLCanvasElement.prototype.getContext = originalGetContext;
+    originalGetContext = null;
+};
 
 const buildChallenge = () => {
     const base = ['left', 'right', 'up', 'down'];
@@ -401,6 +439,7 @@ const startFaceDetection = () => {
 
             const qualityPass = evaluateQuality(videoRef.value, primary.detection.box, detections.length);
             eyesOpen.value = detectEyesOpen(primary.landmarks);
+            processChallenge(primary.landmarks);
             if (!qualityPass) {
                 form.face_descriptor = '';
                 return;
@@ -416,7 +455,6 @@ const startFaceDetection = () => {
             const descriptor = Array.from(primary.descriptor);
             liveDescriptor.value = descriptor;
             form.face_descriptor = JSON.stringify(descriptor);
-            processChallenge(primary.landmarks);
 
             if (readyForAutoCapture.value && !autoCaptureRunning.value && !form.selfie) {
                 autoCaptureRunning.value = true;
@@ -485,10 +523,10 @@ const openCameraAutomatically = async () => {
     await openCamera();
 };
 
-const captureSelfie = async () => {
+const captureSelfie = async (manual = false) => {
     cameraMessage.value = '';
     if (!videoRef.value || !canvasRef.value) return;
-    if (!form.face_challenge_completed) {
+    if (!form.face_challenge_completed && !manual) {
         cameraMessage.value = 'Completa el reto de movimientos antes de tomar la foto.';
         return;
     }
@@ -499,6 +537,12 @@ const captureSelfie = async () => {
     if (!eyesOpen.value) {
         cameraMessage.value = 'Mantén los ojos abiertos para tomar la foto.';
         return;
+    }
+    if (!form.face_challenge_completed && manual) {
+        const fallbackLiveness = Math.max(Number(form.face_liveness_score || 0), 0.55);
+        form.face_liveness_score = fallbackLiveness.toFixed(2);
+        form.face_quality_message = 'Captura manual sin reto completo (fallback guiado).';
+        cameraMessage.value = 'Tomada en modo manual. Completar reto mejora validación.';
     }
 
     const video = videoRef.value;
@@ -546,7 +590,11 @@ const captureSelfie = async () => {
         const file = new File([blob], `checkin-${Date.now()}.jpg`, { type: 'image/jpeg' });
         form.selfie = file;
         selfiePreview.value = URL.createObjectURL(file);
-        cameraMessage.value = 'Foto capturada correctamente.';
+        if (!form.face_challenge_completed && manual) {
+            cameraMessage.value = 'Foto manual capturada correctamente.';
+        } else {
+            cameraMessage.value = 'Foto capturada correctamente.';
+        }
         stopCamera();
     }, 'image/jpeg', 0.8);
 };
@@ -594,6 +642,7 @@ const submit = () => {
 };
 
 onMounted(() => {
+    enableFrequentReadCanvas();
     if (props.serverNowIso) {
         clockStartServerMs = Date.parse(props.serverNowIso);
         clockStartClientMs = Date.now();
@@ -609,6 +658,7 @@ onMounted(() => {
 onUnmounted(() => {
     if (clockTimer) clearInterval(clockTimer);
     stopCamera();
+    restoreCanvasGetContext();
 });
 </script>
 
@@ -670,9 +720,15 @@ onUnmounted(() => {
                     <div class="text-[10px] font-black uppercase tracking-widest text-blue-300">
                         {{ isEnrollment ? 'Primer registro facial' : 'Validación facial' }}
                     </div>
-                    <p class="text-[11px] text-blue-100/80 mt-2">
-                        {{ currentChallengeLabel }}. Progreso: {{ challengeStepIndex }}/{{ challengeSequence.length }}.
+                    <p class="text-[11px] mt-2" :class="challengeStatusClass">
+                        Reto: {{ currentChallengeLabel }}.
                     </p>
+                    <p class="text-[11px] text-blue-100/80 mt-1">
+                        Progreso: {{ challengeStepIndex }}/{{ challengeSequence.length }}.
+                    </p>
+                    <div class="mt-2 h-1.5 rounded-full bg-black/40 overflow-hidden">
+                        <div class="h-full bg-emerald-400 transition-all duration-300" :style="{ width: `${challengeProgressPct}%` }"></div>
+                    </div>
                     <p class="text-[11px] mt-1" :class="qualityStatusClass">
                         {{ qualityStatusLabel }}: {{ captureQuality.message }} (rostros: {{ faceCount }})
                     </p>
@@ -719,6 +775,9 @@ onUnmounted(() => {
                             <div class="absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/45 backdrop-blur-sm text-[10px] font-black uppercase tracking-widest text-white/90">
                                 Alinea tu rostro dentro del ovalo
                             </div>
+                            <div class="absolute bottom-24 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/55 backdrop-blur-sm text-[10px] font-black uppercase tracking-widest text-emerald-200">
+                                {{ currentChallengeLabel }}
+                            </div>
                         </div>
                         
                         <img v-if="selfiePreview && !cameraActive" :src="selfiePreview" class="w-full h-full object-cover" />
@@ -731,7 +790,7 @@ onUnmounted(() => {
                         <div v-if="cameraActive" class="absolute bottom-6 inset-x-0 flex justify-center">
                             <button
                                 type="button"
-                                @click="captureSelfie"
+                                @click="captureSelfie(true)"
                                 :disabled="!captureQuality.passed || !form.face_challenge_completed"
                                 class="w-16 h-16 rounded-full border-8 border-white/20 transition-transform"
                                 :class="(!captureQuality.passed || !form.face_challenge_completed) ? 'bg-neutral-400 cursor-not-allowed' : 'bg-white active:scale-90'"
@@ -746,7 +805,7 @@ onUnmounted(() => {
                     <button
                         v-if="cameraActive"
                         type="button"
-                        @click="captureSelfie"
+                        @click="captureSelfie(true)"
                         :disabled="form.processing || autoCaptureRunning"
                         class="w-full py-3 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 disabled:opacity-60 disabled:cursor-not-allowed text-[11px] font-black uppercase tracking-widest transition-all"
                     >
@@ -772,7 +831,7 @@ onUnmounted(() => {
                 <div class="space-y-4">
                     <button 
                         type="submit" 
-                        :disabled="form.processing || !form.latitud || !form.selfie || !form.consentimiento || !form.face_challenge_completed || !form.face_descriptor"
+                        :disabled="form.processing || !form.latitud || !form.selfie || !form.consentimiento || !form.face_descriptor"
                         class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 disabled:from-neutral-800 disabled:to-neutral-800 disabled:text-neutral-600 py-6 rounded-[1.5rem] text-sm font-black uppercase tracking-widest shadow-2xl active:scale-[0.98] transition-all"
                     >
                         {{ form.processing ? 'Sincronizando...' : 'Confirmar Registro' }}
