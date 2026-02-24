@@ -1090,11 +1090,30 @@ class ClienteController extends Controller
         ]);
 
         try {
-            Excel::import(new ClientesImport, $request->file('file'));
+            $import = new ClientesImport;
+            Excel::import($import, $request->file('file'));
+
+            $failures = $import->getFailures();
+            $errors = $import->getErrors();
+
+            if (!empty($failures) || !empty($errors)) {
+                $msg = 'Importación completada con algunos problemas. ';
+                if (!empty($failures)) {
+                    $msg .= 'Validaciones fallidas: ' . implode(' | ', array_slice($failures, 0, 5));
+                    if (count($failures) > 5)
+                        $msg .= ' ... y ' . (count($failures) - 5) . ' más.';
+                }
+                if (!empty($errors)) {
+                    $msg .= ' Errores técnicos: ' . implode(' | ', array_slice($errors, 0, 3));
+                }
+
+                return redirect()->route('clientes.index')->with('warning', $msg);
+            }
+
             return redirect()->route('clientes.index')->with('success', 'Clientes importados correctamente.');
         } catch (Exception $e) {
-            Log::error('Error importando clientes: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error al importar clientes. Asegúrese de que el formato sea correcto.');
+            Log::error('Error crítico importando clientes: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error crítico al importar: ' . $e->getMessage());
         }
     }
 

@@ -8,8 +8,10 @@ use App\Http\Controllers\LandingController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\Public\ContactoController;
 use App\Http\Controllers\Public\SoportePublicoController; // Import Controller
+use App\Http\Controllers\AsistenciaController;
 
 Route::get('/soporte-tecnico', [SoportePublicoController::class, 'index'])->name('public.soporte'); // Nueva Ruta
+Route::get('/marcar/{token}', [AsistenciaController::class, 'showByToken'])->name('asistencia.token');
 
 
 // Tienda (Público)

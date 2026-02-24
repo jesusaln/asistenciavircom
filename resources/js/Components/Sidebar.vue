@@ -66,7 +66,10 @@
           >
             <div class="flex items-center gap-2">
               <FontAwesomeIcon icon="shopping-cart" class="w-4 h-4 text-blue-400" />
-              <span>CRM y Ventas</span>
+              <div class="leading-tight">
+                <span>CRM y Ventas</span>
+                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-gray-500 font-medium mt-0.5">Prospectos, citas, cotizaciones y facturación</p>
+              </div>
             </div>
             <FontAwesomeIcon
               icon="chevron-right"
@@ -125,7 +128,10 @@
           >
             <div class="flex items-center gap-2">
               <FontAwesomeIcon icon="headset" class="w-4 h-4 text-orange-400" />
-              <span>Soporte y Contratos</span>
+              <div class="leading-tight">
+                <span>Soporte y Contratos</span>
+                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-gray-500 font-medium mt-0.5">Tickets, pólizas, KB y acceso remoto</p>
+              </div>
             </div>
             <FontAwesomeIcon
               icon="chevron-right"
@@ -174,7 +180,10 @@
           >
             <div class="flex items-center gap-2">
               <FontAwesomeIcon icon="boxes" class="w-4 h-4 text-amber-400" />
-              <span>Compras e Inventario</span>
+              <div class="leading-tight">
+                <span>Compras e Inventario</span>
+                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-gray-500 font-medium mt-0.5">Proveedores, almacenes y movimientos</p>
+              </div>
             </div>
             <FontAwesomeIcon
               icon="chevron-right"
@@ -228,7 +237,10 @@
           >
             <div class="flex items-center gap-2">
               <FontAwesomeIcon icon="chart-line" class="w-4 h-4 text-emerald-400" />
-              <span>Finanzas</span>
+              <div class="leading-tight">
+                <span>Finanzas</span>
+                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-gray-500 font-medium mt-0.5">Cuentas, gastos, caja y préstamos</p>
+              </div>
             </div>
             <FontAwesomeIcon
               icon="chevron-right"
@@ -284,7 +296,10 @@
           >
             <div class="flex items-center gap-2">
               <FontAwesomeIcon icon="tools" class="w-4 h-4 text-purple-400" />
-              <span>Operaciones</span>
+              <div class="leading-tight">
+                <span>Operaciones</span>
+                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-gray-500 font-medium mt-0.5">Rentas, equipos, vehículos y herramientas</p>
+              </div>
             </div>
             <FontAwesomeIcon
               icon="chevron-right"
@@ -323,14 +338,17 @@
         <!-- ========================================= -->
         <!-- 👥 Recursos Humanos -->
         <!-- ========================================= -->
-        <div v-if="$can('view empleados') || $can('view nominas') || $can('view vacaciones')" class="mb-4">
+        <div class="mb-4">
           <div
             @click="toggleAccordion('rrhh')"
             class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-gray-700/50 rounded-md transition-colors duration-200"
           >
             <div class="flex items-center gap-2">
               <FontAwesomeIcon icon="user-tie" class="w-4 h-4 text-teal-400" />
-              <span>Recursos Humanos</span>
+              <div class="leading-tight">
+                <span>Personal y Asistencia</span>
+                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-gray-500 font-medium mt-0.5">Checador, empleados, nómina y vacaciones</p>
+              </div>
             </div>
             <FontAwesomeIcon
               icon="chevron-right"
@@ -339,6 +357,12 @@
             />
           </div>
           <div :class="['accordion-content', { 'accordion-open': accordionStates.rrhh }]">
+            <NavLink href="/asistencia" icon="clock" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Reloj Checador' : null">
+              Reloj Checador
+            </NavLink>
+            <NavLink v-if="isAdmin || $can('view empleados')" href="/asistencia/registros" icon="history" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Bitácora de Asistencia' : null">
+              Bitácora de Asistencia
+            </NavLink>
             <NavLink v-if="$can('view empleados')" href="/empleados" icon="users-cog" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Empleados' : null">
               Empleados
             </NavLink>
@@ -370,7 +394,10 @@
           >
             <div class="flex items-center gap-2">
               <FontAwesomeIcon icon="blog" class="w-4 h-4 text-sky-400" />
-              <span>Blog</span>
+              <div class="leading-tight">
+                <span>Blog</span>
+                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-gray-500 font-medium mt-0.5">Contenido público y administración</p>
+              </div>
             </div>
             <FontAwesomeIcon
               icon="chevron-right"
@@ -398,7 +425,10 @@
           >
             <div class="flex items-center gap-2">
               <FontAwesomeIcon icon="cogs" class="w-4 h-4 text-gray-400" />
-              <span>Configuración</span>
+              <div class="leading-tight">
+                <span>Configuración</span>
+                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-gray-500 font-medium mt-0.5">Usuarios, catálogos y ajustes del sistema</p>
+              </div>
             </div>
             <FontAwesomeIcon
               icon="chevron-right"
@@ -450,7 +480,10 @@
           >
             <div class="flex items-center gap-2">
               <FontAwesomeIcon icon="chart-bar" class="w-4 h-4 text-indigo-400" />
-              <span>Reportes y CFDI</span>
+              <div class="leading-tight">
+                <span>Reportes y CFDI</span>
+                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-gray-500 font-medium mt-0.5">Indicadores, reportes y comprobantes fiscales</p>
+              </div>
             </div>
             <FontAwesomeIcon
               icon="chevron-right"
@@ -674,7 +707,7 @@ const getInitialAccordionState = () => {
   }
   // RRHH
   else if (path.startsWith('/empleados') || path.startsWith('/nominas') || path.startsWith('/vacaciones') || 
-           path.startsWith('/mis-vacaciones') || path.startsWith('/registro-vacaciones')) {
+           path.startsWith('/mis-vacaciones') || path.startsWith('/registro-vacaciones') || path.startsWith('/asistencia')) {
     currentSection = 'rrhh';
   }
   // Configuración

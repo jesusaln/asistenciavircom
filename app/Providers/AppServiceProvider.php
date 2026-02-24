@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Contracts\FaceVerificationService;
+use App\Services\Biometrics\MockFaceVerificationService;
 use Inertia\Inertia;
 
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -16,7 +18,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // ...
+        $this->app->bind(FaceVerificationService::class, function () {
+            // Punto único para cambiar a proveedor real (AWS/Azure/etc.)
+            return new MockFaceVerificationService();
+        });
     }
 
     /**

@@ -105,6 +105,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\LandingContentController;
 use App\Http\Controllers\CredencialController;
 use App\Http\Controllers\Reportes\ReporteSoporteController;
+use App\Http\Controllers\AsistenciaController;
 
 // Forzar patrón numérico para {herramienta}
 Route::pattern('herramienta', '[0-9]+');
@@ -119,6 +120,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/usuarios/export', [UserController::class, 'export'])->name('usuarios.export')->middleware('can:export usuarios');
     Route::get('/citas/export', [CitaController::class, 'export'])->name('citas.export');
     Route::get('/productos/export', [ProductoController::class, 'export'])->name('productos.export');
+
+    // Asistencia / Checador
+    Route::get('/asistencia', [AsistenciaController::class, 'index'])->name('asistencia.index');
+    Route::get('/asistencia/registros', [AsistenciaController::class, 'logs'])->name('asistencia.logs');
+    Route::get('/asistencia/checador', [AsistenciaController::class, 'checador'])->name('asistencia.checador');
+    Route::post('/asistencia', [AsistenciaController::class, 'store'])->name('asistencia.store');
 });
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {

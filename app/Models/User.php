@@ -75,6 +75,11 @@ class User extends Authenticatable
         'hora_salida_sabado',
         'frecuencia_pago',
         'contrato_adjunto',
+        'face_reference_path',
+        'face_enrolled_at',
+        'face_last_verified_at',
+        'face_provider',
+        'face_descriptor',
     ];
 
     /**
@@ -136,6 +141,9 @@ class User extends Authenticatable
             'comision_instalacion' => 'decimal:2',
             'trabaja_sabado' => 'boolean',
             'horas_jornada' => 'integer',
+            'face_enrolled_at' => 'datetime',
+            'face_last_verified_at' => 'datetime',
+            'face_descriptor' => 'array',
         ];
     }
 
@@ -456,4 +464,3 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 }
-

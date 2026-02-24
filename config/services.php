@@ -119,4 +119,18 @@ return [
 
     // Proveedor de IA preferido: 'groq' o 'ollama'
     'ai_provider' => env('AI_PROVIDER', 'groq'),
+
+    'biometrics' => [
+        'provider' => env('BIOMETRICS_PROVIDER', 'mock'),
+        'strict_match' => env('BIOMETRICS_STRICT_MATCH', false),
+        // Umbrales base para modo local (0 a 1). Inician flexibles y se pueden subir gradualmente.
+        'local_match_threshold' => (float) env('BIOMETRICS_LOCAL_MATCH_THRESHOLD', 0.72),
+        'local_liveness_threshold' => (float) env('BIOMETRICS_LOCAL_LIVENESS_THRESHOLD', 0.45),
+        // Ajuste automático por cercanía geográfica
+        'geofence_soft_margin_meters' => (int) env('BIOMETRICS_GEOFENCE_SOFT_MARGIN_METERS', 120),
+        'nearby_match_relax' => (float) env('BIOMETRICS_NEARBY_MATCH_RELAX', 0.06),
+        'nearby_liveness_relax' => (float) env('BIOMETRICS_NEARBY_LIVENESS_RELAX', 0.10),
+        'far_match_penalty' => (float) env('BIOMETRICS_FAR_MATCH_PENALTY', 0.06),
+        'far_liveness_penalty' => (float) env('BIOMETRICS_FAR_LIVENESS_PENALTY', 0.10),
+    ],
 ];
