@@ -26,16 +26,14 @@ class SecurityHeaders
 
         // Forzar HTTPS (Strict Transport Security)
         if (config('app.env') === 'production') {
-            if (config('app.env') === 'production') {
-                $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-            }
+            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }
 
         // Política de referrer
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
         // Política de permisos (features del navegador)
-        $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+        $response->headers->set('Permissions-Policy', 'geolocation=(self), microphone=(), camera=(self)');
 
         return $response;
     }
