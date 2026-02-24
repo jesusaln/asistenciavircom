@@ -270,7 +270,8 @@ const detectEyesOpen = (landmarks) => {
     const leftEAR = eyeAspectRatio(landmarks.getLeftEye());
     const rightEAR = eyeAspectRatio(landmarks.getRightEye());
     const avgEAR = (leftEAR + rightEAR) / 2;
-    return avgEAR >= 0.2;
+    // Reducido de 0.2 a 0.16 para ser menos estricto con la detección de ojos
+    return avgEAR >= 0.16;
 };
 
 const processChallenge = (landmarks) => {
@@ -383,10 +384,11 @@ const evaluateQuality = (source, box, facesLength) => {
         return false;
     }
 
-    const lightingPass = stats.brightness >= 0.22 && stats.brightness <= 0.82;
-    const sharpnessPass = stats.sharpness >= 0.06;
-    const sizePass = stats.faceAreaRatio >= 0.12 && stats.faceAreaRatio <= 0.55;
-    const centerPass = stats.centerOffset <= 0.20;
+    // Relajación de umbrales para evitar bloqueos
+    const lightingPass = stats.brightness >= 0.15 && stats.brightness <= 0.90;
+    const sharpnessPass = stats.sharpness >= 0.03;
+    const sizePass = stats.faceAreaRatio >= 0.08 && stats.faceAreaRatio <= 0.70;
+    const centerPass = stats.centerOffset <= 0.35;
     const passed = lightingPass && sharpnessPass && sizePass && centerPass;
 
     let message = 'Calidad correcta';
@@ -526,23 +528,31 @@ const openCameraAutomatically = async () => {
 const captureSelfie = async (manual = false) => {
     cameraMessage.value = '';
     if (!videoRef.value || !canvasRef.value) return;
-    if (!form.face_challenge_completed && !manual) {
-        cameraMessage.value = 'Completa el reto de movimientos antes de tomar la foto.';
-        return;
-    }
-    if (!captureQuality.value.passed) {
-        cameraMessage.value = captureQuality.value.message || 'Mejora la calidad antes de capturar.';
-        return;
-    }
-    if (!eyesOpen.value) {
-        cameraMessage.value = 'Mantén los ojos abiertos para tomar la foto.';
-        return;
-    }
-    if (!form.face_challenge_completed && manual) {
-        const fallbackLiveness = Math.max(Number(form.face_liveness_score || 0), 0.55);
-        form.face_liveness_score = fallbackLiveness.toFixed(2);
-        form.face_quality_message = 'Captura manual sin reto completo (fallback guiado).';
-        cameraMessage.value = 'Tomada en modo manual. Completar reto mejora validación.';
+
+    if (!manual) {
+        if (!form.face_challenge_completed) {
+            cameraMessage.value = 'Completa el reto de movimientos antes de tomar la foto.';
+            return;
+        }
+        if (!captureQuality.value.passed) {
+            cameraMessage.value = captureQuality.value.message || 'Mejora la calidad antes de capturar.';
+            return;
+        }
+        if (!eyesOpen.value) {
+            cameraMessage.value = 'Mantén los ojos abiertos para tomar la foto.';
+            return;
+        }
+    } else {
+        if (form.face_detected_count === 0) {
+            cameraMessage.value = 'Debe haber al menos un rostro visible.';
+            return;
+        }
+        if (!form.face_challenge_completed) {
+            const fallbackLiveness = Math.max(Number(form.face_liveness_score || 0), 0.55);
+            form.face_liveness_score = fallbackLiveness.toFixed(2);
+            form.face_quality_message = 'Captura manual sin reto completo.';
+            cameraMessage.value = 'Manual (Se recomienda completar reto)';
+        }
     }
 
     const video = videoRef.value;
@@ -570,14 +580,20 @@ const captureSelfie = async (manual = false) => {
             return currentArea > bestArea ? current : best;
         }, detections[0]);
 
-        const qualityPass = evaluateQuality(canvas, primary.detection.box, detections.length);
-        if (!qualityPass) {
-            cameraMessage.value = captureQuality.value.message || 'Calidad insuficiente para selfie.';
-            return;
-        }
-        if (!detectEyesOpen(primary.landmarks)) {
-            cameraMessage.value = 'No cierres los ojos al capturar.';
-            return;
+        // Validaciones reducidas para permitir capturas con la librería
+        if (!manual) {
+            const qualityPass = evaluateQuality(canvas, primary.detection.box, detections.length);
+            if (!qualityPass) {
+                cameraMessage.value = captureQuality.value.message || 'Calidad insuficiente para selfie.';
+                return;
+            }
+            if (!detectEyesOpen(primary.landmarks)) {
+                cameraMessage.value = 'No cierres los ojos al capturar.';
+                return;
+            }
+        } else {
+            // Evaluamos para guardar valores en capture stat, pero no bloquea
+            evaluateQuality(canvas, primary.detection.box, detections.length);
         }
 
         const descriptor = Array.from(primary.descriptor);
@@ -787,13 +803,13 @@ onUnmounted(() => {
                             <button type="button" @click="openCamera" class="text-[10px] font-black uppercase text-blue-400">Activar Cámara</button>
                         </div>
 
-                        <div v-if="cameraActive" class="absolute bottom-6 inset-x-0 flex justify-center">
+                        <div v-if="cameraActive" class="absolute bottom-6 inset-x-0 flex justify-center z-20">
                             <button
                                 type="button"
                                 @click="captureSelfie(true)"
-                                :disabled="!captureQuality.passed || !form.face_challenge_completed"
-                                class="w-16 h-16 rounded-full border-8 border-white/20 transition-transform"
-                                :class="(!captureQuality.passed || !form.face_challenge_completed) ? 'bg-neutral-400 cursor-not-allowed' : 'bg-white active:scale-90'"
+                                :disabled="faceCount === 0"
+                                class="w-16 h-16 rounded-full border-8 border-white/20 transition-transform bg-white/50 active:scale-90"
+                                :class="faceCount === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/80 cursor-pointer'"
                             ></button>
                         </div>
 
