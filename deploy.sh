@@ -48,6 +48,11 @@ rm -f public/hot
 # 3. Sincronización a STAGING (Página sigue ONLINE)
 echo "📡 3/8 Enviando archivos a STAGING (Carga en segundo plano)..."
 rsync -avz --no-perms --no-owner --no-group --delete \
+    --include='storage/app/public/landing_hero_professional.png' \
+    --include='storage/app/public/landing/***' \
+    --include='storage/app/public/logos/***' \
+    --include='storage/app/public/favicons/***' \
+    --exclude='storage/app/public/*' \
     --exclude='.env' \
     --exclude='storage/*.key' \
     --exclude='storage/logs/*' \
@@ -75,7 +80,10 @@ ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
     docker exec $CONTAINER_APP php artisan down --retry=60 || true && \
     
     # Intercambio de archivos (Súper rápido porque es local en el VPS)
-    rsync -a --delete $STAGING_PATH/ $REMOTE_PATH/ && \
+    # Excluimos storage del borrado para no matar archivos subidos por usuarios
+    rsync -a --delete --exclude='storage' $STAGING_PATH/ $REMOTE_PATH/ && \
+    # Sincronizamos los assets estáticos de storage (landing, logos) sin borrar lo demás
+    rsync -a $STAGING_PATH/storage/ $REMOTE_PATH/storage/ && \
     
     # Asegurar permisos
     chmod -R 775 storage bootstrap/cache && \
@@ -96,6 +104,8 @@ ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
 # 7. Reiniciar colas y Reactivar
 echo "🔄 7/8 Reiniciando servicios y Reactivando sitio..."
 ssh $USER@$VPS_IP "docker restart $CONTAINER_QUEUE && \
+    # Asegurar que PHP-FPM esté corriendo (Crítico en este VPS)
+    docker exec $CONTAINER_APP sh -lc 'php-fpm -D || php-fpm8.2 -D || true' && \
     docker exec $CONTAINER_APP php artisan up"
 
 # 8. Sincronización de IA (Segundo plano)
