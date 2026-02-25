@@ -293,7 +293,12 @@ class AsistenciaController extends Controller
             : (bool) ($companyConfig->biometrics_strict_match ?? config('services.biometrics.strict_match', false));
         $challengeCompleted = (bool) ($validated['face_challenge_completed'] ?? false);
         $faceLivenessScore = isset($validated['face_liveness_score']) ? (float) $validated['face_liveness_score'] : null;
-        $trustClientDescriptor = (bool) ($companyConfig->biometrics_trust_client_descriptor ?? config('services.biometrics.trust_client_descriptor', true));
+        $trustClientDescriptor = (bool) ($companyConfig->biometrics_trust_client_descriptor ?? config('services.biometrics.trust_client_descriptor', false));
+        // En web_panel autenticado, si el proveedor es mock, permitimos fallback local
+        // para no dejar todos los registros en "pendiente" mientras se despliega proveedor real.
+        if (!$tokenMode && $biometricProvider === 'mock') {
+            $trustClientDescriptor = true;
+        }
         $incomingDescriptor = $trustClientDescriptor
             ? $this->parseFaceDescriptor($validated['face_descriptor'] ?? null)
             : null;

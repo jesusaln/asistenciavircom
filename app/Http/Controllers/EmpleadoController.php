@@ -104,9 +104,44 @@ class EmpleadoController extends BaseController
      */
     public function create()
     {
-        return redirect()
-            ->route('usuarios.create', ['es_empleado' => 1])
-            ->with('warning', 'El alta de empleados se realiza desde Usuarios para asegurar su cuenta de acceso.');
+        $usuariosDisponibles = User::where('es_empleado', false)
+            ->where('activo', true)
+            ->select('id', 'name', 'email')
+            ->get();
+
+        $departamentos = User::empleados()->whereNotNull('departamento')
+            ->distinct()
+            ->pluck('departamento')
+            ->sort()
+            ->values();
+
+        $puestos = User::empleados()->whereNotNull('puesto')
+            ->distinct()
+            ->pluck('puesto')
+            ->sort()
+            ->values();
+
+        return Inertia::render('Empleados/Create', [
+            'usuariosDisponibles' => $usuariosDisponibles,
+            'departamentos' => $departamentos,
+            'puestos' => $puestos,
+            'tiposContrato' => [
+                ['value' => 'tiempo_completo', 'label' => 'Tiempo Completo'],
+                ['value' => 'medio_tiempo', 'label' => 'Medio Tiempo'],
+                ['value' => 'temporal', 'label' => 'Temporal'],
+                ['value' => 'honorarios', 'label' => 'Honorarios'],
+                ['value' => 'indefinido', 'label' => 'Tiempo Indefinido'],
+            ],
+            'tiposJornada' => [
+                ['value' => 'diurna', 'label' => 'Diurna'],
+                ['value' => 'nocturna', 'label' => 'Nocturna'],
+                ['value' => 'mixta', 'label' => 'Mixta'],
+            ],
+            'frecuenciasPago' => [
+                ['value' => 'semanal', 'label' => 'Semanal'],
+                ['value' => 'quincenal', 'label' => 'Quincenal'],
+            ],
+        ]);
     }
 
     /**
