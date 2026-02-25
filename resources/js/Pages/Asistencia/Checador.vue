@@ -81,6 +81,8 @@ const qualityStatusLabel = computed(() => captureQuality.value.passed ? 'Calidad
 const qualityStatusClass = computed(() => captureQuality.value.passed ? 'text-emerald-400' : 'text-amber-300');
 const faceInsideOval = computed(() => cameraActive.value && captureQuality.value.singleFace && captureQuality.value.sizePass && captureQuality.value.centerPass);
 const readyForAutoCapture = computed(() => faceInsideOval.value && captureQuality.value.passed && form.face_challenge_completed && eyesOpen.value);
+const successPulse = ref(false);
+let successPulseTimer = null;
 const overlayClass = computed(() => {
     if (!cameraActive.value) return 'border-white/20';
     return faceInsideOval.value ? 'border-emerald-400/80' : 'border-amber-400/70';
@@ -562,6 +564,31 @@ const openCameraAutomatically = async () => {
     await openCamera();
 };
 
+const captureLocationAsync = () => new Promise((resolve) => {
+    if (!navigator.geolocation) {
+        geoMessage.value = 'GPS no soportado.';
+        resolve(false);
+        return;
+    }
+
+    gettingLocation.value = true;
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            form.latitud = String(position.coords.latitude);
+            form.longitud = String(position.coords.longitude);
+            form.precision_metros = String(Math.round(position.coords.accuracy || 0));
+            gettingLocation.value = false;
+            resolve(true);
+        },
+        () => {
+            geoMessage.value = 'Error de GPS. Activa la ubicación.';
+            gettingLocation.value = false;
+            resolve(false);
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+});
+
 const captureSelfie = async (manual = false) => {
     cameraMessage.value = '';
     if (!videoRef.value || !canvasRef.value) return;
@@ -638,7 +665,7 @@ const captureSelfie = async (manual = false) => {
         form.face_descriptor = JSON.stringify(descriptor);
     }
 
-    canvas.toBlob((blob) => {
+    canvas.toBlob(async (blob) => {
         if (!blob) return;
         const file = new File([blob], `checkin-${Date.now()}.jpg`, { type: 'image/jpeg' });
         form.selfie = file;
@@ -650,6 +677,18 @@ const captureSelfie = async (manual = false) => {
             cameraMessage.value = 'Foto capturada correctamente.';
         }
         stopCamera();
+
+        if (!form.latitud || !form.longitud) {
+            cameraMessage.value = 'Capturando ubicación para enviar...';
+            const gotLocation = await captureLocationAsync();
+            if (!gotLocation) {
+                cameraMessage.value = 'No se pudo obtener GPS. Activa ubicación e intenta de nuevo.';
+                return;
+            }
+        }
+
+        cameraMessage.value = 'Enviando registro...';
+        submit();
     }, 'image/jpeg', 0.8);
 };
 
@@ -665,11 +704,20 @@ const refreshClock = () => {
 };
 
 const submit = () => {
+    if (form.processing) return;
     form.consentimiento = true;
     form.post(route('asistencia.store'), {
         forceFormData: true,
         preserveScroll: true,
         onSuccess: () => {
+            successPulse.value = true;
+            if (successPulseTimer) {
+                clearTimeout(successPulseTimer);
+            }
+            successPulseTimer = setTimeout(() => {
+                successPulse.value = false;
+            }, 2200);
+
             const lastType = form.tipo;
             form.reset(
                 'selfie',
@@ -691,6 +739,10 @@ const submit = () => {
             buildChallenge();
             captureLocation();
             openCameraAutomatically();
+            cameraMessage.value = '';
+        },
+        onError: () => {
+            cameraMessage.value = 'No se pudo registrar. Revisa GPS/rostro e intenta de nuevo.';
         }
     });
 };
@@ -711,6 +763,7 @@ onMounted(() => {
 
 onUnmounted(() => {
     if (clockTimer) clearInterval(clockTimer);
+    if (successPulseTimer) clearTimeout(successPulseTimer);
     stopCamera();
     clearSelfiePreview();
     restoreCanvasGetContext();
@@ -721,6 +774,18 @@ onUnmounted(() => {
     <Head title="Checador de Asistencia" />
 
     <div class="min-h-screen bg-neutral-950 text-white flex flex-col items-center p-4">
+        <transition name="success-pop">
+            <div
+                v-if="successPulse"
+                class="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-emerald-500 text-black px-5 py-3 rounded-2xl shadow-2xl shadow-emerald-500/40 flex items-center gap-2 text-[11px] font-black uppercase tracking-widest"
+            >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                </svg>
+                Registro confirmado
+            </div>
+        </transition>
+
         <div class="w-full max-w-lg space-y-6">
             
             <!-- Header Clock -->
@@ -864,16 +929,6 @@ onUnmounted(() => {
                         </button>
                     </div>
 
-                    <button
-                        v-if="cameraActive"
-                        type="button"
-                        @click="captureSelfie(true)"
-                        :disabled="form.processing || autoCaptureRunning"
-                        class="w-full py-3 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 disabled:opacity-60 disabled:cursor-not-allowed text-[11px] font-black uppercase tracking-widest transition-all"
-                    >
-                        Tomar foto (manual)
-                    </button>
-
                     <p v-if="cameraMessage" class="text-[10px] font-bold" :class="form.selfie ? 'text-emerald-300' : 'text-amber-300'">
                         {{ cameraMessage }}
                     </p>
@@ -891,14 +946,9 @@ onUnmounted(() => {
 
                 <!-- Submit -->
                 <div class="space-y-4">
-                    <button 
-                        type="submit" 
-                        :disabled="form.processing || !form.latitud || !form.selfie"
-                        class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 disabled:from-neutral-800 disabled:to-neutral-800 disabled:text-neutral-600 py-6 rounded-[1.5rem] text-sm font-black uppercase tracking-widest shadow-2xl active:scale-[0.98] transition-all"
-                    >
-                        {{ form.processing ? 'Sincronizando...' : 'Confirmar Registro' }}
-                    </button>
-                    
+                    <div class="text-center text-[10px] font-black uppercase tracking-[0.2em] text-blue-300/70">
+                        Registro automático al capturar foto
+                    </div>
                     <div v-if="$page.props.flash?.success" class="text-emerald-400 text-xs font-black text-center uppercase tracking-widest animate-pulse">
                         {{ $page.props.flash.success }}
                     </div>
@@ -915,5 +965,16 @@ onUnmounted(() => {
 <style scoped>
 @media (max-width: 640px) {
     .text-6xl { font-size: 3.5rem; }
+}
+
+.success-pop-enter-active,
+.success-pop-leave-active {
+    transition: all .25s ease;
+}
+
+.success-pop-enter-from,
+.success-pop-leave-to {
+    opacity: 0;
+    transform: translate(-50%, -8px) scale(.96);
 }
 </style>
