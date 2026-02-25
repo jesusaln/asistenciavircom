@@ -353,7 +353,15 @@ class EmpleadoController extends BaseController
                 'hora_entrada_sabado' => $empleado->hora_entrada_sabado,
                 'hora_salida_sabado' => $empleado->hora_salida_sabado,
             ],
+            'checkin_token' => $empleado->checkin_token,
         ];
+
+        // Ensure user has a checkin_token
+        if (!$empleado->checkin_token) {
+            $empleado->checkin_token = \Illuminate\Support\Str::random(32);
+            $empleado->saveQuietly();
+            $asistenciaResumen['checkin_token'] = $empleado->checkin_token;
+        }
 
         return Inertia::render('Empleados/Show', [
             'empleado' => $empleado,
