@@ -84,6 +84,8 @@ class User extends Authenticatable
         'face_last_verified_at',
         'face_provider',
         'face_descriptor',
+        'rustdesk_id',
+        'rustdesk_alias',
     ];
 
     /**
