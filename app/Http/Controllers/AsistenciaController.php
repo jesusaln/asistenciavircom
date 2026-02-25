@@ -152,8 +152,9 @@ class AsistenciaController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $user = null;
-        if ($request->has('token')) {
-            $user = User::withoutGlobalScope('empresa')->where('checkin_token', $request->token)->firstOrFail();
+        $tokenMode = $request->filled('token');
+        if ($tokenMode) {
+            $user = User::withoutGlobalScope('empresa')->where('checkin_token', $request->input('token'))->firstOrFail();
         } else {
             $user = Auth::user();
         }
@@ -182,6 +183,12 @@ class AsistenciaController extends Controller
             'face_quality_center_offset' => 'nullable|numeric|between:0,1',
             'face_quality_message' => 'nullable|string|max:255',
         ]);
+
+        if ($tokenMode && (!$user->face_enrolled_at || empty($user->face_descriptor))) {
+            return back()->withErrors([
+                'selfie' => 'Este enlace no puede enrolar rostros nuevos. Solicita activación inicial con tu cuenta.',
+            ]);
+        }
 
         // Evitar duplicados rápidos (anti-doble-click)
         $lastCheck = AsistenciaRegistro::where('user_id', $user->id)
@@ -231,7 +238,9 @@ class AsistenciaController extends Controller
         $faceLivenessScore = null;
         $faceProvider = null;
         $faceNotes = null;
-        $strictFaceMatch = (bool) ($companyConfig->biometrics_strict_match ?? config('services.biometrics.strict_match', false));
+        $strictFaceMatch = $tokenMode
+            ? true
+            : (bool) ($companyConfig->biometrics_strict_match ?? config('services.biometrics.strict_match', false));
         $challengeCompleted = (bool) ($validated['face_challenge_completed'] ?? false);
         $faceLivenessScore = isset($validated['face_liveness_score']) ? (float) $validated['face_liveness_score'] : null;
         $incomingDescriptor = $this->parseFaceDescriptor($validated['face_descriptor']);
@@ -331,6 +340,12 @@ class AsistenciaController extends Controller
             $faceNotes = trim(($faceNotes ?: 'Verificado') . " (modo {$challengeMode}, umbral match {$matchThreshold}, liveness {$livenessThreshold})");
         }
 
+        if ($tokenMode && !$faceVerified) {
+            return back()->withErrors([
+                'selfie' => 'No se pudo confirmar la identidad para este enlace. Usa tu enlace personal o inicia sesión.',
+            ]);
+        }
+
         if ($strictFaceMatch && (!$faceVerified || !$challengeCompleted)) {
             return back()->withErrors([
                 'selfie' => 'No se pudo validar tu identidad facial en modo estricto. Completa el reto de movimiento y mejora luz/cámara frontal.',
@@ -349,7 +364,7 @@ class AsistenciaController extends Controller
             'almacen_id' => $almacen?->id,
             'tipo' => $validated['tipo'],
             'registrado_at' => now(),
-            'origen' => $request->has('token') ? 'token_link' : 'web_panel',
+            'origen' => $tokenMode ? 'token_link' : 'web_panel',
             'latitud' => $validated['latitud'],
             'longitud' => $validated['longitud'],
             'precision_metros' => $validated['precision_metros'],
