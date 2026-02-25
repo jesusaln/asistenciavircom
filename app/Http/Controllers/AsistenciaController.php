@@ -38,11 +38,11 @@ class AsistenciaController extends Controller
         $dateFrom = $request->input('date_from', now()->startOfMonth()->toDateString());
         $dateTo = $request->input('date_to', now()->toDateString());
 
-        $query = AsistenciaRegistro::with(['user:id,name', 'almacen:id,nombre'])
-            ->whereBetween('registrado_at', [
-                Carbon::parse($dateFrom)->startOfDay(),
-                Carbon::parse($dateTo)->endOfDay()
-            ]);
+        $rangeStart = Carbon::parse($dateFrom)->startOfDay();
+        $rangeEnd = Carbon::parse($dateTo)->endOfDay();
+
+        $query = AsistenciaRegistro::with(['user:id,name,profile_photo_path', 'almacen:id,nombre'])
+            ->whereBetween('registrado_at', [$rangeStart, $rangeEnd]);
 
         if ($request->filled('user_id')) {
             $query->where('user_id', $request->user_id);
@@ -52,7 +52,24 @@ class AsistenciaController extends Controller
             $query->where('tipo', $request->tipo);
         }
 
+        if ($request->filled('incidencia')) {
+            $query->where('es_incidencia', $request->boolean('incidencia'));
+        }
+
         $registros = $query->orderByDesc('registrado_at')->paginate(50)->withQueryString();
+
+        // Stats for dashboard cards
+        $statsQuery = AsistenciaRegistro::whereBetween('registrado_at', [$rangeStart, $rangeEnd]);
+        if ($request->filled('user_id')) {
+            $statsQuery->where('user_id', $request->user_id);
+        }
+
+        $totalRecords = (clone $statsQuery)->count();
+        $totalEntries = (clone $statsQuery)->where('tipo', 'entry')->count();
+        $totalExits = (clone $statsQuery)->where('tipo', 'exit')->count();
+        $totalIncidencias = (clone $statsQuery)->where('es_incidencia', true)->count();
+        $totalFaceVerified = (clone $statsQuery)->where('face_verified', true)->count();
+        $uniqueEmployees = (clone $statsQuery)->distinct('user_id')->count('user_id');
 
         return Inertia::render('Asistencia/Logs', [
             'registros' => $registros,
@@ -61,8 +78,18 @@ class AsistenciaController extends Controller
                 'date_to' => $dateTo,
                 'user_id' => $request->user_id,
                 'tipo' => $request->tipo,
+                'incidencia' => $request->incidencia,
             ],
-            'users' => User::select('id', 'name')->orderBy('name')->get(),
+            'users' => User::select('id', 'name')->where('es_empleado', true)->orderBy('name')->get(),
+            'stats' => [
+                'total' => $totalRecords,
+                'entries' => $totalEntries,
+                'exits' => $totalExits,
+                'incidencias' => $totalIncidencias,
+                'faceVerified' => $totalFaceVerified,
+                'faceVerifiedPct' => $totalRecords > 0 ? round(($totalFaceVerified / $totalRecords) * 100) : 0,
+                'uniqueEmployees' => $uniqueEmployees,
+            ],
         ]);
     }
 
