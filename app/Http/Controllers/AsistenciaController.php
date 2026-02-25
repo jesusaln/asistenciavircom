@@ -116,11 +116,46 @@ class AsistenciaController extends Controller
         // Almacén asignado para geocerca
         $almacen = $user->almacenVenta ?: Almacen::where('empresa_id', $user->empresa_id)->first();
 
+        // Registros del día para el timeline
+        $todayRecords = AsistenciaRegistro::where('user_id', $user->id)
+            ->whereDate('registrado_at', $now->toDateString())
+            ->orderBy('registrado_at')
+            ->get(['id', 'tipo', 'registrado_at', 'es_incidencia', 'face_verified', 'direccion']);
+
+        // Calcular horas trabajadas del día
+        $workedMinutes = 0;
+        $breakMinutes = 0;
+        $entryTime = null;
+        $breakStart = null;
+        foreach ($todayRecords as $rec) {
+            $recTime = Carbon::parse($rec->registrado_at);
+            if ($rec->tipo === 'entry') {
+                $entryTime = $recTime;
+            } elseif ($rec->tipo === 'break_start' && $entryTime) {
+                $breakStart = $recTime;
+            } elseif ($rec->tipo === 'break_end' && $breakStart) {
+                $breakMinutes += $breakStart->diffInMinutes($recTime);
+                $breakStart = null;
+            } elseif ($rec->tipo === 'exit' && $entryTime) {
+                $workedMinutes += $entryTime->diffInMinutes($recTime);
+                $entryTime = null;
+            }
+        }
+        // Si aún no ha salido, calcular hasta ahora
+        if ($entryTime) {
+            $workedMinutes += $entryTime->diffInMinutes($now);
+        }
+        if ($breakStart) {
+            $breakMinutes += $breakStart->diffInMinutes($now);
+        }
+        $netWorkedMinutes = max(0, $workedMinutes - $breakMinutes);
+
         return Inertia::render('Asistencia/Checador', [
             'employee' => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'puesto' => $user->puesto,
+                'profilePhoto' => $user->profile_photo_url ?? null,
                 'almacen' => $almacen?->nombre,
                 'almacen_coords' => $almacen && $almacen->latitud && $almacen->longitud ? [
                     'lat' => (float) $almacen->latitud,
@@ -142,6 +177,13 @@ class AsistenciaController extends Controller
                 ['value' => 'break_start', 'label' => 'Inicio Descanso'],
                 ['value' => 'break_end', 'label' => 'Fin Descanso'],
                 ['value' => 'exit', 'label' => 'Salida'],
+            ],
+            'todayRecords' => $todayRecords,
+            'todaySummary' => [
+                'workedMinutes' => $netWorkedMinutes,
+                'breakMinutes' => $breakMinutes,
+                'totalChecks' => $todayRecords->count(),
+                'hasIncidence' => $todayRecords->contains('es_incidencia', true),
             ],
         ]);
     }
