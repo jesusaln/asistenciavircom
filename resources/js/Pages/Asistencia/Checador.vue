@@ -186,7 +186,7 @@ const form = useForm({
 });
 
 const nextType = (current) => {
-    if (current === 'entry') return 'break_start';
+    if (current === 'entry') return 'exit'; // Descanso es opcional
     if (current === 'break_start') return 'break_end';
     if (current === 'break_end') return 'exit';
     return 'entry';
@@ -521,7 +521,17 @@ const submit = () => {
             clearSelfiePreview(); showNotes.value = false;
             form.tipo = nextType(lastType); buildChallenge(); captureLocation(); openCameraAutomatically(); cameraMessage.value = '';
         },
-        onError: () => {
+        onError: (errors) => {
+            // Auto-correct if server says first check must be entry
+            const tipoError = errors?.tipo || form.errors?.tipo || '';
+            if (tipoError.includes('entry') || tipoError.includes('primera')) {
+                form.tipo = 'entry';
+                cameraMessage.value = 'Tipo corregido a Entrada. Recaptura tu foto.';
+                playBeep(false); vibrate([150]);
+                // Reopen camera for retry
+                openCameraAutomatically();
+                return;
+            }
             playBeep(false); vibrate([200, 100, 200, 100, 200]);
             cameraMessage.value = 'No se pudo registrar. Revisa GPS/rostro.';
         }
