@@ -454,6 +454,8 @@ class EmpleadoController extends BaseController
             'dias_descanso' => 'nullable|array',
             'dias_descanso.*' => 'in:lunes,martes,miercoles,jueves,viernes,sabado,domingo',
             'frecuencia_pago' => 'required|in:semanal,quincenal',
+            'rustdesk_id' => 'nullable|string|max:30',
+            'rustdesk_alias' => 'nullable|string|max:100',
             'banco' => 'nullable|string|max:100',
             'numero_cuenta' => 'nullable|string|max:50',
             'clabe_interbancaria' => 'nullable|string|size:18',

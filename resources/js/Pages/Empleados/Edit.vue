@@ -50,6 +50,8 @@ const form = useForm({
   contacto_emergencia_telefono: props.empleado.contacto_emergencia_telefono || '',
   contacto_emergencia_parentesco: props.empleado.contacto_emergencia_parentesco || '',
   observaciones: props.empleado.observaciones || '',
+  rustdesk_id: props.empleado.rustdesk_id || '',
+  rustdesk_alias: props.empleado.rustdesk_alias || '',
   activo: props.empleado.activo ?? true,
   contrato_adjunto: null,
   _method: 'PUT',
@@ -276,9 +278,9 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
               <div class="space-y-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">INE / Cédula</label><input v-model="form.ine" type="text" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-blue-500 uppercase transition-all" /></div>
               <div class="space-y-2 sm:col-span-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">Domicilio Fiscal/Particular</label><input v-model="form.direccion" type="text" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-blue-500 transition-all" /></div>
             </div>
-          </div>
+        </div>
 
-          <!-- Estructura y Contratación -->
+        <!-- Estructura y Contratación -->
           <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-10 backdrop-blur-md space-y-8">
             <div class="flex items-center gap-4">
                 <div class="w-1.5 h-6 bg-indigo-500 rounded-full"></div>
@@ -432,6 +434,38 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
                         </div>
                     </label>
                     <button v-if="form.contrato_adjunto" type="button" @click="form.contrato_adjunto = null" class="absolute -top-2 -right-2 p-1.5 bg-red-600 rounded-full text-white hover:bg-red-700 transition-colors shadow-lg"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Soporte Remoto (RustDesk) -->
+        <div class="bg-gradient-to-br from-indigo-500/[0.05] to-purple-500/[0.05] border border-indigo-500/10 rounded-[2.5rem] p-10 backdrop-blur-md">
+            <div class="flex items-center gap-4 mb-10">
+                <div class="p-3 rounded-2xl bg-indigo-500/10 text-indigo-400">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                </div>
+                <h3 class="text-xl font-black uppercase tracking-tight">Soporte Remoto (RustDesk)</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest ml-1 block">ID Numérico RustDesk</label>
+                    <div class="relative group">
+                        <div class="absolute left-5 top-1/2 -translate-y-1/2 text-indigo-500/50 group-focus-within:text-indigo-400 transition-colors">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                        </div>
+                        <input v-model="form.rustdesk_id" type="text" placeholder="Ej. 123 456 789" class="w-full bg-black/40 border border-white/5 rounded-2xl pl-14 pr-8 py-5 text-xl font-black text-white focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder:text-neutral-700" />
+                    </div>
+                    <p class="text-[8px] font-bold text-neutral-600 uppercase tracking-widest ml-1 italic leading-tight">Este ID permite la conexión instantánea desde el Centro de Operaciones.</p>
+                </div>
+                <div class="space-y-4">
+                    <label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest ml-1 block">Alias del Equipo (Label)</label>
+                    <div class="relative group">
+                        <div class="absolute left-5 top-1/2 -translate-y-1/2 text-purple-500/50 group-focus-within:text-purple-400 transition-colors">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 11h.01M7 15h.01M13 7h.01M13 11h.01M13 15h.01M17 7h.01M17 11h.01M17 15h.01" /></svg>
+                        </div>
+                        <input v-model="form.rustdesk_alias" type="text" placeholder="Ej. PC-ALAN-ARANDA" class="w-full bg-black/40 border border-white/5 rounded-2xl pl-14 pr-8 py-5 text-xl font-black text-white focus:ring-2 focus:ring-purple-500/50 transition-all placeholder:text-neutral-700" />
+                    </div>
+                    <p class="text-[8px] font-bold text-neutral-600 uppercase tracking-widest ml-1 italic leading-tight">Nombre descriptivo que aparecerá en la libreta de direcciones remota.</p>
                 </div>
             </div>
         </div>

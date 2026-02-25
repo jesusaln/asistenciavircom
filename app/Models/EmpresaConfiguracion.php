@@ -225,6 +225,11 @@ class EmpresaConfiguracion extends Model
         'biometrics_far_liveness_penalty',
         // Asistencia
         'minutos_tolerancia_retardo',
+        'rustdesk_server_address',
+        'rustdesk_relay_server',
+        'rustdesk_public_key',
+        'rustdesk_api_url',
+        'rustdesk_api_token',
     ];
 
     protected $casts = [
