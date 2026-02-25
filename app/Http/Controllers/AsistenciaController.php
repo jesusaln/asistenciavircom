@@ -119,17 +119,19 @@ class AsistenciaController extends Controller
         $timezone = 'America/Hermosillo'; // Default for the region
         $now = now($timezone);
 
-        // Obtener el último registro para sugerir el siguiente paso
-        $lastCheck = AsistenciaRegistro::where('user_id', $user->id)
+        // Obtener el último registro DE HOY para sugerir el siguiente paso
+        // (store() exige que la primera checada del día sea 'entry')
+        $lastCheckToday = AsistenciaRegistro::where('user_id', $user->id)
             ->where('empresa_id', $user->empresa_id)
+            ->whereDate('registrado_at', $now->toDateString())
             ->orderByDesc('registrado_at')
             ->orderByDesc('id')
             ->first();
 
         $suggestedType = 'entry';
-        if ($lastCheck) {
-            $suggestedType = match ($lastCheck->tipo) {
-                'entry' => 'break_start', // Sugerimos descanso o salida
+        if ($lastCheckToday) {
+            $suggestedType = match ($lastCheckToday->tipo) {
+                'entry' => 'exit', // Salida directa (descanso es opcional)
                 'break_start' => 'break_end',
                 'break_end' => 'exit',
                 'exit' => 'entry',

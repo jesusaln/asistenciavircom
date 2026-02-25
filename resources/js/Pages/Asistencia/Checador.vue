@@ -72,6 +72,80 @@ const faceInsideOval = computed(() => cameraActive.value && captureQuality.value
 const readyForAutoCapture = computed(() => faceInsideOval.value && captureQuality.value.passed && form.face_challenge_completed && eyesOpen.value);
 const successPulse = ref(false);
 let successPulseTimer = null;
+const showNotes = ref(false);
+const showConfetti = ref(false);
+const confettiCanvasRef = ref(null);
+let confettiAnimFrame = null;
+
+// Audio feedback
+const playBeep = (success = true) => {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value = success ? 880 : 330;
+        osc.type = success ? 'sine' : 'triangle';
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (success ? 0.3 : 0.5));
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + (success ? 0.3 : 0.5));
+        if (success) {
+            const osc2 = ctx.createOscillator(); const gain2 = ctx.createGain();
+            osc2.connect(gain2); gain2.connect(ctx.destination);
+            osc2.frequency.value = 1320; osc2.type = 'sine';
+            gain2.gain.setValueAtTime(0.12, ctx.currentTime + 0.15);
+            gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+            osc2.start(ctx.currentTime + 0.15); osc2.stop(ctx.currentTime + 0.45);
+        }
+    } catch (e) { /* audio not supported */ }
+};
+
+const vibrate = (pattern) => {
+    try { navigator.vibrate?.(pattern); } catch (e) { /* no vibration */ }
+};
+
+// Confetti animation
+const launchConfetti = () => {
+    showConfetti.value = true;
+    const canvas = confettiCanvasRef.value;
+    if (!canvas) { setTimeout(() => { showConfetti.value = false; }, 3000); return; }
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const particles = [];
+    const colors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899'];
+    for (let i = 0; i < 120; i++) {
+        particles.push({
+            x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+            y: canvas.height / 2,
+            vx: (Math.random() - 0.5) * 12,
+            vy: Math.random() * -14 - 4,
+            size: Math.random() * 6 + 3,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rotation: Math.random() * 360,
+            rotationSpeed: (Math.random() - 0.5) * 10,
+            opacity: 1,
+        });
+    }
+    let frame = 0;
+    const animate = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy; p.vy += 0.25; p.rotation += p.rotationSpeed;
+            p.opacity = Math.max(0, p.opacity - 0.008);
+            ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rotation * Math.PI / 180);
+            ctx.globalAlpha = p.opacity; ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+            ctx.restore();
+        });
+        frame++;
+        if (frame < 180 && particles.some(p => p.opacity > 0)) {
+            confettiAnimFrame = requestAnimationFrame(animate);
+        } else {
+            showConfetti.value = false;
+        }
+    };
+    confettiAnimFrame = requestAnimationFrame(animate);
+};
 
 // Humanized quality message
 const qualityHumanMessage = computed(() => {
@@ -433,18 +507,24 @@ const refreshClock = () => {
 const submit = () => {
     if (form.processing) return;
     form.consentimiento = true;
+    const wasEnrollment = isEnrollment.value;
     form.post(route('asistencia.store'), {
         forceFormData: true, preserveScroll: true,
         onSuccess: () => {
+            playBeep(true); vibrate([100, 50, 100]);
             successPulse.value = true;
             if (successPulseTimer) clearTimeout(successPulseTimer);
             successPulseTimer = setTimeout(() => { successPulse.value = false; }, 2500);
+            if (wasEnrollment) { launchConfetti(); }
             const lastType = form.tipo;
             form.reset('selfie', 'consentimiento', 'notas', 'face_challenge_completed', 'face_liveness_score', 'face_descriptor', 'face_detected_count', 'face_capture_quality_passed', 'face_quality_brightness', 'face_quality_sharpness', 'face_quality_area_ratio', 'face_quality_center_offset', 'face_quality_message');
-            clearSelfiePreview();
+            clearSelfiePreview(); showNotes.value = false;
             form.tipo = nextType(lastType); buildChallenge(); captureLocation(); openCameraAutomatically(); cameraMessage.value = '';
         },
-        onError: () => { cameraMessage.value = 'No se pudo registrar. Revisa GPS/rostro.'; }
+        onError: () => {
+            playBeep(false); vibrate([200, 100, 200, 100, 200]);
+            cameraMessage.value = 'No se pudo registrar. Revisa GPS/rostro.';
+        }
     });
 };
 
@@ -459,6 +539,7 @@ onMounted(() => {
 onUnmounted(() => {
     if (clockTimer) clearInterval(clockTimer);
     if (successPulseTimer) clearTimeout(successPulseTimer);
+    if (confettiAnimFrame) cancelAnimationFrame(confettiAnimFrame);
     stopCamera(); clearSelfiePreview(); restoreCanvasGetContext();
 });
 </script>
@@ -664,6 +745,19 @@ onUnmounted(() => {
                     </p>
                 </div>
 
+                <!-- Notes (expandable) -->
+                <div class="space-y-2">
+                    <button type="button" @click="showNotes = !showNotes" class="flex items-center gap-2 text-[9px] font-extrabold uppercase tracking-widest text-neutral-600 hover:text-neutral-400 transition-colors">
+                        <span>{{ showNotes ? '▾' : '▸' }}</span> Agregar nota (opcional)
+                    </button>
+                    <transition name="slide-down">
+                        <div v-if="showNotes" class="overflow-hidden">
+                            <textarea v-model="form.notas" rows="2" maxlength="500" placeholder="Ej: Llegué tarde por tráfico en la carretera..." class="w-full bg-black/30 border border-white/[0.06] rounded-xl text-[11px] text-white placeholder-neutral-700 focus:ring-blue-500/30 focus:border-blue-500/30 resize-none p-3"></textarea>
+                            <div class="text-[8px] text-neutral-700 text-right mt-1 font-medium">{{ (form.notas || '').length }}/500</div>
+                        </div>
+                    </transition>
+                </div>
+
                 <!-- Consent -->
                 <div class="pt-4 border-t border-white/[0.04]">
                     <div class="flex items-start gap-3">
@@ -693,6 +787,9 @@ onUnmounted(() => {
                 <div class="text-[9px] font-extrabold uppercase tracking-[0.3em] text-neutral-800">Asistencia Vircom</div>
             </div>
         </div>
+
+        <!-- Confetti Canvas -->
+        <canvas v-if="showConfetti" ref="confettiCanvasRef" class="fixed inset-0 z-[60] pointer-events-none"></canvas>
     </div>
 </template>
 
@@ -716,5 +813,17 @@ onUnmounted(() => {
 .countdown-fade-enter-from,
 .countdown-fade-leave-to {
     opacity: 0;
+}
+
+.slide-down-enter-active,
+.slide-down-leave-active {
+    transition: all .25s ease;
+    max-height: 200px;
+}
+.slide-down-enter-from,
+.slide-down-leave-to {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-4px);
 }
 </style>

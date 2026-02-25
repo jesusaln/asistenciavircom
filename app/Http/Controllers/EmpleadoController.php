@@ -284,12 +284,84 @@ class EmpleadoController extends BaseController
             'monto_pendiente' => (float) $empleado->prestamos()->sum('monto_pendiente'),
         ];
 
+        // Asistencia de la semana actual
+        $weekStart = now('America/Hermosillo')->startOfWeek();
+        $weekEnd = now('America/Hermosillo')->endOfWeek();
+        $weekRecords = \App\Models\AsistenciaRegistro::where('user_id', $empleado->id)
+            ->whereBetween('registrado_at', [$weekStart, $weekEnd])
+            ->orderBy('registrado_at')
+            ->get(['tipo', 'registrado_at', 'es_incidencia', 'face_verified']);
+
+        // Agrupar por día y calcular horas
+        $diasSemana = [];
+        $totalWeekMinutes = 0;
+        $arrivalTimes = [];
+        foreach ($weekRecords->groupBy(fn($r) => \Carbon\Carbon::parse($r->registrado_at)->toDateString()) as $date => $records) {
+            $entry = $records->firstWhere('tipo', 'entry');
+            $exit = $records->firstWhere('tipo', 'exit');
+            $workedMinutes = 0;
+            $breakMinutes = 0;
+            $entryTime = null;
+            $breakStart = null;
+            foreach ($records as $rec) {
+                $t = \Carbon\Carbon::parse($rec->registrado_at);
+                if ($rec->tipo === 'entry') {
+                    $entryTime = $t;
+                } elseif ($rec->tipo === 'break_start' && $entryTime) {
+                    $breakStart = $t;
+                } elseif ($rec->tipo === 'break_end' && $breakStart) {
+                    $breakMinutes += $breakStart->diffInMinutes($t);
+                    $breakStart = null;
+                } elseif ($rec->tipo === 'exit' && $entryTime) {
+                    $workedMinutes += $entryTime->diffInMinutes($t);
+                    $entryTime = null;
+                }
+            }
+            if ($entryTime && $date === now('America/Hermosillo')->toDateString()) {
+                $workedMinutes += $entryTime->diffInMinutes(now('America/Hermosillo'));
+            }
+            $net = max(0, $workedMinutes - $breakMinutes);
+            $totalWeekMinutes += $net;
+            if ($entry) {
+                $arrivalTimes[] = \Carbon\Carbon::parse($entry->registrado_at)->format('H:i');
+            }
+            $diasSemana[] = [
+                'date' => $date,
+                'dayName' => \Carbon\Carbon::parse($date)->locale('es')->isoFormat('ddd'),
+                'entry' => $entry ? \Carbon\Carbon::parse($entry->registrado_at)->format('H:i') : null,
+                'exit' => $exit ? \Carbon\Carbon::parse($exit->registrado_at)->format('H:i') : null,
+                'workedMinutes' => $net,
+                'hasIncidence' => $records->contains('es_incidencia', true),
+                'checks' => $records->count(),
+            ];
+        }
+
+        $asistenciaResumen = [
+            'semana' => $diasSemana,
+            'totalWeekMinutes' => $totalWeekMinutes,
+            'totalWeekHours' => round($totalWeekMinutes / 60, 1),
+            'avgArrival' => !empty($arrivalTimes) ? $arrivalTimes[intval(count($arrivalTimes) / 2)] : null,
+            'daysWorked' => count($diasSemana),
+            'horario' => [
+                'hora_entrada' => $empleado->hora_entrada,
+                'hora_salida' => $empleado->hora_salida,
+                'tipo_jornada' => $empleado->tipo_jornada,
+                'horas_jornada' => $empleado->horas_jornada,
+                'dias_trabajo' => $empleado->dias_trabajo,
+                'dias_descanso' => $empleado->dias_descanso,
+                'trabaja_sabado' => $empleado->trabaja_sabado,
+                'hora_entrada_sabado' => $empleado->hora_entrada_sabado,
+                'hora_salida_sabado' => $empleado->hora_salida_sabado,
+            ],
+        ];
+
         return Inertia::render('Empleados/Show', [
             'empleado' => $empleado,
             'nominasRecientes' => $empleado->nominas,
             'resumenAnual' => $resumenAnual,
             'vacacionesResumen' => $vacacionesResumen,
             'prestamosEmpleado' => $prestamosEmpleado,
+            'asistenciaResumen' => $asistenciaResumen,
         ]);
     }
 

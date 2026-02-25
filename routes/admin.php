@@ -126,7 +126,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/asistencia', [AsistenciaController::class, 'index'])->name('asistencia.index');
     Route::get('/asistencia/registros', [AsistenciaController::class, 'logs'])->name('asistencia.logs');
     Route::get('/asistencia/checador', [AsistenciaController::class, 'checador'])->name('asistencia.checador');
-    Route::post('/asistencia', [AsistenciaController::class, 'store'])->name('asistencia.store');
+    Route::post('/asistencia', [AsistenciaController::class, 'store'])->middleware('throttle:10,1')->name('asistencia.store');
 });
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {

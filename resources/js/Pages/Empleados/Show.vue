@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Head, router, usePage, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Notyf } from 'notyf'
@@ -13,6 +13,7 @@ const props = defineProps({
   resumenAnual: { type: Object, default: () => ({}) },
   vacacionesResumen: { type: Object, default: () => ({}) },
   prestamosEmpleado: { type: Object, default: () => ({}) },
+  asistenciaResumen: { type: Object, default: () => ({ semana: [], horario: {} }) },
 })
 
 const notyf = new Notyf({ duration: 4000, position: { x: 'right', y: 'top' } })
@@ -32,6 +33,17 @@ const formatearFecha = (date) => {
   if (!date) return '—'
   return new Date(date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })
 }
+
+const formatWorkedTime = (mins) => {
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  return `${h}h ${m.toString().padStart(2, '0')}m`
+}
+
+const maxDayMinutes = computed(() => {
+  const max = Math.max(...(props.asistenciaResumen?.semana || []).map(d => d.workedMinutes || 0), 1)
+  return Math.max(max, (props.asistenciaResumen?.horario?.horas_jornada || 8) * 60)
+})
 
 const editarEmpleado = () => router.visit(`/empleados/${props.empleado.id}/edit`)
 const generarNomina = () => router.visit(`/nominas/create?empleado_id=${props.empleado.id}`)
@@ -160,6 +172,86 @@ const descargarContrato = () => {
                         <div class="text-xs font-medium text-neutral-400 flex flex-wrap gap-1 mt-2">
                             <span v-for="d in (empleado.dias_trabajo || [])" :key="d" class="px-2 py-0.5 bg-white/5 rounded-md border border-white/5">{{ d }}</span>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════ HORARIO Y ASISTENCIA ═══════ -->
+            <div class="bg-gradient-to-br from-cyan-500/[0.06] to-blue-500/[0.04] border border-cyan-500/15 rounded-[2.5rem] p-10 backdrop-blur-md">
+                <h3 class="text-[11px] font-black uppercase tracking-[0.2em] text-cyan-400 mb-8 flex items-center gap-3">
+                    <span class="w-1.5 h-4 bg-cyan-500 rounded-full"></span>
+                    Horario y Asistencia
+                </h3>
+
+                <!-- Schedule Info -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                    <div class="space-y-1">
+                        <div class="text-[8px] font-extrabold text-neutral-600 uppercase tracking-[0.15em]">Entrada</div>
+                        <div class="text-xl font-black text-white tabular-nums">{{ asistenciaResumen.horario?.hora_entrada || '—' }}</div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="text-[8px] font-extrabold text-neutral-600 uppercase tracking-[0.15em]">Salida</div>
+                        <div class="text-xl font-black text-white tabular-nums">{{ asistenciaResumen.horario?.hora_salida || '—' }}</div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="text-[8px] font-extrabold text-neutral-600 uppercase tracking-[0.15em]">Jornada</div>
+                        <div class="text-sm font-bold text-neutral-300">{{ asistenciaResumen.horario?.tipo_jornada || '—' }}</div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="text-[8px] font-extrabold text-neutral-600 uppercase tracking-[0.15em]">Hrs/Día</div>
+                        <div class="text-xl font-black text-cyan-400 tabular-nums">{{ asistenciaResumen.horario?.horas_jornada || '—' }}</div>
+                    </div>
+                </div>
+
+                <!-- Weekly Attendance Grid -->
+                <div v-if="asistenciaResumen.semana?.length" class="space-y-3">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="text-[9px] font-extrabold text-neutral-500 uppercase tracking-widest">Esta Semana</div>
+                        <div class="flex items-center gap-4 text-[9px] font-bold">
+                            <span class="text-cyan-400 tabular-nums">{{ asistenciaResumen.totalWeekHours }}h total</span>
+                            <span v-if="asistenciaResumen.avgArrival" class="text-neutral-500">⌀ llegada {{ asistenciaResumen.avgArrival }}</span>
+                        </div>
+                    </div>
+
+                    <div v-for="day in asistenciaResumen.semana" :key="day.date" class="flex items-center gap-3 group">
+                        <div class="w-8 text-[10px] font-extrabold text-neutral-500 uppercase">{{ day.dayName }}</div>
+                        <div class="flex-1 h-7 rounded-lg bg-white/[0.03] border border-white/[0.04] overflow-hidden relative">
+                            <div
+                                class="h-full rounded-lg transition-all duration-500"
+                                :class="day.hasIncidence ? 'bg-gradient-to-r from-amber-500/40 to-amber-600/20' : 'bg-gradient-to-r from-cyan-500/40 to-blue-500/20'"
+                                :style="{ width: `${Math.min(100, (day.workedMinutes / maxDayMinutes) * 100)}%` }"
+                            ></div>
+                            <div class="absolute inset-0 flex items-center px-3 justify-between">
+                                <div class="flex items-center gap-2 text-[9px] font-bold">
+                                    <span v-if="day.entry" class="text-emerald-400">{{ day.entry }}</span>
+                                    <span v-if="day.entry && day.exit" class="text-neutral-600">→</span>
+                                    <span v-if="day.exit" class="text-rose-400">{{ day.exit }}</span>
+                                    <span v-if="day.entry && !day.exit" class="text-amber-400 text-[8px] animate-pulse">activo</span>
+                                </div>
+                                <div class="text-[9px] font-bold text-neutral-400 tabular-nums">
+                                    {{ formatWorkedTime(day.workedMinutes) }}
+                                    <span v-if="day.hasIncidence" class="ml-1">⚠️</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="!asistenciaResumen.semana.length" class="text-center py-6 text-neutral-700 text-[10px] font-bold uppercase tracking-widest">Sin registros esta semana</div>
+                </div>
+
+                <!-- Week Summary Cards -->
+                <div class="grid grid-cols-3 gap-3 mt-6">
+                    <div class="rounded-xl p-3 bg-white/[0.03] border border-white/[0.04] text-center">
+                        <div class="text-lg font-black text-white tabular-nums">{{ asistenciaResumen.daysWorked || 0 }}</div>
+                        <div class="text-[7px] font-extrabold text-neutral-600 uppercase tracking-widest">Días</div>
+                    </div>
+                    <div class="rounded-xl p-3 bg-white/[0.03] border border-white/[0.04] text-center">
+                        <div class="text-lg font-black text-cyan-400 tabular-nums">{{ asistenciaResumen.totalWeekHours || 0 }}h</div>
+                        <div class="text-[7px] font-extrabold text-neutral-600 uppercase tracking-widest">Horas</div>
+                    </div>
+                    <div class="rounded-xl p-3 bg-white/[0.03] border border-white/[0.04] text-center">
+                        <div class="text-lg font-black text-white tabular-nums">{{ asistenciaResumen.avgArrival || '—' }}</div>
+                        <div class="text-[7px] font-extrabold text-neutral-600 uppercase tracking-widest">Promedio</div>
                     </div>
                 </div>
             </div>
