@@ -40,6 +40,8 @@ class User extends Authenticatable
         'rfc',
         'direccion',
         'nss',
+        'ine',
+        'imss',
         'puesto',
         'departamento',
         'fecha_contratacion',
@@ -73,6 +75,8 @@ class User extends Authenticatable
         'trabaja_sabado',
         'hora_entrada_sabado',
         'hora_salida_sabado',
+        'dias_trabajo',
+        'dias_descanso',
         'frecuencia_pago',
         'contrato_adjunto',
         'face_reference_path',
@@ -141,6 +145,8 @@ class User extends Authenticatable
             'comision_instalacion' => 'decimal:2',
             'trabaja_sabado' => 'boolean',
             'horas_jornada' => 'integer',
+            'dias_trabajo' => 'array',
+            'dias_descanso' => 'array',
             'face_enrolled_at' => 'datetime',
             'face_last_verified_at' => 'datetime',
             'face_descriptor' => 'array',
@@ -211,6 +217,11 @@ class User extends Authenticatable
     public function nominas()
     {
         return $this->hasMany(Nomina::class, 'empleado_id');
+    }
+
+    public function prestamos()
+    {
+        return $this->hasMany(Prestamo::class, 'empleado_id');
     }
 
     // Ventas realizadas por este usuario

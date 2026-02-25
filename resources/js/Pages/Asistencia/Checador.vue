@@ -53,6 +53,8 @@ const captureQuality = ref({
     message: 'Activa cámara para validar calidad',
 });
 let faceDetectionTimer = null;
+let countdownInterval = null;
+let isDetectingFrame = false;
 const isEnrollment = computed(() => !props.biometric?.is_enrolled);
 const challengeLabels = {
     left: 'Mira a la izquierda',
@@ -163,11 +165,23 @@ const stopCamera = () => {
         clearInterval(faceDetectionTimer);
         faceDetectionTimer = null;
     }
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+    }
+    countdown.value = null;
     if (mediaStream) {
         mediaStream.getTracks().forEach((track) => track.stop());
         mediaStream = null;
     }
     cameraActive.value = false;
+};
+
+const clearSelfiePreview = () => {
+    if (selfiePreview.value) {
+        URL.revokeObjectURL(selfiePreview.value);
+        selfiePreview.value = '';
+    }
 };
 
 const loadScriptOnce = (src) => new Promise((resolve, reject) => {
@@ -421,7 +435,8 @@ const startFaceDetection = () => {
     if (faceDetectionTimer) clearInterval(faceDetectionTimer);
 
     faceDetectionTimer = setInterval(async () => {
-        if (!cameraActive.value || !videoRef.value) return;
+        if (!cameraActive.value || !videoRef.value || isDetectingFrame) return;
+        isDetectingFrame = true;
         try {
             const detections = await window.faceapi
                 .detectAllFaces(videoRef.value, new window.faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
@@ -464,10 +479,15 @@ const startFaceDetection = () => {
                 
                 // Countdown de 3 segundos
                 countdown.value = 3;
-                let countInterval = setInterval(async () => {
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                }
+                countdownInterval = setInterval(async () => {
                     countdown.value--;
                     if (countdown.value <= 0) {
-                        clearInterval(countInterval);
+                        clearInterval(countdownInterval);
+                        countdownInterval = null;
                         countdown.value = null;
                         
                         if (readyForAutoCapture.value && !form.selfie) {
@@ -484,6 +504,8 @@ const startFaceDetection = () => {
             }
         } catch (e) {
             // Ignore intermittent frame errors
+        } finally {
+            isDetectingFrame = false;
         }
     }, 450);
 };
@@ -620,6 +642,7 @@ const captureSelfie = async (manual = false) => {
         if (!blob) return;
         const file = new File([blob], `checkin-${Date.now()}.jpg`, { type: 'image/jpeg' });
         form.selfie = file;
+        clearSelfiePreview();
         selfiePreview.value = URL.createObjectURL(file);
         if (!form.face_challenge_completed && manual) {
             cameraMessage.value = 'Foto manual capturada correctamente.';
@@ -663,7 +686,7 @@ const submit = () => {
                 'face_quality_center_offset',
                 'face_quality_message'
             );
-            selfiePreview.value = '';
+            clearSelfiePreview();
             form.tipo = nextType(lastType);
             buildChallenge();
             captureLocation();
@@ -689,6 +712,7 @@ onMounted(() => {
 onUnmounted(() => {
     if (clockTimer) clearInterval(clockTimer);
     stopCamera();
+    clearSelfiePreview();
     restoreCanvasGetContext();
 });
 </script>

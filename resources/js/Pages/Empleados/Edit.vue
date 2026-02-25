@@ -25,6 +25,8 @@ const form = useForm({
   curp: props.empleado.curp || '',
   rfc: props.empleado.rfc || '',
   nss: props.empleado.nss || '',
+  ine: props.empleado.ine || '',
+  imss: props.empleado.imss || '',
   direccion: props.empleado.direccion || '',
   puesto: props.empleado.puesto || '',
   departamento: props.empleado.departamento || '',
@@ -38,6 +40,8 @@ const form = useForm({
   trabaja_sabado: props.empleado.trabaja_sabado ?? false,
   hora_entrada_sabado: props.empleado.hora_entrada_sabado?.substring(0, 5) || '08:00',
   hora_salida_sabado: props.empleado.hora_salida_sabado?.substring(0, 5) || '14:00',
+  dias_trabajo: props.empleado.dias_trabajo || ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'],
+  dias_descanso: props.empleado.dias_descanso || ['sabado', 'domingo'],
   frecuencia_pago: props.empleado.frecuencia_pago || 'quincenal',
   banco: props.empleado.banco || '',
   numero_cuenta: props.empleado.numero_cuenta || '',
@@ -50,6 +54,16 @@ const form = useForm({
   contrato_adjunto: null,
   _method: 'PUT',
 })
+
+const diasSemana = [
+  { value: 'lunes', label: 'Lunes' },
+  { value: 'martes', label: 'Martes' },
+  { value: 'miercoles', label: 'Miércoles' },
+  { value: 'jueves', label: 'Jueves' },
+  { value: 'viernes', label: 'Viernes' },
+  { value: 'sabado', label: 'Sábado' },
+  { value: 'domingo', label: 'Domingo' },
+]
 
 // Computed: Salario diario (salario base / 30 días)
 // Helper to cleaner parsing
@@ -123,428 +137,335 @@ const cancelar = () => router.visit(`/empleados/${props.empleado.id}`)
 </script>
 
 <template>
-  <Head :title="`Editar - ${empleado.user?.name}`" />
+  <Head :title="`Editar - ${empleado.name || 'Sin nombre'}`" />
 
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="w-full">
-      <!-- Header -->
-      <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full mb-4">
-          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
+  <div class="min-h-screen bg-neutral-950 text-white font-sans selection:bg-blue-500/30 selection:text-blue-200 pb-32">
+    <!-- Fondo con gradientes dinámicos -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-[10%] -right-[10%] w-[50%] h-[50%] bg-blue-600/10 blur-[120px] rounded-full"></div>
+        <div class="absolute -bottom-[10%] -left-[10%] w-[50%] h-[50%] bg-indigo-600/10 blur-[120px] rounded-full"></div>
+    </div>
+
+    <div class="relative z-10 max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+      <!-- Header Modernizado -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8">
+        <div class="space-y-4">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-[0.2em] animate-fade-in">
+            <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+            SISTEMA DE GESTIÓN DE CAPITAL HUMANO
+          </div>
+          <h1 class="text-5xl md:text-6xl font-black tracking-tighter text-white leading-none">
+            {{ empleado.name || 'Nuevo Registro' }}
+          </h1>
+          <div class="flex items-center gap-4 text-neutral-400 font-medium">
+            <span class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-blue-500/60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                {{ empleado.puesto || 'Puesto Sin Definir' }}
+            </span>
+            <span class="opacity-30">|</span>
+            <span class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-indigo-500/60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                {{ empleado.departamento || 'No Asignado' }}
+            </span>
+          </div>
         </div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">{{ empleado.user?.name || 'Nuevo Empleado' }}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">{{ empleado.puesto || 'Puesto no asignado' }} • {{ empleado.departamento || 'Departamento no asignado' }}</p>
         
-        <!-- Botón Imprimir Contrato -->
-        <button 
-          v-if="empleado.puede_imprimir_contrato" 
-          @click="imprimirContrato"
-          type="button"
-          class="inline-flex items-center px-4 py-2 bg-white dark:bg-slate-900 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150 mb-4"
-        >
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-          </svg>
-          Imprimir Contrato
-        </button>
+        <div class="flex items-center gap-4">
+          <button 
+            v-if="empleado.puede_imprimir_contrato" 
+            @click="imprimirContrato"
+            type="button"
+            class="group flex items-center px-6 py-4 bg-white/5 hover:bg-blue-600/20 border border-white/10 hover:border-blue-500/30 rounded-2xl text-[11px] font-black text-white uppercase tracking-widest transition-all duration-500 backdrop-blur-md"
+          >
+            <svg class="w-4 h-4 mr-3 text-blue-400 group-hover:scale-125 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+            Imprimir Contrato
+          </button>
+          
+          <button @click="cancelar" type="button" class="group px-6 py-4 rounded-2xl text-[11px] font-black text-neutral-500 uppercase tracking-widest hover:text-white hover:bg-white/5 transition-all duration-300">
+            Cerrar
+          </button>
+        </div>
       </div>
 
-      <!-- Formulario -->
-      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-        <form @submit.prevent="submit" class="p-8 space-y-8">
-
-          <!-- Estado Activo -->
-          <div class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-lg">
-            <div>
-              <p class="font-medium text-gray-900 dark:text-white">Estado del Empleado</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Desactivar marcará al empleado como dado de baja</p>
+      <form @submit.prevent="submit" class="space-y-8">
+        
+        <!-- Header Identificativo Automático (No Editable) -->
+        <div class="bg-gradient-to-r from-amber-500/10 to-orange-500/5 border border-amber-500/20 rounded-[2.5rem] p-8 backdrop-blur-md mb-8">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="p-3 bg-amber-500/20 rounded-2xl text-amber-500">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <h3 class="text-sm font-black uppercase tracking-widest text-amber-500">Credenciales Vinculadas (Lectura)</h3>
             </div>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" v-model="form.activo" class="sr-only peer">
-              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:bg-slate-900 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-              <span class="ml-3 text-sm font-medium" :class="form.activo ? 'text-emerald-600' : 'text-gray-500 dark:text-gray-400'">
-                {{ form.activo ? 'Activo' : 'Inactivo' }}
-              </span>
-            </label>
-          </div>
-
-          <!-- Información Personal -->
-          <div class="space-y-6">
-            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información Personal</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-1">
+                    <label class="text-[9px] font-black text-amber-500/60 uppercase tracking-widest">Nombre Completo del Usuario</label>
+                    <div class="text-xl font-black text-amber-200">{{ empleado.name || 'Sin nombre' }}</div>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[9px] font-black text-amber-500/60 uppercase tracking-widest">Correo Electrónico de Plataforma</label>
+                    <div class="text-xl font-black text-amber-200">{{ empleado.email || 'Sin correo' }}</div>
+                </div>
             </div>
+        </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Número de Empleado</label>
-                <input v-model="form.numero_empleado" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500" />
-                <InputError :message="form.errors.numero_empleado" class="mt-2" />
-              </div>
-
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha de Nacimiento</label>
-                <input v-model="form.fecha_nacimiento" type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500" />
-              </div>
-
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">CURP</label>
-                <input v-model="form.curp" type="text" maxlength="18" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 uppercase" />
-              </div>
-
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">RFC</label>
-                <input v-model="form.rfc" type="text" maxlength="13" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 uppercase" />
-              </div>
-
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">NSS</label>
-                <input v-model="form.nss" type="text" maxlength="11" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500" />
-              </div>
-
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Dirección</label>
-                <input v-model="form.direccion" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500" />
-              </div>
-            </div>
-          </div>
-
-          <!-- Información Laboral -->
-          <div class="space-y-6">
-            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información Laboral</h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Puesto</label>
-                <input v-model="form.puesto" type="text" list="puestos-list" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500" />
-                <datalist id="puestos-list">
-                  <option v-for="p in puestos" :key="p" :value="p" />
-                </datalist>
-              </div>
-
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Departamento</label>
-                <input v-model="form.departamento" type="text" list="departamentos-list" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500" />
-                <datalist id="departamentos-list">
-                  <option v-for="d in departamentos" :key="d" :value="d" />
-                </datalist>
-              </div>
-
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha de Contratación</label>
-                <input v-model="form.fecha_contratacion" type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500" />
-              </div>
-
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Tipo de Contrato</label>
-                <select v-model="form.tipo_contrato" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500">
-                  <option v-for="tipo in tiposContrato" :key="tipo.value" :value="tipo.value">{{ tipo.label }}</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Tipo de Jornada</label>
-                <select v-model="form.tipo_jornada" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500">
-                  <option v-for="tipo in tiposJornada" :key="tipo.value" :value="tipo.value">{{ tipo.label }}</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Horario de Trabajo -->
-            <div class="bg-blue-50 rounded-xl p-6 border border-blue-200">
-              <h3 class="font-semibold text-blue-800 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Horario de Trabajo
-              </h3>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 bg-white/5 border border-white/10 rounded-[2.5rem] p-10 backdrop-blur-xl relative overflow-hidden group">
+            <div class="relative z-10 space-y-10">
+              <div class="flex items-center justify-between">
                 <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">Hora de Entrada</label>
-                  <input 
-                    v-model="form.hora_entrada" 
-                    type="time" 
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-lg"
-                  />
+                  <h2 class="text-2xl font-black tracking-tight text-white mb-1">Estatus Laboral</h2>
+                  <p class="text-xs text-neutral-500 font-medium">Defina la vigencia del colaborador en la organización</p>
                 </div>
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">Hora de Salida</label>
-                  <input 
-                    v-model="form.hora_salida" 
-                    type="time" 
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-lg"
-                  />
-                </div>
-                <div class="flex items-end">
-                  <div class="w-full bg-white dark:bg-slate-900 rounded-lg p-4 border border-blue-100 text-center">
-                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Horario L-V</p>
-                    <p class="text-xl font-bold text-blue-600">{{ form.hora_entrada }} - {{ form.hora_salida }}</p>
-                  </div>
-                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" v-model="form.activo" class="sr-only peer">
+                  <div class="w-16 h-8 bg-white/10 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-600 border border-white/5"></div>
+                  <span class="ml-4 text-[11px] font-black uppercase tracking-widest" :class="form.activo ? 'text-emerald-400' : 'text-neutral-600'">
+                    {{ form.activo ? 'ACTIVO' : 'BAJA DEFINITIVA' }}
+                  </span>
+                </label>
               </div>
 
-              <!-- Horario de Sábado -->
-              <div class="mt-4 pt-4 border-t border-blue-200">
-                <div class="flex items-center justify-between mb-4">
-                  <div class="flex items-center">
-                    <label class="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" v-model="form.trabaja_sabado" class="sr-only peer">
-                      <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:bg-slate-900 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
-                    <span class="ml-3 text-sm font-semibold text-gray-700">Trabaja los Sábados</span>
-                  </div>
-                  <span v-if="form.trabaja_sabado" class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Activo</span>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div class="space-y-3">
+                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400">ID Único de Empleado</label>
+                  <input v-model="form.numero_empleado" type="text" placeholder="EMP-000" class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-5 text-white font-bold focus:ring-2 focus:ring-blue-500/50 transition-all" />
+                  <InputError :message="form.errors.numero_empleado" />
                 </div>
-
-                <div v-if="form.trabaja_sabado" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Entrada Sábado</label>
-                    <input 
-                      v-model="form.hora_entrada_sabado" 
-                      type="time" 
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-lg"
-                    />
-                  </div>
-                  <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Salida Sábado</label>
-                    <input 
-                      v-model="form.hora_salida_sabado" 
-                      type="time" 
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-lg"
-                    />
-                  </div>
-                  <div class="flex items-end">
-                    <div class="w-full bg-white dark:bg-slate-900 rounded-lg p-4 border border-blue-100 text-center">
-                      <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Horario Sábado</p>
-                      <p class="text-xl font-bold text-blue-600">{{ form.hora_entrada_sabado }} - {{ form.hora_salida_sabado }}</p>
-                    </div>
-                  </div>
+                <div class="space-y-3">
+                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400">Fecha de Nacimiento</label>
+                  <input v-model="form.fecha_nacimiento" type="date" class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-5 text-white focus:ring-2 focus:ring-blue-500/50 transition-all [color-scheme:dark]" />
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Información Salarial -->
-          <div class="space-y-6">
-            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Información Salarial
-              </h2>
-              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Configura el salario y la frecuencia de pago del empleado</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Frecuencia de Pago -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Frecuencia de Pago *</label>
-                <div class="grid grid-cols-2 gap-3">
-                  <label 
-                    class="relative flex items-center justify-center p-4 border-2 rounded-xl cursor-pointer transition-all"
-                    :class="form.frecuencia_pago === 'semanal' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-gray-200 dark:border-slate-800 hover:border-gray-300'"
-                  >
-                    <input type="radio" v-model="form.frecuencia_pago" value="semanal" class="sr-only" />
-                    <div class="text-center">
-                      <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <span class="font-semibold">Semanal</span>
-                      <span class="block text-xs opacity-75">4 pagos/mes</span>
-                    </div>
-                  </label>
-                  <label 
-                    class="relative flex items-center justify-center p-4 border-2 rounded-xl cursor-pointer transition-all"
-                    :class="form.frecuencia_pago === 'quincenal' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-gray-200 dark:border-slate-800 hover:border-gray-300'"
-                  >
-                    <input type="radio" v-model="form.frecuencia_pago" value="quincenal" class="sr-only" />
-                    <div class="text-center">
-                      <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
-                      <span class="font-semibold">Quincenal</span>
-                      <span class="block text-xs opacity-75">2 pagos/mes</span>
-                    </div>
-                  </label>
+          <!-- Card Salarial Destacado -->
+          <div class="bg-gradient-to-br from-blue-700 to-indigo-900 rounded-[2.5rem] p-10 shadow-2xl flex flex-col justify-between relative overflow-hidden">
+            <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-white/10 blur-[100px] rounded-full"></div>
+            <div class="relative z-10">
+                <div class="text-white/60 text-[11px] font-black uppercase tracking-[0.2em] mb-10">Remuneración Proyectada</div>
+                <div class="space-y-1">
+                    <div class="text-[10px] font-black text-white/40 uppercase tracking-widest">Monto por Frecuencia</div>
+                    <div class="text-5xl font-black tracking-tighter text-white">{{ formatCurrency(salarioPorPeriodo) }}</div>
                 </div>
-                <InputError :message="form.errors.frecuencia_pago" class="mt-2" />
+            </div>
+            <div class="relative z-10 pt-8 border-t border-white/10 mt-8">
+                <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                    <span class="text-white/40">Frecuencia actual</span>
+                    <span class="text-blue-200">{{ form.frecuencia_pago }}</span>
+                </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Secciones de Información Técnica -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          <!-- Documentación Legal -->
+          <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-10 backdrop-blur-md space-y-8">
+            <div class="flex items-center gap-4">
+                <div class="w-1.5 h-6 bg-blue-500 rounded-full"></div>
+                <h3 class="text-sm font-black uppercase tracking-[0.2em] text-white/60">Identidad Gubernamental</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              <div class="space-y-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">CURP</label><input v-model="form.curp" type="text" maxlength="18" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-blue-500 uppercase transition-all" /></div>
+              <div class="space-y-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">RFC</label><input v-model="form.rfc" type="text" maxlength="13" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-blue-500 uppercase transition-all" /></div>
+              <div class="space-y-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">NSS (Seguro Social)</label><input v-model="form.nss" type="text" maxlength="11" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-blue-500 transition-all" /></div>
+              <div class="space-y-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">Registro IMSS</label><input v-model="form.imss" type="text" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-blue-500 transition-all" /></div>
+              <div class="space-y-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">INE / Cédula</label><input v-model="form.ine" type="text" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-blue-500 uppercase transition-all" /></div>
+              <div class="space-y-2 sm:col-span-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">Domicilio Fiscal/Particular</label><input v-model="form.direccion" type="text" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-blue-500 transition-all" /></div>
+            </div>
+          </div>
+
+          <!-- Estructura y Contratación -->
+          <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-10 backdrop-blur-md space-y-8">
+            <div class="flex items-center gap-4">
+                <div class="w-1.5 h-6 bg-indigo-500 rounded-full"></div>
+                <h3 class="text-sm font-black uppercase tracking-[0.2em] text-white/60">Configuración Organizacional</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              <div class="space-y-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">Rol / Puesto</label><input v-model="form.puesto" type="text" list="puestos-list" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-blue-500 transition-all" /><datalist id="puestos-list"><option v-for="p in puestos" :key="p" :value="p" /></datalist></div>
+              <div class="space-y-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">Departamento</label><input v-model="form.departamento" type="text" list="departamentos-list" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-blue-500 transition-all" /><datalist id="departamentos-list"><option v-for="d in departamentos" :key="d" :value="d" /></datalist></div>
+              <div class="space-y-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">Alta de Contrato</label><input v-model="form.fecha_contratacion" type="date" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-blue-500 [color-scheme:dark]" /></div>
+              <div class="space-y-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">Tipo de Régimen</label><select v-model="form.tipo_contrato" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-blue-500 [color-scheme:dark]"><option v-for="tipo in tiposContrato" :key="tipo.value" :value="tipo.value">{{ tipo.label }}</option></select></div>
+              <div class="space-y-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">Jornada Laboral</label><select v-model="form.tipo_jornada" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-blue-500 [color-scheme:dark]"><option v-for="tj in tiposJornada" :key="tj.value" :value="tj.value">{{ tj.label }}</option></select></div>
+              <div class="space-y-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">Horas Diarias</label><input v-model="form.horas_jornada" type="number" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-blue-500 transition-all" /></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Días de Trabajo (Checkboxes) -->
+        <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-10 backdrop-blur-md">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div>
+                   <h3 class="text-sm font-black uppercase tracking-widest text-blue-400 mb-6">Días de Operación</h3>
+                   <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                       <label v-for="dia in diasSemana" :key="`trabajo-${dia.value}`" class="flex items-center gap-3 p-4 rounded-2xl border border-white/5 bg-black/20 cursor-pointer transition-all hover:bg-white/5" :class="form.dias_trabajo.includes(dia.value) ? 'border-blue-500/50 bg-blue-500/10' : ''">
+                           <input v-model="form.dias_trabajo" :value="dia.value" type="checkbox" class="w-5 h-5 rounded border-white/10 bg-transparent text-blue-600 focus:ring-0" />
+                           <span class="text-xs font-bold">{{ dia.label }}</span>
+                       </label>
+                   </div>
+                </div>
+                <div>
+                   <h3 class="text-sm font-black uppercase tracking-widest text-indigo-400 mb-6">Días de Descanso</h3>
+                   <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                       <label v-for="dia in diasSemana" :key="`descanso-${dia.value}`" class="flex items-center gap-3 p-4 rounded-2xl border border-white/5 bg-black/20 cursor-pointer transition-all hover:bg-white/5" :class="form.dias_descanso.includes(dia.value) ? 'border-indigo-500/50 bg-indigo-500/10' : ''">
+                           <input v-model="form.dias_descanso" :value="dia.value" type="checkbox" class="w-5 h-5 rounded border-white/10 bg-transparent text-indigo-600 focus:ring-0" />
+                           <span class="text-xs font-bold">{{ dia.label }}</span>
+                       </label>
+                   </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Horarios y Esquema Sabatino -->
+        <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-10 backdrop-blur-xl relative overflow-hidden">
+          <div class="grid grid-cols-1 xl:grid-cols-2 gap-16">
+            <div class="space-y-8">
+              <div class="flex items-center gap-4">
+                <div class="p-3 rounded-2xl bg-blue-500/10 text-blue-400"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
+                <h3 class="text-xl font-black uppercase tracking-tight">Horario Lunes a Viernes</h3>
+              </div>
+              <div class="grid grid-cols-2 gap-8 p-8 bg-black/40 rounded-[2rem] border border-white/5">
+                <div class="space-y-2"><label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest">Hora Entrada</label><input v-model="form.hora_entrada" type="time" class="w-full bg-transparent border-none p-0 text-3xl font-black text-blue-400 focus:ring-0 [color-scheme:dark]" /></div>
+                <div class="space-y-2"><label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest">Hora Salida</label><input v-model="form.hora_salida" type="time" class="w-full bg-transparent border-none p-0 text-3xl font-black text-blue-400 focus:ring-0 [color-scheme:dark]" /></div>
+              </div>
+            </div>
+            
+            <div class="space-y-8">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 rounded-2xl bg-amber-500/10 text-amber-500"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></div>
+                    <h3 class="text-xl font-black uppercase tracking-tight">Esquema Sabatino</h3>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" v-model="form.trabaja_sabado" class="sr-only peer">
+                  <div class="w-12 h-6 bg-white/10 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600 border border-white/5"></div>
+                </label>
               </div>
 
-              <!-- Salario Base Mensual -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Salario Base Mensual *</label>
+              <div v-if="form.trabaja_sabado" class="grid grid-cols-2 gap-8 p-8 bg-black/40 rounded-[2rem] border border-amber-500/20 animate-fade-in">
+                <div class="space-y-2"><label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest">Entrada Sábado</label><input v-model="form.hora_entrada_sabado" type="time" class="w-full bg-transparent border-none p-0 text-3xl font-black text-amber-400 focus:ring-0 [color-scheme:dark]" /></div>
+                <div class="space-y-2"><label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest">Salida Sábado</label><input v-model="form.hora_salida_sabado" type="time" class="w-full bg-transparent border-none p-0 text-3xl font-black text-amber-400 focus:ring-0 [color-scheme:dark]" /></div>
+              </div>
+              <div v-else class="h-[108px] flex items-center justify-center border-2 border-dashed border-white/5 rounded-[2rem] text-sm font-black text-neutral-700 uppercase tracking-widest">
+                No Labora Sábados
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Finanzas y Banca -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-10 backdrop-blur-md space-y-10">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 rounded-2xl bg-emerald-500/10 text-emerald-400">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <h3 class="text-xl font-black uppercase tracking-tight">Finanzas</h3>
+                </div>
+                <div class="space-y-8">
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest block ml-1">Salario Mensual Bruto</label>
+                        <div class="relative group">
+                            <span class="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-black text-neutral-700 group-focus-within:text-emerald-500 transition-colors">$</span>
+                            <input v-model="form.salario_base" type="number" step="0.01" class="w-full bg-black/40 border border-white/10 rounded-3xl pl-12 pr-8 py-6 text-4xl font-black text-white focus:ring-2 focus:ring-emerald-500/50 transition-all" />
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button v-for="freq in ['semanal', 'quincenal']" :key="freq" type="button" @click="form.frecuencia_pago = freq" :class="['py-6 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 border-2', form.frecuencia_pago === freq ? 'bg-emerald-600 border-emerald-400 text-white shadow-[0_0_30px_rgba(16,185,129,0.3)]' : 'bg-black/20 border-white/5 text-neutral-500 hover:border-white/10']">
+                            {{ freq }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-10 backdrop-blur-md space-y-10">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 rounded-2xl bg-blue-500/10 text-blue-400">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    </div>
+                    <h3 class="text-xl font-black uppercase tracking-tight">Datos Bancarios</h3>
+                </div>
+                <div class="space-y-6">
+                    <div class="space-y-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">Institución Bancaria</label><input v-model="form.banco" type="text" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-blue-500 transition-all" /></div>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="space-y-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">Número de Cuenta</label><input v-model="form.numero_cuenta" type="text" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-blue-500 transition-all" /></div>
+                        <div class="space-y-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">CLABE Interbancaria</label><input v-model="form.clabe_interbancaria" type="text" maxlength="18" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-blue-500 transition-all" /></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contacto Emergencia & Expediente Digital -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-white/5 border border-white/10 rounded-[2.5rem] p-10 backdrop-blur-md space-y-8">
+                <h3 class="text-sm font-black uppercase tracking-widest text-red-400/60 border-b border-white/5 pb-4">Protocolo de Emergencia</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                    <div class="space-y-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">Nombre del Contacto</label><input v-model="form.contacto_emergencia_nombre" type="text" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-red-500 transition-all" /></div>
+                    <div class="space-y-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">Teléfono Directo</label><input v-model="form.contacto_emergencia_telefono" type="tel" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-red-500 transition-all" /></div>
+                    <div class="space-y-2"><label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">Parentesco / Relación</label><input v-model="form.contacto_emergencia_parentesco" type="text" class="w-full bg-black/30 border border-white/5 rounded-2xl px-5 py-4 text-sm focus:border-red-500 transition-all" /></div>
+                </div>
+                <div class="pt-4 border-t border-white/5">
+                    <label class="text-[9px] font-black text-neutral-500 uppercase tracking-widest mb-3 block">Observaciones y Notas Internas</label>
+                    <textarea v-model="form.observaciones" rows="3" placeholder="Notas sobre el desempeño, salud o historial..." class="w-full bg-black/30 border border-white/5 rounded-[1.5rem] px-6 py-4 text-sm focus:border-blue-500 transition-all resize-none"></textarea>
+                </div>
+            </div>
+
+            <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-10 backdrop-blur-md space-y-8 flex flex-col justify-between">
+                <div class="space-y-6">
+                    <h3 class="text-sm font-black uppercase tracking-widest text-blue-400 border-b border-white/5 pb-4">Expediente Digital</h3>
+                    <div v-if="empleado.contrato_adjunto" class="p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-center justify-between">
+                        <span class="text-[10px] font-black text-blue-200 uppercase tracking-widest">Contrato Firmado</span>
+                        <a :href="`/empleados/${empleado.id}/descargar-contrato`" target="_blank" class="text-[10px] font-black text-blue-400 hover:text-blue-300 transition-colors underline">VER PDF</a>
+                    </div>
+                </div>
+                
                 <div class="relative">
-                  <span class="absolute left-3 top-3 text-gray-500 dark:text-gray-400 font-medium">$</span>
-                  <input 
-                    v-model="form.salario_base" 
-                    type="number" 
-                    step="0.01" 
-                    min="0" 
-                    placeholder="0.00"
-                    class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-lg font-semibold" 
-                  />
+                    <input type="file" id="contrato_adjunto" @input="form.contrato_adjunto = $event.target.files[0]" class="hidden" accept=".pdf,image/*" />
+                    <label for="contrato_adjunto" class="flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed border-white/10 rounded-3xl cursor-pointer hover:border-blue-500/50 hover:bg-blue-500/5 transition-all group">
+                        <div class="p-4 bg-white/5 rounded-2xl group-hover:scale-110 transition-transform"><svg class="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg></div>
+                        <div class="text-center">
+                            <div class="text-[10px] font-black text-white uppercase tracking-widest">{{ form.contrato_adjunto ? 'Archivo Seleccionado' : 'Subir Nuevo Contrato' }}</div>
+                            <div class="text-[9px] text-neutral-500 mt-1 uppercase">{{ form.contrato_adjunto ? form.contrato_adjunto.name : 'PDF, JPG o PNG Máx 5MB' }}</div>
+                        </div>
+                    </label>
+                    <button v-if="form.contrato_adjunto" type="button" @click="form.contrato_adjunto = null" class="absolute -top-2 -right-2 p-1.5 bg-red-600 rounded-full text-white hover:bg-red-700 transition-colors shadow-lg"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
                 </div>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Este es el salario total mensual del empleado</p>
-                <InputError :message="form.errors.salario_base" class="mt-2" />
-              </div>
             </div>
+        </div>
 
-            <!-- Resumen de Salarios Calculados -->
-            <div v-if="form.salario_base" class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-200">
-              <h3 class="font-semibold text-emerald-800 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-                Desglose Salarial
-              </h3>
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white dark:bg-slate-900 rounded-lg p-4 border border-emerald-100">
-                  <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Salario Diario</p>
-                  <p class="text-xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(salarioDiario) }}</p>
-                  <p class="text-xs text-gray-400">Base / 30 días</p>
+        <!-- Barra de Acción Persistente -->
+        <div class="fixed bottom-10 left-0 right-0 z-50 px-4">
+            <div class="max-w-3xl mx-auto bg-neutral-900/90 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-4 flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                <div class="hidden md:flex flex-col ml-6">
+                    <span class="text-[9px] font-black text-neutral-500 uppercase tracking-widest">Estado del Formulario</span>
+                    <span class="text-[10px] font-bold" :class="form.isDirty ? 'text-amber-500' : 'text-emerald-500'">{{ form.isDirty ? 'CAMBIOS SIN GUARDAR' : 'DATOS SINCRONIZADOS' }}</span>
                 </div>
-                <div class="bg-white dark:bg-slate-900 rounded-lg p-4 border border-emerald-100">
-                  <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Pago {{ form.frecuencia_pago === 'semanal' ? 'Semanal' : 'Quincenal' }}</p>
-                  <p class="text-xl font-bold text-emerald-600">{{ formatCurrency(salarioPorPeriodo) }}</p>
-                  <p class="text-xs text-gray-400">{{ pagosPorMes }} pagos/mes</p>
-                </div>
-                <div class="bg-white dark:bg-slate-900 rounded-lg p-4 border border-emerald-100">
-                  <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Mensual</p>
-                  <p class="text-xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(totalMensual) }}</p>
-                  <p class="text-xs text-gray-400">Verificación</p>
-                </div>
-                <div class="bg-white dark:bg-slate-900 rounded-lg p-4 border border-emerald-100">
-                  <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Diferencia</p>
-                  <p class="text-xl font-bold text-green-600">
-                    {{ formatCurrency(0) }}
-                  </p>
-                  <p class="text-xs text-green-500">
-                    ✓ Cuadra
-                  </p>
-                </div>
-              </div>
+                <button type="submit" :disabled="form.processing" class="flex-1 md:flex-initial px-16 py-5 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 rounded-[1.5rem] text-[11px] font-black text-white uppercase tracking-[0.2em] shadow-lg active:scale-95 transition-all duration-300 disabled:opacity-50">
+                    {{ form.processing ? 'Sincronizando...' : 'Actualizar Expediente Maestro' }}
+                </button>
             </div>
-          </div>
-
-          <!-- Información Bancaria -->
-          <div class="space-y-6">
-            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información Bancaria</h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Banco</label>
-                <input v-model="form.banco" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500" />
-              </div>
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Número de Cuenta</label>
-                <input v-model="form.numero_cuenta" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500" />
-              </div>
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">CLABE</label>
-                <input v-model="form.clabe_interbancaria" type="text" maxlength="18" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500" />
-              </div>
-            </div>
-          </div>
-
-          <!-- Contacto de Emergencia -->
-          <div class="space-y-6">
-            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Contacto de Emergencia</h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre</label>
-                <input v-model="form.contacto_emergencia_nombre" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500" />
-              </div>
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Teléfono</label>
-                <input v-model="form.contacto_emergencia_telefono" type="tel" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500" />
-              </div>
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Parentesco</label>
-                <input v-model="form.contacto_emergencia_parentesco" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500" />
-              </div>
-            </div>
-          </div>
-
-          <!-- Contrato Adjunto -->
-          <div class="space-y-6">
-            <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Contrato Físico
-              </h2>
-              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Adjunta un nuevo contrato para reemplazar el anterior si existe</p>
-            </div>
-
-            <div v-if="empleado.contrato_adjunto" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 flex items-center justify-between">
-              <div class="flex items-center">
-                <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span class="text-sm text-blue-800 font-medium">Contrato actual detectado</span>
-              </div>
-              <a :href="`/empleados/${empleado.id}/descargar-contrato`" target="_blank" class="text-sm text-blue-600 hover:underline">Ver actual</a>
-            </div>
-
-            <div class="bg-white dark:bg-slate-900 border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center transition-all hover:border-emerald-400 group">
-              <input
-                type="file"
-                id="contrato_adjunto"
-                @input="form.contrato_adjunto = $event.target.files[0]"
-                class="hidden"
-                accept=".pdf,image/*"
-              />
-              <label for="contrato_adjunto" class="cursor-pointer flex flex-col items-center">
-                <div class="w-12 h-12 bg-white dark:bg-slate-900 rounded-full shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                  </svg>
-                </div>
-                <span class="text-sm font-medium text-gray-700">
-                  {{ form.contrato_adjunto ? form.contrato_adjunto.name : 'Subir nuevo archivo' }}
-                </span>
-                <span class="text-xs text-gray-500 dark:text-gray-400 mt-1">PDF, JPG o PNG hasta 5MB</span>
-              </label>
-              <button
-                v-if="form.contrato_adjunto"
-                type="button"
-                @click="form.contrato_adjunto = null"
-                class="mt-2 text-xs text-red-600 hover:underline"
-              >
-                Eliminar archivo seleccionado
-              </button>
-            </div>
-            <InputError :message="form.errors.contrato_adjunto" class="mt-2" />
-          </div>
-
-          <!-- Observaciones -->
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Observaciones</label>
-            <textarea v-model="form.observaciones" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"></textarea>
-          </div>
-
-          <!-- Botones -->
-          <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-slate-800">
-            <button type="button" @click="cancelar" class="px-6 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-              Cancelar
-            </button>
-            <button type="submit" :disabled="form.processing" class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold rounded-lg shadow-sm hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 disabled:opacity-50">
-              <span v-if="form.processing">Guardando...</span>
-              <span v-else>Guardar Cambios</span>
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   </div>
 </template>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+.font-sans { font-family: 'Outfit', sans-serif; }
+input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.5; }
+
+/* Animaciones */
+.animate-fade-in { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Scrollbar sutil */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+</style>

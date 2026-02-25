@@ -52,6 +52,30 @@ class ImageController extends Controller
     }
 
     /**
+     * Servir portadas del blog desde storage público con fallback.
+     */
+    public function serveBlogCover($filename)
+    {
+        $safeFilename = basename($filename);
+        $path = 'blog-covers/' . $safeFilename;
+        $fullPath = storage_path('app/public/' . $path);
+
+        if (!Storage::disk('public')->exists($path)) {
+            return $this->serveDefaultBlogCover();
+        }
+
+        $fileSize = Storage::disk('public')->size($path);
+        $mimeType = Storage::disk('public')->mimeType($path) ?: 'image/jpeg';
+
+        return response()->file($fullPath, [
+            'Content-Type' => $mimeType,
+            'Content-Length' => $fileSize,
+            'Cache-Control' => 'public, max-age=86400',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
+    /**
      * Servir imagen por defecto cuando no existe la imagen solicitada
      */
     private function serveDefaultImage()
@@ -79,6 +103,23 @@ class ImageController extends Controller
             'Cache-Control' => 'public, max-age=3600',
             'Access-Control-Allow-Origin' => request()->header('Origin') ?: '*',
             'Access-Control-Allow-Credentials' => 'true',
+        ]);
+    }
+
+    /**
+     * Fallback para portada de blog cuando la imagen no existe.
+     */
+    private function serveDefaultBlogCover()
+    {
+        $defaultPath = public_path('images/placeholder-400x400.svg');
+
+        if (!file_exists($defaultPath)) {
+            return response('Imagen no encontrada', 404);
+        }
+
+        return response()->file($defaultPath, [
+            'Content-Type' => 'image/svg+xml',
+            'Cache-Control' => 'public, max-age=3600',
         ]);
     }
 

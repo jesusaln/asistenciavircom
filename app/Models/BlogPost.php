@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\BelongsToEmpresa;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class BlogPost extends Model
@@ -54,7 +55,21 @@ class BlogPost extends Model
             return url($this->imagen_portada);
         }
 
-        return url(\Illuminate\Support\Facades\Storage::url($this->imagen_portada));
+        $normalizedPath = ltrim($this->imagen_portada, '/');
+        if (str_starts_with($normalizedPath, 'storage/')) {
+            $normalizedPath = substr($normalizedPath, strlen('storage/'));
+        }
+
+        if (str_starts_with($normalizedPath, 'blog-covers/')) {
+            $filename = basename($normalizedPath);
+            return route('serve-blog-cover', ['filename' => $filename]);
+        }
+
+        if (Storage::disk('public')->exists($normalizedPath)) {
+            return url(Storage::url($normalizedPath));
+        }
+
+        return url('/images/placeholder-400x400.svg');
     }
 
     /**

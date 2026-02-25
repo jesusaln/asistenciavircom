@@ -132,5 +132,7 @@ return [
         'nearby_liveness_relax' => (float) env('BIOMETRICS_NEARBY_LIVENESS_RELAX', 0.10),
         'far_match_penalty' => (float) env('BIOMETRICS_FAR_MATCH_PENALTY', 0.06),
         'far_liveness_penalty' => (float) env('BIOMETRICS_FAR_LIVENESS_PENALTY', 0.10),
+        // Si es false, el backend ignora descriptor enviado por frontend y depende de proveedor server-side.
+        'trust_client_descriptor' => env('BIOMETRICS_TRUST_CLIENT_DESCRIPTOR', false),
     ],
 ];

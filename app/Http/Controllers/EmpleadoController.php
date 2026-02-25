@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use App\Traits\ImageOptimizerTrait;
 
@@ -103,48 +104,9 @@ class EmpleadoController extends BaseController
      */
     public function create()
     {
-        // Usuarios que no son empleados todavía
-        $usuariosDisponibles = User::where('es_empleado', false)
-            ->where('activo', true)
-            ->select('id', 'name', 'email')
-            ->orderBy('name')
-            ->get();
-        $puestos = User::empleados()->whereNotNull('puesto')
-            ->distinct()
-            ->pluck('puesto')
-            ->sort()
-            ->values();
-
-        // Obtenemos departamentos también para el formulario create, que faltaba en la vista anterior? 
-        // En el código original $departamentos venia de variable global o algo? No, estaba undefined variable warning.
-        // Vamos a definirlo aquí también.
-        $departamentos = User::empleados()->whereNotNull('departamento')
-            ->distinct()
-            ->pluck('departamento')
-            ->sort()
-            ->values();
-
-        return Inertia::render('Empleados/Create', [
-            'usuariosDisponibles' => $usuariosDisponibles,
-            'departamentos' => $departamentos,
-            'puestos' => $puestos,
-            'tiposContrato' => [
-                ['value' => 'tiempo_completo', 'label' => 'Tiempo Completo'],
-                ['value' => 'medio_tiempo', 'label' => 'Medio Tiempo'],
-                ['value' => 'temporal', 'label' => 'Temporal'],
-                ['value' => 'honorarios', 'label' => 'Honorarios'],
-                ['value' => 'indefinido', 'label' => 'Tiempo Indefinido'],
-            ],
-            'tiposJornada' => [
-                ['value' => 'diurna', 'label' => 'Diurna'],
-                ['value' => 'nocturna', 'label' => 'Nocturna'],
-                ['value' => 'mixta', 'label' => 'Mixta'],
-            ],
-            'frecuenciasPago' => [
-                ['value' => 'semanal', 'label' => 'Semanal'],
-                ['value' => 'quincenal', 'label' => 'Quincenal'],
-            ],
-        ]);
+        return redirect()
+            ->route('usuarios.create', ['es_empleado' => 1])
+            ->with('warning', 'El alta de empleados se realiza desde Usuarios para asegurar su cuenta de acceso.');
     }
 
     /**
@@ -153,15 +115,14 @@ class EmpleadoController extends BaseController
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'user_id' => 'nullable|exists:users,id', // Opcional: convertir usuario existente
-            'nombre' => 'required_without:user_id|string|max:255',
-            'apellido' => 'required_without:user_id|string|max:255',
-            'email' => 'required_without:user_id|email|unique:users,email',
+            'user_id' => 'required|exists:users,id',
             'numero_empleado' => 'nullable|string|max:50|unique:users,numero_empleado',
             'fecha_nacimiento' => 'nullable|date|before:today',
             'curp' => 'nullable|string|size:18',
             'rfc' => 'nullable|string|max:13',
             'nss' => 'nullable|string|max:11',
+            'ine' => 'nullable|string|max:30',
+            'imss' => 'nullable|string|max:50',
             'direccion' => 'nullable|string|max:500',
             'puesto' => 'nullable|string|max:100',
             'departamento' => 'nullable|string|max:100',
@@ -175,6 +136,10 @@ class EmpleadoController extends BaseController
             'trabaja_sabado' => 'boolean',
             'hora_entrada_sabado' => 'nullable|date_format:H:i',
             'hora_salida_sabado' => 'nullable|date_format:H:i',
+            'dias_trabajo' => 'nullable|array',
+            'dias_trabajo.*' => 'in:lunes,martes,miercoles,jueves,viernes,sabado,domingo',
+            'dias_descanso' => 'nullable|array',
+            'dias_descanso.*' => 'in:lunes,martes,miercoles,jueves,viernes,sabado,domingo',
             'frecuencia_pago' => 'required|in:semanal,quincenal',
             'banco' => 'nullable|string|max:100',
             'numero_cuenta' => 'nullable|string|max:50',
@@ -189,6 +154,19 @@ class EmpleadoController extends BaseController
         try {
             DB::beginTransaction();
 
+            if (empty($validated['dias_trabajo'])) {
+                $validated['dias_trabajo'] = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
+                if (!empty($validated['trabaja_sabado'])) {
+                    $validated['dias_trabajo'][] = 'sabado';
+                }
+            }
+
+            if (empty($validated['dias_descanso'])) {
+                $validated['dias_descanso'] = !empty($validated['trabaja_sabado'])
+                    ? ['domingo']
+                    : ['sabado', 'domingo'];
+            }
+
             // Generar número de empleado si no se proporciona
             if (empty($validated['numero_empleado'])) {
                 // Lógica de generación de ID (simplificada)
@@ -196,17 +174,15 @@ class EmpleadoController extends BaseController
                 $validated['numero_empleado'] = 'EMP-' . str_pad($ultimoId + 1, 4, '0', STR_PAD_LEFT);
             }
 
-            if ($request->filled('user_id')) {
-                // Convertir existente
-                $empleado = User::find($request->user_id);
-                $empleado->update(array_merge($validated, ['es_empleado' => true]));
-            } else {
-                // Crear nuevo
-                $validated['name'] = trim($request->nombre . ' ' . $request->apellido);
-                $validated['password'] = bcrypt('password'); // Temporal
-                $validated['es_empleado'] = true;
-                $empleado = User::create($validated);
+            $empleado = User::findOrFail($validated['user_id']);
+            if ($empleado->es_empleado) {
+                throw ValidationException::withMessages([
+                    'user_id' => 'Este usuario ya está registrado como empleado.',
+                ]);
             }
+            $payload = $validated;
+            unset($payload['user_id'], $payload['contrato_adjunto']);
+            $empleado->update(array_merge($payload, ['es_empleado' => true]));
 
             // Manejar archivo de contrato si se subió
             if ($request->hasFile('contrato_adjunto')) {
@@ -220,8 +196,11 @@ class EmpleadoController extends BaseController
             DB::commit();
 
             return redirect()->route('empleados.show', $empleado)
-                ->with('success', 'Empleado creado exitosamente.');
+                ->with('success', 'Empleado registrado exitosamente desde un usuario existente.');
 
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            throw $e;
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error al crear empleado: ' . $e->getMessage());
@@ -241,6 +220,7 @@ class EmpleadoController extends BaseController
         $empleado->load([
             // 'nominas' relationship exists in User but was undefined before? I added it in Step 594.
             'nominas' => fn($q) => $q->orderBy('periodo_inicio', 'desc')->limit(12),
+            'registroVacacionesActual',
         ]);
 
         // Historial de nóminas del año
@@ -257,10 +237,24 @@ class EmpleadoController extends BaseController
             'nominas_pagadas' => $nominasAnio->where('estado', 'pagada')->count(),
         ];
 
+        $vacacionesResumen = [
+            'dias_correspondientes' => (float) ($empleado->dias_vacaciones_correspondientes ?? 0),
+            'dias_disponibles' => (float) ($empleado->dias_vacaciones_disponibles ?? 0),
+            'dias_utilizados' => (float) ($empleado->registroVacacionesActual?->dias_utilizados ?? 0),
+        ];
+
+        $prestamosEmpleado = [
+            'total' => $empleado->prestamos()->count(),
+            'activos' => $empleado->prestamos()->where('estado', 'activo')->count(),
+            'monto_pendiente' => (float) $empleado->prestamos()->sum('monto_pendiente'),
+        ];
+
         return Inertia::render('Empleados/Show', [
             'empleado' => $empleado,
             'nominasRecientes' => $empleado->nominas,
             'resumenAnual' => $resumenAnual,
+            'vacacionesResumen' => $vacacionesResumen,
+            'prestamosEmpleado' => $prestamosEmpleado,
         ]);
     }
 
@@ -325,6 +319,8 @@ class EmpleadoController extends BaseController
             'curp' => 'nullable|string|size:18',
             'rfc' => 'nullable|string|max:13',
             'nss' => 'nullable|string|max:11',
+            'ine' => 'nullable|string|max:30',
+            'imss' => 'nullable|string|max:50',
             'direccion' => 'nullable|string|max:500',
             'puesto' => 'nullable|string|max:100',
             'departamento' => 'nullable|string|max:100',
@@ -338,6 +334,10 @@ class EmpleadoController extends BaseController
             'trabaja_sabado' => 'boolean',
             'hora_entrada_sabado' => 'nullable|date_format:H:i',
             'hora_salida_sabado' => 'nullable|date_format:H:i',
+            'dias_trabajo' => 'nullable|array',
+            'dias_trabajo.*' => 'in:lunes,martes,miercoles,jueves,viernes,sabado,domingo',
+            'dias_descanso' => 'nullable|array',
+            'dias_descanso.*' => 'in:lunes,martes,miercoles,jueves,viernes,sabado,domingo',
             'frecuencia_pago' => 'required|in:semanal,quincenal',
             'banco' => 'nullable|string|max:100',
             'numero_cuenta' => 'nullable|string|max:50',
@@ -351,6 +351,19 @@ class EmpleadoController extends BaseController
         ]);
 
         try {
+            if (empty($validated['dias_trabajo'])) {
+                $validated['dias_trabajo'] = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
+                if (!empty($validated['trabaja_sabado'])) {
+                    $validated['dias_trabajo'][] = 'sabado';
+                }
+            }
+
+            if (empty($validated['dias_descanso'])) {
+                $validated['dias_descanso'] = !empty($validated['trabaja_sabado'])
+                    ? ['domingo']
+                    : ['sabado', 'domingo'];
+            }
+
             // Manejar archivo de contrato
             if ($request->hasFile('contrato_adjunto')) {
                 // Eliminar anterior si existe

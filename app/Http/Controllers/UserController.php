@@ -87,7 +87,7 @@ class UserController extends Controller
         }
     }
 
-    public function create()
+    public function create(Request $request)
     {
         try {
             $this->authorize('create', User::class);
@@ -127,7 +127,8 @@ class UserController extends Controller
 
         return Inertia::render('Usuarios/Create', [
             'roles' => $roles,
-            'almacenes' => $almacenes
+            'almacenes' => $almacenes,
+            'initialEsEmpleado' => $request->boolean('es_empleado'),
         ]);
     }
 
@@ -211,6 +212,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
             'telefono' => 'nullable|string|max:20',
+            'es_empleado' => 'nullable|boolean',
             'password' => 'required|string|min:8|confirmed',
             'almacen_venta_id' => 'nullable|exists:almacenes,id',
             'almacen_compra_id' => 'nullable|exists:almacenes,id',
@@ -224,6 +226,7 @@ class UserController extends Controller
             'email' => $validated['email'],
             'telefono' => $validated['telefono'] ?? null,
             'activo' => true,
+            'es_empleado' => (bool) ($validated['es_empleado'] ?? false),
             'almacen_venta_id' => $validated['almacen_venta_id'] ?? null,
             'almacen_compra_id' => $validated['almacen_compra_id'] ?? null,
             'costo_hora_interno' => $validated['costo_hora_interno'] ?? 0,
@@ -234,6 +237,11 @@ class UserController extends Controller
 
         if ($request->has('roles')) {
             $user->syncRoles($validated['roles']);
+        }
+
+        if ($user->es_empleado) {
+            return redirect()->route('empleados.edit', $user->id)
+                ->with('success', 'Usuario creado como empleado. Completa su expediente laboral.');
         }
 
         return redirect()->route('usuarios.index')->with('success', 'Usuario creado exitosamente.');
@@ -261,6 +269,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'telefono' => 'nullable|string|max:20',
+            'es_empleado' => 'nullable|boolean',
             'almacen_venta_id' => 'nullable|exists:almacenes,id',
             'almacen_compra_id' => 'nullable|exists:almacenes,id',
             'costo_hora_interno' => 'nullable|numeric|min:0',
@@ -284,10 +293,12 @@ class UserController extends Controller
         }
 
         // Actualizar los datos del usuario
+        $wasEmpleado = (bool) $user->es_empleado;
         $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'telefono' => $validated['telefono'] ?? null,
+            'es_empleado' => (bool) ($validated['es_empleado'] ?? false),
             'almacen_venta_id' => $validated['almacen_venta_id'] ?? null,
             'almacen_compra_id' => $validated['almacen_compra_id'] ?? null,
             'costo_hora_interno' => $validated['costo_hora_interno'] ?? $user->costo_hora_interno,
@@ -300,6 +311,11 @@ class UserController extends Controller
 
         if ($request->has('permissions')) {
             $user->syncPermissions($validated['permissions']);
+        }
+
+        if (!$wasEmpleado && $user->es_empleado) {
+            return redirect()->route('empleados.edit', $user->id)
+                ->with('success', 'Usuario marcado como empleado. Completa los datos de RRHH.');
         }
 
         $tipo = $user->es_empleado ? 'empleado' : 'usuario';

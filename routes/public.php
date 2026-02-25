@@ -162,6 +162,7 @@ Route::get('/test-images', function () {
 })->name('test.images.json');
 
 Route::get('/profile-photo/{filename}', [App\Http\Controllers\ImageController::class, 'serveProfilePhoto'])->name('serve-profile-photo');
+Route::get('/blog-cover/{filename}', [App\Http\Controllers\ImageController::class, 'serveBlogCover'])->name('serve-blog-cover');
 Route::get('/api/profile-photos', [App\Http\Controllers\ImageController::class, 'listProfilePhotos'])->name('list-profile-photos');
 
 Route::get('/img/profile-photos/{filename}', function ($filename) {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use App\Models\Prestamo;
 use App\Models\Cliente;
+use App\Models\User;
 use App\Models\Empresa;
 use App\Jobs\SendWhatsAppTemplate;
 use App\Support\EmpresaResolver;
@@ -42,13 +43,20 @@ class PrestamoController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Prestamo::query()->with(['cliente']);
+            $query = Prestamo::query()->with(['cliente', 'empleado']);
 
             // Filtros
             if ($search = $request->input('search')) {
-                $query->whereHas('cliente', function ($q) use ($search) {
-                    $q->where('nombre_razon_social', 'like', "%{$search}%")
-                        ->orWhere('rfc', 'like', "%{$search}%");
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('cliente', function ($clienteQ) use ($search) {
+                        $clienteQ->where('nombre_razon_social', 'like', "%{$search}%")
+                            ->orWhere('rfc', 'like', "%{$search}%");
+                    })->orWhereHas('empleado', function ($empleadoQ) use ($search) {
+                        $empleadoQ->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%")
+                            ->orWhere('curp', 'like', "%{$search}%")
+                            ->orWhere('rfc', 'like', "%{$search}%");
+                    });
                 });
             }
 
@@ -58,6 +66,10 @@ class PrestamoController extends Controller
 
             if ($cliente_id = $request->input('cliente_id')) {
                 $query->where('cliente_id', $cliente_id);
+            }
+
+            if ($empleado_id = $request->input('empleado_id')) {
+                $query->where('empleado_id', $empleado_id);
             }
 
             // Ordenamiento seguro
@@ -102,7 +114,8 @@ class PrestamoController extends Controller
                 'prestamos' => $prestamos,
                 'estadisticas' => $estadisticas,
                 'clientes' => $clientes,
-                'filters' => $request->only(['search', 'estado', 'cliente_id']),
+                'empleados' => User::empleados()->activos()->orderBy('name')->get(['id', 'name', 'email', 'numero_empleado']),
+                'filters' => $request->only(['search', 'estado', 'cliente_id', 'empleado_id']),
                 'sorting' => ['sort_by' => $sortBy, 'sort_direction' => $sortDirection],
                 'pagination' => [
                     'current_page' => $prestamos->currentPage(),
@@ -137,10 +150,21 @@ class PrestamoController extends Controller
                     'estado'
                 ]);
 
+            $empleados = User::empleados()->activos()
+                ->orderBy('name')
+                ->get(['id', 'name', 'email', 'numero_empleado']);
+
+            $empleadoId = (int) $request->query('empleado_id', 0);
+            if ($empleadoId > 0 && !$empleados->contains('id', $empleadoId)) {
+                $empleadoId = 0;
+            }
+
             return Inertia::render('Prestamos/Create', [
                 'clientes' => $clientes,
+                'empleados' => $empleados,
                 'prestamo' => [
                     'cliente_id' => null,
+                    'empleado_id' => $empleadoId ?: null,
                     'monto_prestado' => 0,
                     'tasa_interes_mensual' => 0,
                     'numero_pagos' => 12,
@@ -166,7 +190,8 @@ class PrestamoController extends Controller
 
         try {
             $validated = $request->validate([
-                'cliente_id' => 'required|exists:clientes,id',
+                'cliente_id' => 'nullable|required_without:empleado_id|exists:clientes,id',
+                'empleado_id' => 'nullable|required_without:cliente_id|exists:users,id',
                 'monto_prestado' => 'required|numeric|min:0.01|max:999999999.99',
                 'tasa_interes_mensual' => 'required|numeric|min:0|max:100',
                 'numero_pagos' => 'required|integer|min:1|max:1200',
@@ -176,6 +201,18 @@ class PrestamoController extends Controller
                 'descripcion' => 'nullable|string|max:1000',
                 'notas' => 'nullable|string|max:2000',
             ]);
+
+            if (!empty($validated['empleado_id'])) {
+                $empleado = User::find($validated['empleado_id']);
+                if (!$empleado || !$empleado->es_empleado) {
+                    throw ValidationException::withMessages([
+                        'empleado_id' => 'El beneficiario seleccionado no es un empleado válido.'
+                    ]);
+                }
+                $validated['cliente_id'] = null;
+            } else {
+                $validated['empleado_id'] = null;
+            }
 
             // FIX Error #5: Validación adicional de fecha_primer_pago
             if (isset($validated['fecha_primer_pago'])) {
@@ -229,7 +266,7 @@ class PrestamoController extends Controller
     public function show(Prestamo $prestamo)
     {
         try {
-            $prestamo->load(['cliente']);
+            $prestamo->load(['cliente', 'empleado']);
 
             return Inertia::render('Prestamos/Show', [
                 'prestamo' => $prestamo,
@@ -248,7 +285,7 @@ class PrestamoController extends Controller
     public function edit(Prestamo $prestamo)
     {
         try {
-            $prestamo->load(['cliente']);
+            $prestamo->load(['cliente', 'empleado']);
 
             // Obtener clientes activos para el componente de búsqueda
             $clientes = Cliente::where('activo', true)
@@ -262,9 +299,14 @@ class PrestamoController extends Controller
                     'estado'
                 ]);
 
+            $empleados = User::empleados()->activos()
+                ->orderBy('name')
+                ->get(['id', 'name', 'email', 'numero_empleado']);
+
             return Inertia::render('Prestamos/Edit', [
                 'prestamo' => $prestamo,
                 'clientes' => $clientes,
+                'empleados' => $empleados,
                 'puede_editar' => $prestamo->puedeSerEditado(),
             ]);
         } catch (ModelNotFoundException $e) {
@@ -286,7 +328,8 @@ class PrestamoController extends Controller
 
         try {
             $validated = $request->validate([
-                'cliente_id' => 'required|exists:clientes,id',
+                'cliente_id' => 'nullable|required_without:empleado_id|exists:clientes,id',
+                'empleado_id' => 'nullable|required_without:cliente_id|exists:users,id',
                 'monto_prestado' => 'required|numeric|min:0.01|max:999999999.99',
                 'tasa_interes_mensual' => 'required|numeric|min:0|max:100',
                 'numero_pagos' => 'required|integer|min:1|max:1200',
@@ -296,6 +339,18 @@ class PrestamoController extends Controller
                 'descripcion' => 'nullable|string|max:1000',
                 'notas' => 'nullable|string|max:2000',
             ]);
+
+            if (!empty($validated['empleado_id'])) {
+                $empleado = User::find($validated['empleado_id']);
+                if (!$empleado || !$empleado->es_empleado) {
+                    throw ValidationException::withMessages([
+                        'empleado_id' => 'El beneficiario seleccionado no es un empleado válido.'
+                    ]);
+                }
+                $validated['cliente_id'] = null;
+            } else {
+                $validated['empleado_id'] = null;
+            }
 
             // FIX Error #5: Validación adicional de fecha_primer_pago
             if (isset($validated['fecha_primer_pago'])) {
@@ -582,7 +637,7 @@ class PrestamoController extends Controller
     public function generarPagare(Prestamo $prestamo)
     {
         try {
-            $prestamo->load(['cliente']);
+            $prestamo->load(['cliente', 'empleado']);
 
             // Obtener datos de la empresa
             $empresa = \App\Models\EmpresaConfiguracion::getConfig();
@@ -591,9 +646,19 @@ class PrestamoController extends Controller
             $empresaDireccion = $empresa ? $empresa->direccion_completa : 'Hermosillo, Sonora, México';
 
             // Datos para el pagaré
+            $deudorNombre = $prestamo->cliente?->nombre_razon_social ?: $prestamo->empleado?->name;
+            $deudorRfc = $prestamo->cliente?->rfc ?: $prestamo->empleado?->rfc;
+            $deudorDireccion = $prestamo->cliente?->direccion_completa ?: $prestamo->empleado?->direccion;
+
+            $deudor = (object) [
+                'nombre_razon_social' => $deudorNombre,
+                'rfc' => $deudorRfc,
+                'direccion_completa' => $deudorDireccion,
+            ];
+
             $datosPagare = [
                 'prestamo' => $prestamo,
-                'cliente' => $prestamo->cliente,
+                'cliente' => $deudor,
                 'empresa' => [
                     'nombre' => $empresaNombre,
                     'rfc' => $empresaRfc,

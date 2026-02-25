@@ -35,6 +35,7 @@ class Prestamo extends Model implements AuditableContract
         'folio',
         'empresa_id',
         'cliente_id',
+        'empleado_id',
         'monto_prestado',
         'tasa_interes_mensual',
         'numero_pagos',
@@ -86,6 +87,11 @@ class Prestamo extends Model implements AuditableContract
     public function cliente(): BelongsTo
     {
         return $this->belongsTo(Cliente::class);
+    }
+
+    public function empleado(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'empleado_id');
     }
 
     public function pagos(): HasMany

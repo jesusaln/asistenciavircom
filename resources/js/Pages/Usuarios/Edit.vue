@@ -158,6 +158,18 @@
                       <InputError :message="form.errors.costo_hora_interno" />
                     </div>
                  </div>
+
+                 <div v-if="isAdmin" class="rounded-3xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/60 p-6">
+                   <label class="flex items-start gap-4 cursor-pointer">
+                     <input v-model="form.es_empleado" type="checkbox" class="mt-1 h-5 w-5 rounded border-slate-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
+                     <div>
+                       <p class="text-sm font-black uppercase tracking-[0.15em] text-slate-900 dark:text-white">Usuario es empleado</p>
+                       <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                         Activa esta opción para que aparezca en el módulo de empleados y completar su expediente laboral.
+                       </p>
+                     </div>
+                   </label>
+                 </div>
                </div>
 
                <!-- Security Section -->
@@ -393,6 +405,7 @@ const form = useForm({
   name: props.usuario.name,
   email: props.usuario.email,
   telefono: props.usuario.telefono || '',
+  es_empleado: props.usuario.es_empleado ?? false,
   roles: props.usuario.roles.map(r => r.name),
   permissions: [...(props.userDirectPermissions || [])],
   password: '',
@@ -454,6 +467,7 @@ const isFormValid = computed(() => {
   const hasChanges = form.name !== props.usuario.name || 
                      form.email !== props.usuario.email || 
                      form.telefono !== (props.usuario.telefono || '') || 
+                     form.es_empleado !== !!props.usuario.es_empleado ||
                      form.costo_hora_interno != (props.usuario.costo_hora_interno || 0) || 
                      form.almacen_venta_id !== props.usuario.almacen_venta_id ||
                      form.almacen_compra_id !== props.usuario.almacen_compra_id ||

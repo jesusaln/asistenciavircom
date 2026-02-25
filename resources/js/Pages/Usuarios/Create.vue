@@ -256,6 +256,23 @@
             </div>
           </div>
 
+          <div class="border-t border-slate-50 dark:border-slate-800 pt-10">
+            <label class="flex items-start gap-4 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/60 cursor-pointer">
+              <input v-model="form.es_empleado" :disabled="forcedEmployeeFlow" type="checkbox" class="mt-1 h-5 w-5 rounded border-slate-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)] disabled:opacity-60" />
+              <div>
+                <p class="text-sm font-black uppercase tracking-[0.15em] text-slate-900 dark:text-white">Marcar como empleado</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  <span v-if="forcedEmployeeFlow">
+                    Este registro viene del módulo RRHH y se guardará como empleado para completar su expediente laboral.
+                  </span>
+                  <span v-else>
+                    Al guardar, se abrirá el módulo de empleados para completar su expediente laboral.
+                  </span>
+                </p>
+              </div>
+            </label>
+          </div>
+
           <!-- Action Buttons -->
           <div class="pt-12 border-t border-slate-50 dark:border-slate-800">
             <div class="flex flex-col sm:flex-row gap-6 justify-end">
@@ -295,6 +312,10 @@ defineOptions({ layout: AppLayout });
 const props = defineProps({
   roles: Array,
   almacenes: Array,
+  initialEsEmpleado: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const showPassword = ref(false);
@@ -303,6 +324,7 @@ const form = useForm({
   name: '',
   email: '',
   telefono: '',
+  es_empleado: !!props.initialEsEmpleado,
   roles: [],
   password: '',
   password_confirmation: '',
@@ -310,6 +332,8 @@ const form = useForm({
   almacen_compra_id: null,
   costo_hora_interno: 0,
 });
+
+const forcedEmployeeFlow = computed(() => !!props.initialEsEmpleado);
 
 const notyf = new Notyf({
   duration: 4000,

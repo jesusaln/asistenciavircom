@@ -15,6 +15,10 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
+  empleados: {
+    type: Array,
+    default: () => []
+  },
   prestamo: {
     type: Object,
     default: () => ({
@@ -58,6 +62,7 @@ const form = ref({
   // Asegurar que tasa_interes_mensual siempre tenga un valor numérico válido
   tasa_interes_mensual: props.prestamo.tasa_interes_mensual || 5
 })
+const tipoBeneficiario = ref(props.prestamo?.empleado_id ? 'empleado' : 'cliente')
 const loading = ref(false)
 const calculando = ref(false)
 const clienteSeleccionado = ref(null)
@@ -67,12 +72,27 @@ const mostrarModalDetalles = ref(false)
    Funciones para manejo del cliente
 ========================= */
 const onClienteSeleccionado = (cliente) => {
+  tipoBeneficiario.value = 'cliente'
   clienteSeleccionado.value = cliente
   form.value.cliente_id = cliente ? cliente.id : null
+  form.value.empleado_id = null
 
   // Limpiar error cuando se selecciona un cliente
   if (cliente && errors.value.cliente_id) {
     delete errors.value.cliente_id
+  }
+}
+
+const onEmpleadoSeleccionado = () => {
+  if (!form.value.empleado_id) return
+  tipoBeneficiario.value = 'empleado'
+  form.value.cliente_id = null
+  clienteSeleccionado.value = null
+  if (buscarClienteRef.value) {
+    buscarClienteRef.value.limpiarBusqueda()
+  }
+  if (errors.value.empleado_id) {
+    delete errors.value.empleado_id
   }
 }
 
@@ -204,6 +224,18 @@ watch(
   { immediate: true }
 )
 
+watch(tipoBeneficiario, (tipo) => {
+  if (tipo === 'cliente') {
+    form.value.empleado_id = null
+  } else {
+    form.value.cliente_id = null
+    clienteSeleccionado.value = null
+    if (buscarClienteRef.value) {
+      buscarClienteRef.value.limpiarBusqueda()
+    }
+  }
+})
+
 /* =========================
    Validación del formulario
 ========================= */
@@ -213,8 +245,12 @@ const buscarClienteRef = ref(null)
 const validateForm = () => {
   errors.value = {}
 
-  if (!clienteSeleccionado.value) {
+  if (tipoBeneficiario.value === 'cliente' && !clienteSeleccionado.value) {
     errors.value.cliente_id = 'Debe seleccionar un cliente'
+  }
+
+  if (tipoBeneficiario.value === 'empleado' && !form.value.empleado_id) {
+    errors.value.empleado_id = 'Debe seleccionar un empleado'
   }
 
   if (!form.value.monto_prestado || form.value.monto_prestado <= 0) {
@@ -258,6 +294,7 @@ const submitForm = () => {
   // Crear objeto solo con los campos necesarios
   const datosPrestamo = {
     cliente_id: form.value.cliente_id,
+    empleado_id: form.value.empleado_id,
     monto_prestado: form.value.monto_prestado,
     tasa_interes_mensual: form.value.tasa_interes_mensual,
     numero_pagos: form.value.numero_pagos,
@@ -278,6 +315,7 @@ const submitForm = () => {
       notyf.success('Préstamo creado correctamente')
       // Limpiar formulario después de crear
       form.value = { ...props.prestamo }
+      tipoBeneficiario.value = 'cliente'
       clienteSeleccionado.value = null
       if (buscarClienteRef.value) {
         buscarClienteRef.value.limpiarBusqueda()
@@ -375,8 +413,25 @@ const opcionesNumeroPagos = Array.from({ length: 60 }, (_, i) => ({
             </div>
 
             <form @submit.prevent="submitForm" class="p-6 space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label class="flex items-center gap-3 p-4 rounded-xl border cursor-pointer" :class="tipoBeneficiario === 'cliente' ? 'border-blue-500 bg-blue-50/40 dark:bg-blue-900/10' : 'border-gray-200 dark:border-slate-800'">
+                  <input v-model="tipoBeneficiario" type="radio" value="cliente" class="text-blue-600 focus:ring-blue-500" />
+                  <div>
+                    <p class="text-sm font-bold text-gray-900 dark:text-slate-100">Préstamo a Cliente</p>
+                    <p class="text-xs text-gray-500 dark:text-slate-400">Flujo comercial tradicional</p>
+                  </div>
+                </label>
+                <label class="flex items-center gap-3 p-4 rounded-xl border cursor-pointer" :class="tipoBeneficiario === 'empleado' ? 'border-blue-500 bg-blue-50/40 dark:bg-blue-900/10' : 'border-gray-200 dark:border-slate-800'">
+                  <input v-model="tipoBeneficiario" type="radio" value="empleado" class="text-blue-600 focus:ring-blue-500" />
+                  <div>
+                    <p class="text-sm font-bold text-gray-900 dark:text-slate-100">Préstamo a Empleado</p>
+                    <p class="text-xs text-gray-500 dark:text-slate-400">Nómina / préstamo interno</p>
+                  </div>
+                </label>
+              </div>
+
               <!-- Cliente -->
-              <div>
+              <div v-if="tipoBeneficiario === 'cliente'">
                 <BuscarCliente
                   ref="buscarClienteRef"
                   :clientes="clientes"
@@ -395,6 +450,25 @@ const opcionesNumeroPagos = Array.from({ length: 60 }, (_, i) => ({
                   @crear-nuevo-cliente="onCrearNuevoCliente"
                 />
                 <p v-if="errors.cliente_id" class="mt-1 text-sm text-red-600">{{ errors.cliente_id }}</p>
+              </div>
+
+              <div v-else>
+                <label for="empleado_id" class="block text-xs font-black text-gray-500 dark:text-slate-500 uppercase tracking-widest mb-2">
+                  Empleado beneficiario *
+                </label>
+                <select
+                  id="empleado_id"
+                  v-model="form.empleado_id"
+                  @change="onEmpleadoSeleccionado"
+                  class="block w-full px-4 py-3 bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:text-slate-100 transition-all cursor-pointer"
+                  :class="{ 'border-red-300 dark:border-red-900/50': errors.empleado_id }"
+                >
+                  <option :value="null">Seleccionar empleado...</option>
+                  <option v-for="empleado in empleados" :key="empleado.id" :value="empleado.id">
+                    {{ empleado.name }}{{ empleado.numero_empleado ? ` (${empleado.numero_empleado})` : '' }}
+                  </option>
+                </select>
+                <p v-if="errors.empleado_id" class="mt-1 text-sm text-red-600">{{ errors.empleado_id }}</p>
               </div>
 
               <!-- Grid de información financiera -->
@@ -708,4 +782,3 @@ const opcionesNumeroPagos = Array.from({ length: 60 }, (_, i) => ({
   transform: translateY(-10px);
 }
 </style>
-

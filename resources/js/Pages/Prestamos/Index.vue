@@ -421,6 +421,12 @@ const formatearFecha = (date) => {
   }
 }
 
+const obtenerBeneficiarioNombre = (prestamo) =>
+  prestamo?.cliente?.nombre_razon_social || prestamo?.empleado?.name || 'Sin beneficiario'
+
+const obtenerBeneficiarioRef = (prestamo) =>
+  prestamo?.cliente?.rfc || prestamo?.empleado?.numero_empleado || prestamo?.empleado?.email || 'Sin referencia'
+
 // Funciones para Modal
 const modalRef = ref(null)
 
@@ -547,10 +553,10 @@ const onEditarFila = () => { editarPrestamo(selectedPrestamo.value?.id) }
                     <td class="px-6 py-4">
                       <div class="flex flex-col">
                         <div class="text-sm font-bold text-gray-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                          {{ prestamo.cliente?.nombre_razon_social || 'Sin cliente' }}
+                          {{ obtenerBeneficiarioNombre(prestamo) }}
                         </div>
                         <div class="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest mt-0.5">
-                          RFC: {{ prestamo.cliente?.rfc || 'XAXX010101000' }}
+                          REF: {{ obtenerBeneficiarioRef(prestamo) }}
                         </div>
                       </div>
                     </td>
@@ -799,7 +805,7 @@ const onEditarFila = () => { editarPrestamo(selectedPrestamo.value?.id) }
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p class="text-sm text-gray-600 dark:text-gray-300">
-                    <strong>Cliente:</strong> {{ selectedPrestamo.cliente?.nombre_razon_social || 'Sin cliente' }}
+                    <strong>Beneficiario:</strong> {{ obtenerBeneficiarioNombre(selectedPrestamo) }}
                   </p>
                   <p class="text-sm text-gray-600 dark:text-gray-300">
                     <strong>Monto Prestado:</strong> ${{ formatearMoneda(selectedPrestamo.monto_prestado) }}
@@ -909,7 +915,5 @@ const onEditarFila = () => { editarPrestamo(selectedPrestamo.value?.id) }
   transform: scale(1);
 }
 </style>
-
-
 
 

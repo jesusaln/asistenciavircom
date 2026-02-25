@@ -110,6 +110,19 @@ const historialPagos = computed(() => {
     historial_pagos: pago.historial_pagos || []
   }));
 })
+
+const beneficiarioNombre = computed(() =>
+  props.prestamo.cliente?.nombre_razon_social ||
+  props.prestamo.empleado?.name ||
+  'Sin beneficiario'
+)
+
+const beneficiarioReferencia = computed(() =>
+  props.prestamo.cliente?.rfc ||
+  props.prestamo.empleado?.numero_empleado ||
+  props.prestamo.empleado?.email ||
+  'Sin referencia'
+)
 </script>
 
 <template>
@@ -152,7 +165,8 @@ const historialPagos = computed(() => {
                 <div class="space-y-4">
                   <div>
                     <p class="text-xs font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-1">Cliente Beneficiario</p>
-                    <p class="text-lg font-bold text-gray-900 dark:text-slate-100">{{ prestamo.cliente?.nombre_razon_social || 'Sin cliente' }}</p>
+                    <p class="text-lg font-bold text-gray-900 dark:text-slate-100">{{ beneficiarioNombre }}</p>
+                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">{{ beneficiarioReferencia }}</p>
                   </div>
                   <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -366,4 +380,3 @@ const historialPagos = computed(() => {
   min-height: 100vh;
 }
 </style>
-

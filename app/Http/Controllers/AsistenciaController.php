@@ -129,7 +129,7 @@ class AsistenciaController extends Controller
                 ] : null,
             ],
             'companyName' => $config->nombre_empresa,
-            'serverNowIso' => now()->toIso8601String(),
+            'serverNowIso' => $now->toIso8601String(),
             'suggestedType' => $suggestedType,
             'token' => $token,
             'biometric' => [
@@ -163,6 +163,13 @@ class AsistenciaController extends Controller
             return back()->withErrors(['auth' => 'Sesión no válida.']);
         }
         $companyConfig = EmpresaConfiguracion::getConfig($user->empresa_id);
+        $biometricProvider = $companyConfig->biometrics_provider ?? config('services.biometrics.provider', 'mock');
+
+        if ($tokenMode && $biometricProvider === 'mock') {
+            return back()->withErrors([
+                'selfie' => 'El acceso por enlace requiere un proveedor biométrico server-side configurado (modo mock no permitido).',
+            ]);
+        }
 
         $validated = $request->validate([
             'tipo' => 'required|in:entry,exit,break_start,break_end',
@@ -174,7 +181,7 @@ class AsistenciaController extends Controller
             'consentimiento' => 'required|accepted',
             'face_challenge_completed' => 'nullable|boolean',
             'face_liveness_score' => 'nullable|numeric|between:0,1',
-            'face_descriptor' => 'required|string|max:10000',
+            'face_descriptor' => 'nullable|string|max:10000',
             'face_detected_count' => 'nullable|integer|min:0|max:20',
             'face_capture_quality_passed' => 'nullable|boolean',
             'face_quality_brightness' => 'nullable|numeric|between:0,1',
@@ -184,9 +191,46 @@ class AsistenciaController extends Controller
             'face_quality_message' => 'nullable|string|max:255',
         ]);
 
+        $requiresLocation = (bool) ($companyConfig->biometrics_require_location ?? config('services.biometrics.require_location', true));
+        if (
+            $requiresLocation
+            && (($validated['latitud'] ?? null) === null || ($validated['longitud'] ?? null) === null)
+        ) {
+            return back()->withErrors([
+                'latitud' => 'Debes activar ubicación GPS para registrar asistencia.',
+            ]);
+        }
+
         if ($tokenMode && (!$user->face_enrolled_at || empty($user->face_descriptor))) {
             return back()->withErrors([
                 'selfie' => 'Este enlace no puede enrolar rostros nuevos. Solicita activación inicial con tu cuenta.',
+            ]);
+        }
+
+        // Enforzar secuencia de checada durante el día
+        $sequenceToday = now('America/Hermosillo')->toDateString();
+        $sequenceLastCheck = AsistenciaRegistro::where('user_id', $user->id)
+            ->whereDate('registrado_at', $sequenceToday)
+            ->orderByDesc('registrado_at')
+            ->orderByDesc('id')
+            ->first();
+
+        if ($sequenceLastCheck) {
+            $allowedTransitions = [
+                'entry' => ['break_start', 'exit'],
+                'break_start' => ['break_end'],
+                'break_end' => ['exit'],
+                'exit' => ['entry'],
+            ];
+            $allowedNext = $allowedTransitions[$sequenceLastCheck->tipo] ?? ['entry'];
+            if (!in_array($validated['tipo'], $allowedNext, true)) {
+                return back()->withErrors([
+                    'tipo' => 'Secuencia inválida. Después de "' . $sequenceLastCheck->tipo . '" solo puedes registrar: ' . implode(', ', $allowedNext) . '.',
+                ]);
+            }
+        } elseif ($validated['tipo'] !== 'entry') {
+            return back()->withErrors([
+                'tipo' => 'La primera checada del día debe ser "entry".',
             ]);
         }
 
@@ -207,7 +251,13 @@ class AsistenciaController extends Controller
         $baseGeofenceRadius = $almacen?->geocerca_radio ? (float) $almacen->geocerca_radio : null;
         $softGeofenceMargin = (float) ($companyConfig->biometrics_geofence_soft_margin_meters ?? config('services.biometrics.geofence_soft_margin_meters', 120));
 
-        if ($almacen && $almacen->latitud && $almacen->longitud && $validated['latitud'] && $validated['longitud']) {
+        if (
+            $almacen
+            && $almacen->latitud
+            && $almacen->longitud
+            && (($validated['latitud'] ?? null) !== null)
+            && (($validated['longitud'] ?? null) !== null)
+        ) {
             $distancia = $this->calculateDistance(
                 (float) $almacen->latitud,
                 (float) $almacen->longitud,
@@ -243,7 +293,10 @@ class AsistenciaController extends Controller
             : (bool) ($companyConfig->biometrics_strict_match ?? config('services.biometrics.strict_match', false));
         $challengeCompleted = (bool) ($validated['face_challenge_completed'] ?? false);
         $faceLivenessScore = isset($validated['face_liveness_score']) ? (float) $validated['face_liveness_score'] : null;
-        $incomingDescriptor = $this->parseFaceDescriptor($validated['face_descriptor']);
+        $trustClientDescriptor = (bool) ($companyConfig->biometrics_trust_client_descriptor ?? config('services.biometrics.trust_client_descriptor', true));
+        $incomingDescriptor = $trustClientDescriptor
+            ? $this->parseFaceDescriptor($validated['face_descriptor'] ?? null)
+            : null;
         $baseMatchThreshold = (float) ($companyConfig->biometrics_local_match_threshold ?? config('services.biometrics.local_match_threshold', 0.72));
         $baseLivenessThreshold = (float) ($companyConfig->biometrics_local_liveness_threshold ?? config('services.biometrics.local_liveness_threshold', 0.45));
         $nearbyMatchRelax = (float) ($companyConfig->biometrics_nearby_match_relax ?? config('services.biometrics.nearby_match_relax', 0.06));
@@ -274,54 +327,87 @@ class AsistenciaController extends Controller
         if ($selfiePath) {
             $selfieAbsolutePath = Storage::disk('public')->path($selfiePath);
 
-            if (!$incomingDescriptor) {
-                $faceStatus = 'pending';
-                $faceProvider = 'local';
-                $faceNotes = 'No se recibió descriptor facial válido.';
-            } else {
-                if (!$user->face_enrolled_at || empty($user->face_descriptor)) {
-                    $faceStatus = 'enrolled';
-                    $faceProvider = 'local';
-                    $faceNotes = 'Rostro enrolado localmente.';
-                    $faceVerified = $challengeGatePass;
-                    $faceMatchScore = 1.0;
+            if (!$user->face_enrolled_at || empty($user->face_descriptor)) {
+                $enrollResult = $faceService->enroll($user, $selfieAbsolutePath);
+                $providerStatus = $enrollResult['status'] ?? 'pending';
+                $providerAccepted = in_array($providerStatus, ['enrolled', 'verified'], true);
+                $localAccepted = $trustClientDescriptor && !empty($incomingDescriptor);
 
+                $faceProvider = $enrollResult['provider'] ?? ($localAccepted ? 'local' : 'mock');
+                $faceNotes = $enrollResult['message'] ?? 'Intento de enrolamiento biométrico.';
+                $faceMatchScore = $localAccepted ? 1.0 : ($enrollResult['match_score'] ?? null);
+                $faceStatus = ($providerAccepted || $localAccepted) ? 'enrolled' : 'pending';
+                $faceVerified = ($providerAccepted || $localAccepted) && $challengeGatePass;
+
+                if (!$providerAccepted && !$localAccepted) {
+                    $faceNotes = trim(($faceNotes ? $faceNotes . ' | ' : '') . 'Enrolamiento rechazado: no hay descriptor local confiable.');
+                }
+
+                if ($providerAccepted || $localAccepted) {
                     $user->forceFill([
                         'face_reference_path' => $selfiePath,
-                        'face_descriptor' => $incomingDescriptor,
+                        'face_descriptor' => $localAccepted ? $incomingDescriptor : $user->face_descriptor,
                         'face_enrolled_at' => now(),
                         'face_last_verified_at' => now(),
-                        'face_provider' => 'local',
+                        'face_provider' => $faceProvider ?: 'local',
                     ])->save();
+                }
+            } else {
+                $providerStatus = 'pending';
+                $providerNotes = null;
+                $providerMatchScore = null;
+                $referenceAbsolutePath = $user->face_reference_path
+                    ? Storage::disk('public')->path($user->face_reference_path)
+                    : null;
+
+                if ($referenceAbsolutePath && file_exists($referenceAbsolutePath)) {
+                    $faceResult = $faceService->verify($user, $referenceAbsolutePath, $selfieAbsolutePath);
+                    $providerStatus = $faceResult['status'] ?? 'pending';
+                    $providerNotes = $faceResult['message'] ?? null;
+                    $providerMatchScore = $faceResult['match_score'] ?? null;
+                    $faceProvider = $faceResult['provider'] ?? 'mock';
+                } else {
+                    $faceProvider = 'local';
+                    $providerNotes = 'No existe imagen de referencia en servidor.';
+                }
+
+                if ($providerStatus === 'verified') {
+                    $faceMatchScore = $providerMatchScore;
+                    $faceVerified = $challengeGatePass;
+                    $faceStatus = $faceVerified ? 'verified' : 'rejected';
+                    $faceNotes = $providerNotes ?: 'Coincidencia facial verificada por proveedor.';
+                } elseif ($providerStatus === 'rejected') {
+                    $faceMatchScore = $providerMatchScore;
+                    $faceVerified = false;
+                    $faceStatus = 'rejected';
+                    $faceNotes = $providerNotes ?: 'Proveedor biométrico rechazó la identidad.';
                 } else {
                     $storedDescriptor = is_array($user->face_descriptor) ? $user->face_descriptor : null;
-                    $similarity = $this->cosineSimilarity($storedDescriptor, $incomingDescriptor);
-                    $faceMatchScore = $similarity;
-                    $faceProvider = 'local';
+                    $similarity = ($trustClientDescriptor && $incomingDescriptor)
+                        ? $this->cosineSimilarity($storedDescriptor, $incomingDescriptor)
+                        : null;
+                    $faceMatchScore = $similarity ?? $providerMatchScore;
 
                     if ($similarity !== null) {
                         $matchPass = $similarity >= $matchThreshold;
                         $faceVerified = $matchPass && $challengeGatePass;
                         $faceStatus = $faceVerified ? 'verified' : 'rejected';
+                        $faceProvider = 'local';
                         $faceNotes = $faceVerified
-                            ? 'Coincidencia facial local aprobada.'
-                            : 'Coincidencia/liveness/reto insuficiente en validación local.';
+                            ? 'Coincidencia facial local aprobada (fallback).'
+                            : 'Coincidencia/liveness/reto insuficiente en validación local (fallback).';
                     } else {
-                        $referenceAbsolutePath = Storage::disk('public')->path($user->face_reference_path);
-                        $faceResult = $faceService->verify($user, $referenceAbsolutePath, $selfieAbsolutePath);
-                        $faceStatus = $faceResult['status'] ?? 'pending';
-                        $faceProvider = $faceResult['provider'] ?? 'mock';
-                        $faceNotes = $faceResult['message'] ?? 'No se pudo evaluar descriptor local.';
-                        $faceMatchScore = $faceResult['match_score'] ?? null;
-                        $faceVerified = $faceStatus === 'verified';
+                        $faceVerified = false;
+                        $faceStatus = 'pending';
+                        $faceNotes = trim(($providerNotes ? $providerNotes . ' | ' : '') . 'Sin descriptor local confiable para fallback.');
                     }
+                }
 
-                    if ($faceVerified) {
-                        $user->forceFill([
-                            'face_last_verified_at' => now(),
-                            'face_provider' => $faceProvider ?: $user->face_provider,
-                        ])->save();
-                    }
+                if ($faceVerified) {
+                    $user->forceFill([
+                        'face_last_verified_at' => now(),
+                        'face_provider' => $faceProvider ?: $user->face_provider,
+                    ])->save();
                 }
             }
         }
@@ -354,7 +440,7 @@ class AsistenciaController extends Controller
 
         // Dirección
         $direccion = null;
-        if ($validated['latitud'] && $validated['longitud']) {
+        if ((($validated['latitud'] ?? null) !== null) && (($validated['longitud'] ?? null) !== null)) {
             $direccion = GeocodingService::reverseGeocode($validated['latitud'], $validated['longitud']);
         }
 
@@ -417,7 +503,7 @@ class AsistenciaController extends Controller
         }
 
         $decoded = json_decode($descriptorJson, true);
-        if (!is_array($decoded) || count($decoded) < 64) {
+        if (!is_array($decoded) || count($decoded) !== 128) {
             return null;
         }
 
@@ -426,7 +512,11 @@ class AsistenciaController extends Controller
             if (!is_numeric($value)) {
                 return null;
             }
-            $vector[] = (float) $value;
+            $numeric = (float) $value;
+            if ($numeric < -1.5 || $numeric > 1.5) {
+                return null;
+            }
+            $vector[] = $numeric;
         }
 
         return $vector;
