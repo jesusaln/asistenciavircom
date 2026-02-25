@@ -223,6 +223,8 @@ class EmpresaConfiguracion extends Model
         'biometrics_nearby_liveness_relax',
         'biometrics_far_match_penalty',
         'biometrics_far_liveness_penalty',
+        // Asistencia
+        'minutos_tolerancia_retardo',
     ];
 
     protected $casts = [
@@ -294,6 +296,7 @@ class EmpresaConfiguracion extends Model
         'biometrics_nearby_liveness_relax' => 'decimal:4',
         'biometrics_far_match_penalty' => 'decimal:4',
         'biometrics_far_liveness_penalty' => 'decimal:4',
+        'minutos_tolerancia_retardo' => 'integer',
     ];
 
     /**

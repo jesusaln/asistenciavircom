@@ -163,19 +163,19 @@ class AsistenciaController extends Controller
             } elseif ($rec->tipo === 'break_start' && $entryTime) {
                 $breakStart = $recTime;
             } elseif ($rec->tipo === 'break_end' && $breakStart) {
-                $breakMinutes += $breakStart->diffInMinutes($recTime);
+                $breakMinutes += (int) $breakStart->diffInMinutes($recTime);
                 $breakStart = null;
             } elseif ($rec->tipo === 'exit' && $entryTime) {
-                $workedMinutes += $entryTime->diffInMinutes($recTime);
+                $workedMinutes += (int) $entryTime->diffInMinutes($recTime);
                 $entryTime = null;
             }
         }
         // Si aún no ha salido, calcular hasta ahora
         if ($entryTime) {
-            $workedMinutes += $entryTime->diffInMinutes($now);
+            $workedMinutes += (int) $entryTime->diffInMinutes($now);
         }
         if ($breakStart) {
-            $breakMinutes += $breakStart->diffInMinutes($now);
+            $breakMinutes += (int) $breakStart->diffInMinutes($now);
         }
         $netWorkedMinutes = max(0, $workedMinutes - $breakMinutes);
 
@@ -518,6 +518,46 @@ class AsistenciaController extends Controller
         $direccion = null;
         if ((($validated['latitud'] ?? null) !== null) && (($validated['longitud'] ?? null) !== null)) {
             $direccion = GeocodingService::reverseGeocode($validated['latitud'], $validated['longitud']);
+        }
+
+        // ═══════ DETECCIÓN AUTOMÁTICA DE RETARDO ═══════
+        $toleranciaMinutos = (int) ($companyConfig->minutos_tolerancia_retardo ?? 15);
+        $timezone = 'America/Hermosillo';
+        $ahora = now($timezone);
+
+        if ($validated['tipo'] === 'entry' && $user->hora_entrada) {
+            try {
+                $horaEntradaEsperada = \Carbon\Carbon::parse($ahora->toDateString() . ' ' . $user->hora_entrada, $timezone);
+                $minutosRetardo = (int) $horaEntradaEsperada->diffInMinutes($ahora, false); // positivo = tarde
+
+                if ($minutosRetardo > $toleranciaMinutos) {
+                    $esIncidencia = true;
+                    $motivoRetardo = "Retardo de {$minutosRetardo} min (tolerancia: {$toleranciaMinutos} min). Entrada esperada: {$user->hora_entrada}, registro: {$ahora->format('H:i')}";
+                    $motivoIncidencia = $motivoIncidencia
+                        ? $motivoIncidencia . ' | ' . $motivoRetardo
+                        : $motivoRetardo;
+                }
+            } catch (\Throwable $e) {
+                // hora_entrada format invalid, skip
+            }
+        }
+
+        // Detección de salida temprana
+        if ($validated['tipo'] === 'exit' && $user->hora_salida) {
+            try {
+                $horaSalidaEsperada = \Carbon\Carbon::parse($ahora->toDateString() . ' ' . $user->hora_salida, $timezone);
+                $minutosAntes = (int) $horaSalidaEsperada->diffInMinutes($ahora, false); // negativo = antes de hora
+
+                if ($minutosAntes < -$toleranciaMinutos) {
+                    $esIncidencia = true;
+                    $motivoSalida = "Salida anticipada de " . abs($minutosAntes) . " min. Salida esperada: {$user->hora_salida}, registro: {$ahora->format('H:i')}";
+                    $motivoIncidencia = $motivoIncidencia
+                        ? $motivoIncidencia . ' | ' . $motivoSalida
+                        : $motivoSalida;
+                }
+            } catch (\Throwable $e) {
+                // hora_salida format invalid, skip
+            }
         }
 
         AsistenciaRegistro::create([

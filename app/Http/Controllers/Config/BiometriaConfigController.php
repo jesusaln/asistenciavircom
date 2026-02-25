@@ -21,6 +21,7 @@ class BiometriaConfigController extends Controller
             'biometrics_nearby_liveness_relax' => 'required|numeric|min:0|max:0.30',
             'biometrics_far_match_penalty' => 'required|numeric|min:0|max:0.30',
             'biometrics_far_liveness_penalty' => 'required|numeric|min:0|max:0.30',
+            'minutos_tolerancia_retardo' => 'required|integer|min:0|max:120',
         ]);
 
         if ($validator->fails()) {
