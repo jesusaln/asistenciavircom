@@ -266,21 +266,20 @@ const statCards = computed(() => [
         <!-- ═══════ SELFIE MODAL ═══════ -->
         <Teleport to="body">
             <transition name="modal-fade">
-                <div v-if="selfieModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="selfieModal = null">
-                    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+                <div v-if="selfieModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="selfieModal = null"></div>
                     <div class="relative max-w-md w-full rounded-[2rem] overflow-hidden border border-white/[0.08] shadow-2xl" style="background: linear-gradient(180deg, rgba(30,30,40,0.98) 0%, rgba(10,10,15,0.98) 100%);">
-                        <div class="p-5 border-b border-white/[0.05] flex items-center justify-between">
-                            <div>
-                                <div class="text-sm font-bold text-white">{{ selfieModal.user?.name }}</div>
-                                <div class="text-[10px] text-neutral-500 mt-0.5">{{ formatDate(selfieModal.registrado_at) }} · {{ getTipoLabel(selfieModal.tipo) }}</div>
-                            </div>
-                            <button @click="selfieModal = null" class="w-8 h-8 flex items-center justify-center rounded-xl bg-white/[0.04] hover:bg-white/10 text-neutral-500 hover:text-white transition-all border border-white/[0.06]">✕</button>
+                        <!-- Close button (always visible, floating) -->
+                        <button @click="selfieModal = null" class="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-black/60 hover:bg-black/80 text-white text-lg font-bold transition-all border border-white/10 shadow-lg backdrop-blur-sm">✕</button>
+                        <div class="p-5 border-b border-white/[0.05]">
+                            <div class="text-sm font-bold text-white">{{ selfieModal.user?.name }}</div>
+                            <div class="text-[10px] text-neutral-500 mt-0.5">{{ formatDate(selfieModal.registrado_at) }} · {{ getTipoLabel(selfieModal.tipo) }}</div>
                         </div>
                         <div class="aspect-square">
                             <img :src="`/storage/${selfieModal.selfie_path}`" class="w-full h-full object-cover" />
                         </div>
                         <div class="p-4 space-y-2">
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 flex-wrap">
                                 <span :class="['px-2 py-0.5 rounded-lg text-[9px] font-bold border', faceStatusConfig(selfieModal.face_verification_status).class]">
                                     {{ faceStatusConfig(selfieModal.face_verification_status).icon }} {{ faceStatusConfig(selfieModal.face_verification_status).label }}
                                 </span>
@@ -292,6 +291,8 @@ const statCards = computed(() => [
                                 <span>📍</span> {{ selfieModal.direccion }}
                             </div>
                         </div>
+                        <!-- Bottom close button for mobile -->
+                        <button @click="selfieModal = null" class="w-full py-3 border-t border-white/[0.05] text-[10px] font-extrabold uppercase tracking-widest text-neutral-500 hover:text-white hover:bg-white/[0.03] transition-all">Cerrar</button>
                     </div>
                 </div>
             </transition>
