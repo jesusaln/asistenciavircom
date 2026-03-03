@@ -73,6 +73,14 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'rustdesk' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/rustdesk.log'),
+            'level' => env('LOG_RUSTDESK_LEVEL', 'info'),
+            'days' => env('LOG_RUSTDESK_DAYS', 14),
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

@@ -21,6 +21,7 @@ const props = defineProps({
     faqs: Array,
     catalogos: Object,
     incluirFinalizados: Boolean,
+    rustdesk: Object,
 });
 
 const activeTab = ref('resumen');
@@ -618,6 +619,37 @@ const toggleIncluirFinalizados = () => {
                                     <button @click="activeTab = 'pagos'" class="mt-8 w-full flex items-center justify-center py-4 bg-red-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-red-600 shadow-lg hover:shadow-red-500/20 transition-all active:scale-95">
                                         Pagar Facturas Pendientes
                                     </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-900 dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 rounded-[2rem] p-8 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700/50">
+                            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                                <div>
+                                    <h3 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Soporte Remoto RustDesk</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                        Descargue el cliente remoto de Vircom y comparta los datos de servidor con su técnico para asistencia inmediata.
+                                    </p>
+                                    <div class="mt-4 text-xs font-mono bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-4 text-gray-700 dark:text-gray-200 space-y-1">
+                                        <p><strong>ID/Relay:</strong> {{ rustdesk?.id_server || 'No configurado' }}</p>
+                                        <p><strong>Key:</strong> {{ rustdesk?.key || 'No configurada' }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <a
+                                        :href="route('portal.rustdesk.download')"
+                                        class="inline-flex items-center justify-center px-6 py-3 bg-emerald-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-emerald-700 transition-all"
+                                    >
+                                        Descargar RustDesk Vircom
+                                    </a>
+                                    <a
+                                        href="https://rustdesk.com/docs/"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="inline-flex items-center justify-center px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                                    >
+                                        Ver Guía
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -1334,6 +1366,15 @@ const toggleIncluirFinalizados = () => {
                                 <h4 class="font-black text-gray-900 dark:text-white dark:text-white mb-2 font-mono transition-colors">Manuales</h4>
                                 <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium mb-4 transition-colors">Guías de configuración rápidas.</p>
                                 <Link :href="route('portal.manual')" class="px-6 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-gray-600 transition-all shadow-lg">Ver Manual</Link>
+                            </div>
+
+                            <div v-if="rustdesk" class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700/50 text-center group hover:border-sky-500 dark:hover:border-sky-500 transition-all">
+                                <div class="w-16 h-16 bg-sky-50 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl group-hover:scale-110 transition-transform shadow-inner">
+                                    <font-awesome-icon icon="desktop" />
+                                </div>
+                                <h4 class="font-black text-gray-900 dark:text-white dark:text-white mb-2 font-mono transition-colors">Soporte Remoto</h4>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium mb-4 transition-colors">Descarga RustDesk para que un técnico te asista.</p>
+                                <a :href="route('portal.rustdesk.download')" class="px-6 py-2 bg-sky-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-sky-700 transition-all shadow-lg shadow-sky-500/20">Descargar App</a>
                             </div>
                         </div>
 

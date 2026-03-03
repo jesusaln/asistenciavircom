@@ -45,6 +45,8 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         'num_reg_id_trib',     // Número de registro fiscal extranjero (CFDI 4.0)
         'email',
         'telefono',
+        'rustdesk_id',
+        'rustdesk_alias',
         'calle',
         'numero_exterior',
         'numero_interior',

@@ -27,6 +27,12 @@ class ConfigController extends Controller
             'isr_porcentaje' => 1.25,
             'moneda' => 'MXN',
             'margen_ganancia_default' => 15.00,
+            'rustdesk' => [
+                'enabled' => true,
+                'download_url' => config('rustdesk.download_url', 'https://rustdesk.com/download'),
+                'server' => null,
+                'key' => null,
+            ]
         ];
 
         if ($config) {
@@ -45,6 +51,10 @@ class ConfigController extends Controller
             $data['isr_porcentaje'] = (float) ($config->isr_porcentaje ?? 1.25);
             $data['moneda'] = $config->moneda ?? 'MXN';
             $data['margen_ganancia_default'] = (float) ($config->margen_ganancia_default ?? 15.00);
+
+            // Configuración RustDesk desde BD
+            $data['rustdesk']['server'] = $config->rustdesk_server_address;
+            $data['rustdesk']['key'] = $config->rustdesk_public_key;
         }
 
         return response()->json([

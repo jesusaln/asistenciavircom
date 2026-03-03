@@ -158,6 +158,8 @@ const form = useForm({
   password_confirmation: '',
   telefono: props.cliente.telefono ?? '',
   whatsapp_optin: !!props.cliente.whatsapp_optin,
+  rustdesk_id: props.cliente.rustdesk_id ?? '',
+  rustdesk_alias: props.cliente.rustdesk_alias ?? '',
 
   // Lista de Precios
   price_list_id: props.cliente.price_list_id ?? '',

@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\PriceListController;
 use App\Http\Controllers\Api\CatalogController;
 use App\Http\Controllers\WhatsAppWebhookController;
 use App\Http\Controllers\EmpresaWhatsAppController;
+use App\Http\Controllers\Api\RustDeskController;
 // Eliminado: API de herramientas
 // use App\Http\Controllers\Api\HerramientaController;
 
@@ -47,6 +48,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
     Route::get('/user', [AuthController::class, 'me'])->name('api.user');
     Route::post('/refresh-token', [AuthController::class, 'refresh'])->name('api.refresh');
+});
+
+Route::post('/rustdesk/login', [RustDeskController::class, 'login'])->name('api.rustdesk.login');
+
+Route::middleware('auth:sanctum')->prefix('rustdesk')->name('api.rustdesk.')->group(function () {
+    Route::get('/status/{rustdeskId}', [RustDeskController::class, 'status'])->name('status');
+    Route::get('/devices', [RustDeskController::class, 'devices'])->name('devices');
+    Route::post('/sync-alias', [RustDeskController::class, 'syncAlias'])->name('sync-alias');
+    Route::post('/sessions/start', [RustDeskController::class, 'startSession'])->name('sessions.start');
+    Route::post('/sessions/{session}/complete', [RustDeskController::class, 'completeSession'])->name('sessions.complete');
 });
 
 // =====================================================

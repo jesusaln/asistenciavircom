@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Contracts\RustDeskClientInterface;
 use App\Contracts\FaceVerificationService;
 use App\Services\Biometrics\MockFaceVerificationService;
+use App\Services\RustDeskService;
 use Inertia\Inertia;
 
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -22,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
             // Punto único para cambiar a proveedor real (AWS/Azure/etc.)
             return new MockFaceVerificationService();
         });
+
+        $this->app->bind(RustDeskClientInterface::class, RustDeskService::class);
     }
 
     /**

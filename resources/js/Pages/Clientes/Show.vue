@@ -65,6 +65,14 @@
               >
                 + Cotización
               </Link>
+              <button
+                v-if="canRemoteSupport && cliente.rustdesk_id"
+                type="button"
+                @click="iniciarSoporteRemoto"
+                class="inline-flex items-center px-3 py-1.5 text-xs font-semibold bg-sky-500 text-white rounded-lg hover:bg-sky-600 shadow-lg transition-all duration-200"
+              >
+                Iniciar Soporte Remoto
+              </button>
             </div>
           </div>
         </div>
@@ -99,11 +107,20 @@
             <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 italic" v-else>Sin teléfono</p>
           </div>
           <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">RustDesk ID</label>
+            <p class="text-gray-900 dark:text-white dark:text-gray-100" v-if="cliente.rustdesk_id">{{ cliente.rustdesk_id }}</p>
+            <p class="text-gray-500 dark:text-gray-400 italic" v-else>Sin configurar</p>
+          </div>
+          <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo de Persona</label>
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                   :class="cliente.tipo_persona === 'fisica' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300' : 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300'">
               {{ cliente.tipo_persona_nombre }}
             </span>
+          </div>
+          <div v-if="cliente.rustdesk_alias">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">RustDesk Alias</label>
+            <p class="text-gray-900 dark:text-white dark:text-gray-100">{{ cliente.rustdesk_alias }}</p>
           </div>
           <div v-if="cliente.notas">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notas</label>
@@ -477,6 +494,7 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3'
 import { computed } from 'vue'
+import axios from 'axios'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { useCompanyColors } from '@/Composables/useCompanyColors'
 import VaultSection from '@/Components/VaultSection.vue'
@@ -512,6 +530,14 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
+  canRemoteSupport: {
+    type: Boolean,
+    default: false,
+  },
+  rustdeskConfig: {
+    type: Object,
+    default: () => ({}),
+  },
   flash: {
     type: Object,
     default: () => ({})
@@ -532,6 +558,46 @@ const cliente = computed(() => ({
   facturas_count: props.cliente.facturas_count || 0,
   direccion_completa: props.cliente.direccion_completa || `${props.cliente.calle} ${props.cliente.numero_exterior}${props.cliente.numero_interior ? ' Int. ' + props.cliente.numero_interior : ''}, ${props.cliente.colonia}, ${props.cliente.codigo_postal} ${props.cliente.municipio}, ${props.cliente.estado} ${props.cliente.pais}`
 }))
+
+const iniciarSoporteRemoto = async () => {
+  const id = String(cliente.value.rustdesk_id || '').trim()
+  if (!id) {
+    window.$toast?.error('Este cliente no tiene ID de RustDesk configurado.')
+    return
+  }
+
+  try {
+    await axios.post('/api/rustdesk/sessions/start', {
+      cliente_id: cliente.value.id,
+      rustdesk_id: id,
+      rustdesk_alias: cliente.value.rustdesk_alias || null,
+      source: 'web',
+      notes: 'Inicio desde expediente de cliente',
+    })
+  } catch (_error) {
+    // No bloqueamos el inicio remoto por fallo de tracking.
+  }
+
+  const normalized = id.replace(/\s+/g, '')
+  const rustdeskUrl = `rustdesk://connect?id=${encodeURIComponent(normalized)}`
+
+  try {
+    window.location.href = rustdeskUrl
+    setTimeout(async () => {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(id)
+      }
+      window.$toast?.success('Si RustDesk no abrió, el ID del cliente fue copiado al portapapeles.')
+    }, 900)
+  } catch (_error) {
+    try {
+      await navigator.clipboard.writeText(id)
+      window.$toast?.success('No se pudo abrir RustDesk. ID copiado al portapapeles.')
+    } catch {
+      window.$toast?.error(`No se pudo abrir RustDesk. Use el ID manualmente: ${id}`)
+    }
+  }
+}
 </script>
 
 <style scoped>

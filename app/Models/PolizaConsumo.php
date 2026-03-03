@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use App\Models\Ticket;
 use App\Models\Cita;
+use App\Models\RemoteSupportSession;
 
 class PolizaConsumo extends Model
 {
@@ -178,6 +179,13 @@ class PolizaConsumo extends Model
      */
     protected static function generarDescripcion(string $tipo, Model $consumible): string
     {
+        if ($consumible instanceof RemoteSupportSession) {
+            $minutes = (int) ($consumible->duration_minutes ?? 0);
+            $hours = round($minutes / 60, 2);
+            $rustdeskId = $consumible->rustdesk_id ?? 'N/A';
+            return "Sesion remota RustDesk ({$rustdeskId}) - {$minutes} min ({$hours} hrs)";
+        }
+
         return match ($tipo) {
             self::TIPO_TICKET => "Ticket #" . ($consumible->folio ?? $consumible->id) . ": " . ($consumible->titulo ?? 'Sin título'),
             self::TIPO_VISITA => "Cita #" . ($consumible->id) . " - " . ($consumible->tipo_servicio ?? 'Visita'),

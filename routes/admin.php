@@ -316,6 +316,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
     Route::get('/pedidos/siguiente-numero', [PedidoController::class, 'obtenerSiguienteNumero'])->name('pedidos.siguiente-numero')->middleware('can:view pedidos');
     Route::resource('pedidos', PedidoController::class)->names('pedidos')->middleware('can:view pedidos');
+    Route::post('/pedidos/{id}/enviar-a-venta', [PedidoVentaController::class, 'enviarAVenta'])->name('pedidos.enviar-a-venta');
     Route::get('/pedidos/{id}/pdf', [PedidoDocumentoController::class, 'generarPDF'])->name('pedidos.pdf');
 
     Route::get('/ventas/siguiente-numero', [VentaController::class, 'obtenerSiguienteNumero'])->name('ventas.siguiente-numero')->middleware('can:view ventas');

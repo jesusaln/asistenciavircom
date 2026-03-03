@@ -33,6 +33,7 @@ trait HasClienteValidation
             'rfc',
             'regimen_fiscal',
             'uso_cfdi',
+            'rustdesk_alias',
             'calle',
             'numero_exterior',
             'numero_interior',
@@ -102,6 +103,13 @@ trait HasClienteValidation
         if ($this->has('codigo_postal')) {
             $cp = $this->input('codigo_postal');
             $dataToMerge['codigo_postal'] = $cp ? preg_replace('/\D/', '', $cp) : null;
+        }
+
+        if ($this->has('rustdesk_id')) {
+            $rustdeskId = $this->input('rustdesk_id');
+            $dataToMerge['rustdesk_id'] = is_string($rustdeskId)
+                ? preg_replace('/\s+/', ' ', trim($rustdeskId))
+                : $rustdeskId;
         }
 
         // Normalizar crédito para evitar NULL en columnas NOT NULL
@@ -174,6 +182,8 @@ trait HasClienteValidation
             'cfdi_default_use' => ['nullable', 'string', 'size:3', Rule::exists('sat_usos_cfdi', 'clave')],
             'payment_form_default' => ['nullable', 'string', 'size:2'],
             'price_list_id' => ['nullable', 'integer', Rule::exists('price_lists', 'id')->where('activa', true)],
+            'rustdesk_id' => ['nullable', 'string', 'max:30', 'regex:/^[0-9\-\s]+$/'],
+            'rustdesk_alias' => ['nullable', 'string', 'max:100'],
 
             'credito_activo' => ['nullable', 'boolean'],
             'estado_credito' => ['nullable', 'string', 'in:sin_credito,en_revision,autorizado,suspendido'],

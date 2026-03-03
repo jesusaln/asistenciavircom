@@ -64,6 +64,7 @@ class SchemaDbTest extends TestCase
     public function test_clientes_insert_works(): void
     {
         $id = DB::table('clientes')->insertGetId([
+            'uuid' => IlluminateSupportStr::uuid()->toString(),
             'nombre_razon_social' => 'Test Schema Cliente',
             'email' => 'test@schema.db.local',
             'tipo_persona' => 'fisica',

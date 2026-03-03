@@ -23,8 +23,10 @@ use App\Support\EmpresaResolver;
  */
 use Illuminate\Foundation\Testing\RefreshDatabase;
 class VentaControllerTest extends TestCase
+
 {
     use RefreshDatabase;
+    use \Illuminate\Foundation\Testing\WithoutMiddleware;
 
     protected User $user;
     protected Cliente $cliente;

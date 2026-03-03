@@ -146,6 +146,49 @@
             </label>
           </div>
         </div>
+
+        <div class="mb-4">
+          <label for="rustdesk_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            ID RustDesk del Cliente
+          </label>
+          <input
+            type="text"
+            id="rustdesk_id"
+            v-model="form.rustdesk_id"
+            placeholder="Ej. 123 456 789"
+            autocomplete="off"
+            :class="[
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-white placeholder-gray-300 dark:placeholder-gray-500',
+                  form.errors.rustdesk_id ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
+                ]"
+          />
+          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Se usa para soporte remoto de un clic desde el expediente del cliente.
+          </p>
+          <div v-if="form.errors.rustdesk_id" class="mt-2 text-sm text-red-600 dark:text-red-400">
+            {{ form.errors.rustdesk_id }}
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="rustdesk_alias" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Alias RustDesk
+          </label>
+          <input
+            type="text"
+            id="rustdesk_alias"
+            v-model="form.rustdesk_alias"
+            placeholder="Ej. PC-SUCURSAL-CENTRO"
+            autocomplete="off"
+            :class="[
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-white placeholder-gray-300 dark:placeholder-gray-500',
+                  form.errors.rustdesk_alias ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
+                ]"
+          />
+          <div v-if="form.errors.rustdesk_alias" class="mt-2 text-sm text-red-600 dark:text-red-400">
+            {{ form.errors.rustdesk_alias }}
+          </div>
+        </div>
       </div>
 
       <!-- Lista de Precios -->

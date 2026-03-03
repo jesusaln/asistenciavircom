@@ -5,6 +5,8 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -44,5 +46,42 @@ return Application::configure(basePath: dirname(__DIR__))
         });
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->respond(function (Response $response, \Throwable $exception, Request $request) {
+            // Estandarización de Errores para API
+            if ($request->expectsJson() || $request->is('api/*')) {
+                // Obtener el mensaje real si no es 500, de lo contrario un mensaje genérico.
+                $status = $response->getStatusCode();
+                $message = $exception->getMessage() ?: 'Ha ocurrido un error inesperado.';
+                
+                if ($status === 500 && !app()->environment(['local', 'testing'])) {
+                    $message = 'Error interno del servidor. Soporte técnico ha sido notificado.';
+                }
+                
+                if ($status === 404 && empty($exception->getMessage())) {
+                    $message = 'El recurso solicitado no fue encontrado.';
+                }
+
+                return response()->json([
+                    'success' => false,
+                    'error' => $message,
+                    'status' => $status,
+                ], $status);
+            }
+
+            // Estandarización de Errores Web (Inertia/Vue)
+            $status = $response->getStatusCode();
+            $allowedStatuses = [500, 503, 404, 403, 401, 419, 429];
+
+            if (in_array($status, $allowedStatuses)) {
+                // En producción/staging mostramos siempre la vista bonita.
+                // En local, mostramos la vista bonita para 404/403, pero permitimos ver el stack trace de Ignition para errores 500.
+                if (!app()->environment(['local', 'testing']) || in_array($status, [404, 403, 401, 419])) {
+                    return Inertia::render('Errors/Error', ['status' => $status])
+                        ->toResponse($request)
+                        ->setStatusCode($status);
+                }
+            }
+
+            return $response;
+        });
     })->create();

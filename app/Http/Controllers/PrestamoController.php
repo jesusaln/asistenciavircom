@@ -154,7 +154,7 @@ class PrestamoController extends Controller
                 ->orderBy('name')
                 ->get(['id', 'name', 'email', 'numero_empleado']);
 
-            $empleadoId = (int) $request->query('empleado_id', 0);
+            $empleadoId = (int) request()->query('empleado_id', 0);
             if ($empleadoId > 0 && !$empleados->contains('id', $empleadoId)) {
                 $empleadoId = 0;
             }
@@ -219,9 +219,9 @@ class PrestamoController extends Controller
                 $fechaInicio = \Carbon\Carbon::parse($validated['fecha_inicio']);
                 $fechaPrimerPago = \Carbon\Carbon::parse($validated['fecha_primer_pago']);
 
-                if ($fechaPrimerPago->lte($fechaInicio)) {
+                if ($fechaPrimerPago->lt($fechaInicio)) {
                     throw ValidationException::withMessages([
-                        'fecha_primer_pago' => 'La fecha del primer pago debe ser posterior a la fecha de inicio.'
+                        'fecha_primer_pago' => 'La fecha del primer pago debe ser posterior o igual a la fecha de inicio.'
                     ]);
                 }
             }
@@ -335,7 +335,7 @@ class PrestamoController extends Controller
                 'numero_pagos' => 'required|integer|min:1|max:1200',
                 'frecuencia_pago' => 'required|in:semanal,quincenal,mensual',
                 'fecha_inicio' => 'required|date', // FIX Error #5: Permitir fechas pasadas en edición
-                'fecha_primer_pago' => 'nullable|date|after:fecha_inicio',
+                'fecha_primer_pago' => 'nullable|date|after_or_equal:fecha_inicio',
                 'descripcion' => 'nullable|string|max:1000',
                 'notas' => 'nullable|string|max:2000',
             ]);
@@ -357,9 +357,9 @@ class PrestamoController extends Controller
                 $fechaInicio = \Carbon\Carbon::parse($validated['fecha_inicio']);
                 $fechaPrimerPago = \Carbon\Carbon::parse($validated['fecha_primer_pago']);
 
-                if ($fechaPrimerPago->lte($fechaInicio)) {
+                if ($fechaPrimerPago->lt($fechaInicio)) {
                     throw ValidationException::withMessages([
-                        'fecha_primer_pago' => 'La fecha del primer pago debe ser posterior a la fecha de inicio.'
+                        'fecha_primer_pago' => 'La fecha del primer pago debe ser posterior o igual a la fecha de inicio.'
                     ]);
                 }
             }

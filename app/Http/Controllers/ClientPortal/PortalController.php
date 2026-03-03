@@ -47,6 +47,8 @@ class PortalController extends Controller
     public function dashboard(Request $request)
     {
         $cliente = Auth::guard('client')->user();
+        $empresaId = EmpresaResolver::resolveId();
+        $empresaConfig = EmpresaConfiguracion::getConfig($empresaId);
 
         if (!$cliente->activo) {
             return redirect()->route('catalogo.index')->with('warning', 'Aún no tienes autorización para acceder al Panel Completo.');
@@ -93,8 +95,36 @@ class PortalController extends Controller
                 'regimenes' => \Illuminate\Support\Facades\Cache::remember('sat_regimenes_fiscales', 86400, fn() => \App\Models\SatRegimenFiscal::orderBy('clave')->get()),
                 'usos_cfdi' => \Illuminate\Support\Facades\Cache::remember('sat_usos_cfdi', 86400, fn() => \App\Models\SatUsoCfdi::orderBy('clave')->get()),
                 'estados' => \Illuminate\Support\Facades\Cache::remember('sat_estados_activos', 10, fn() => \App\Models\SatEstado::where('activo', true)->orderBy('nombre')->get()),
-            ]
+            ],
+            'rustdesk' => [
+                'id_server' => $empresaConfig->rustdesk_server_address ?: null,
+                'relay_server' => $empresaConfig->rustdesk_relay_server ?: null,
+                'key' => $empresaConfig->rustdesk_public_key ?: null,
+            ],
         ]);
+    }
+
+    public function downloadRustDeskClient()
+    {
+        $candidates = [
+            public_path('downloads/rustdesk-vircom.exe'),
+            public_path('downloads/rustdesk-vircom.msi'),
+            storage_path('app/public/downloads/rustdesk-vircom.exe'),
+            storage_path('app/public/downloads/rustdesk-vircom.msi'),
+        ];
+
+        foreach ($candidates as $filePath) {
+            if (is_file($filePath)) {
+                return response()->download($filePath);
+            }
+        }
+
+        $fallbackUrl = (string) config('rustdesk.download_url', 'https://rustdesk.com/download');
+        if ($fallbackUrl !== '') {
+            return redirect()->away($fallbackUrl);
+        }
+
+        return redirect()->route('portal.dashboard')->with('error', 'No hay instalador de RustDesk disponible por el momento.');
     }
 
     private function getDashboardTickets($cliente, Request $request)

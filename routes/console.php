@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 use App\Models\EmpresaConfiguracion;
 use Illuminate\Support\Facades\Schema;
+use App\Jobs\SyncRustDeskDeviceStatusJob;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -162,6 +163,12 @@ Schedule::job(new \App\Jobs\SyncMicrosoftTasks)
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/microsoft_sync.log'));
 
+// Sincronización de estado de dispositivos RustDesk cada 5 minutos
+Schedule::job(new SyncRustDeskDeviceStatusJob())
+    ->everyFiveMinutes()
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/rustdesk_sync.log'));
+
 // =====================================================
 // BACKUPS AUTOMÁTICOS - Configuración dinámica
 // =====================================================
@@ -276,4 +283,3 @@ Schedule::command('cva:sincronizar-datos')
 Schedule::command('app:sync-cva-catalog --limit=100')
     ->dailyAt('03:30')
     ->appendOutputTo(storage_path('logs/cva_catalog_sync.log'));
-

@@ -569,6 +569,22 @@ const opcionesNumeroPagos = Array.from({ length: 60 }, (_, i) => ({
                   />
                   <p v-if="errors.fecha_inicio" class="mt-2 text-xs font-bold text-red-600 dark:text-red-400">{{ errors.fecha_inicio }}</p>
                 </div>
+
+                <!-- Fecha de primer pago -->
+                <div>
+                  <label for="fecha_primer_pago" class="block text-xs font-black text-gray-500 dark:text-slate-500 uppercase tracking-widest mb-2">
+                    Fecha de Primer Pago
+                  </label>
+                  <input
+                    id="fecha_primer_pago"
+                    v-model="form.fecha_primer_pago"
+                    type="date"
+                    class="block w-full px-4 py-3 bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:text-slate-100 transition-all"
+                    :class="{ 'border-red-300 dark:border-red-900/50': errors.fecha_primer_pago }"
+                  />
+                  <p v-if="errors.fecha_primer_pago" class="mt-2 text-xs font-bold text-red-600 dark:text-red-400">{{ errors.fecha_primer_pago }}</p>
+                  <p class="mt-2 text-[10px] font-medium text-gray-500 dark:text-slate-500 italic">Opcional. Se calcula según inicio si se omite.</p>
+                </div>
               </div>
 
               <!-- Descripción -->

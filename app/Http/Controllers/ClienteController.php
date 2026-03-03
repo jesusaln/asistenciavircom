@@ -8,6 +8,7 @@ use App\Models\SatEstado;
 use App\Models\SatRegimenFiscal;
 use App\Models\SatUsoCfdi;
 use App\Models\SatFormaPago;
+use App\Models\EmpresaConfiguracion;
 use App\Http\Requests\StoreClienteRequest;
 use App\Http\Requests\UpdateClienteRequest;
 use App\Services\Clientes\ClienteRelationsService;
@@ -481,6 +482,14 @@ class ClienteController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
+            $currentUser = Auth::user();
+            $canRemoteSupport = (bool) (
+                $currentUser?->hasAnyRole(['super-admin', 'admin', 'tecnico']) ||
+                $currentUser?->can('view soporte') ||
+                $currentUser?->can('manage soporte')
+            );
+            $empresaConfig = EmpresaConfiguracion::getConfig();
+
             return Inertia::render('Clientes/Show', [
                 'cliente' => $cliente,
                 'historialCompras' => $historialCompras,
@@ -488,6 +497,12 @@ class ClienteController extends Controller
                 'tickets' => $tickets,
                 'citas' => $citas,
                 'polizas' => $polizas,
+                'canRemoteSupport' => $canRemoteSupport,
+                'rustdeskConfig' => [
+                    'id_server' => $empresaConfig->rustdesk_server_address,
+                    'relay_server' => $empresaConfig->rustdesk_relay_server,
+                    'key' => $empresaConfig->rustdesk_public_key,
+                ],
             ]);
         } catch (ModelNotFoundException $e) {
             Log::warning('Cliente no encontrado', ['id' => request()->route('cliente')]);

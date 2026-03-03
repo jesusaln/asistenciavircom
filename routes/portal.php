@@ -80,6 +80,7 @@ Route::prefix('portal')->group(function () {
 
         // Perfil (Cliente)
         Route::post('/perfil', [PortalController::class, 'updateProfile'])->name('portal.perfil.update');
+        Route::get('/soporte/remoto/descargar', [PortalController::class, 'downloadRustDeskClient'])->name('portal.rustdesk.download');
 
         // Pagos con Crédito
         Route::get('/ventas/{id}/pdf', [PortalController::class, 'descargarVentaPdf'])->name('portal.ventas.pdf');
