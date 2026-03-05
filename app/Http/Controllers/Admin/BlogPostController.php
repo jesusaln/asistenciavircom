@@ -11,9 +11,11 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use App\Traits\ImageOptimizerTrait;
 
 class BlogPostController extends Controller
 {
+    use ImageOptimizerTrait;
     /**
      * Display a listing of the resource.
      */
@@ -60,7 +62,7 @@ class BlogPostController extends Controller
         ]);
 
         if ($request->hasFile('imagen_archivo')) {
-            $path = $request->file('imagen_archivo')->store('blog-covers', 'public');
+            $path = $this->saveImageAsWebP($request->file('imagen_archivo'), 'blog-covers');
             $validated['imagen_portada'] = $path; // Override string with path
         }
 
@@ -109,7 +111,7 @@ class BlogPostController extends Controller
         ]);
 
         if ($request->hasFile('imagen_archivo')) {
-            $path = $request->file('imagen_archivo')->store('blog-covers', 'public');
+            $path = $this->saveImageAsWebP($request->file('imagen_archivo'), 'blog-covers');
             $validated['imagen_portada'] = $path;
         }
 

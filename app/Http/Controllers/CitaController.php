@@ -14,9 +14,11 @@ use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 use Exception;
 use App\Services\VentaFromCitaService;
+use App\Traits\ImageOptimizerTrait;
 
 class CitaController extends Controller
 {
+    use ImageOptimizerTrait;
     /**
      * Mostrar todas las citas con paginación y filtros.
      */
@@ -260,9 +262,9 @@ class CitaController extends Controller
             'foto_identificacion' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'notas' => 'nullable|string|max:1000',
             'producto_serie_id' => 'nullable|integer|exists:producto_series,id',
-            'tipo_equipo' => 'nullable|string|max:255',
-            'marca_equipo' => 'nullable|string|max:255',
-            'modelo_equipo' => 'nullable|string|max:255',
+            'tipo_equipo' => 'required|string|max:255',
+            'marca_equipo' => 'required|string|max:255',
+            'modelo_equipo' => 'required|string|max:255',
             'ticket_id' => 'nullable|integer|exists:tickets,id',
             'poliza_id' => 'nullable|integer|exists:polizas_servicio,id',
         ], [
@@ -389,12 +391,11 @@ class CitaController extends Controller
     {
         $cita->load(['items.citable']);
 
-        $tecnicos = User::role('Tecnico')->select('id', 'name')->get(); // Optimization: use role instead of scope if possible, or keep scope
-        // Actually maintain existing logic but optimize
+        // Use scope instead of role for robustness
         $tecnicos = User::tecnicos()->select('id', 'name')->get();
 
         try {
-            $clientes = Cliente::all(['id', 'nombre_fiscal', 'nombre_comercial', 'telefono', 'email', 'direccion_calle', 'direccion_colonia', 'direccion_cp']);
+            $clientes = Cliente::all(['id', 'nombre_razon_social', 'telefono', 'email', 'calle', 'colonia', 'codigo_postal']);
         } catch (Exception $e) {
             Log::error('Error loading clientes in CitaController@edit: ' . $e->getMessage());
             $clientes = [];
@@ -526,8 +527,7 @@ class CitaController extends Controller
                 $newFotos = [];
 
                 foreach ($request->file('nuevas_fotos') as $foto) {
-                    $filename = 'cita_' . $cita->id . '_' . time() . '_' . uniqid() . '.' . $foto->getClientOriginalExtension();
-                    $path = $foto->storeAs('citas/evidencias_finales', $filename, 'public');
+                    $path = $this->saveImageAsWebP($foto, 'citas/evidencias_finales');
                     $newFotos[] = $path;
                 }
 
@@ -562,7 +562,8 @@ class CitaController extends Controller
             }
 
             // Si el estado pasó a COMPLETADO y es soporte en sitio, registrar visita en la póliza (si no se registró antes)
-            if ($dataToUpdate['estado'] === Cita::ESTADO_COMPLETADO && $cita->getOriginal('estado') !== Cita::ESTADO_COMPLETADO && $cita->tipo_servicio === 'soporte_sitio') {
+            $nuevoEstado = $dataToUpdate['estado'] ?? $cita->estado;
+            if ($nuevoEstado === Cita::ESTADO_COMPLETADO && $cita->getOriginal('estado') !== Cita::ESTADO_COMPLETADO && $cita->tipo_servicio === 'soporte_sitio') {
                 $poliza = \App\Models\PolizaServicio::where('cliente_id', $cita->cliente_id)->activa()->first();
                 if ($poliza) {
                     $poliza->registrarVisitaSitio();
@@ -650,7 +651,7 @@ class CitaController extends Controller
                 if ($seAplicoCoberturaEnItems && $poliza) {
                     // Verificamos si el bloque de arriba (550) ya lo ejecutó.
                     // Condición 550: estado=COMPLETADO, original!=COMPLETADO, tipo=soporte_sitio
-                    $yaDescontoArriba = ($dataToUpdate['estado'] === \App\Models\Cita::ESTADO_COMPLETADO
+                    $yaDescontoArriba = ($nuevoEstado === \App\Models\Cita::ESTADO_COMPLETADO
                         && $cita->getOriginal('estado') !== \App\Models\Cita::ESTADO_COMPLETADO
                         && $cita->tipo_servicio === 'soporte_sitio');
 
@@ -704,12 +705,8 @@ class CitaController extends Controller
                     $file = $request->file($field);
 
                     // Generar nombre único para evitar conflictos
-                    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                    $extension = $file->getClientOriginalExtension();
-                    $filename = $originalName . '_' . now()->format('YmdHis') . '_' . substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyz'), 0, 6) . '.' . $extension;
-
                     $empresaId = \App\Support\EmpresaResolver::resolveId();
-                    $path = $file->storeAs("citas/empresa_{$empresaId}", $filename, 'public');
+                    $path = $this->saveImageAsWebP($file, "citas/empresa_{$empresaId}");
                     $filePaths[$field] = $path;
 
                     // Eliminar el archivo anterior si existe
@@ -1343,7 +1340,7 @@ class CitaController extends Controller
             $filePaths = [];
             if ($request->hasFile('fotos_finales')) {
                 foreach ($request->file('fotos_finales') as $index => $file) {
-                    $path = $file->store('citas/evidencias_finales', 'public');
+                    $path = $this->saveImageAsWebP($file, 'citas/evidencias_finales');
                     $filePaths[] = $path;
                 }
             }

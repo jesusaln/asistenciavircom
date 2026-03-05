@@ -508,7 +508,10 @@ const submit = () => {
     if (form.processing) return;
     form.consentimiento = true;
     const wasEnrollment = isEnrollment.value;
-    form.post(route('asistencia.store'), {
+    const submitRoute = props.token
+        ? route('asistencia.token.store', { token: props.token })
+        : route('asistencia.store');
+    form.post(submitRoute, {
         forceFormData: true, preserveScroll: true,
         onSuccess: () => {
             playBeep(true); vibrate([100, 50, 100]);

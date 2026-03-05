@@ -19,9 +19,12 @@ use App\Models\User;
 use App\Models\UserNotification;
 use App\Mail\CreditSignatureMail;
 use App\Models\PolizaServicio;
+use App\Traits\ImageOptimizerTrait;
 
 class PortalCreditoController extends Controller
 {
+    use ImageOptimizerTrait;
+
     private function getEmpresaBranding()
     {
         $empresaId = EmpresaResolver::resolveId();
@@ -79,16 +82,16 @@ class PortalCreditoController extends Controller
         try {
             $file = $request->file('documento');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs("clientes/{$cliente->id}/documentos", $filename, 'public');
+            $path = $this->storeFileOptimized($file, "clientes/{$cliente->id}/documentos", 'public', $filename);
 
             ClienteDocumento::create([
                 'cliente_id' => $cliente->id,
                 'tipo' => $request->tipo,
-                'nombre_archivo' => $file->getClientOriginalName(),
+                'nombre_archivo' => basename($path),
                 'ruta' => $path,
-                'extension' => $file->getClientOriginalExtension(),
-                'tamano' => $file->getSize(),
-                'mime_type' => $file->getMimeType(),
+                'extension' => pathinfo($path, PATHINFO_EXTENSION),
+                'tamano' => Storage::disk('public')->size($path),
+                'mime_type' => Storage::disk('public')->mimeType($path),
             ]);
 
             return back()->with('success', 'Documento enviado correctamente. Nuestro equipo lo revisará a la brevedad.');

@@ -25,8 +25,13 @@ class CitaControllerTest extends TestCase
         // Limpiar para asegurar conteos consistentes
         \Illuminate\Support\Facades\DB::table('citas')->delete();
 
+        // Asegurar que los roles necesarios existen para el controlador y middleware
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Tecnico', 'guard_name' => 'web']);
+
         // No longer using heavy seeders - tests create their own data
         $this->user = User::factory()->create();
+        $this->user->assignRole('admin');
         $this->actingAs($this->user);
 
         // Crear cliente y técnico para usar en tests
@@ -283,6 +288,7 @@ class CitaControllerTest extends TestCase
         $cita = Cita::factory()->create([
             'cliente_id' => $this->cliente->id,
             'tecnico_id' => $this->tecnico->id,
+            'estado' => Cita::ESTADO_PENDIENTE,
         ]);
 
         $response = $this->from('/citas')->delete(route('citas.destroy', $cita));

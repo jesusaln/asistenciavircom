@@ -49,6 +49,16 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->respond(function (Response $response, \Throwable $exception, Request $request) {
             // Estandarización de Errores para API
             if ($request->expectsJson() || $request->is('api/*')) {
+                // Manejo especial para errores de validación
+                if ($exception instanceof \Illuminate\Validation\ValidationException) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $exception->getMessage(),
+                        'errors' => $exception->errors(),
+                        'status' => 422,
+                    ], 422);
+                }
+
                 // Obtener el mensaje real si no es 500, de lo contrario un mensaje genérico.
                 $status = $response->getStatusCode();
                 $message = $exception->getMessage() ?: 'Ha ocurrido un error inesperado.';

@@ -7,9 +7,12 @@ use App\Models\ClienteDocumento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use App\Traits\ImageOptimizerTrait;
 
 class ClienteDocumentoController extends Controller
 {
+    use ImageOptimizerTrait;
+
     public function store(Request $request, Cliente $cliente)
     {
         $request->validate([
@@ -20,16 +23,16 @@ class ClienteDocumentoController extends Controller
         try {
             $file = $request->file('documento');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs("clientes/{$cliente->id}/documentos", $filename, 'public');
+            $path = $this->storeFileOptimized($file, "clientes/{$cliente->id}/documentos", 'public', $filename);
 
             $documento = ClienteDocumento::create([
                 'cliente_id' => $cliente->id,
                 'tipo' => $request->tipo,
-                'nombre_archivo' => $file->getClientOriginalName(),
+                'nombre_archivo' => basename($path),
                 'ruta' => $path,
-                'extension' => $file->getClientOriginalExtension(),
-                'tamano' => $file->getSize(),
-                'mime_type' => $file->getMimeType(),
+                'extension' => pathinfo($path, PATHINFO_EXTENSION),
+                'tamano' => Storage::disk('public')->size($path),
+                'mime_type' => Storage::disk('public')->mimeType($path),
             ]);
 
             return back()->with('success', 'Documento subido correctamente');

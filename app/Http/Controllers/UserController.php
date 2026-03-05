@@ -16,9 +16,11 @@ use App\Models\Almacen;
 use App\Models\RegistroVacaciones;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Auth\Access\AuthorizationException;
+use App\Traits\ImageOptimizerTrait;
 
 class UserController extends Controller
 {
+    use ImageOptimizerTrait;
     public function __construct()
     {
         // $this->authorizeResource(User::class); // Deshabilitado para permitir manejo manual de excepciones
@@ -288,7 +290,7 @@ class UserController extends Controller
                 Storage::disk('public')->delete($user->profile_photo_path);
             }
             // Guardar la nueva foto
-            $photoPath = $request->file('photo')->store('profile-photos', 'public');
+            $photoPath = $this->saveImageAsWebP($request->file('photo'), 'profile-photos');
             $user->forceFill(['profile_photo_path' => $photoPath])->save();
         }
 

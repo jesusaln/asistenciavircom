@@ -85,15 +85,16 @@ class SchemaVerificationTest extends TestCase
     {
         $producto = Producto::create([
             'nombre' => 'Test Producto Schema',
-            'sku' => 'TEST-SKU-001',
+            'codigo' => 'TEST-SKU-001',
             'precio_venta' => 100.00,
             'stock' => 10,
-            'estado' => 'activo'
+            'estado' => 'activo',
+            'empresa_id' => 1
         ]);
 
         $this->assertDatabaseHas('productos', [
             'nombre' => 'Test Producto Schema',
-            'sku' => 'TEST-SKU-001'
+            'codigo' => 'TEST-SKU-001'
         ]);
     }
 

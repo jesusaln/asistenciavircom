@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Cliente;
+use App\Support\EmpresaResolver;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\Importable;
@@ -25,10 +26,16 @@ class ClientesImport implements ToModel, WithHeadingRow, SkipsEmptyRows, WithVal
 
     public function model(array $row)
     {
+        $empresaId = EmpresaResolver::resolveId();
+
         // Limpiar y normalizar RFC
-        $rfc = strtoupper(trim($row['rfc']));
+        $rfc = strtoupper(trim((string) ($row['rfc'] ?? '')));
+        if ($rfc === '') {
+            return null;
+        }
 
         $data = [
+            'empresa_id' => $empresaId,
             'nombre_razon_social' => $row['nombre_razon_social'],
             'tipo_persona' => strtolower($row['tipo_persona'] ?? 'fisica'),
             'curp' => $row['curp'] ?? null,
@@ -43,25 +50,36 @@ class ClientesImport implements ToModel, WithHeadingRow, SkipsEmptyRows, WithVal
             'colonia' => $row['colonia'] ?? null,
             'codigo_postal' => $row['codigo_postal'] ?? null,
             'municipio' => $row['municipio'] ?? null,
-            'estado' => !empty(trim($row['estado'] ?? '')) ? mb_strtoupper(trim($row['estado']), 'UTF-8') : 'SON',
-            'pais' => (function ($p) {
-                $p = strtoupper(trim($p ?? 'MX'));
-                if (empty($p))
-                    return 'MX';
-                if ($p === 'MÉXICO' || $p === 'MEXICO')
-                    return 'MX';
-                return mb_substr($p, 0, 2);
-            })($row['pais'] ?? 'MX'),
+            // Compatibilidad con esquemas legacy donde estado puede ser CHAR(2)
+            'estado' => $this->normalizeEstado($row['estado'] ?? null),
+            'pais' => $this->normalizePais($row['pais'] ?? null),
             'limite_credito' => $row['limite_credito'] ?? 0.00,
             'dias_credito' => $row['dias_credito'] ?? 0,
         ];
+
+        // Asegurar nunca enviar null en país a esquemas NOT NULL.
+        $data['pais'] = $data['pais'] ?: 'MX';
+
+        // Buscar si el cliente ya existe por email dentro de la misma empresa.
+        if (!empty($data['email'])) {
+            $byEmail = Cliente::query()
+                ->when($empresaId, fn($q) => $q->where('empresa_id', $empresaId))
+                ->where('email', $data['email'])
+                ->first();
+
+            if ($byEmail) {
+                $byEmail->update(array_merge($data, ['rfc' => $rfc]));
+                Log::info("Cliente con email {$data['email']} actualizado mediante importación.");
+                return null;
+            }
+        }
 
         // Buscar si el cliente ya existe por RFC
         $cliente = Cliente::where('rfc', $rfc)->first();
 
         if ($cliente) {
             // Si ya existe, actualizamos sus datos
-            $cliente->update($data);
+            $cliente->update(array_merge($data, ['rfc' => $rfc]));
             Log::info("Cliente con RFC {$rfc} actualizado mediante importación.");
             return null; // Retornamos null porque ya hicimos la actualización manual
         }
@@ -118,5 +136,26 @@ class ClientesImport implements ToModel, WithHeadingRow, SkipsEmptyRows, WithVal
     public function getErrors()
     {
         return $this->errors;
+    }
+
+    private function normalizePais(?string $pais): string
+    {
+        $value = mb_strtoupper(trim((string) $pais), 'UTF-8');
+        if ($value === '' || $value === 'MEXICO' || $value === 'MÉXICO') {
+            return 'MX';
+        }
+
+        return mb_substr($value, 0, 2);
+    }
+
+    private function normalizeEstado(?string $estado): string
+    {
+        $value = mb_strtoupper(trim((string) $estado), 'UTF-8');
+        if ($value === '') {
+            return 'SO';
+        }
+
+        // Evita truncation en esquemas que aún tienen CHAR(2).
+        return mb_substr($value, 0, 2);
     }
 }

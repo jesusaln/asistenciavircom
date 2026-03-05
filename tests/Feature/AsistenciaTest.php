@@ -83,6 +83,15 @@ class AsistenciaTest extends TestCase
     }
 
     /** @test */
+    public function an_employee_cannot_access_logs_view_without_permission()
+    {
+        $response = $this->actingAs($this->employee)
+            ->get(route('asistencia.logs'));
+
+        $response->assertStatus(403);
+    }
+
+    /** @test */
     public function employee_can_register_entry_successfully()
     {
         Storage::fake('public');
@@ -204,5 +213,72 @@ class AsistenciaTest extends TestCase
                 ->component('Asistencia/Checador')
                 ->where('employee.name', $this->employee->name)
         );
+    }
+
+    /** @test */
+    public function token_checkin_first_time_enrolls_user_without_login()
+    {
+        Storage::fake('public');
+
+        $response = $this->post(route('asistencia.token.store', ['token' => $this->employee->checkin_token]), [
+            'tipo' => 'entry',
+            'latitud' => 29.0730,
+            'longitud' => -110.9559,
+            'precision_metros' => 10,
+            'selfie' => UploadedFile::fake()->image('selfie.jpg'),
+            'consentimiento' => true,
+            'face_challenge_completed' => true,
+            'face_liveness_score' => 0.9,
+            'face_descriptor' => json_encode(array_fill(0, 128, 0.1)),
+        ]);
+
+        $response->assertStatus(302);
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('asistencia_registros', [
+            'user_id' => $this->employee->id,
+            'tipo' => 'entry',
+            'origen' => 'token_link',
+            'face_verified' => true,
+        ]);
+
+        $this->employee->refresh();
+        $this->assertNotNull($this->employee->face_enrolled_at);
+        $this->assertNotEmpty($this->employee->face_descriptor);
+    }
+
+    /** @test */
+    public function token_checkin_succeeds_for_pre_enrolled_user_in_mock_mode()
+    {
+        Storage::fake('public');
+
+        $descriptor = array_fill(0, 128, 0.1);
+        $this->employee->forceFill([
+            'face_enrolled_at' => now()->subDay(),
+            'face_descriptor' => $descriptor,
+            'face_provider' => 'local',
+        ])->save();
+
+        $response = $this->post(route('asistencia.token.store', ['token' => $this->employee->checkin_token]), [
+            'tipo' => 'entry',
+            'latitud' => 29.0730,
+            'longitud' => -110.9559,
+            'precision_metros' => 10,
+            'selfie' => UploadedFile::fake()->image('selfie.jpg'),
+            'consentimiento' => true,
+            'face_challenge_completed' => true,
+            'face_liveness_score' => 0.9,
+            'face_descriptor' => json_encode($descriptor),
+        ]);
+
+        $response->assertStatus(302);
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('asistencia_registros', [
+            'user_id' => $this->employee->id,
+            'tipo' => 'entry',
+            'origen' => 'token_link',
+            'face_verified' => true,
+        ]);
     }
 }

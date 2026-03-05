@@ -69,6 +69,23 @@ const copyLinkChecador = async () => {
         notyf.error('Error al copiar link');
     }
 }
+
+const sendLinkChecadorWhatsApp = () => {
+    if (!props.asistenciaResumen?.checkin_token) return;
+
+    const link = route('asistencia.token', { token: props.asistenciaResumen.checkin_token });
+    const nombre = props.empleado?.name || 'colaborador';
+    const mensaje = `Hola ${nombre}, este es tu enlace personal para registrar asistencia:\n${link}\n\nUsa este mismo enlace en cada entrada/salida desde tu celular.`;
+    const clean = String(props.empleado?.telefono || '').replace(/\D/g, '');
+    const normalizedPhone = clean.length === 10
+        ? `52${clean}`
+        : clean;
+    const waUrl = normalizedPhone
+        ? `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(mensaje)}`
+        : `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+
+    window.open(waUrl, '_blank', 'noopener,noreferrer');
+}
 </script>
 
 <template>
@@ -220,11 +237,18 @@ const copyLinkChecador = async () => {
                         <div class="text-[9px] font-extrabold text-neutral-500 uppercase tracking-[0.2em] mb-1">Enlace Personal de Checador</div>
                         <div class="text-sm text-cyan-400 font-mono truncate max-w-[200px] sm:max-w-xs md:max-w-sm">{{ route('asistencia.token', { token: asistenciaResumen.checkin_token }) }}</div>
                     </div>
-                    <button @click="copyLinkChecador" class="h-10 w-10 flex items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 hover:text-cyan-300 transition-colors border border-cyan-500/20" title="Copiar enlace">
-                        <svg xmlns="http://www.0000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
-                        </svg>
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button @click="sendLinkChecadorWhatsApp" class="h-10 w-10 flex items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-300 transition-colors border border-emerald-500/20" title="Enviar por WhatsApp">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" class="w-5 h-5">
+                                <path d="M16 3C8.82 3 3 8.67 3 15.67c0 2.23.6 4.41 1.74 6.33L3 29l7.21-1.67A13.2 13.2 0 0 0 16 28.33c7.18 0 13-5.67 13-12.66C29 8.67 23.18 3 16 3zm0 22.91c-1.9 0-3.75-.5-5.37-1.45l-.39-.23-4.28.99 1.02-4.13-.26-.41A10.98 10.98 0 0 1 5.5 15.67C5.5 10.02 10.2 5.43 16 5.43s10.5 4.59 10.5 10.24S21.8 25.91 16 25.91zm5.8-7.67c-.32-.16-1.9-.93-2.2-1.03-.3-.1-.51-.16-.73.16-.22.31-.84 1.03-1.03 1.24-.19.2-.38.23-.7.08-.32-.16-1.34-.48-2.56-1.54-.95-.82-1.59-1.84-1.77-2.15-.19-.31-.02-.48.14-.64.14-.14.32-.36.47-.54.16-.18.21-.31.31-.52.1-.21.05-.39-.03-.54-.08-.16-.73-1.74-1-2.39-.26-.62-.53-.54-.73-.55h-.62c-.21 0-.54.08-.82.39-.28.31-1.07 1.04-1.07 2.54 0 1.5 1.1 2.96 1.25 3.16.16.21 2.17 3.27 5.27 4.58.74.31 1.32.5 1.77.64.74.24 1.42.21 1.95.13.6-.09 1.9-.77 2.17-1.52.27-.75.27-1.39.19-1.52-.08-.13-.3-.21-.62-.37z"/>
+                            </svg>
+                        </button>
+                        <button @click="copyLinkChecador" class="h-10 w-10 flex items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 hover:text-cyan-300 transition-colors border border-cyan-500/20" title="Copiar enlace">
+                            <svg xmlns="http://www.0000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Weekly Attendance Grid -->

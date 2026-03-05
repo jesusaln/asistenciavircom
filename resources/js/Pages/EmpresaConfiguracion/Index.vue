@@ -16,6 +16,7 @@ import WhatsAppTab from './Partials/WhatsAppTab.vue'
 import SistemaTab from './Partials/SistemaTab.vue'
 import SeguridadTab from './Partials/SeguridadTab.vue'
 import BiometriaTab from './Partials/BiometriaTab.vue'
+import ImagenesTab from './Partials/ImagenesTab.vue'
 import CobrosTab from './Partials/CobrosTab.vue'
 import PagosTab from './Partials/PagosTab.vue'
 import CertificadosTab from './Partials/CertificadosTab.vue'
@@ -39,7 +40,7 @@ const props = defineProps({
 // Inicializar tab desde URL hash o default
 const getInitialTab = () => {
   const hash = window.location.hash.replace('#', '');
-  const validTabs = ['general', 'visual', 'redes-sociales', 'folios', 'documentos', 'impuestos', 'bancarios', 'correo', 'whatsapp', 'api-keys', 'cobros', 'pagos', 'certificados', 'red', 'tienda', 'respaldos', 'sistema', 'seguridad', 'biometria', 'danger'];
+  const validTabs = ['general', 'visual', 'imagenes', 'redes-sociales', 'folios', 'documentos', 'impuestos', 'bancarios', 'correo', 'whatsapp', 'api-keys', 'cobros', 'pagos', 'certificados', 'red', 'tienda', 'respaldos', 'sistema', 'seguridad', 'biometria', 'danger'];
   return validTabs.includes(hash) ? hash : 'general';
 };
 
@@ -48,6 +49,7 @@ const activeTab = ref(getInitialTab())
 const tabs = [
   { id: 'general', nombre: 'Información General', icono: 'building', component: GeneralTab },
   { id: 'visual', nombre: 'Apariencia', icono: 'palette', component: VisualTab },
+  { id: 'imagenes', nombre: 'Imágenes WebP', icono: 'file-image', component: ImagenesTab },
   { id: 'redes-sociales', nombre: 'Redes Sociales', icono: 'share-alt', component: RedesSocialesTab },
   { id: 'folios', nombre: 'Folios y Series', icono: 'list-ol', component: FoliosTab }, // NEW TAB
   { id: 'documentos', nombre: 'Documentos', icono: 'file-contract', component: DocumentosTab }, // Changed from document-text to file-contract for better FA match
@@ -72,6 +74,7 @@ const tabs = [
 const tabRoutes = {
   general: 'empresa-configuracion.general.update',
   visual: 'empresa-configuracion.visual.update',
+  imagenes: 'empresa-configuracion.imagenes.update',
   'redes-sociales': 'empresa-configuracion.redes-sociales.update',
   folios: null, // Self-contained
   documentos: 'empresa-configuracion.documentos.update',
@@ -119,6 +122,8 @@ const form = useForm({
   logo_url: props.configuracion.logo_url, // For preview
   favicon_url: props.configuracion.favicon_url, // For preview
   logo_reportes_url: props.configuracion.logo_reportes_url, // For preview
+  images_webp_enabled: props.configuracion.images_webp_enabled ?? true,
+  images_webp_quality: props.configuracion.images_webp_quality ?? 80,
 
   // Documentos
   pie_pagina_facturas: props.configuracion.pie_pagina_facturas,
@@ -444,5 +449,4 @@ nav {
   to { opacity: 1; transform: translateY(0); }
 }
 </style>
-
 

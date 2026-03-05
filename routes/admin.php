@@ -75,6 +75,7 @@ use App\Http\Controllers\EmpresaConfiguracionController;
 use App\Http\Controllers\FolioConfigController;
 use App\Http\Controllers\Config\AparienciaConfigController;
 use App\Http\Controllers\Config\BiometriaConfigController;
+use App\Http\Controllers\Config\ImagenesConfigController;
 use App\Http\Controllers\Config\EmailConfigController;
 use App\Http\Controllers\Config\CertificadosConfigController;
 use App\Http\Controllers\Config\GeneralConfigController;
@@ -316,6 +317,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
     Route::get('/pedidos/siguiente-numero', [PedidoController::class, 'obtenerSiguienteNumero'])->name('pedidos.siguiente-numero')->middleware('can:view pedidos');
     Route::resource('pedidos', PedidoController::class)->names('pedidos')->middleware('can:view pedidos');
+    Route::post('/pedidos/{id}/confirmar', [App\Http\Controllers\PedidoEstadoController::class, 'confirmar'])->name('pedidos.confirmar');
     Route::post('/pedidos/{id}/enviar-a-venta', [PedidoVentaController::class, 'enviarAVenta'])->name('pedidos.enviar-a-venta');
     Route::get('/pedidos/{id}/pdf', [PedidoDocumentoController::class, 'generarPDF'])->name('pedidos.pdf');
 
@@ -341,7 +343,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::delete('/{factura}', [\App\Http\Controllers\FacturaController::class, 'destroy'])->name('destroy');
     });
 
-    Route::resource('garantias', GarantiaController::class)->only(['index', 'create'])->names('garantias')->middleware('can:view garantias');
+    Route::resource('garantias', GarantiaController::class)->only(['index', 'create', 'show'])->names('garantias')->middleware('can:view garantias');
 
     Route::prefix('kits')->name('kits.')->middleware('can:view kits')->group(function () {
         Route::get('/', [KitController::class, 'index'])->name('index');
@@ -498,10 +500,14 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::get('/empresas', [EmpresasController::class, 'index'])->name('empresas.index')->middleware('can:view companies');
     Route::post('/empresas', [EmpresasController::class, 'store'])->name('empresas.store')->middleware('can:manage companies');
 
+    // Configuración Empresa API Global (Acceso a colores para todos los usuarios autenticados)
+    Route::get('/empresa/configuracion/api', [EmpresaConfiguracionController::class, 'getConfig'])
+        ->withoutMiddleware([\Illuminate\Auth\Middleware\EnsureEmailIsVerified::class])
+        ->name('empresa-configuracion.api');
+
     // Configuración Empresa
     Route::prefix('empresa')->name('empresa-configuracion.')->middleware('can:manage companies')->group(function () {
         Route::get('/configuracion', [EmpresaConfiguracionController::class, 'index'])->name('index');
-        Route::get('/configuracion/api', [EmpresaConfiguracionController::class, 'getConfig'])->name('api');
         Route::put('/configuracion/general', [GeneralConfigController::class, 'update'])->name('general.update');
         Route::put('/configuracion/visual', [AparienciaConfigController::class, 'updateColores'])->name('visual.update');
         Route::post('/configuracion/logo', [AparienciaConfigController::class, 'subirLogo'])->name('subir-logo');
@@ -514,6 +520,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::post('/configuracion/tienda/sync-monedero', [TiendaConfigController::class, 'syncMonedero'])->name('tienda.sync-monedero');
         Route::put('/configuracion/whatsapp', [EmpresaWhatsAppController::class, 'update'])->name('whatsapp.update');
         Route::put('/configuracion/biometria', [BiometriaConfigController::class, 'update'])->name('biometria.update');
+        Route::put('/configuracion/imagenes', [ImagenesConfigController::class, 'update'])->name('imagenes.update');
         Route::get('/configuracion/logs', [SistemaConfigController::class, 'getLogs'])->name('sistema.logs');
         Route::post('/configuracion/logs/clear', [SistemaConfigController::class, 'clearLogs'])->name('sistema.logs.clear');
         Route::put('/configuracion/robot-blog', [App\Http\Controllers\Config\BlogRobotConfigController::class, 'update'])->name('robot-blog.update');
@@ -604,11 +611,31 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     });
 
     // CFDI
-    Route::get('/cfdi', [CfdiController::class, 'index'])->name('cfdi.index');
-    Route::post('/cfdi', [CfdiController::class, 'store'])->name('cfdi.store');
-    Route::get('/cfdi/{cfdi}', [CfdiController::class, 'show'])->name('cfdi.show');
-    Route::get('/cfdi/{id}/ver-pdf', [CfdiController::class, 'verPdfView'])->name('cfdi.ver-pdf-view');
-    Route::delete('/cfdi/{cfdi}', [CfdiController::class, 'destroy'])->name('cfdi.destroy');
+    Route::prefix('cfdi')->name('cfdi.')->group(function () {
+        Route::get('/', [CfdiController::class, 'index'])->name('index');
+        Route::post('/', [CfdiController::class, 'store'])->name('store');
+
+        Route::post('/preview-xml', [CfdiController::class, 'previewXml'])->name('preview-xml');
+        Route::post('/bulk-check-sat', [CfdiController::class, 'bulkCheckSatStatus'])->name('bulk-check-sat');
+        Route::post('/bulk-send-email', [CfdiController::class, 'bulkSendEmail'])->name('bulk-send-email');
+        Route::post('/bulk-download', [CfdiController::class, 'bulkDownload'])->name('bulk-download');
+        Route::post('/descarga-masiva', [CfdiController::class, 'solicitarDescargaMasiva'])->name('descarga-masiva');
+        Route::post('/descarga-masiva/importar', [CfdiController::class, 'importarSeleccionados'])->name('descarga-masiva.importar');
+        Route::post('/descarga-masiva/{id}/verificar', [CfdiController::class, 'verificarDescargaMasiva'])->name('descarga-masiva.verificar');
+        Route::get('/descarga-masiva/{id}/detalles', [CfdiController::class, 'getDescargaDetalles'])->name('descarga-masiva.detalles');
+        Route::post('/descarga-masiva/{descarga}/reintentar', [CfdiController::class, 'reintentarDescargaMasiva'])->name('descarga-masiva.reintentar');
+        Route::post('/descarga-masiva/{descarga}/revalidar', [CfdiController::class, 'revalidarDescargaMasiva'])->name('descarga-masiva.revalidar');
+        Route::delete('/descarga-masiva/{descarga}', [CfdiController::class, 'eliminarDescargaMasiva'])->name('descarga-masiva.eliminar');
+
+        Route::post('/{uuid}/check-sat', [CfdiController::class, 'checkSatStatus'])->name('check-sat');
+        Route::post('/{uuid}/create-provider', [CfdiController::class, 'createProviderFromCfdi'])->name('create-provider');
+        Route::post('/{uuid}/enviar-correo', [CfdiController::class, 'enviarCorreo'])->name('enviar-correo');
+        Route::get('/{uuid}/xml', [CfdiController::class, 'descargarXml'])->name('xml');
+        Route::get('/{uuid}/pdf', [CfdiController::class, 'verPdf'])->name('ver-pdf');
+        Route::get('/{id}/ver-pdf', [CfdiController::class, 'verPdfView'])->name('ver-pdf-view');
+        Route::get('/{cfdi}', [CfdiController::class, 'show'])->name('show');
+        Route::delete('/{cfdi}', [CfdiController::class, 'destroy'])->name('destroy');
+    });
 
     // Proyectos
     Route::resource('proyectos', \App\Http\Controllers\ProyectoController::class);

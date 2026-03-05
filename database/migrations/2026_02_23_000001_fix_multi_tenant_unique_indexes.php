@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration {
     public function up(): void
     {
+        $driver = DB::getDriverName();
+
         // Tablas y sus columnas que deben ser únicas POR empresa
         $indices = [
             'productos' => ['sku', 'codigo'],
@@ -27,7 +29,7 @@ return new class extends Migration {
             if (!Schema::hasTable($table))
                 continue;
 
-            Schema::table($table, function (Blueprint $blueprint) use ($table, $columns) {
+            Schema::table($table, function (Blueprint $blueprint) use ($table, $columns, $driver) {
                 foreach ($columns as $column) {
                     if (!Schema::hasColumn($table, $column))
                         continue;
@@ -35,7 +37,9 @@ return new class extends Migration {
                     // 1. Intentar eliminar el índice único anterior si existe
                     // Usamos SQL directo para PostgreSQL para aprovechar 'IF EXISTS' y evitar fallos que aborten la transacción
                     $indexName = "{$table}_{$column}_unique";
-                    DB::statement("ALTER TABLE {$table} DROP CONSTRAINT IF EXISTS \"{$indexName}\"");
+                    if ($driver === 'pgsql') {
+                        DB::statement("ALTER TABLE {$table} DROP CONSTRAINT IF EXISTS \"{$indexName}\"");
+                    }
 
                     // También intentamos el nombre que Laravel genera a veces (pueden ser varios)
                     // pero con IF EXISTS no fallará si no existen.

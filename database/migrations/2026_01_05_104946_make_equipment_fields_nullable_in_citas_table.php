@@ -10,6 +10,10 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        if (!Schema::hasTable('citas')) {
+            return;
+        }
+
         Schema::table('citas', function (Blueprint $table) {
             if (Schema::hasColumn('citas', 'tipo_equipo')) {
                 $table->string('tipo_equipo')->nullable()->change();
@@ -28,10 +32,20 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        if (!Schema::hasTable('citas')) {
+            return;
+        }
+
         Schema::table('citas', function (Blueprint $table) {
-            $table->string('tipo_equipo')->nullable(false)->change();
-            $table->string('marca_equipo')->nullable(false)->change();
-            $table->string('modelo_equipo')->nullable(false)->change();
+            if (Schema::hasColumn('citas', 'tipo_equipo')) {
+                $table->string('tipo_equipo')->nullable(false)->change();
+            }
+            if (Schema::hasColumn('citas', 'marca_equipo')) {
+                $table->string('marca_equipo')->nullable(false)->change();
+            }
+            if (Schema::hasColumn('citas', 'modelo_equipo')) {
+                $table->string('modelo_equipo')->nullable(false)->change();
+            }
         });
     }
 };

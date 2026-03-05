@@ -11,6 +11,10 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        if (!Schema::hasTable('citas')) {
+            return;
+        }
+
         Schema::table('citas', function (Blueprint $table) {
             // fecha_hora se confirma después por el administrador
             if (Schema::hasColumn('citas', 'fecha_hora')) {
@@ -24,8 +28,14 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        if (!Schema::hasTable('citas')) {
+            return;
+        }
+
         Schema::table('citas', function (Blueprint $table) {
-            $table->dateTime('fecha_hora')->nullable(false)->change();
+            if (Schema::hasColumn('citas', 'fecha_hora')) {
+                $table->dateTime('fecha_hora')->nullable(false)->change();
+            }
         });
     }
 };

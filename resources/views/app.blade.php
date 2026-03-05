@@ -129,7 +129,12 @@
 
     <!-- Scripts -->
     @routes
-    @vite(['resources/js/app.js', 'resources/css/app.css'])
+    @php
+        $hasViteManifest = file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot'));
+    @endphp
+    @if($hasViteManifest)
+        @vite(['resources/js/app.js', 'resources/css/app.css'])
+    @endif
     @inertiaHead
 </head>
 

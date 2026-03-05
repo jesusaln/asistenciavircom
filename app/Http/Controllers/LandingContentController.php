@@ -11,9 +11,11 @@ use App\Models\LandingOferta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use App\Traits\ImageOptimizerTrait;
 
 class LandingContentController extends Controller
 {
+    use ImageOptimizerTrait;
     /**
      * Vista principal de administración de contenido de landing
      */
@@ -138,7 +140,7 @@ class LandingContentController extends Controller
         ]);
 
         if ($request->hasFile('foto')) {
-            $validated['foto'] = $request->file('foto')->store('landing/testimonios', 'public');
+            $validated['foto'] = $this->saveImageAsWebP($request->file('foto'), 'landing/testimonios');
         }
 
         $validated['empresa_id'] = auth()->user()->empresa_id;
@@ -167,7 +169,7 @@ class LandingContentController extends Controller
             if ($testimonio->foto) {
                 Storage::disk('public')->delete($testimonio->foto);
             }
-            $validated['foto'] = $request->file('foto')->store('landing/testimonios', 'public');
+            $validated['foto'] = $this->saveImageAsWebP($request->file('foto'), 'landing/testimonios');
         }
 
         $testimonio->update($validated);
@@ -196,7 +198,7 @@ class LandingContentController extends Controller
             'activo' => 'boolean',
         ]);
 
-        $validated['logo'] = $request->file('logo')->store('landing/logos', 'public');
+        $validated['logo'] = $this->saveImageAsWebP($request->file('logo'), 'landing/logos');
         $validated['empresa_id'] = auth()->user()->empresa_id;
         $validated['activo'] = $validated['activo'] ?? true;
 
@@ -220,7 +222,7 @@ class LandingContentController extends Controller
             if ($logo->logo) {
                 Storage::disk('public')->delete($logo->logo);
             }
-            $validated['logo'] = $request->file('logo')->store('landing/logos', 'public');
+            $validated['logo'] = $this->saveImageAsWebP($request->file('logo'), 'landing/logos');
         }
 
         $logo->update($validated);
@@ -251,7 +253,7 @@ class LandingContentController extends Controller
             'activo' => 'boolean',
         ]);
 
-        $validated['logo'] = $request->file('logo')->store('landing/marcas', 'public');
+        $validated['logo'] = $this->saveImageAsWebP($request->file('logo'), 'landing/marcas');
         $validated['empresa_id'] = auth()->user()->empresa_id;
         $validated['activo'] = $validated['activo'] ?? true;
 
@@ -276,7 +278,7 @@ class LandingContentController extends Controller
             if ($marca->logo) {
                 Storage::disk('public')->delete($marca->logo);
             }
-            $validated['logo'] = $request->file('logo')->store('landing/marcas', 'public');
+            $validated['logo'] = $this->saveImageAsWebP($request->file('logo'), 'landing/marcas');
         }
 
         $marca->update($validated);

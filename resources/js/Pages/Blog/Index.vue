@@ -1,6 +1,7 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { Head, Link, useForm, router } from '@inertiajs/vue3';
+import { computed, ref, watch } from 'vue';
+import { debounce } from 'lodash';
 import PublicNavbar from '@/Components/PublicNavbar.vue';
 import WhatsAppWidget from '@/Components/WhatsAppWidget.vue';
 import PublicFooter from '@/Components/PublicFooter.vue';
@@ -12,11 +13,6 @@ const props = defineProps({
     categories: Array,
     filters: Object,
 });
-
-import { router } from '@inertiajs/vue3';
-import {  watch } from 'vue';
-import { debounce } from 'lodash';
-
 const search = ref(props.filters.search || '');
 
 const handleSearch = debounce((value) => {
@@ -29,6 +25,28 @@ const handleSearch = debounce((value) => {
 watch(search, (value) => {
     handleSearch(value);
 });
+
+const newsletterForm = useForm({
+    email: ''
+});
+
+const subscribeText = ref('Suscribirme');
+const isSuccess = ref(false);
+
+const submitNewsletter = () => {
+    newsletterForm.post(route('newsletter.subscribe'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            newsletterForm.reset('email');
+            subscribeText.value = '¡Suscrito con éxito!';
+            isSuccess.value = true;
+            setTimeout(() => {
+                subscribeText.value = 'Suscribirme';
+                isSuccess.value = false;
+            }, 4000);
+        }
+    });
+};
 
 const selectCategory = (category) => {
     const newCategory = props.filters.category === category ? null : category;
@@ -238,16 +256,32 @@ const formatDate = (date) => {
                             <p class="text-slate-400 text-lg font-medium leading-relaxed">Suscríbete para recibir noticias, tips de seguridad y ofertas exclusivas directamente en tu bandeja de entrada.</p>
                         </div>
                         
-                        <div class="w-full max-w-md bg-white/5 backdrop-blur-xl p-2 rounded-3xl border border-white/10 flex flex-col sm:flex-row gap-2">
+                        <form @submit.prevent="submitNewsletter" class="w-full max-w-md bg-white/5 backdrop-blur-xl p-2 rounded-3xl border border-white/10 flex flex-col sm:flex-row gap-2">
                             <input 
+                                v-model="newsletterForm.email"
                                 type="email" 
                                 placeholder="tu@email-empresa.com" 
+                                required
+                                :disabled="newsletterForm.processing || isSuccess"
                                 class="flex-grow bg-transparent border-none focus:ring-0 px-6 py-4 placeholder:text-slate-500 font-medium text-slate-100"
                             >
-                            <button class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg hover:shadow-[var(--color-primary)]/50">
-                                Suscribirme
+                            <button 
+                                type="submit" 
+                                :disabled="newsletterForm.processing || isSuccess"
+                                :class="[
+                                    'px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg',
+                                    isSuccess ? 'bg-green-500 text-white cursor-default' : 'bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white hover:shadow-[var(--color-primary)]/50',
+                                    newsletterForm.processing ? 'opacity-70 cursor-wait' : ''
+                                ]"
+                            >
+                                <span v-if="newsletterForm.processing">Enviando...</span>
+                                <span v-else>{{ subscribeText }}</span>
                             </button>
+                        </form>
+                        <div v-if="newsletterForm.errors.email" class="text-red-400 text-sm mt-2 text-center lg:text-left absolute -bottom-6 w-full">
+                            {{ newsletterForm.errors.email }}
                         </div>
+
                     </div>
                 </div>
             </section>

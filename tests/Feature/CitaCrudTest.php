@@ -75,6 +75,9 @@ class CitaCrudTest extends TestCase
             'prioridad' => 'media',
             'estado' => 'programado',
             'descripcion' => 'Descripción de prueba para cita',
+            'tipo_equipo' => 'Aire Acondicionado',
+            'marca_equipo' => 'Carrier',
+            'modelo_equipo' => 'X-100',
         ];
 
         $response = $this->post(route('citas.store'), $payload);
@@ -156,6 +159,9 @@ class CitaCrudTest extends TestCase
             'tipo_servicio' => 'Soporte',
             'estado' => 'programado',
             'prioridad' => 'baja',
+            'tipo_equipo' => 'Laptop',
+            'marca_equipo' => 'HP',
+            'modelo_equipo' => 'ProBook',
         ]);
 
 
@@ -167,6 +173,9 @@ class CitaCrudTest extends TestCase
             'tipo_servicio' => 'Otro Servicio',
             'fecha_hora' => $fecha->format('Y-m-d H:i:s'),
             'estado' => 'programado',
+            'tipo_equipo' => 'Laptop',
+            'marca_equipo' => 'HP',
+            'modelo_equipo' => 'ProBook',
         ];
 
         $response = $this->from(route('citas.index'))->post(route('citas.store'), $payload);

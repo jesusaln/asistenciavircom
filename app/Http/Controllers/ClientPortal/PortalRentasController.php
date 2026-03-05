@@ -15,9 +15,12 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Traits\ImageOptimizerTrait;
 
 class PortalRentasController extends Controller
 {
+    use ImageOptimizerTrait;
+
     public function index()
     {
         $cliente = Auth::guard('client')->user();
@@ -129,7 +132,7 @@ class PortalRentasController extends Controller
         try {
             $file = $request->file('documento');
             $filename = time() . '_' . $request->tipo . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs("rentas/{$renta->id}/documentos", $filename, 'public');
+            $path = $this->storeFileOptimized($file, "rentas/{$renta->id}/documentos", 'public', $filename);
 
             // Devolver la ruta para que Inertia la guarde en el form
             return response()->json([

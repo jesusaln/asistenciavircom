@@ -12,6 +12,9 @@ use App\Http\Controllers\AsistenciaController;
 
 Route::get('/soporte-tecnico', [SoportePublicoController::class, 'index'])->name('public.soporte'); // Nueva Ruta
 Route::get('/marcar/{token}', [AsistenciaController::class, 'showByToken'])->name('asistencia.token');
+Route::post('/marcar/{token}', [AsistenciaController::class, 'storeByToken'])
+    ->middleware('throttle:10,1')
+    ->name('asistencia.token.store');
 
 
 // Tienda (Público)
@@ -179,5 +182,6 @@ Route::post('/webhooks/portal/mercadopago', [\App\Http\Controllers\ClientPortal\
     ->name('portal.pagos.mercadopago.webhook')
     ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
-// Newsletter Unsubscribe
+// Newsletter
+Route::post('/newsletter/subscribe', [\App\Http\Controllers\NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 Route::get('/newsletter/unsubscribe', [\App\Http\Controllers\NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');

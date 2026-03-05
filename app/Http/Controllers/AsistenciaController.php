@@ -15,9 +15,11 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 use Carbon\Carbon;
+use App\Traits\ImageOptimizerTrait;
 
 class AsistenciaController extends Controller
 {
+    use ImageOptimizerTrait;
     /**
      * Muestra la pantalla de marcaje (Checador)
      */
@@ -35,6 +37,11 @@ class AsistenciaController extends Controller
      */
     public function logs(Request $request): Response
     {
+        $authUser = Auth::user();
+        $canViewLogs = $authUser
+            && ($authUser->is_admin || $authUser->hasAnyRole(['admin', 'super-admin']) || $authUser->can('view empleados'));
+        abort_unless($canViewLogs, 403);
+
         $dateFrom = $request->input('date_from', now()->startOfMonth()->toDateString());
         $dateTo = $request->input('date_to', now()->toDateString());
 
@@ -111,12 +118,21 @@ class AsistenciaController extends Controller
     }
 
     /**
+     * Procesa el registro de asistencia mediante enlace personal
+     */
+    public function storeByToken(Request $request, string $token): RedirectResponse
+    {
+        $request->merge(['token' => $token]);
+        return $this->store($request);
+    }
+
+    /**
      * Prepara los datos para la vista de marcaje
      */
     private function renderCheckView(User $user, ?string $token = null): Response
     {
         $config = EmpresaConfiguracion::getConfig($user->empresa_id);
-        $timezone = 'America/Hermosillo'; // Default for the region
+        $timezone = config('app.timezone', 'America/Hermosillo');
         $now = now($timezone);
 
         // Obtener el último registro DE HOY para sugerir el siguiente paso
@@ -236,12 +252,6 @@ class AsistenciaController extends Controller
         $companyConfig = EmpresaConfiguracion::getConfig($user->empresa_id);
         $biometricProvider = $companyConfig->biometrics_provider ?? config('services.biometrics.provider', 'mock');
 
-        if ($tokenMode && $biometricProvider === 'mock') {
-            return back()->withErrors([
-                'selfie' => 'El acceso por enlace requiere un proveedor biométrico server-side configurado (modo mock no permitido).',
-            ]);
-        }
-
         $validated = $request->validate([
             'tipo' => 'required|in:entry,exit,break_start,break_end',
             'latitud' => 'nullable|numeric|between:-90,90',
@@ -272,14 +282,11 @@ class AsistenciaController extends Controller
             ]);
         }
 
-        if ($tokenMode && (!$user->face_enrolled_at || empty($user->face_descriptor))) {
-            return back()->withErrors([
-                'selfie' => 'Este enlace no puede enrolar rostros nuevos. Solicita activación inicial con tu cuenta.',
-            ]);
-        }
+        $timezone = config('app.timezone', 'America/Hermosillo');
+        $recordedAt = now($timezone);
 
         // Enforzar secuencia de checada durante el día
-        $sequenceToday = now('America/Hermosillo')->toDateString();
+        $sequenceToday = $recordedAt->toDateString();
         $sequenceLastCheck = AsistenciaRegistro::where('user_id', $user->id)
             ->whereDate('registrado_at', $sequenceToday)
             ->orderByDesc('registrado_at')
@@ -349,7 +356,7 @@ class AsistenciaController extends Controller
         // Selfie (siempre requerida)
         $selfiePath = null;
         if ($request->hasFile('selfie')) {
-            $selfiePath = $request->file('selfie')->store('asistencias/selfies', 'public');
+            $selfiePath = $this->saveImageAsWebP($request->file('selfie'), 'asistencias/selfies');
         }
 
         // Biometría facial
@@ -365,9 +372,9 @@ class AsistenciaController extends Controller
         $challengeCompleted = (bool) ($validated['face_challenge_completed'] ?? false);
         $faceLivenessScore = isset($validated['face_liveness_score']) ? (float) $validated['face_liveness_score'] : null;
         $trustClientDescriptor = (bool) ($companyConfig->biometrics_trust_client_descriptor ?? config('services.biometrics.trust_client_descriptor', false));
-        // En web_panel autenticado, si el proveedor es mock, permitimos fallback local
-        // para no dejar todos los registros en "pendiente" mientras se despliega proveedor real.
-        if (!$tokenMode && $biometricProvider === 'mock') {
+        // En modo mock permitimos descriptor local (panel y token), pero en token
+        // siempre se mantiene validación estricta + reto completado.
+        if ($biometricProvider === 'mock') {
             $trustClientDescriptor = true;
         }
         $incomingDescriptor = $trustClientDescriptor
@@ -522,8 +529,7 @@ class AsistenciaController extends Controller
 
         // ═══════ DETECCIÓN AUTOMÁTICA DE RETARDO ═══════
         $toleranciaMinutos = (int) ($companyConfig->minutos_tolerancia_retardo ?? 15);
-        $timezone = 'America/Hermosillo';
-        $ahora = now($timezone);
+        $ahora = $recordedAt->copy();
 
         if ($validated['tipo'] === 'entry' && $user->hora_entrada) {
             try {
@@ -565,16 +571,16 @@ class AsistenciaController extends Controller
             'user_id' => $user->id,
             'almacen_id' => $almacen?->id,
             'tipo' => $validated['tipo'],
-            'registrado_at' => now(),
+            'registrado_at' => $recordedAt,
             'origen' => $tokenMode ? 'token_link' : 'web_panel',
-            'latitud' => $validated['latitud'],
-            'longitud' => $validated['longitud'],
-            'precision_metros' => $validated['precision_metros'],
+            'latitud' => $validated['latitud'] ?? null,
+            'longitud' => $validated['longitud'] ?? null,
+            'precision_metros' => $validated['precision_metros'] ?? null,
             'direccion' => $direccion,
             'selfie_path' => $selfiePath,
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
-            'notas' => $validated['notas'],
+            'notas' => $validated['notas'] ?? null,
             'es_incidencia' => $esIncidencia,
             'motivo_incidencia' => $motivoIncidencia,
             'consentimiento_biometrico' => $request->boolean('consentimiento'),
@@ -593,7 +599,7 @@ class AsistenciaController extends Controller
             'face_quality_message' => $validated['face_quality_message'] ?? null,
         ]);
 
-        $msg = $esIncidencia ? 'Registro guardado con incidencia de ubicación.' : 'Asistencia registrada correctamente.';
+        $msg = $esIncidencia ? 'Registro guardado con incidencia. Revisa detalles en bitácora.' : 'Asistencia registrada correctamente.';
         return back()->with('success', $msg);
     }
 

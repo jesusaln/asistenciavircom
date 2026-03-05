@@ -9,13 +9,22 @@ class ImageProxyController extends Controller
     public function proxy(Request $request)
     {
         $url = $request->query('url');
+        $placeholderPath = public_path('images/placeholder-product.svg');
+        $fallbackResponse = function () use ($placeholderPath) {
+            if (file_exists($placeholderPath)) {
+                return response(file_get_contents($placeholderPath))
+                    ->header('Content-Type', 'image/svg+xml')
+                    ->header('Cache-Control', 'public, max-age=86400');
+            }
+            return response('', 404);
+        };
 
         // Soporte para URL codificada en base64 (parametro 'u') para evadir bloqueadores de anuncios
         if (!$url && $request->has('u')) {
             try {
                 $u = $request->query('u');
                 // Asegurarse de quitar espacios o caracteres raros
-                $decoded = base64_decode(trim($u));
+                $decoded = base64_decode(trim($u), true);
                 if ($decoded && (str_starts_with($decoded, 'http://') || str_starts_with($decoded, 'https://'))) {
                     $url = $decoded;
                 }
@@ -26,7 +35,7 @@ class ImageProxyController extends Controller
 
         if (!$url) {
             \Log::warning("Image Proxy: No valid URL found in request", ['u' => $request->query('u')]);
-            return abort(404);
+            return $fallbackResponse();
         }
 
         // Validar que sea una URL de CVA (seguridad básica)
@@ -34,16 +43,6 @@ class ImageProxyController extends Controller
             // return abort(403); 
             // Por ahora permitimos todo para pruebas, pero idealmente restringir
         }
-
-        $placeholderPath = public_path('images/placeholder-product.svg');
-        $fallbackResponse = function () use ($placeholderPath) {
-            if (file_exists($placeholderPath)) {
-                return response(file_get_contents($placeholderPath))
-                    ->header('Content-Type', 'image/svg+xml')
-                    ->header('Cache-Control', 'public, max-age=86400');
-            }
-            return response('', 404);
-        };
 
         try {
             $cachedData = \Illuminate\Support\Facades\Cache::remember('img_proxy_' . md5($url), now()->addHours(24), function () use ($url) {
