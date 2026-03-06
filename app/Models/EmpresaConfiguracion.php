@@ -80,6 +80,7 @@ class EmpresaConfiguracion extends Model
         'intentos_login',
         'tiempo_bloqueo',
         'dias_gracia_corte',
+        'bloqueo_portal_por_deuda',
         'requerir_2fa',
         // Datos bancarios existentes
         'banco',
@@ -296,6 +297,7 @@ class EmpresaConfiguracion extends Model
         'cva_monedero_last_update' => 'datetime',
         'shipping_local_cost' => 'decimal:2',
         'dias_gracia_corte' => 'integer',
+        'bloqueo_portal_por_deuda' => 'boolean',
         // Biométricos
         'biometrics_strict_match' => 'boolean',
         'biometrics_local_match_threshold' => 'decimal:4',

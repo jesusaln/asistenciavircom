@@ -4,23 +4,152 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Migración de consolidación para estabilizar el esquema del sistema.
+ * 
+ * Esta migración asegura que todas las tablas y columnas críticas existan
+ * sin importar en qué estado se encuentre la base de datos actual.
+ */
 return new class extends Migration
 {
     public function up(): void
     {
+        // 1. Tablas Core y sus columnas
         $this->ensureUsersColumns();
         $this->ensureEmpresasColumns();
+        $this->ensureClientesColumns();
+        
+        // 2. Módulos Operacionales
         $this->ensureCitasColumns();
-        $this->ensurePrestamosColumns();
+        $this->ensurePrestamosTables();
+        $this->ensureCotizacionesTables();
+        $this->ensureNotificationsTables();
+        
+        // 3. Otros ajustes operacionales (Inventarios, Compras, etc)
         $this->ensureOperationalFixes();
     }
 
     public function down(): void
     {
-        // Migracion de consolidacion no destructiva.
+        // Migración de consolidación no destructiva.
     }
 
-    private function ensurePrestamosColumns(): void
+    private function ensureUsersColumns(): void
+    {
+        if (!Schema::hasTable('users')) return;
+
+        Schema::table('users', function (Blueprint $table) {
+            if (!Schema::hasColumn('users', 'username')) $table->string('username')->nullable()->index();
+            if (!Schema::hasColumn('users', 'checkin_token')) $table->string('checkin_token', 64)->nullable()->unique();
+            if (!Schema::hasColumn('users', 'ine')) $table->string('ine', 30)->nullable();
+            if (!Schema::hasColumn('users', 'imss')) $table->string('imss', 50)->nullable();
+            if (!Schema::hasColumn('users', 'dias_trabajo')) $table->json('dias_trabajo')->nullable();
+            if (!Schema::hasColumn('users', 'dias_descanso')) $table->json('dias_descanso')->nullable();
+            if (!Schema::hasColumn('users', 'face_reference_path')) $table->string('face_reference_path')->nullable();
+            if (!Schema::hasColumn('users', 'face_enrolled_at')) $table->timestamp('face_enrolled_at')->nullable();
+            if (!Schema::hasColumn('users', 'face_last_verified_at')) $table->timestamp('face_last_verified_at')->nullable();
+            if (!Schema::hasColumn('users', 'face_provider')) $table->string('face_provider', 50)->nullable();
+            if (!Schema::hasColumn('users', 'face_descriptor')) $table->json('face_descriptor')->nullable();
+        });
+    }
+
+    private function ensureEmpresasColumns(): void
+    {
+        if (!Schema::hasTable('empresas')) return;
+
+        Schema::table('empresas', function (Blueprint $table) {
+            $cols = [
+                'nombre_razon_social' => 'string',
+                'tipo_persona' => 'string',
+                'rfc' => 'string',
+                'regimen_fiscal' => 'string',
+                'uso_cfdi' => 'string',
+                'email' => 'string',
+                'telefono' => 'string',
+                'calle' => 'string',
+                'numero_exterior' => 'string',
+                'codigo_postal' => 'string',
+                'colonia' => 'string',
+                'municipio' => 'string',
+                'estado' => 'string',
+                'pais' => 'string',
+                'whatsapp_enabled' => 'boolean',
+                'whatsapp_default_language' => 'string',
+                'whatsapp_template_maintenance' => 'string',
+            ];
+
+            foreach ($cols as $col => $type) {
+                if (!Schema::hasColumn('empresas', $col)) {
+                    if ($type == 'boolean') $table->boolean($col)->default(false);
+                    else $table->string($col)->nullable();
+                }
+            }
+        });
+    }
+
+    private function ensureClientesColumns(): void
+    {
+        if (!Schema::hasTable('clientes')) {
+            Schema::create('clientes', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('empresa_id')->nullable()->index();
+                $table->string('nombre_razon_social');
+                $table->string('rfc')->nullable();
+                $table->string('email')->nullable();
+                $table->string('tipo_persona')->default('fisica');
+                $table->string('activo')->default(true);
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
+
+        Schema::table('clientes', function (Blueprint $table) {
+            $cols = [
+                'tipo_identificacion', 'identificacion', 'curp', 'forma_pago_default',
+                'residencia_fiscal', 'num_reg_id_trib', 'requiere_factura', 'notas',
+                'whatsapp_optin', 'whatsapp_consent_date', 'whatsapp_consent_method',
+                'whatsapp_consent_source', 'cfdi_default_use', 'payment_form_default'
+            ];
+            foreach ($cols as $col) {
+                if (!Schema::hasColumn('clientes', $col)) {
+                    if ($col == 'requiere_factura' || $col == 'whatsapp_optin') $table->boolean($col)->default(false);
+                    elseif ($col == 'whatsapp_consent_date') $table->dateTime($col)->nullable();
+                    else $table->text($col)->nullable();
+                }
+            }
+        });
+    }
+
+    private function ensureCitasColumns(): void
+    {
+        if (!Schema::hasTable('citas')) return;
+
+        Schema::table('citas', function (Blueprint $table) {
+            if (!Schema::hasColumn('citas', 'tipo_servicio')) $table->string('tipo_servicio')->nullable();
+            if (!Schema::hasColumn('citas', 'fecha_hora')) $table->dateTime('fecha_hora')->nullable();
+            if (!Schema::hasColumn('citas', 'tipo_equipo')) $table->string('tipo_equipo')->nullable();
+            if (!Schema::hasColumn('citas', 'marca_equipo')) $table->string('marca_equipo')->nullable();
+            if (!Schema::hasColumn('citas', 'modelo_equipo')) $table->string('modelo_equipo')->nullable();
+            if (!Schema::hasColumn('citas', 'problema_reportado')) $table->text('problema_reportado')->nullable();
+            if (!Schema::hasColumn('citas', 'prioridad')) $table->string('prioridad')->default('media');
+            if (!Schema::hasColumn('citas', 'evidencias')) $table->text('evidencias')->nullable();
+            if (!Schema::hasColumn('citas', 'descripcion')) $table->text('descripcion')->nullable();
+            if (Schema::hasColumn('citas', 'titulo')) $table->string('titulo')->nullable()->change();
+            
+            // Campos de seguimiento y fotos
+            $extraCols = ["foto_equipo", "foto_hoja_servicio", "foto_identificacion", "subtotal", "descuento_general", "descuento_items", "iva", "total", "notas", "inicio_servicio", "fin_servicio", "tiempo_servicio"];
+            foreach($extraCols as $col) {
+                if (!Schema::hasColumn("citas", $col)) {
+                    if (in_array($col, ["subtotal", "descuento_general", "descuento_items", "iva", "total"])) $table->decimal($col, 15, 2)->default(0);
+                    elseif (in_array($col, ["inicio_servicio", "fin_servicio"])) $table->dateTime($col)->nullable();
+                    elseif ($col == "tiempo_servicio") $table->integer($col)->nullable();
+                    else $table->text($col)->nullable();
+                }
+            }
+        });
+    }
+
+    private function ensurePrestamosTables(): void
     {
         if (!Schema::hasTable('prestamos')) {
             Schema::create('prestamos', function (Blueprint $table) {
@@ -90,305 +219,55 @@ return new class extends Migration
         }
     }
 
-    private function ensureCitasColumns(): void
+    private function ensureCotizacionesTables(): void
     {
-        if (!Schema::hasTable('citas')) {
-            return;
-        }
-
-        Schema::table('citas', function (Blueprint $table) {
-            if (!Schema::hasColumn('citas', 'tipo_servicio')) {
-                $table->string('tipo_servicio')->nullable()->after('tecnico_id');
-            }
-            if (!Schema::hasColumn('citas', 'fecha_hora')) {
-                $table->dateTime('fecha_hora')->nullable()->after('tipo_servicio');
-            }
-            if (!Schema::hasColumn('citas', 'tipo_equipo')) {
-                $table->string('tipo_equipo')->nullable();
-            }
-            if (!Schema::hasColumn('citas', 'marca_equipo')) {
-                $table->string('marca_equipo')->nullable();
-            }
-            if (!Schema::hasColumn('citas', 'modelo_equipo')) {
-                $table->string('modelo_equipo')->nullable();
-            }
-            if (!Schema::hasColumn('citas', 'problema_reportado')) {
-                $table->text('problema_reportado')->nullable();
-            }
-            if (!Schema::hasColumn('citas', 'prioridad')) {
-                $table->string('prioridad')->default('media');
-            }
-            if (!Schema::hasColumn('citas', 'evidencias')) {
-                $table->text('evidencias')->nullable();
-            }
-            if (!Schema::hasColumn('citas', 'descripcion') && !Schema::hasColumn('citas', 'titulo')) {
-                 $table->text('descripcion')->nullable();
-            } elseif (Schema::hasColumn('citas', 'titulo') && !Schema::hasColumn('citas', 'descripcion')) {
-                 // Rename titulo to descripcion if needed, or just add it
-                 $table->text('descripcion')->nullable();
-            }
-        });
-    }
-
-    private function ensureUsersColumns(): void
-    {
-        if (!Schema::hasTable('users')) {
-            return;
-        }
-
-        Schema::table('users', function (Blueprint $table) {
-            if (!Schema::hasColumn('users', 'username')) {
-                $table->string('username')->nullable()->index();
-            }
-            if (!Schema::hasColumn('users', 'checkin_token')) {
-                $table->string('checkin_token', 64)->nullable()->unique();
-            }
-            if (!Schema::hasColumn('users', 'ine')) {
-                $table->string('ine', 30)->nullable();
-            }
-            if (!Schema::hasColumn('users', 'imss')) {
-                $table->string('imss', 50)->nullable();
-            }
-            if (!Schema::hasColumn('users', 'dias_trabajo')) {
-                $table->json('dias_trabajo')->nullable();
-            }
-            if (!Schema::hasColumn('users', 'dias_descanso')) {
-                $table->json('dias_descanso')->nullable();
-            }
-            if (!Schema::hasColumn('users', 'face_reference_path')) {
-                $table->string('face_reference_path')->nullable();
-            }
-            if (!Schema::hasColumn('users', 'face_enrolled_at')) {
-                $table->timestamp('face_enrolled_at')->nullable();
-            }
-            if (!Schema::hasColumn('users', 'face_last_verified_at')) {
-                $table->timestamp('face_last_verified_at')->nullable();
-            }
-            if (!Schema::hasColumn('users', 'face_provider')) {
-                $table->string('face_provider', 50)->nullable();
-            }
-            if (!Schema::hasColumn('users', 'face_descriptor')) {
-                $table->json('face_descriptor')->nullable();
-            }
-        });
-    }
-
-    private function ensureEmpresasColumns(): void
-    {
-        if (!Schema::hasTable('empresas')) {
-            return;
-        }
-
-        Schema::table('empresas', function (Blueprint $table) {
-            if (!Schema::hasColumn('empresas', 'nombre_razon_social')) {
-                $table->string('nombre_razon_social')->nullable();
-            }
-            if (!Schema::hasColumn('empresas', 'tipo_persona')) {
-                $table->string('tipo_persona')->nullable();
-            }
-            if (!Schema::hasColumn('empresas', 'rfc')) {
-                $table->string('rfc')->nullable();
-            }
-            if (!Schema::hasColumn('empresas', 'regimen_fiscal')) {
-                $table->string('regimen_fiscal')->nullable();
-            }
-            if (!Schema::hasColumn('empresas', 'uso_cfdi')) {
-                $table->string('uso_cfdi')->nullable();
-            }
-            if (!Schema::hasColumn('empresas', 'email')) {
-                $table->string('email')->nullable();
-            }
-            if (!Schema::hasColumn('empresas', 'telefono')) {
-                $table->string('telefono')->nullable();
-            }
-            if (!Schema::hasColumn('empresas', 'calle')) {
-                $table->string('calle')->nullable();
-            }
-            if (!Schema::hasColumn('empresas', 'numero_exterior')) {
-                $table->string('numero_exterior')->nullable();
-            }
-            if (!Schema::hasColumn('empresas', 'codigo_postal')) {
-                $table->string('codigo_postal')->nullable();
-            }
-            if (!Schema::hasColumn('empresas', 'colonia')) {
-                $table->string('colonia')->nullable();
-            }
-            if (!Schema::hasColumn('empresas', 'municipio')) {
-                $table->string('municipio')->nullable();
-            }
-            if (!Schema::hasColumn('empresas', 'estado')) {
-                $table->string('estado')->nullable();
-            }
-            if (!Schema::hasColumn('empresas', 'pais')) {
-                $table->string('pais')->nullable();
-            }
-            if (!Schema::hasColumn('empresas', 'whatsapp_enabled')) {
-                $table->boolean('whatsapp_enabled')->default(false);
-            }
-            if (!Schema::hasColumn('empresas', 'whatsapp_default_language')) {
-                $table->string('whatsapp_default_language')->default('es_MX');
-            }
-            if (!Schema::hasColumn('empresas', 'whatsapp_template_maintenance')) {
-                $table->string('whatsapp_template_maintenance')->nullable();
-            }
-            if (!Schema::hasColumn('empresas', 'created_at')) {
-                $table->timestamp('created_at')->nullable();
-            }
-            if (!Schema::hasColumn('empresas', 'updated_at')) {
-                $table->timestamp('updated_at')->nullable();
-            }
-        });
-    }
-
-    private function ensureOperationalFixes(): void
-    {
-        if (!Schema::hasTable('clientes')) {
-            Schema::create('clientes', function (Blueprint $table) {
-                $table->id();
-                $table->unsignedBigInteger('empresa_id')->nullable()->index();
-                $table->string('nombre_razon_social');
-                $table->string('rfc')->nullable();
-                $table->string('email')->nullable();
-                $table->string('tipo_persona')->default('fisica');
-                $table->string('regimen_fiscal')->nullable();
-                $table->string('uso_cfdi')->nullable();
-                $table->string('telefono')->nullable();
-                $table->string('calle')->nullable();
-                $table->string('numero_exterior')->nullable();
-                $table->string('numero_interior')->nullable();
-                $table->string('colonia')->nullable();
-                $table->string('codigo_postal')->nullable();
-                $table->string('municipio')->nullable();
-                $table->string('estado')->nullable();
-                $table->string('pais')->nullable();
-                $table->boolean('activo')->default(true);
-                $table->timestamps();
-                $table->softDeletes();
-            });
-        }
-
-        if (!Schema::hasTable('prestamos')) {
-            Schema::create('prestamos', function (Blueprint $table) {
+        if (!Schema::hasTable('cotizaciones')) {
+            Schema::create('cotizaciones', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedBigInteger('empresa_id')->nullable()->index();
                 $table->unsignedBigInteger('cliente_id')->nullable()->index();
-                $table->unsignedBigInteger('empleado_id')->nullable()->index();
-                $table->string('folio')->nullable();
-                $table->string('estado')->default('pendiente');
-                $table->decimal('monto_total', 15, 2)->default(0);
-                $table->decimal('monto_pendiente', 15, 2)->default(0);
-                $table->timestamps();
-            });
-        }
-
-        if (!Schema::hasTable('cuentas_por_cobrar')) {
-            Schema::create('cuentas_por_cobrar', function (Blueprint $table) {
-                $table->id();
-                $table->unsignedBigInteger('empresa_id')->nullable()->index();
-                $table->unsignedBigInteger('cliente_id')->nullable()->index();
-                $table->unsignedBigInteger('cobrable_id')->nullable();
-                $table->string('cobrable_type')->nullable();
-                $table->decimal('monto_total', 15, 2)->default(0);
-                $table->decimal('monto_pagado', 15, 2)->default(0);
-                $table->decimal('monto_pendiente', 15, 2)->default(0);
-                $table->date('fecha_vencimiento')->nullable();
-                $table->string('estado')->default('pendiente');
-                $table->text('notas')->nullable();
-                $table->timestamps();
-                $table->softDeletes();
-            });
-        }
-
-        if (!Schema::hasTable('pedidos')) {
-            Schema::create('pedidos', function (Blueprint $table) {
-                $table->id();
-                $table->unsignedBigInteger('empresa_id')->nullable()->index();
-                $table->unsignedBigInteger('cliente_id')->nullable()->index();
-                $table->string('numero_pedido')->nullable();
+                $table->unsignedBigInteger('almacen_id')->nullable()->index();
+                $table->string('numero_cotizacion')->nullable()->index();
+                $table->date('fecha_cotizacion')->nullable();
                 $table->decimal('subtotal', 15, 2)->default(0);
+                $table->decimal('descuento_general', 15, 2)->default(0);
+                $table->decimal('descuento_items', 15, 2)->default(0);
                 $table->decimal('iva', 15, 2)->default(0);
+                $table->decimal('retencion_iva', 15, 2)->default(0);
+                $table->decimal('retencion_isr', 15, 2)->default(0);
+                $table->decimal('isr', 15, 2)->default(0);
                 $table->decimal('total', 15, 2)->default(0);
-                $table->dateTime('fecha')->nullable();
+                $table->text('notas')->nullable();
                 $table->string('estado')->default('pendiente');
+                $table->boolean('email_enviado')->default(false);
+                $table->dateTime('email_enviado_fecha')->nullable();
+                $table->unsignedBigInteger('email_enviado_por')->nullable();
+                $table->unsignedBigInteger('created_by')->nullable();
+                $table->unsignedBigInteger('updated_by')->nullable();
+                $table->unsignedBigInteger('deleted_by')->nullable();
                 $table->timestamps();
+                $table->softDeletes();
             });
         }
 
-        if (!Schema::hasTable('pedido_items')) {
-            Schema::create('pedido_items', function (Blueprint $table) {
+        if (!Schema::hasTable('cotizacion_items')) {
+            Schema::create('cotizacion_items', function (Blueprint $table) {
                 $table->id();
-                $table->unsignedBigInteger('pedido_id')->nullable()->index();
-                $table->unsignedBigInteger('pedible_id')->nullable();
-                $table->string('pedible_type')->nullable();
+                $table->unsignedBigInteger('cotizacion_id')->index();
+                $table->morphs('cotizable');
                 $table->decimal('cantidad', 15, 2)->default(0);
                 $table->decimal('precio', 15, 2)->default(0);
+                $table->decimal('descuento', 15, 2)->default(0);
+                $table->decimal('descuento_monto', 15, 2)->default(0);
                 $table->decimal('subtotal', 15, 2)->default(0);
+                $table->text('notas')->nullable();
                 $table->timestamps();
             });
         }
+    }
 
-        if (!Schema::hasTable('inventarios')) {
-            Schema::create('inventarios', function (Blueprint $table) {
-                $table->id();
-                $table->unsignedBigInteger('empresa_id')->nullable()->index();
-                $table->unsignedBigInteger('producto_id')->nullable()->index();
-                $table->unsignedBigInteger('almacen_id')->nullable()->index();
-                $table->decimal('cantidad', 15, 2)->default(0);
-                $table->decimal('stock_minimo', 15, 2)->default(0);
-                $table->timestamps();
-            });
-        }
-
-        if (!Schema::hasTable('backup_logs')) {
-            Schema::create('backup_logs', function (Blueprint $table) {
-                $table->id();
-                $table->string('filename')->nullable();
-                $table->string('path')->nullable();
-                $table->string('type')->nullable();
-                $table->string('method')->nullable();
-                $table->string('status')->nullable();
-                $table->text('message')->nullable();
-                $table->json('metadata')->nullable();
-                $table->integer('size')->nullable();
-                $table->timestamps();
-            });
-        }
-
-        if (Schema::hasTable('prestamos')) {
-            Schema::table('prestamos', function (Blueprint $table) {
-                if (!Schema::hasColumn('prestamos', 'empleado_id')) {
-                    $table->unsignedBigInteger('empleado_id')->nullable()->index();
-                }
-            });
-        }
-
-        if (Schema::hasTable('citas') && !Schema::hasColumn('citas', 'deleted_at')) {
-            Schema::table('citas', function (Blueprint $table) {
-                $table->softDeletes();
-            });
-        }
-
-        if (Schema::hasTable('almacenes') && !Schema::hasColumn('almacenes', 'estado')) {
-            Schema::table('almacenes', function (Blueprint $table) {
-                $table->string('estado')->default('activo');
-            });
-        }
-
-        if (!Schema::hasTable('rentas')) {
-            Schema::create('rentas', function (Blueprint $table) {
-                $table->id();
-                $table->unsignedBigInteger('empresa_id')->nullable()->index();
-                $table->unsignedBigInteger('cliente_id')->nullable()->index();
-                $table->string('numero_contrato')->nullable();
-                $table->date('fecha_inicio')->nullable();
-                $table->date('fecha_fin')->nullable();
-                $table->decimal('monto_mensual', 12, 2)->default(0);
-                $table->string('estado')->default('activo');
-                $table->softDeletes();
-                $table->timestamps();
-            });
-        }
-
+    private function ensureNotificationsTables(): void
+    {
         if (!Schema::hasTable('notifications')) {
             Schema::create('notifications', function (Blueprint $table) {
                 $table->uuid('id')->primary();
@@ -415,6 +294,71 @@ return new class extends Migration
                 $table->softDeletes();
             });
         }
+    }
+
+    private function ensureOperationalFixes(): void
+    {
+        // 1. Cuentas por Cobrar
+        if (!Schema::hasTable('cuentas_por_cobrar')) {
+            Schema::create('cuentas_por_cobrar', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('empresa_id')->nullable()->index();
+                $table->unsignedBigInteger('cliente_id')->nullable()->index();
+                $table->unsignedBigInteger('cobrable_id')->nullable();
+                $table->string('cobrable_type')->nullable();
+                $table->decimal('monto_total', 15, 2)->default(0);
+                $table->decimal('monto_pagado', 15, 2)->default(0);
+                $table->decimal('monto_pendiente', 15, 2)->default(0);
+                $table->date('fecha_vencimiento')->nullable();
+                $table->string('estado')->default('pendiente');
+                $table->text('notas')->nullable();
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
+
+        // 2. Pedidos
+        if (!Schema::hasTable('pedidos')) {
+            Schema::create('pedidos', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('empresa_id')->nullable()->index();
+                $table->unsignedBigInteger('cliente_id')->nullable()->index();
+                $table->string('numero_pedido')->nullable();
+                $table->decimal('subtotal', 15, 2)->default(0);
+                $table->decimal('iva', 15, 2)->default(0);
+                $table->decimal('total', 15, 2)->default(0);
+                $table->dateTime('fecha')->nullable();
+                $table->string('estado')->default('pendiente');
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
+
+        if (!Schema::hasTable('pedido_items')) {
+            Schema::create('pedido_items', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('pedido_id')->nullable()->index();
+                $table->unsignedBigInteger('pedible_id')->nullable();
+                $table->string('pedible_type')->nullable();
+                $table->decimal('cantidad', 15, 2)->default(0);
+                $table->decimal('precio', 15, 2)->default(0);
+                $table->decimal('subtotal', 15, 2)->default(0);
+                $table->timestamps();
+            });
+        }
+
+        // 3. Inventarios y Traspasos
+        if (!Schema::hasTable('inventarios')) {
+            Schema::create('inventarios', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('empresa_id')->nullable()->index();
+                $table->unsignedBigInteger('producto_id')->nullable()->index();
+                $table->unsignedBigInteger('almacen_id')->nullable()->index();
+                $table->decimal('cantidad', 15, 2)->default(0);
+                $table->decimal('stock_minimo', 15, 2)->default(0);
+                $table->timestamps();
+            });
+        }
 
         if (!Schema::hasTable('traspasos')) {
             Schema::create('traspasos', function (Blueprint $table) {
@@ -427,14 +371,6 @@ return new class extends Migration
                 $table->integer('cantidad')->default(0);
                 $table->integer('cantidad_total')->default(0);
                 $table->string('estado')->default('pendiente');
-                $table->unsignedBigInteger('usuario_autoriza')->nullable();
-                $table->unsignedBigInteger('usuario_envia')->nullable();
-                $table->unsignedBigInteger('usuario_recibe')->nullable();
-                $table->timestamp('fecha_envio')->nullable();
-                $table->timestamp('fecha_recepcion')->nullable();
-                $table->text('observaciones')->nullable();
-                $table->string('referencia')->nullable();
-                $table->decimal('costo_transporte', 15, 2)->nullable();
                 $table->timestamps();
             });
         } elseif (!Schema::hasColumn('traspasos', 'cantidad_total')) {
@@ -450,11 +386,23 @@ return new class extends Migration
                 $table->unsignedBigInteger('traspaso_id')->nullable()->index();
                 $table->unsignedBigInteger('producto_id')->nullable()->index();
                 $table->integer('cantidad')->default(0);
-                $table->json('series_ids')->nullable();
                 $table->timestamps();
             });
         }
 
+        // 4. Backup Logs
+        if (!Schema::hasTable('backup_logs')) {
+            Schema::create('backup_logs', function (Blueprint $table) {
+                $table->id();
+                $table->string('filename')->nullable();
+                $table->string('path')->nullable();
+                $table->string('type')->nullable();
+                $table->string('status')->nullable();
+                $table->timestamps();
+            });
+        }
+
+        // 5. Relaciones de Compras y Series
         if (Schema::hasTable('compra_items') && !Schema::hasColumn('compra_items', 'compra_id')) {
             Schema::table('compra_items', function (Blueprint $table) {
                 $table->unsignedBigInteger('compra_id')->nullable()->index();
@@ -470,6 +418,13 @@ return new class extends Migration
         if (Schema::hasTable('cuentas_por_pagar') && !Schema::hasColumn('cuentas_por_pagar', 'compra_id')) {
             Schema::table('cuentas_por_pagar', function (Blueprint $table) {
                 $table->unsignedBigInteger('compra_id')->nullable()->index();
+            });
+        }
+        
+        // 6. Almacenes estado
+        if (Schema::hasTable('almacenes') && !Schema::hasColumn('almacenes', 'estado')) {
+            Schema::table('almacenes', function (Blueprint $table) {
+                $table->string('estado')->default('activo');
             });
         }
     }

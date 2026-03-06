@@ -68,6 +68,11 @@ class CheckClientDebt
     {
         $config = \App\Models\EmpresaConfiguracion::getConfig($cliente->empresa_id);
 
+        if (!$config->bloqueo_portal_por_deuda) {
+            Log::info('CheckClientDebt: Bloqueo de portal desactivado en configuración.');
+            return false;
+        }
+
         // Prioridad: Cliente > Empresa > Default (15)
         $diasGracia = $cliente->dias_gracia ?? $config->dias_gracia_corte ?? 15;
 

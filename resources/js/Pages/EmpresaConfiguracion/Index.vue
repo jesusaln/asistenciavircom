@@ -204,6 +204,7 @@ const form = useForm({
   cobros_hora_reporte: props.configuracion.cobros_hora_reporte || '08:00',
   cobros_reporte_automatico: props.configuracion.cobros_reporte_automatico || false,
   cobros_dias_anticipacion: props.configuracion.cobros_dias_anticipacion || 0,
+  bloqueo_portal_por_deuda: props.configuracion.bloqueo_portal_por_deuda ?? false,
 
   // Pagos (Cuentas por Pagar)
   email_pagos: props.configuracion.email_pagos || '',

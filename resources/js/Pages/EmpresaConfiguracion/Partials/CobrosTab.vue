@@ -101,18 +101,26 @@
                 </div>
             </div>
 
-            <!-- Configuración de Bloqueo por Mora -->
+                <!-- Configuración de Bloqueo por Mora -->
             <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-slate-800 dark:border-gray-700 mb-6">
-                <h3 class="text-md font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4 flex items-center gap-2">
-                    <FontAwesomeIcon icon="user-lock" class="text-red-500 dark:text-red-400" />
-                    Bloqueo Automático de Portal
-                </h3>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-md font-medium text-gray-900 dark:text-white dark:text-gray-100 flex items-center gap-2">
+                        <FontAwesomeIcon icon="user-lock" class="text-red-500 dark:text-red-400" />
+                        Bloqueo Automático de Portal
+                    </h3>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" v-model="form.bloqueo_portal_por_deuda" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:bg-slate-900 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                        <span class="ml-3 text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">Activar bloqueo</span>
+                    </label>
+                </div>
+                
                 <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300 mb-4">
                     Configura cuándo se debe restringir el acceso al portal de clientes por falta de pago.
                     El cliente solo podrá acceder para ver sus deudas y realizar pagos.
                 </p>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" v-if="form.bloqueo_portal_por_deuda">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Días de Gracia para Corte
