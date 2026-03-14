@@ -383,11 +383,18 @@ const formatPrice = (price) => {
                                 💬 Testimonios ({{ testimonios?.length || 0 }})
                             </button>
                             <button 
+                                @click="activeTab = 'logos'"
+                                :class="activeTab === 'logos' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
+                                class="px-6 py-4 text-sm font-medium border-b-2 transition-colors"
+                            >
+                                🏢 Logos Clientes ({{ logos?.length || 0 }})
+                            </button>
+                            <button 
                                 @click="activeTab = 'marcas'"
                                 :class="activeTab === 'marcas' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
                                 class="px-6 py-4 text-sm font-medium border-b-2 transition-colors"
                             >
-                                🛡️ Marcas CSAM ({{ marcas?.length || 0 }})
+                                🛡️ Marcas / Proveedores ({{ marcas?.length || 0 }})
                             </button>
                             <button 
                                 @click="activeTab = 'procesos'"

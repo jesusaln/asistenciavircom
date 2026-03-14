@@ -26,7 +26,7 @@ export function useDarkMode(empresaConfig = null) {
     const darkTheme = {
         primary: empresaConfig?.dark_mode_primary_color || '#4f46e5', // Indigo-600
         secondary: empresaConfig?.dark_mode_secondary_color || '#0ea5e9', // Sky-500
-        background: empresaConfig?.dark_mode_background_color || '#020617', // Slate-950
+        background: empresaConfig?.dark_mode_background_color || '#020617', // Slate-950 (rgb 2, 6, 23)
         surface: empresaConfig?.dark_mode_surface_color || '#0f172a', // Slate-900
         text: '#f8fafc', // Slate-50
         textSecondary: '#cbd5e1', // Slate-300
@@ -38,6 +38,11 @@ export function useDarkMode(empresaConfig = null) {
     const currentTheme = computed(() => {
         return isDarkMode.value ? darkTheme : lightTheme
     })
+
+    const hexToRgb = (hex) => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '59, 130, 246';
+    }
 
     /**
      * Aplicar colores CSS personalizados al documento
@@ -58,9 +63,11 @@ export function useDarkMode(empresaConfig = null) {
 
             // Compatibilidad con Landing y Portal
             root.style.setProperty('--color-primary', darkTheme.primary)
+            root.style.setProperty('--color-primary-rgb', hexToRgb(darkTheme.primary))
             root.style.setProperty('--color-primary-soft', darkTheme.primary + '25')
             root.style.setProperty('--color-primary-dark', darkTheme.primary + 'dd')
             root.style.setProperty('--color-secondary', darkTheme.secondary)
+            root.style.setProperty('--color-secondary-rgb', hexToRgb(darkTheme.secondary))
             root.style.setProperty('--color-secondary-soft', darkTheme.secondary + '25')
             root.style.setProperty('--color-terciary', darkTheme.secondary) // Usamos secondary como fallback
             root.style.setProperty('--color-terciary-soft', darkTheme.secondary + '15')
@@ -83,9 +90,11 @@ export function useDarkMode(empresaConfig = null) {
 
             // Compatibilidad con Landing y Portal
             root.style.setProperty('--color-primary', lightTheme.primary)
+            root.style.setProperty('--color-primary-rgb', hexToRgb(lightTheme.primary))
             root.style.setProperty('--color-primary-soft', lightTheme.primary + '15')
             root.style.setProperty('--color-primary-dark', lightTheme.primary + 'dd')
             root.style.setProperty('--color-secondary', lightTheme.secondary)
+            root.style.setProperty('--color-secondary-rgb', hexToRgb(lightTheme.secondary))
             root.style.setProperty('--color-secondary-soft', lightTheme.secondary + '15')
             root.style.setProperty('--color-terciary', lightTheme.secondary) // Fallback
             root.style.setProperty('--color-terciary-soft', lightTheme.secondary + '15')
@@ -198,8 +207,8 @@ export function useDarkMode(empresaConfig = null) {
             if (newEmpresaConfig.dark_mode_enabled) {
                 darkTheme.primary = newEmpresaConfig.dark_mode_primary_color || '#1E40AF'
                 darkTheme.secondary = newEmpresaConfig.dark_mode_secondary_color || '#3B82F6'
-                darkTheme.background = newEmpresaConfig.dark_mode_background_color || '#0F172A'
-                darkTheme.surface = newEmpresaConfig.dark_mode_surface_color || '#1E293B'
+                darkTheme.background = newEmpresaConfig.dark_mode_background_color || '#020617'
+                darkTheme.surface = newEmpresaConfig.dark_mode_surface_color || '#0f172a'
             }
 
             // Aplicar los nuevos colores

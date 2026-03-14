@@ -10,7 +10,7 @@
     aria-label="Barra lateral"
   >
     <!-- Header -->
-    <div class="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm flex-shrink-0">
+    <div class="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-950/50 backdrop-blur-sm flex-shrink-0">
       <Link
         href="/panel"
         class="flex items-center group overflow-hidden"
@@ -33,13 +33,13 @@
       <button
         v-if="!isMobile"
         @click="toggleSidebar"
-        class="p-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 ml-auto"
+        class="p-2 rounded-lg hover:bg-slate-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand ml-auto"
         :title="props.isSidebarCollapsed ? 'Expandir sidebar' : 'Contraer sidebar'"
         :aria-label="props.isSidebarCollapsed ? 'Expandir sidebar' : 'Contraer sidebar'"
       >
         <FontAwesomeIcon
           :icon="props.isSidebarCollapsed ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-left'"
-          class="text-gray-300 hover:text-white transition-colors duration-200"
+          class="text-slate-300 hover:text-white transition-colors duration-200"
         />
       </button>
     </div>
@@ -62,13 +62,14 @@
         <div v-if="$can('view clientes') || $can('view citas') || $can('view cotizaciones') || $can('view pedidos') || $can('view ventas') || $can('view garantias') || $can('view crm')" class="mb-4">
           <div
             @click="toggleAccordion('ventas')"
-            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-gray-700/50 rounded-md transition-colors duration-200"
+            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
+            :class="{ 'bg-slate-900/40 text-white': accordionStates.ventas }"
           >
             <div class="flex items-center gap-2">
               <FontAwesomeIcon icon="shopping-cart" class="w-4 h-4 text-blue-400" />
               <div class="leading-tight">
                 <span>CRM y Ventas</span>
-                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-gray-500 font-medium mt-0.5">Prospectos, citas, cotizaciones y facturación</p>
+                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-slate-500 font-medium mt-0.5">Prospectos, citas, cotizaciones y facturación</p>
               </div>
             </div>
             <FontAwesomeIcon
@@ -124,13 +125,14 @@
         <div v-if="$can('view soporte') || $can('view polizas')" class="mb-4">
           <div
             @click="toggleAccordion('soporte')"
-            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-gray-700/50 rounded-md transition-colors duration-200"
+            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
+            :class="{ 'bg-slate-900/40 text-white': accordionStates.soporte }"
           >
             <div class="flex items-center gap-2">
               <FontAwesomeIcon icon="headset" class="w-4 h-4 text-orange-400" />
               <div class="leading-tight">
                 <span>Soporte y Contratos</span>
-                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-gray-500 font-medium mt-0.5">Tickets, pólizas, KB y acceso remoto</p>
+                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-slate-500 font-medium mt-0.5">Tickets, pólizas, KB y acceso remoto</p>
               </div>
             </div>
             <FontAwesomeIcon
@@ -176,13 +178,14 @@
         <div v-if="$can('view proveedores') || $can('view ordenes_compra') || $can('view compras') || $can('view productos') || $can('view kits') || $can('view almacenes') || $can('view traspasos') || $can('view movimientos_inventario') || $can('view ajustes_inventario')" class="mb-4">
           <div
             @click="toggleAccordion('inventario')"
-            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-gray-700/50 rounded-md transition-colors duration-200"
+            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
+            :class="{ 'bg-slate-900/40 text-white': accordionStates.inventario }"
           >
             <div class="flex items-center gap-2">
               <FontAwesomeIcon icon="boxes" class="w-4 h-4 text-amber-400" />
               <div class="leading-tight">
                 <span>Compras e Inventario</span>
-                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-gray-500 font-medium mt-0.5">Proveedores, almacenes y movimientos</p>
+                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-slate-500 font-medium mt-0.5">Proveedores, almacenes y movimientos</p>
               </div>
             </div>
             <FontAwesomeIcon
@@ -233,13 +236,14 @@
         <div v-if="$can('view cuentas_bancarias') || $can('view conciliacion_bancaria') || $can('view caja_chica') || $can('view cuentas_por_pagar') || $can('view cuentas_por_cobrar') || $can('view entregas_dinero') || $can('view gastos') || $can('view traspasos_bancarios') || $can('view prestamos') || $can('view pagos')" class="mb-4">
           <div
             @click="toggleAccordion('finanzas')"
-            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-gray-700/50 rounded-md transition-colors duration-200"
+            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
+            :class="{ 'bg-slate-900/40 text-white': accordionStates.finanzas }"
           >
             <div class="flex items-center gap-2">
               <FontAwesomeIcon icon="chart-line" class="w-4 h-4 text-emerald-400" />
               <div class="leading-tight">
                 <span>Finanzas</span>
-                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-gray-500 font-medium mt-0.5">Cuentas, gastos, caja y préstamos</p>
+                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-slate-500 font-medium mt-0.5">Cuentas, gastos, caja y préstamos</p>
               </div>
             </div>
             <FontAwesomeIcon
@@ -292,13 +296,14 @@
         <div v-if="$can('view rentas') || $can('view equipos') || $can('view vehiculos') || $can('view mantenimientos') || $can('view herramientas')" class="mb-4">
           <div
             @click="toggleAccordion('operaciones')"
-            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-gray-700/50 rounded-md transition-colors duration-200"
+            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
+            :class="{ 'bg-slate-900/40 text-white': accordionStates.operaciones }"
           >
             <div class="flex items-center gap-2">
               <FontAwesomeIcon icon="tools" class="w-4 h-4 text-purple-400" />
               <div class="leading-tight">
                 <span>Operaciones</span>
-                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-gray-500 font-medium mt-0.5">Rentas, equipos, vehículos y herramientas</p>
+                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-slate-500 font-medium mt-0.5">Rentas, equipos, vehículos y herramientas</p>
               </div>
             </div>
             <FontAwesomeIcon
@@ -341,13 +346,14 @@
         <div class="mb-4">
           <div
             @click="toggleAccordion('rrhh')"
-            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-gray-700/50 rounded-md transition-colors duration-200"
+            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
+            :class="{ 'bg-slate-900/40 text-white': accordionStates.rrhh }"
           >
             <div class="flex items-center gap-2">
               <FontAwesomeIcon icon="user-tie" class="w-4 h-4 text-teal-400" />
               <div class="leading-tight">
                 <span>Personal y Asistencia</span>
-                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-gray-500 font-medium mt-0.5">Checador, empleados, nómina y vacaciones</p>
+                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-slate-500 font-medium mt-0.5">Checador, empleados, nómina y vacaciones</p>
               </div>
             </div>
             <FontAwesomeIcon
@@ -390,13 +396,14 @@
         <div v-if="$can('view configuracion_empresa') || isAdmin" class="mb-4">
           <div
             @click="toggleAccordion('blog')"
-            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-gray-700/50 rounded-md transition-colors duration-200"
+            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
+            :class="{ 'bg-slate-900/40 text-white': accordionStates.blog }"
           >
             <div class="flex items-center gap-2">
               <FontAwesomeIcon icon="blog" class="w-4 h-4 text-sky-400" />
               <div class="leading-tight">
                 <span>Blog</span>
-                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-gray-500 font-medium mt-0.5">Contenido público y administración</p>
+                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-slate-500 font-medium mt-0.5">Contenido público y administración</p>
               </div>
             </div>
             <FontAwesomeIcon
@@ -421,13 +428,14 @@
         <div v-if="$can('view usuarios') || $can('view roles') || $can('view bitacora') || $can('view categorias') || $can('view marcas') || $can('view servicios') || $can('manage-backups') || $can('view configuracion_empresa')" class="mb-4">
           <div
             @click="toggleAccordion('configuracion')"
-            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-gray-700/50 rounded-md transition-colors duration-200"
+            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
+            :class="{ 'bg-slate-900/40 text-white': accordionStates.configuracion }"
           >
             <div class="flex items-center gap-2">
-              <FontAwesomeIcon icon="cogs" class="w-4 h-4 text-gray-400" />
+              <FontAwesomeIcon icon="cogs" class="w-4 h-4 text-slate-400" />
               <div class="leading-tight">
                 <span>Configuración</span>
-                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-gray-500 font-medium mt-0.5">Usuarios, catálogos y ajustes del sistema</p>
+                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-slate-500 font-medium mt-0.5">Usuarios, catálogos y ajustes del sistema</p>
               </div>
             </div>
             <FontAwesomeIcon
@@ -476,13 +484,14 @@
         <div v-if="$can('view reportes') || $can('view finanzas') || $can('view cfdi')" class="mb-4">
           <div
             @click="toggleAccordion('reportes')"
-            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-gray-700/50 rounded-md transition-colors duration-200"
+            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
+            :class="{ 'bg-slate-900/40 text-white': accordionStates.reportes }"
           >
             <div class="flex items-center gap-2">
               <FontAwesomeIcon icon="chart-bar" class="w-4 h-4 text-indigo-400" />
               <div class="leading-tight">
                 <span>Reportes y CFDI</span>
-                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-gray-500 font-medium mt-0.5">Indicadores, reportes y comprobantes fiscales</p>
+                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-slate-500 font-medium mt-0.5">Indicadores, reportes y comprobantes fiscales</p>
               </div>
             </div>
             <FontAwesomeIcon
@@ -518,20 +527,20 @@
 
     <!-- Usuario -->
     <div
-      class="border-t border-gray-700 p-4 bg-gray-800/50 backdrop-blur-sm flex-shrink-0"
+      class="border-t border-slate-800 p-4 bg-slate-900/50 backdrop-blur-sm flex-shrink-0"
       :class="{'flex justify-center': props.isSidebarCollapsed}"
     >
       <div class="flex items-center" :class="{'w-full justify-center': props.isSidebarCollapsed, 'space-x-3': !props.isSidebarCollapsed}">
         <img
           :src="props.usuario?.profile_photo_url || 'https://ui-avatars.com/api/?name=User'"
           :alt="props.usuario?.name || 'User'"
-          class="w-10 h-10 rounded-full border-2 border-gray-600 object-cover flex-shrink-0"
+          class="w-10 h-10 rounded-full border-2 border-slate-700 object-cover flex-shrink-0"
         />
         <div v-show="!props.isSidebarCollapsed" class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-gray-100 truncate">
+          <p class="text-sm font-medium text-slate-100 truncate">
             {{ props.usuario?.name || 'Usuario' }}
           </p>
-          <p class="text-xs text-gray-400 truncate">
+          <p class="text-xs text-slate-400 truncate">
             {{ props.usuario?.email || '' }}
           </p>
         </div>

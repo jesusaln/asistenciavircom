@@ -38,6 +38,11 @@ const empresaData = computed(() => {
 });
 
 const billingCycle = ref('monthly'); // 'monthly' or 'yearly'
+const showPromoModal = ref(false);
+const promoOpenSource = ref('timer');
+let promoTimerId = null;
+let statsObserver = null;
+let promoShownInSession = false;
 
 // Integrar modo oscuro centralizado
 const { isDarkMode } = useDarkMode(empresaData.value);
@@ -65,26 +70,130 @@ const handleMouseMove = (e) => {
     mouseY.value = e.clientY;
 };
 
+const hasActiveOffer = computed(() => {
+    return !!props.oferta && !!props.oferta.id;
+});
+
+const promoStorageKey = computed(() => {
+    const offerId = props.oferta?.id || 'none';
+    return `landing_promo_seen_${offerId}`;
+});
+
+const trackLandingEvent = (eventName, data = {}) => {
+    if (typeof window === 'undefined' || !Array.isArray(window.dataLayer)) return;
+    window.dataLayer.push({
+        event: eventName,
+        ...data,
+    });
+};
+
+const formatPromoPrice = (value) => {
+    const num = parseFloat(value);
+    if (Number.isNaN(num)) return '0';
+    return new Intl.NumberFormat('es-MX', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(num);
+};
+
+const getPromoPrices = () => {
+    const original = parseFloat(props.oferta?.precio_original || 0);
+    const discounted = parseFloat(props.oferta?.precio_oferta || 0);
+    const computedDiscounted = discounted > 0 ? discounted : original;
+
+    return {
+        original,
+        discounted: computedDiscounted,
+        savings: Math.max(0, original - computedDiscounted),
+    };
+};
+
+const canOpenPromoModal = () => {
+    if (!hasActiveOffer.value || promoShownInSession) return false;
+
+    const seenUntil = Number(localStorage.getItem(promoStorageKey.value) || 0);
+    if (seenUntil > Date.now()) return false;
+
+    return true;
+};
+
+const openPromoModal = (source = 'timer') => {
+    if (!canOpenPromoModal()) return;
+    promoShownInSession = true;
+    promoOpenSource.value = source;
+    showPromoModal.value = true;
+    trackLandingEvent('promo_modal_open', {
+        source,
+        offer_id: props.oferta?.id || null,
+    });
+};
+
+const dismissPromoModal = () => {
+    showPromoModal.value = false;
+    const nextShowAfterMs = 24 * 60 * 60 * 1000;
+    localStorage.setItem(promoStorageKey.value, String(Date.now() + nextShowAfterMs));
+    trackLandingEvent('promo_modal_close', {
+        source: promoOpenSource.value,
+        offer_id: props.oferta?.id || null,
+    });
+};
+
+const onPromoCtaClick = () => {
+    trackLandingEvent('promo_modal_whatsapp_click', {
+        source: promoOpenSource.value,
+        offer_id: props.oferta?.id || null,
+    });
+    dismissPromoModal();
+};
+
+const onExitIntent = (event) => {
+    if (event.relatedTarget) return;
+    if (event.clientY > 20) return;
+    openPromoModal('exit_intent');
+};
+
+const promoWhatsappLink = computed(() => {
+    const phone = (empresaData.value?.whatsapp || '').replace(/\D/g, '');
+    if (!phone || !hasActiveOffer.value) return null;
+
+    const prices = getPromoPrices();
+    const message = `Hola, me interesa la oferta "${props.oferta?.titulo || 'promoción'}" por $${formatPromoPrice(prices.discounted)}.`;
+    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+});
+
 onMounted(() => {
     isVisible.value = true;
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseout', onExitIntent);
     
     // Observer for stats
-    const observer = new IntersectionObserver((entries) => {
+    statsObserver = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
             animateStats();
         }
     }, { threshold: 0.3 });
     
     if (statsSection.value) {
-        observer.observe(statsSection.value);
+        statsObserver.observe(statsSection.value);
+    }
+
+    if (hasActiveOffer.value) {
+        promoTimerId = window.setTimeout(() => openPromoModal('timer'), 18000);
+        trackLandingEvent('promo_offer_view', {
+            offer_id: props.oferta?.id || null,
+        });
     }
 });
 
 onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll);
     window.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseout', onExitIntent);
+    if (promoTimerId) window.clearTimeout(promoTimerId);
+    if (statsObserver && statsSection.value) {
+        statsObserver.unobserve(statsSection.value);
+    }
 });
 
 // WhatsApp link
@@ -231,6 +340,54 @@ const planesCalculados = computed(() => {
         <!-- Progress Bar -->
         <div class="fixed top-0 left-0 h-1 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] z-[100] transition-all duration-150" :style="{ width: scrollProgress + '%' }"></div>
 
+        <div v-if="showPromoModal && hasActiveOffer" class="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="dismissPromoModal"></div>
+            <div class="relative w-full max-w-xl rounded-3xl bg-white dark:bg-gray-900 p-8 border border-gray-100 dark:border-gray-700 shadow-2xl">
+                <button
+                    type="button"
+                    class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                    @click="dismissPromoModal"
+                >
+                    ✕
+                </button>
+                <p class="text-xs font-black uppercase tracking-[0.25em] text-[var(--color-primary)] mb-3">
+                    Promocion Especial
+                </p>
+                <h3 class="text-3xl font-black text-gray-900 dark:text-white mb-2">
+                    {{ oferta?.titulo || 'Oferta por tiempo limitado' }}
+                </h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-6">
+                    {{ oferta?.subtitulo || oferta?.descripcion || 'Aprovecha esta promoción antes de que termine.' }}
+                </p>
+                <div class="flex flex-wrap items-end gap-4 mb-6">
+                    <span class="text-gray-400 line-through text-xl">${{ formatPromoPrice(getPromoPrices().original) }}</span>
+                    <span class="text-4xl font-black text-[var(--color-primary)]">${{ formatPromoPrice(getPromoPrices().discounted) }}</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-black bg-[var(--color-primary-soft)] text-[var(--color-primary)]">
+                        Ahorra ${{ formatPromoPrice(getPromoPrices().savings) }}
+                    </span>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <a
+                        v-if="promoWhatsappLink"
+                        :href="promoWhatsappLink"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="flex-1 py-3 px-5 rounded-xl bg-green-500 hover:bg-green-600 text-white font-black text-sm text-center uppercase tracking-wide"
+                        @click="onPromoCtaClick"
+                    >
+                        Quiero esta oferta
+                    </a>
+                    <button
+                        type="button"
+                        class="flex-1 py-3 px-5 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-bold text-sm"
+                        @click="dismissPromoModal"
+                    >
+                        Continuar navegando
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Custom Cursor Background -->
         <div class="fixed pointer-events-none z-0 opacity-20 transition-transform duration-300 ease-out hidden lg:block" :style="{ transform: `translate(${mouseX - 150}px, ${mouseY - 150}px)` }">
             <div class="w-[300px] h-[300px] bg-[var(--color-primary-soft)] rounded-full blur-[100px]"></div>
@@ -319,7 +476,7 @@ const planesCalculados = computed(() => {
                     <div :class="{'translate-y-0 opacity-100': isVisible, 'translate-y-12 opacity-0': !isVisible}" class="relative transition-all duration-1000 delay-300 ease-out">
                         <!-- Imagen Principal con borde estilizado -->
                         <div class="relative z-10 rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white dark:border-gray-800 group transition-colors duration-300">
-                            <img :src="getImageUrl(empresaData?.hero_imagen_url) || heroFallbackImage" @error="handleHeroImageError" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Seguridad Tecnológica">
+                            <img referrerpolicy="no-referrer" :src="getImageUrl(empresaData?.hero_imagen_url) || heroFallbackImage" @error="handleHeroImageError" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Seguridad Tecnológica">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
                         </div>
                         
@@ -372,15 +529,12 @@ const planesCalculados = computed(() => {
             </div>
         </section>
 
-        <!-- TRUST LOGOS -->
-        <section class="py-12 bg-white dark:bg-slate-900 dark:bg-gray-900 border-y border-gray-100 dark:border-gray-900 transition-colors duration-300">
+        <!-- PROVIDERS SECTION (Nuestras Alianzas) -->
+        <section v-if="marcas?.length" class="py-12 bg-white dark:bg-slate-900 border-y border-gray-100 dark:border-gray-800 transition-colors duration-300">
             <div class="w-full px-4">
-                <p class="text-center text-xs font-black uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500 dark:text-gray-400 mb-10 transition-colors">Marcas Líderes que Confián en Nosotros</p>
-                <div class="flex flex-wrap justify-between items-center gap-8 opacity-50 grayscale hover:grayscale-0 dark:grayscale-0 dark:opacity-100 dark:brightness-110 transition-all duration-500">
-                     <img v-for="marca in marcas" :key="marca.id" :src="getImageUrl(marca.logo_url) || `https://placehold.co/200x80?text=${marca.nombre}`" class="h-8 lg:h-12 w-auto object-contain" :alt="marca.nombre">
-                     <template v-if="!marcas?.length">
-                        <img v-for="i in 5" :key="i" :src="`https://placehold.co/200x80?text=Marca+${i}`" class="h-8 lg:h-12 w-auto object-contain">
-                     </template>
+                <p class="text-center text-xs font-black uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500 mb-10 transition-colors">Distribuidores Oficiales y Alianzas Estratégicas</p>
+                <div class="flex flex-wrap justify-center items-center gap-12 opacity-50 grayscale hover:grayscale-0 dark:grayscale-0 dark:opacity-100 transition-all duration-500">
+                     <img v-for="marca in marcas" :key="marca.id" referrerpolicy="no-referrer" :src="getImageUrl(marca.logo_url) || `https://placehold.co/200x80?text=${marca.nombre}`" class="h-8 lg:h-10 w-auto object-contain" :alt="marca.nombre">
                 </div>
             </div>
         </section>
@@ -451,7 +605,7 @@ const planesCalculados = computed(() => {
                         :style="{ transitionDelay: `${index * 100}ms` }"
                     >
                         <div class="relative aspect-[4/5] bg-white dark:bg-slate-900 overflow-hidden">
-                            <img :src="getImageUrl(item) || 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?q=80&w=2070&auto=format&fit=crop'" class="w-full h-full object-contain p-8 group-hover:scale-110 transition-transform duration-1000 ease-in-out" alt="Producto">
+                            <img referrerpolicy="no-referrer" :src="getImageUrl(item) || 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?q=80&w=2070&auto=format&fit=crop'" class="w-full h-full object-contain p-8 group-hover:scale-110 transition-transform duration-1000 ease-in-out" alt="Producto">
                             
                             <!-- Glassmorphism Overlay -->
                             <div class="absolute inset-0 bg-gradient-to-t from-gray-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
@@ -679,6 +833,65 @@ const planesCalculados = computed(() => {
             </div>
         </section>
 
+        <!-- QUENES SOMOS PREVIEW SECTION -->
+        <section class="py-24 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="grid lg:grid-cols-2 gap-16 items-center">
+                    <div class="relative">
+                        <div class="aspect-square bg-[var(--color-primary-soft)] rounded-[3rem] overflow-hidden relative group shadow-2xl">
+                            <img src="/img/quienes-somos.png" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="Nuestra Empresa">
+                            <div class="absolute inset-0 bg-gradient-to-tr from-[var(--color-primary)]/40 to-transparent mix-blend-multiply"></div>
+                            <!-- Decorative dots -->
+                            <div class="absolute top-10 right-10 w-32 h-32 bg-[radial-gradient(circle_at_center,_var(--color-primary)_1px,_transparent_1px)] bg-[size:20px_20px] opacity-20"></div>
+                        </div>
+                        
+                        <!-- Mini Card -->
+                        <div class="absolute -bottom-8 -right-8 bg-white dark:bg-slate-900 p-8 rounded-[2rem] shadow-2xl border border-gray-100 dark:border-slate-800 max-w-xs animate-float">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center text-white text-xl">🏆</div>
+                                <div>
+                                    <h5 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">Compromiso</h5>
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Excelencia en cada proyecto</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                                Más de una década brindando soluciones tecnológicas de vanguardia a empresas y hogares.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="inline-block px-4 py-1.5 rounded-full bg-[var(--color-primary-soft)] text-[var(--color-primary)] text-xs font-black uppercase tracking-widest mb-6">Nuestra Identidad</span>
+                        <h2 class="text-4xl lg:text-6xl font-black text-gray-900 dark:text-white mb-8 tracking-tighter leading-tight">
+                            Pasión por la <span class="text-[var(--color-primary)]">Tecnología</span> <br>y la Seguridad
+                        </h2>
+                        <p class="text-lg text-gray-600 dark:text-gray-300 mb-10 leading-relaxed font-medium">
+                            En {{ empresaData?.nombre_empresa || 'nuestra empresa' }}, nos dedicamos a transformar el entorno digital y físico de nuestros clientes, garantizando tranquilidad y eficiencia a través de innovación constante.
+                        </p>
+                        
+                        <div class="grid grid-cols-2 gap-8 mb-12">
+                            <div>
+                                <h4 class="text-3xl font-black text-[var(--color-primary)] mb-1">+10 Años</h4>
+                                <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Experiencia Real</p>
+                            </div>
+                            <div>
+                                <h4 class="text-3xl font-black text-[var(--color-primary)] mb-1">+2k Clientes</h4>
+                                <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Casos de Éxito</p>
+                            </div>
+                        </div>
+
+                        <Link 
+                            :href="route('public.quienes-somos')"
+                            class="inline-flex items-center gap-4 px-10 py-5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl font-black text-sm uppercase tracking-widest hover:shadow-2xl hover:bg-[var(--color-primary)] dark:hover:bg-[var(--color-primary)] dark:hover:text-white transition-all group"
+                        >
+                            Conoce nuestra historia
+                            <svg class="w-5 h-5 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- PROCESS SECTION - Rediseñado -->
         <section class="py-24 bg-white dark:bg-slate-900 dark:bg-gray-900 overflow-hidden transition-colors duration-300">
             <div class="w-full px-4">
@@ -729,7 +942,7 @@ const planesCalculados = computed(() => {
             <div class="relative group">
                 <div class="testimonials-track flex gap-8 animate-scroll group-hover:[animation-play-state:paused]">
                     <!-- Mapeo de testimonios con fallback -->
-                    <div v-for="testimonio in (testimonios?.length ? [...testimonios, ...testimonios] : [
+                    <div v-for="(testimonio, idx) in (testimonios?.length ? [...testimonios, ...testimonios] : [
                         {id: 1, nombre: 'Javier Montiel', contenido: 'Instalaron 16 cámaras en mi bodega. La calidad de imagen es increíble y puedo ver todo desde mi celular.', entidad: 'Almacén'},
                         {id: 2, nombre: 'Dra. Elena Ruiz', contenido: 'El sistema de control de acceso para el consultorio funciona perfecto. Ya no tenemos problemas con llaves.', entidad: 'Clínica'},
                         {id: 3, nombre: 'Ing. Marcos Díaz', contenido: 'La póliza de soporte nos salvó cuando el servidor falló. Llegaron en menos de 2 horas.', entidad: 'Despacho'},
@@ -738,7 +951,7 @@ const planesCalculados = computed(() => {
                         {id: 2, nombre: 'Dra. Elena Ruiz', contenido: 'El sistema de control de acceso para el consultorio funciona perfecto. Ya no tenemos problemas con llaves.', entidad: 'Clínica'},
                         {id: 3, nombre: 'Ing. Marcos Díaz', contenido: 'La póliza de soporte nos salvó cuando el servidor falló. Llegaron en menos de 2 horas.', entidad: 'Despacho'},
                         {id: 4, nombre: 'Restaurante El Fogón', contenido: 'Configuraron todo el punto de venta y las impresoras de cocina. El servicio fluye sin errores.', entidad: 'Restaurante'}
-                    ])" :key="'t-' + testimonio.id + Math.random()" class="flex-shrink-0 w-[400px] bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 shadow-lg hover:shadow-2xl transition-all duration-500">
+                    ])" :key="'t-' + testimonio.id + '-' + idx" class="flex-shrink-0 w-[400px] bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 shadow-lg hover:shadow-2xl transition-all duration-500">
                         <div class="flex items-center gap-1 text-amber-400 mb-6">
                             <svg v-for="i in 5" :key="i" class="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                         </div>
@@ -756,6 +969,14 @@ const planesCalculados = computed(() => {
                 <!-- Fade edges -->
                 <div class="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-white dark:from-gray-950 to-transparent z-10 pointer-events-none transition-colors duration-300"></div>
                 <div class="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white dark:from-gray-950 to-transparent z-10 pointer-events-none transition-colors duration-300"></div>
+            </div>
+
+            <!-- CLIENTS LOGOS (Casos de Éxito) -->
+            <div v-if="logosClientes?.length" class="mt-24 border-t border-gray-100 dark:border-gray-800 pt-12">
+                <p class="text-center text-[10px] font-black uppercase tracking-[0.25em] text-gray-400 mb-8 transition-colors">Empresas que confían en nosotros</p>
+                <div class="flex flex-wrap justify-center items-center gap-10 lg:gap-16 px-4">
+                    <img v-for="logo in logosClientes" :key="logo.id" :src="getImageUrl(logo.logo_url)" :alt="logo.nombre_empresa" class="h-6 lg:h-8 w-auto object-contain opacity-40 hover:opacity-100 transition-all duration-300 grayscale hover:grayscale-0">
+                </div>
             </div>
         </section>
 

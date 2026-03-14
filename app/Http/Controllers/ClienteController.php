@@ -280,8 +280,14 @@ class ClienteController extends Controller
             $stats = Cliente::selectRaw("
                 COUNT(*) as total,
                 SUM(CASE WHEN activo = true OR activo IS NULL THEN 1 ELSE 0 END) as activos,
-                SUM(CASE WHEN tipo_persona = 'fisica' THEN 1 ELSE 0 END) as personas_fisicas,
-                SUM(CASE WHEN tipo_persona = 'moral' THEN 1 ELSE 0 END) as personas_morales,
+                SUM(CASE 
+                    WHEN LENGTH(rfc) = 12 THEN 1 
+                    ELSE 0 
+                END) as personas_morales,
+                SUM(CASE 
+                    WHEN LENGTH(rfc) != 12 OR rfc IS NULL THEN 1 
+                    ELSE 0 
+                END) as personas_fisicas,
                 SUM(CASE WHEN EXTRACT(MONTH FROM created_at) = ? AND EXTRACT(YEAR FROM created_at) = ? THEN 1 ELSE 0 END) as nuevos_mes
             ", [now()->month, now()->year])->first();
 

@@ -472,6 +472,7 @@ class KitController extends Controller
                 'componentes_count' => $kit->kitItems->count(),
                 'categoria' => $kit->categoria?->nombre ?? 'Sin categoría',
                 'estado' => $kit->estado,
+                'imagen' => $kit->imagen,
                 'created_at' => $kit->created_at->format('d/m/Y'),
             ];
         });

@@ -30,8 +30,9 @@
             <!-- Nombre -->
             <td class="px-8 py-6">
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover/row:text-blue-500 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                    <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover/row:text-blue-500 transition-colors overflow-hidden shrink-0">
+                        <img v-if="kit.imagen" referrerpolicy="no-referrer" :src="kit.imagen.startsWith('http') ? kit.imagen : '/storage/' + kit.imagen" class="w-full h-full object-cover" />
+                        <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
                     </div>
                     <div class="flex flex-col max-w-[300px]">
                         <span class="text-sm font-black text-slate-900 dark:text-white uppercase truncate tracking-tight group-hover/row:text-blue-600 dark:group-hover/row:text-blue-400 transition-colors">{{ kit.nombre }}</span>

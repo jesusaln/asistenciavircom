@@ -16,8 +16,8 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Nunito', ...defaultTheme.fontFamily.sans],
-                mono: ['Fira Code', 'Roboto Mono', ...defaultTheme.fontFamily.mono], // Añadido para tickets/cifras
+                sans: ['Inter', 'Plus Jakarta Sans', 'Figtree', ...defaultTheme.fontFamily.sans],
+                mono: ['Fira Code', 'Roboto Mono', ...defaultTheme.fontFamily.mono],
             },
             colors: {
                 // REEMPLAZO MASIVO: Gray ahora es Slate (Dark Premium)

@@ -1,6 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps({
     empresa: Object,
@@ -71,6 +70,11 @@ const calculateTimeLeft = () => {
     if (props.oferta?.fecha_fin) {
         endTime = new Date(props.oferta.fecha_fin);
     } else {
+        if (!props.oferta) {
+            isExpired.value = true;
+            timeLeft.value = { hours: 0, minutes: 0, seconds: 0 };
+            return;
+        }
         // Fallback: usar localStorage o crear nueva
         let stored = localStorage.getItem('oferta_end_time');
         
@@ -115,7 +119,7 @@ const padZero = (num) => String(num).padStart(2, '0');
 </script>
 
 <template>
-    <section v-if="oferta || true" class="py-6 relative overflow-hidden" :style="cssVars">
+    <section v-if="oferta && !isExpired" class="py-6 relative overflow-hidden" :style="cssVars">
         <!-- Background con gradiente premium -->
         <div class="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900"></div>
         
@@ -166,9 +170,9 @@ const padZero = (num) => String(num).padStart(2, '0');
                     
                     <!-- Precios -->
                     <div class="flex items-center justify-center lg:justify-start gap-4 mb-2">
-                        <span class="text-gray-500 dark:text-gray-400 line-through text-lg">${{ formatPrice(1500) }}</span>
+                        <span class="text-gray-500 dark:text-gray-400 line-through text-lg">${{ formatPrice(precioOriginal) }}</span>
                         <div class="flex flex-col items-start leading-none">
-                            <span class="text-3xl lg:text-4xl font-black text-white">${{ formatPrice(1299) }} <span class="text-lg font-bold text-gray-400">/ mes</span></span>
+                            <span class="text-3xl lg:text-4xl font-black text-white">${{ formatPrice(precioDescuento) }}</span>
                         </div>
                         <span class="px-3 py-1 bg-[var(--color-primary)] text-white text-xs font-bold rounded-full animate-pulse shadow-lg shadow-[var(--color-primary)]/40">
                             ¡Con Báscula!
@@ -176,7 +180,7 @@ const padZero = (num) => String(num).padStart(2, '0');
                     </div>
                     <div class="flex flex-col gap-1">
                         <p class="text-green-400 text-sm font-semibold">
-                            Ahorras $201 mensuales en tu renta
+                            Ahorras ${{ formatPrice(ahorro) }}
                         </p>
                         <p class="text-[10px] text-gray-500 dark:text-gray-400 italic">* Aplica restricciones</p>
                     </div>

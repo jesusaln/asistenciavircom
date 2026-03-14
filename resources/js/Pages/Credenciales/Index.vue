@@ -27,9 +27,36 @@ const form = useForm({
     host: '',
     puerto: '',
     notas: '',
+    categoria: 'Wifi', // Default profesional
     credentialable_id: '',
     credentialable_type: 'App\\Models\\Cliente', // Default
 });
+
+const generatePassword = () => {
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+    let retVal = "";
+    for (let i = 0, n = charset.length; i < 16; ++i) {
+        retVal += charset.charAt(Math.floor(Math.random() * n));
+    }
+    form.password = retVal;
+    notyf.success('Contraseña segura generada');
+};
+
+const categorias = ['Wifi', 'Router', 'DVR/NVR', 'Servidor', 'App', 'Panel de Alarma', 'Sitio Web', 'Otro'];
+
+const getCategoryIcon = (cat) => {
+    const icons = {
+        'Wifi': 'wifi',
+        'Router': 'network-wired',
+        'DVR/NVR': 'video',
+        'Servidor': 'server',
+        'App': 'mobile-alt',
+        'Panel de Alarma': 'bell',
+        'Sitio Web': 'globe',
+        'Otro': 'key'
+    };
+    return icons[cat] || 'key';
+};
 
 const openCreateModal = () => {
     form.reset();
@@ -118,27 +145,27 @@ const getOwnerName = (item) => {
             <!-- Header -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+                    <div class="w-14 h-14 rounded-2xl bg-brand flex items-center justify-center text-white shadow-brand">
                         <font-awesome-icon icon="shield-alt" size="2x" />
                     </div>
                     <div>
-                        <h1 class="text-2xl font-black text-gray-800 dark:text-gray-100 uppercase tracking-tight">Bóveda de Credenciales</h1>
-                        <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Gestión centralizada de accesos seguros</p>
+                        <h1 class="section-title">Bóveda de Credenciales</h1>
+                        <p class="section-subtitle">Gestión centralizada de accesos seguros</p>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <button @click="openCreateModal" class="px-5 h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black uppercase transition-all flex items-center gap-2 shadow-lg shadow-indigo-200 hover:shadow-xl hover:translate-y-[-1px]">
-                        <font-awesome-icon icon="plus" />
+                    <button @click="openCreateModal" class="btn-primary h-12 shadow-brand shine-hover">
+                        <font-awesome-icon icon="plus" class="mr-2" />
                         <span class="hidden sm:inline">Nueva</span>
                     </button>
 
                     <!-- Filtro Cliente -->
                      <div class="relative w-full md:w-64 group">
-                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-hover:text-indigo-500 transition-colors">
+                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-brand transition-colors">
                             <font-awesome-icon icon="users" />
                          </div>
-                         <select v-model="clienteId" class="w-full bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 rounded-xl h-12 text-xs font-bold focus:ring-indigo-500 focus:border-indigo-500 shadow-sm pl-10 pr-8 hover:border-indigo-300 transition-all appearance-none cursor-pointer">
+                         <select v-model="clienteId" class="input-premium pl-10 pr-8 appearance-none cursor-pointer">
                             <option value="">Todos los Clientes</option>
                             <option v-for="cliente in clientes" :key="cliente.id" :value="cliente.id">
                                 {{ cliente.nombre_razon_social }}
@@ -150,14 +177,14 @@ const getOwnerName = (item) => {
                     </div>
 
                     <div class="relative w-full md:w-80 group">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 group-hover:text-indigo-500 transition-colors">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 group-focus-within:text-brand transition-colors">
                              <font-awesome-icon icon="search" />
                         </span>
                         <input 
                             v-model="search"
                             type="text" 
                             placeholder="Buscar credenciales..."
-                            class="pl-10 w-full bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 rounded-xl h-12 text-xs font-bold focus:ring-indigo-500 focus:border-indigo-500 shadow-sm hover:border-indigo-300 transition-all placeholder-gray-300"
+                            class="input-premium pl-10"
                         >
                     </div>
                 </div>
@@ -179,12 +206,12 @@ const getOwnerName = (item) => {
 
             <!-- Grid -->
             <div v-if="credenciales.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div v-for="item in credenciales.data" :key="item.id" class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden group">
+                <div v-for="item in credenciales.data" :key="item.id" class="card-premium">
                     <!-- Top Info/Owner -->
                     <div class="p-4 border-b border-gray-50 bg-white dark:bg-slate-900/50 flex justify-between items-center">
                         <div class="flex items-center gap-2">
-                            <span class="text-[9px] font-black text-gray-400 uppercase">Vinculado a:</span>
-                            <Link :href="getOwnerLink(item)" class="text-[9px] font-black text-indigo-600 hover:text-indigo-800 uppercase underline decoration-indigo-200 transition-all">
+                            <span class="text-[9px] font-black text-slate-400 uppercase">Vinculado a:</span>
+                            <Link :href="getOwnerLink(item)" class="text-[9px] font-black text-brand hover:brightness-110 uppercase underline decoration-brand/20 transition-all">
                                 {{ getOwnerName(item) }}
                             </Link>
                         </div>
@@ -192,12 +219,17 @@ const getOwnerName = (item) => {
                     </div>
 
                     <div class="p-5">
-                         <div class="flex items-center gap-4 mb-4">
-                            <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 border border-indigo-100">
-                                <font-awesome-icon :icon="item.host ? 'server' : 'key'" size="lg" />
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-brand border border-slate-100 dark:border-slate-800">
+                                <font-awesome-icon :icon="getCategoryIcon(item.categoria)" size="lg" />
                             </div>
                             <div>
-                                <h3 class="text-sm font-black text-gray-800 dark:text-gray-100 uppercase tracking-tight">{{ item.nombre }}</h3>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-sm font-black text-gray-800 dark:text-gray-100 uppercase tracking-tight">{{ item.nombre }}</h3>
+                                    <span v-if="item.categoria" class="px-2 py-0.5 bg-gray-100 dark:bg-slate-800 text-[9px] font-black text-gray-500 rounded-md border border-gray-200 dark:border-slate-700 uppercase tracking-tighter">
+                                        {{ item.categoria }}
+                                    </span>
+                                </div>
                                 <p class="text-[10px] text-gray-400 font-bold uppercase">{{ item.host || 'Acceso Local' }}</p>
                             </div>
                         </div>
@@ -206,8 +238,8 @@ const getOwnerName = (item) => {
                             <div class="flex items-center justify-between p-3 bg-white dark:bg-slate-900 rounded-xl border border-gray-100">
                                 <span class="text-[10px] font-black text-gray-400 uppercase">Usuario</span>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs font-bold text-gray-700">{{ item.usuario }}</span>
-                                    <button @click="copyToClipboard(item.usuario)" class="text-gray-400 hover:text-indigo-600 transition-colors">
+                                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ item.usuario }}</span>
+                                    <button @click="copyToClipboard(item.usuario)" class="text-slate-400 hover:text-brand transition-colors">
                                         <font-awesome-icon icon="copy" size="sm" />
                                     </button>
                                 </div>
@@ -216,20 +248,20 @@ const getOwnerName = (item) => {
                             <div class="flex items-center justify-between p-3 bg-white dark:bg-slate-900 rounded-xl border border-gray-100">
                                 <span class="text-[10px] font-black text-gray-400 uppercase">Password</span>
                                 <div class="flex items-center gap-2">
-                                    <span v-if="revealedPasswords[item.id]" class="text-xs font-mono font-black text-indigo-600 tracking-wider">
+                                    <span v-if="revealedPasswords[item.id]" class="text-xs font-mono font-black text-brand tracking-wider">
                                         {{ revealedPasswords[item.id] }}
                                     </span>
-                                    <span v-else class="text-xs font-bold text-gray-300 tracking-widest">••••••••••••</span>
+                                    <span v-else class="text-[10px] font-mono tracking-wider text-slate-700 dark:text-slate-300">••••••••••••••••</span>
                                     
                                     <button 
                                         @click="revealPassword(item)" 
                                         :disabled="loadingReveal[item.id]"
-                                        class="ml-1 text-gray-400 hover:text-indigo-600 transition-colors h-6 w-6 flex items-center justify-center"
+                                        class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-500 hover:text-brand transition-all active:scale-90"
                                     >
                                         <font-awesome-icon :icon="loadingReveal[item.id] ? 'spinner' : (revealedPasswords[item.id] ? 'eye-slash' : 'eye')" :spin="loadingReveal[item.id]" />
                                     </button>
                                     
-                                    <button v-if="revealedPasswords[item.id]" @click="copyToClipboard(revealedPasswords[item.id])" class="text-gray-400 hover:text-indigo-600 transition-colors">
+                                    <button v-if="revealedPasswords[item.id]" @click="copyToClipboard(revealedPasswords[item.id])" class="text-slate-400 hover:text-brand transition-colors">
                                         <font-awesome-icon icon="copy" size="sm" />
                                     </button>
                                 </div>
@@ -241,14 +273,20 @@ const getOwnerName = (item) => {
                         </div>
                     </div>
 
-                    <div class="px-5 py-3 border-t border-gray-50 bg-white dark:bg-slate-900/50 flex items-center justify-between">
-                        <span class="text-[9px] font-black text-gray-400 uppercase">
-                             Actualizado {{ new Date(item.updated_at).toLocaleDateString() }}
-                        </span>
-                        <Link :href="getOwnerLink(item)" class="text-[10px] font-black text-gray-400 hover:text-indigo-600 uppercase flex items-center gap-1 transition-colors">
-                            Gestionar
-                            <font-awesome-icon icon="arrow-right" />
-                        </Link>
+                    <div class="px-5 py-3 border-t border-gray-50 bg-white dark:bg-slate-900/50 flex flex-col gap-1">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[9px] font-black text-gray-400 uppercase">
+                                Actualizado {{ new Date(item.updated_at).toLocaleDateString() }}
+                            </span>
+                            <Link :href="getOwnerLink(item)" class="text-[10px] font-black text-slate-400 hover:text-brand uppercase flex items-center gap-1 transition-colors">
+                                Gestionar
+                                <font-awesome-icon icon="arrow-right" />
+                            </Link>
+                        </div>
+                        <div v-if="item.last_revealed_at" class="text-[8px] font-bold text-amber-500 uppercase flex items-center gap-1">
+                            <font-awesome-icon icon="history" />
+                            Visto por última vez: {{ new Date(item.last_revealed_at).toLocaleString() }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -343,24 +381,26 @@ const getOwnerName = (item) => {
                                 </div>
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Contraseña</label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                            <font-awesome-icon icon="key" />
+                                    <div class="flex gap-2">
+                                        <div class="relative flex-1">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                                <font-awesome-icon icon="key" />
+                                            </div>
+                                            <input v-model="form.password" type="text" placeholder="••••••••" class="w-full border-gray-200 dark:border-slate-800 rounded-xl h-11 pl-10 text-sm font-bold focus:ring-indigo-500" required />
                                         </div>
-                                        <input v-model="form.password" type="text" placeholder="••••••••" class="w-full border-gray-200 dark:border-slate-800 rounded-xl h-11 pl-10 text-sm font-bold focus:ring-indigo-500" required />
+                                        <button type="button" @click="generatePassword" class="w-11 h-11 bg-gray-100 dark:bg-slate-800 rounded-xl text-gray-500 hover:text-indigo-600 hover:bg-gray-200 transition-all flex items-center justify-center border border-gray-200 dark:border-slate-800" title="Generar Contraseña">
+                                            <font-awesome-icon icon="sync-alt" />
+                                        </button>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-3 gap-4">
-                                <div class="col-span-2">
-                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Host / URL</label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                            <font-awesome-icon icon="server" />
-                                        </div>
-                                        <input v-model="form.host" type="text" placeholder="192.168.1.50" class="w-full border-gray-200 dark:border-slate-800 rounded-xl h-11 pl-10 text-sm font-bold focus:ring-indigo-500" />
-                                    </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Categoría</label>
+                                    <select v-model="form.categoria" class="w-full border-gray-200 dark:border-slate-800 rounded-xl h-11 text-sm font-bold focus:ring-indigo-500 bg-white dark:bg-slate-900" required>
+                                        <option v-for="cat in categorias" :key="cat" :value="cat">{{ cat }}</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Puerto</label>
@@ -370,6 +410,16 @@ const getOwnerName = (item) => {
                                         </div>
                                         <input v-model="form.puerto" type="text" placeholder="1433" class="w-full border-gray-200 dark:border-slate-800 rounded-xl h-11 pl-10 text-sm font-bold focus:ring-indigo-500" />
                                     </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Host / URL</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <font-awesome-icon icon="server" />
+                                    </div>
+                                    <input v-model="form.host" type="text" placeholder="192.168.1.50" class="w-full border-gray-200 dark:border-slate-800 rounded-xl h-11 pl-10 text-sm font-bold focus:ring-indigo-500" />
                                 </div>
                             </div>
 

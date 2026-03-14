@@ -13,9 +13,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use App\Services\LeadCaptureService;
 
 class ContactoController extends Controller
 {
+    public function __construct(protected LeadCaptureService $leadCapture)
+    {
+    }
+
     public function index()
     {
         $empresaId = EmpresaResolver::resolveId();
@@ -99,9 +104,8 @@ class ContactoController extends Controller
                 }
 
                 if (!$prospecto) {
-                    // Crear nuevo prospecto
-                    $prospecto = CrmProspecto::create([
-                        'empresa_id' => $empresaId,
+                    // Crear nuevo prospecto usando el servicio de captura (con UTM)
+                    $prospecto = $this->leadCapture->capture([
                         'nombre' => $validated['nombre'],
                         'telefono' => $validated['telefono'],
                         'email' => $validated['email'],
@@ -109,7 +113,7 @@ class ContactoController extends Controller
                         'etapa' => 'prospecto',
                         'prioridad' => 'media',
                         'notas' => $notasDetalladas,
-                    ]);
+                    ], $empresaId);
                 } else {
                     // Actualizar prospecto existente
                     $prospecto->update([
@@ -229,9 +233,8 @@ class ContactoController extends Controller
                     ->first();
 
                 if (!$prospecto) {
-                    // Crear nuevo prospecto en el CRM
-                    $prospecto = CrmProspecto::create([
-                        'empresa_id' => $empresaId,
+                    // Crear nuevo prospecto en el CRM usando el servicio (con UTM)
+                    $prospecto = $this->leadCapture->capture([
                         'nombre' => $validated['nombre'],
                         'telefono' => $validated['telefono'],
                         'email' => $validated['email'] ?? null,
@@ -239,7 +242,7 @@ class ContactoController extends Controller
                         'etapa' => 'prospecto',
                         'prioridad' => 'alta', // Alta prioridad porque solicitó cita
                         'notas' => $notasDetalladas,
-                    ]);
+                    ], $empresaId);
                 } else {
                     // Actualizar notas del prospecto existente
                     $prospecto->update([

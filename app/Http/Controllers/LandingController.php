@@ -262,6 +262,124 @@ class LandingController extends Controller
     }
 
     /**
+     * Página Quienes Somos / Curriculum Empresarial
+     */
+    public function quienesSomos()
+    {
+        $config = EmpresaConfiguracion::getConfig();
+
+        $empresaId = $config->empresa_id;
+
+        return Inertia::render('Public/QuienesSomos', [
+            'empresa' => [
+                'nombre' => $config->nombre_empresa ?? 'Mi Empresa',
+                'logo_url' => $config->logo_url,
+                'color_principal' => $config->color_principal ?? '#3B82F6',
+                'color_secundario' => $config->color_secundario ?? '#64748B',
+                'color_terciario' => $config->color_terciario ?? '#fbbf24',
+                'telefono' => $config->telefono,
+                'email' => $config->email,
+                'whatsapp' => $config->whatsapp ?? $config->telefono,
+                'mision' => $config->mision ?? 'Potenciar la tranquilidad y productividad de las empresas en México a través de soluciones tecnológicas de vanguardia en seguridad electrónica y soporte TI. Nos comprometemos a brindar un servicio cercano, confiable y de excelencia, adaptado a las necesidades específicas del mercado nacional.',
+                'vision' => $config->vision ?? 'Ser reconocidos como el socio tecnológico más confiable y visionario de México para finales de esta década. Aspiramos a redefinir los estándares de seguridad y eficiencia operativa en el país, impulsando el crecimiento sostenible de nuestros clientes mediante innovación constante.',
+                'valores' => $config->valores ?? ['Excelencia en Servicio', 'Seguridad Total', 'Innovación Continua', 'Integridad y Ética', 'Compromiso Local', 'Pasión por el Cliente'],
+            ],
+            'logos' => \App\Models\LandingLogoCliente::where('empresa_id', $empresaId)->where('activo', true)->ordenado()->get(),
+            'marcas' => \App\Models\LandingMarcaAutorizada::where('empresa_id', $empresaId)->where('activo', true)->ordenado()->get(),
+        ]);
+    }
+
+    /**
+     * Generar PDF del Curriculum Empresarial
+     */
+    public function curriculumPdf()
+    {
+        $config = \App\Models\EmpresaConfiguracion::getConfig();
+        $infoEmpresa = \App\Models\EmpresaConfiguracion::getInfoEmpresa();
+        $empresaId = $config->empresa_id;
+
+        // Helper para convertir imágenes locales a base64 para el PDF
+        $toBase64 = function ($path) {
+            if (! is_string($path) || ! is_file($path) || ! is_readable($path)) {
+                return null;
+            }
+
+            $data = file_get_contents($path);
+            if ($data === false) {
+                return null;
+            }
+
+            $mime = mime_content_type($path) ?: 'application/octet-stream';
+
+            return str_starts_with($mime, 'image/')
+                ? 'data:' . $mime . ';base64,' . base64_encode($data)
+                : null;
+        };
+
+        // Buscar imágenes generadas que ahora están en el almacenamiento local del proyecto
+        $localStoragePath = storage_path('app/public/landing/curriculum/');
+        
+        $data = [
+            'empresa' => [
+                'nombre' => $config->nombre_empresa ?? 'ASISTENCIA VIRCOM',
+                'razon_social' => $config->razon_social ?? 'JESUS ALBERTO LOPEZ NORIEGA',
+                'rfc' => $config->rfc ?? 'LONJ880321KMA',
+                'curp' => 'LONJ880321HSONRJ02',
+                'giro' => 'Servicios de Seguridad Electrónica y Soluciones TI',
+                'fundacion' => '2009',
+                'trayectoria' => '15 años',
+                'cobertura' => 'Nacional con presencia fuerte en el Norte de México (Sonora, Sinaloa, Baja California)',
+                'sitio_web' => $config->sitio_web ?? 'www.asistenciavircom.com',
+                'email' => $config->email ?? 'jlopez@asistenciavircom.com',
+                'telefono' => $config->telefono ?? '6622036840',
+                'direccion' => $config->direccion_completa,
+                'color_principal' => $config->color_principal ?? '#3B82F6',
+                'logo_base64' => $infoEmpresa['logo_base64'],
+                'mision' => $config->mision ?? 'Potenciar la tranquilidad y productividad de las empresas en México a través de soluciones tecnológicas de vanguardia en seguridad electrónica y soporte TI.',
+                'vision' => $config->vision ?? 'Ser reconocidos como el socio tecnológico más confiable y visionario de México, redefiniendo los estándares de seguridad y eficiencia operativa.',
+                'valores' => $config->valores ?? ['Excelencia en Servicio', 'Seguridad Total', 'Innovación Continua', 'Integridad y Ética', 'Compromiso Local', 'Pasión por el Cliente'],
+            ],
+            'directivo' => [
+                'nombre' => 'Jesus Lopez Noriega',
+                'puesto' => 'Director General',
+                'telefono' => '6622036840',
+                'email' => 'jlopez@asistenciavircom.com',
+                'foto_base64' => $toBase64(public_path('branding/fotos/jesus_lopez.png')), // Intentar cargar foto
+            ],
+            'certificaciones' => [
+                'SAT' => 'Constancia de Situación Fiscal Actualizada',
+                'REPSE' => 'Registro de Prestadoras de Servicios Especializados',
+                'IMSS' => 'Cumplimiento de Obligaciones de Seguridad Social',
+            ],
+            'experiencia_top' => [
+                'Sector Privado' => 'Carl\'s Jr (Instalaciones y Mantenimiento)',
+                'Sector Público' => 'Gobierno del Estado de Sonora (Sindicatura, Secretaría de Hacienda)',
+            ],
+            'imagenes_servicios' => [
+                'seguridad' => $toBase64($localStoragePath . 'servicios_seguridad_premium_1773449576956.png'),
+                'pos' => $toBase64($localStoragePath . 'puntos_de_venta_modernos_1773449592399.png'),
+                'biometricos' => $toBase64($localStoragePath . 'relojes_checador_biometricos_1773449619368.png'),
+                'equipo' => $toBase64($localStoragePath . 'equipo_tecnico_certificado_1773449631797.png'),
+                'it' => $toBase64($localStoragePath . 'infraestructura_it_empresarial_premium_1773449646580.png'),
+            ],
+            'marcas' => \App\Models\LandingMarcaAutorizada::where('empresa_id', $empresaId)->where('activo', true)->ordenado()->get(),
+            'logos' => \App\Models\LandingLogoCliente::where('empresa_id', $empresaId)->where('activo', true)->ordenado()->get(),
+            'fecha' => now()->format('d/m/Y')
+        ];
+
+        $pdf = Pdf::loadView('pdf.curriculum', $data)
+            ->setPaper('letter', 'portrait')
+            ->setOptions([
+                'isRemoteEnabled' => true,
+                'isHtml5ParserEnabled' => true,
+                'dpi' => 96,
+                'defaultFont' => 'DejaVu Sans',
+            ]);
+
+        return $pdf->stream('Curriculum_Empresarial_' . str_replace(' ', '_', $data['empresa']['nombre']) . '.pdf');
+    }
+
+    /**
      * Página de Puntos de Venta (Landing + Simulador)
      */
     public function puntosVenta()

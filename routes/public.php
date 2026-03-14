@@ -64,6 +64,8 @@ Route::get('/terminos', [LandingController::class, 'terminos'])->name('public.te
 Route::get('/asesor-climatizacion', [LandingController::class, 'asesor'])->name('public.asesor');
 Route::post('/asesor-lead', [LandingController::class, 'storeLead'])->name('public.asesor.store');
 Route::get('/asesor-pdf', [LandingController::class, 'downloadReport'])->name('public.asesor.pdf');
+Route::get('/quienes-somos', [LandingController::class, 'quienesSomos'])->name('public.quienes-somos');
+Route::get('/curriculum-pdf', [LandingController::class, 'curriculumPdf'])->name('public.curriculum.pdf');
 Route::get('/puntos-de-venta', [LandingController::class, 'puntosVenta'])->name('public.puntos-venta');
 
 // Contacto y Citas Públicas (Rápido)

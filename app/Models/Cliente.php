@@ -65,6 +65,9 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         'whatsapp_consent_date',    // Fecha de consentimiento
         'whatsapp_consent_method',  // Método de obtención de consentimiento
         'whatsapp_consent_source',  // Origen del consentimiento
+        'whatsapp_opt_in',
+        'whatsapp_opt_in_at',
+        'whatsapp_opt_in_ip',
 
         // ------ Facturación ------
         'cfdi_default_use',
@@ -98,7 +101,9 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         'activo' => 'boolean',
         'requiere_factura' => 'boolean',
         'whatsapp_optin' => 'boolean',
+        'whatsapp_opt_in' => 'boolean',
         'whatsapp_consent_date' => 'datetime',
+        'whatsapp_opt_in_at' => 'datetime',
         'credito_activo' => 'boolean',
         'limite_credito' => 'decimal:2',
         'dias_credito' => 'integer',
@@ -362,6 +367,15 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         $normalized = mb_strtoupper(trim((string) $value), 'UTF-8');
         $normalized = str_replace([' ', '-', '_'], '', $normalized);
         $this->attributes['rfc'] = $normalized;
+
+        // Detección automática de tipo de persona basada en longitud de RFC
+        // RFC de 12 caracteres = Persona Moral (Empresa)
+        // RFC de 13 caracteres = Persona Física (Individuo)
+        if (strlen($normalized) === 12) {
+            $this->attributes['tipo_persona'] = 'moral';
+        } elseif (strlen($normalized) === 13) {
+            $this->attributes['tipo_persona'] = 'fisica';
+        }
     }
 
     public function setCurpAttribute($value): void

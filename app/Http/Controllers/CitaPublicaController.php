@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use App\Support\EmpresaResolver;
 
 /**
  * Controlador para el agendamiento público de citas
@@ -431,8 +432,12 @@ class CitaPublicaController extends Controller
      */
     private function getEmpresaFromRequest(Request $request): ?Empresa
     {
-        // Por ahora, usar la primera empresa activa
-        // TODO: Implementar lógica de multi-tenant por dominio
+        $empresaId = EmpresaResolver::resolveId();
+
+        if ($empresaId) {
+            return Empresa::find($empresaId);
+        }
+
         return Empresa::first();
     }
 }

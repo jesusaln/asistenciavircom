@@ -78,10 +78,19 @@ const getRandomNotification = () => {
     }
     
     // Fallback si no hay productos que cumplan el criterio
+    const serviciosTI = [
+        'Mantenimiento de Servidor',
+        'Póliza de Soporte Empresarial',
+        'Kit de 4 Cámaras Dahua',
+        'Instalación de Red Estructurada',
+        'Control de Acceso Biométrico',
+        'Reparación Urgente de Laptop',
+        'Configuración de Firewall'
+    ];
     return {
         nombre: getRandom(nombres),
         ciudad: getRandom(ciudades),
-        producto: 'Servicio de Mantenimiento Preventivo',
+        producto: getRandom(serviciosTI),
         tiempo: getRandom(tiempos)
     }
 }

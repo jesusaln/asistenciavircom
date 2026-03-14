@@ -57,7 +57,7 @@
       </div>
 
       <!-- Estadísticas -->
-      <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
         <!-- Stat Card Item (reusable logic) -->
         <div 
           v-for="(stat, idx) in [
@@ -66,7 +66,8 @@
             { label: 'Pendientes', value: inactivos, color: '#f59e0b', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
             { label: 'P. Físicas', value: personas_fisicas, color: colors.principal, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
             { label: 'P. Morales', value: personas_morales, color: '#8b5cf6', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
-            { label: 'Nuevos', value: nuevos_mes, color: colors.secundario, icon: 'M12 4v16m8-8H4' }
+            { label: 'Nuevos', value: nuevos_mes, color: colors.secundario, icon: 'M12 4v16m8-8H4' },
+            { label: 'Deuda Total', value: formatearMoneda(deuda_total), color: '#ef4444', icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1' }
           ]"
           :key="idx"
           class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-4 border border-gray-200 dark:border-slate-800/50 dark:border-gray-700/50 shadow-sm transition-all"
@@ -122,19 +123,19 @@
 
           <!-- Filtro de estado activo -->
           <select
-            v-model="filtroEstado"
-            @change="onFiltroEstadoChange"
+            v-model="filtroActivo"
+            @change="onFiltroActivoChange"
             class="block pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 transition-all outline-none"
           >
-            <option value="">Estado: Todos</option>
+            <option value="">Estatus: Todos</option>
             <option value="1">Activos</option>
             <option value="0">Pendientes</option>
           </select>
 
-          <!-- Filtro de estado de México -->
+          <!-- Filtro de ubicación (Estado) -->
           <select
-            v-model="filtroEstadoMexico"
-            @change="onFiltroEstadoMexicoChange"
+            v-model="filtroEstado"
+            @change="onFiltroEstadoChange"
             class="hidden lg:block pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-700 dark:text-gray-200 transition-all outline-none"
           >
             <option value="">Ubicación: Todo MX</option>
@@ -221,31 +222,40 @@ const props = defineProps({
   personas_fisicas: { type: Number, default: 0 },
   personas_morales: { type: Number, default: 0 },
   nuevos_mes: { type: Number, default: 0 },
+  deuda_total: { type: Number, default: 0 },
 })
 
 const emit = defineEmits([
-  'crear-nueva', 'search-change', 'filtro-tipo-persona-change', 'filtro-estado-change', 'filtro-estado-mexico-change', 'sort-change', 'limpiar-filtros', 'importar-excel'
+  'crear-nueva', 'search-change', 'filtro-tipo-persona-change', 'filtro-activo-change', 'filtro-estado-change', 'sort-change', 'limpiar-filtros', 'importar-excel'
 ])
+
+// Formateador de moneda
+const formatearMoneda = (num) => {
+  return new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN'
+  }).format(num || 0)
+}
 
 // Estados locales para filtros
 const searchTerm = defineModel('searchTerm', { type: String, default: '' })
 const sortBy = defineModel('sortBy', { type: String, default: 'created_at-desc' })
 const filtroTipoPersona = defineModel('filtroTipoPersona', { type: String, default: '' })
+const filtroActivo = defineModel('filtroActivo', { type: String, default: '' })
 const filtroEstado = defineModel('filtroEstado', { type: String, default: '' })
-const filtroEstadoMexico = defineModel('filtroEstadoMexico', { type: String, default: '' })
 
 // Métodos de emisión
 const onCrearNueva = () => emit('crear-nueva')
 const onSearchChange = () => emit('search-change', searchTerm.value)
 const onFiltroTipoPersonaChange = () => emit('filtro-tipo-persona-change', filtroTipoPersona.value)
+const onFiltroActivoChange = () => emit('filtro-activo-change', filtroActivo.value)
 const onFiltroEstadoChange = () => emit('filtro-estado-change', filtroEstado.value)
-const onFiltroEstadoMexicoChange = () => emit('filtro-estado-mexico-change', filtroEstadoMexico.value)
 const onSortChange = () => emit('sort-change', sortBy.value)
 const onLimpiarFiltros = () => emit('limpiar-filtros')
 const onImportarExcel = () => emit('importar-excel')
 
 // Watch para limpiar filtros automáticamente
-watch([searchTerm, sortBy, filtroTipoPersona, filtroEstado, filtroEstadoMexico], () => {
+watch([searchTerm, sortBy, filtroTipoPersona, filtroActivo, filtroEstado], () => {
   // Emitir cambios automáticamente
 }, { immediate: true })
 </script>

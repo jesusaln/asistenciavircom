@@ -1,7 +1,8 @@
 <!-- /resources/js/Pages/Clientes/IndexNew.vue -->
 <script setup>
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { Head, router, usePage, Link, useForm } from '@inertiajs/vue3'
+import { debounce } from 'lodash'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Notyf } from 'notyf'
 import 'notyf/notyf.min.css'
@@ -61,7 +62,8 @@ const props = defineProps({
       inactivos: 0,
       personas_fisicas: 0,
       personas_morales: 0,
-      nuevos_mes: 0
+      nuevos_mes: 0,
+      deuda_total: 0
     })
   },
   filters: {
@@ -106,6 +108,7 @@ const modalMode = ref('details')
 const selectedCliente = ref(null)
 const selectedId = ref(null)
 const loading = ref(false)
+const isLoadingData = ref(false)
 const clientesCanDelete = ref(new Map())
 const clientesPrestamos = ref(new Map())
 
@@ -132,8 +135,54 @@ const handleImport = () => {
    Filtros, orden y datos
 ========================= */
 const searchTerm = ref('')
-const sortBy = ref('fecha-desc')
+const sortBy = ref('created_at-desc')
 const filtroEstado = ref('')
+const filtroTipoPersona = ref('')
+const filtroActivo = ref('')
+
+// Para evitar recargas infinitas o innecesarias
+let skipNextWatcher = false
+
+const fetchData = debounce(() => {
+  const query = {
+    search: searchTerm.value,
+    estado: filtroEstado.value,
+    activo: filtroActivo.value,
+    tipo_persona: filtroTipoPersona.value,
+    sort_by: sortBy.value.split('-')[0],
+    sort_direction: sortBy.value.split('-')[1] || 'desc'
+  }
+
+  router.visit('/clientes', {
+    data: query,
+    only: ['clientes', 'pagination', 'estadisticas'], // Carga parcial: solo lo necesario
+    preserveState: true,
+    preserveScroll: true,
+    replace: true, // No ensucia el historial de navegación
+    onFinish: () => {
+      isLoadingData.value = false
+    }
+  })
+}, 150) // Reducido a 150ms para respuesta casi instantánea
+
+// Inicializar filtros desde URL al cargar
+onMounted(() => {
+  if (props.filters) {
+    searchTerm.value = props.filters.search || ''
+    filtroEstado.value = props.filters.estado || ''
+    filtroActivo.value = props.filters.activo || ''
+    filtroTipoPersona.value = props.filters.tipo_persona || ''
+  }
+  if (props.sorting) {
+    sortBy.value = `${props.sorting.sort_by}-${props.sorting.sort_direction}`
+  }
+  
+  // Observar cambios en filtros para recargar datos
+  watch([searchTerm, filtroEstado, filtroActivo, filtroTipoPersona, sortBy], () => {
+    isLoadingData.value = true // Feedback visual inmediato al teclear
+    fetchData()
+  })
+})
 
 /* =========================
    Auditoría segura para el modal
@@ -166,14 +215,22 @@ const paginationData = computed(() => ({
 }))
 
 const goToPage = (page) => {
+  isLoadingData.value = true
   const query = {
     page,
     search: searchTerm.value,
     estado: filtroEstado.value,
+    activo: filtroActivo.value,
+    tipo_persona: filtroTipoPersona.value,
     sort_by: sortBy.value.split('-')[0],
     sort_direction: sortBy.value.split('-')[1] || 'desc'
   }
-  router.visit('/clientes', { data: query })
+  router.visit('/clientes', { 
+    data: query,
+    preserveState: true,
+    preserveScroll: true,
+    onFinish: () => { isLoadingData.value = false }
+  })
 }
 
 const nextPage = () => {
@@ -195,55 +252,40 @@ const prevPage = () => {
 
 const handleLimpiarFiltros = () => {
   searchTerm.value = ''
-  sortBy.value = 'fecha-desc'
+  sortBy.value = 'created_at-desc'
   filtroEstado.value = ''
-  router.visit('/clientes')
-  notyf.success('Filtros limpiados correctamente')
+  filtroActivo.value = ''
+  filtroTipoPersona.value = ''
+  notyf.success('Filtros limpiados')
 }
 
 const updateSort = (newSort) => {
   if (newSort && typeof newSort === 'string') {
     sortBy.value = newSort
-    const query = {
-      sort_by: newSort.split('-')[0],
-      sort_direction: newSort.split('-')[1] || 'desc',
-      search: searchTerm.value,
-      estado: filtroEstado.value
-    }
-    router.visit('/clientes', { data: query })
+    // El watcher se encargará de fetchData()
   }
 }
 
 const changePerPage = (event) => {
   const perPage = event.target.value
-  const query = {
-    per_page: perPage,
-    search: searchTerm.value,
-    estado: filtroEstado.value,
-    sort_by: sortBy.value.split('-')[0],
-    sort_direction: sortBy.value.split('-')[1] || 'desc'
-  }
-  router.visit('/clientes', { data: query })
+  router.visit('/clientes', {
+    data: {
+      per_page: perPage,
+      search: searchTerm.value,
+      estado: filtroEstado.value,
+      activo: filtroActivo.value,
+      tipo_persona: filtroTipoPersona.value
+    },
+    preserveState: true
+  })
 }
 
-const handleSearch = () => {
-  const query = {
-    search: searchTerm.value,
-    estado: filtroEstado.value,
-    sort_by: sortBy.value.split('-')[0],
-    sort_direction: sortBy.value.split('-')[1] || 'desc'
-  }
-  router.visit('/clientes', { data: query })
+const handleSearch = (val) => {
+  searchTerm.value = val
 }
 
 const handleFilter = () => {
-  const query = {
-    search: searchTerm.value,
-    estado: filtroEstado.value,
-    sort_by: sortBy.value.split('-')[0],
-    sort_direction: sortBy.value.split('-')[1] || 'desc'
-  }
-  router.visit('/clientes', { data: query })
+  // Ya manejado por el watch debounced
 }
 
 /* =========================
@@ -648,14 +690,15 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
         :personas_fisicas="estadisticas.personas_fisicas"
         :personas_morales="estadisticas.personas_morales"
         :nuevos_mes="estadisticas.nuevos_mes"
+        :deuda_total="estadisticas.deuda_total"
         v-model:search-term="searchTerm"
         v-model:sort-by="sortBy"
+        v-model:filtro-activo="filtroActivo"
         v-model:filtro-estado="filtroEstado"
+        v-model:filtro-tipo-persona="filtroTipoPersona"
         @crear-nueva="crearNuevoCliente"
         @search-change="handleSearch"
-        @filtro-estado-change="handleFilter"
-        @sort-change="updateSort"
-        @limpiar-filtros="limpiarFiltros"
+        @limpiar-filtros="handleLimpiarFiltros"
         @importar-excel="showImportModal = true"
       />
 
@@ -681,7 +724,11 @@ const isNumber = (n) => Number.isFinite(parseFloat(n))
       </div>
 
       <!-- Tabla de clientes -->
-      <div class="mt-6">
+      <div class="mt-6 relative">
+        <div v-if="isLoadingData" class="absolute inset-0 z-20 bg-white/30 dark:bg-slate-900/30 backdrop-blur-[1px] flex items-center justify-center rounded-xl transition-all">
+           <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-brand"></div>
+        </div>
+
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-gray-100 dark:border-slate-800 overflow-hidden transition-colors">
           <!-- Header con gradiente de empresa -->
           <div 

@@ -2,10 +2,10 @@
     <li>
         <Link
             :href="href"
-            class="group relative flex items-center py-3 text-gray-300 transition-all duration-200 ease-in-out hover:bg-gray-700 hover:text-white focus:bg-gray-700 focus:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+            class="group relative flex items-center py-3 text-slate-300 transition-all duration-200 ease-in-out hover:bg-slate-900/50 hover:text-white focus:bg-slate-900 focus:text-white focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 focus:ring-offset-slate-800"
             :class="{
                 // Clases para el estado activo y colapsado
-                'bg-gray-700 text-white border-r-2 border-amber-500': isActive,
+                'bg-slate-900/60 text-white border-r-2 border-brand': isActive,
                 'px-4': !collapsed, // Padding normal cuando está expandido
                 'px-4 justify-center': collapsed, // Centrar y mismo padding horizontal cuando está colapsado
                 'hover:pl-6': !isActive && !collapsed, // Efecto hover solo cuando no está activo y expandido

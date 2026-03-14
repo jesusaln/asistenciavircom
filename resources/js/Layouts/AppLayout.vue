@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 overflow-hidden">
+    <div class="flex flex-col h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden">
         <!-- Navigation Bar (Premium Glassmorphism) -->
         <nav class="bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 relative z-[60] shadow-lg">
             <div class="px-6 py-4">
@@ -106,8 +106,8 @@
                                             </div>
                                             Mi Perfil Maestro
                                         </Link>
-                                        <Link :href="route('empresa-configuracion.index')" class="flex items-center gap-4 px-5 py-4 text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-300 hover:bg-amber-500/5 hover:text-amber-500 rounded-2xl transition-all duration-300 group">
-                                            <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-amber-500/10 transition-colors">
+                                        <Link :href="route('empresa-configuracion.index')" class="flex items-center gap-4 px-5 py-4 text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-300 hover:bg-[var(--color-primary)]/5 hover:text-[var(--color-primary)] rounded-2xl transition-all duration-300 group">
+                                            <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-[var(--color-primary)]/10 transition-colors">
                                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -152,7 +152,7 @@
         <!-- Loading Overlay -->
         <div v-if="isLoading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" aria-modal="true" role="dialog">
             <div class="bg-white dark:bg-gray-800 rounded-xl p-6 flex items-center space-x-3 shadow-xl transition-colors">
-                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-500" role="status" aria-label="Cargando"></div>
+                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-brand" role="status" aria-label="Cargando"></div>
                 <span class="text-gray-700 dark:text-gray-200 font-medium transition-colors">Cargando...</span>
             </div>
         </div>
@@ -224,8 +224,8 @@ watch(() => props.empresa_config, (newConfig) => {
 // Cargar configuración de empresa (API para datos extendidos si es admin)
 const empresaConfigExtended = ref({
   nombre_empresa: 'CDD Sistema',
-  color_principal: '#F59E0B',
-  color_secundario: '#D97706',
+  color_principal: '#3B82F6',
+  color_secundario: '#60A5FA',
   logo_url: null,
 });
 

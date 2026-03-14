@@ -52,6 +52,16 @@ class CrmProspecto extends Model
         'created_by',
         'price_list_id',
         'domicilio_fiscal_cp',
+        'utm_source',
+        'utm_medium',
+        'utm_campaign',
+        'utm_term',
+        'utm_content',
+        'gclid',
+        'fbclid',
+        'referer',
+        'ip_address',
+        'user_agent',
     ];
 
     protected $casts = [

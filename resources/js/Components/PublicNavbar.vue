@@ -25,7 +25,6 @@ const navLinks = [
     { name: 'Blog', route: 'public.blog.index', id: 'blog' },
     { name: 'Productos', route: 'catalogo.index', id: 'tienda' },
     { name: 'Contacto', route: 'public.contacto', id: 'contacto' },
-    { name: 'Soporte', route: 'portal.dashboard', id: 'soporte' },
 ];
 
 const serviciosLinks = [
@@ -92,125 +91,28 @@ watch(() => props.empresa, (newConfig) => {
             </Link>
 
             <!-- Desktop Nav -->
-            <div class="hidden md:flex items-center gap-8">
-                <template v-for="link in navLinks" :key="link.id">
-                    <!-- Link Especial para Soporte -->
-                    <Link 
-                        v-if="link.id === 'soporte'"
-                        :href="route(link.route)"
-                        class="px-5 py-2.5 bg-[var(--color-primary-soft)] text-[var(--color-primary)] rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[var(--color-primary)] hover:text-white transition-all"
-                    >
-                        {{ link.name }}
-                    </Link>
-
-                    <!-- Dropdown de Servicios -->
-                    <div v-else-if="link.dropdown" class="relative" v-click-outside="() => showServiciosMenu = false">
-                        <button 
-                            @mousedown="showServiciosMenu = !showServiciosMenu"
-                            :class="[
-                                'flex items-center gap-1 text-sm font-bold transition-all uppercase tracking-widest pb-1',
-                                (isServiciosActive || showServiciosMenu)
-                                    ? 'text-gray-900 dark:text-white border-b-2 border-[var(--color-primary)]' 
-                                    : 'text-gray-500 dark:text-gray-400 hover:text-[var(--color-primary)]'
-                            ]"
-                        >
-                            {{ link.name }}
-                            <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': showServiciosMenu }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                        
-                        <!-- Dropdown Content -->
-                        <Transition
-                            enter-active-class="transition-all duration-200 ease-out"
-                            enter-from-class="opacity-0 -translate-y-2"
-                            enter-to-class="opacity-100 translate-y-0"
-                            leave-active-class="transition-all duration-150 ease-in"
-                            leave-from-class="opacity-100 translate-y-0"
-                            leave-to-class="opacity-0 -translate-y-2"
-                        >
-                            <div v-if="showServiciosMenu" class="absolute left-0 mt-2 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-100 dark:border-slate-800 py-2 z-50">
-                                <Link 
-                                    v-for="sLink in serviciosLinks" 
-                                    :key="sLink.id"
-                                    :href="route(sLink.route, sLink.params || {})" 
-                                    class="block px-4 py-3 text-sm font-bold uppercase tracking-wider text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-[var(--color-primary)] transition-colors"
-                                    @click="showServiciosMenu = false"
-                                >
-                                    {{ sLink.name }}
-                                </Link>
-                            </div>
-                        </Transition>
-                    </div>
-
-                    <!-- Links Normales -->
-                    <Link 
-                        v-else-if="link.route"
-                        :href="route(link.route)" 
-                        :class="[
-                            'text-sm font-bold transition-all uppercase tracking-widest pb-1',
-                            activeTab === link.id 
-                                ? 'text-gray-900 dark:text-white border-b-2 border-[var(--color-primary)]' 
-                                : 'text-gray-500 dark:text-gray-400 hover:text-[var(--color-primary)]'
-                        ]"
-                    >
-                        {{ link.name }}
-                    </Link>
-                </template>
-
-                <div class="h-6 w-px bg-gray-200 ml-2"></div>
-
-                <!-- User Actions -->
-                <div class="flex items-center gap-4">
-                     <!-- Dark Mode Toggle -->
-                    <!-- Dark Mode Toggle Button Desktop -->
-                    <button 
-                        @click="toggleDarkMode" 
-                        class="relative z-20 p-2.5 mr-2 rounded-xl text-gray-400 hover:text-[var(--color-primary)] hover:bg-gray-50 dark:hover:bg-gray-800 transition-all focus:outline-none active:scale-90 cursor-pointer"
-                        :title="isDarkMode ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'"
-                        type="button"
-                    >
-                        <Transition name="rotate-icon" mode="out-in">
-                            <!-- Icono Sol (para cuando está oscuro -> ir a claro) -->
-                            <svg v-if="isDarkMode" class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
-                            <!-- Icono Luna (para cuando está claro -> ir a oscuro) -->
-                            <svg v-else class="w-6 h-6 text-gray-400 hover:text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                            </svg>
-                        </Transition>
-                    </button>
-
-
-
-                    <!-- Cart Icon -->
-                    <Link :href="route('tienda.carrito')" class="relative p-2.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-gray-500 dark:text-gray-400 dark:text-gray-300 hover:text-[var(--color-primary)] hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-700 hover:shadow-sm transition-all group/cart">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        <span v-if="itemCount > 0" class="absolute -top-1 -right-1 w-5 h-5 bg-[var(--color-primary)] rounded-full text-[10px] font-black text-white flex items-center justify-center border-2 border-white">
-                            {{ itemCount > 9 ? '9+' : itemCount }}
-                        </span>
-                    </Link>
-
-                    <div class="h-6 w-px bg-gray-200"></div>
-
-                    <div v-if="currentUser" class="flex items-center gap-4">
-                        <!-- Dropdown Menu para Usuario -->
-                        <div class="relative" v-click-outside="() => showUserMenu = false">
+            <div class="hidden md:flex items-center gap-10">
+                <!-- Links Group -->
+                <div class="flex items-center gap-8">
+                    <template v-for="link in navLinks" :key="link.id">
+                        <!-- Dropdown de Servicios -->
+                        <div v-if="link.dropdown" class="relative" v-click-outside="() => showServiciosMenu = false">
                             <button 
-                                @click="showUserMenu = !showUserMenu"
-                                class="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-primary)] text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:shadow-lg hover:shadow-[var(--color-primary)]/20 transition-all"
+                                @mousedown="showServiciosMenu = !showServiciosMenu"
+                                :class="[
+                                    'flex items-center gap-1 text-xs font-black transition-all uppercase tracking-[0.15em] pb-1',
+                                    (isServiciosActive || showServiciosMenu)
+                                        ? 'text-gray-900 dark:text-white border-b-2 border-[var(--color-primary)]' 
+                                        : 'text-gray-400 dark:text-gray-500 hover:text-[var(--color-primary)]'
+                                ]"
                             >
-                                <span class="hidden sm:inline">{{ currentUser.nombre_razon_social?.split(' ')[0] || currentUser.name?.split(' ')[0] || 'Hola' }}</span>
-                                <span class="sm:hidden">👤</span>
-                                <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': showUserMenu }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                {{ link.name }}
+                                <svg class="w-3.5 h-3.5 transition-transform" :class="{ 'rotate-180': showServiciosMenu }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
                             
-                            <!-- Dropdown -->
+                            <!-- Dropdown Content -->
                             <Transition
                                 enter-active-class="transition-all duration-200 ease-out"
                                 enter-from-class="opacity-0 -translate-y-2"
@@ -219,24 +121,119 @@ watch(() => props.empresa, (newConfig) => {
                                 leave-from-class="opacity-100 translate-y-0"
                                 leave-to-class="opacity-0 -translate-y-2"
                             >
-                                <div v-if="showUserMenu" class="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-800 dark:border-gray-700 py-2 z-50">
+                                <div v-if="showServiciosMenu" class="absolute left-0 mt-4 w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-800 py-3 z-50 overflow-hidden ring-1 ring-black/5">
+                                    <Link 
+                                        v-for="sLink in serviciosLinks" 
+                                        :key="sLink.id"
+                                        :href="route(sLink.route, sLink.params || {})" 
+                                        class="block px-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-[var(--color-primary)] transition-all"
+                                        @click="showServiciosMenu = false"
+                                    >
+                                        {{ sLink.name }}
+                                    </Link>
+                                </div>
+                            </Transition>
+                        </div>
+
+                        <!-- Links Normales -->
+                        <Link 
+                            v-else
+                            :href="route(link.route)" 
+                            :class="[
+                                'text-xs font-black transition-all uppercase tracking-[0.15em] pb-1',
+                                activeTab === link.id 
+                                    ? 'text-gray-900 dark:text-white border-b-2 border-[var(--color-primary)]' 
+                                    : 'text-gray-400 dark:text-gray-500 hover:text-[var(--color-primary)]'
+                            ]"
+                        >
+                            {{ link.name }}
+                        </Link>
+                    </template>
+                </div>
+
+                <!-- Action Button Group -->
+                <div class="flex items-center gap-5 pl-8 border-l border-gray-100 dark:border-slate-800">
+                    <!-- Link Soporte -->
+                    <Link 
+                        :href="route('portal.dashboard')"
+                        class="px-5 py-3 bg-[var(--color-primary-soft)] text-[var(--color-primary)] rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-[var(--color-primary)] hover:text-white hover:shadow-lg hover:shadow-[var(--color-primary)]/20 transition-all border border-[var(--color-primary)]/10"
+                    >
+                        Soporte
+                    </Link>
+
+                    <!-- User Actions Tools -->
+                    <div class="flex items-center gap-1.5">
+                        <!-- Dark Mode Toggle -->
+                        <button 
+                            @click="toggleDarkMode" 
+                            class="p-2.5 rounded-xl text-gray-400 hover:text-[var(--color-primary)] hover:bg-gray-50 dark:hover:bg-gray-800 transition-all focus:outline-none"
+                            :title="isDarkMode ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'"
+                        >
+                            <svg v-if="isDarkMode" class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                            </svg>
+                        </button>
+
+                        <!-- Cart Icon -->
+                        <Link :href="route('tienda.carrito')" class="relative p-2.5 text-gray-400 hover:text-[var(--color-primary)] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            <span v-if="itemCount > 0" class="absolute top-1 right-1 w-4.5 h-4.5 bg-[var(--color-primary)] rounded-full text-[8px] font-black text-white flex items-center justify-center ring-2 ring-white dark:ring-slate-900">
+                                {{ itemCount > 9 ? '9+' : itemCount }}
+                            </span>
+                        </Link>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="h-6 w-px bg-gray-100 dark:bg-slate-800"></div>
+
+                    <!-- Auth Block -->
+                    <div v-if="currentUser">
+                        <div class="relative" v-click-outside="() => showUserMenu = false">
+                            <button 
+                                @click="showUserMenu = !showUserMenu"
+                                class="flex items-center gap-3 px-4 py-2.5 bg-gray-50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 rounded-xl transition-all group border border-transparent hover:border-gray-100 dark:hover:border-slate-700 shadow-sm hover:shadow-md"
+                            >
+                                <div class="w-6 h-6 rounded-lg bg-[var(--color-primary)] flex items-center justify-center text-[10px] font-black text-white">
+                                    {{ (currentUser.nombre_razon_social || currentUser.name || 'H').charAt(0).toUpperCase() }}
+                                </div>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-200">Panel</span>
+                                <svg class="w-3.5 h-3.5 text-gray-400 transition-transform" :class="{ 'rotate-180': showUserMenu }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            
+                            <!-- User Dropdown Details ... -->
+                            <Transition
+                                enter-active-class="transition-all duration-200 ease-out"
+                                enter-from-class="opacity-0 -translate-y-2"
+                                enter-to-class="opacity-100 translate-y-0"
+                                leave-active-class="transition-all duration-150 ease-in"
+                                leave-from-class="opacity-100 translate-y-0"
+                                leave-to-class="opacity-0 -translate-y-2"
+                            >
+                                <div v-if="showUserMenu" class="absolute right-0 mt-3 w-52 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-800 py-2 z-50 ring-1 ring-black/5">
                                     <Link 
                                         :href="route(currentUser.tipo === 'cliente' ? 'portal.dashboard' : 'dashboard')" 
-                                        class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                                        class="flex items-center gap-3 px-4 py-3.5 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-800 dark:text-gray-400 hover:text-[var(--color-primary)] transition-all"
                                         @click="showUserMenu = false"
                                     >
-                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                         </svg>
                                         Mi Panel
                                     </Link>
-                                    <div class="border-t border-gray-100 dark:border-slate-800 dark:border-gray-700 my-1"></div>
+                                    <div class="mx-4 border-t border-gray-50 dark:border-white/5 my-1"></div>
                                     <button 
                                         @click="logout"
-                                        class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                        class="w-full flex items-center gap-3 px-4 py-3.5 text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
                                     >
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                         </svg>
                                         Cerrar Sesión
                                     </button>
@@ -244,15 +241,12 @@ watch(() => props.empresa, (newConfig) => {
                             </Transition>
                         </div>
                     </div>
-                    <div v-else class="flex items-center gap-4">
-                        <Link :href="route('portal.login')" class="text-sm font-bold text-gray-500 dark:text-gray-400 dark:text-gray-300 hover:text-[var(--color-primary)] transition-all uppercase tracking-widest">
+                    <div v-else class="flex items-center gap-5">
+                        <Link :href="route('portal.login')" class="px-6 py-3 bg-[var(--color-primary)] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-[var(--color-primary)]/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[var(--color-primary)]/40 transition-all">
                             Ingresar
                         </Link>
-                        <Link :href="route('portal.register')" class="px-5 py-2.5 bg-[var(--color-primary-soft)] text-[var(--color-primary)] rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[var(--color-primary)] hover:text-white transition-all">
-                            Registro
-                        </Link>
                         <!-- Staff Shortcut -->
-                        <a href="/login" class="ml-2 text-[10px] font-black uppercase tracking-widest text-gray-300 hover:text-gray-400" title="Acceso Administrativo">
+                        <a href="/login" class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-300 hover:text-[var(--color-primary)] transition-colors" title="Acceso Administrativo">
                             Staff
                         </a>
                     </div>
@@ -372,9 +366,8 @@ watch(() => props.empresa, (newConfig) => {
                             
                             <!-- Auth Mobile -->
                             <div class="p-8 bg-slate-50 dark:bg-slate-900/50 rounded-t-[3rem] border-t border-gray-100 dark:border-white/5">
-                                <div v-if="!currentUser" class="grid grid-cols-2 gap-4">
-                                    <Link :href="route('portal.login')" class="py-4 text-center bg-white dark:bg-slate-800 dark:text-white rounded-2xl font-black uppercase text-[10px] tracking-widest border border-gray-200 dark:border-gray-700 shadow-sm" @click="showMobileMenu = false">Login</Link>
-                                    <Link :href="route('portal.register')" class="py-4 text-center bg-[var(--color-primary)] text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-[var(--color-primary)]/30" @click="showMobileMenu = false">Registro</Link>
+                                <div v-if="!currentUser" class="grid grid-cols-1 gap-4">
+                                    <Link :href="route('portal.login')" class="py-4 text-center bg-[var(--color-primary)] text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-[var(--color-primary)]/30" @click="showMobileMenu = false">Ingresar / Registro</Link>
                                 </div>
                                 <div v-else class="space-y-6">
                                     <div class="flex items-center gap-4">

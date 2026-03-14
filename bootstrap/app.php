@@ -20,7 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
             \App\Http\Middleware\SecurityHeaders::class,
+            \App\Http\Middleware\CaptureMarketingParams::class,
             \App\Http\Middleware\EnsureSystemInstalled::class,
+            \App\Http\Middleware\ResolveEmpresaFromHost::class,
             \App\Http\Middleware\EnforceEmpresaContext::class,
         ]);
 
@@ -62,11 +64,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 // Obtener el mensaje real si no es 500, de lo contrario un mensaje genérico.
                 $status = $response->getStatusCode();
                 $message = $exception->getMessage() ?: 'Ha ocurrido un error inesperado.';
-                
+
                 if ($status === 500 && !app()->environment(['local', 'testing'])) {
                     $message = 'Error interno del servidor. Soporte técnico ha sido notificado.';
                 }
-                
+
                 if ($status === 404 && empty($exception->getMessage())) {
                     $message = 'El recurso solicitado no fue encontrado.';
                 }

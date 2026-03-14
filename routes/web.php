@@ -61,3 +61,7 @@ Route::get('/crear-poliza-test', function () {
 
     return "Póliza creada: ID {$poliza->id} - Monto: \${$poliza->monto_mensual}";
 });
+
+// --- LANDINGS SEO DINÁMICAS ( Catch-all root ) ---
+// IMPORTANTE: Se coloca al final de TODO para no interferir con el admin o portal
+Route::get('/{slug}', [\App\Http\Controllers\PublicSeoLandingController::class, 'show'])->name('public.seo.landing');
