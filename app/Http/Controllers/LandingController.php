@@ -310,10 +310,11 @@ class LandingController extends Controller
             }
 
             $mime = mime_content_type($path) ?: 'application/octet-stream';
+            if ($mime === 'image/webp') return null; // DomPDF crash sin GD webp support
 
             return str_starts_with($mime, 'image/')
-                ? 'data:' . $mime . ';base64,' . base64_encode($data)
-                : null;
+                 ? 'data:' . $mime . ';base64,' . base64_encode($data)
+                 : null;
         };
 
         // Buscar imágenes generadas que ahora están en el almacenamiento local del proyecto

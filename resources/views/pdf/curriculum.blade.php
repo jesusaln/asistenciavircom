@@ -1100,7 +1100,8 @@
                             if ($path && file_exists($path)) {
                                 $data = file_get_contents($path);
                                 $mime = mime_content_type($path) ?: null;
-                                if ($data !== false && $mime && str_starts_with($mime, 'image/')) {
+                                // DomPDF no soporta webp si GD no tiene soporte (común en docker)
+                                if ($data !== false && $mime && str_starts_with($mime, 'image/') && $mime !== 'image/webp') {
                                     $base64 = 'data:' . $mime . ';base64,' . base64_encode($data);
                                 }
                             }
@@ -1127,7 +1128,8 @@
                             if ($clientePath && file_exists($clientePath)) {
                                 $data = file_get_contents($clientePath);
                                 $mime = mime_content_type($clientePath) ?: null;
-                                if ($data !== false && $mime && str_starts_with($mime, 'image/')) {
+                                // DomPDF no soporta webp si GD no tiene soporte
+                                if ($data !== false && $mime && str_starts_with($mime, 'image/') && $mime !== 'image/webp') {
                                     $clienteBase64 = 'data:' . $mime . ';base64,' . base64_encode($data);
                                 }
                             }
