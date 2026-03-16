@@ -21,6 +21,7 @@ const { itemCount } = useCart();
 
 const navLinks = [
     { name: 'Inicio', route: 'landing', id: 'landing' },
+    { name: 'Quienes Somos', route: 'public.quienes-somos', id: 'quienes-somos' },
     { name: 'Servicios', id: 'servicios', dropdown: true },
     { name: 'Blog', route: 'public.blog.index', id: 'blog' },
     { name: 'Productos', route: 'catalogo.index', id: 'tienda' },

@@ -725,15 +725,6 @@ const planesCalculados = computed(() => {
             </div>
         </section>
 
-        <!-- PROVIDERS SECTION (Nuestras Alianzas) -->
-        <section v-if="marcas?.length" class="py-12 bg-white dark:bg-slate-900 border-y border-gray-100 dark:border-gray-800 transition-colors duration-300">
-            <div class="w-full px-4">
-                <p class="text-center text-xs font-black uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500 mb-10 transition-colors">Distribuidores Oficiales y Alianzas Estratégicas</p>
-                <div class="flex flex-wrap justify-center items-center gap-12 opacity-50 grayscale hover:grayscale-0 dark:grayscale-0 dark:opacity-100 transition-all duration-500">
-                     <img v-for="marca in marcas" :key="marca.id" referrerpolicy="no-referrer" :src="getImageUrl(marca.logo_url) || `https://placehold.co/200x80?text=${marca.nombre}`" class="h-8 lg:h-10 w-auto object-contain" :alt="marca.nombre">
-                </div>
-            </div>
-        </section>
 
         <!-- STATS SECTION (MODERN DARK & LIGHT) -->
         <section ref="statsSection" class="py-32 relative overflow-hidden bg-white dark:bg-slate-900 dark:bg-gray-900 transition-colors duration-300">

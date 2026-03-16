@@ -20,6 +20,8 @@ const metrics = props.servicio.metricas || [];
 const pains = props.servicio.problemas || [];
 const deliverables = props.servicio.entregables || [];
 const serviceName = props.servicio.titulo || 'tu proyecto';
+const heroPoints = (props.servicio.beneficios || []).slice(0, 3);
+const processSteps = (props.servicio.entregables || []).slice(0, 3);
 
 const getIconColor = (color) => {
     const colors = {
@@ -81,6 +83,18 @@ const getBtnColor = (color) => {
                         </Link>
                     </div>
 
+                    <div v-if="heroPoints.length" class="flex flex-wrap gap-3 mb-8 max-w-4xl">
+                        <div v-for="point in heroPoints" :key="point.titulo" class="inline-flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-md">
+                            <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-white text-sm">
+                                <FontAwesomeIcon :icon="point.icon" />
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/70">{{ point.titulo }}</p>
+                                <p class="text-sm text-white font-semibold leading-tight">{{ point.desc }}</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div v-if="metrics.length" class="grid sm:grid-cols-3 gap-4 max-w-4xl">
                         <div v-for="metric in metrics" :key="metric.label" class="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md px-5 py-4">
                             <div class="text-2xl font-black text-white tracking-tight">{{ metric.valor }}</div>
@@ -95,6 +109,21 @@ const getBtnColor = (color) => {
                     <p class="text-sm text-gray-300 leading-relaxed mb-6">
                         {{ servicio.cta_subtitulo || 'Cuéntanos tu necesidad y te orientamos con la mejor solución.' }}
                     </p>
+
+                    <div class="grid grid-cols-3 gap-3 mb-6">
+                        <div class="rounded-2xl border border-white/10 bg-slate-950/20 px-3 py-4 text-center">
+                            <p class="text-[10px] font-black uppercase tracking-[0.18em] text-gray-400">Respuesta</p>
+                            <p class="text-sm font-black text-white mt-2">Agil</p>
+                        </div>
+                        <div class="rounded-2xl border border-white/10 bg-slate-950/20 px-3 py-4 text-center">
+                            <p class="text-[10px] font-black uppercase tracking-[0.18em] text-gray-400">Canal</p>
+                            <p class="text-sm font-black text-white mt-2">WhatsApp</p>
+                        </div>
+                        <div class="rounded-2xl border border-white/10 bg-slate-950/20 px-3 py-4 text-center">
+                            <p class="text-[10px] font-black uppercase tracking-[0.18em] text-gray-400">Propuesta</p>
+                            <p class="text-sm font-black text-white mt-2">Clara</p>
+                        </div>
+                    </div>
 
                     <div class="space-y-4 mb-6">
                         <div class="rounded-2xl border border-white/10 bg-slate-950/20 px-4 py-4">
@@ -223,12 +252,34 @@ const getBtnColor = (color) => {
                 </div>
             </div>
 
+            <div v-if="processSteps.length" class="mb-32">
+                <div class="max-w-3xl mb-12">
+                    <p class="text-[10px] font-black uppercase tracking-[0.24em] text-[var(--color-primary)] mb-4">Cómo Avanzamos</p>
+                    <h3 class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-4">
+                        Un proceso simple para llegar mas rapido a una solucion que si funcione
+                    </h3>
+                    <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                        Evitamos cotizaciones improvisadas. Primero entendemos tu necesidad, luego definimos alcance y finalmente aterrizamos la implementacion correcta.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div v-for="(step, index) in processSteps" :key="step" class="rounded-[2rem] border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-7 shadow-sm">
+                        <div class="w-12 h-12 rounded-2xl bg-[var(--color-primary)] text-white flex items-center justify-center text-lg font-black mb-5">
+                            {{ index + 1 }}
+                        </div>
+                        <h4 class="text-lg font-black text-gray-900 dark:text-white tracking-tight mb-2">Paso {{ index + 1 }}</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{{ step }}</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Featured Products (If applicable) -->
             <div v-if="productosDestacados.length > 0" class="border-t border-gray-100 dark:border-slate-800 pt-24">
                 <div class="flex justify-between items-end mb-12">
                     <div>
-                        <h3 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Equipos Destacados</h3>
-                        <p class="text-gray-500 dark:text-gray-400">Los más solicitados por nuestros clientes</p>
+                        <h3 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Equipos Recomendados</h3>
+                        <p class="text-gray-500 dark:text-gray-400">Opciones alineadas a esta solucion y a lo que mas piden tus clientes</p>
                     </div>
                     <Link :href="route('catalogo.index', { categoria: servicio.categoria_id })" class="text-sm font-black text-[var(--color-primary)] uppercase tracking-widest hover:underline">
                         Ver Catálogo Completo →

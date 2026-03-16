@@ -20,6 +20,125 @@ const activeHeadingId = ref(null);
 const markerTop = ref(0);
 const markerHeight = ref(0);
 
+const escapeHtml = (text = '') => {
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+};
+
+const applyInlineMarkdown = (text = '') => {
+    return escapeHtml(text)
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/`(.+?)`/g, '<code>$1</code>');
+};
+
+const normalizePlainContent = (content = '') => {
+    const normalizedContent = content
+        .replace(/\\n/g, '\n')
+        .replace(/\\r/g, '')
+        .trim();
+
+    const lines = normalizedContent.split(/\r?\n/);
+    const html = [];
+    let paragraph = [];
+    let listItems = [];
+    let orderedItems = [];
+
+    const flushParagraph = () => {
+        if (paragraph.length) {
+            html.push(`<p>${paragraph.join(' ')}</p>`);
+            paragraph = [];
+        }
+    };
+
+    const flushList = () => {
+        if (listItems.length) {
+            html.push(`<ul>${listItems.map(item => `<li>${item}</li>`).join('')}</ul>`);
+            listItems = [];
+        }
+        if (orderedItems.length) {
+            html.push(`<ol>${orderedItems.map(item => `<li>${item}</li>`).join('')}</ol>`);
+            orderedItems = [];
+        }
+    };
+
+    lines.forEach((rawLine) => {
+        const line = rawLine.trim();
+
+        if (!line) {
+            flushParagraph();
+            flushList();
+            return;
+        }
+
+        if (line.startsWith('### ')) {
+            flushParagraph();
+            flushList();
+            html.push(`<h3>${applyInlineMarkdown(line.slice(4))}</h3>`);
+            return;
+        }
+
+        if (line.startsWith('## ')) {
+            flushParagraph();
+            flushList();
+            html.push(`<h2>${applyInlineMarkdown(line.slice(3))}</h2>`);
+            return;
+        }
+
+        if (/^[-*]\s+/.test(line)) {
+            flushParagraph();
+            listItems.push(applyInlineMarkdown(line.replace(/^[-*]\s+/, '')));
+            return;
+        }
+
+        if (/^\d+\.\s+/.test(line)) {
+            flushParagraph();
+            orderedItems.push(applyInlineMarkdown(line.replace(/^\d+\.\s+/, '')));
+            return;
+        }
+
+        flushList();
+        paragraph.push(applyInlineMarkdown(line));
+    });
+
+    flushParagraph();
+    flushList();
+
+    return html.join('');
+};
+
+const renderedContent = computed(() => {
+    const content = props.post?.contenido || '';
+    if (!content) return '<p>Contenido no disponible por el momento.</p>';
+
+    const looksLikeHtml = /<(p|h2|h3|ul|ol|li|img|pre|blockquote|table|iframe|figure|strong|em|a)\b/i.test(content);
+    return looksLikeHtml ? content : normalizePlainContent(content);
+});
+
+const postExcerpt = computed(() => {
+    const summary = props.post?.resumen?.trim();
+    if (summary) return summary;
+
+    const plainText = (props.post?.contenido || '')
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    if (!plainText) return 'Explora este articulo y descubre recomendaciones practicas para aplicar esta solucion en tu negocio.';
+    return `${plainText.slice(0, 220)}${plainText.length > 220 ? '...' : ''}`;
+});
+
+const whatsappHref = computed(() => {
+    const phone = String(props.empresa?.whatsapp || '').replace(/\D/g, '');
+    if (!phone) return route('public.contacto');
+    const message = `Hola, me intereso el articulo "${props.post?.titulo}". Quiero mas informacion para aplicarlo en mi negocio.`;
+    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+});
+
 const generateTOC = () => {
     if (!articleContent.value) return;
 
@@ -194,9 +313,9 @@ onUnmounted(() => {
 
 <template>
     <Head :title="post.titulo">
-        <meta name="description" :content="post.meta_descripcion || post.resumen">
+        <meta name="description" :content="post.meta_descripcion || postExcerpt">
         <meta property="og:title" :content="post.titulo">
-        <meta property="og:description" :content="post.resumen">
+        <meta property="og:description" :content="postExcerpt">
         <meta property="og:image" :content="post.imagen_portada_url">
     </Head>
     
@@ -238,6 +357,10 @@ onUnmounted(() => {
                     <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-8 leading-[1.1] tracking-tight">
                         {{ post.titulo }}
                     </h1>
+
+                    <p class="max-w-3xl text-lg md:text-xl text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                        {{ postExcerpt }}
+                    </p>
 
                     <div class="flex flex-wrap items-center gap-8 text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 pt-8 mt-2">
                         <div class="flex items-center gap-2">
@@ -291,8 +414,16 @@ onUnmounted(() => {
                 <!-- Article Content -->
                 <div class="lg:w-full min-w-0">
                     <!-- Cover Image -->
-                    <div v-if="post.imagen_portada_url" class="relative group rounded-[3rem] overflow-hidden shadow-2xl mb-12 aspect-video bg-slate-200 dark:bg-slate-800">
-                        <img :src="post.imagen_portada_url" :alt="post.titulo" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]">
+                    <div class="relative group rounded-[3rem] overflow-hidden shadow-2xl mb-12 aspect-video bg-slate-200 dark:bg-slate-800">
+                        <img v-if="post.imagen_portada_url" :src="post.imagen_portada_url" :alt="post.titulo" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]">
+                        <div v-if="!post.imagen_portada_url" class="absolute inset-0 bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300 dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 flex items-center justify-center">
+                            <div class="text-center px-8">
+                                <div class="w-20 h-20 mx-auto rounded-[2rem] bg-white/60 dark:bg-white/5 border border-white/40 dark:border-white/10 flex items-center justify-center text-[var(--color-primary)] mb-6 shadow-xl">
+                                    <FontAwesomeIcon icon="newspaper" class="text-3xl" />
+                                </div>
+                                <p class="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400">Articulo Especializado</p>
+                            </div>
+                        </div>
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent"></div>
                     </div>
 
@@ -309,7 +440,7 @@ onUnmounted(() => {
                                prose-strong:text-slate-900 dark:prose-strong:text-white
                                prose-pre:bg-slate-900 prose-pre:scrolbar-hide prose-pre:shadow-2xl prose-pre:rounded-2xl
                                transition-colors" 
-                        v-html="post.contenido"
+                        v-html="renderedContent"
                     >
                     </article>
 
@@ -326,7 +457,7 @@ onUnmounted(() => {
                                     <p class="text-slate-400 font-medium">Contáctanos hoy mismo y uno de nuestros ingenieros expertos diseñará una solución a tu medida.</p>
                                 </div>
                                 
-                                <a :href="`https://wa.me/${empresa.whatsapp}`" 
+                                <a :href="whatsappHref" 
                                    @click="reportInterest"
                                    class="bg-[var(--color-primary)] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[var(--color-primary-dark)] transition-all flex items-center gap-4 shadow-xl shadow-[var(--color-primary)]/20 hover:scale-105 active:scale-95 whitespace-nowrap"
                                 >
