@@ -3,13 +3,23 @@ import { Head, Link } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
-defineOptions({ layout: PublicLayout });
+defineOptions({
+    layout: PublicLayout,
+    inheritAttrs: false,
+});
 
 const props = defineProps({
     servicio: Object,
     productosDestacados: Array,
     empresa: Object
 });
+
+const whatsappHref = `https://wa.me/${String(props.empresa?.whatsapp || '').replace(/\D/g, '')}?text=${encodeURIComponent(`Hola, me interesa ${props.servicio.titulo}. Quiero una propuesta para mi empresa.`)}`;
+const sectors = props.servicio.sectores || [];
+const metrics = props.servicio.metricas || [];
+const pains = props.servicio.problemas || [];
+const deliverables = props.servicio.entregables || [];
+const serviceName = props.servicio.titulo || 'tu proyecto';
 
 const getIconColor = (color) => {
     const colors = {
@@ -40,7 +50,7 @@ const getBtnColor = (color) => {
     <Head :title="servicio.titulo" />
 
     <!-- Hero Section -->
-    <div class="relative min-h-[70vh] flex items-center overflow-hidden">
+    <div class="relative min-h-[78vh] flex items-center overflow-hidden">
         <!-- Background Image -->
         <div class="absolute inset-0 z-0">
             <img :src="servicio.imagen" class="w-full h-full object-cover" alt="Hero Background">
@@ -48,26 +58,70 @@ const getBtnColor = (color) => {
         </div>
 
         <div class="max-w-7xl mx-auto px-4 relative z-10 w-full">
-            <div class="max-w-2xl text-white">
-                <span class="inline-block px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-6 bg-white/10 backdrop-blur-md border border-white/20">
-                    Nuestros Servicios
-                </span>
-                <h1 class="text-5xl md:text-7xl font-black mb-6 tracking-tighter leading-tight animate-fade-in">
-                    {{ servicio.titulo }}
-                </h1>
-                <p class="text-xl text-gray-300 font-medium mb-10 leading-relaxed max-w-xl">
-                    {{ servicio.subtitulo }}
-                </p>
-                
-                <div class="flex flex-wrap gap-4">
-                    <a :href="`https://wa.me/${empresa.whatsapp}?text=Hola, me interesa información sobre ${servicio.titulo}`" target="_blank" :class="[getBtnColor(servicio.color), 'px-8 py-4 rounded-2xl text-white font-black text-xs uppercase tracking-widest shadow-xl transition-all transform hover:scale-105 active:scale-95 flex items-center gap-3']">
+            <div class="grid lg:grid-cols-[minmax(0,1.1fr)_420px] gap-10 items-end">
+                <div class="max-w-3xl text-white">
+                    <span class="inline-block px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-6 bg-white/10 backdrop-blur-md border border-white/20">
+                        {{ servicio.badge || 'Nuestros Servicios' }}
+                    </span>
+                    <h1 class="text-5xl md:text-7xl font-black mb-6 tracking-tighter leading-tight animate-fade-in">
+                        {{ servicio.titulo }}
+                    </h1>
+                    <p class="text-xl text-gray-300 font-medium mb-10 leading-relaxed max-w-2xl">
+                        {{ servicio.subtitulo }}
+                    </p>
+
+                    <div class="flex flex-wrap gap-4 mb-8">
+                        <a :href="whatsappHref" target="_blank" :class="[getBtnColor(servicio.color), 'px-8 py-4 rounded-2xl text-white font-black text-xs uppercase tracking-widest shadow-xl transition-all transform hover:scale-105 active:scale-95 flex items-center gap-3']">
+                            <FontAwesomeIcon :icon="['fab', 'whatsapp']" class="text-xl" />
+                            {{ servicio.cta_titulo || 'Solicitar Cotización' }}
+                        </a>
+                        <Link v-if="servicio.categoria_id" :href="route('catalogo.index', { categoria: servicio.categoria_id })" class="px-8 py-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white font-black text-xs uppercase tracking-widest hover:bg-white/20 transition-all flex items-center gap-3">
+                            <FontAwesomeIcon icon="shopping-bag" />
+                            Ver Productos
+                        </Link>
+                    </div>
+
+                    <div v-if="metrics.length" class="grid sm:grid-cols-3 gap-4 max-w-4xl">
+                        <div v-for="metric in metrics" :key="metric.label" class="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md px-5 py-4">
+                            <div class="text-2xl font-black text-white tracking-tight">{{ metric.valor }}</div>
+                            <div class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-300 mt-1">{{ metric.label }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-[2rem] border border-white/15 bg-white/10 backdrop-blur-xl p-7 text-white shadow-2xl">
+                    <p class="text-[10px] font-black uppercase tracking-[0.25em] text-sky-300 mb-3">Evaluacion Inicial</p>
+                    <h2 class="text-2xl font-black tracking-tight mb-3">{{ servicio.cta_titulo || 'Solicita una propuesta' }}</h2>
+                    <p class="text-sm text-gray-300 leading-relaxed mb-6">
+                        {{ servicio.cta_subtitulo || 'Cuéntanos tu necesidad y te orientamos con la mejor solución.' }}
+                    </p>
+
+                    <div class="space-y-4 mb-6">
+                        <div class="rounded-2xl border border-white/10 bg-slate-950/20 px-4 py-4">
+                            <p class="text-[10px] font-black uppercase tracking-[0.18em] text-gray-400 mb-1">Ideal para</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span v-for="sector in sectors" :key="sector" class="px-3 py-1 rounded-full bg-white/10 text-[10px] font-black uppercase tracking-wider text-white">
+                                    {{ sector }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="rounded-2xl border border-white/10 bg-slate-950/20 px-4 py-4">
+                            <div class="flex items-start gap-3">
+                                <div class="w-11 h-11 rounded-xl bg-sky-400/15 text-sky-300 flex items-center justify-center flex-shrink-0">
+                                    <FontAwesomeIcon icon="clipboard-check" />
+                                </div>
+                                <div>
+                                    <p class="text-sm font-black uppercase tracking-wider">Analisis y propuesta</p>
+                                    <p class="text-sm text-gray-300 mt-1">Recomendacion pensada para tu operacion, tus prioridades y tu presupuesto real.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a :href="whatsappHref" target="_blank" class="w-full px-6 py-4 rounded-2xl bg-white text-slate-900 font-black text-xs uppercase tracking-widest hover:bg-sky-100 transition-all inline-flex items-center justify-center gap-3">
                         <FontAwesomeIcon :icon="['fab', 'whatsapp']" class="text-xl" />
-                        Solicitar Cotización
+                        Hablar con Ventas
                     </a>
-                    <Link v-if="servicio.categoria_id" :href="route('catalogo.index', { categoria: servicio.categoria_id })" class="px-8 py-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white font-black text-xs uppercase tracking-widest hover:bg-white/20 transition-all flex items-center gap-3">
-                        <FontAwesomeIcon icon="shopping-bag" />
-                        Ver Productos
-                    </Link>
                 </div>
             </div>
         </div>
@@ -79,7 +133,7 @@ const getBtnColor = (color) => {
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center mb-32">
                 <div>
                     <h2 class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-8 tracking-tight">
-                        Soluciones Profesionales para <span :class="servicio.color === 'red' ? 'text-red-500' : 'text-blue-500'">tu Tranquilidad</span>
+                        Una solucion diseñada para <span :class="servicio.color === 'red' ? 'text-red-500' : 'text-blue-500'">mejorar tu operacion</span>
                     </h2>
                     <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed mb-10">
                         {{ servicio.descripcion }}
@@ -116,6 +170,56 @@ const getBtnColor = (color) => {
                             <span class="text-[10px] font-bold uppercase tracking-widest leading-tight">Garantizado</span>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div v-if="pains.length" class="mb-32">
+                <div class="max-w-3xl mb-12">
+                    <h2 class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-4">
+                        Problemas frecuentes que {{ serviceName.toLowerCase() }} resuelve bien
+                    </h2>
+                    <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                        Cuando esta parte de la operacion falla, el impacto se nota en servicio, control, imagen y cierre comercial. Aqui es donde una solucion bien implementada cambia el resultado.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
+                    <div v-for="pain in pains" :key="pain.titulo" class="rounded-[2rem] border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-7 shadow-sm hover:shadow-xl transition-all">
+                        <div class="w-14 h-14 rounded-2xl bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-300 flex items-center justify-center mb-5 text-xl">
+                            <FontAwesomeIcon :icon="pain.icon" />
+                        </div>
+                        <h3 class="text-lg font-black text-gray-900 dark:text-white tracking-tight mb-2">{{ pain.titulo }}</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{{ pain.desc }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="deliverables.length" class="mb-32 grid lg:grid-cols-[1fr_360px] gap-10 items-start">
+                <div class="rounded-[2.5rem] border border-gray-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-8 md:p-10">
+                    <p class="text-[10px] font-black uppercase tracking-[0.24em] text-[var(--color-primary)] mb-4">Qué Entregamos</p>
+                    <h3 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight mb-8">
+                        Alcance claro, implementacion ordenada y siguiente paso definido
+                    </h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div v-for="item in deliverables" :key="item" class="flex items-start gap-3 rounded-2xl bg-white dark:bg-slate-950 border border-gray-100 dark:border-slate-800 p-5">
+                            <div class="w-8 h-8 rounded-xl bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center flex-shrink-0">
+                                <FontAwesomeIcon icon="check" />
+                            </div>
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300 leading-relaxed">{{ item }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-[2.5rem] border border-slate-900 dark:border-slate-700 bg-slate-900 dark:bg-slate-950 text-white p-8 shadow-2xl">
+                    <p class="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300 mb-4">Cierre Más Rápido</p>
+                    <h3 class="text-2xl font-black tracking-tight mb-4">¿Necesitas avanzar ya?</h3>
+                    <p class="text-sm text-gray-300 leading-relaxed mb-6">
+                        Compartenos tu necesidad principal y te orientamos con el siguiente paso mas practico para cotizar o arrancar.
+                    </p>
+                    <a :href="whatsappHref" target="_blank" class="w-full px-6 py-4 rounded-2xl bg-[var(--color-primary)] text-white font-black text-xs uppercase tracking-widest hover:brightness-110 transition-all inline-flex items-center justify-center gap-3">
+                        <FontAwesomeIcon :icon="['fab', 'whatsapp']" />
+                        Solicitar Diagnóstico
+                    </a>
                 </div>
             </div>
 
@@ -180,12 +284,12 @@ const getBtnColor = (color) => {
     <div class="py-24 bg-slate-900 relative overflow-hidden">
         <div class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-blue-600/10 to-transparent"></div>
         <div class="max-w-7xl mx-auto px-4 relative z-10 text-center">
-            <h2 class="text-4xl md:text-5xl font-black text-white mb-8 tracking-tighter">¿Listo para mejorar tu Seguridad?</h2>
-            <p class="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">Nuestro equipo técnico está listo para asesorarte con la mejor solución técnica y económica para tu proyecto.</p>
+            <h2 class="text-4xl md:text-5xl font-black text-white mb-8 tracking-tighter">{{ servicio.cta_final_titulo || '¿Listo para dar el siguiente paso con una solucion bien planteada?' }}</h2>
+            <p class="text-xl text-gray-400 mb-12 max-w-3xl mx-auto">{{ servicio.cta_final_subtitulo || 'Te ayudamos a definir un alcance claro, una recomendacion realista y una propuesta lista para ejecutar.' }}</p>
             
             <div class="flex flex-center gap-6 flex-wrap">
-                <a :href="`https://wa.me/${empresa.whatsapp}`" target="_blank" class="px-10 py-5 bg-[var(--color-primary)] text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl shadow-blue-900/40 hover:scale-105 transition-all">
-                    Chatear con un Experto
+                <a :href="whatsappHref" target="_blank" class="px-10 py-5 bg-[var(--color-primary)] text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl shadow-blue-900/40 hover:scale-105 transition-all">
+                    Hablar por WhatsApp
                 </a>
                 <Link :href="route('public.contacto')" class="px-10 py-5 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-white/20 transition-all">
                     Llenar Formulario

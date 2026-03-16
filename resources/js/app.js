@@ -40,8 +40,8 @@ import {
   faThLarge, faQuestionCircle, faServer, faVideo, faUserLock,
   faWandMagicSparkles, faCircleInfo, faCircleCheck, faCircleExclamation, faTriangleExclamation,
   faAddressCard, faEnvelopeCircleCheck, faGlobeAmericas, faCircleDot, faVial,
-  faLink, faListUl, faUserMinus, faFire, faBolt, faTowerBroadcast, faBroadcastTower, faMobileScreenButton, faExclamationCircle, faFlask, faRobot,
-  faLayerGroup, faFilePen, faSort
+  faLink, faListUl, faUserMinus, faFire, faBolt, faTowerBroadcast, faBroadcastTower, faMobileScreenButton, faExclamationCircle, faFlask, faRobot, faNetworkWired, faWifi,
+  faLayerGroup, faFilePen, faSort, faClipboardCheck, faGaugeHigh, faDiagramProject
 } from '@fortawesome/free-solid-svg-icons';
 
 import { faWhatsapp, faFacebook, faTwitter, faFacebookF, faXTwitter } from '@fortawesome/free-brands-svg-icons';
@@ -82,8 +82,8 @@ library.add(
   faBullseye, faBullhorn, faColumns, faTrophy, faInbox, faBoxOpen,
   faWandMagicSparkles, faCircleInfo, faCircleCheck, faCircleExclamation, faTriangleExclamation,
   faAddressCard, faEnvelopeCircleCheck, faGlobeAmericas, faCircleDot, faVial,
-  faLink, faListUl, faUserMinus, faFire, faBolt, faTowerBroadcast, faBroadcastTower, faMobileScreenButton, faExclamationCircle, faFlask, faRobot,
-  faLayerGroup, faFilePen, faSort
+  faLink, faListUl, faUserMinus, faFire, faBolt, faTowerBroadcast, faBroadcastTower, faMobileScreenButton, faExclamationCircle, faFlask, faRobot, faNetworkWired, faWifi,
+  faLayerGroup, faFilePen, faSort, faClipboardCheck, faGaugeHigh, faDiagramProject
 );
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';

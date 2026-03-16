@@ -27,12 +27,11 @@ const navLinks = [
 ];
 
 const serviciosLinks = [
-    { name: 'Pólizas de Soporte', route: 'catalogo.polizas', id: 'polizas' },
-    { name: 'Renta de Equipos', route: 'catalogo.rentas', id: 'rentas' },
     { name: 'Cámaras y CCTV', route: 'public.servicio.show', params: { slug: 'camaras-cctv' }, id: 'cctv' },
     { name: 'Control de Accesos', route: 'public.servicio.show', params: { slug: 'control-acceso' }, id: 'acceso' },
     { name: 'Alarmas y Seguridad', route: 'public.servicio.show', params: { slug: 'alarmas-seguridad' }, id: 'alarmas' },
     { name: 'Puntos de Venta (POS)', route: 'public.servicio.show', params: { slug: 'punto-de-venta' }, id: 'pos' },
+    { name: 'Redes e Infraestructura', route: 'public.servicio.show', params: { slug: 'redes-infraestructura' }, id: 'redes' },
     { name: 'Relojes Checadores', route: 'public.servicio.show', params: { slug: 'relojes-checadores' }, id: 'asistencia' },
     { name: 'Desarrollo Web', route: 'public.servicio.show', params: { slug: 'desarrollo-web' }, id: 'web' },
 ];
@@ -124,7 +123,7 @@ watch(() => props.empresa, (newConfig) => {
                                     <Link 
                                         v-for="sLink in serviciosLinks" 
                                         :key="sLink.id"
-                                        :href="route(sLink.route, sLink.params || {})" 
+                                        :href="route(sLink.route, sLink.params || {}) + (sLink.hash || '')" 
                                         class="block px-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-[var(--color-primary)] transition-all"
                                         @click="showServiciosMenu = false"
                                     >
@@ -342,7 +341,7 @@ watch(() => props.empresa, (newConfig) => {
                                                 <Link 
                                                     v-for="sLink in serviciosLinks" 
                                                     :key="sLink.id"
-                                                    :href="route(sLink.route, sLink.params || {})"
+                                                    :href="route(sLink.route, sLink.params || {}) + (sLink.hash || '')"
                                                     class="block px-6 py-4 text-base font-bold text-gray-600 dark:text-gray-400 border-b border-white dark:border-white/5 last:border-0 active:bg-[var(--color-primary)] active:text-white"
                                                     @click="showMobileMenu = false"
                                                 >
