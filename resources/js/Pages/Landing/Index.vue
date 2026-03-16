@@ -850,6 +850,71 @@ const planesCalculados = computed(() => {
         <!-- POS SIMULATOR -->
         <PosSimulator :empresa="empresaData" />
 
+        <!-- SECCIÓN DE REDES E INFRAESTRUCTURA (NUEVO SEO) -->
+        <section class="py-32 bg-white dark:bg-slate-900 border-t border-gray-50 dark:border-gray-800 transition-colors duration-300">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="grid lg:grid-cols-2 gap-16 items-center">
+                    <div :class="{'translate-x-0 opacity-100': isVisible, '-translate-x-12 opacity-0': !isVisible}" class="transition-all duration-1000 order-2 lg:order-1">
+                        <span class="inline-block px-4 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-black uppercase tracking-widest mb-6">Conectividad de Alto Nivel</span>
+                        <h2 class="text-4xl lg:text-6xl font-black text-gray-900 dark:text-white mb-8 tracking-tighter leading-tight">
+                            Infraestructura de <span class="text-blue-600">Redes Robusta</span> <br>y Fibra Óptica
+                        </h2>
+                        <p class="text-lg text-gray-600 dark:text-gray-300 mb-10 leading-relaxed font-medium">
+                            Diseñamos e implementamos autopistas de datos para tu empresa. Desde cableado UTP Cat6 hasta fusiones de fibra óptica de larga distancia, garantizamos latencia mínima y estabilidad total.
+                        </p>
+                        
+                        <div class="grid sm:grid-cols-2 gap-6 mb-12">
+                            <div v-for="item in [
+                                {t: 'Fibra Óptica', d: 'Fusiones y tendidos aéreos o subterráneos.', i: 'bolt'},
+                                {t: 'Cableado UTP', d: 'Certificación de nodos Cat6 y Cat6a.', i: 'network-wired'},
+                                {t: 'Racks Organizados', d: 'Peinado de cables y etiquetado profesional.', i: 'server'},
+                                {t: 'Wi-Fi Industrial', d: 'Cobertura total sin puntos ciegos.', i: 'wifi'}
+                            ]" :key="item.t" class="flex gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-gray-800/50 border border-transparent hover:border-blue-200 dark:hover:border-blue-900 transition-all">
+                                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0">
+                                    <font-awesome-icon :icon="item.i" />
+                                </div>
+                                <div>
+                                    <h5 class="text-sm font-black text-gray-900 dark:text-white mb-1">{{ item.t }}</h5>
+                                    <p class="text-[11px] text-gray-500 dark:text-gray-400 leading-tight">{{ item.d }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <a 
+                            :href="`https://wa.me/${empresaData?.whatsapp?.replace(/\D/g, '')}?text=Hola, me interesa una cotización para infraestructura de redes o fibra óptica.`"
+                            target="_blank"
+                            class="inline-flex items-center gap-4 px-10 py-5 bg-blue-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:shadow-2xl hover:shadow-blue-500/40 hover:-translate-y-1 transition-all group"
+                        >
+                            Cotizar Proyecto de Red
+                            <svg class="w-5 h-5 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                        </a>
+                    </div>
+
+                    <div class="relative order-1 lg:order-2">
+                        <div class="aspect-[4/5] lg:aspect-square bg-gray-100 dark:bg-gray-800 rounded-[3rem] overflow-hidden relative group shadow-2xl border-8 border-white dark:border-gray-800">
+                            <img src="/img/redes-fibra.png" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="Infraestructura de Redes">
+                            <div class="absolute inset-0 bg-gradient-to-t from-blue-900/40 to-transparent mix-blend-multiply opacity-60"></div>
+                            
+                            <!-- Indicador de Calidad Flotante -->
+                            <div class="absolute top-10 left-10 p-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-xl animate-float">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex -space-x-2">
+                                        <div v-for="i in 3" :key="i" class="w-8 h-8 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center text-[10px] font-black">
+                                            {{ ['10G','Cat6','FO'][i-1] }}
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] font-black text-gray-900 dark:text-white uppercase">Velocidad Certificada</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Decorative element -->
+                        <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-blue-600/10 rounded-full blur-[80px] -z-10 animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- SECCIÓN DE RENTAS (NUEVO) -->
         <section v-if="rentas?.length" class="py-32 bg-slate-50 dark:bg-gray-900/50 relative overflow-hidden transition-colors duration-300">
             <div class="absolute -top-24 -left-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] animate-pulse"></div>
