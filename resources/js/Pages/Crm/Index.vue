@@ -184,15 +184,15 @@
                             <span class="w-2 h-2 rounded-full bg-green-500"></span>
                             {{ totalProspectosFiltrados }} prospectos
                         </span>
-                        <span class="font-semibold text-emerald-600 dark:text-emerald-400">${{ formatMonto(stats.valor_pipeline) }}</span>
+                        <span class="font-semibold text-emerald-600 dark:text-emerald-400">${{ formatMonto(valorPipelineFiltrado) }}</span>
                     </div>
                 </div>
                 <!-- Progress Bar del Pipeline -->
                 <div v-if="totalProspectosFiltrados > 0" class="flex h-2 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700">
                     <div v-for="(etapaKey) in Object.keys(props.pipeline)" :key="etapaKey"
                          :class="getEtapaBarColor(etapaKey)"
-                         :style="{ width: `${((localPipeline[etapaKey]?.length || 0) / totalProspectosFiltrados) * 100}%` }"
-                         :title="`${props.pipeline[etapaKey]?.label}: ${localPipeline[etapaKey]?.length || 0}`"
+                         :style="{ width: `${((getProspectosVisibles(etapaKey)?.length || 0) / totalProspectosFiltrados) * 100}%` }"
+                         :title="`${props.pipeline[etapaKey]?.label}: ${getProspectosVisibles(etapaKey)?.length || 0}`"
                          class="transition-all duration-300">
                     </div>
                 </div>
@@ -214,18 +214,19 @@
                                     {{ etapaData.prospectos.length }}
                                 </span>
                             </div>
-                            <div class="text-sm font-semibold text-emerald-600 dark:text-emerald-400">${{ formatMonto(etapaData.total_valor) }}</div>
+                            <div class="text-sm font-semibold text-emerald-600 dark:text-emerald-400">${{ formatMonto(getValorVisible(etapaKey)) }}</div>
                         </div>
                         
                         <!-- Cards de Prospectos (Draggable) -->
                         <draggable 
-                            v-model="localPipeline[etapaKey]"
+                            :list="getProspectosVisibles(etapaKey)"
                             :group="{ name: 'prospectos', pull: true, put: true }"
                             item-key="id"
                             :animation="250"
                             ghost-class="kanban-ghost"
                             drag-class="kanban-drag"
                             chosen-class="kanban-chosen"
+                            :disabled="Boolean(searchTerm)"
                             class="p-3 space-y-3 min-h-[300px] max-h-[60vh] overflow-y-auto"
                             @change="onDragChange($event, etapaKey)"
                         >
@@ -312,10 +313,10 @@
                         </draggable>
                         
                         <!-- Empty State -->
-                        <div v-if="!localPipeline[etapaKey]?.length" class="text-center py-12 text-gray-400 dark:text-gray-500 dark:text-gray-400">
+                        <div v-if="!getProspectosVisibles(etapaKey)?.length" class="text-center py-12 text-gray-400 dark:text-gray-500 dark:text-gray-400">
                             <FontAwesomeIcon :icon="['fas', 'inbox']" class="h-10 w-10 mb-3 opacity-50" />
                             <p class="text-sm font-medium">Sin prospectos</p>
-                            <p class="text-xs mt-1">Arrastra aquí para mover</p>
+                            <p class="text-xs mt-1">{{ searchTerm ? 'No hay coincidencias en esta etapa' : 'Arrastra aquí para mover' }}</p>
                         </div>
                     </div>
                 </div>
@@ -712,7 +713,8 @@ const filteredPipeline = computed(() => {
             prospectos: data.prospectos.filter(p => 
                 p.nombre?.toLowerCase().includes(search) ||
                 p.empresa?.toLowerCase().includes(search) ||
-                p.telefono?.includes(search)
+                p.telefono?.includes(search) ||
+                p.email?.toLowerCase().includes(search)
             )
         };
     }
@@ -720,8 +722,28 @@ const filteredPipeline = computed(() => {
 });
 
 const totalProspectosFiltrados = computed(() => {
-    return Object.values(localPipeline.value).reduce((sum, arr) => sum + (arr?.length || 0), 0);
+    return Object.values(filteredPipeline.value).reduce((sum, etapa) => sum + (etapa?.prospectos?.length || 0), 0);
 });
+
+const valorPipelineFiltrado = computed(() => {
+    return Object.keys(filteredPipeline.value).reduce((sum, etapaKey) => {
+        return sum + getValorVisible(etapaKey);
+    }, 0);
+});
+
+const getProspectosVisibles = (etapaKey) => {
+    if (searchTerm.value) {
+        return filteredPipeline.value[etapaKey]?.prospectos || [];
+    }
+
+    return localPipeline.value[etapaKey] || [];
+};
+
+const getValorVisible = (etapaKey) => {
+    return getProspectosVisibles(etapaKey).reduce((sum, prospecto) => {
+        return sum + Number(prospecto?.valor_estimado || 0);
+    }, 0);
+};
 
 // Formatters
 const formatMonto = (valor) => Number(valor || 0).toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
