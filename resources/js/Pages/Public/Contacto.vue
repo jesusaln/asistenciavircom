@@ -35,10 +35,31 @@ const form = useForm({
     mensaje: '',
 });
 
+const trackEvent = (eventName, payload = {}) => {
+    if (typeof window === 'undefined' || !Array.isArray(window.dataLayer)) return;
+    window.dataLayer.push({
+        event: eventName,
+        ...payload,
+    });
+};
+
 const submit = () => {
-    form.post(route('contact.submit'), {
+    trackEvent('generate_lead_attempt', {
+        lead_type: 'contact_form',
+        lead_channel: 'contact_page',
+        subject: form.asunto || 'general',
+    });
+
+    form.post(route('public.contacto.store'), {
         preserveScroll: true,
-        onSuccess: () => form.reset(),
+        onSuccess: () => {
+            trackEvent('generate_lead', {
+                lead_type: 'contact_form',
+                lead_channel: 'contact_page',
+                subject: form.asunto || 'general',
+            });
+            form.reset();
+        },
     });
 };
 </script>

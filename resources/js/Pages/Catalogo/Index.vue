@@ -48,6 +48,14 @@ const hasMoreCva = ref(true)
 const suggestions = ref([])
 const isFiltering = ref(false)
 
+const trackEvent = (eventName, payload = {}) => {
+    if (typeof window === 'undefined' || !Array.isArray(window.dataLayer)) return
+    window.dataLayer.push({
+        event: eventName,
+        ...payload,
+    })
+}
+
 // Suggestions Logic
 let suggestionTimeout = null
 const fetchSuggestions = async () => {
@@ -215,6 +223,13 @@ const handleAskProduct = (producto) => {
     if (!empresaData.value?.whatsapp) return
     const phone = empresaData.value.whatsapp.replace(/\D/g, '')
     const precio = formatCurrency(producto.precio_con_iva)
+
+    trackEvent('whatsapp_click', {
+        source: 'catalog_product',
+        product_id: producto.id,
+        product_name: producto.nombre,
+        value: producto.precio_con_iva || 0,
+    })
     
     let text = `Hola, me interesa el producto:\n\n*${producto.nombre}*`;
     if (producto.origen === 'CVA') {
@@ -235,6 +250,16 @@ const handleAddToCart = (producto) => {
         precio: producto.precio_con_iva
     }
     addItem(item)
+    trackEvent('add_to_cart', {
+        currency: 'MXN',
+        value: producto.precio_con_iva || 0,
+        items: [{
+            item_id: producto.id,
+            item_name: producto.nombre,
+            price: producto.precio_con_iva || 0,
+            quantity: 1,
+        }],
+    })
     addedToCart.value = producto.id
     setTimeout(() => {
         addedToCart.value = null

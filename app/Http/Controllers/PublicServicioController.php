@@ -26,9 +26,9 @@ class PublicServicioController extends Controller
             ]
         ],
         'control-acceso' => [
-            'titulo' => 'Control de Acceso y Asistencia',
-            'subtitulo' => 'Gestiona quién entra y sale con precisión',
-            'descripcion' => 'Soluciones biométricas, faciales y mediante tarjetas. Ideal para empresas que buscan automatizar el registro de personal y asegurar áreas restringidas.',
+            'titulo' => 'Control de Accesos y Asistencia',
+            'subtitulo' => 'Gestiona ingresos, horarios y zonas restringidas con precisión',
+            'descripcion' => 'Implementamos soluciones biométricas, faciales, con tarjeta y apertura inteligente para empresas que necesitan controlar accesos, registrar asistencia y proteger áreas críticas con trazabilidad en tiempo real.',
             'imagen' => '/images/servicios/control-acceso-hero.png',
             'imagen_detalle' => '/images/servicios/control-acceso-detail.png',
             'categoria_id' => 30,

@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, Link, usePage, useForm } from '@inertiajs/vue3';
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import PublicNavbar from '@/Components/PublicNavbar.vue';
 import SocialProofNotification from '@/Components/SocialProofNotification.vue';
@@ -84,6 +84,100 @@ const trackLandingEvent = (eventName, data = {}) => {
     window.dataLayer.push({
         event: eventName,
         ...data,
+    });
+};
+
+const scrollToAppointment = () => {
+    trackLandingEvent('cta_click', {
+        source: 'hero_primary',
+        destination: 'quick_appointment',
+    });
+    document.getElementById('agendar-cita')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+const onHeroSecondaryClick = () => {
+    trackLandingEvent('cta_click', {
+        source: 'hero_secondary',
+        destination: 'catalogo_polizas',
+    });
+};
+
+const quickQuoteOptions = computed(() => [
+    {
+        id: 'cctv',
+        label: 'Camaras CCTV',
+        icon: 'camera',
+        service: 'camaras-cctv',
+        message: 'Hola, quiero una cotizacion de camaras CCTV para mi negocio.',
+    },
+    {
+        id: 'alarmas',
+        label: 'Alarmas',
+        icon: 'bell',
+        service: 'alarmas-seguridad',
+        message: 'Hola, quiero una cotizacion de alarmas para mi negocio.',
+    },
+    {
+        id: 'acceso',
+        label: 'Accesos',
+        icon: 'door-open',
+        service: 'control-acceso',
+        message: 'Hola, quiero una cotizacion de control de acceso.',
+    },
+    {
+        id: 'soporte',
+        label: 'Soporte TI',
+        icon: 'headset',
+        service: 'soporte',
+        message: 'Hola, necesito una cotizacion de soporte TI para mi empresa.',
+    },
+]);
+
+const quickQuoteForm = useForm({
+    nombre: '',
+    telefono: '',
+    servicio: 'camaras-cctv',
+});
+
+// Validación reactiva de teléfono
+const isPhoneValid = computed(() => {
+    return quickQuoteForm.telefono.replace(/\D/g, '').length === 10;
+});
+
+const formatPhoneInput = (e) => {
+    let val = e.target.value.replace(/\D/g, '').substring(0, 10);
+    quickQuoteForm.telefono = val;
+};
+
+const submitQuickQuote = () => {
+    if (!quickQuoteForm.nombre || !isPhoneValid.value) {
+        return;
+    }
+
+    trackLandingEvent('generate_lead_attempt', {
+        lead_type: 'quick_quote_hero',
+        lead_channel: 'hero_form',
+        service: quickQuoteForm.servicio,
+    });
+
+    quickQuoteForm.post(route('public.cita.store'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            trackLandingEvent('generate_lead', {
+                lead_type: 'quick_quote_hero',
+                lead_channel: 'hero_form',
+                service: quickQuoteForm.servicio,
+            });
+
+            const phone = (empresaData.value?.whatsapp || '').replace(/\D/g, '');
+            if (phone) {
+                const option = quickQuoteOptions.value.find(o => o.service === quickQuoteForm.servicio) || quickQuoteOptions.value[0];
+                const message = `Hola, soy ${quickQuoteForm.nombre}. Me interesa una cotización de ${option.label}. Mi teléfono es ${quickQuoteForm.telefono}.`;
+                const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+                window.open(url, '_blank', 'noopener,noreferrer');
+            }
+            quickQuoteForm.reset();
+        },
     });
 };
 
@@ -208,10 +302,38 @@ const statsSection = ref(null);
 const statsAnimated = ref(false);
 const stats = ref([
     { id: 'clientes', label: 'Clientes Felices', current: 0, target: 1850, prefix: '+', suffix: '', icon: 'users' },
-    { id: 'satisfaccion', label: 'Eficiencia', current: 0, target: 98, prefix: '', suffix: '%', icon: 'check-double' },
-    { id: 'servicios', label: 'Instalaciones', current: 0, target: 3500, prefix: '+', suffix: '', icon: 'tools' },
-    { id: 'soporte', label: 'Garantía', current: 0, target: 100, prefix: '', suffix: '%', icon: 'shield-halved' },
+    { id: 'eficiencia', label: 'Eficiencia', current: 0, target: 98, prefix: '', suffix: '%', icon: 'bolt' },
+    { id: 'instalaciones', label: 'Instalaciones', current: 0, target: 3500, prefix: '+', suffix: '', icon: 'tools' },
+    { id: 'garantia', label: 'Garantía', current: 0, target: 100, prefix: '', suffix: '%', icon: 'medal' },
 ]);
+
+const visibleTestimonios = computed(() => {
+    if (props.testimonios?.length) {
+        return [...props.testimonios, ...props.testimonios];
+    }
+
+    return [
+        {id: 1, nombre: 'Javier Montiel', contenido: 'Instalaron 16 cámaras en mi bodega. La calidad de imagen es increíble y puedo ver todo desde mi celular.', entidad: 'Almacén'},
+        {id: 2, nombre: 'Dra. Elena Ruiz', contenido: 'El sistema de control de acceso para el consultorio funciona perfecto. Ya no tenemos problemas con llaves.', entidad: 'Clínica'},
+        {id: 3, nombre: 'Ing. Marcos Díaz', contenido: 'La póliza de soporte nos salvó cuando el servidor falló. Llegaron en menos de 2 horas.', entidad: 'Despacho'},
+        {id: 4, nombre: 'Restaurante El Fogón', contenido: 'Configuraron todo el punto de venta y las impresoras de cocina. El servicio fluye sin errores.', entidad: 'Restaurante'},
+        {id: 1, nombre: 'Javier Montiel', contenido: 'Instalaron 16 cámaras en mi bodega. La calidad de imagen es increíble y puedo ver todo desde mi celular.', entidad: 'Almacén'},
+        {id: 2, nombre: 'Dra. Elena Ruiz', contenido: 'El sistema de control de acceso para el consultorio funciona perfecto. Ya no tenemos problemas con llaves.', entidad: 'Clínica'},
+        {id: 3, nombre: 'Ing. Marcos Díaz', contenido: 'La póliza de soporte nos salvó cuando el servidor falló. Llegaron en menos de 2 horas.', entidad: 'Despacho'},
+        {id: 4, nombre: 'Restaurante El Fogón', contenido: 'Configuraron todo el punto de venta y las impresoras de cocina. El servicio fluye sin errores.', entidad: 'Restaurante'}
+    ];
+});
+
+const heroLogos = computed(() => (props.logosClientes || []).slice(0, 4));
+
+const getInitials = (name) => {
+    return String(name || 'VC')
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part.charAt(0).toUpperCase())
+        .join('');
+};
 
 const animateStats = () => {
     if (statsAnimated.value) return;
@@ -332,7 +454,7 @@ const planesCalculados = computed(() => {
 <template>
     <Head>
         <title>{{ empresaData?.nombre_empresa || 'Asistencia Vircom' }} - Redes, CCTV y Seguridad Electrónica</title>
-        <meta name="description" :content="`Proveemos Soluciones Integrales en: Redes, Cámaras de Vigilancia (CCTV), Control de Acceso, Alarmas y GPS Vehicular. Expertos en Seguridad y Tecnología en ${empresaData?.ciudad || 'Hermosillo'}.`" />
+        <meta name="description" :content="`Proveemos Soluciones Integrales en: Redes, Cámaras de Vigilancia (CCTV), Control de Accesos, Alarmas y GPS Vehicular. Expertos en Seguridad y Tecnología en ${empresaData?.ciudad || 'Hermosillo'}.`" />
     </Head>
 
     <div class="min-h-screen bg-white dark:bg-slate-900 dark:bg-gray-900 font-sans text-gray-900 dark:text-white dark:text-gray-100 overflow-x-hidden selection:bg-[var(--color-primary-soft)] selection:text-[var(--color-primary)] relative transition-colors duration-300">
@@ -405,7 +527,7 @@ const planesCalculados = computed(() => {
         <WhatsAppWidget :whatsapp="empresaData?.whatsapp" :empresaNombre="empresaData?.nombre_empresa || empresaData?.nombre" />
 
         <!-- Navigation -->
-        <PublicNavbar :empresa="empresaData" activeTab="inicio" />
+        <PublicNavbar :empresa="empresaData" activeTab="landing" />
 
         <!-- HERO SECTION -->
         <section class="relative pt-24 pb-24 lg:pt-36 lg:pb-36 bg-white dark:bg-slate-900 dark:bg-gray-900 overflow-hidden transition-colors duration-300">
@@ -442,33 +564,106 @@ const planesCalculados = computed(() => {
                             {{ empresaData?.hero_descripcion || 'Protegemos lo que más te importa con sistemas de videovigilancia, alarmas y soporte TI de clase mundial.' }}
                         </p>
                         
-                        <div class="flex flex-col sm:flex-row gap-4">
-                            <Link 
-                                :href="route('catalogo.polizas')"
-                                class="px-8 py-5 bg-[var(--color-primary)] text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-105 hover:shadow-2xl transition-all flex items-center justify-center gap-3"
-                            >
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                                {{ empresaData?.hero_cta_primario || 'Nuestras Pólizas' }}
-                            </Link>
-                            <Link 
-                                :href="route('catalogo.rentas')"
-                                class="px-8 py-5 bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-900 dark:text-white dark:text-white border-2 border-gray-100 dark:border-gray-700 rounded-2xl font-black text-sm uppercase tracking-widest hover:border-emerald-500 hover:text-emerald-500 transition-all flex items-center justify-center gap-3 group"
-                            >
-                                <span class="text-xl group-hover:scale-125 transition-transform duration-300">🖥️</span>
-                                Renta de Equipos
-                            </Link>
+
+                        <div class="mt-8 rounded-[2rem] border border-gray-100 dark:border-gray-700 bg-white/90 dark:bg-gray-800/80 backdrop-blur-xl shadow-[0_24px_60px_-28px_rgba(15,23,42,0.35)] overflow-hidden">
+                            <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-[var(--color-primary-soft)] via-white to-transparent dark:from-[var(--color-primary)]/10 dark:via-gray-800 dark:to-transparent">
+                                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                                    <div>
+                                        
+                                        <h3 class="text-lg font-black text-gray-900 dark:text-white">Cotizacion Express</h3>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+
+                            <form @submit.prevent="submitQuickQuote" class="p-6 grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                                <div class="md:col-span-4 space-y-1 group">
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 ml-1">Tu Nombre</label>
+                                    <div class="relative">
+                                        <font-awesome-icon icon="user" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[var(--color-primary)] transition-colors" />
+                                        <input
+                                            v-model="quickQuoteForm.nombre"
+                                            type="text"
+                                            placeholder="Ej. Juan Perez"
+                                            required
+                                            class="w-full pl-10 pr-4 py-3.5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-gray-700 rounded-2xl text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all"
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="md:col-span-4 space-y-1 group">
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 ml-1">Telefono</label>
+                                    <div class="relative">
+                                        <font-awesome-icon icon="phone" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[var(--color-primary)] transition-colors" />
+                                        <input
+                                            :value="quickQuoteForm.telefono"
+                                            @input="formatPhoneInput"
+                                            type="tel"
+                                            placeholder="6621234567"
+                                            required
+                                            maxlength="10"
+                                            class="w-full pl-10 pr-10 py-3.5 bg-white dark:bg-slate-900 border rounded-2xl text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all"
+                                            :class="quickQuoteForm.telefono && !isPhoneValid ? 'border-red-300 dark:border-red-700' : 'border-gray-100 dark:border-gray-700'"
+                                        >
+                                        <font-awesome-icon v-if="isPhoneValid" icon="circle-check" class="absolute right-4 top-1/2 -translate-y-1/2 text-green-500" />
+                                    </div>
+                                </div>
+
+                                <div class="md:col-span-4 space-y-1 group">
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 ml-1">Servicio</label>
+                                    <div class="relative">
+                                        <font-awesome-icon
+                                            :icon="quickQuoteOptions.find(option => option.service === quickQuoteForm.servicio)?.icon || 'bullseye'"
+                                            class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                                        />
+                                        <select
+                                            v-model="quickQuoteForm.servicio"
+                                            class="w-full pl-10 pr-10 py-3.5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-gray-700 rounded-2xl text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all outline-none"
+                                        >
+                                            <option v-for="option in quickQuoteOptions" :key="option.id" :value="option.service">
+                                                {{ option.label }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="md:col-span-4">
+                                    <button
+                                        type="submit"
+                                        :disabled="quickQuoteForm.processing || !isPhoneValid || !quickQuoteForm.nombre"
+                                        class="w-full py-4 px-4 bg-[var(--color-primary)] text-white rounded-2xl font-black text-xs uppercase tracking-[0.18em] border border-[var(--color-primary)] shadow-lg shadow-[var(--color-primary)]/15 hover:bg-[var(--color-primary)]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed"
+                                    >
+                                        <span v-if="!quickQuoteForm.processing" class="flex items-center gap-2">
+                                            Enviar
+                                            <font-awesome-icon icon="arrow-right" class="text-[11px]" />
+                                        </span>
+                                        <div v-else class="flex items-center gap-2">
+                                            <font-awesome-icon icon="spinner" class="animate-spin text-sm" />
+                                            Enviando...
+                                        </div>
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                         
                         <div class="mt-12 flex items-center gap-6">
-                            <div class="flex -space-x-3">
-                                <img v-for="i in 4" :key="i" :src="`https://i.pravatar.cc/100?u=${i}`" class="w-12 h-12 rounded-full border-4 border-white dark:border-gray-800 shadow-sm transition-colors" alt="Usuario">
-                                <div class="w-12 h-12 rounded-full border-4 border-white dark:border-gray-800 bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-500 dark:text-gray-400 dark:text-gray-300 shadow-sm transition-colors">+99</div>
+                            <div v-if="heroLogos.length" class="flex -space-x-3">
+                                <div v-for="logo in heroLogos" :key="logo.id" class="w-12 h-12 rounded-full border-4 border-white dark:border-gray-800 bg-white shadow-sm overflow-hidden flex items-center justify-center transition-colors">
+                                    <img :src="getImageUrl(logo.logo_url)" class="w-full h-full object-contain p-1" :alt="logo.nombre_empresa || 'Cliente'">
+                                </div>
+                            </div>
+                            <div v-else class="flex -space-x-3">
+                                <div v-for="testimonio in visibleTestimonios.slice(0, 4)" :key="`hero-${testimonio.id}-${testimonio.nombre}`" class="w-12 h-12 rounded-full border-4 border-white dark:border-gray-800 bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs font-black text-gray-700 dark:text-gray-200 shadow-sm transition-colors">
+                                    {{ getInitials(testimonio.nombre) }}
+                                </div>
                             </div>
                             <div class="text-sm">
                                 <div class="flex items-center gap-1 text-amber-400 mb-0.5">
                                     <svg v-for="i in 5" :key="i" class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                                 </div>
-                                <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium">Empresas protegidas confirman <span class="text-gray-900 dark:text-white dark:text-white border-b border-gray-200 dark:border-slate-800 dark:border-gray-700">nuestra calidad</span></p>
+                                <p class="text-gray-500 dark:text-gray-400 font-medium">
+                                    {{ logosClientes?.length ? `Empresas que ya trabajan con ${empresaData?.nombre_empresa || 'nosotros'}` : 'Clientes reales respaldan este servicio' }}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -518,6 +713,7 @@ const planesCalculados = computed(() => {
                                 </div>
                             </div>
                         </div>
+
                     </div>
                     
                 </div>
@@ -942,22 +1138,15 @@ const planesCalculados = computed(() => {
             <div class="relative group">
                 <div class="testimonials-track flex gap-8 animate-scroll group-hover:[animation-play-state:paused]">
                     <!-- Mapeo de testimonios con fallback -->
-                    <div v-for="(testimonio, idx) in (testimonios?.length ? [...testimonios, ...testimonios] : [
-                        {id: 1, nombre: 'Javier Montiel', contenido: 'Instalaron 16 cámaras en mi bodega. La calidad de imagen es increíble y puedo ver todo desde mi celular.', entidad: 'Almacén'},
-                        {id: 2, nombre: 'Dra. Elena Ruiz', contenido: 'El sistema de control de acceso para el consultorio funciona perfecto. Ya no tenemos problemas con llaves.', entidad: 'Clínica'},
-                        {id: 3, nombre: 'Ing. Marcos Díaz', contenido: 'La póliza de soporte nos salvó cuando el servidor falló. Llegaron en menos de 2 horas.', entidad: 'Despacho'},
-                        {id: 4, nombre: 'Restaurante El Fogón', contenido: 'Configuraron todo el punto de venta y las impresoras de cocina. El servicio fluye sin errores.', entidad: 'Restaurante'},
-                        {id: 1, nombre: 'Javier Montiel', contenido: 'Instalaron 16 cámaras en mi bodega. La calidad de imagen es increíble y puedo ver todo desde mi celular.', entidad: 'Almacén'},
-                        {id: 2, nombre: 'Dra. Elena Ruiz', contenido: 'El sistema de control de acceso para el consultorio funciona perfecto. Ya no tenemos problemas con llaves.', entidad: 'Clínica'},
-                        {id: 3, nombre: 'Ing. Marcos Díaz', contenido: 'La póliza de soporte nos salvó cuando el servidor falló. Llegaron en menos de 2 horas.', entidad: 'Despacho'},
-                        {id: 4, nombre: 'Restaurante El Fogón', contenido: 'Configuraron todo el punto de venta y las impresoras de cocina. El servicio fluye sin errores.', entidad: 'Restaurante'}
-                    ])" :key="'t-' + testimonio.id + '-' + idx" class="flex-shrink-0 w-[400px] bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 shadow-lg hover:shadow-2xl transition-all duration-500">
+                    <div v-for="(testimonio, idx) in visibleTestimonios" :key="'t-' + testimonio.id + '-' + idx" class="flex-shrink-0 w-[400px] bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 shadow-lg hover:shadow-2xl transition-all duration-500">
                         <div class="flex items-center gap-1 text-amber-400 mb-6">
                             <svg v-for="i in 5" :key="i" class="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                         </div>
                         <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300 font-medium mb-8 leading-relaxed italic line-clamp-4 transition-colors">"{{ testimonio.contenido }}"</p>
                         <div class="flex items-center gap-4 border-t border-gray-100 dark:border-gray-700 pt-6 transition-colors">
-                            <img :src="`https://i.pravatar.cc/100?u=${testimonio.id}`" class="w-12 h-12 rounded-2xl shadow-sm" alt="Autor">
+                            <div class="w-12 h-12 rounded-2xl shadow-sm bg-[var(--color-primary-soft)] text-[var(--color-primary)] flex items-center justify-center text-sm font-black">
+                                {{ getInitials(testimonio.nombre) }}
+                            </div>
                             <div>
                                 <h5 class="font-black text-gray-900 dark:text-white dark:text-white text-sm transition-colors">{{ testimonio.nombre }}</h5>
                                 <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 dark:text-gray-400">{{ testimonio.entidad || 'Hogar' }}</p>
@@ -1004,7 +1193,7 @@ const planesCalculados = computed(() => {
                                 <span class="w-12 h-12 rounded-2xl flex items-center justify-center text-lg transition-all duration-300 shrink-0"
                                       :class="activeFaq === faq.id 
                                           ? 'bg-[var(--color-primary)] text-white shadow-lg shadow-[var(--color-primary)]/30' 
-                                          : 'bg-[var(--color-primary-soft)] dark:bg-gray-700 text-[var(--color-primary)]'"
+                                          : 'bg-[var(--color-primary-soft)] text-[var(--color-primary)] dark:bg-[var(--color-primary)] dark:text-white'"
                                 >
                                     <font-awesome-icon :icon="faq.icon || ['shield-halved','truck','clock','medal','camera','mobile-screen-button'][index] || 'cog'" />
                                 </span>
@@ -1052,6 +1241,20 @@ const planesCalculados = computed(() => {
         <PublicFooter :empresa="empresaData" />
     </div>
 </template>
+
+<style>
+/* Forzar eliminación de flecha nativa en selects con appearance-none */
+select.appearance-none {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+}
+
+/* Específicamente para IE/Edge antiguos si fuera necesario */
+select.appearance-none::-ms-expand {
+    display: none !important;
+}
+</style>
 
 <style scoped>
 @keyframes float {

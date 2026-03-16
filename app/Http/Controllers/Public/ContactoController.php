@@ -212,6 +212,11 @@ class ContactoController extends Controller
                     'mantenimiento' => 'Mantenimiento Preventivo',
                     'reparacion' => 'Reparación / Emergencia',
                     'cotizacion' => 'Cotización de Proyecto',
+                    // Slugs del Mini Cotizador Hero
+                    'camaras-cctv' => 'Cámaras CCTV',
+                    'alarmas-seguridad' => 'Sistemas de Alarma',
+                    'control-acceso' => 'Control de Acceso',
+                    'soporte' => 'Soporte Técnico TI',
                 ];
                 $tituloServicio = $serviciosTitulos[$validated['servicio']] ?? $validated['servicio'];
 

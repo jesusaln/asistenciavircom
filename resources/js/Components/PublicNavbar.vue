@@ -24,14 +24,13 @@ const navLinks = [
     { name: 'Servicios', id: 'servicios', dropdown: true },
     { name: 'Blog', route: 'public.blog.index', id: 'blog' },
     { name: 'Productos', route: 'catalogo.index', id: 'tienda' },
-    { name: 'Contacto', route: 'public.contacto', id: 'contacto' },
 ];
 
 const serviciosLinks = [
     { name: 'Pólizas de Soporte', route: 'catalogo.polizas', id: 'polizas' },
     { name: 'Renta de Equipos', route: 'catalogo.rentas', id: 'rentas' },
     { name: 'Cámaras y CCTV', route: 'public.servicio.show', params: { slug: 'camaras-cctv' }, id: 'cctv' },
-    { name: 'Control de Acceso', route: 'public.servicio.show', params: { slug: 'control-acceso' }, id: 'acceso' },
+    { name: 'Control de Accesos', route: 'public.servicio.show', params: { slug: 'control-acceso' }, id: 'acceso' },
     { name: 'Alarmas y Seguridad', route: 'public.servicio.show', params: { slug: 'alarmas-seguridad' }, id: 'alarmas' },
     { name: 'Puntos de Venta (POS)', route: 'public.servicio.show', params: { slug: 'punto-de-venta' }, id: 'pos' },
     { name: 'Relojes Checadores', route: 'public.servicio.show', params: { slug: 'relojes-checadores' }, id: 'asistencia' },
@@ -155,10 +154,10 @@ watch(() => props.empresa, (newConfig) => {
                 <div class="flex items-center gap-5 pl-8 border-l border-gray-100 dark:border-slate-800">
                     <!-- Link Soporte -->
                     <Link 
-                        :href="route('portal.dashboard')"
-                        class="px-5 py-3 bg-[var(--color-primary-soft)] text-[var(--color-primary)] rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-[var(--color-primary)] hover:text-white hover:shadow-lg hover:shadow-[var(--color-primary)]/20 transition-all border border-[var(--color-primary)]/10"
+                        :href="route('public.contacto')"
+                        class="px-6 py-3.5 bg-[var(--color-primary)] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 hover:shadow-xl hover:shadow-[var(--color-primary)]/40 transition-all border border-transparent"
                     >
-                        Soporte
+                        Cotizar Ahora
                     </Link>
 
                     <!-- User Actions Tools -->

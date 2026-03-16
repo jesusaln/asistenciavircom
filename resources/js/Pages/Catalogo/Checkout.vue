@@ -44,6 +44,15 @@ const form = useForm({
 const costoEnvio = ref(0)
 const shippingDetails = ref(null)
 const loadingShipping = ref(false)
+const checkoutMessage = ref({ type: '', text: '' })
+
+const trackEvent = (eventName, payload = {}) => {
+    if (typeof window === 'undefined' || !Array.isArray(window.dataLayer)) return
+    window.dataLayer.push({
+        event: eventName,
+        ...payload,
+    })
+}
 
 // Calcular costo de envío dinámicamente
 const fetchShippingCost = async () => {
@@ -124,26 +133,40 @@ const formatCurrency = (value) => {
 const submitOrder = async () => {
     processing.value = true
     isValidating.value = true
+    checkoutMessage.value = { type: '', text: '' }
+
+    trackEvent('checkout_submit_attempt', {
+        currency: 'MXN',
+        value: total.value,
+        payment_method: form.metodo_pago,
+        delivery_type: form.tipo_entrega,
+    })
     
     try {
         // Validación final de Stock y Precios
         const validation = await syncWithServer()
         if (validation.error) {
-            alert(validation.error)
+            checkoutMessage.value = { type: 'error', text: validation.error }
             processing.value = false
             isValidating.value = false
             return
         }
 
         if (validation.changed) {
-            alert('¡Atención! Algunos precios o existencias han cambiado en el último momento. Por favor, revisa el resumen de tu pedido.')
+            checkoutMessage.value = {
+                type: 'warning',
+                text: 'Algunos precios o existencias cambiaron. Revisa el resumen del pedido antes de confirmar de nuevo.',
+            }
             processing.value = false
             isValidating.value = false
             return
         }
 
         if (!validation.valid) {
-            alert('Lo sentimos, algunos artículos ya no están disponibles en las cantidades solicitadas.')
+            checkoutMessage.value = {
+                type: 'error',
+                text: 'Algunos artículos ya no están disponibles en las cantidades solicitadas.',
+            }
             processing.value = false
             isValidating.value = false
             return
@@ -157,6 +180,22 @@ const submitOrder = async () => {
 
         form.post(route('tienda.checkout.procesar'), {
             onSuccess: () => {
+                 checkoutMessage.value = {
+                    type: 'success',
+                    text: 'Pedido validado correctamente. Estamos enviándote al siguiente paso.',
+                }
+                 trackEvent('purchase_intent', {
+                    currency: 'MXN',
+                    value: total.value,
+                    payment_method: form.metodo_pago,
+                    delivery_type: form.tipo_entrega,
+                    items: items.value.map(item => ({
+                        item_id: item.producto_id,
+                        item_name: item.nombre,
+                        price: item.precio || 0,
+                        quantity: item.cantidad,
+                    })),
+                })
                  clearCart() // Limpiar carrito tras éxito
             },
             onFinish: () => {
@@ -166,7 +205,10 @@ const submitOrder = async () => {
         })
     } catch (e) {
         console.error(e)
-        alert('Error al procesar el pedido.')
+        checkoutMessage.value = {
+            type: 'error',
+            text: 'No se pudo procesar el pedido. Intenta nuevamente en unos momentos.',
+        }
         processing.value = false
         isValidating.value = false
     }
@@ -187,6 +229,19 @@ onMounted(() => {
         } else {
             costoEnvio.value = 100
         }
+    }
+
+    if (items.value.length > 0) {
+        trackEvent('begin_checkout', {
+            currency: 'MXN',
+            value: total.value,
+            items: items.value.map(item => ({
+                item_id: item.producto_id,
+                item_name: item.nombre,
+                price: item.precio || 0,
+                quantity: item.cantidad,
+            })),
+        })
     }
 })
     // Variables para CP
@@ -389,6 +444,18 @@ onMounted(() => {
                 <div class="lg:col-span-1">
                     <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-[2rem] p-8 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 sticky top-28">
                         <h3 class="text-lg font-black text-gray-900 dark:text-white dark:text-white mb-6 uppercase tracking-tight">Resumen del Pedido</h3>
+
+                        <div
+                            v-if="checkoutMessage.text"
+                            class="mb-6 rounded-2xl border px-4 py-3 text-xs font-bold leading-relaxed"
+                            :class="{
+                                'border-red-200 bg-red-50 text-red-700 dark:border-red-900/60 dark:bg-red-900/20 dark:text-red-300': checkoutMessage.type === 'error',
+                                'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-900/20 dark:text-amber-300': checkoutMessage.type === 'warning',
+                                'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-900/20 dark:text-emerald-300': checkoutMessage.type === 'success',
+                            }"
+                        >
+                            {{ checkoutMessage.text }}
+                        </div>
                         
                         <!-- Lista de Items Compacta -->
                         <div class="space-y-4 mb-6 max-h-60 overflow-y-auto pr-2 custom-scrollbar">

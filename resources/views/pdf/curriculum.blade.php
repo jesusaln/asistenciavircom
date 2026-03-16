@@ -199,10 +199,10 @@
         }
 
         .header-title {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 1.2px;
+            letter-spacing: 1.4px;
             color: #ffffff;
         }
 
@@ -210,7 +210,7 @@
             font-size: 10px;
             color: rgba(255, 255, 255, 0.72);
             text-transform: uppercase;
-            letter-spacing: 1.8px;
+            letter-spacing: 1.9px;
             padding-top: 4px;
         }
 
@@ -233,7 +233,7 @@
             color: rgba(255, 255, 255, 0.88);
             font-size: 10px;
             font-weight: bold;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.04);
         }
 
         .header-logo {
@@ -294,11 +294,11 @@
             margin-bottom: 8px;
             padding: 5px 10px;
             border-radius: 999px;
-            background: rgba(255, 255, 255, 0.10);
+            background: rgba(255, 255, 255, 0.08);
             color: rgba(255, 255, 255, 0.92);
             font-size: 9px;
             font-weight: bold;
-            letter-spacing: 1.2px;
+            letter-spacing: 1.35px;
             text-transform: uppercase;
         }
 
@@ -396,6 +396,7 @@
             width: 100%;
             height: 112px;
             object-fit: cover;
+            object-position: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.14);
         }
 
@@ -491,6 +492,8 @@
 
         .logo-item img {
             max-height: 34px;
+            max-width: 100%;
+            object-fit: contain;
         }
 
         .client-item {
@@ -511,6 +514,8 @@
 
         .client-item img {
             max-height: 30px;
+            max-width: 100%;
+            object-fit: contain;
         }
 
         .contact-box {
@@ -547,7 +552,7 @@
             border-top: 1px solid rgba(255, 255, 255, 0.14);
             font-size: 8px;
             text-align: center;
-            letter-spacing: 1.2px;
+            letter-spacing: 1.3px;
         }
 
         .page-footer {
@@ -596,7 +601,7 @@
                 <h1 class="cover-title">{{ $empresa['nombre'] }}</h1>
                 <div class="cover-divider"></div>
                 <p class="cover-subtitle">
-                    Curriculum empresarial de soluciones en seguridad electronica, infraestructura TI, automatizacion comercial y soporte tecnico.
+                    Currículum empresarial de soluciones en seguridad electrónica, infraestructura TI, automatización comercial y soporte técnico.
                 </p>
             </div>
             <div class="cover-band">{{ $empresa['sitio_web'] }}</div>
@@ -616,7 +621,7 @@
                     <tr>
                         <td>
                             <div class="header-title">Perfil Ejecutivo</div>
-                            <div class="header-subtitle">Quienes somos, que resolvemos y como operamos</div>
+                            <div class="header-subtitle">Quiénes somos, qué resolvemos y cómo operamos</div>
                         </td>
                         <td class="header-logo">
                             @if($empresa['logo_base64'])
@@ -635,9 +640,9 @@
 
             <div class="hero-block">
                 <div class="section-label">Perfil Empresarial</div>
-                <div class="hero-title">Soluciones tecnicas con enfoque operativo, comercial y de continuidad.</div>
+                <div class="hero-title">Soluciones técnicas con enfoque operativo, comercial y de continuidad.</div>
                 <p class="hero-text">
-                    <strong>{{ $empresa['nombre'] }}</strong> desarrolla e implementa soluciones para organizaciones que requieren mayor control, seguridad, productividad y soporte especializado. Nuestro enfoque combina diagnostico, ejecucion, puesta en marcha y acompanamiento posterior.
+                    <strong>{{ $empresa['nombre'] }}</strong> desarrolla e implementa soluciones para organizaciones que requieren mayor control, seguridad, productividad y soporte especializado. Nuestro enfoque combina diagnóstico, ejecución, puesta en marcha y acompañamiento posterior.
                 </p>
             </div>
 
@@ -646,7 +651,7 @@
                     <td>
                         <div class="kpi-card">
                             <div class="kpi-icon">01</div>
-                            <div class="kpi-caption">Fundacion</div>
+                            <div class="kpi-caption">Fundación</div>
                             <div class="kpi-number">{{ $empresa['fundacion'] }}</div>
                             <div class="kpi-text">Inicio y consolidacion de la empresa.</div>
                         </div>
@@ -662,7 +667,7 @@
                     <td>
                         <div class="kpi-card">
                             <div class="kpi-icon">03</div>
-                            <div class="kpi-caption">Relacion</div>
+                            <div class="kpi-caption">Relación</div>
                             <div class="kpi-number">Directa</div>
                             <div class="kpi-text">Seguimiento comercial y tecnico puntual.</div>
                         </div>
@@ -681,7 +686,7 @@
                                 Atendemos proyectos para sector privado, corporativo e institucional con soluciones escalables y foco en operacion real. No solo instalamos tecnologia: estructuramos soluciones utilizables, medibles y sostenibles.
                             </p>
                             <p class="text">
-                                Nuestro trabajo integra levantamiento, recomendacion tecnica, implementacion, capacitacion y soporte para asegurar adopcion y continuidad.
+                                Nuestro trabajo integra levantamiento, recomendación técnica, implementación, capacitación y soporte para asegurar adopción y continuidad.
                             </p>
                         </div>
                     </td>
@@ -694,7 +699,7 @@
                                 @endforeach
                             </div>
                             <div style="height: 8px;"></div>
-                            <div class="section-label">Direccion General</div>
+                            <div class="section-label">Dirección General</div>
                             <p class="text"><strong>{{ $directivo['nombre'] }}</strong><br>{{ $directivo['puesto'] }}</p>
                             <p class="text">{{ $directivo['telefono'] }}<br>{{ $directivo['email'] }}</p>
                         </div>
@@ -706,13 +711,13 @@
                 <div class="section-label">Beneficios para el Cliente</div>
                 <div class="tag-list">
                     <span class="tag">Mayor control operativo</span>
-                    <span class="tag">Reduccion de riesgos</span>
+                    <span class="tag">Reducción de riesgos</span>
                     <span class="tag">Continuidad del negocio</span>
                     <span class="tag">Trazabilidad</span>
                 </div>
             </div>
 
-            <div class="footer-note">Presentacion institucional | {{ $empresa['direccion'] }}</div>
+            <div class="footer-note">Presentación institucional | {{ $empresa['direccion'] }}</div>
             <div class="page-footer">
                 <table class="page-footer-table">
                     <tr>
@@ -738,7 +743,7 @@
                     <tr>
                         <td>
                             <div class="header-title">Identidad y Respaldo</div>
-                            <div class="header-subtitle">Base legal, mision corporativa y cumplimiento</div>
+                            <div class="header-subtitle">Base legal, misión corporativa y cumplimiento</div>
                         </td>
                         <td class="header-logo">
                             @if($empresa['logo_base64'])
@@ -762,7 +767,7 @@
                             <div class="section-label">Datos Corporativos</div>
                             <table class="info-table">
                                 <tr>
-                                    <td class="label">Razon social</td>
+                                    <td class="label">Razón social</td>
                                     <td class="value">{{ $empresa['razon_social'] }}</td>
                                 </tr>
                                 <tr>
@@ -816,7 +821,7 @@
             </table>
 
             <div class="card">
-                <div class="section-label">Sectores Atendidos</div>
+                            <div class="section-label">Sectores Atendidos</div>
                 <div class="tag-list">
                     <span class="tag">Retail</span>
                     <span class="tag">Corporativo</span>
@@ -852,7 +857,7 @@
                     <tr>
                         <td>
                             <div class="header-title">Soluciones y Sectores</div>
-                            <div class="header-subtitle">Portafolio principal y aplicaciones por tipo de operacion</div>
+                            <div class="header-subtitle">Portafolio principal y aplicaciones por tipo de operación</div>
                         </td>
                         <td class="header-logo">
                             @if($empresa['logo_base64'])
@@ -877,9 +882,9 @@
                                 <img src="{{ $imagenes_servicios['seguridad'] }}" class="service-image" alt="Seguridad">
                             @endif
                             <div class="service-body">
-                                <div class="service-topline">Linea 01</div>
-                                <div class="service-title">CCTV y Seguridad Electronica</div>
-                                <p class="text">Videovigilancia, alarmas, monitoreo y control perimetral para mayor proteccion operativa.</p>
+                                <div class="service-topline">Línea 01</div>
+                                <div class="service-title">CCTV y Seguridad Electrónica</div>
+                                <p class="text">Videovigilancia, alarmas, monitoreo y control perimetral para mayor protección operativa.</p>
                                 <div class="service-points">
                                     <span>Videovigilancia</span>
                                     <span>Alarmas</span>
@@ -894,7 +899,7 @@
                                 <img src="{{ $imagenes_servicios['pos'] }}" class="service-image" alt="POS">
                             @endif
                             <div class="service-body">
-                                <div class="service-topline">Linea 02</div>
+                                <div class="service-topline">Línea 02</div>
                                 <div class="service-title">Puntos de Venta</div>
                                 <p class="text">Ecosistemas POS para retail y servicios con control comercial, cajas e inventario.</p>
                                 <div class="service-points">
@@ -913,8 +918,8 @@
                     <img src="{{ $imagenes_servicios['biometricos'] }}" class="service-image" alt="Biometricos">
                 @endif
                 <div class="service-body">
-                    <div class="service-topline">Linea 03</div>
-                    <div class="service-title">Control de Asistencia Biometrico</div>
+                    <div class="service-topline">Línea 03</div>
+                    <div class="service-title">Control de Asistencia Biométrico</div>
                     <p class="text">Terminales faciales y dactilares con registro de asistencia, incidencias y soporte a procesos administrativos.</p>
                     <div class="service-points">
                         <span>Biometria</span>
@@ -930,7 +935,7 @@
                 <div class="tag-list">
                     <span class="tag">Tiendas y cadenas</span>
                     <span class="tag">Oficinas corporativas</span>
-                    <span class="tag">Dependencias publicas</span>
+                        <span class="tag">Dependencias públicas</span>
                     <span class="tag">Parques industriales</span>
                     <span class="tag">Operacion multisucursal</span>
                 </div>
@@ -961,8 +966,8 @@
                 <table class="header-table">
                     <tr>
                         <td>
-                            <div class="header-title">Metodo y Ejecucion</div>
-                            <div class="header-subtitle">Proceso de trabajo, capacidad tecnica y experiencia aplicada</div>
+                            <div class="header-title">Método y Ejecución</div>
+                            <div class="header-subtitle">Proceso de trabajo, capacidad técnica y experiencia aplicada</div>
                         </td>
                         <td class="header-logo">
                             @if($empresa['logo_base64'])
@@ -988,28 +993,29 @@
                             @endif
                             <div class="service-body">
                                 <div class="service-topline">Equipo Tecnico</div>
-                                <div class="service-title">Personal calificado y acompanamiento continuo</div>
-                                <p class="text">Contamos con tecnicos e ingenieros para instalacion, diagnostico, mantenimiento y soporte especializado en campo.</p>
+                                <div class="service-title">Personal calificado y acompañamiento continuo</div>
+                                <p class="text">Contamos con técnicos e ingenieros para instalación, diagnóstico, mantenimiento y soporte especializado en campo.</p>
                             </div>
                         </div>
                     </td>
                     <td>
                         <div class="card">
-                            <div class="section-label">Metodologia</div>
-                            <ul class="list">
-                                <li>Levantamiento y diagnostico.</li>
-                                <li>Propuesta tecnica y comercial.</li>
-                                <li>Implementacion e instalacion.</li>
-                                <li>Capacitacion y entrega operativa.</li>
-                                <li>Soporte y mantenimiento posterior.</li>
-                            </ul>
-                        </div>
+                                <div class="section-label">Metodología</div>
+                                <div class="section-label">Metodología</div>
+                                <ul class="list">
+                                    <li>Levantamiento y diagnóstico.</li>
+                                    <li>Propuesta técnica y comercial.</li>
+                                    <li>Implementación e instalación.</li>
+                                    <li>Capacitación y entrega operativa.</li>
+                                    <li>Soporte y mantenimiento posterior.</li>
+                                </ul>
+                            </div>
                         <div class="card dark-card">
                             <div class="section-label">Experiencia Relevante</div>
                             <ul class="list">
                                 <li><strong>Sector privado:</strong> {{ $experiencia_top['Sector Privado'] }}</li>
-                                <li><strong>Sector publico:</strong> {{ $experiencia_top['Sector Público'] }}</li>
-                                <li><strong>Infraestructura TI:</strong> Redes, soporte y crecimiento tecnologico para operaciones empresariales.</li>
+                                <li><strong>Sector público:</strong> {{ $experiencia_top['Sector Público'] }}</li>
+                                <li><strong>Infraestructura TI:</strong> Redes, soporte y crecimiento tecnológico para operaciones empresariales.</li>
                             </ul>
                         </div>
                     </td>
@@ -1023,7 +1029,7 @@
                         <div class="kpi-card">
                             <div class="kpi-icon">A</div>
                             <div class="kpi-caption">Respuesta</div>
-                            <div class="kpi-number">Agil</div>
+                            <div class="kpi-number">Ágil</div>
                             <div class="kpi-text">Seguimiento oportuno conforme a prioridad y necesidad del cliente.</div>
                         </div>
                     </td>
@@ -1040,13 +1046,13 @@
                             <div class="kpi-icon">C</div>
                             <div class="kpi-caption">Soporte</div>
                             <div class="kpi-number">Continuo</div>
-                            <div class="kpi-text">Acompanamiento tecnico para evolucion y estabilidad del proyecto.</div>
+                            <div class="kpi-text">Acompañamiento técnico para evolución y estabilidad del proyecto.</div>
                         </div>
                     </td>
                 </tr>
             </table>
 
-            <div class="footer-note">Ejecucion tecnica respaldada por procesos y experiencia</div>
+            <div class="footer-note">Ejecución técnica respaldada por procesos y experiencia</div>
             <div class="page-footer">
                 <table class="page-footer-table">
                     <tr>
@@ -1072,7 +1078,7 @@
                     <tr>
                         <td>
                             <div class="header-title">Referencias y Cierre Comercial</div>
-                            <div class="header-subtitle">Marcas, clientes, casos de exito y contacto directo</div>
+                            <div class="header-subtitle">Marcas, clientes, casos de éxito y contacto directo</div>
                         </td>
                         <td class="header-logo">
                             @if($empresa['logo_base64'])
@@ -1146,10 +1152,11 @@
             @endif
 
             <div class="card">
-                <div class="section-label">Casos de Exito</div>
+                <div class="section-label">Casos de Éxito</div>
+                <div class="section-label">Casos de Éxito</div>
                 <ul class="list">
-                    <li><strong>Retail:</strong> Integracion de punto de venta, inventario y monitoreo para control diario.</li>
-                    <li><strong>Gobierno:</strong> Atencion de proyectos institucionales con seguimiento tecnico y formalidad documental.</li>
+                    <li><strong>Retail:</strong> Integración de punto de venta, inventario y monitoreo para fortalecer el control diario de operación.</li>
+                    <li><strong>Gobierno:</strong> Atención de proyectos institucionales con seguimiento técnico y formalidad documental.</li>
                     <li><strong>Corporativo:</strong> Infraestructura TI y soporte para operaciones con necesidad de continuidad.</li>
                 </ul>
             </div>
@@ -1170,7 +1177,7 @@
                 </tr>
             </table>
 
-            <div class="footer-note">Solicite levantamiento, diagnostico o propuesta tecnica personalizada</div>
+            <div class="footer-note">Solicite levantamiento, diagnóstico o propuesta técnica personalizada</div>
             <div class="page-footer">
                 <table class="page-footer-table">
                     <tr>

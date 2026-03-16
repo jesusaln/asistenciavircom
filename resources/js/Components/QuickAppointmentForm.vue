@@ -31,6 +31,14 @@ const form = useForm({
     descripcion: '',
 });
 
+const trackEvent = (eventName, payload = {}) => {
+    if (typeof window === 'undefined' || !Array.isArray(window.dataLayer)) return;
+    window.dataLayer.push({
+        event: eventName,
+        ...payload,
+    });
+};
+
 const cssVars = computed(() => ({
     '--color-primary': props.empresa?.color_principal || '#FF6B35',
     '--color-primary-soft': (props.empresa?.color_principal || '#FF6B35') + '15',
@@ -64,10 +72,21 @@ const submitForm = () => {
     errorMessage.value = '';
     showSessionExpired.value = false;
     isSubmitting.value = true;
+
+    trackEvent('generate_lead_attempt', {
+        lead_type: 'appointment',
+        lead_channel: 'landing_quick_appointment',
+        service: form.servicio,
+    });
     
     form.post(route('public.cita.store'), {
         preserveScroll: true,
         onSuccess: () => {
+            trackEvent('generate_lead', {
+                lead_type: 'appointment',
+                lead_channel: 'landing_quick_appointment',
+                service: form.servicio,
+            });
             showSuccess.value = true;
             form.reset();
             selectedService.value = null;
@@ -94,6 +113,10 @@ const submitForm = () => {
                 const servicioNombre = props.servicios.find(s => s.id === form.servicio)?.nombre || form.servicio;
                 const mensaje = `Hola, me gustaría agendar una cita para ${servicioNombre}. Mi nombre es ${form.nombre} y mi teléfono es ${form.telefono}.`;
                 const whatsappUrl = `https://wa.me/${props.empresa?.whatsapp?.replace(/\D/g, '')}?text=${encodeURIComponent(mensaje)}`;
+                trackEvent('whatsapp_click', {
+                    source: 'landing_quick_appointment_fallback',
+                    service: form.servicio,
+                });
                 window.open(whatsappUrl, '_blank');
             }
         },

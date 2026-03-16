@@ -91,15 +91,15 @@ class CatalogoController extends Controller
                     $query->orderBy('nombre', 'asc');
                     break;
                 default:
-                    // 1. Disponibles en Hermosillo (stock > 0)
-                    // 2. Disponibles en CEDIS/Otros (stock_cedis > 0)
-                    // 3. Los demás (sin stock)
-                    $query->orderByRaw('CASE 
-                        WHEN stock > 0 THEN 1 
-                        WHEN stock_cedis > 0 THEN 2 
-                        ELSE 3 
-                    END ASC')
-                        ->orderBy('created_at', 'desc');
+                    // 1. Productos DESTACADOS manualmente
+                    // 2. Disponibilidad Local (stock > 0)
+                    // 3. Mayor Margen de Ganancia (Rentabilidad)
+                    // 4. Disponibilidad CEDIS
+                    $query->orderByDesc('destacado')
+                        ->orderByRaw('CASE WHEN stock > 0 THEN 0 ELSE 1 END')
+                        ->orderByDesc('margen_ganancia')
+                        ->orderByRaw('CASE WHEN stock_cedis > 0 THEN 0 ELSE 1 END')
+                        ->orderByDesc('created_at');
             }
         }
 
