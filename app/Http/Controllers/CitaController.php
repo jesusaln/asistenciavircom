@@ -344,17 +344,17 @@ class CitaController extends Controller
                 $productoSerieId = $request->input('producto_serie_id');
 
                 // Verificar que la serie no esté ya asociada a otra cita
-                $serieExistente = DB::table('producto_series')
+                $citaId = DB::table('producto_series')
                     ->where('id', $productoSerieId)
                     ->whereNotNull('cita_id')
-                    ->first();
+                    ->value('cita_id');
 
-                if ($serieExistente) {
+                if ($citaId) {
                     DB::rollBack();
                     return redirect()
                         ->back()
                         ->withInput()
-                        ->with('error', 'Esta serie de garantía ya tiene una cita asociada (Cita #' . $serieExistente->cita_id . '). No se pueden crear múltiples citas para la misma garantía.');
+                        ->with('error', 'Esta serie de garantía ya tiene una cita asociada (Cita #' . $citaId . '). No se pueden crear múltiples citas para la misma garantía.');
                 }
 
                 // Actualizar el producto_serie con el cita_id

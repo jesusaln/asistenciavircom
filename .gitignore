@@ -187,3 +187,8 @@ rustdesk_build
 /clawd
 /.clawdbot
 /ia_sync
+
+# IDE helpers
+.phpstorm.meta.php
+_ide_helper.php
+_ide_helper_models.php

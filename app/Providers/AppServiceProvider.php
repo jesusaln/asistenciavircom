@@ -77,7 +77,7 @@ class AppServiceProvider extends ServiceProvider
             'App\\Models\\Servicio' => \App\Models\Servicio::class,
             'App\\Models\\Cliente' => \App\Models\Cliente::class,
             'App\\Models\\User' => \App\Models\User::class,
-            // 'App\\Models\\Tecnico' => \App\Models\Tecnico::class, // REMOVED
+            'App\\Models\\Tecnico' => \App\Models\Tecnico::class, // RESTORED
             'App\\Models\\Prestamo' => \App\Models\Prestamo::class,
             'App\\Models\\PagoPrestamo' => \App\Models\PagoPrestamo::class,
             'App\\Models\\HistorialPagoPrestamo' => \App\Models\HistorialPagoPrestamo::class,

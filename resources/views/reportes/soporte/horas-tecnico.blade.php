@@ -445,7 +445,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($tickets as $ticket)
+                    @forelse ($tickets as $ticket)
                         <tr>
                             <td class="font-mono text-blue">{{ $ticket->numero }}</td>
                             <td>{{ Str::limit($ticket->titulo, 30) }}</td>

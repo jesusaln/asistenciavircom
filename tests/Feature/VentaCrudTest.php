@@ -398,10 +398,7 @@ class VentaCrudTest extends TestCase
         $this->assertEquals(3, $producto->fresh()->stock);
 
         // Debug: Check existing inventories
-        // $invs = \Illuminate\Support\Facades\DB::table('inventarios')->get();
-        // dump($invs);
-
-
+        $response = $this->put(route('ventas.cancel', $venta->id));
         $response->assertSessionHasNoErrors();
         $this->assertEquals(\App\Enums\EstadoVenta::Cancelada, $venta->fresh()->estado);
         $this->assertEquals(5, $producto->fresh()->stock); // Stock restaurado
