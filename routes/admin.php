@@ -318,6 +318,10 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::resource('cotizaciones', CotizacionController::class)->names('cotizaciones')->middleware('can:view cotizaciones');
     Route::post('/cotizaciones/{id}/convertir-a-venta', [CotizacionConversionController::class, 'convertirAVenta'])->name('cotizaciones.convertir-a-venta');
     Route::get('/cotizaciones/{id}/pdf', [CotizacionDocumentoController::class, 'generarPDF'])->name('cotizaciones.pdf');
+    Route::post('/cotizaciones/{id}/cancel', [CotizacionController::class, 'cancel'])->name('cotizaciones.cancel');
+    Route::post('/cotizaciones/{id}/duplicate', [CotizacionAccionController::class, 'duplicate'])->name('cotizaciones.duplicate');
+    Route::post('/cotizaciones/{id}/enviar-pedido', [CotizacionConversionController::class, 'enviarAPedido'])->name('cotizaciones.enviar-pedido');
+    Route::post('/cotizaciones/{id}/enviar-email', [CotizacionDocumentoController::class, 'enviarEmail'])->name('cotizaciones.enviar-email');
 
     Route::get('/pedidos/siguiente-numero', [PedidoController::class, 'obtenerSiguienteNumero'])->name('pedidos.siguiente-numero')->middleware('can:view pedidos');
     Route::resource('pedidos', PedidoController::class)->names('pedidos')->middleware('can:view pedidos');
