@@ -138,9 +138,29 @@ const goToPage = (page) => {
   router.visit('/ordenescompra', { data: { page, search: searchTerm.value, estado: filtroEstado.value, sort_by: field, sort_direction: direction } })
 }
 
+const onSort = (field) => {
+    let direction = 'asc'
+    if (sortBy.value.startsWith(field) && sortBy.value.endsWith('asc')) {
+        direction = 'desc'
+    }
+    updateSort(`${field}-${direction}`)
+}
+
 const verDetalles = (orden) => { fila.value = orden; modalMode.value = 'details'; showModal.value = true; }
 const editarOrden = (id) => router.visit(`/ordenescompra/${id}/edit`)
 const confirmarEliminacion = (id) => { selectedId.value = id; modalMode.value = 'confirm'; showModal.value = true; }
+
+const onClose = () => {
+    showModal.value = false
+    fila.value = null
+    selectedId.value = null
+}
+
+const onConfirm = () => {
+    if (modalMode.value === 'confirm') {
+        eliminarOrden()
+    }
+}
 
 const eliminarOrden = async () => {
   loading.value = true

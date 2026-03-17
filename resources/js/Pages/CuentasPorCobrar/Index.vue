@@ -332,7 +332,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { Link, router } from '@inertiajs/vue3';
+import { Link, router, Head } from '@inertiajs/vue3';
 import axios from 'axios';
 import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';

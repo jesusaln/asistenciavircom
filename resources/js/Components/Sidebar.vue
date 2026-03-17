@@ -122,7 +122,7 @@
         <!-- ========================================= -->
         <!-- 📞 Soporte y Contratos -->
         <!-- ========================================= -->
-        <div v-if="$can('view soporte') || $can('view polizas')" class="mb-4">
+        <div v-if="$can('view soporte') || $can('view polizas') || $can('manage planes')" class="mb-4">
           <div
             @click="toggleAccordion('soporte')"
             class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
@@ -154,13 +154,13 @@
             <NavLink v-if="$can('view polizas')" href="/tecnico/mantenimientos" icon="tools" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Mantenimientos de Pólizas' : null">
               Mantenimientos de Pólizas
             </NavLink>
-            <NavLink v-if="$can('view polizas')" href="/planes-poliza" icon="tags" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Administrar Planes' : null">
+            <NavLink v-if="$can('manage planes')" href="/planes-poliza" icon="tags" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Administrar Planes' : null">
               Administrar Planes
             </NavLink>
             <NavLink v-if="$can('view soporte')" href="/soporte/kb" icon="book" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Base de Conocimiento' : null">
               Base de Conocimiento
             </NavLink>
-            <NavLink href="/soporte-remoto" icon="desktop" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Acceso Remoto' : null">
+            <NavLink v-if="$can('view soporte')" href="/soporte-remoto" icon="desktop" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Acceso Remoto' : null">
               Acceso Remoto
             </NavLink>
             <NavLink href="/credenciales" icon="key" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Contraseñas' : null">

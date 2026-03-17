@@ -156,7 +156,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { Link, useForm } from '@inertiajs/vue3';
+import { Link, useForm, Head } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 
 const props = defineProps({

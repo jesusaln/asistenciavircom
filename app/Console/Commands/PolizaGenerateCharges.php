@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Services\PolizaBillingService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class PolizaGenerateCharges extends Command
 {
@@ -19,18 +19,16 @@ class PolizaGenerateCharges extends Command
      *
      * @var string
      */
-    protected $description = 'Genera los cargos mensuales de las pólizas activas según su día de cobro.';
+    protected $description = 'Desactivado: los cargos de pólizas se generan manualmente por el agente.';
 
     /**
      * Execute the console command.
      */
-    public function handle(PolizaBillingService $billingService)
+    public function handle()
     {
-        $this->info('Iniciando proceso de generación de cargos...');
-
-        $count = $billingService->processDailyBilling();
-
-        $this->info("Proceso completado. Se generaron {$count} cargos nuevos.");
+        $message = 'Generación automática de cargos de pólizas desactivada. Use el flujo manual desde la póliza.';
+        $this->warn($message);
+        Log::info($message);
 
         return 0;
     }

@@ -249,7 +249,10 @@ class CfdiController extends Controller
                     'uso_cfdi' => $cfdi->uso_cfdi,
                 ]),
                 'tiene_pdf' => Storage::disk('public')->exists("empresas/{$empresaId}/cfdis/{$cfdi->uuid}.pdf"),
-                'tiene_xml' => Storage::disk('public')->exists("empresas/{$empresaId}/cfdis/{$cfdi->uuid}.xml"),
+                'tiene_xml' => (
+                    (!empty($cfdi->xml_url) && Storage::disk('public')->exists(ltrim($cfdi->xml_url, '/')))
+                    || Storage::disk('public')->exists("empresas/{$empresaId}/cfdis/{$cfdi->uuid}.xml")
+                ),
             ];
         }));
         $cfdis->appends($request->query());
@@ -328,14 +331,22 @@ class CfdiController extends Controller
             'cfdis/' . $uuid . '.xml',
         ];
 
+        if ($cfdi && !empty($cfdi->xml_url)) {
+            $paths[] = ltrim($cfdi->xml_url, '/');
+        }
+
         if ($cfdi?->fecha_emision) {
             $date = Carbon::parse($cfdi->fecha_emision);
             $year = $date->format('Y');
             $month = $date->format('m');
             $tipo = $cfdi->direccion === 'recibido' ? 'recibidos' : 'emitidos';
+            $paths[] = "empresas/{$empresaId}/cfdis/{$tipo}/{$year}/{$month}/{$uuid}.xml";
+            $paths[] = "empresas/{$empresaId}/cfdis/{$tipo}/{$uuid}.xml";
             $paths[] = "cfdis/{$tipo}/{$year}/{$month}/{$uuid}.xml";
             $paths[] = "cfdis/{$tipo}/{$uuid}.xml";
         }
+
+        $paths = array_values(array_unique(array_filter($paths)));
 
         $disposition = $request->boolean('inline') ? 'inline' : 'attachment';
 

@@ -19,6 +19,7 @@
 
   <script setup>
   import { ref } from 'vue';
+import { Head } from '@inertiajs/vue3';
   import TecnicoModal from '@/Components/TecnicoModal.vue'; // Importar el componente del modal
 
   // Recibe el técnico como prop
