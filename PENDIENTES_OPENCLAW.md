@@ -1,6 +1,6 @@
-# 🕒 Pendientes Próxima Sesión: Activación Clawbot (Vircom AI)
+# 🕒 Pendientes Próxima Sesión: Activación OpenClaw (Vircom AI)
 
-He dejado todo listo en el servidor para que **Clawbot (Vircom AI)** comience a operar, pero falta el "puente" de comunicación (WhatsApp). Aquí tienes lo que quedó pendiente para cuando regreses:
+He dejado todo listo en el servidor para que **OpenClaw (Vircom AI)** comience a operar, pero falta el "puente" de comunicación (WhatsApp). Aquí tienes lo que quedó pendiente para cuando regreses:
 
 ## 1. 🔑 Datos de Meta (WhatsApp API)
 Necesitamos los siguientes dos valores del portal [developers.facebook.com](https://developers.facebook.com/):
@@ -8,9 +8,9 @@ Necesitamos los siguientes dos valores del portal [developers.facebook.com](http
 - **Permanent Access Token:** El token de larga duración (empieza con `EA...`).
     - *Asegúrate de marcar estos permisos al generarlo:* `whatsapp_business_messaging`, `whatsapp_business_management`, `business_management`, y `whatsapp_business_manage_events`.
 
-> **💡 Vía Rápida (Explorador de la API Graph):** Lo que viste en Meta sobre el "Explorador" es una herramienta que podemos usar para generar un token temporal y probar si los mensajes de Clawbot llegan rápido. Si estás en esa pantalla, el "Explorador" te permite sacar una muestra del código que necesito para terminar la conexión.
+> **💡 Vía Rápida (Explorador de la API Graph):** Lo que viste en Meta sobre el "Explorador" es una herramienta que podemos usar para generar un token temporal y probar si los mensajes de OpenClaw llegan rápido. Si estás en esa pantalla, el "Explorador" te permite sacar una muestra del código que necesito para terminar la conexión.
 
-## 2. 🤖 Tareas de Clawbot una vez conectado
+## 2. 🤖 Tareas de OpenClaw una vez conectado
 En cuanto me pases esos datos, activaré las siguientes funciones proactivas:
 - [ ] **Reporte de Bienvenida:** Prueba de conexión exitosa a tu WhatsApp.
 - [ ] **Monitoreo de Blog:** Alerta inmediata cuando alguien lea tus artículos (especialmente el de No-Breaks).

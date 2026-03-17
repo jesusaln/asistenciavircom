@@ -21,10 +21,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar Node.js 22 y Clawdbot
+# Instalar Node.js 22 y OpenClaw
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
-    && npm install -g clawdbot \
+    && npm install -g openclaw \
     && apt-get clean
 
 # Instalar Composer

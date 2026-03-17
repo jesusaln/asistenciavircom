@@ -146,7 +146,7 @@
         &copy; 2026 Asistencia Vircom. Tecnología con Confianza.
     </footer>
 
-    <!-- Widget Flotante Clawdbot (Blade Version) -->
+    <!-- Widget Flotante OpenClaw (Blade Version) -->
     <div class="fixed bottom-6 right-6 z-[100] flex flex-col items-end font-sans">
         <div id="botMenu"
             class="hidden mb-4 w-72 bg-white dark:bg-slate-900 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-gray-100 dark:border-slate-800 overflow-hidden transform transition-all duration-300 scale-95 opacity-0 origin-bottom-right">
@@ -157,7 +157,7 @@
                         class="w-12 h-12 bg-gradient-to-tr from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-2xl shadow-lg border border-white/20">
                         🤖</div>
                     <div class="text-left">
-                        <h3 class="text-lg font-bold leading-tight">Clawdbot IA</h3>
+                        <h3 class="text-lg font-bold leading-tight">OpenClaw IA</h3>
                         <div class="flex items-center gap-2">
                             <span class="w-2 h-2 bg-green-500 rounded-full"></span>
                             <p class="text-[10px] uppercase tracking-wider font-semibold opacity-70">En línea ahora</p>
@@ -166,7 +166,7 @@
                 </div>
             </div>
             <div class="p-4 bg-gray-50/30 dark:bg-slate-900/50 space-y-2">
-                <a href="https://wa.me/5216622036840?text=Hola%20Clawdbot!%20Me%20interesa%20la%20promo"
+                <a href="https://wa.me/5216622036840?text=Hola%20OpenClaw!%20Me%20interesa%20la%20promo"
                     class="flex items-center gap-3 p-3 rounded-2xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 hover:border-blue-500/50 transition-all group">
                     <span class="text-xl">🏷️</span>
                     <div class="text-left">
@@ -182,7 +182,7 @@
                 </a>
             </div>
             <div class="p-2 text-center border-t border-gray-50 dark:border-slate-800">
-                <p class="text-[9px] text-gray-400">Powered by Clawdbot</p>
+                <p class="text-[9px] text-gray-400">Powered by OpenClaw</p>
             </div>
         </div>
 

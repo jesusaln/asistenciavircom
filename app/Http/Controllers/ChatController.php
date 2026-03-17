@@ -18,11 +18,11 @@ class ChatController extends Controller
         $sessionId = $request->session_id ?? 'web-visitor-' . time();
 
         // Intentar rutas comunes de binarios
-        $binary = 'clawdbot';
-        if (file_exists('/usr/local/bin/clawdbot'))
-            $binary = '/usr/local/bin/clawdbot';
-        if (file_exists('/usr/bin/clawdbot'))
-            $binary = '/usr/bin/clawdbot';
+        $binary = 'openclaw';
+        if (file_exists('/usr/local/bin/openclaw'))
+            $binary = '/usr/local/bin/openclaw';
+        if (file_exists('/usr/bin/openclaw'))
+            $binary = '/usr/bin/openclaw';
 
         $command = [
             $binary,
@@ -37,13 +37,13 @@ class ChatController extends Controller
 
         $process = new Process($command, base_path(), [
             'HOME' => base_path(),
-            'PATH' => '/usr/local/bin:/usr/bin:/bin' // Asegurar que encuentre node y clawdbot
+            'PATH' => '/usr/local/bin:/usr/bin:/bin' // Asegurar que encuentre node y openclaw
         ]);
         $process->setTimeout(60);
         $process->run();
 
         if (!$process->isSuccessful()) {
-            \Illuminate\Support\Facades\Log::error('Clawdbot Error: ' . $process->getErrorOutput());
+            \Illuminate\Support\Facades\Log::error('OpenClaw Error: ' . $process->getErrorOutput());
             return response()->json([
                 'success' => false,
                 'error' => 'No se pudo obtener respuesta de la IA.',
@@ -54,8 +54,8 @@ class ChatController extends Controller
         $output = $process->getOutput();
 
         // Limpiar el output para obtener solo el mensaje de la IA
-        // Clawdbot imprime varias líneas, el mensaje viene después del diamante ◇
-        $cleanMessage = $this->parseClawdbotOutput($output);
+        // OpenClaw imprime varias líneas, el mensaje viene después del diamante ◇
+        $cleanMessage = $this->parseOpenClawOutput($output);
 
         return response()->json([
             'success' => true,
@@ -64,7 +64,7 @@ class ChatController extends Controller
         ]);
     }
 
-    private function parseClawdbotOutput($output)
+    private function parseOpenClawOutput($output)
     {
         $lines = explode("\n", $output);
         $resultLines = [];

@@ -60,8 +60,8 @@ rsync -avz --no-perms --no-owner --no-group --delete \
     --exclude='node_modules' \
     --exclude='.git' \
     --exclude='ia_sync' \
-    --exclude='clawd' \
-    --exclude='.clawdbot' \
+    --exclude='openclaw' \
+    --exclude='.openclaw' \
     ./ $USER@$VPS_IP:$STAGING_PATH/
 
 # 4. Preparación de Dependencias en Staging
@@ -105,10 +105,11 @@ ssh $USER@$VPS_IP "docker restart $CONTAINER_QUEUE && \
 
 # 8. Sincronización de IA (Segundo plano)
 echo "🤖 8/8 Sincronizando componente IA..."
-rsync -avz --delete --exclude='*.log' ./.clawdbot ./clawd $USER@$VPS_IP:$REMOTE_PATH/ia_staging/ || true
-ssh $USER@$VPS_IP "docker cp $REMOTE_PATH/ia_staging/.clawdbot $CONTAINER_APP:/var/www/cdd_app/ && \
-    docker cp $REMOTE_PATH/ia_staging/clawd $CONTAINER_APP:/var/www/cdd_app/ && \
-    docker exec -u root $CONTAINER_APP chown -R www-data:www-data /var/www/cdd_app/.clawdbot /var/www/cdd_app/clawd"
+echo "🤖 8/8 Sincronizando componente IA (OpenClaw)..."
+rsync -avz --delete --exclude='*.log' ./.openclaw ./openclaw $USER@$VPS_IP:$REMOTE_PATH/ia_staging/ || true
+ssh $USER@$VPS_IP "docker cp $REMOTE_PATH/ia_staging/.openclaw $CONTAINER_APP:/var/www/cdd_app/ && \
+    docker cp $REMOTE_PATH/ia_staging/openclaw $CONTAINER_APP:/var/www/cdd_app/ && \
+    docker exec -u root $CONTAINER_APP chown -R www-data:www-data /var/www/cdd_app/.openclaw /var/www/cdd_app/openclaw"
 
 echo "--------------------------------------------------------"
 echo "✨ ¡DESPLIEGUE COMPLETADO EN SEGUNDOS! (v$NEXT_VERSION) ✨"
