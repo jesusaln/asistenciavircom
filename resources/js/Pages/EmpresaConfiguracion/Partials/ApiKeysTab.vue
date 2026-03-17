@@ -11,8 +11,15 @@ const testingConnection = ref(false)
 const connectionStatus = ref(null)
 
 const aiProviders = [
+    { id: 'gemini', name: 'Google Gemini', description: 'IA de Google (Flash 2.0)', icon: 'brain' },
     { id: 'groq', name: 'Groq Cloud', description: 'API rápida y gratuita (Recomendado)', icon: 'bolt' },
     { id: 'ollama', name: 'Ollama Local', description: 'Ejecuta modelos localmente', icon: 'server' },
+]
+
+const geminiModels = [
+    { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', description: 'Balance ideal velocidad/calidad' },
+    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', description: 'Rápido y eficiente' },
+    { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', description: 'Máxima calidad y ventana de contexto' },
 ]
 
 const groqModels = [
@@ -117,6 +124,45 @@ const testConnection = async () => {
                         <FontAwesomeIcon icon="check-circle" class="text-purple-600 dark:text-purple-400" />
                     </div>
                 </button>
+            </div>
+        </div>
+
+        <!-- Gemini Configuration -->
+        <div v-if="form.ai_provider === 'gemini'" class="space-y-6 bg-gray-50 dark:bg-slate-950 dark:bg-gray-800 rounded-xl p-6">
+            <h3 class="font-semibold text-gray-900 dark:text-white dark:text-gray-100 flex items-center gap-2">
+                <FontAwesomeIcon icon="brain" class="text-blue-500 dark:text-blue-400" />
+                Configuración de Google Gemini
+            </h3>
+
+            <!-- API Key -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    API Key de Google AI Studio
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline ml-2 text-xs">
+                        <FontAwesomeIcon icon="external-link-alt" /> Obtener API Key
+                    </a>
+                </label>
+                <div class="relative">
+                    <input 
+                        type="password"
+                        v-model="form.gemini_api_key"
+                        placeholder="AIzaSy..."
+                        class="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
+                    >
+                </div>
+            </div>
+
+            <!-- Model Selection -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Modelo</label>
+                <select 
+                    v-model="form.gemini_model"
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
+                >
+                    <option v-for="model in geminiModels" :key="model.id" :value="model.id">
+                        {{ model.name }} - {{ model.description }}
+                    </option>
+                </select>
             </div>
         </div>
 

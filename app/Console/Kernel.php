@@ -65,6 +65,12 @@ class Kernel extends ConsoleKernel
             ->dailyAt('06:00')
             ->appendOutputTo(storage_path('logs/cuentas_vencidas.log'));
 
+        // Archivar prospectos CRM cerrados con mas de 3 meses para no saturar la operacion diaria
+        $schedule->command('crm:archive-old-prospects --months=3')
+            ->dailyAt('03:30')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/crm_archive_old_prospects.log'));
+
         // =====================================================
         // BACKUPS AUTOMÁTICOS - Configuración dinámica desde empresa
         // =====================================================

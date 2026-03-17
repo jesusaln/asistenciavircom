@@ -65,6 +65,9 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
+        'gemini' => [
+            'api_key' => env('GEMINI_API_KEY'),
+        ],
     ],
 
     'microsoft' => [
@@ -117,7 +120,12 @@ return [
         'temperature' => env('GROQ_TEMPERATURE', 0.7),
     ],
 
-    // Proveedor de IA preferido: 'groq' o 'ollama'
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY', ''),
+        'model' => env('GEMINI_MODEL', 'gemini-1.5-flash'),
+    ],
+
+    // Proveedor de IA preferido: 'groq', 'ollama' o 'gemini'
     'ai_provider' => env('AI_PROVIDER', 'groq'),
 
     'biometrics' => [

@@ -140,6 +140,15 @@
                             <FontAwesomeIcon :icon="['fas', 'file-invoice-dollar']" />
                             Crear Cotización
                         </button>
+
+                        <button
+                            v-if="$page.props.auth.user.roles.some(r => ['admin', 'super-admin'].includes(r.name)) || $page.props.auth.user.id === prospecto.vendedor_id"
+                            @click="eliminarProspecto"
+                            class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 dark:bg-red-500 text-white font-bold rounded-lg hover:bg-red-700 dark:hover:bg-red-600 shadow-md shadow-red-500/20 transition-all active:scale-95"
+                        >
+                            <FontAwesomeIcon :icon="['fas', 'trash']" />
+                            Eliminar Prospecto
+                        </button>
                     </div>
                 </div>
 
@@ -313,7 +322,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
@@ -352,6 +361,7 @@ const showModalActividad = ref(false);
 const procesando = ref(false);
 const etapaSeleccionada = ref(props.prospecto.etapa);
 const scriptActivo = ref(null);
+const canArchive = computed(() => ['cerrado_ganado', 'cerrado_perdido'].includes(props.prospecto.etapa));
 
 const formActividad = ref({
     tipo: 'llamada',
@@ -480,5 +490,15 @@ const crearCotizacion = () => {
             });
         }
     }
+};
+
+const eliminarProspecto = () => {
+    if (!confirm(`¿Estás seguro de que deseas eliminar el prospecto "${props.prospecto.nombre}"? Esta acción eliminará también sus actividades y tareas.`)) return;
+
+    router.delete(`/crm/prospectos/${props.prospecto.id}`, {
+        onSuccess: () => {
+            router.visit('/crm/prospectos');
+        }
+    });
 };
 </script>

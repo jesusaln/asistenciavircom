@@ -150,23 +150,100 @@ class CrmController extends Controller
     {
         $user = Auth::user();
         $isAdmin = $user->hasAnyRole(['admin', 'super-admin']);
+        $search = trim((string) $request->input('search', ''));
+        $showClosed = $request->boolean('show_closed');
 
         $query = CrmProspecto::with(['vendedor:id,name', 'cliente:id,nombre_razon_social'])
             ->when(!$isAdmin, fn($q) => $q->where('vendedor_id', $user->id))
+            ->when($isAdmin && $request->filled('vendedor_id'), fn($q) => $q->where('vendedor_id', $request->integer('vendedor_id')))
             ->when($request->etapa, fn($q, $e) => $q->where('etapa', $e))
-            ->when($request->search, fn($q, $s) => $q->where(function ($qq) use ($s) {
-                $qq->where('nombre', 'ilike', "%{$s}%")
-                    ->orWhere('telefono', 'ilike', "%{$s}%")
-                    ->orWhere('empresa', 'ilike', "%{$s}%");
+            ->when($request->origen, fn($q, $o) => $q->where('origen', $o))
+            ->when($request->prioridad, fn($q, $p) => $q->where('prioridad', $p))
+            ->when(!$showClosed, fn($q) => $q->whereNotIn('etapa', ['cerrado_ganado', 'cerrado_perdido']))
+            ->when($search !== '', fn($q) => $q->where(function ($qq) use ($search) {
+                $qq->where('nombre', 'ilike', "%{$search}%")
+                    ->orWhere('telefono', 'ilike', "%{$search}%")
+                    ->orWhere('empresa', 'ilike', "%{$search}%")
+                    ->orWhere('email', 'ilike', "%{$search}%");
             }))
+            ->orderByRaw("
+                CASE
+                    WHEN proxima_actividad_at IS NOT NULL AND proxima_actividad_at < NOW() THEN 0
+                    WHEN proxima_actividad_at IS NOT NULL AND DATE(proxima_actividad_at) = CURRENT_DATE THEN 1
+                    WHEN proxima_actividad_at IS NULL THEN 2
+                    ELSE 3
+                END
+            ")
+            ->orderByRaw('proxima_actividad_at ASC NULLS LAST')
+            ->orderByDesc('valor_estimado')
             ->orderByDesc('updated_at');
 
         $prospectos = $query->paginate(20)->appends($request->query());
+        $vendedores = $isAdmin
+            ? User::whereHas('roles', fn($q) => $q->whereIn('name', ['ventas', 'admin']))
+                ->where('activo', true)
+                ->orderBy('name')
+                ->get(['id', 'name'])
+            : [];
 
         return Inertia::render('Crm/Prospectos/Index', [
             'prospectos' => $prospectos,
             'etapas' => CrmProspecto::ETAPAS,
-            'filtros' => $request->only(['etapa', 'search']),
+            'prioridades' => CrmProspecto::PRIORIDADES,
+            'origenes' => CrmProspecto::ORIGENES,
+            'vendedores' => $vendedores,
+            'isAdmin' => $isAdmin,
+            'tiposActividad' => CrmActividad::TIPOS,
+            'resultadosActividad' => CrmActividad::RESULTADOS,
+            'filtros' => [
+                'etapa' => $request->input('etapa'),
+                'search' => $search,
+                'prioridad' => $request->input('prioridad'),
+                'origen' => $request->input('origen'),
+                'vendedor_id' => $request->input('vendedor_id'),
+                'show_closed' => $showClosed,
+            ],
+        ]);
+    }
+
+    /**
+     * Lista de prospectos archivados
+     */
+    public function prospectosArchivados(Request $request)
+    {
+        $user = Auth::user();
+        $isAdmin = $user->hasAnyRole(['admin', 'super-admin']);
+        $search = trim((string) $request->input('search', ''));
+
+        $prospectos = CrmProspecto::onlyTrashed()
+            ->with(['vendedor:id,name', 'cliente:id,nombre_razon_social'])
+            ->when(!$isAdmin, fn($q) => $q->where('vendedor_id', $user->id))
+            ->when($isAdmin && $request->filled('vendedor_id'), fn($q) => $q->where('vendedor_id', $request->integer('vendedor_id')))
+            ->when($search !== '', fn($q) => $q->where(function ($qq) use ($search) {
+                $qq->where('nombre', 'ilike', "%{$search}%")
+                    ->orWhere('telefono', 'ilike', "%{$search}%")
+                    ->orWhere('empresa', 'ilike', "%{$search}%")
+                    ->orWhere('email', 'ilike', "%{$search}%");
+            }))
+            ->orderByDesc('deleted_at')
+            ->paginate(20)
+            ->appends($request->query());
+
+        $vendedores = $isAdmin
+            ? User::whereHas('roles', fn($q) => $q->whereIn('name', ['ventas', 'admin']))
+                ->where('activo', true)
+                ->orderBy('name')
+                ->get(['id', 'name'])
+            : [];
+
+        return Inertia::render('Crm/Prospectos/Archived', [
+            'prospectos' => $prospectos,
+            'vendedores' => $vendedores,
+            'isAdmin' => $isAdmin,
+            'filtros' => [
+                'search' => $search,
+                'vendedor_id' => $request->input('vendedor_id'),
+            ],
         ]);
     }
 
@@ -328,6 +405,42 @@ class CrmController extends Controller
         }
 
         return back()->with('success', 'Actividad registrada');
+    }
+
+    /**
+     * Eliminar prospecto
+     */
+    public function eliminarProspecto(CrmProspecto $prospecto)
+    {
+        $user = Auth::user();
+        $isAdmin = $user->hasAnyRole(['admin', 'super-admin']);
+
+        if (!$isAdmin && (int) $prospecto->vendedor_id !== (int) $user->id) {
+            abort(403, 'No tienes permisos para eliminar este prospecto.');
+        }
+
+        if ($prospecto->cliente_id) {
+            return back()->with('error', 'No se puede eliminar un prospecto que ya fue convertido a cliente.');
+        }
+
+        DB::transaction(function () use ($prospecto) {
+            $prospecto->actividades()->delete();
+            $prospecto->tareas()->delete();
+            $prospecto->delete();
+        });
+
+        return redirect()->route('crm.prospectos')->with('success', 'Prospecto eliminado correctamente.');
+    }
+
+    /**
+     * Restaurar prospecto archivado
+     */
+    public function restaurarProspecto(int $prospectoId)
+    {
+        $prospecto = CrmProspecto::onlyTrashed()->findOrFail($prospectoId);
+        $prospecto->restore();
+
+        return back()->with('success', 'Prospecto restaurado correctamente.');
     }
 
     /**

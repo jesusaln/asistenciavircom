@@ -233,6 +233,8 @@ class EmpresaConfiguracion extends Model
         'rustdesk_public_key',
         'rustdesk_api_url',
         'rustdesk_api_token',
+        'gemini_api_key',
+        'gemini_model',
     ];
 
     protected $casts = [
@@ -334,6 +336,7 @@ class EmpresaConfiguracion extends Model
         'gdrive_access_token',
         'gdrive_refresh_token',
         'cva_password',
+        'gemini_api_key',
     ];
 
     /**

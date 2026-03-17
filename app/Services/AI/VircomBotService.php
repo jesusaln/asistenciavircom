@@ -7,6 +7,7 @@ use App\Models\Cliente;
 use App\Models\Servicio;
 use App\Services\AI\GroqService;
 use App\Services\AI\OllamaService;
+use App\Services\AI\GeminiService;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -19,7 +20,12 @@ class VircomBotService
     public function __construct()
     {
         $this->provider = config('services.ai_provider', 'groq');
-        $this->aiService = $this->provider === 'groq' ? app(GroqService::class) : app(OllamaService::class);
+        
+        $this->aiService = match($this->provider) {
+            'gemini' => app(GeminiService::class),
+            'ollama' => app(OllamaService::class),
+            default  => app(GroqService::class),
+        };
     }
 
     public function getResponse(string $message, string $sessionId, array $context = [])

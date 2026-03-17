@@ -85,6 +85,7 @@ use App\Http\Controllers\Config\BancariosConfigController;
 use App\Http\Controllers\Config\SistemaConfigController;
 use App\Http\Controllers\Config\SeguridadConfigController;
 use App\Http\Controllers\Config\TiendaConfigController;
+use App\Http\Controllers\Config\ApiKeysConfigController;
 use App\Http\Controllers\EmpresaWhatsAppController;
 use App\Http\Controllers\CategoriaHerramientaController;
 use App\Http\Controllers\VacacionController;
@@ -161,9 +162,12 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::prefix('crm')->group(function () {
         Route::get('/', [CrmController::class, 'index'])->name('crm.index');
         Route::get('/prospectos', [CrmController::class, 'prospectos'])->name('crm.prospectos');
+        Route::get('/prospectos/archivados', [CrmController::class, 'prospectosArchivados'])->name('crm.prospectos.archivados');
         Route::post('/prospectos', [CrmController::class, 'crearProspecto'])->name('crm.prospecto.crear');
+        Route::post('/prospectos/{prospectoId}/restore', [CrmController::class, 'restaurarProspecto'])->name('crm.prospecto.restaurar');
         Route::get('/prospectos/{prospecto}', [CrmController::class, 'showProspecto'])->name('crm.prospecto.show');
         Route::put('/prospectos/{prospecto}', [CrmController::class, 'actualizarProspecto'])->name('crm.prospecto.actualizar');
+        Route::delete('/prospectos/{prospecto}', [CrmController::class, 'eliminarProspecto'])->name('crm.prospecto.eliminar');
         Route::patch('/prospectos/{prospecto}/etapa', [CrmController::class, 'moverEtapa'])->name('crm.prospecto.mover');
         Route::post('/prospectos/{prospecto}/actividad', [CrmController::class, 'registrarActividad'])->name('crm.prospecto.actividad');
         Route::post('/prospectos/{prospecto}/convertir', [CrmController::class, 'convertirACliente'])->name('crm.prospecto.convertir');
@@ -524,6 +528,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::get('/configuracion/logs', [SistemaConfigController::class, 'getLogs'])->name('sistema.logs');
         Route::post('/configuracion/logs/clear', [SistemaConfigController::class, 'clearLogs'])->name('sistema.logs.clear');
         Route::put('/configuracion/robot-blog', [App\Http\Controllers\Config\BlogRobotConfigController::class, 'update'])->name('robot-blog.update');
+        Route::put('/configuracion/api-keys', [ApiKeysConfigController::class, 'update'])->name('api-keys.update');
+
 
         // Contenido de Landing
         Route::prefix('landing-content')->name('landing-content.')->group(function () {
