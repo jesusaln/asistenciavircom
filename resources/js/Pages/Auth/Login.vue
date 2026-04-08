@@ -18,6 +18,7 @@ const page = usePage();
 useDarkMode(page.props.empresa_config);
 
 const emailInput = ref(null);
+const showPassword = ref(false);
 
 const form = useForm({
     email: '',
@@ -96,15 +97,30 @@ const submit = () => {
                                 ¿Olvidaste tu clave?
                             </Link>
                         </div>
-                        <TextInput
-                            id="password"
-                            v-model="form.password"
-                            type="password"
-                            class="mt-2 block w-full"
-                            required
-                            autocomplete="current-password"
-                            placeholder="••••••••"
-                        />
+                        <div class="relative group mt-2">
+                            <TextInput
+                                id="password"
+                                v-model="form.password"
+                                :type="showPassword ? 'text' : 'password'"
+                                class="block w-full pr-12"
+                                required
+                                autocomplete="current-password"
+                                placeholder="••••••••"
+                            />
+                            <button 
+                                type="button"
+                                @click="showPassword = !showPassword"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-[var(--color-primary)] transition-colors focus:outline-none"
+                            >
+                                <svg v-if="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064-7 9.542-7 1.225 0 2.378.274 3.411.766M17.618 6.382A10.061 10.061 0 0121.542 12c-1.274 4.057-5.064 7-9.542 7-1.225 0-2.378-.274-3.411-.766M15 12a3 3 0 11-6 0 3 3 0 016 0zm-9.9-4.9l13.8 13.8" />
+                                </svg>
+                            </button>
+                        </div>
                         <InputError class="mt-2" :message="form.errors.password" />
                     </div>
 
