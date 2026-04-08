@@ -1,11 +1,13 @@
 <script setup>
 import { useForm, Link, Head } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import PublicNavbar from '@/Components/PublicNavbar.vue';
 
 const props = defineProps({
     empresa: Object,
 });
+
+const showPassword = ref(false);
 
 const cssVars = computed(() => ({
     '--color-primary': props.empresa?.color_principal || '#3b82f6',
@@ -71,13 +73,28 @@ const submit = () => {
                                     <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 dark:text-gray-400 transition-colors">Contraseña</label>
                                     <Link :href="route('portal.password.request')" class="text-[10px] font-black uppercase tracking-widest text-[var(--color-primary)] hover:underline">¿Olvido su Clave?</Link>
                                 </div>
-                                <input 
-                                    v-model="form.password" 
-                                    type="password" 
-                                    placeholder="••••••••"
-                                    required
-                                    class="w-full px-6 py-4 bg-white dark:bg-slate-900 dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white dark:text-white rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium placeholder-gray-400 dark:placeholder-gray-500"
-                                >
+                                <div class="relative group">
+                                    <input 
+                                        v-model="form.password" 
+                                        :type="showPassword ? 'text' : 'password'" 
+                                        placeholder="••••••••"
+                                        required
+                                        class="w-full px-6 py-4 bg-white dark:bg-slate-900 dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white dark:text-white rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium placeholder-gray-400 dark:placeholder-gray-500 pr-14"
+                                    >
+                                    <button 
+                                        type="button"
+                                        @click="showPassword = !showPassword"
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-[var(--color-primary)] transition-colors"
+                                    >
+                                        <svg v-if="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                        <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064-7 9.542-7 1.225 0 2.378.274 3.411.766M17.618 6.382A10.061 10.061 0 0121.542 12c-1.274 4.057-5.064 7-9.542 7-1.225 0-2.378-.274-3.411-.766M15 12a3 3 0 11-6 0 3 3 0 016 0zm-9.9-4.9l13.8 13.8" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
 
                             <label class="flex items-center gap-3 cursor-pointer group/check">
