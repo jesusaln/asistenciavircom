@@ -249,7 +249,7 @@ class Cita extends Model
 
     public function getFechaFinEstimadaAttribute()
     {
-        return $this->fecha_fin ?? ($this->fecha_hora ? $this->fecha_hora->copy()->addMinutes(90) : null);
+        return $this->fecha_fin ?? ($this->fecha_hora ? $this->fecha_hora->copy()->addMinutes(60) : null);
     }
 
     public function cliente()
@@ -431,21 +431,26 @@ class Cita extends Model
     /**
      * Verificar si hay conflicto de horario
      * Criterio: (StartA < EndB) AND (EndA > StartB)
+     * Excluye citas canceladas y completadas.
+     * 
+     * @param int $tecnicoId ID del técnico
+     * @param string $fechaHora Fecha y hora de inicio de la nueva cita
+     * @param int|null $excludeId ID de cita a excluir (para edición)
+     * @param int $duracionMin Duración en minutos de la nueva cita
      */
-    public static function hayConflictoHorario(int $tecnicoId, string $fechaHora, ?int $excludeId = null): ?Cita
+    public static function hayConflictoHorario(int $tecnicoId, string $fechaHora, ?int $excludeId = null, int $duracionMin = 60): ?Cita
     {
         $nuevoInicio = Carbon::parse($fechaHora);
-        // Asumimos una duración estándar de 90 minutos si no se especifica otra
-        $nuevoFin = $nuevoInicio->copy()->addMinutes(90);
+        $nuevoFin = $nuevoInicio->copy()->addMinutes($duracionMin);
 
         $query = self::where('tecnico_id', $tecnicoId)
-            ->where('estado', '!=', self::ESTADO_CANCELADO)
+            ->whereNotIn('estado', [self::ESTADO_CANCELADO, self::ESTADO_COMPLETADO])
             ->where(function ($q) use ($nuevoInicio, $nuevoFin) {
                 // Caso: Un traslape ocurre si (InicioA < FinB) AND (FinA > InicioB)
-                // Usamos COALESCE para usar fecha_fin si existe, o fecha_hora + 90 min como fallback
+                // Usamos COALESCE para usar fecha_fin si existe, o fecha_hora + 60 min como fallback
                 $q->where(function ($sq) use ($nuevoInicio, $nuevoFin) {
                     $sq->where('fecha_hora', '<', $nuevoFin)
-                       ->whereRaw("COALESCE(fecha_fin, fecha_hora + interval '90 minutes') > ?", [$nuevoInicio->toDateTimeString()]);
+                       ->whereRaw("COALESCE(fecha_fin, fecha_hora + interval '60 minutes') > ?", [$nuevoInicio->toDateTimeString()]);
                 });
             });
 

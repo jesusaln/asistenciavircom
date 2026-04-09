@@ -301,7 +301,7 @@ class ContactoController extends Controller
 
                 if ($citaExistente) {
                     $inicio = $citaExistente->fecha_hora->format('H:i');
-                    $finTime = $citaExistente->fecha_fin ?? $citaExistente->fecha_hora->copy()->addMinutes(90);
+                    $finTime = $citaExistente->fecha_fin ?? $citaExistente->fecha_hora->copy()->addMinutes(60);
                     $fin = $finTime->format('H:i');
 
                     // Horario no disponible

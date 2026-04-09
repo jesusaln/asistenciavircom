@@ -172,9 +172,9 @@
                         :disabled="slot.ocupado"
                         :class="[
                           'relative p-2 rounded-xl text-center transition-all border-2 group',
-                          slot.ocupado 
+                        slot.ocupado 
                             ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/50 cursor-not-allowed opacity-70' 
-                            : selectedTime === slot.hora
+                            : isSlotInRange(slot.hora)
                               ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/30 scale-105'
                               : 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800/40 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer hover:scale-105 active:scale-95'
                         ]"
@@ -182,10 +182,11 @@
                       >
                         <span :class="[
                           'text-xs font-black block',
-                          slot.ocupado ? 'text-red-400 dark:text-red-500 line-through' : selectedTime === slot.hora ? 'text-white' : 'text-gray-700 dark:text-gray-300'
+                          slot.ocupado ? 'text-red-400 dark:text-red-500 line-through' : isSlotInRange(slot.hora) ? 'text-white' : 'text-gray-700 dark:text-gray-300'
                         ]">{{ slot.hora }}</span>
                         <span v-if="slot.ocupado" class="text-[8px] text-red-400 dark:text-red-500 font-bold block mt-0.5">🔒</span>
-                        <span v-else-if="selectedTime === slot.hora" class="text-[8px] text-blue-100 font-bold block mt-0.5">✓</span>
+                        <span v-else-if="selectedTime === slot.hora" class="text-[8px] text-blue-100 font-bold block mt-0.5">▶</span>
+                        <span v-else-if="isSlotInRange(slot.hora) && selectedTime !== slot.hora" class="text-[8px] text-blue-100 font-bold block mt-0.5">●</span>
                       </button>
                     </div>
 
@@ -202,16 +203,43 @@
                       </div>
                     </div>
 
-                    <!-- Hora seleccionada -->
-                    <div v-if="selectedTime" class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800/40 flex items-center justify-between">
-                      <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black text-sm">🕐</div>
-                        <div>
-                          <p class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Hora Seleccionada</p>
-                          <p class="text-lg font-black text-blue-900 dark:text-white">{{ selectedTime }} hrs</p>
+                    <!-- Hora seleccionada + Duración -->
+                    <div v-if="selectedTime" class="space-y-4">
+                      <!-- Selector de Duración -->
+                      <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700">
+                        <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Duración Estimada del Servicio</label>
+                        <div class="flex flex-wrap gap-2">
+                          <button 
+                            v-for="dur in duracionOptions" 
+                            :key="dur.value" 
+                            type="button"
+                            @click="setDuracion(dur.value)"
+                            :class="[
+                              'px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider border-2 transition-all active:scale-95',
+                              form.duracion === dur.value 
+                                ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/30' 
+                                : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-blue-400 dark:hover:border-blue-500'
+                            ]"
+                          >
+                            {{ dur.label }}
+                          </button>
                         </div>
                       </div>
-                      <p class="text-[10px] font-bold text-blue-500 dark:text-blue-400">{{ formatearFecha(form.fecha_hora) }}</p>
+                      
+                      <!-- Resumen de Hora Seleccionada -->
+                      <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800/40 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                          <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black text-sm">🕐</div>
+                          <div>
+                            <p class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Horario Programado</p>
+                            <p class="text-lg font-black text-blue-900 dark:text-white">{{ selectedTime }} → {{ horaFinEstimada }}</p>
+                          </div>
+                        </div>
+                        <div class="text-right">
+                          <p class="text-[10px] font-bold text-blue-500 dark:text-blue-400">{{ formatearFecha(form.fecha_hora) }}</p>
+                          <p class="text-[10px] font-bold text-blue-400 dark:text-blue-500">{{ form.duracion }} min de servicio</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -330,6 +358,7 @@
                   <div>
                     <p class="text-[10px] font-black uppercase tracking-widest opacity-60">Programación</p>
                     <p class="text-sm font-black">{{ form.fecha_hora ? formatearFecha(form.fecha_hora) : 'Pendiente de definir' }}</p>
+                    <p v-if="selectedTime && horaFinEstimada" class="text-[10px] font-bold opacity-70">{{ selectedTime }} → {{ horaFinEstimada }} ({{ form.duracion }} min)</p>
                   </div>
                 </div>
 
@@ -421,7 +450,8 @@ const form = useForm({
     observaciones: '',
     notas: '',
     extra_visit_cost: 0,
-    notify: true
+    notify: true,
+    duracion: 60,
 });
 
 const clientePolizas = ref([]);
@@ -511,6 +541,40 @@ const setQuickDate = (type) => {
 const setQuickTime = (time) => {
     updateDateTime(time);
 };
+
+const setDuracion = (min) => {
+    form.duracion = min;
+};
+
+// Computed: verificar si un slot está dentro del rango de la cita seleccionada
+const isSlotInRange = (slotHora) => {
+    if (!selectedTime.value) return false;
+    const [startH, startM] = selectedTime.value.split(':').map(Number);
+    const [slotH, slotM] = slotHora.split(':').map(Number);
+    const startMinutes = startH * 60 + startM;
+    const slotMinutes = slotH * 60 + slotM;
+    const endMinutes = startMinutes + form.duracion;
+    return slotMinutes >= startMinutes && slotMinutes < endMinutes;
+};
+
+// Computed: hora de fin estimada
+const horaFinEstimada = computed(() => {
+    if (!selectedTime.value) return '';
+    const [h, m] = selectedTime.value.split(':').map(Number);
+    const totalMin = h * 60 + m + form.duracion;
+    const endH = Math.floor(totalMin / 60);
+    const endM = totalMin % 60;
+    return `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`;
+});
+
+const duracionOptions = [
+    { value: 30, label: '30 min' },
+    { value: 60, label: '1 hora' },
+    { value: 90, label: '1.5 hrs' },
+    { value: 120, label: '2 hrs' },
+    { value: 180, label: '3 hrs' },
+    { value: 240, label: '4 hrs' },
+];
 
 const updateDateTime = (time) => {
     const t = time || form.fecha_hora.split('T')[1] || '09:00';

@@ -284,9 +284,12 @@ class CitaController extends Controller
             User::where('id', $validated['tecnico_id'])->lockForUpdate()->firstOrFail();
 
             // Verificar disponibilidad del técnico
+            $duracionMin = (int) ($request->input('duracion', 60));
             $this->verificarDisponibilidadTecnico(
                 $validated['tecnico_id'],
-                $validated['fecha_hora']
+                $validated['fecha_hora'],
+                null,
+                $duracionMin
             );
 
             // Verificar límite de citas por día para el técnico
@@ -328,6 +331,11 @@ class CitaController extends Controller
             // Guardar archivos y obtener sus rutas
             $filePaths = $this->saveFiles($request, ['foto_equipo', 'foto_hoja_servicio', 'foto_identificacion']);
 
+            // Calcular fecha_fin basado en duración (default 60 min)
+            $duracionMin = (int) ($request->input('duracion', 60));
+            $fechaHoraParsed = Carbon::parse($validated['fecha_hora']);
+            $fechaFin = $fechaHoraParsed->copy()->addMinutes($duracionMin);
+
             $cita = Cita::create(array_merge($validated, $filePaths, [
                 'subtotal' => 0,
                 'descuento_general' => 0,
@@ -335,6 +343,8 @@ class CitaController extends Controller
                 'iva' => 0,
                 'total' => 0,
                 'notas' => $validated['notas'] ?? $request->notas,
+                'fecha_inicio' => $validated['fecha_hora'],
+                'fecha_fin' => $fechaFin->toDateTimeString(),
             ]));
 
 
@@ -651,8 +661,8 @@ class CitaController extends Controller
                 if ($seAplicoCoberturaEnItems && $poliza) {
                     // Verificamos si el bloque de arriba (550) ya lo ejecutó.
                     // Condición 550: estado=COMPLETADO, original!=COMPLETADO, tipo=soporte_sitio
-                    $yaDescontoArriba = ($nuevoEstado === \App\Models\Cita::ESTADO_COMPLETADO
-                        && $cita->getOriginal('estado') !== \App\Models\Cita::ESTADO_COMPLETADO
+                    $yaDescontoArriba = ($nuevoEstado === Cita::ESTADO_COMPLETADO
+                        && $cita->getOriginal('estado') !== Cita::ESTADO_COMPLETADO
                         && $cita->tipo_servicio === 'soporte_sitio');
 
                     if (!$yaDescontoArriba) {
@@ -727,13 +737,13 @@ class CitaController extends Controller
     /**
      * Verificar disponibilidad del técnico
      */
-    private function verificarDisponibilidadTecnico(int $tecnicoId, string $fechaHora, ?int $excludeId = null): void
+    private function verificarDisponibilidadTecnico(int $tecnicoId, string $fechaHora, ?int $excludeId = null, int $duracionMin = 60): void
     {
-        $citaExistente = Cita::hayConflictoHorario($tecnicoId, $fechaHora, $excludeId);
+        $citaExistente = Cita::hayConflictoHorario($tecnicoId, $fechaHora, $excludeId, $duracionMin);
 
         if ($citaExistente) {
             $inicio = $citaExistente->fecha_hora->format('H:i');
-            $finTime = $citaExistente->fecha_fin ?? $citaExistente->fecha_hora->copy()->addMinutes(90);
+            $finTime = $citaExistente->fecha_fin ?? $citaExistente->fecha_hora->copy()->addMinutes(60);
             $fin = $finTime->format('H:i');
             
             throw ValidationException::withMessages([
@@ -1085,7 +1095,7 @@ class CitaController extends Controller
 
             if ($citaExistente) {
                 $inicio = $citaExistente->fecha_hora->format('H:i');
-                $finTime = $citaExistente->fecha_fin ?? $citaExistente->fecha_hora->copy()->addMinutes(90);
+                $finTime = $citaExistente->fecha_fin ?? $citaExistente->fecha_hora->copy()->addMinutes(60);
                 $fin = $finTime->format('H:i');
 
                 return back()->withErrors([
@@ -1130,7 +1140,7 @@ class CitaController extends Controller
                 $citaExistente = Cita::hayConflictoHorario($cita->tecnico_id, $fechaHora->toDateTimeString(), $cita->id);
                 if ($citaExistente) {
                     $inicio = $citaExistente->fecha_hora->format('H:i');
-                    $finTime = $citaExistente->fecha_fin ?? $citaExistente->fecha_hora->copy()->addMinutes(90);
+                    $finTime = $citaExistente->fecha_fin ?? $citaExistente->fecha_hora->copy()->addMinutes(60);
                     $fin = $finTime->format('H:i');
 
                     return back()->withErrors([
@@ -1475,6 +1485,7 @@ class CitaController extends Controller
     /**
      * API: Obtener la agenda de un técnico para una fecha específica.
      * Devuelve los bloques ocupados para mostrar en el timeline.
+     * Excluye citas canceladas y completadas (ya finalizadas).
      */
     public function agendaTecnico(Request $request)
     {
@@ -1485,27 +1496,35 @@ class CitaController extends Controller
 
         $tecnicoId = $request->query('tecnico_id');
         $fecha = $request->query('fecha');
+        $excludeId = $request->query('exclude_id'); // Para excluir la cita que se está editando
 
         $inicioDia = Carbon::parse($fecha)->startOfDay();
         $finDia = Carbon::parse($fecha)->endOfDay();
 
-        $citas = Cita::where('tecnico_id', $tecnicoId)
-            ->where('estado', '!=', Cita::ESTADO_CANCELADO)
+        // Solo citas activas (no canceladas ni completadas) bloquean el horario
+        $query = Cita::where('tecnico_id', $tecnicoId)
+            ->whereNotIn('estado', [Cita::ESTADO_CANCELADO, Cita::ESTADO_COMPLETADO])
             ->where(function ($q) use ($inicioDia, $finDia) {
                 $q->whereBetween('fecha_hora', [$inicioDia, $finDia]);
             })
-            ->orderBy('fecha_hora')
-            ->get(['id', 'folio', 'fecha_hora', 'fecha_fin', 'tipo_servicio', 'estado', 'cliente_id'])
+            ->orderBy('fecha_hora');
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $citas = $query
+            ->get(['id', 'folio', 'fecha_hora', 'fecha_fin', 'fecha_inicio', 'tipo_servicio', 'estado', 'cliente_id'])
             ->map(function ($cita) {
                 $inicio = $cita->fecha_hora;
-                $fin = $cita->fecha_fin ?? $cita->fecha_hora->copy()->addMinutes(90);
+                $fin = $cita->fecha_fin ?? $cita->fecha_hora->copy()->addMinutes(60);
                 return [
                     'id' => $cita->id,
                     'folio' => $cita->folio,
                     'inicio' => $inicio->format('H:i'),
                     'fin' => $fin->format('H:i'),
                     'inicio_raw' => $inicio->toDateTimeString(),
-                    'fin_raw' => $fin->toDateTimeString(),
+                    'fin_raw' => $fin instanceof Carbon ? $fin->toDateTimeString() : Carbon::parse($fin)->toDateTimeString(),
                     'tipo_servicio' => $cita->tipo_servicio,
                     'estado' => $cita->estado,
                     'duracion_min' => $inicio->diffInMinutes($fin),
@@ -1518,15 +1537,18 @@ class CitaController extends Controller
         $horaFin = Carbon::parse($fecha)->setTime(18, 0);
 
         while ($horaActual < $horaFin) {
-            $slotInicio = $horaActual->format('H:i');
-            $slotFin = $horaActual->copy()->addMinutes(30)->format('H:i');
+            $slotInicio = $horaActual->copy();
+            $slotFinTime = $horaActual->copy()->addMinutes(30);
 
             // Verificar si este slot colisiona con alguna cita existente
+            // Usamos Carbon objects para comparación robusta en lugar de strings
             $ocupado = false;
             $citaOcupante = null;
             foreach ($citas as $c) {
+                $citaInicio = Carbon::parse($c['inicio_raw']);
+                $citaFin = Carbon::parse($c['fin_raw']);
                 // Traslape: slotInicio < citaFin && slotFin > citaInicio
-                if ($slotInicio < $c['fin'] && $slotFin > $c['inicio']) {
+                if ($slotInicio->lt($citaFin) && $slotFinTime->gt($citaInicio)) {
                     $ocupado = true;
                     $citaOcupante = $c;
                     break;
@@ -1534,8 +1556,8 @@ class CitaController extends Controller
             }
 
             $slots[] = [
-                'hora' => $slotInicio,
-                'hora_fin' => $slotFin,
+                'hora' => $slotInicio->format('H:i'),
+                'hora_fin' => $slotFinTime->format('H:i'),
                 'ocupado' => $ocupado,
                 'cita' => $citaOcupante,
             ];
