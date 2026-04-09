@@ -33,107 +33,161 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Columna Izquierda: Información Principal -->
         <div class="lg:col-span-2 space-y-8">
-          <!-- Card Cliente y Servicio -->
+          <!-- Card Programación del Servicio (NUEVO REDISEÑO) -->
           <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-3xl shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
             <div class="p-8">
-              <div class="flex items-center gap-2 mb-6">
-                <div class="w-1.5 h-6 bg-blue-600 rounded-full"></div>
-                <h2 class="text-sm font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-widest">Información General</h2>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Cliente -->
-                <div class="space-y-4">
-                  <div>
-                    <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Cliente</label>
-                    <div class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700 transition-colors">
-                      <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-black text-lg">
-                        {{ getInitials(clienteNombre) }}
-                      </div>
-                      <div>
-                        <p class="text-sm font-black text-gray-900 dark:text-white dark:text-white uppercase">{{ clienteNombre }}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">{{ cita.cliente?.telefono || 'Sin teléfono' }}</p>
-                      </div>
-                    </div>
+              <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                   </div>
                   <div>
-                    <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Dirección del Servicio</label>
-                    <div class="p-4 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors">
-                      {{ cita.direccion_servicio || 'No especificada' }}
+                    <h2 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Programación del Servicio</h2>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Control de tiempos y logística</p>
+                  </div>
+                </div>
+                <!-- Badge de Duración Total (si ya terminó) -->
+                <div v-if="cita.tiempo_servicio" class="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800/50">
+                   <p class="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest text-center">Duración Final</p>
+                   <p class="text-sm font-black text-emerald-700 dark:text-emerald-300">{{ cita.tiempo_servicio_formateado }}</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <!-- Izquierda: Tiempos -->
+                <div class="space-y-6">
+                  <div class="relative pl-8 border-l-2 border-dashed border-gray-100 dark:border-gray-700 space-y-8">
+                    <!-- Punto Inicio -->
+                    <div class="relative">
+                      <div class="absolute -left-[41px] top-0 w-4 h-4 rounded-full bg-blue-600 border-4 border-white dark:border-slate-900 shadow-sm"></div>
+                      <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Inicio Programado</label>
+                      <p class="text-lg font-black text-gray-900 dark:text-white">{{ formatearSoloHora(cita.fecha_hora) }} <span class="text-xs font-bold text-gray-400 ml-2">{{ formatearSoloFecha(cita.fecha_hora) }}</span></p>
+                    </div>
+
+                    <!-- Punto Fin -->
+                    <div class="relative">
+                      <div class="absolute -left-[41px] top-0 w-4 h-4 rounded-full bg-indigo-400 border-4 border-white dark:border-slate-900 shadow-sm"></div>
+                      <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Término Estimado</label>
+                      <p class="text-lg font-black text-gray-900 dark:text-white">{{ formatearSoloHora(cita.fecha_fin_estimada) }} <span class="text-xs font-bold text-gray-400 ml-2">{{ formatearSoloFecha(cita.fecha_fin_estimada) }}</span></p>
+                    </div>
+
+                    <!-- Tiempos Reales (Si existen) -->
+                    <div v-if="cita.inicio_servicio" class="pt-4 border-t border-gray-50 dark:border-gray-700 mt-4 space-y-4">
+                       <div class="flex items-center justify-between">
+                          <span class="text-[9px] font-bold text-gray-400 uppercase">Inicio Real</span>
+                          <span class="text-xs font-black text-indigo-600 dark:text-indigo-400">{{ formatearSoloHora(cita.inicio_servicio) }}</span>
+                       </div>
+                       <div v-if="cita.fin_servicio" class="flex items-center justify-between">
+                          <span class="text-[9px] font-bold text-gray-400 uppercase">Fin Real</span>
+                          <span class="text-xs font-black text-indigo-600 dark:text-indigo-400">{{ formatearSoloHora(cita.fin_servicio) }}</span>
+                       </div>
                     </div>
                   </div>
                 </div>
 
-                <!-- Detalle Cita -->
-                <div class="space-y-4">
-                  <div class="grid grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Tipo de Servicio</label>
-                      <div class="px-4 py-3 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700 text-xs font-black text-blue-600 dark:text-blue-400 uppercase transition-colors">
-                        {{ formatearTipoServicio(cita.tipo_servicio) }}
-                      </div>
-                    </div>
-                    <div>
-                      <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Duración</label>
-                      <div class="px-4 py-3 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700 text-xs font-black text-green-600 dark:text-green-400 uppercase flex items-center gap-2 transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        {{ cita.tiempo_servicio_formateado || 'N/A' }}
-                      </div>
-                    </div>
-                  </div>
+                <!-- Derecha: Datos de Asignación -->
+                <div class="space-y-6">
                   <div>
-                    <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Técnico Asignado</label>
-                    <div class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700 transition-colors">
-                      <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-sm">
+                    <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Técnico Asignado</label>
+                    <div class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700">
+                      <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-lg">
                         {{ getInitials(tecnicoNombre) }}
                       </div>
-                      <p class="text-sm font-black text-gray-900 dark:text-white dark:text-white uppercase">{{ tecnicoNombre }}</p>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-sm font-black text-gray-900 dark:text-white uppercase truncate">{{ tecnicoNombre }}</p>
+                        <p class="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-tighter">Especialista Asignado</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              <!-- Descripción -->
-              <div class="mt-8">
-                <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Descripción del Requerimiento</label>
-                <div class="p-6 bg-blue-50/30 dark:bg-blue-900/10 rounded-2xl border border-blue-100/50 dark:border-blue-900/20 text-sm font-medium text-gray-700 dark:text-gray-300 italic leading-relaxed transition-colors">
-                   "{{ cita.descripcion || 'Sin descripción detallada' }}"
+                  <div>
+                    <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Tipo de Asistencia</label>
+                    <div class="px-5 py-4 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-800/30 flex items-center gap-3">
+                      <div class="w-2 h-2 rounded-full bg-blue-600"></div>
+                      <span class="text-sm font-black text-blue-700 dark:text-blue-400 uppercase tracking-tight">{{ formatearTipoServicio(cita.tipo_servicio) }}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Card Equipo -->
+          <!-- Card Cliente -->
           <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-3xl shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
             <div class="p-8">
-              <div class="flex items-center gap-2 mb-6">
-                <div class="w-1.5 h-6 bg-amber-500 rounded-full"></div>
-                <h2 class="text-sm font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-widest">Detalles del Equipo</h2>
+              <div class="flex items-center gap-4 mb-8">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                </div>
+                <div>
+                  <h2 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Datos del Cliente</h2>
+                  <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Información de contacto y ubicación</p>
+                </div>
               </div>
 
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                 <div class="flex items-center gap-5 p-5 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700">
+                    <div class="w-14 h-14 rounded-full bg-white dark:bg-slate-900 border-4 border-emerald-100 dark:border-emerald-900/50 flex items-center justify-center text-2xl">👤</div>
+                    <div>
+                       <p class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-0.5">Nombre / Razón Social</p>
+                       <p class="text-lg font-black text-gray-900 dark:text-white tracking-tight uppercase leading-none">{{ clienteNombre }}</p>
+                       <p class="text-sm text-emerald-600 dark:text-emerald-400 font-bold mt-1">{{ cita.cliente?.telefono || 'Sin teléfono registrado' }}</p>
+                    </div>
+                 </div>
+                 <div class="p-5 bg-amber-50/30 dark:bg-amber-900/10 rounded-2xl border border-amber-100/50 dark:border-amber-900/20">
+                    <p class="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                       Ubicación del Servicio
+                    </p>
+                    <p class="text-sm font-bold text-gray-700 dark:text-gray-200 leading-relaxed">{{ cita.direccion_servicio || 'No se proporcionó una dirección específica.' }}</p>
+                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Equipo (ESTILIZADO) -->
+          <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-3xl shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
+            <div class="p-8">
+              <div class="flex items-center gap-4 mb-8">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                </div>
+                <div>
+                  <h2 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Detalles Técnicos</h2>
+                  <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Especificaciones del equipo reportado</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-6 bg-gray-50/50 dark:bg-gray-950/20 p-6 rounded-3xl border border-gray-100 dark:border-gray-800">
                  <div>
-                   <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5">Categoría</label>
-                   <p class="text-sm font-bold text-gray-900 dark:text-white dark:text-white transition-colors uppercase">{{ formatearTipoEquipo(cita.tipo_equipo) }}</p>
+                   <label class="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Equipo</label>
+                   <p class="text-xs font-black text-gray-900 dark:text-white uppercase">{{ formatearTipoEquipo(cita.tipo_equipo) }}</p>
                  </div>
                  <div>
-                   <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5">Marca</label>
-                   <p class="text-sm font-bold text-gray-900 dark:text-white dark:text-white transition-colors uppercase">{{ cita.marca_equipo || 'N/A' }}</p>
+                   <label class="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Marca</label>
+                   <p class="text-xs font-black text-gray-900 dark:text-white uppercase">{{ cita.marca_equipo || 'N/A' }}</p>
                  </div>
                  <div>
-                   <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5">Modelo</label>
-                   <p class="text-sm font-bold text-gray-900 dark:text-white dark:text-white transition-colors uppercase">{{ cita.modelo_equipo || 'N/A' }}</p>
+                   <label class="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Modelo</label>
+                   <p class="text-xs font-black text-gray-900 dark:text-white uppercase">{{ cita.modelo_equipo || 'N/A' }}</p>
                  </div>
                  <div>
-                   <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5">Estado Inicial</label>
-                   <p class="text-sm font-bold text-amber-600 dark:text-amber-400 transition-colors uppercase">REPORTADO</p>
+                   <label class="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Estado</label>
+                   <p class="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded-lg inline-block">REPORTADO</p>
                  </div>
               </div>
 
-              <div class="mt-8">
-                <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Problema Reportado</label>
-                <div class="p-6 bg-amber-50/50 dark:bg-amber-900/10 rounded-2xl border border-amber-100/50 dark:border-amber-900/20 text-sm font-bold text-amber-700 dark:text-amber-400 transition-colors">
-                  {{ cita.problema_reportado || 'Sin reporte de falla específico' }}
+              <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Problema Reportado</label>
+                  <div class="p-5 bg-red-50/50 dark:bg-red-900/10 rounded-2xl border border-red-100/50 dark:border-red-900/20 text-sm font-bold text-red-700 dark:text-red-400">
+                    {{ cita.problema_reportado || 'Sin reporte de falla específico' }}
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Descripción General</label>
+                  <div class="p-5 bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl border border-blue-100/50 dark:border-blue-900/20 text-sm font-medium text-gray-700 dark:text-gray-300 italic">
+                    "{{ cita.descripcion || 'Sin descripción detallada' }}"
+                  </div>
                 </div>
               </div>
             </div>
@@ -362,6 +416,8 @@ const obtenerEstadoCitaClase = (estado) => {
 };
 
 const formatearFechaHora = (fh) => fh ? new Date(fh).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+const formatearSoloHora = (fh) => fh ? new Date(fh).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: true }) : '—';
+const formatearSoloFecha = (fh) => fh ? new Date(fh).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }) : '—';
 const formatearPrecio = (p) => parseFloat(p || 0).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const cambiarEstado = async (nuevoEstado) => {

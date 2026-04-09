@@ -729,17 +729,15 @@ class CitaController extends Controller
      */
     private function verificarDisponibilidadTecnico(int $tecnicoId, string $fechaHora, ?int $excludeId = null): void
     {
-        $query = Cita::where('tecnico_id', $tecnicoId)
-            ->where('fecha_hora', $fechaHora)
-            ->where('estado', '!=', 'cancelado');
+        $citaExistente = Cita::hayConflictoHorario($tecnicoId, $fechaHora, $excludeId);
 
-        if ($excludeId) {
-            $query->where('id', '!=', $excludeId);
-        }
-
-        if ($query->exists()) {
+        if ($citaExistente) {
+            $inicio = $citaExistente->fecha_hora->format('H:i');
+            $finTime = $citaExistente->fecha_fin ?? $citaExistente->fecha_hora->copy()->addMinutes(90);
+            $fin = $finTime->format('H:i');
+            
             throw ValidationException::withMessages([
-                'fecha_hora' => 'El técnico ya tiene una cita programada en esta fecha y hora.'
+                'fecha_hora' => "El técnico ya tiene una cita de {$inicio} a {$fin}. Selecciona otro horario."
             ]);
         }
     }
@@ -1083,9 +1081,15 @@ class CitaController extends Controller
             // Verificar disponibilidad del técnico
             $fechaHora = Carbon::parse($validated['fecha_confirmada'] . ' ' . $validated['hora_confirmada']);
 
-            if (Cita::hayConflictoHorario($validated['tecnico_id'], $fechaHora->toDateTimeString(), $cita->id)) {
+            $citaExistente = Cita::hayConflictoHorario($validated['tecnico_id'], $fechaHora->toDateTimeString(), $cita->id);
+
+            if ($citaExistente) {
+                $inicio = $citaExistente->fecha_hora->format('H:i');
+                $finTime = $citaExistente->fecha_fin ?? $citaExistente->fecha_hora->copy()->addMinutes(90);
+                $fin = $finTime->format('H:i');
+
                 return back()->withErrors([
-                    'tecnico_id' => 'El técnico ya tiene una cita en ese horario.'
+                    'tecnico_id' => "El técnico ya tiene una cita de {$inicio} a {$fin}. Selecciona otro horario."
                 ]);
             }
 
@@ -1122,10 +1126,17 @@ class CitaController extends Controller
             $fechaHora = Carbon::parse($validated['fecha_confirmada'] . ' ' . $validated['hora_confirmada']);
 
             // Verificar disponibilidad si tiene técnico asignado
-            if ($cita->tecnico_id && Cita::hayConflictoHorario($cita->tecnico_id, $fechaHora->toDateTimeString(), $cita->id)) {
-                return back()->withErrors([
-                    'hora_confirmada' => 'El técnico ya tiene una cita en ese horario.'
-                ]);
+            if ($cita->tecnico_id) {
+                $citaExistente = Cita::hayConflictoHorario($cita->tecnico_id, $fechaHora->toDateTimeString(), $cita->id);
+                if ($citaExistente) {
+                    $inicio = $citaExistente->fecha_hora->format('H:i');
+                    $finTime = $citaExistente->fecha_fin ?? $citaExistente->fecha_hora->copy()->addMinutes(90);
+                    $fin = $finTime->format('H:i');
+
+                    return back()->withErrors([
+                        'hora_confirmada' => "El técnico ya tiene una cita de {$inicio} a {$fin}. Selecciona otro horario."
+                    ]);
+                }
             }
 
             $cita->update([
@@ -1458,6 +1469,85 @@ class CitaController extends Controller
             'visitas_consumidas' => $poliza->visitas_sitio_consumidas_mes,
             'excede_limite' => $poliza->excede_limite_visitas,
             'costo_extra' => $poliza->costo_visita_sitio_extra,
+        ]);
+    }
+
+    /**
+     * API: Obtener la agenda de un técnico para una fecha específica.
+     * Devuelve los bloques ocupados para mostrar en el timeline.
+     */
+    public function agendaTecnico(Request $request)
+    {
+        $request->validate([
+            'tecnico_id' => 'required|integer|exists:users,id',
+            'fecha' => 'required|date',
+        ]);
+
+        $tecnicoId = $request->query('tecnico_id');
+        $fecha = $request->query('fecha');
+
+        $inicioDia = Carbon::parse($fecha)->startOfDay();
+        $finDia = Carbon::parse($fecha)->endOfDay();
+
+        $citas = Cita::where('tecnico_id', $tecnicoId)
+            ->where('estado', '!=', Cita::ESTADO_CANCELADO)
+            ->where(function ($q) use ($inicioDia, $finDia) {
+                $q->whereBetween('fecha_hora', [$inicioDia, $finDia]);
+            })
+            ->orderBy('fecha_hora')
+            ->get(['id', 'folio', 'fecha_hora', 'fecha_fin', 'tipo_servicio', 'estado', 'cliente_id'])
+            ->map(function ($cita) {
+                $inicio = $cita->fecha_hora;
+                $fin = $cita->fecha_fin ?? $cita->fecha_hora->copy()->addMinutes(90);
+                return [
+                    'id' => $cita->id,
+                    'folio' => $cita->folio,
+                    'inicio' => $inicio->format('H:i'),
+                    'fin' => $fin->format('H:i'),
+                    'inicio_raw' => $inicio->toDateTimeString(),
+                    'fin_raw' => $fin->toDateTimeString(),
+                    'tipo_servicio' => $cita->tipo_servicio,
+                    'estado' => $cita->estado,
+                    'duracion_min' => $inicio->diffInMinutes($fin),
+                ];
+            });
+
+        // Generar slots disponibles (de 08:00 a 18:00, cada 30 min)
+        $slots = [];
+        $horaActual = Carbon::parse($fecha)->setTime(8, 0);
+        $horaFin = Carbon::parse($fecha)->setTime(18, 0);
+
+        while ($horaActual < $horaFin) {
+            $slotInicio = $horaActual->format('H:i');
+            $slotFin = $horaActual->copy()->addMinutes(30)->format('H:i');
+
+            // Verificar si este slot colisiona con alguna cita existente
+            $ocupado = false;
+            $citaOcupante = null;
+            foreach ($citas as $c) {
+                // Traslape: slotInicio < citaFin && slotFin > citaInicio
+                if ($slotInicio < $c['fin'] && $slotFin > $c['inicio']) {
+                    $ocupado = true;
+                    $citaOcupante = $c;
+                    break;
+                }
+            }
+
+            $slots[] = [
+                'hora' => $slotInicio,
+                'hora_fin' => $slotFin,
+                'ocupado' => $ocupado,
+                'cita' => $citaOcupante,
+            ];
+
+            $horaActual->addMinutes(30);
+        }
+
+        return response()->json([
+            'tecnico_id' => (int) $tecnicoId,
+            'fecha' => $fecha,
+            'citas' => $citas->values(),
+            'slots' => $slots,
         ]);
     }
 }

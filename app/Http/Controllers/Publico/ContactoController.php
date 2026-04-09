@@ -293,28 +293,22 @@ class ContactoController extends Controller
                 // Crear el datetime completo
                 $fechaHoraCita = \Carbon\Carbon::parse("{$fechaCita} {$horaCita}");
 
-                // Calcular duración (+1 hora para mantenimiento, +2 para instalación)
-                $duracionHoras = in_array($validated['servicio'], ['instalacion', 'cotizacion']) ? 2 : 1;
-
-                // Verificar si ya existe una cita en ese horario (margen de 1 hora antes/después)
-                $citaExistente = Cita::where('empresa_id', $empresaId)
-                    ->whereDate('fecha_hora', $fechaCita)
-                    ->where('estado', '!=', 'cancelado')
-                    ->whereBetween('fecha_hora', [
-                        $fechaHoraCita->copy()->subHours($duracionHoras),
-                        $fechaHoraCita->copy()->addHours($duracionHoras)
-                    ])
-                    ->first();
-
-                if ($citaExistente) {
-                    // Horario no disponible
-                    return back()->withErrors([
-                        'hora_preferida' => "Lo sentimos, el horario de las {$horaCita} del " . date('d/m/Y', strtotime($fechaCita)) . " ya está ocupado. Por favor selecciona otro horario o fecha."
-                    ])->withInput();
-                }
-
                 // Obtener un técnico/admin por defecto para asignar la cita
                 $tecnicoId = \App\Models\User::role('super-admin')->value('id') ?? 1;
+
+                // Verificar si ya existe una cita en ese horario para ese técnico
+                $citaExistente = Cita::hayConflictoHorario($tecnicoId, $fechaHoraCita->toDateTimeString());
+
+                if ($citaExistente) {
+                    $inicio = $citaExistente->fecha_hora->format('H:i');
+                    $finTime = $citaExistente->fecha_fin ?? $citaExistente->fecha_hora->copy()->addMinutes(90);
+                    $fin = $finTime->format('H:i');
+
+                    // Horario no disponible
+                    return back()->withErrors([
+                        'hora_preferida' => "Lo sentimos, el técnico ya tiene una cita de {$inicio} a {$fin}. Por favor selecciona otro horario o fecha."
+                    ])->withInput();
+                }
 
                 $cita = Cita::create([
                     'empresa_id' => $empresaId,

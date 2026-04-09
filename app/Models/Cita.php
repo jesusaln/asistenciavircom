@@ -113,6 +113,8 @@ class Cita extends Model
         'fecha_firma',
         'firma_tecnico',
         'poliza_id',
+        'fecha_inicio',
+        'fecha_fin',
     ];
 
     protected $casts = [
@@ -136,7 +138,13 @@ class Cita extends Model
         'whatsapp_recepcion_at' => 'datetime',
         'whatsapp_confirmacion_at' => 'datetime',
         'fotos_finales' => 'array',
-        'fecha_firma' => 'datetime',
+        'fecha_inicio' => 'datetime',
+        'fecha_fin' => 'datetime',
+    ];
+
+    protected $appends = [
+        'tiempo_servicio_formateado',
+        'fecha_fin_estimada',
     ];
 
     // Scopes útiles
@@ -226,7 +234,7 @@ class Cita extends Model
     public function getTiempoServicioFormateadoAttribute()
     {
         if (!$this->tiempo_servicio) {
-            return 'No registrado';
+            return 'En curso/Pendiente';
         }
 
         $horas = floor($this->tiempo_servicio / 60);
@@ -237,6 +245,11 @@ class Cita extends Model
         }
 
         return "{$minutos}m";
+    }
+
+    public function getFechaFinEstimadaAttribute()
+    {
+        return $this->fecha_fin ?? ($this->fecha_hora ? $this->fecha_hora->copy()->addMinutes(90) : null);
     }
 
     public function cliente()
@@ -370,8 +383,6 @@ class Cita extends Model
         };
     }
 
-    protected $appends = ['tiempo_servicio_formateado'];
-
 
 
     /**
@@ -419,19 +430,30 @@ class Cita extends Model
 
     /**
      * Verificar si hay conflicto de horario
+     * Criterio: (StartA < EndB) AND (EndA > StartB)
      */
-    public static function hayConflictoHorario(int $tecnicoId, string $fechaHora, ?int $excludeId = null): bool
+    public static function hayConflictoHorario(int $tecnicoId, string $fechaHora, ?int $excludeId = null): ?Cita
     {
-        $fecha = Carbon::parse($fechaHora);
+        $nuevoInicio = Carbon::parse($fechaHora);
+        // Asumimos una duración estándar de 90 minutos si no se especifica otra
+        $nuevoFin = $nuevoInicio->copy()->addMinutes(90);
+
         $query = self::where('tecnico_id', $tecnicoId)
-            ->where('fecha_hora', $fecha)
-            ->where('estado', '!=', self::ESTADO_CANCELADO);
+            ->where('estado', '!=', self::ESTADO_CANCELADO)
+            ->where(function ($q) use ($nuevoInicio, $nuevoFin) {
+                // Caso: Un traslape ocurre si (InicioA < FinB) AND (FinA > InicioB)
+                // Usamos COALESCE para usar fecha_fin si existe, o fecha_hora + 90 min como fallback
+                $q->where(function ($sq) use ($nuevoInicio, $nuevoFin) {
+                    $sq->where('fecha_hora', '<', $nuevoFin)
+                       ->whereRaw("COALESCE(fecha_fin, fecha_hora + interval '90 minutes') > ?", [$nuevoInicio->toDateTimeString()]);
+                });
+            });
 
         if ($excludeId) {
             $query->where('id', '!=', $excludeId);
         }
 
-        return $query->exists();
+        return $query->first();
     }
 
     // ==================== MÉTODOS PARA CITAS PÚBLICAS ====================

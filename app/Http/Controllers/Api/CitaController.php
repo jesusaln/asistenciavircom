@@ -492,17 +492,15 @@ class CitaController extends Controller
 
     private function verificarDisponibilidadTecnico(int $tecnicoId, string $fechaHora, ?int $excludeId = null): void
     {
-        $query = Cita::where('tecnico_id', $tecnicoId)
-            ->where('fecha_hora', $fechaHora)
-            ->where('estado', '!=', Cita::ESTADO_CANCELADO);
+        $citaExistente = Cita::hayConflictoHorario($tecnicoId, $fechaHora, $excludeId);
 
-        if ($excludeId) {
-            $query->where('id', '!=', $excludeId);
-        }
+        if ($citaExistente) {
+            $inicio = $citaExistente->fecha_hora->format('H:i');
+            $finTime = $citaExistente->fecha_fin ?? $citaExistente->fecha_hora->copy()->addMinutes(90);
+            $fin = $finTime->format('H:i');
 
-        if ($query->exists()) {
             throw ValidationException::withMessages([
-                'fecha_hora' => 'El técnico ya tiene una cita programada en esta fecha y hora.'
+                'fecha_hora' => "El técnico ya tiene una cita de {$inicio} a {$fin}. Selecciona otro horario."
             ]);
         }
     }

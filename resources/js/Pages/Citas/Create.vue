@@ -140,31 +140,79 @@
                    <input type="date" v-model="internalDate" :min="todayDate" class="w-full md:w-auto px-6 py-4 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900 border-gray-100 dark:border-gray-700 rounded-2xl text-lg font-black text-gray-900 dark:text-white dark:text-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
                 </div>
 
-                <!-- Selector de Horarios -->
+                <!-- Timeline Visual de Disponibilidad -->
                 <div class="space-y-4">
-                  <label class="block text-xs font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest transition-colors">Intervalo de Atención</label>
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                     <button type="button" @click="setQuickTime('09:00')" :class="form.fecha_hora.includes('09:00') ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-slate-900 dark:bg-gray-700'" class="p-6 rounded-3xl border-2 text-left transition-all group overflow-hidden relative">
-                        <div class="relative z-10">
-                          <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase mb-1">Mañana</p>
-                          <p class="text-xl font-black text-gray-900 dark:text-white dark:text-white transition-colors">09:00 AM</p>
+                  <div class="flex items-center justify-between">
+                    <label class="block text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest transition-colors">Horario Disponible</label>
+                    <div v-if="loadingAgenda" class="flex items-center gap-2 text-xs text-blue-500">
+                      <svg class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                      Cargando agenda...
+                    </div>
+                    <div v-else-if="agendaSlots.length" class="flex items-center gap-3 text-[10px] font-bold uppercase tracking-wider">
+                      <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700"></span> Libre</span>
+                      <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-red-100 dark:bg-red-900/40 border border-red-300 dark:border-red-700"></span> Ocupado</span>
+                      <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-500 border border-blue-600"></span> Seleccionado</span>
+                    </div>
+                  </div>
+
+                  <!-- Mensaje si no hay técnico o fecha seleccionada -->
+                  <div v-if="!form.tecnico_id || !internalDate" class="p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 text-center">
+                    <p class="text-sm text-gray-400 dark:text-gray-500 font-semibold">Selecciona un <strong>técnico</strong> y una <strong>fecha</strong> para ver los horarios disponibles</p>
+                  </div>
+
+                  <!-- Timeline de Slots -->
+                  <div v-else-if="agendaSlots.length" class="space-y-3">
+                    <!-- Grid de slots -->
+                    <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-10 gap-1.5">
+                      <button 
+                        v-for="slot in agendaSlots" 
+                        :key="slot.hora"
+                        type="button"
+                        @click="!slot.ocupado && setQuickTime(slot.hora)"
+                        :disabled="slot.ocupado"
+                        :class="[
+                          'relative p-2 rounded-xl text-center transition-all border-2 group',
+                          slot.ocupado 
+                            ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/50 cursor-not-allowed opacity-70' 
+                            : selectedTime === slot.hora
+                              ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/30 scale-105'
+                              : 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800/40 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer hover:scale-105 active:scale-95'
+                        ]"
+                        :title="slot.ocupado ? `Ocupado: ${slot.cita?.tipo_servicio || 'Cita'} (${slot.cita?.inicio} - ${slot.cita?.fin})` : `Disponible: ${slot.hora}`"
+                      >
+                        <span :class="[
+                          'text-xs font-black block',
+                          slot.ocupado ? 'text-red-400 dark:text-red-500 line-through' : selectedTime === slot.hora ? 'text-white' : 'text-gray-700 dark:text-gray-300'
+                        ]">{{ slot.hora }}</span>
+                        <span v-if="slot.ocupado" class="text-[8px] text-red-400 dark:text-red-500 font-bold block mt-0.5">🔒</span>
+                        <span v-else-if="selectedTime === slot.hora" class="text-[8px] text-blue-100 font-bold block mt-0.5">✓</span>
+                      </button>
+                    </div>
+
+                    <!-- Resumen de Citas del Día -->
+                    <div v-if="agendaCitas.length" class="mt-4 space-y-2">
+                      <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Citas Agendadas Este Día</p>
+                      <div v-for="cita in agendaCitas" :key="cita.id" class="flex items-center gap-3 p-3 bg-red-50/60 dark:bg-red-950/20 rounded-xl border border-red-100 dark:border-red-900/30">
+                        <div class="w-1.5 h-8 bg-red-400 dark:bg-red-500 rounded-full flex-shrink-0"></div>
+                        <div class="flex-1 min-w-0">
+                          <p class="text-xs font-black text-red-700 dark:text-red-400">{{ cita.inicio }} → {{ cita.fin }}</p>
+                          <p class="text-[10px] text-red-500 dark:text-red-500/80 truncate">{{ cita.tipo_servicio || 'Servicio' }} · {{ cita.duracion_min }} min · {{ cita.folio || '' }}</p>
                         </div>
-                        <div class="absolute -right-2 -bottom-2 text-blue-500/10 dark:text-blue-500/5 group-hover:scale-125 transition-transform"><svg class="w-20 h-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"/></svg></div>
-                     </button>
-                     <button type="button" @click="setQuickTime('13:00')" :class="form.fecha_hora.includes('13:00') ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-slate-900 dark:bg-gray-700'" class="p-6 rounded-3xl border-2 text-left transition-all group overflow-hidden relative">
-                        <div class="relative z-10">
-                          <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase mb-1">Mediodía</p>
-                          <p class="text-xl font-black text-gray-900 dark:text-white dark:text-white transition-colors">01:00 PM</p>
+                        <span :class="['px-2 py-0.5 rounded-full text-[8px] font-black uppercase', cita.estado === 'en_proceso' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700']">{{ cita.estado }}</span>
+                      </div>
+                    </div>
+
+                    <!-- Hora seleccionada -->
+                    <div v-if="selectedTime" class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800/40 flex items-center justify-between">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black text-sm">🕐</div>
+                        <div>
+                          <p class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Hora Seleccionada</p>
+                          <p class="text-lg font-black text-blue-900 dark:text-white">{{ selectedTime }} hrs</p>
                         </div>
-                        <div class="absolute -right-2 -bottom-2 text-orange-500/10 dark:text-orange-500/5 group-hover:scale-125 transition-transform"><svg class="w-20 h-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"/></svg></div>
-                     </button>
-                     <button type="button" @click="setQuickTime('17:00')" :class="form.fecha_hora.includes('17:00') ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-slate-900 dark:bg-gray-700'" class="p-6 rounded-3xl border-2 text-left transition-all group overflow-hidden relative">
-                        <div class="relative z-10">
-                          <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase mb-1">Tarde</p>
-                          <p class="text-xl font-black text-gray-900 dark:text-white dark:text-white transition-colors">05:00 PM</p>
-                        </div>
-                        <div class="absolute -right-2 -bottom-2 text-indigo-500/10 dark:text-indigo-500/5 group-hover:scale-125 transition-transform"><svg class="w-20 h-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"/></svg></div>
-                     </button>
+                      </div>
+                      <p class="text-[10px] font-bold text-blue-500 dark:text-blue-400">{{ formatearFecha(form.fecha_hora) }}</p>
+                    </div>
                   </div>
                 </div>
 
@@ -332,7 +380,7 @@
 
 <script setup>
 import { Head, useForm, Link } from '@inertiajs/vue3';
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import FormField from '@/Components/FormField.vue';
 import BuscarCliente from '@/Components/CreateComponents/BuscarCliente.vue';
@@ -351,6 +399,9 @@ const selectedCliente = ref(null);
 const buscarClienteRef = ref(null);
 const internalDate = ref(new Date().toISOString().split('T')[0]);
 const selectedDateType = ref('today');
+const agendaSlots = ref([]);
+const agendaCitas = ref([]);
+const loadingAgenda = ref(false);
 
 const form = useForm({
     cliente_id: '',
@@ -375,6 +426,46 @@ const form = useForm({
 
 const clientePolizas = ref([]);
 
+// Computed: hora seleccionada actual
+const selectedTime = computed(() => {
+    const parts = form.fecha_hora.split('T');
+    return parts[1] || null;
+});
+
+// Cargar agenda del técnico
+const fetchAgenda = async () => {
+    if (!form.tecnico_id || !internalDate.value) {
+        agendaSlots.value = [];
+        agendaCitas.value = [];
+        return;
+    }
+
+    loadingAgenda.value = true;
+    try {
+        const url = route('citas.agenda-tecnico') + `?tecnico_id=${form.tecnico_id}&fecha=${internalDate.value}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        agendaSlots.value = data.slots || [];
+        agendaCitas.value = data.citas || [];
+
+        // Auto-seleccionar el primer slot disponible si la hora actual está ocupada
+        const currentTime = selectedTime.value;
+        const currentSlot = agendaSlots.value.find(s => s.hora === currentTime);
+        if (!currentTime || (currentSlot && currentSlot.ocupado)) {
+            const primerLibre = agendaSlots.value.find(s => !s.ocupado);
+            if (primerLibre) {
+                updateDateTime(primerLibre.hora);
+            }
+        }
+    } catch (e) {
+        console.error('Error al cargar agenda:', e);
+        agendaSlots.value = [];
+        agendaCitas.value = [];
+    } finally {
+        loadingAgenda.value = false;
+    }
+};
+
 onMounted(() => {
     // Restaurar borrador si existe
     const draft = sessionStorage.getItem('cita_draft');
@@ -390,6 +481,10 @@ onMounted(() => {
         }
     }
 });
+
+// Watchers para recargar la agenda cuando cambie técnico o fecha
+watch(() => form.tecnico_id, () => { fetchAgenda(); });
+watch(internalDate, () => { fetchAgenda(); updateDateTime(); });
 
 const quickDates = [
     { label: 'Hoy', val: 'today' },

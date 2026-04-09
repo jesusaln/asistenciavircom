@@ -458,6 +458,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
     Route::get('/citas-calendario', [CitaController::class, 'calendario'])->name('citas-calendario')->middleware('role:ventas|admin|super-admin|tecnico');
     Route::get('/citas/check-visits-limit', [CitaController::class, 'checkVisitsLimit'])->name('citas.check-visits-limit')->middleware('role:ventas|admin|super-admin');
+    Route::get('/citas/agenda-tecnico', [CitaController::class, 'agendaTecnico'])->name('citas.agenda-tecnico')->middleware('role:ventas|admin|super-admin');
     Route::resource('citas', CitaController::class)->names('citas')->middleware('role:ventas|admin|super-admin');
     Route::get('/mi-agenda', [CitaController::class, 'miAgenda'])->name('citas.mi-agenda')->middleware('role:ventas|admin|super-admin|tecnico');
 
