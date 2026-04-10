@@ -921,31 +921,20 @@ class CitaController extends Controller
     {
         $fecha = Carbon::parse($fechaHora);
 
-        // Verificar si el cliente tiene más de 2 citas activas en los próximos 7 días
+        // Verificar si el cliente tiene más de 5 citas activas en los próximos 7 días
         $citasActivas = Cita::where('cliente_id', $clienteId)
             ->whereIn('estado', ['pendiente', 'en_proceso'])
             ->where('fecha_hora', '>=', now())
             ->where('fecha_hora', '<=', now()->addDays(7))
             ->count();
 
-        if ($citasActivas >= 2) {
+        if ($citasActivas >= 5) {
             throw ValidationException::withMessages([
                 'cliente_id' => 'El cliente ya tiene múltiples citas activas. Complete las citas existentes antes de programar nuevas.'
             ]);
         }
 
-        // Verificar si hay conflicto de horario el mismo día
-        $citasMismoDia = Cita::where('cliente_id', $clienteId)
-            ->whereDate('fecha_hora', $fecha->toDateString())
-            ->where('estado', '!=', 'cancelado')
-            ->where('fecha_hora', '!=', $fechaHora)
-            ->count();
-
-        if ($citasMismoDia > 0) {
-            throw ValidationException::withMessages([
-                'fecha_hora' => 'El cliente ya tiene una cita programada para este día.'
-            ]);
-        }
+        // Se ha removido la validación que impedía al cliente tener múltiples citas en el mismo día.
     }
 
     /**

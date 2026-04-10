@@ -533,21 +533,9 @@ class CitaController extends Controller
             ->where('fecha_hora', '<=', now()->addDays(7))
             ->count();
 
-        if ($citasActivas >= 2) {
+        if ($citasActivas >= 5) {
             throw ValidationException::withMessages([
                 'cliente_id' => 'El cliente ya tiene múltiples citas activas. Complete las citas existentes antes de programar nuevas.'
-            ]);
-        }
-
-        $citasMismoDia = Cita::where('cliente_id', $clienteId)
-            ->whereDate('fecha_hora', $fecha->toDateString())
-            ->where('estado', '!=', Cita::ESTADO_CANCELADO)
-            ->where('fecha_hora', '!=', $fechaHora)
-            ->count();
-
-        if ($citasMismoDia > 0) {
-            throw ValidationException::withMessages([
-                'fecha_hora' => 'El cliente ya tiene una cita programada para este día.'
             ]);
         }
     }
