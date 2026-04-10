@@ -7,6 +7,9 @@ const props = defineProps({
     cita: Object,
 });
 
+import { useDarkMode } from '@/Utils/useDarkMode';
+useDarkMode(props.empresa);
+
 const cssVars = computed(() => ({
     '--color-primary': props.empresa?.color_principal || '#FF6B35',
 }));

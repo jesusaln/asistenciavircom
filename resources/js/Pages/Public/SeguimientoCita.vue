@@ -9,6 +9,9 @@ const props = defineProps({
     cargos: Object, // Added cargos prop
 });
 
+import { useDarkMode } from '@/Utils/useDarkMode';
+useDarkMode(props.empresa);
+
 const cssVars = computed(() => ({
     '--color-primary': props.empresa?.color_principal || '#FF6B35',
 }));

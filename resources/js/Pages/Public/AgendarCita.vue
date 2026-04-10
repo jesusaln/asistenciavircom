@@ -12,6 +12,9 @@ const props = defineProps({
     tiposEquipo: Object,
 });
 
+import { useDarkMode } from '@/Utils/useDarkMode';
+const { isDarkMode, toggleDarkMode, applyThemeColors } = useDarkMode(props.empresa);
+
 // Variables CSS dinámicas
 const cssVars = computed(() => ({
     '--color-primary': props.empresa?.color_principal || '#FF6B35',
