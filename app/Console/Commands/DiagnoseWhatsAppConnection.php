@@ -107,7 +107,7 @@ class DiagnoseWhatsAppConnection extends Command
                 'base_uri' => 'https://graph.facebook.com/v20.0/',
                 'timeout' => 30,
                 'headers' => [
-                    'Authorization' => 'Bearer ' . decrypt($empresa->whatsapp_access_token),
+                    'Authorization' => 'Bearer ' . $empresa->whatsapp_access_token,
                     'Content-Type' => 'application/json',
                 ],
             ]);

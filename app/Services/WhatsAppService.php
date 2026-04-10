@@ -47,30 +47,9 @@ class WhatsAppService
             throw new \InvalidArgumentException('Configuración de WhatsApp incompleta para esta empresa');
         }
 
-        // Manejar token encriptado o no encriptado
+        // El modelo Empresa tiene cast 'encrypted' en whatsapp_access_token,
+        // por lo que ya está desencriptado al acceder via Eloquent.
         $accessToken = $empresa->whatsapp_access_token;
-
-        // Verificar si el token parece estar encriptado (formato típico de Laravel)
-        if (preg_match('/^[A-Za-z0-9+\/=]{20,}$/', $empresa->whatsapp_access_token)) {
-            try {
-                // Intentar desencriptar
-                $accessToken = decrypt($empresa->whatsapp_access_token);
-                Log::info('Token desencriptado exitosamente para WhatsApp', [
-                    'empresa_id' => $empresa->id,
-                ]);
-            } catch (\Exception $e) {
-                // Si falla la desencriptación, usar el token tal cual
-                Log::info('Usando token sin encriptar para WhatsApp', [
-                    'empresa_id' => $empresa->id,
-                    'error' => $e->getMessage(),
-                ]);
-            }
-        } else {
-            // Si no parece encriptado, usar directamente
-            Log::info('Token detectado como no encriptado para WhatsApp', [
-                'empresa_id' => $empresa->id,
-            ]);
-        }
 
         return new self(
             $empresa->whatsapp_phone_number_id,
