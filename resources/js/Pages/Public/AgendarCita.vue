@@ -196,7 +196,7 @@ const stepLabels = [
 <template>
     <Head :title="`Agendar Cita - ${empresa?.nombre || 'Servicio'}`" />
     
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100" :style="cssVars">
+    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950" :style="cssVars">
         <!-- Header -->
         <header class="bg-white dark:bg-slate-900 shadow-sm sticky top-0 z-50">
             <div class="w-full px-4 py-4">
@@ -280,21 +280,21 @@ const stepLabels = [
                     
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Nombre completo *
                             </label>
                             <input 
                                 v-model="form.nombre"
                                 type="text"
                                 placeholder="Ej: Juan Pérez García"
-                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 dark:bg-slate-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
                                 :class="{ 'border-red-400': stepErrors.nombre }"
                             />
                             <p v-if="stepErrors.nombre" class="text-red-500 text-xs mt-1">{{ stepErrors.nombre }}</p>
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 WhatsApp *
                             </label>
                             <div class="relative">
@@ -305,7 +305,7 @@ const stepLabels = [
                                     type="tel"
                                     placeholder="10 dígitos"
                                     maxlength="10"
-                                    class="w-full pl-14 pr-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
+                                    class="w-full pl-14 pr-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 dark:bg-slate-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
                                     :class="{ 'border-red-400': stepErrors.telefono }"
                                 />
                             </div>
@@ -314,14 +314,14 @@ const stepLabels = [
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Email (opcional)
                             </label>
                             <input 
                                 v-model="form.email"
                                 type="email"
                                 placeholder="tucorreo@ejemplo.com"
-                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 dark:bg-slate-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
                                 :class="{ 'border-red-400': stepErrors.email }"
                             />
                             <p v-if="stepErrors.email" class="text-red-500 text-xs mt-1">{{ stepErrors.email }}</p>
@@ -341,14 +341,14 @@ const stepLabels = [
                     
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Calle y número *
                             </label>
                             <input 
                                 v-model="form.direccion_calle"
                                 type="text"
                                 placeholder="Ej: Av. Constitución #1234"
-                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 dark:bg-slate-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
                                 :class="{ 'border-red-400': stepErrors.direccion_calle }"
                             />
                             <p v-if="stepErrors.direccion_calle" class="text-red-500 text-xs mt-1">{{ stepErrors.direccion_calle }}</p>
@@ -356,21 +356,21 @@ const stepLabels = [
                         
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Colonia *
                                 </label>
                                 <input 
                                     v-model="form.direccion_colonia"
                                     type="text"
                                     placeholder="Nombre de colonia"
-                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 dark:bg-slate-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
                                     :class="{ 'border-red-400': stepErrors.direccion_colonia }"
                                 />
                                 <p v-if="stepErrors.direccion_colonia" class="text-red-500 text-xs mt-1">{{ stepErrors.direccion_colonia }}</p>
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     C.P.
                                 </label>
                                 <input 
@@ -378,20 +378,20 @@ const stepLabels = [
                                     type="text"
                                     placeholder="00000"
                                     maxlength="5"
-                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 dark:bg-slate-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
                                 />
                             </div>
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Referencias para llegar
                             </label>
                             <textarea 
                                 v-model="form.direccion_referencias"
                                 rows="3"
                                 placeholder="Ej: Entre calle Juárez y calle Hidalgo, casa color azul con portón negro"
-                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors resize-none"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 dark:bg-slate-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-0 transition-colors resize-none"
                             ></textarea>
                             <p class="text-gray-400 text-xs mt-1">Ayúdanos a encontrar tu domicilio más fácil</p>
                         </div>
@@ -456,7 +456,7 @@ const stepLabels = [
                     
                     <!-- Días seleccionados -->
                     <div v-if="form.dias_preferidos.length > 0" class="mt-6 p-4 bg-[var(--color-primary-soft)] rounded-xl">
-                        <p class="text-sm font-medium text-gray-700 mb-2">Días seleccionados:</p>
+                        <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Días seleccionados:</p>
                         <div class="flex flex-wrap gap-2">
                             <span 
                                 v-for="fecha in form.dias_preferidos" 
@@ -527,7 +527,7 @@ const stepLabels = [
                     <div class="space-y-4">
                         <!-- Tipo de Servicio -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Tipo de servicio *
                             </label>
                             <div class="grid grid-cols-2 gap-2">
@@ -551,7 +551,7 @@ const stepLabels = [
                         
                         <!-- Tipo de Equipo -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Tipo de equipo *
                             </label>
                             <div class="grid grid-cols-3 gap-2">
@@ -575,12 +575,12 @@ const stepLabels = [
                         
                         <!-- Tienda de Origen -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 ¿Dónde compraste el equipo? *
                             </label>
                             <select 
                                 v-model="form.origen_tienda"
-                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors appearance-none bg-white dark:bg-slate-900"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 dark:bg-slate-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-0 transition-colors appearance-none bg-white dark:bg-slate-900"
                                 :class="{ 'border-red-400': stepErrors.origen_tienda }"
                             >
                                 <option value="">Seleccionar tienda...</option>
@@ -593,27 +593,27 @@ const stepLabels = [
                         
                         <!-- Número de Ticket -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Número de ticket/factura (opcional)
                             </label>
                             <input 
                                 v-model="form.numero_ticket_tienda"
                                 type="text"
                                 placeholder="Ej: FAC-2024-001234"
-                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 dark:bg-slate-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-0 transition-colors"
                             />
                         </div>
                         
                         <!-- Descripción -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Describe el servicio que necesitas
                             </label>
                             <textarea 
                                 v-model="form.descripcion"
                                 rows="3"
                                 placeholder="Ej: Instalación de minisplit en recámara principal, segundo piso..."
-                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-0 transition-colors resize-none"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-800 dark:bg-slate-900 dark:text-white focus:border-[var(--color-primary)] focus:ring-0 transition-colors resize-none"
                             ></textarea>
                         </div>
                     </div>
@@ -635,7 +635,7 @@ const stepLabels = [
                         <div class="p-4 bg-white dark:bg-slate-900 rounded-xl">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-lg">👤</span>
-                                <span class="font-semibold text-gray-700">Datos personales</span>
+                                <span class="font-semibold text-gray-700 dark:text-gray-300">Datos personales</span>
                                 <button @click="goToStep(1)" class="ml-auto text-[var(--color-primary)] text-sm">Editar</button>
                             </div>
                             <div class="text-sm text-gray-600 dark:text-gray-300">
@@ -649,7 +649,7 @@ const stepLabels = [
                         <div class="p-4 bg-white dark:bg-slate-900 rounded-xl">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-lg">📍</span>
-                                <span class="font-semibold text-gray-700">Dirección</span>
+                                <span class="font-semibold text-gray-700 dark:text-gray-300">Dirección</span>
                                 <button @click="goToStep(2)" class="ml-auto text-[var(--color-primary)] text-sm">Editar</button>
                             </div>
                             <div class="text-sm text-gray-600 dark:text-gray-300">
@@ -663,7 +663,7 @@ const stepLabels = [
                         <div class="p-4 bg-white dark:bg-slate-900 rounded-xl">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-lg">📅</span>
-                                <span class="font-semibold text-gray-700">Fecha y horario</span>
+                                <span class="font-semibold text-gray-700 dark:text-gray-300">Fecha y horario</span>
                                 <button @click="goToStep(3)" class="ml-auto text-[var(--color-primary)] text-sm">Editar</button>
                             </div>
                             <div class="text-sm text-gray-600 dark:text-gray-300">
@@ -671,7 +671,7 @@ const stepLabels = [
                                     <span 
                                         v-for="fecha in form.dias_preferidos" 
                                         :key="fecha"
-                                        class="px-2 py-0.5 bg-[var(--color-primary-medium)] text-gray-700 rounded text-xs"
+                                        class="px-2 py-0.5 bg-[var(--color-primary-medium)] text-gray-700 dark:text-gray-300 rounded text-xs"
                                     >
                                         {{ new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' }) }}
                                     </span>
@@ -686,7 +686,7 @@ const stepLabels = [
                         <div class="p-4 bg-white dark:bg-slate-900 rounded-xl">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-lg">🔧</span>
-                                <span class="font-semibold text-gray-700">Servicio</span>
+                                <span class="font-semibold text-gray-700 dark:text-gray-300">Servicio</span>
                                 <button @click="goToStep(5)" class="ml-auto text-[var(--color-primary)] text-sm">Editar</button>
                             </div>
                             <div class="text-sm text-gray-600 dark:text-gray-300">

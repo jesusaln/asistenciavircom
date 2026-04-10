@@ -35,10 +35,15 @@ Para cada componente `.vue`, sigue estos pasos:
 - [x] `resources/js/Pages/Ventas/Create.vue` (Migrado a Slate)
 - [x] `resources/js/Pages/Soporte/Dashboard.vue` (Migrado a Slate)
 - [x] `resources/js/Pages/Servicios/Index.vue` (Migrado a Dark Premium 💎)
-- [ ] `resources/js/Pages/Soporte/Tickets/Index.vue`
+- [x] `resources/js/Pages/Soporte/Tickets/Index.vue` (No existía)
 - [ ] `resources/js/Pages/Pedidos/Index.vue`
 - [ ] `resources/js/Pages/Reportes/Index.vue`
 - [ ] `resources/js/Pages/Admin/Users/Index.vue`
+
+### 🌐 Páginas Públicas (Nuevas)
+- [x] `resources/js/Pages/Public/AgendarCita.vue` (Migrado a Dark Premium 💎)
+- [x] `resources/js/Pages/Public/AgendarCitaExito.vue` (Migrado a Dark Premium 💎)
+- [x] `resources/js/Pages/Public/SeguimientoCita.vue` (Migrado a Dark Premium 💎)
 
 ### 🧩 Componentes Reutilizables (Common UI)
 - [x] `resources/js/Components/UI/DataTable.vue` (Soporte básico implementado)

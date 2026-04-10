@@ -90,9 +90,9 @@ const trackLandingEvent = (eventName, data = {}) => {
 const scrollToAppointment = () => {
     trackLandingEvent('cta_click', {
         source: 'hero_primary',
-        destination: 'quick_appointment',
+        destination: 'agendar_cita',
     });
-    document.getElementById('agendar-cita')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.location.href = route('agendar.index');
 };
 
 const onHeroSecondaryClick = () => {

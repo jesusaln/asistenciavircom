@@ -42,7 +42,7 @@ const diasFormateados = computed(() => {
 <template>
     <Head :title="`Seguimiento - ${cita?.folio || 'Cita'}`" />
     
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100" :style="cssVars">
+    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950" :style="cssVars">
         <!-- Header -->
         <header class="bg-white dark:bg-slate-900 shadow-sm">
             <div class="w-full px-4 py-4">

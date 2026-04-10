@@ -33,7 +33,7 @@ const copiarLink = () => {
 <template>
     <Head title="¡Solicitud Recibida!" />
     
-    <div class="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex flex-col" :style="cssVars">
+    <div class="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-slate-900 dark:to-slate-950 flex flex-col" :style="cssVars">
         <!-- Confetti Animation Background -->
         <div class="fixed inset-0 pointer-events-none overflow-hidden">
             <div v-for="i in 20" :key="i" 

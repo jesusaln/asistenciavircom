@@ -104,13 +104,14 @@ Route::get('/share/cotizacion/{id}/pdf', [CotizacionDocumentoController::class, 
 Route::get('/share/pedido/{id}/pdf', [PedidoDocumentoController::class, 'generarPDF'])->name('pedidos.pdf.public');
 
 // Agendamiento Público Detallado
-Route::prefix('agendar')->name('agendar.')->group(function () {
+Route::prefix('agendar-cita')->name('agendar.')->group(function () {
     Route::get('/', [CitaPublicaController::class, 'index'])->name('index');
     Route::post('/', [CitaPublicaController::class, 'store'])->name('store');
     Route::get('/disponibilidad', [CitaPublicaController::class, 'disponibilidad'])->name('disponibilidad');
     Route::get('/horarios', [CitaPublicaController::class, 'horariosDisponibles'])->name('horarios');
     Route::get('/seguimiento/{uuid}', [CitaPublicaController::class, 'seguimiento'])->name('seguimiento');
 });
+Route::redirect('/agendar', '/agendar-cita', 301);
 Route::get('/mi-cita/{uuid}', [CitaPublicaController::class, 'seguimiento'])->name('mi-cita');
 
 // Placeholder SVG
