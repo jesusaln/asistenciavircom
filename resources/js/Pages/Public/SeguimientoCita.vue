@@ -10,7 +10,7 @@ const props = defineProps({
 });
 
 import { useDarkMode } from '@/Utils/useDarkMode';
-useDarkMode(props.empresa);
+const { isDarkMode } = useDarkMode(props.empresa);
 
 const cssVars = computed(() => ({
     '--color-primary': props.empresa?.color_principal || '#FF6B35',
@@ -45,7 +45,11 @@ const diasFormateados = computed(() => {
 <template>
     <Head :title="`Seguimiento - ${cita?.folio || 'Cita'}`" />
     
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950" :style="cssVars">
+    <div 
+        class="min-h-screen transition-all duration-700" 
+        :class="isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'"
+        :style="cssVars"
+    >
         <!-- Header -->
         <header class="bg-white dark:bg-slate-900 shadow-sm">
             <div class="w-full px-4 py-4">

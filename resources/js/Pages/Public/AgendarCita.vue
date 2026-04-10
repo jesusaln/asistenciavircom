@@ -16,11 +16,22 @@ import { useDarkMode } from '@/Utils/useDarkMode';
 const { isDarkMode, toggleDarkMode, applyThemeColors } = useDarkMode(props.empresa);
 
 // Variables CSS dinámicas
-const cssVars = computed(() => ({
-    '--color-primary': props.empresa?.color_principal || '#FF6B35',
-    '--color-primary-soft': (props.empresa?.color_principal || '#FF6B35') + '15',
-    '--color-primary-medium': (props.empresa?.color_principal || '#FF6B35') + '40',
-}));
+const cssVars = computed(() => {
+    const primary = props.empresa?.color_principal || '#FF6B35';
+    // Colores Dark Premium Slate
+    const darkBg = '#020617'; // Slate 950
+    const darkSurface = '#0f172a'; // Slate 900
+    
+    return {
+        '--color-primary': primary,
+        '--color-primary-soft': primary + '15',
+        '--color-primary-medium': primary + '40',
+        '--page-bg-light-from': '#f9fafb', // Gray 50
+        '--page-bg-light-to': '#f3f4f6',   // Gray 100
+        '--page-bg-dark-from': '#0f172a',  // Slate 900
+        '--page-bg-dark-to': '#020617',    // Slate 950
+    };
+});
 
 // Estado del formulario multi-step
 const currentStep = ref(1);
@@ -199,7 +210,11 @@ const stepLabels = [
 <template>
     <Head :title="`Agendar Cita - ${empresa?.nombre || 'Servicio'}`" />
     
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950" :style="cssVars">
+    <div 
+        class="min-h-screen transition-all duration-700" 
+        :class="isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'"
+        :style="cssVars"
+    >
         <!-- Header -->
         <header class="bg-white dark:bg-slate-900 shadow-sm sticky top-0 z-50">
             <div class="w-full px-4 py-4">
