@@ -6,6 +6,8 @@ use Closure;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class EnsureSystemInstalled
 {
@@ -27,18 +29,18 @@ class EnsureSystemInstalled
         $isInstalled = false;
         try {
             // Opción 1: Checar si hay super-admin (producción)
-            if (\Schema::hasTable('roles')) {
+            if (Schema::hasTable('roles')) {
                 $isInstalled = User::role('super-admin')->exists();
             }
             // Opción 2: En desarrollo, si hay al menos una empresa configurada, permitir acceso
-            if (!$isInstalled && \Schema::hasTable('empresa_configuracion')) {
-                $isInstalled = \DB::table('empresa_configuracion')->exists();
+            if (!$isInstalled && Schema::hasTable('empresa_configuracion')) {
+                $isInstalled = DB::table('empresa_configuracion')->exists();
             }
         } catch (\Exception $e) {
             // Si hay error de DB, intentar fallback a empresa_configuracion
             try {
-                if (\Schema::hasTable('empresa_configuracion')) {
-                    $isInstalled = \DB::table('empresa_configuracion')->exists();
+                if (Schema::hasTable('empresa_configuracion')) {
+                    $isInstalled = DB::table('empresa_configuracion')->exists();
                 }
             } catch (\Exception $e2) {
                 $isInstalled = false;
