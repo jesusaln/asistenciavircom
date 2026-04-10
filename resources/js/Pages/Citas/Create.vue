@@ -163,7 +163,7 @@
                   <!-- Timeline de Slots -->
                   <div v-else-if="agendaSlots.length" class="space-y-3">
                     <!-- Grid de slots -->
-                    <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-10 gap-1.5">
+                    <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-5 lg:grid-cols-10 gap-1.5">
                       <button 
                         v-for="slot in agendaSlots" 
                         :key="slot.hora"
@@ -178,12 +178,12 @@
                               ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/30 scale-105'
                               : 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800/40 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer hover:scale-105 active:scale-95'
                         ]"
-                        :title="slot.ocupado ? `Ocupado: ${slot.cita?.tipo_servicio || 'Cita'} (${slot.cita?.inicio} - ${slot.cita?.fin})` : `Disponible: ${slot.hora}`"
+                        :title="slot.ocupado ? `Ocupado: ${slot.cita?.tipo_servicio || 'Cita'} (${to12h(slot.cita?.inicio)} - ${to12h(slot.cita?.fin)})` : `Disponible: ${to12h(slot.hora)}`"
                       >
                         <span :class="[
                           'text-xs font-black block',
                           slot.ocupado ? 'text-red-400 dark:text-red-500 line-through' : isSlotInRange(slot.hora) ? 'text-white' : 'text-gray-700 dark:text-gray-300'
-                        ]">{{ slot.hora }}</span>
+                        ]">{{ to12hShort(slot.hora) }}</span>
                         <span v-if="slot.ocupado" class="text-[8px] text-red-400 dark:text-red-500 font-bold block mt-0.5">🔒</span>
                         <span v-else-if="selectedTime === slot.hora" class="text-[8px] text-blue-100 font-bold block mt-0.5">▶</span>
                         <span v-else-if="isSlotInRange(slot.hora) && selectedTime !== slot.hora" class="text-[8px] text-blue-100 font-bold block mt-0.5">●</span>
@@ -196,7 +196,7 @@
                       <div v-for="cita in agendaCitas" :key="cita.id" class="flex items-center gap-3 p-3 bg-red-50/60 dark:bg-red-950/20 rounded-xl border border-red-100 dark:border-red-900/30">
                         <div class="w-1.5 h-8 bg-red-400 dark:bg-red-500 rounded-full flex-shrink-0"></div>
                         <div class="flex-1 min-w-0">
-                          <p class="text-xs font-black text-red-700 dark:text-red-400">{{ cita.inicio }} → {{ cita.fin }}</p>
+                          <p class="text-xs font-black text-red-700 dark:text-red-400">{{ to12h(cita.inicio) }} → {{ to12h(cita.fin) }}</p>
                           <p class="text-[10px] text-red-500 dark:text-red-500/80 truncate">{{ cita.tipo_servicio || 'Servicio' }} · {{ cita.duracion_min }} min · {{ cita.folio || '' }}</p>
                         </div>
                         <span :class="['px-2 py-0.5 rounded-full text-[8px] font-black uppercase', cita.estado === 'en_proceso' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700']">{{ cita.estado }}</span>
@@ -232,7 +232,7 @@
                           <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black text-sm">🕐</div>
                           <div>
                             <p class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Horario Programado</p>
-                            <p class="text-lg font-black text-blue-900 dark:text-white">{{ selectedTime }} → {{ horaFinEstimada }}</p>
+                            <p class="text-lg font-black text-blue-900 dark:text-white">{{ to12h(selectedTime) }} → {{ horaFinEstimada12h }}</p>
                           </div>
                         </div>
                         <div class="text-right">
@@ -358,7 +358,7 @@
                   <div>
                     <p class="text-[10px] font-black uppercase tracking-widest opacity-60">Programación</p>
                     <p class="text-sm font-black">{{ form.fecha_hora ? formatearFecha(form.fecha_hora) : 'Pendiente de definir' }}</p>
-                    <p v-if="selectedTime && horaFinEstimada" class="text-[10px] font-bold opacity-70">{{ selectedTime }} → {{ horaFinEstimada }} ({{ form.duracion }} min)</p>
+                    <p v-if="selectedTime && horaFinEstimada12h" class="text-[10px] font-bold opacity-70">{{ to12h(selectedTime) }} → {{ horaFinEstimada12h }} ({{ form.duracion }} min)</p>
                   </div>
                 </div>
 
@@ -557,7 +557,7 @@ const isSlotInRange = (slotHora) => {
     return slotMinutes >= startMinutes && slotMinutes < endMinutes;
 };
 
-// Computed: hora de fin estimada
+// Computed: hora de fin estimada (24h para cálculos internos)
 const horaFinEstimada = computed(() => {
     if (!selectedTime.value) return '';
     const [h, m] = selectedTime.value.split(':').map(Number);
@@ -565,6 +565,12 @@ const horaFinEstimada = computed(() => {
     const endH = Math.floor(totalMin / 60);
     const endM = totalMin % 60;
     return `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`;
+});
+
+// Computed: hora de fin en formato 12h con AM/PM
+const horaFinEstimada12h = computed(() => {
+    if (!horaFinEstimada.value) return '';
+    return to12h(horaFinEstimada.value);
 });
 
 const duracionOptions = [
@@ -687,9 +693,28 @@ const tipoEquipoOptions = [
 
 const marcasComunes = ['SAMSUNG', 'LG', 'WHIRLPOOL', 'MABE', 'FRIGIDAIRE', 'GE', 'BOSCH', 'CARRIER', 'YORK', 'RHEEM'];
 
-const formatearFecha = (fh) => new Date(fh).toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short' });
+const formatearFecha = (fh) => new Date(fh).toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short', hour12: true });
 const formatearTipoServicioShort = (t) => tipoServicioOptions.find(o => o.value === t)?.text;
 const todayDate = new Date().toISOString().split('T')[0];
+
+// Convertir hora 24h a formato 12h con AM/PM
+const to12h = (time24) => {
+    if (!time24) return '';
+    const [h, m] = time24.split(':').map(Number);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    return `${h12}:${String(m).padStart(2, '0')} ${ampm}`;
+};
+
+// Versión corta para los slots del grid (ej. "8 AM", "9:30")
+const to12hShort = (time24) => {
+    if (!time24) return '';
+    const [h, m] = time24.split(':').map(Number);
+    const ampm = h >= 12 ? 'pm' : 'am';
+    const h12 = h % 12 || 12;
+    if (m === 0) return `${h12}${ampm}`;
+    return `${h12}:${String(m).padStart(2, '0')}`;
+};
 </script>
 
 <style scoped>
