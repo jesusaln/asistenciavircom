@@ -706,14 +706,14 @@ const to12h = (time24) => {
     return `${h12}:${String(m).padStart(2, '0')} ${ampm}`;
 };
 
-// Versión corta para los slots del grid (ej. "8 AM", "9:30")
+// Versión corta para los slots del grid (ej. "8am", "9:30am")
 const to12hShort = (time24) => {
     if (!time24) return '';
     const [h, m] = time24.split(':').map(Number);
     const ampm = h >= 12 ? 'pm' : 'am';
     const h12 = h % 12 || 12;
     if (m === 0) return `${h12}${ampm}`;
-    return `${h12}:${String(m).padStart(2, '0')}`;
+    return `${h12}:${String(m).padStart(2, '0')}${ampm}`;
 };
 </script>
 
