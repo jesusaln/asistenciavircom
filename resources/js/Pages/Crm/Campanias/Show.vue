@@ -22,6 +22,10 @@
                     <FontAwesomeIcon :icon="['fas', 'upload']" />
                     Importar Scripts
                 </button>
+                <button @click="showModalSend = true" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2 shadow-sm">
+                    <FontAwesomeIcon :icon="['fas', 'paper-plane']" />
+                    Enviar Campaña WhatsApp
+                </button>
             </div>
         </div>
 
@@ -174,6 +178,54 @@ objecion,Muy caro,Entiendo...,Comparar</pre>
                 </div>
             </div>
         </div>
+
+        <!-- Modal Enviar WhatsApp -->
+        <div v-if="showModalSend" class="fixed inset-0 z-50 overflow-y-auto" @click.self="showModalSend = false">
+            <div class="flex items-center justify-center min-h-screen px-4">
+                <div class="fixed inset-0 bg-black bg-opacity-50"></div>
+                <div class="relative bg-white dark:bg-slate-900 rounded-xl shadow-xl max-w-lg w-full p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-3 bg-purple-100 rounded-full text-purple-600">
+                            <FontAwesomeIcon :icon="['fas', 'paper-plane']" class="text-xl" />
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Enviar Campaña Masiva</h3>
+                    </div>
+
+                    <p class="text-sm text-gray-500 mb-6">Esta acción programará mensajes para todos tus clientes. Para evitar bloqueos, se enviarán gradualmente (cada 5 seg).</p>
+                    
+                    <form @submit.prevent="enviarCampania">
+                        <div class="space-y-4 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre de Plantilla (Meta)</label>
+                                <input v-model="formSend.template_name" type="text" class="w-full px-4 py-2 border rounded-lg dark:bg-slate-800 dark:border-slate-700" placeholder="p.ej. servicios_minisplit" required />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">URL de Imagen de Encabezado</label>
+                                <input v-model="formSend.image_url" type="url" class="w-full px-4 py-2 border rounded-lg dark:bg-slate-800 dark:border-slate-700" placeholder="https://..." />
+                                <p class="text-[10px] text-gray-400 mt-1">Obligatorio si la plantilla requiere IMAGEN en el header.</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Límite de envíos (opcional)</label>
+                                <input v-model="formSend.limite" type="number" min="1" max="500" class="w-full px-4 py-2 border rounded-lg dark:bg-slate-800 dark:border-slate-700" placeholder="p.ej. 50" />
+                                <p class="text-[10px] text-gray-400 mt-1">Deja vacío para enviar a todos. El sistema saltará automáticamente a quienes ya recibieron esta campaña.</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input v-model="formSend.solo_con_consentimiento" type="checkbox" id="consent" class="rounded text-purple-600" />
+                                <label for="consent" class="text-sm text-gray-700 dark:text-gray-300">Enviar solo a clientes con Opt-In (WhatsApp habilitado)</label>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end gap-3">
+                            <button type="button" @click="showModalSend = false" class="px-4 py-2 bg-gray-100 dark:bg-slate-800 rounded-lg">Cancelar</button>
+                            <button type="submit" :disabled="formSend.processing" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 flex items-center gap-2">
+                                <FontAwesomeIcon v-if="formSend.processing" :icon="['fas', 'spinner']" spin />
+                                {{ formSend.processing ? 'Programando...' : '¡Iniciar Envío!' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -192,7 +244,16 @@ const props = defineProps({
 });
 
 const showModalImport = ref(false);
+const showModalSend = ref(false);
 const archivoCSV = ref(null);
+
+const formSend = ref({
+    template_name: 'servicios_minisplit',
+    image_url: 'https://climasdeldesierto.com/images/logo.png',
+    limite: 50,
+    solo_con_consentimiento: true,
+    processing: false
+});
 
 const totalScripts = computed(() => {
     return Object.values(props.scripts || {}).reduce((sum, arr) => sum + (arr?.length || 0), 0);
@@ -205,6 +266,19 @@ const importarScripts = () => {
     router.post(`/crm/campanias/${props.campania.id}/importar-scripts`, formData, {
         forceFormData: true,
         onSuccess: () => { showModalImport.value = false; archivoCSV.value = null; },
+    });
+};
+
+const enviarCampania = () => {
+    formSend.value.processing = true;
+    router.post(`/crm/campanias/${props.campania.id}/enviar`, formSend.value, {
+        onSuccess: () => { 
+            showModalSend.value = false; 
+            formSend.value.processing = false;
+        },
+        onError: () => {
+            formSend.value.processing = false;
+        }
     });
 };
 </script>

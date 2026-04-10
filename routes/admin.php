@@ -190,6 +190,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
             Route::post('/campanias', [CrmController::class, 'guardarCampania'])->name('crm.campania.guardar');
             Route::get('/campanias/{campania}', [CrmController::class, 'verCampania'])->name('crm.campania.ver');
             Route::patch('/campanias/{campania}/toggle', [CrmController::class, 'toggleCampania'])->name('crm.campania.toggle');
+            Route::post('/campanias/{campania}/enviar', [CrmController::class, 'enviarCampaniaWhatsApp'])->name('crm.campania.enviar');
         });
     });
 

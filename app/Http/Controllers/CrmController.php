@@ -10,6 +10,9 @@ use App\Models\CrmMeta;
 use App\Models\CrmCampania;
 use App\Models\User;
 use App\Models\Cliente;
+use App\Models\Empresa;
+use App\Models\WhatsAppMessage;
+use App\Jobs\SendWhatsAppTemplate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -857,7 +860,7 @@ class CrmController extends Controller
             ->orderBy('activa', 'desc')
             ->orderBy('fecha_fin', 'desc')
             ->get()
-            ->map(function ($c) {
+            ->map(function (CrmCampania $c) {
                 return [
                     'id' => $c->id,
                     'nombre' => $c->nombre,
@@ -1031,11 +1034,88 @@ class CrmController extends Controller
     }
 
     /**
-     * Activar/Desactivar campaña
+     * Enviar campaña masiva por WhatsApp
      */
-    public function toggleCampania(CrmCampania $campania)
+    public function enviarCampaniaWhatsApp(Request $request, CrmCampania $campania)
     {
-        $campania->update(['activa' => !$campania->activa]);
-        return back()->with('success', $campania->activa ? 'Campaña activada' : 'Campaña desactivada');
+        $validated = $request->validate([
+            'template_name' => 'required|string',
+            'image_url' => 'nullable|url',
+            'solo_con_consentimiento' => 'boolean',
+            'limite' => 'nullable|integer|min:1|max:500',
+        ]);
+
+        $empresa = Empresa::find(Auth::user()->empresa_id);
+        
+        // Clientes que YA recibieron esta campaña para evitar duplicados
+        $clientesYaEnviados = WhatsAppMessage::where('campania_id', $campania->id)
+            ->whereIn('status', [WhatsAppMessage::STATUS_SENT, WhatsAppMessage::STATUS_DELIVERED, WhatsAppMessage::STATUS_QUEUED, WhatsAppMessage::STATUS_READ])
+            ->pluck('cliente_id')
+            ->filter()
+            ->toArray();
+
+        // Obtener destinatarios (clientes con teléfono)
+        $query = Cliente::where('empresa_id', $empresa->id)
+            ->whereNotNull('telefono')
+            ->whereNotIn('id', $clientesYaEnviados)
+            ->where('activo', true);
+
+        if ($request->boolean('solo_con_consentimiento', true)) {
+            $query->where('whatsapp_optin', true);
+        }
+
+        // Aplicar límite si se especifica (p.ej. 50 para prueba)
+        if ($request->filled('limite')) {
+            $query->limit($request->limite);
+        }
+
+        $clientes = $query->get();
+
+        if ($clientes->isEmpty()) {
+            return back()->with('error', 'No se encontraron clientes con teléfono y consentimiento para enviar la campaña.');
+        }
+
+        $delay = 0;
+        $enviosProgramados = 0;
+
+        foreach ($clientes as $cliente) {
+            // Limpiar teléfono
+            $telefono = trim($cliente->telefono);
+            if (empty($telefono)) continue;
+
+            // Parámetros de la plantilla (opcional, podrías personalizarlos por cliente)
+            $params = []; 
+            
+            // Si hay imagen, se pasa como parámetro de encabezado en el Job
+            $meta = [
+                'delay_seconds' => $delay,
+                'client_id' => $cliente->id,
+                'campania_id' => $campania->id,
+            ];
+
+            if ($request->filled('image_url')) {
+                $meta['header_params'] = [
+                    [
+                        'type' => 'image',
+                        'image' => ['link' => $request->image_url]
+                    ]
+                ];
+            }
+
+            SendWhatsAppTemplate::dispatch(
+                $empresa->id,
+                $telefono,
+                $validated['template_name'],
+                $empresa->whatsapp_default_language ?: 'es_MX',
+                $params,
+                $meta
+            );
+
+            // Aumentar delay para evitar bloqueo de Meta (5 segundos entre mensajes)
+            $delay += 5;
+            $enviosProgramados++;
+        }
+
+        return back()->with('success', "Campania iniciada: Se han programado {$enviosProgramados} mensajes de WhatsApp. Meta los procesará gradualmente.");
     }
 }

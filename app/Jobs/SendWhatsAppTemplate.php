@@ -82,6 +82,8 @@ class SendWhatsAppTemplate implements ShouldQueue
             // Crear registro en la tabla de logs
             $log = WhatsAppMessage::create([
                 'empresa_id' => $this->empresaId,
+                'cliente_id' => $this->meta['client_id'] ?? null,
+                'campania_id' => $this->meta['campania_id'] ?? null,
                 'to' => $this->to,
                 'template_name' => $this->templateName,
                 'template_params' => $this->templateParams,
@@ -96,7 +98,8 @@ class SendWhatsAppTemplate implements ShouldQueue
                 $this->to,
                 $this->templateName,
                 $this->language,
-                $this->templateParams
+                $this->templateParams,
+                $this->meta['header_params'] ?? []
             );
 
             // Actualizar registro como enviado
