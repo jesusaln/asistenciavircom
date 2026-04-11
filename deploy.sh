@@ -65,9 +65,8 @@ rsync -avz --no-perms --no-owner --no-group --delete \
     ./ $USER@$VPS_IP:$STAGING_PATH/
 
 # 4. Preparación de Dependencias en Staging
-echo "🔐 4/8 Instalando dependencias en STAGING..."
-ssh $USER@$VPS_IP "cp $REMOTE_PATH/.env $STAGING_PATH/.env || true && \
-    docker exec $CONTAINER_APP bash -c 'cd /var/www/cdd_app && composer install --optimize-autoloader --no-dev --no-interaction'"
+echo "🔐 4/8 Preparando entorno en STAGING..."
+ssh $USER@$VPS_IP "cp $REMOTE_PATH/.env $STAGING_PATH/.env || true"
 
 # 5. EL MOMENTO DE LA VERDAD (Downtime mínimo inicia aquí)
 echo "🚧 5/8 ACTIVANDO MODO MANTENIMIENTO E INTERCAMBIO ATÓMICO..."
@@ -87,6 +86,7 @@ ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
 # 6. Ejecución de Tareas de Laravel
 echo "⚙️ 6/8 Optimizando y Migrando..."
 ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
+    docker exec $CONTAINER_APP composer install --optimize-autoloader --no-dev --no-interaction && \
     docker exec $CONTAINER_APP php artisan optimize:clear && \
     docker exec $CONTAINER_APP php artisan config:cache && \
     docker exec $CONTAINER_APP php artisan route:cache && \
