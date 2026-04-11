@@ -104,10 +104,9 @@ ssh $USER@$VPS_IP "docker restart $CONTAINER_QUEUE && \
     docker exec $CONTAINER_APP php artisan up"
 
 # 8. Sincronización de IA (Segundo plano)
-echo "🤖 8/8 Sincronizando componente IA..."
 echo "🤖 8/8 Sincronizando componente IA (OpenClaw)..."
-rsync -avz --delete --exclude='*.log' ./.openclaw ./openclaw $USER@$VPS_IP:$REMOTE_PATH/ia_staging/ || true
-ssh $USER@$VPS_IP "docker cp $REMOTE_PATH/ia_staging/.openclaw $CONTAINER_APP:/var/www/cdd_app/ && \
+rsync -avz --delete --exclude='*.log' ./openclaw $USER@$VPS_IP:$REMOTE_PATH/ia_staging/ || true
+ssh $USER@$VPS_IP "docker cp $REMOTE_PATH/ia_staging/openclaw/.openclaw $CONTAINER_APP:/var/www/cdd_app/ && \
     docker cp $REMOTE_PATH/ia_staging/openclaw $CONTAINER_APP:/var/www/cdd_app/ && \
     docker exec -u root $CONTAINER_APP chown -R www-data:www-data /var/www/cdd_app/.openclaw /var/www/cdd_app/openclaw"
 
