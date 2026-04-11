@@ -622,23 +622,6 @@ return new class extends Migration {
             });
         }
 
-        if (!Schema::hasTable('cuentas_por_cobrar')) {
-            Schema::create('cuentas_por_cobrar', function (Blueprint $table) {
-                $table->id();
-                $table->unsignedBigInteger('empresa_id')->nullable();
-                $table->unsignedBigInteger('cliente_id')->nullable();
-                $table->unsignedBigInteger('cobrable_id');
-                $table->string('cobrable_type');
-                $table->decimal('monto_total', 15, 2);
-                $table->decimal('monto_pagado', 15, 2)->default(0);
-                $table->decimal('monto_pendiente', 15, 2);
-                $table->date('fecha_vencimiento');
-                $table->string('estado')->default('pendiente');
-                $table->text('notas')->nullable();
-                $table->timestamps();
-                $table->softDeletes();
-            });
-        }
 
         if (!Schema::hasTable('venta_item_series')) {
             Schema::create('venta_item_series', function (Blueprint $table) {

@@ -26,6 +26,7 @@ class AparienciaConfigController extends Controller
         $data = $request->validate([
             'color_principal' => 'nullable|string|regex:/^#[0-9A-F]{6}$/i',
             'color_secundario' => 'nullable|string|regex:/^#[0-9A-F]{6}$/i',
+            'color_terciario' => 'nullable|string|regex:/^#[0-9A-F]{6}$/i',
         ]);
 
         if (!empty($data['color_principal'])) {
@@ -34,12 +35,15 @@ class AparienciaConfigController extends Controller
         if (!empty($data['color_secundario'])) {
             $data['color_secundario'] = strtoupper($data['color_secundario']);
         }
+        if (!empty($data['color_terciario'])) {
+            $data['color_terciario'] = strtoupper($data['color_terciario']);
+        }
 
         $configuracion = EmpresaConfiguracion::getConfig();
         $configuracion->update($data);
         EmpresaConfiguracion::clearCache();
 
-        return redirect()->back()->with('success', 'Colores actualizados correctamente.');
+        return redirect()->back()->with('success', 'La configuración visual se ha actualizado correctamente.');
     }
 
     /**
@@ -48,24 +52,30 @@ class AparienciaConfigController extends Controller
     public function subirLogo(Request $request)
     {
         $request->validate([
-            'logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
         ]);
 
-        $configuracion = EmpresaConfiguracion::getConfig();
+        try {
+            $configuracion = EmpresaConfiguracion::getConfig();
 
-        // Eliminar logo anterior si existe
-        if ($configuracion->logo_path && Storage::exists($configuracion->logo_path)) {
-            Storage::delete($configuracion->logo_path);
+            // Eliminar logo anterior si existe
+            if ($configuracion->logo_path && Storage::exists($configuracion->logo_path)) {
+                Storage::delete($configuracion->logo_path);
+            }
+
+            // Guardar nuevo logo optimizado como WebP
+            $path = $this->saveImageAsWebP($request->file('logo'), 'logos');
+
+            $configuracion->update([
+                'logo_path' => $path,
+            ]);
+
+            EmpresaConfiguracion::clearCache();
+
+            return redirect()->back()->with('success', 'El logotipo se ha actualizado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error al procesar la imagen: ' . $e->getMessage());
         }
-
-        // Guardar nuevo logo
-        $path = $this->saveImageAsWebP($request->file('logo'), 'logos');
-
-        $configuracion->update([
-            'logo_path' => $path,
-        ]);
-
-        return redirect()->back()->with('success', 'Logo subido correctamente.');
     }
 
     /**
@@ -74,24 +84,30 @@ class AparienciaConfigController extends Controller
     public function subirFavicon(Request $request)
     {
         $request->validate([
-            'favicon' => 'required|image|mimes:jpeg,png,jpg,gif,ico|max:1024',
+            'favicon' => 'required|image|mimes:jpeg,png,jpg,gif,ico,webp|max:1024',
         ]);
 
-        $configuracion = EmpresaConfiguracion::getConfig();
+        try {
+            $configuracion = EmpresaConfiguracion::getConfig();
 
-        // Eliminar favicon anterior si existe
-        if ($configuracion->favicon_path && Storage::exists($configuracion->favicon_path)) {
-            Storage::delete($configuracion->favicon_path);
+            // Eliminar favicon anterior si existe
+            if ($configuracion->favicon_path && Storage::exists($configuracion->favicon_path)) {
+                Storage::delete($configuracion->favicon_path);
+            }
+
+            // Guardar nuevo favicon
+            $path = $this->saveImageAsWebP($request->file('favicon'), 'favicons');
+
+            $configuracion->update([
+                'favicon_path' => $path,
+            ]);
+
+            EmpresaConfiguracion::clearCache();
+
+            return redirect()->back()->with('success', 'El favicon se ha actualizado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error al procesar el favicon: ' . $e->getMessage());
         }
-
-        // Guardar nuevo favicon
-        $path = $this->saveImageAsWebP($request->file('favicon'), 'favicons');
-
-        $configuracion->update([
-            'favicon_path' => $path,
-        ]);
-
-        return redirect()->back()->with('success', 'Favicon subido correctamente.');
     }
 
     /**

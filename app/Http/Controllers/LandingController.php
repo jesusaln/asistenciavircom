@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class LandingController extends Controller
@@ -184,8 +185,8 @@ class LandingController extends Controller
                         'slug' => $post->slug,
                     ];
                 }),
-            'canLogin' => \Route::has('login'),
-            'canRegister' => \Route::has('register'),
+            'canLogin' => Route::has('login'),
+            'canRegister' => Route::has('register'),
         ]);
     }
 
