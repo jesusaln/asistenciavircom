@@ -13,7 +13,12 @@ const props = defineProps({
 });
 
 import { useDarkMode } from '@/Utils/useDarkMode';
-const { isDarkMode, toggleDarkMode, applyThemeColors } = useDarkMode(props.empresa);
+const { isDarkMode, toggleDarkMode, applyThemeColors, enableDarkMode } = useDarkMode(props.empresa);
+
+onMounted(() => {
+    // Forzar el tema oscuro 'Dark Premium' al cargar la página pública
+    enableDarkMode();
+});
 
 // Variables CSS dinámicas
 const cssVars = computed(() => {
@@ -216,7 +221,7 @@ const stepLabels = [
         :style="cssVars"
     >
         <!-- Header -->
-        <header class="bg-white dark:bg-slate-900 shadow-sm sticky top-0 z-50">
+        <header :class="['shadow-sm sticky top-0 z-50 transition-colors', isDarkMode ? 'bg-slate-900 border-b border-slate-800' : 'bg-white border-b border-gray-100']">
             <div class="w-full px-4 py-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -228,23 +233,29 @@ const stepLabels = [
                             <p class="text-xs text-gray-500 dark:text-gray-400">Agenda tu servicio</p>
                         </div>
                     </div>
-                    <a 
-                        v-if="empresa?.whatsapp"
-                        :href="`https://wa.me/${empresa.whatsapp.replace(/\D/g, '')}?text=Hola, necesito ayuda para agendar una cita`"
-                        target="_blank"
-                        class="flex items-center gap-1.5 text-green-600 text-sm font-medium hover:text-green-700"
-                    >
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                        </svg>
-                        <span class="hidden sm:inline">Ayuda</span>
-                    </a>
+                    <div class="flex items-center gap-3">
+                        <button @click="toggleDarkMode" type="button" class="p-2 rounded-full transition-colors flex items-center justify-center border" :class="isDarkMode ? 'bg-slate-800 border-slate-700 text-yellow-400 hover:bg-slate-700' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'" title="Alternar tema">
+                            <svg v-if="isDarkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                        </button>
+                        <a 
+                            v-if="empresa?.whatsapp"
+                            :href="`https://wa.me/${empresa.whatsapp.replace(/\D/g, '')}?text=Hola, necesito ayuda para agendar una cita`"
+                            target="_blank"
+                            class="flex items-center gap-1.5 text-green-600 text-sm font-medium hover:text-green-700 bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-full"
+                        >
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                            </svg>
+                            <span class="hidden sm:inline">Ayuda</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </header>
 
         <!-- Progress Bar -->
-        <div class="bg-white dark:bg-slate-900 border-b">
+        <div :class="['border-b transition-colors', isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-100']">
             <div class="w-full px-4 py-3">
                 <!-- Steps Indicators -->
                 <div class="flex items-center justify-between mb-3 overflow-x-auto pb-2">
@@ -284,7 +295,7 @@ const stepLabels = [
 
         <!-- Form Content -->
         <main class="w-full px-4 py-6">
-            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-lg overflow-hidden">
+            <div :class="['rounded-2xl shadow-lg overflow-hidden transition-colors', isDarkMode ? 'bg-slate-900 shadow-slate-950/50' : 'bg-white']">
                 
                 <!-- PASO 1: Datos Personales -->
                 <div v-if="currentStep === 1" class="p-6">
@@ -650,7 +661,7 @@ const stepLabels = [
                     <!-- Resumen -->
                     <div class="space-y-4 mb-6">
                         <!-- Datos personales -->
-                        <div class="p-4 bg-white dark:bg-slate-900 rounded-xl">
+                        <div :class="['p-4 rounded-xl transition-colors', isDarkMode ? 'bg-slate-800/50 border border-slate-800' : 'bg-slate-50 border border-gray-100']">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-lg">👤</span>
                                 <span class="font-semibold text-gray-700 dark:text-gray-300">Datos personales</span>
@@ -664,7 +675,7 @@ const stepLabels = [
                         </div>
                         
                         <!-- Dirección -->
-                        <div class="p-4 bg-white dark:bg-slate-900 rounded-xl">
+                        <div :class="['p-4 rounded-xl transition-colors', isDarkMode ? 'bg-slate-800/50 border border-slate-800' : 'bg-slate-50 border border-gray-100']">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-lg">📍</span>
                                 <span class="font-semibold text-gray-700 dark:text-gray-300">Dirección</span>
@@ -678,7 +689,7 @@ const stepLabels = [
                         </div>
                         
                         <!-- Fecha y Hora -->
-                        <div class="p-4 bg-white dark:bg-slate-900 rounded-xl">
+                        <div :class="['p-4 rounded-xl transition-colors', isDarkMode ? 'bg-slate-800/50 border border-slate-800' : 'bg-slate-50 border border-gray-100']">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-lg">📅</span>
                                 <span class="font-semibold text-gray-700 dark:text-gray-300">Fecha y horario</span>
@@ -701,7 +712,7 @@ const stepLabels = [
                         </div>
                         
                         <!-- Servicio -->
-                        <div class="p-4 bg-white dark:bg-slate-900 rounded-xl">
+                        <div :class="['p-4 rounded-xl transition-colors', isDarkMode ? 'bg-slate-800/50 border border-slate-800' : 'bg-slate-50 border border-gray-100']">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-lg">🔧</span>
                                 <span class="font-semibold text-gray-700 dark:text-gray-300">Servicio</span>
@@ -739,7 +750,7 @@ const stepLabels = [
                 </div>
 
                 <!-- Footer con Botones -->
-                <div class="px-6 py-4 bg-white dark:bg-slate-900 border-t flex items-center justify-between gap-4">
+                <div :class="['px-6 py-4 border-t flex items-center justify-between gap-4 transition-colors', isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-100']">
                     <button
                         v-if="currentStep > 1"
                         @click="prevStep"
