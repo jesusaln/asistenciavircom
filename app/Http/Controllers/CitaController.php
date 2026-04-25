@@ -267,14 +267,20 @@ class CitaController extends Controller
             'modelo_equipo' => 'required|string|max:255',
             'ticket_id' => 'nullable|integer|exists:tickets,id',
             'poliza_id' => 'nullable|integer|exists:polizas_servicio,id',
+            'latitud' => 'nullable|numeric',
+            'longitud' => 'nullable|numeric',
         ], [
             'tecnico_id.required' => 'Debe seleccionar un técnico.',
+            'tecnico_id.exists' => 'El técnico seleccionado no es válido.',
             'cliente_id.required' => 'Debe seleccionar un cliente.',
-            'fecha_hora.after' => 'La fecha debe ser posterior a la actual.',
-            '*.max:2048' => 'La imagen no debe superar los 2MB.',
+            'cliente_id.exists' => 'El cliente seleccionado no es válido.',
+            'fecha_hora.required' => 'La fecha y hora son obligatorias.',
+            'fecha_hora.date' => 'La fecha ingresada no tiene un formato válido.',
+            'fecha_hora.after_or_equal' => 'La fecha debe ser igual o posterior a la actual.',
             'tipo_equipo.required' => 'El tipo de equipo es obligatorio.',
             'marca_equipo.required' => 'La marca del equipo es obligatoria.',
             'modelo_equipo.required' => 'El modelo del equipo es obligatorio.',
+            '*.max' => 'La imagen no debe superar los 2MB.',
         ]);
 
         try {
@@ -345,6 +351,8 @@ class CitaController extends Controller
                 'notas' => $validated['notas'] ?? $request->notas,
                 'fecha_inicio' => $validated['fecha_hora'],
                 'fecha_fin' => $fechaFin->toDateTimeString(),
+                'latitud' => $request->latitud,
+                'longitud' => $request->longitud,
             ]));
 
 
@@ -471,6 +479,8 @@ class CitaController extends Controller
             'firma_tecnico' => 'nullable|string',
             'cerrar_ticket' => 'nullable|boolean',
             'tiempo_servicio' => 'nullable|integer|min:0',
+            'latitud' => 'nullable|numeric',
+            'longitud' => 'nullable|numeric',
         ]);
 
         try {
@@ -1503,7 +1513,7 @@ class CitaController extends Controller
         }
 
         $citas = $query
-            ->get(['id', 'folio', 'fecha_hora', 'fecha_fin', 'fecha_inicio', 'tipo_servicio', 'estado', 'cliente_id'])
+            ->get(['id', 'folio', 'fecha_hora', 'fecha_fin', 'fecha_inicio', 'tipo_servicio', 'estado', 'cliente_id', 'latitud', 'longitud', 'direccion_calle', 'direccion_colonia'])
             ->map(function ($cita) {
                 $inicio = $cita->fecha_hora;
                 $fin = $cita->fecha_fin ?? $cita->fecha_hora->copy()->addMinutes(60);
@@ -1517,6 +1527,9 @@ class CitaController extends Controller
                     'tipo_servicio' => $cita->tipo_servicio,
                     'estado' => $cita->estado,
                     'duracion_min' => $inicio->diffInMinutes($fin),
+                    'latitud' => $cita->latitud,
+                    'longitud' => $cita->longitud,
+                    'direccion' => $cita->direccion_completa ?: "{$cita->direccion_calle}, {$cita->direccion_colonia}",
                 ];
             });
 

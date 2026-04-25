@@ -145,13 +145,13 @@ class CitaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'tecnico_id' => 'required|exists:users,id', // Idealmente validar que sea técnico
+            'tecnico_id' => 'required|exists:users,id',
             'cliente_id' => 'required|exists:clientes,id',
             'tipo_servicio' => 'required|string|max:255',
             'fecha_hora' => [
                 'required',
                 'date',
-                'after:now',
+                'after_or_equal:now',
                 function ($attribute, $value, $fail) {
                     $fecha = Carbon::parse($value);
                     if ($fecha->isSunday()) {
@@ -162,6 +162,7 @@ class CitaController extends Controller
                     }
                 }
             ],
+            'fecha_hora_fin' => 'nullable|date|after:fecha_hora',
             'descripcion' => 'nullable|string|max:1000',
             'problema_reportado' => 'nullable|string|max:1000',
             'prioridad' => 'nullable|string|in:baja,media,alta,urgente',
@@ -173,18 +174,40 @@ class CitaController extends Controller
             'foto_equipo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'foto_hoja_servicio' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'foto_identificacion' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'latitud' => 'nullable|numeric',
+            'longitud' => 'nullable|numeric',
+        ], [
+            'tecnico_id.required' => 'Debe seleccionar un técnico.',
+            'cliente_id.required' => 'Debe seleccionar un cliente.',
+            'fecha_hora.required' => 'La fecha y hora son obligatorias.',
+            'fecha_hora.after_or_equal' => 'La fecha debe ser igual o posterior a la actual.',
+            '*.max' => 'La imagen no debe superar los 5MB.',
         ]);
 
         try {
             DB::beginTransaction();
 
-            $this->verificarDisponibilidadTecnico($validated['tecnico_id'], $validated['fecha_hora']);
+            $duracion = 60;
+            if ($request->filled('fecha_hora_fin')) {
+                $inicio = Carbon::parse($validated['fecha_hora']);
+                $fin = Carbon::parse($request->fecha_hora_fin);
+                $duracion = $inicio->diffInMinutes($fin);
+            }
+
+            $this->verificarDisponibilidadTecnico($validated['tecnico_id'], $validated['fecha_hora'], null, $duracion);
             $this->verificarLimiteCitasPorDia($validated['tecnico_id'], $validated['fecha_hora']);
             $this->verificarCitasClienteActivas($validated['cliente_id'], $validated['fecha_hora']);
 
             $filePaths = $this->saveFiles($request, ['foto_equipo', 'foto_hoja_servicio', 'foto_identificacion']);
 
-            $cita = Cita::create(array_merge($validated, $filePaths));
+            $citaData = array_merge($validated, $filePaths);
+            if ($request->filled('fecha_hora_fin')) {
+                $citaData['fecha_fin'] = $request->fecha_hora_fin;
+            } else {
+                $citaData['fecha_fin'] = Carbon::parse($validated['fecha_hora'])->addMinutes(60)->toDateTimeString();
+            }
+
+            $cita = Cita::create($citaData);
 
             DB::commit();
 
@@ -262,6 +285,7 @@ class CitaController extends Controller
                         }
                     }
                 ],
+                'fecha_hora_fin' => 'nullable|date|after:fecha_hora',
                 'descripcion' => 'nullable|string|max:1000',
                 'problema_reportado' => 'nullable|string|max:1000',
                 'prioridad' => 'nullable|string|in:baja,media,alta,urgente',
@@ -273,6 +297,8 @@ class CitaController extends Controller
                 'foto_equipo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
                 'foto_hoja_servicio' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
                 'foto_identificacion' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+                'latitud' => 'nullable|numeric',
+                'longitud' => 'nullable|numeric',
             ]);
 
             DB::beginTransaction();
@@ -283,10 +309,21 @@ class CitaController extends Controller
                 ($validated['tecnico_id'] != $cita->tecnico_id ||
                     isset($validated['fecha_hora']) && $validated['fecha_hora'] != $cita->fecha_hora)
             ) {
+                $duracion = 60;
+                if ($request->filled('fecha_hora_fin')) {
+                    $inicio = Carbon::parse($validated['fecha_hora'] ?? $cita->fecha_hora);
+                    $fin = Carbon::parse($request->fecha_hora_fin);
+                    $duracion = $inicio->diffInMinutes($fin);
+                } elseif ($cita->fecha_fin && !isset($validated['fecha_hora'])) {
+                    // Si no cambia inicio pero ya tenía fin, mantener duración
+                    $duracion = Carbon::parse($cita->fecha_hora)->diffInMinutes(Carbon::parse($cita->fecha_fin));
+                }
+
                 $this->verificarDisponibilidadTecnico(
-                    $validated['tecnico_id'],
+                    $validated['tecnico_id'] ?? $cita->tecnico_id,
                     $validated['fecha_hora'] ?? $cita->fecha_hora,
-                    $cita->id
+                    $cita->id,
+                    $duracion
                 );
 
                 if (isset($validated['fecha_hora'])) {
@@ -351,8 +388,16 @@ class CitaController extends Controller
                 'foto_identificacion' => $cita->foto_identificacion,
             ]);
 
+            $dataToUpdate = array_merge($validated, $filePaths);
+            
+            // Si cambia la fecha_hora pero NO se envía fecha_hora_fin, ajustar fecha_fin para mantener duración
+            if (isset($validated['fecha_hora']) && !isset($validated['fecha_hora_fin'])) {
+                $duracionAnterior = Carbon::parse($cita->fecha_hora)->diffInMinutes(Carbon::parse($cita->fecha_fin ?? $cita->fecha_hora->copy()->addMinutes(60)));
+                $dataToUpdate['fecha_fin'] = Carbon::parse($validated['fecha_hora'])->addMinutes($duracionAnterior)->toDateTimeString();
+            }
+
             // Actualizar solo datos básicos y estado, NO items ni totales
-            $cita->update(array_merge($validated, $filePaths));
+            $cita->update($dataToUpdate);
 
             DB::commit();
 
@@ -490,17 +535,17 @@ class CitaController extends Controller
 
     // --- Helpers Privados ---
 
-    private function verificarDisponibilidadTecnico(int $tecnicoId, string $fechaHora, ?int $excludeId = null): void
+    private function verificarDisponibilidadTecnico(int $tecnicoId, string $fechaHora, ?int $excludeId = null, int $duracionMin = 60): void
     {
-        $citaExistente = Cita::hayConflictoHorario($tecnicoId, $fechaHora, $excludeId);
+        $citaExistente = Cita::hayConflictoHorario($tecnicoId, $fechaHora, $excludeId, $duracionMin);
 
         if ($citaExistente) {
-            $inicio = $citaExistente->fecha_hora->format('H:i');
+            $inicio = $citaExistente->fecha_hora->format('h:i A');
             $finTime = $citaExistente->fecha_fin ?? $citaExistente->fecha_hora->copy()->addMinutes(60);
-            $fin = $finTime->format('H:i');
+            $fin = $finTime->format('h:i A');
 
             throw ValidationException::withMessages([
-                'fecha_hora' => "El técnico ya tiene una cita de {$inicio} a {$fin}. Selecciona otro horario."
+                'fecha_hora' => "⚠️ Conflicto detectado: El técnico tiene una cita de {$inicio} a {$fin}. Selecciona un horario que no se traslape."
             ]);
         }
     }
@@ -570,5 +615,107 @@ class CitaController extends Controller
             }
         }
         return $filePaths;
+    }
+
+    /**
+     * Obtener agenda del técnico para un día específico (Citas y slots ocupados)
+     * Utilizado para el mapa de logística en la creación de citas.
+     */
+    public function agendaTecnico(Request $request)
+    {
+        $tecnicoId = $request->input('tecnico_id');
+        $fecha = $request->input('fecha', now()->toDateString());
+        $excludeId = $request->input('exclude_id');
+
+        if (!$tecnicoId) {
+            return response()->json(['error' => 'ID de técnico requerido'], 400);
+        }
+
+        $inicioDia = Carbon::parse($fecha)->startOfDay();
+        $finDia = Carbon::parse($fecha)->endOfDay();
+
+        $query = Cita::where('tecnico_id', $tecnicoId)
+            ->whereNotIn('estado', [Cita::ESTADO_CANCELADO, Cita::ESTADO_COMPLETADO])
+            ->where(function ($q) use ($inicioDia, $finDia) {
+                $q->whereBetween('fecha_hora', [$inicioDia, $finDia]);
+            })
+            ->orderBy('fecha_hora');
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $citas = $query
+            ->get(['id', 'folio', 'fecha_hora', 'fecha_fin', 'fecha_inicio', 'tipo_servicio', 'estado', 'cliente_id', 'latitud', 'longitud', 'direccion_calle', 'direccion_colonia'])
+            ->map(function ($cita) {
+                $inicio = $cita->fecha_hora;
+                $fin = $cita->fecha_fin ?? $cita->fecha_hora->copy()->addMinutes(60);
+                return [
+                    'id' => $cita->id,
+                    'folio' => $cita->folio,
+                    'inicio' => $inicio->format('H:i'),
+                    'fin' => $fin->format('H:i'),
+                    'inicio_raw' => $inicio->toDateTimeString(),
+                    'fin_raw' => $fin instanceof Carbon ? $fin->toDateTimeString() : Carbon::parse($fin)->toDateTimeString(),
+                    'tipo_servicio' => $cita->tipo_servicio,
+                    'estado' => $cita->estado,
+                    'duracion_min' => $inicio->diffInMinutes($fin),
+                    'latitud' => $cita->latitud,
+                    'longitud' => $cita->longitud,
+                    'direccion' => $cita->direccion_completa ?: "{$cita->direccion_calle}, {$cita->direccion_colonia}",
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'tecnico_id' => (int) $tecnicoId,
+            'fecha' => $fecha,
+            'citas' => $citas->values()
+        ]);
+    }
+
+    /**
+     * Endpoint para verificar disponibilidad en tiempo real (Ionic)
+     */
+    public function verificarDisponibilidadApi(Request $request)
+    {
+        $tecnicoId = $request->input('tecnico_id');
+        $fechaHora = $request->input('fecha_hora');
+        $fechaHoraFin = $request->input('fecha_hora_fin');
+        $duracion = $request->input('duracion', 60);
+        $excludeId = $request->input('exclude_id');
+
+        if (!$tecnicoId || !$fechaHora) {
+            return response()->json([
+                'available' => true,
+                'message' => ''
+            ]);
+        }
+
+        // Si se proporciona fecha_hora_fin, calcular la duración en minutos
+        if ($fechaHoraFin) {
+            $inicio = Carbon::parse($fechaHora);
+            $fin = Carbon::parse($fechaHoraFin);
+            $duracion = $inicio->diffInMinutes($fin);
+        }
+
+        $citaConflicto = Cita::hayConflictoHorario((int)$tecnicoId, $fechaHora, $excludeId, (int)$duracion);
+
+        if ($citaConflicto) {
+            $tecnicoNombre = $citaConflicto->tecnico?->nombre ?? 'el técnico';
+            $inicio = $citaConflicto->fecha_hora->format('h:i A');
+            $finTime = $citaConflicto->fecha_fin ?? $citaConflicto->fecha_hora->copy()->addMinutes(60);
+            $fin = $finTime->format('h:i A');
+
+            return response()->json([
+                'available' => false,
+                'message' => "⚠️ Horario ocupado: {$tecnicoNombre} tiene una cita de {$inicio} a {$fin}. Por favor elige otro horario o técnico."
+            ]);
+        }
+
+        return response()->json([
+            'available' => true,
+            'message' => 'Horario disponible'
+        ]);
     }
 }

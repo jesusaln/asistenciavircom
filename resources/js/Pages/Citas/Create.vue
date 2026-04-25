@@ -271,8 +271,36 @@
                   id="direccion_servicio"
                   :error="form.errors.direccion_servicio"
                   placeholder="Calle, número, colonia y referencias visuales..."
-                  :rows="3"
+                  :rows="2"
                 />
+
+                <!-- Mapa Logístico Inteligente -->
+                <div class="mt-4 space-y-3">
+                  <div class="flex items-center gap-3">
+                    <label class="block text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Mapa de Logística y Proximidad</label>
+                    <span v-if="agendaCitas.length > 0" class="px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-[10px] font-black rounded-full flex items-center gap-2 animate-pulse">
+                       <span class="w-2 h-2 bg-orange-500 rounded-full"></span>
+                       {{ agendaCitas.length }} CITAS CERCANAS DETECTADAS
+                    </span>
+                    <div v-if="form.latitud" class="text-[10px] font-bold text-emerald-500 flex items-center gap-1 ml-auto">
+                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                       Ubicación Vinculada
+                    </div>
+                  </div>
+                  
+                  <LogisticMap 
+                    v-model:latitud="form.latitud"
+                    v-model:longitud="form.longitud"
+                    :direccion="form.direccion_servicio"
+                    :citas-cercanas="agendaCitas"
+                    height="320px"
+                  />
+                  
+                  <p class="text-[10px] text-gray-400 font-medium italic">
+                    * El marcador azul indica la ubicación de esta cita. Los grises son otros servicios del técnico hoy. 
+                    <strong>Puedes arrastrar el marcador azul</strong> para ajustar la ubicación exacta.
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -413,6 +441,7 @@ import { computed, ref, onMounted, watch } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import FormField from '@/Components/FormField.vue';
 import BuscarCliente from '@/Components/CreateComponents/BuscarCliente.vue';
+import LogisticMap from '@/Components/LogisticMap.vue';
 import Swal from 'sweetalert2';
 
 defineOptions({ layout: AppLayout });
@@ -452,6 +481,8 @@ const form = useForm({
     extra_visit_cost: 0,
     notify: true,
     duracion: 60,
+    latitud: null,
+    longitud: null,
 });
 
 const clientePolizas = ref([]);

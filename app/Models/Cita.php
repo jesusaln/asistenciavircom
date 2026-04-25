@@ -445,13 +445,11 @@ class Cita extends Model
 
         $query = self::where('tecnico_id', $tecnicoId)
             ->whereNotIn('estado', [self::ESTADO_CANCELADO, self::ESTADO_COMPLETADO])
+            ->whereDate('fecha_hora', $nuevoInicio->toDateString())
             ->where(function ($q) use ($nuevoInicio, $nuevoFin) {
-                // Caso: Un traslape ocurre si (InicioA < FinB) AND (FinA > InicioB)
-                // Usamos COALESCE para usar fecha_fin si existe, o fecha_hora + 60 min como fallback
-                $q->where(function ($sq) use ($nuevoInicio, $nuevoFin) {
-                    $sq->where('fecha_hora', '<', $nuevoFin)
-                       ->whereRaw("COALESCE(fecha_fin, fecha_hora + interval '60 minutes') > ?", [$nuevoInicio->toDateTimeString()]);
-                });
+                // Un traslape ocurre si: (InicioA < FinB) AND (FinA > InicioB)
+                $q->where('fecha_hora', '<', $nuevoFin)
+                  ->whereRaw("COALESCE(fecha_fin, fecha_hora + interval '60 minutes') > ?", [$nuevoInicio->toDateTimeString()]);
             });
 
         if ($excludeId) {

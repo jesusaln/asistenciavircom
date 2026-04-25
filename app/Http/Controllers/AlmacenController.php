@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use App\Models\Almacen;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use App\Support\EmpresaResolver;
@@ -18,7 +19,10 @@ class AlmacenController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Almacen::with(['responsable:id,name']);
+            $query = Almacen::with(['responsable:id,name'])
+                ->withCount(['inventarios as total_articulos' => function($q) {
+                    $q->select(DB::raw('COALESCE(SUM(cantidad), 0)'));
+                }]);
 
             // Filtros
             if ($search = trim($request->input('search', ''))) {
@@ -53,22 +57,36 @@ class AlmacenController extends Controller
             $perPage = min((int) $request->input('per_page', 10), 50);
             $almacenes = $query->paginate($perPage)->appends($request->query());
 
-            // Estadísticas globales (independientes de la paginación)
+            // Estadísticas
             $total = Almacen::count();
             $activos = Almacen::where('estado', 'activo')->count();
             $inactivos = Almacen::where('estado', 'inactivo')->count();
-            $conResponsable = Almacen::whereNotNull('responsable')->count();
-            $conTelefono = Almacen::whereNotNull('telefono')->where('telefono', '!=', '')->count();
 
             $stats = [
                 'total' => $total,
                 'activos' => $activos,
                 'inactivos' => $inactivos,
-                'con_responsable' => $conResponsable,
-                'con_telefono' => $conTelefono,
                 'activos_porcentaje' => $total > 0 ? round(($activos / $total) * 100, 1) : 0,
                 'inactivos_porcentaje' => $total > 0 ? round(($inactivos / $total) * 100, 1) : 0,
+                'total_articulos_global' => \App\Models\Inventario::whereHas('almacen', function($q) {
+                    $q->where('empresa_id', EmpresaResolver::resolveId());
+                })->sum('cantidad'),
+                'valor_total_global' => \App\Models\Inventario::join('productos', 'inventarios.producto_id', '=', 'productos.id')
+                    ->whereHas('almacen', function($q) {
+                        $q->where('almacenes.empresa_id', EmpresaResolver::resolveId());
+                    })
+                    ->select(DB::raw('SUM(inventarios.cantidad * COALESCE(productos.precio_compra, 0)) as total'))
+                    ->value('total') ?? 0,
             ];
+
+            // Agregar valor por almacén
+            $almacenes->getCollection()->transform(function($almacen) {
+                $almacen->valor_inventario = \App\Models\Inventario::join('productos', 'inventarios.producto_id', '=', 'productos.id')
+                    ->where('inventarios.almacen_id', $almacen->id)
+                    ->select(DB::raw('SUM(inventarios.cantidad * COALESCE(productos.precio_compra, 0)) as total'))
+                    ->value('total') ?? 0;
+                return $almacen;
+            });
 
             return Inertia::render('Almacenes/Index', [
                 'almacenes' => $almacenes,
@@ -181,14 +199,38 @@ class AlmacenController extends Controller
         try {
             $almacen = Almacen::findOrFail($id);
 
-            // Verificar si tiene productos relacionados antes de eliminar
+            // 1. Verificar existencias físicas en inventario
+            $hasStock = \App\Models\Inventario::where('almacen_id', $id)
+                ->where('cantidad', '>', 0)
+                ->exists();
+
+            if ($hasStock) {
+                return redirect()->route('almacenes.index')->withErrors(['error' => 'No se puede eliminar el almacén porque aún tiene productos con existencias físicas.']);
+            }
+
+            // 2. Verificar si tiene productos asignados (Legacy o configuraciones)
             if ($almacen->productos()->exists()) {
-                return redirect()->route('almacenes.index')->withErrors(['error' => 'No se puede eliminar el almacen porque tiene productos asociados.']);
+                return redirect()->route('almacenes.index')->withErrors(['error' => 'No se puede eliminar el almacén porque está asignado como almacén principal de algunos productos.']);
+            }
+
+            // 3. Verificar si hay movimientos de inventario asociados (Trazabilidad)
+            $hasMovements = \App\Models\InventarioMovimiento::where('almacen_id', $id)->exists();
+            if ($hasMovements) {
+                return redirect()->route('almacenes.index')->withErrors(['error' => 'No se puede eliminar el almacén porque tiene un historial de movimientos de inventario. Considere desactivarlo en su lugar.']);
+            }
+
+            // 4. Verificar si está asignado a usuarios
+            $assignedToUsers = \App\Models\User::where('almacen_venta_id', $id)
+                ->orWhere('almacen_compra_id', $id)
+                ->exists();
+            
+            if ($assignedToUsers) {
+                return redirect()->route('almacenes.index')->withErrors(['error' => 'No se puede eliminar el almacén porque está asignado como predeterminado a uno o más usuarios.']);
             }
 
             $almacen->delete();
 
-            return redirect()->route('almacenes.index')->with('success', 'Almacen eliminado correctamente.');
+            return redirect()->route('almacenes.index')->with('success', 'Almacén eliminado correctamente.');
         } catch (\Exception $e) {
             Log::error('Error al eliminar almacen: ' . $e->getMessage());
             return redirect()->route('almacenes.index')->withErrors(['error' => 'Error al eliminar el almacen.']);

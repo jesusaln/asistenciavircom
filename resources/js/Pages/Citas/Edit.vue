@@ -145,6 +145,29 @@
                   id="direccion_servicio"
                   :rows="2"
                 />
+
+                <!-- Mapa Logístico Inteligente -->
+                <div class="mt-4 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <label class="block text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Ajuste de Ubicación y Proximidad</label>
+                    <div v-if="form.latitud" class="text-[10px] font-bold text-emerald-500 flex items-center gap-1">
+                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                       Ubicación Vinculada: {{ parseFloat(form.latitud).toFixed(5) }}, {{ parseFloat(form.longitud).toFixed(5) }}
+                    </div>
+                  </div>
+                  
+                  <LogisticMap 
+                    v-model:latitud="form.latitud"
+                    v-model:longitud="form.longitud"
+                    :direccion="form.direccion_servicio"
+                    :citas-cercanas="agendaCitas"
+                    height="320px"
+                  />
+                  
+                  <p class="text-[10px] text-gray-400 font-medium italic">
+                    * El marcador azul es esta cita. Los grises son otros compromisos del técnico para este día.
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -287,7 +310,9 @@ import { computed, ref, onMounted } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import FormField from '@/Components/FormField.vue';
 import BuscarCliente from '@/Components/CreateComponents/BuscarCliente.vue';
+import LogisticMap from '@/Components/LogisticMap.vue';
 import Swal from 'sweetalert2';
+import { watch } from 'vue';
 
 defineOptions({ layout: AppLayout });
 
@@ -301,6 +326,8 @@ const selectedCliente = ref(props.cita.cliente);
 const previewNewPhotos = ref([]);
 const showGalleryModal = ref(false);
 const galleryImages = ref([]);
+const agendaCitas = ref([]);
+const loadingAgenda = ref(false);
 
 // Formatear fecha para datetime-local
 const formatISO = (dateStr) => {
@@ -327,7 +354,35 @@ const form = useForm({
     trabajo_realizado: props.cita.trabajo_realizado,
     tiempo_servicio: props.cita.tiempo_servicio,
     cerrar_ticket: false,
-    nuevas_fotos: []
+    nuevas_fotos: [],
+    latitud: props.cita.latitud,
+    longitud: props.cita.longitud,
+});
+
+// Cargar agenda del técnico para ver proximidad
+const fetchAgenda = async () => {
+    if (!form.tecnico_id || !form.fecha_hora) return;
+
+    loadingAgenda.value = true;
+    try {
+        const fecha = form.fecha_hora.split('T')[0];
+        const url = route('citas.agenda-tecnico') + `?tecnico_id=${form.tecnico_id}&fecha=${fecha}&exclude_id=${props.cita.id}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        agendaCitas.value = data.citas || [];
+    } catch (e) {
+        console.error('Error al cargar agenda:', e);
+    } finally {
+        loadingAgenda.value = false;
+    }
+};
+
+onMounted(() => {
+    fetchAgenda();
+});
+
+watch(() => [form.tecnico_id, form.fecha_hora.split('T')[0]], () => {
+    fetchAgenda();
 });
 
 const onClienteSeleccionado = (c) => {
