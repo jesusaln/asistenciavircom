@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('citas', function (Blueprint $table) {
-            $table->decimal('latitud', 10, 8)->nullable()->after('direccion_referencias');
-            $table->decimal('longitud', 11, 8)->nullable()->after('latitud');
+            if (!Schema::hasColumn('citas', 'latitud')) {
+                $table->decimal('latitud', 10, 8)->nullable()->after('direccion_referencias');
+            }
+            if (!Schema::hasColumn('citas', 'longitud')) {
+                $table->decimal('longitud', 11, 8)->nullable()->after('latitud');
+            }
         });
     }
 
@@ -23,7 +27,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('citas', function (Blueprint $table) {
-            $table->dropColumn(['latitud', 'longitud']);
+            if (Schema::hasColumn('citas', 'latitud')) {
+                $table->dropColumn('latitud');
+            }
+            if (Schema::hasColumn('citas', 'longitud')) {
+                $table->dropColumn('longitud');
+            }
         });
     }
 };
