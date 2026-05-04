@@ -86,8 +86,8 @@ ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
 # 6. Ejecución de Tareas de Laravel
 echo "⚙️ 6/8 Optimizando y Migrando..."
 ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
-    docker cp composer.json $CONTAINER_APP:/var/www/cdd_app/composer.json && \
-    docker cp composer.lock $CONTAINER_APP:/var/www/cdd_app/composer.lock && \
+    docker cp composer.json $CONTAINER_APP:/var/www/composer.json && \
+    docker cp composer.lock $CONTAINER_APP:/var/www/composer.lock && \
     docker exec $CONTAINER_APP composer install --optimize-autoloader --no-dev --no-interaction --ignore-platform-reqs && \
     docker exec $CONTAINER_APP php artisan optimize:clear && \
     docker exec $CONTAINER_APP php artisan config:cache && \
@@ -108,9 +108,9 @@ ssh $USER@$VPS_IP "docker restart $CONTAINER_QUEUE && \
 # 8. Sincronización de IA (Segundo plano)
 echo "🤖 8/8 Sincronizando componente IA (OpenClaw)..."
 rsync -avz --delete --exclude='*.log' ./openclaw $USER@$VPS_IP:$REMOTE_PATH/ia_staging/ || true
-ssh $USER@$VPS_IP "docker cp $REMOTE_PATH/ia_staging/openclaw/.openclaw $CONTAINER_APP:/var/www/cdd_app/ && \
-    docker cp $REMOTE_PATH/ia_staging/openclaw $CONTAINER_APP:/var/www/cdd_app/ && \
-    docker exec -u root $CONTAINER_APP chown -R www-data:www-data /var/www/cdd_app/.openclaw /var/www/cdd_app/openclaw"
+ssh $USER@$VPS_IP "docker cp $REMOTE_PATH/ia_staging/openclaw/.openclaw $CONTAINER_APP:/var/www/ && \
+    docker cp $REMOTE_PATH/ia_staging/openclaw $CONTAINER_APP:/var/www/ && \
+    docker exec -u root $CONTAINER_APP chown -R www-data:www-data /var/www/.openclaw /var/www/openclaw"
 
 echo "--------------------------------------------------------"
 echo "✨ ¡DESPLIEGUE COMPLETADO EN SEGUNDOS! (v$NEXT_VERSION) ✨"
