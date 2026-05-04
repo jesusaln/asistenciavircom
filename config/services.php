@@ -143,4 +143,8 @@ return [
         // Si es false, el backend ignora descriptor enviado por frontend y depende de proveedor server-side.
         'trust_client_descriptor' => env('BIOMETRICS_TRUST_CLIENT_DESCRIPTOR', false),
     ],
+
+    'meta' => [
+        'pixel_id' => env('META_PIXEL_ID'),
+    ],
 ];
