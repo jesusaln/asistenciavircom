@@ -80,7 +80,7 @@ ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
     rsync -a $STAGING_PATH/storage/ $REMOTE_PATH/storage/ && \
     
     # Asegurar permisos
-    chmod -R 775 storage bootstrap/cache && \
+    chmod -R 777 storage bootstrap/cache && \
     chown -R root:www-data storage bootstrap/cache || true"
 
 # 6. Ejecución de Tareas de Laravel
