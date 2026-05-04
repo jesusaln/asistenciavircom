@@ -88,22 +88,22 @@ ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
 echo "⚙️ 6/8 Optimizando y Migrando..."
 ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
     composer install --optimize-autoloader --no-dev --no-interaction --ignore-platform-reqs && \
-    docker exec $CONTAINER_APP php artisan optimize:clear && \
-    docker exec $CONTAINER_APP php artisan config:cache && \
-    docker exec $CONTAINER_APP php artisan route:cache && \
-    docker exec $CONTAINER_APP php artisan view:cache && \
-    docker exec $CONTAINER_APP rm -rf public/storage && \
-    docker exec $CONTAINER_APP php artisan storage:link && \
+    docker exec -u root $CONTAINER_APP php artisan optimize:clear && \
+    docker exec -u root $CONTAINER_APP php artisan config:cache && \
+    docker exec -u root $CONTAINER_APP php artisan route:cache && \
+    docker exec -u root $CONTAINER_APP php artisan view:cache && \
+    docker exec -u root $CONTAINER_APP rm -rf public/storage && \
+    docker exec -u root $CONTAINER_APP php artisan storage:link && \
     
     # Migraciones Críticas
-    docker exec $CONTAINER_APP php artisan migrate --force"
+    docker exec -u root $CONTAINER_APP php artisan migrate --force"
 
 # 7. Reiniciar colas y Reactivar
 echo "🔄 7/8 Reiniciando servicios y Reactivando sitio..."
 ssh $USER@$VPS_IP "docker restart $CONTAINER_QUEUE && \
     # Asegurar que PHP-FPM esté corriendo (Crítico en este VPS)
-    docker exec $CONTAINER_APP sh -lc 'php-fpm -D || php-fpm8.2 -D || true' && \
-    docker exec $CONTAINER_APP php artisan up"
+    docker exec -u root $CONTAINER_APP sh -lc 'php-fpm -D || php-fpm8.2 -D || true' && \
+    docker exec -u root $CONTAINER_APP php artisan up"
 
 # 8. Sincronización de IA (Segundo plano)
 echo "🤖 8/8 Sincronizando componente IA (OpenClaw)..."
