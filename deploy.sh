@@ -86,8 +86,7 @@ ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
 # 6. Ejecución de Tareas de Laravel
 echo "⚙️ 6/8 Optimizando y Migrando..."
 ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
-    docker cp composer.json $CONTAINER_APP:/var/www/composer.json && \
-    docker cp composer.lock $CONTAINER_APP:/var/www/composer.lock && \
+
     docker exec $CONTAINER_APP composer install --optimize-autoloader --no-dev --no-interaction --ignore-platform-reqs && \
     docker exec $CONTAINER_APP php artisan optimize:clear && \
     docker exec $CONTAINER_APP php artisan config:cache && \
