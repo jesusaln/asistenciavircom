@@ -6,15 +6,15 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\CatalogoController;
-use App\Http\Controllers\Public\ContactoController;
-use App\Http\Controllers\Public\SoportePublicoController; // Import Controller
-use App\Http\Controllers\Public\FacebookCatalogController;
-use App\Http\Controllers\Public\SitemapController;
+use App\Http\Controllers\Publico\ContactoController;
+use App\Http\Controllers\Publico\SoportePublicoController; // Import Controller
+// use App\Http\Controllers\Public\FacebookCatalogController;
+// use App\Http\Controllers\Public\SitemapController;
 
 Route::get('/soporte-tecnico', [SoportePublicoController::class, 'index'])->name('public.soporte'); // Nueva Ruta
-Route::get('/facebook-catalog', [FacebookCatalogController::class, 'index'])->name('public.facebook-catalog');
+// Route::get('/facebook-catalog', [FacebookCatalogController::class, 'index'])->name('public.facebook-catalog');
 Route::get('/feed/facebook-products.xml', \App\Http\Controllers\FacebookProductFeedController::class)->name('public.facebook-feed');
-Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('public.sitemap');
+// Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('public.sitemap');
 
 
 // Tienda (Público)

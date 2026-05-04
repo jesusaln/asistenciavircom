@@ -82,7 +82,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         // Forzar HTTPS en producción o cuando se detecte el encabezado de proxy
-        if (!app()->isLocal() || request()->header('X-Forwarded-Proto') === 'https' || str_contains(request()->getHost(), 'climasdeldesierto.com')) {
+        if (!app()->isLocal() || request()->header('X-Forwarded-Proto') === 'https' || str_contains(request()->getHost(), 'climasdeldesierto.com') || str_contains(request()->getHost(), 'asistenciavircom.com')) {
             URL::forceScheme('https');
             // Aseguramos que el objeto Request reconozca que es HTTPS para la validación de firmas
             if (request()->header('X-Forwarded-Proto') === 'https') {
