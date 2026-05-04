@@ -71,17 +71,18 @@ ssh $USER@$VPS_IP "cp $REMOTE_PATH/.env $STAGING_PATH/.env || true"
 # 5. EL MOMENTO DE LA VERDAD (Downtime mínimo inicia aquí)
 echo "🚧 5/8 ACTIVANDO MODO MANTENIMIENTO E INTERCAMBIO ATÓMICO..."
 ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
+    # Asegurar permisos ANTES de cualquier comando artisan
+    chmod -R 777 storage bootstrap/cache || true && \
+    chown -R root:www-data storage bootstrap/cache || true && \
+
     docker exec $CONTAINER_APP php artisan down --retry=60 || true && \
     
-    # Intercambio de archivos (Súper rápido porque es local en el VPS)
-    # Excluimos storage del borrado para no matar archivos subidos por usuarios
+    # Intercambio de archivos
     rsync -a --delete --exclude='storage' $STAGING_PATH/ $REMOTE_PATH/ && \
-    # Sincronizamos los assets estáticos de storage (landing, logos) sin borrar lo demás
     rsync -a $STAGING_PATH/storage/ $REMOTE_PATH/storage/ && \
     
-    # Asegurar permisos
-    chmod -R 777 storage bootstrap/cache && \
-    chown -R root:www-data storage bootstrap/cache || true"
+    # Asegurar permisos de nuevo después del rsync
+    chmod -R 777 storage bootstrap/cache"
 
 # 6. Ejecución de Tareas de Laravel
 echo "⚙️ 6/8 Optimizando y Migrando..."
@@ -91,7 +92,8 @@ ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
     docker exec $CONTAINER_APP php artisan config:cache && \
     docker exec $CONTAINER_APP php artisan route:cache && \
     docker exec $CONTAINER_APP php artisan view:cache && \
-    docker exec $CONTAINER_APP php artisan storage:link --force && \
+    docker exec $CONTAINER_APP rm -rf public/storage && \
+    docker exec $CONTAINER_APP php artisan storage:link && \
     
     # Migraciones Críticas
     docker exec $CONTAINER_APP php artisan migrate --force"
